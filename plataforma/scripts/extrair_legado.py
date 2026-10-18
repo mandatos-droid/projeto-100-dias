@@ -84,6 +84,12 @@ S["resumo"] = troca(
     """return '<dt>'+(n+1)+'. '+esc(i.t)+'</dt><dd>'+Resumo.v(i.k)+'</dd>'+
             (i.ilha&&window.ResumoIlhas?ResumoIlhas.html(i.ilha):'')}).join('')+'</dl>';break;""")
 
+# "Conta criada. Confirme o e-mail" é aviso (err.aviso), não erro: sai em verde
+S["app"] = troca(
+    S["app"],
+    """}catch(err){cx.innerHTML='<div class="erro-cx">'+esc(err.message)+'</div>'}""",
+    """}catch(err){cx.innerHTML='<div class="erro-cx"'+(err.aviso?' style="background:rgba(27,107,79,.1);border-left-color:var(--ok);color:var(--ok)" role="status"':'')+'>'+esc(err.message)+'</div>'}""")
+
 for nome, txt in S.items():
     (OUT / f"{nome}.js").write_text(txt, encoding="utf-8")
 

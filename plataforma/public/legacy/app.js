@@ -5,8 +5,19 @@ var App={
     document.getElementById('avisoModo').innerHTML = NUVEM
       ? '<strong>Modo nuvem.</strong> Os registros ficam no banco do mandato e são acessíveis a quem tiver o código de convite.'
       : '<strong>Modo local.</strong> Ainda não há servidor configurado: os dados ficam salvos apenas neste navegador e a senha não é verificada.';
+    document.getElementById('blocoGoogle').classList.toggle('oculto',!NUVEM);
     var u=await Store.sessao();
-    if(!u)return this.telaEntrada();
+    if(!u){
+      this.telaEntrada();
+      if(Store.erroOAuth)document.getElementById('erroEntrada').innerHTML='<div class="erro-cx">'+esc(Store.erroOAuth)+'</div>';
+      return;
+    }
+    // conta nova via Google: o aceite da LGPD foi dado antes do redirecionamento
+    if(Store.viaGoogle&&await Store.consentimentoPendente()){
+      if(localStorage.getItem('legisla.lgpdAceito'))await Store.consentimento();
+      else{await Store.sair();this.telaEntrada();this.aba('criar');
+        document.getElementById('erroEntrada').innerHTML='<div class="erro-cx">Para criar a conta é preciso concordar com o tratamento dos dados pessoais.</div>';return}
+    }
     await this.entrou();
   },
   telaEntrada(){
@@ -23,6 +34,17 @@ var App={
     document.getElementById('btEntrada').textContent=q==='criar'?'Criar conta':'Entrar';
     document.getElementById('erroEntrada').innerHTML='';
   },
+  async google(){
+    // consentimento (LGPD) é pedido antes de sair para o Google; lembrado neste navegador
+    if(!localStorage.getItem('legisla.lgpdAceito')){
+      this.aba('criar');
+      document.getElementById('wrapNome').classList.add('oculto');
+      if(!document.getElementById('inLgpd').checked){
+        document.getElementById('erroEntrada').innerHTML='<div class="erro-cx">Para continuar com o Google, concorde com o tratamento dos dados pessoais abaixo.</div>';return}
+      localStorage.setItem('legisla.lgpdAceito','1');
+    }
+    Nuvem.google();
+  },
   async submeter(){
     var e=document.getElementById('inEmail').value.trim(),
         s=document.getElementById('inSenha').value,
@@ -38,7 +60,7 @@ var App={
       if(this.aba_==='criar'){await Store.criarConta(e,s,n||e.split('@')[0]);await Store.consentimento()}
       else await Store.entrar(e,s);
       await this.entrou();
-    }catch(err){cx.innerHTML='<div class="erro-cx">'+esc(err.message)+'</div>'}
+    }catch(err){cx.innerHTML='<div class="erro-cx"'+(err.aviso?' style="background:rgba(27,107,79,.1);border-left-color:var(--ok);color:var(--ok)" role="status"':'')+'>'+esc(err.message)+'</div>'}
     b.disabled=false;b.textContent=this.aba_==='criar'?'Criar conta':'Entrar';
   },
   async entrou(){

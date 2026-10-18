@@ -2,8 +2,8 @@
    CONFIGURAÇÃO — preencha para ligar a nuvem (ver banco.sql)
    ===================================================================== */
 var AMBIENTES={
-  prod:{url:'',key:''},
-  dev :{url:'',key:''}
+  prod:{url:'https://fldmekrexvzchynnmeuq.supabase.co',key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsZG1la3JleHZ6Y2h5bm5tZXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIxODAwNDMsImV4cCI6MjEwNzc1NjA0M30.voyLYw8vq_pM-_XwSdxZmGjrqKilfB0pl1hYhvFUuL4'},
+  dev :{url:'https://fldmekrexvzchynnmeuq.supabase.co',key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsZG1la3JleHZ6Y2h5bm5tZXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIxODAwNDMsImV4cCI6MjEwNzc1NjA0M30.voyLYw8vq_pM-_XwSdxZmGjrqKilfB0pl1hYhvFUuL4'}
 };
 var ehDev=(location.hostname==='localhost'||location.hostname.indexOf('dev')===0||location.hostname.indexOf('127.')===0);
 var CONFIG=ehDev?AMBIENTES.dev:AMBIENTES.prod;
@@ -11,6 +11,7 @@ var NUVEM=!!(CONFIG.url&&CONFIG.key);
 var BIBLIOTECA_URL='https://legislabrasil.org/biblioteca';
 
 /* ===================== UTILITÁRIOS ===================== */
+function nomeDe(u){var m=u.user_metadata||{};return m.nome||m.full_name||m.name||u.email}
 function uid(){return Math.random().toString(36).slice(2,10)}
 function esc(s){var d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML}
 
@@ -55,11 +56,13 @@ var Nuvem={
     if(this.tok)h.Authorization='Bearer '+this.tok;return Object.assign(h,x||{})},
   async auth(p,b){var r=await fetch(CONFIG.url+'/auth/v1/'+p,{method:'POST',headers:this.cab(),body:JSON.stringify(b)});
     var d=await r.json();if(!r.ok)throw new Error(d.error_description||d.msg||d.message||'Falha na autenticação');return d},
+  google:function(){location.href=CONFIG.url+'/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(location.origin+location.pathname)},
   async rest(p,o){o=o||{};
     var r=await fetch(CONFIG.url+'/rest/v1/'+p,{method:o.method||'GET',headers:this.cab(o.headers),
       body:o.body?JSON.stringify(o.body):undefined});
-    if(r.status===204)return null;var d=await r.json();
-    if(!r.ok)throw new Error(d.message||d.hint||'Falha ao acessar os dados');return d}
+    var tx=await r.text(),d=null; // POST sem "return=representation" volta 201 com corpo vazio
+    if(tx){try{d=JSON.parse(tx)}catch(e){d=null}}
+    if(!r.ok)throw new Error((d&&(d.message||d.hint))||'Falha ao acessar os dados');return d}
 };
 var Local={
   ch:'legisla.regimento.v3',
@@ -73,6 +76,13 @@ var Store={
 
   async sessao(){
     if(NUVEM){
+      var h=new URLSearchParams(location.hash.slice(1));
+      if(h.get('access_token')){
+        localStorage.setItem('legisla.tok',JSON.stringify({access_token:h.get('access_token'),refresh_token:h.get('refresh_token')}));
+        history.replaceState(null,'',location.pathname+location.search);this.viaGoogle=true;
+      }else if(h.get('error_description')){
+        this.erroOAuth=h.get('error_description').replace(/\+/g,' ');history.replaceState(null,'',location.pathname+location.search);
+      }
       var t=localStorage.getItem('legisla.tok');if(!t)return null;
       try{
         var s=JSON.parse(t);Nuvem.tok=s.access_token;
@@ -83,7 +93,7 @@ var Store={
           u=await fetch(CONFIG.url+'/auth/v1/user',{headers:Nuvem.cab()});if(!u.ok)return null;
         }
         var ud=await u.json();
-        this.usuario={id:ud.id,email:ud.email,nome:(ud.user_metadata||{}).nome||ud.email};
+        this.usuario={id:ud.id,email:ud.email,nome:nomeDe(ud)};
         return this.usuario;
       }catch(e){return null}
     }
@@ -104,7 +114,7 @@ var Store={
     if(NUVEM){
       var d=await Nuvem.auth('token?grant_type=password',{email:email,password:senha});
       localStorage.setItem('legisla.tok',JSON.stringify(d));Nuvem.tok=d.access_token;
-      this.usuario={id:d.user.id,email:d.user.email,nome:(d.user.user_metadata||{}).nome||d.user.email};
+      this.usuario={id:d.user.id,email:d.user.email,nome:nomeDe(d.user)};
       return this.usuario;
     }
     var b=Local.ler();b.usuarios=b.usuarios||{};
@@ -124,6 +134,10 @@ var Store={
       else{var b=Local.ler();if(b.sessao)b.sessao.lgpd_em=reg.aceito_em;
         if(b.usuarios&&b.usuarios[this.usuario.email])b.usuarios[this.usuario.email].lgpd_em=reg.aceito_em;Local.gravar(b)}
     }catch(e){}
+  },
+  async consentimentoPendente(){
+    if(!NUVEM)return false;
+    try{var r=await Nuvem.rest('consentimentos?select=id&user_id=eq.'+this.usuario.id+'&limit=1');return !r.length}catch(e){return false}
   },
   async meusMandatos(){
     if(NUVEM){
