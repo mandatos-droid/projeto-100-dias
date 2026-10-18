@@ -1,0 +1,18 @@
+node_modules
+.next
+scripts/.cache
+*.tsbuildinfo
+next-env.d.ts
+.cache-api
+
+# segredos e ambiente
+.env
+.env.*
+!.env.example
+*.pem
+.vercel
+
+# lixo do sistema/logs
+.DS_Store
+Thumbs.db
+*.log
