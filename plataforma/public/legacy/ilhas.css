@@ -646,3 +646,19 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .bm-ponto{width:10px;height:10px;border-radius:50%;background:var(--turquesa);display:inline-block}
 .bm-add{display:flex;gap:10px;align-items:center;margin-top:16px;max-width:520px}
 .bm-add input{flex:1}
+
+/* ---- Entrada simplificada: só o botão do Google (modo nuvem) ---- */
+.google-bloco{margin-top:28px;display:flex;flex-direction:column;align-items:stretch;gap:14px}
+.google-bt{background:#fff;color:#1f1f1f;box-shadow:inset 0 0 0 1.5px #c9c2b8;padding:15px 18px;font-size:16px;font-weight:700}
+.google-bt:hover{background:#faf7f2;box-shadow:inset 0 0 0 1.5px var(--vinho)}
+.google-lgpd{margin:0;font-size:12.5px;line-height:1.5;color:var(--tinta-2);text-align:center}
+.google-bloco .fant{align-self:center}
+.so-google .abas,.so-google .campo,.so-google #blocoLgpd,.so-google #wrapLgpd,.so-google .bts{display:none}
+.so-google.ver-lgpd #blocoLgpd{display:block;margin-top:0}
+.so-google.com-email .abas,.so-google.com-email .campo:not(.oculto),.so-google.com-email .bts{display:flex}
+.so-google.com-email .campo:not(.oculto){display:block}
+.so-google.com-email #blocoLgpd:not(.oculto),.so-google.com-email #wrapLgpd:not(.oculto){display:block}
+.so-google.com-email .google-bloco{margin-top:18px}
+.so-google.com-email #btComEmail{display:none}
+.so-google .bts{margin-top:0}
+.so-google .aviso-modo{display:none}

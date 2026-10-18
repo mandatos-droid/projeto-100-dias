@@ -6,6 +6,7 @@ var App={
       ? '<strong>Modo nuvem.</strong> Os registros ficam no banco do mandato e são acessíveis a quem tiver o código de convite.'
       : '<strong>Modo local.</strong> Ainda não há servidor configurado: os dados ficam salvos apenas neste navegador e a senha não é verificada.';
     document.getElementById('blocoGoogle').classList.toggle('oculto',!NUVEM);
+    document.getElementById('entrada').classList.toggle('so-google',NUVEM);
     var u=await Store.sessao();
     if(!u){
       this.telaEntrada();
@@ -34,17 +35,18 @@ var App={
     document.getElementById('btEntrada').textContent=q==='criar'?'Criar conta':'Entrar';
     document.getElementById('erroEntrada').innerHTML='';
   },
-  async google(){
-    // consentimento (LGPD) é pedido antes de sair para o Google; lembrado neste navegador
-    if(!localStorage.getItem('legisla.lgpdAceito')){
-      this.aba('criar');
-      document.getElementById('wrapNome').classList.add('oculto');
-      if(!document.getElementById('inLgpd').checked){
-        document.getElementById('erroEntrada').innerHTML='<div class="erro-cx">Para continuar com o Google, concorde com o tratamento dos dados pessoais abaixo.</div>';return}
-      localStorage.setItem('legisla.lgpdAceito','1');
-    }
+  google(){
+    // o aviso da LGPD fica junto do botão: clicar nele é o aceite (registrado na volta do Google)
+    localStorage.setItem('legisla.lgpdAceito','1');
     Nuvem.google();
   },
+  verLgpd(){
+    var e=document.getElementById('entrada'),b=document.getElementById('blocoLgpd');
+    var ver=!e.classList.contains('ver-lgpd');
+    e.classList.toggle('ver-lgpd',ver);b.classList.toggle('oculto',!ver);
+  },
+  comEmail(){document.getElementById('entrada').classList.add('com-email');this.aba('entrar')},
+
   async submeter(){
     var e=document.getElementById('inEmail').value.trim(),
         s=document.getElementById('inSenha').value,
