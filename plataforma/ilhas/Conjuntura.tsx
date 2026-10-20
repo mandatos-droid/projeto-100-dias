@@ -121,14 +121,16 @@ export default function Conjuntura() {
   const cor = corPartido(partido);
   const [cargoId, setCargoId] = useState('estadual2026');
   const [modo, setModo] = useState<Modo>('calor');
-  const [sel, setSel] = useState<string | null>(null);
+  const [sel, setSel] = useState<string | null>(null);        // município aberto no painel do mapa
+  const [munFil, setMunFil] = useState<string | null>(null);   // município do perfil de filiados (fechar o painel não o muda)
   const [esc, setEsc] = useState<'mun' | 'uf' | 'br' | null>(null);
   const muda = (f: () => void) => { f(); bump(); };
 
   const cargo = CARGOS_MAPA.find((x) => x.id === cargoId) ?? CARGOS_MAPA[0];
   const pegaB = (id: string, x: Mun) => cargo.pega(x, his.dados?.[id]);
   const cdi = (D.tse as { cdi?: string }).cdi || m.municipio || '';
-  const munAlvo = sel ?? cdi; // município dos recortes de filiados: o clicado no mapa ou o de domicílio
+  const munAlvo = munFil ?? cdi; // perfil de filiados: o último município clicado no mapa ou escolhido na lista; senão o de domicílio
+  const escolheMun = (id: string | null) => { setSel(id); if (id) setMunFil(id); };
 
   const res = useMemo(() => {
     if (!mun.dados) return null;
@@ -169,6 +171,7 @@ export default function Conjuntura() {
   const porMun = useMemo(() => {
     const ver = new Map<string, { v: number; t: number; p: number }>();
     const fl = new Map<string, { v: number; t: number; p: number }>();
+    const verPart: Record<string, number> = {};
     let maxVer = 0, maxFil = 0;
     if (mun.dados) {
       for (const [id, x] of Object.entries(mun.dados.mun)) {
@@ -176,6 +179,7 @@ export default function Conjuntura() {
         if (!el) continue;
         const t = soma(el), v = el[partido] ?? 0, p = t ? (v / t) * 100 : 0;
         ver.set(id, { v, t, p });
+        for (const [sg, n] of Object.entries(el)) verPart[sg] = (verPart[sg] ?? 0) + n;
         if (p > maxVer) maxVer = p;
       }
     }
@@ -186,7 +190,7 @@ export default function Conjuntura() {
         if (p > maxFil) maxFil = p;
       }
     }
-    return { ver, fl, maxVer, maxFil };
+    return { ver, fl, maxVer, maxFil, verPart };
   }, [mun.dados, fil.dados, partido]);
 
   /* ---------- números por escopo ---------- */
@@ -300,6 +304,25 @@ export default function Conjuntura() {
   const rankUF = Object.entries(fil.dados?.uf ?? {}).map(([p, v]) => [p, v[0]] as [string, number]).sort((a, b) => b[1] - a[1]);
   const rankMostra = rankUF.slice(0, 10);
   if (!rankMostra.some(([p]) => p === partido) && fil.dados?.uf[partido]) rankMostra.push([partido, fil.dados.uf[partido][0]]);
+  /* o ranking acompanha a camada do mapa; o partido do mandato sempre aparece, mesmo fora do top 10 */
+  const top = (e: [string, number][], n = 10) => {
+    const o = [...e].sort((a, b) => b[1] - a[1]);
+    const t = o.slice(0, n);
+    const meu = o.find(([p]) => p === partido);
+    if (meu && !t.includes(meu)) t.push(meu);
+    return t;
+  };
+  const lidera = new Map<string, number>();
+  res?.lider.forEach((p) => lidera.set(p, (lidera.get(p) ?? 0) + 1));
+  const ranking = modo === 'ver' ? { titulo: 'Vereadores eleitos em 2024 no estado', dados: top(Object.entries(porMun.verPart)) }
+    : modo === 'fil' ? { titulo: 'Filiados por partido no estado', dados: top(rankUF) }
+    : modo === 'lider' ? { titulo: `Municípios em que lidera (${cargo.rot} ${cargo.ano})`, dados: top([...lidera.entries()]) }
+    : { titulo: `Votos no estado (${cargo.rot} ${cargo.ano})`, dados: top(res?.lista ?? []) };
+  /* barras do município clicado: também seguem a camada (vereadores e filiados dele, ou votos do cargo) */
+  const detRank = !sel ? null
+    : modo === 'ver' ? { t: 'Vereadores eleitos em 2024', d: top(Object.entries(mun.dados?.mun[sel]?.m24?.ver.el ?? {}), 6) }
+    : modo === 'fil' ? { t: 'Filiados por partido', d: top(Object.entries(fil.dados?.mun[sel] ?? {}).map(([p, v]) => [p, v[0]] as [string, number]), 6) }
+    : detB ? { t: `Votos · ${cargo.rot} ${cargo.ano}`, d: top(detB.p, 6) } : null;
   const munsOrdem = mun.dados ? Object.entries(mun.dados.mun).sort((a, b) => a[1].nm.localeCompare(b[1].nm, 'pt')) : [];
   const carregando = mun.carregando || geo.carregando || uf.carregando || nac.carregando || his.carregando || fil.carregando || filBR.carregando || exUF.carregando || exBR.carregando;
   const parlBR = parl('br'), parlUF = parl('uf');
@@ -369,7 +392,7 @@ export default function Conjuntura() {
         </div>
         {(modo === 'calor' || modo === 'lider' || modo === 'marcas') && (
           <label className="campo"><span className="rot">Cargo</span>
-            <select value={cargo.id} onChange={(e) => { setCargoId(e.target.value); setSel(null); }}>
+            <select value={cargo.id} onChange={(e) => setCargoId(e.target.value)}>
               {ANOS_MAPA.map((a) => (
                 <optgroup key={a} label={`Eleição ${a}`}>
                   {CARGOS_MAPA.filter((x) => x.ano === a).map((x) => <option key={x.id} value={x.id}>{x.rot}</option>)}
@@ -381,7 +404,7 @@ export default function Conjuntura() {
       {mun.dados && geo.dados && res && (
         <div className="ilha-lado">
           <div>
-            <MapaMunicipios geo={geo.dados} fill={fill} selecionado={sel} onSelecionar={setSel} titulo={dica} />
+            <MapaMunicipios geo={geo.dados} fill={fill} selecionado={sel} onSelecionar={escolheMun} titulo={dica} />
             <div className="escala-l">
               {modo === 'calor' && <><span>0%</span><i style={{ background: `linear-gradient(90deg, ${mistura(cor, 0.06)}, ${cor})` }} /><span>{pct(pcts.max, 0)} dos votos</span></>}
               {modo === 'ver' && <><span>0%</span><i style={{ background: `linear-gradient(90deg, ${mistura(cor, 0.06)}, ${cor})` }} /><span>{pct(porMun.maxVer, 0)} dos vereadores</span></>}
@@ -399,14 +422,18 @@ export default function Conjuntura() {
               <div className="v2-det">
                 <div className="topo"><h4 style={{ margin: 0 }}>{nomeMun(sel)}</h4><button type="button" className="rm" onClick={() => setSel(null)} aria-label="Fechar">×</button></div>
                 <p className="peq-t">
-                  {detB ? `${nf.format(detB.v)} votos válidos · ${cargo.rot} ${cargo.ano}` : 'Sem votos para este cargo'}
-                  {res.prefDe.get(sel) ? ` · prefeito: ${res.prefDe.get(sel)}` : ''}
+                  {[
+                    modo === 'ver' || modo === 'fil' ? null : detB ? `${nf.format(detB.v)} votos válidos · ${cargo.rot} ${cargo.ano}` : 'Sem votos para este cargo',
+                    res.prefDe.get(sel) ? `prefeito: ${res.prefDe.get(sel)}` : null,
+                  ].filter(Boolean).join(' · ') || 'Sem prefeito registrado'}
                 </p>
                 <p className="peq-t">
                   {porMun.ver.get(sel) ? `${partido}: ${porMun.ver.get(sel)!.v} de ${porMun.ver.get(sel)!.t} vereadores` : 'Sem vereadores registrados'}
                   {porMun.fl.get(sel) ? ` · ${nf.format(porMun.fl.get(sel)!.v)} filiados (${pct(porMun.fl.get(sel)!.p, 1)})` : ''}
                 </p>
-                {detB && <BarrasPartido destaque={partido} dados={detB.p.slice(0, 6)} />}
+                {detRank && (detRank.d.length > 0
+                  ? <><p className="peq-t" style={{ marginBottom: 2 }}><strong>{detRank.t}</strong></p><BarrasPartido destaque={partido} dados={detRank.d} /></>
+                  : <p className="sem">Sem dados de {detRank.t.toLowerCase()} neste município.</p>)}
                 <div className="v2-tags" role="group" aria-label="Marcar município">
                   {TAGS.map((t) => (
                     <button key={t.k} type="button" aria-pressed={c.muns[sel]?.tag === t.k} style={{ ['--c' as string]: t.cor }}
@@ -421,8 +448,8 @@ export default function Conjuntura() {
               </div>
             ) : (
               <>
-                <h4 style={{ marginTop: 0 }}>Ranking no estado</h4>
-                <BarrasPartido destaque={partido} dados={res.lista.slice(0, 10)} />
+                <h4 style={{ marginTop: 0 }}>{ranking.titulo}</h4>
+                <BarrasPartido destaque={partido} dados={ranking.dados} />
               </>
             )}
           </div>
@@ -434,7 +461,7 @@ export default function Conjuntura() {
             <thead><tr><th>Município</th><th>Marcação</th><th>% do partido</th><th>Anotação</th><th /></tr></thead>
             <tbody>
               {marcados.map(([id, v]) => (
-                <tr key={id} onClick={() => { setSel(id); setModo('marcas'); }} style={{ cursor: 'pointer' }}>
+                <tr key={id} onClick={() => { escolheMun(id); setModo('marcas'); }} style={{ cursor: 'pointer' }}>
                   <td><strong>{nomeMun(id)}</strong></td>
                   <td><span className="v2-leg"><i style={{ background: COR_TAG[v.tag] }} />{TAGS.find((t) => t.k === v.tag)?.rot}</span></td>
                   <td>{pcts.out.has(id) ? pct(pcts.out.get(id)!, 1) : '—'}</td>
@@ -514,7 +541,7 @@ export default function Conjuntura() {
         </div>
         {escopo === 'mun' && (
           <label className="campo"><span className="rot">Município</span>
-            <select value={munAlvo} onChange={(e) => setSel(e.target.value || null)}>
+            <select value={munAlvo} onChange={(e) => setMunFil(e.target.value || null)}>
               {!munAlvo && <option value="">Escolha…</option>}
               {munsOrdem.map(([id, x]) => <option key={id} value={id}>{x.nm}</option>)}
             </select></label>
