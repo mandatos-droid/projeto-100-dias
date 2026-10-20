@@ -1,12 +1,12 @@
 'use client';
 /* Versões somente leitura dos módulos da Missão 1, para a aba Resumo.
-   Repetem a visão que a equipe deixou nos exercícios (D.calor, D.munSel, D.casaSel). */
+   Repetem a visão que a equipe deixou nos exercícios (D.conj2, D.munSel, D.casaSel). */
 import { useMemo } from 'react';
-import { carregaEleitos, carregaGeo, carregaMun, carregaNacional, carregaUF } from '@/lib/dados';
-import { corPartido, mistura } from '@/lib/partidos';
+import { carregaEleitos, carregaExecBR, carregaExecUF, carregaFiliadosBR, carregaFiliadosUF, carregaGeo, carregaMun, carregaNacional, carregaUF } from '@/lib/dados';
 import { nf, pct, semAcento } from '@/lib/format';
-import type { CasaChave } from '@/lib/types';
-import { CARGOS, NIVEIS } from './Calor';
+import type { CasaChave, EsferaExec, ExecEleito, FilAcum } from '@/lib/types';
+import { NIVEIS } from './cargos';
+import { ROT_POS, sugere } from './Conjuntura';
 import { dadosGuia, statusDe, useLegado } from './ponte';
 import { BarrasPartido, Hemiciclo, Marca, MapaMunicipios, useCarga, type Membro } from './pecas';
 
@@ -15,69 +15,38 @@ const semUF = (
 );
 const nada = () => {};
 
-export function CalorResumo() {
+export function ConjunturaResumo() {
   const { D, m } = useLegado();
-  const mun = useCarga(() => carregaMun(m.uf), m.uf);
-  const geo = useCarga(() => carregaGeo(m.uf), m.uf);
   const uf = useCarga(() => carregaUF(m.uf), m.uf);
   const nac = useCarga(() => carregaNacional(), 'nac');
+  const fil = useCarga(() => carregaFiliadosUF(m.uf), m.uf);
+  const filBR = useCarga(() => carregaFiliadosBR(), 'filbr');
+  const exUF = useCarga(() => carregaExecUF(m.uf), m.uf);
+  const exBR = useCarga(() => carregaExecBR(), 'exbr');
+  const mun = useCarga(() => carregaMun(m.uf), m.uf);
 
-  const escolha = D.calor;
-  const cargo = CARGOS.find((c) => c.id === escolha?.cargoId && c.ano === escolha?.ano) ?? CARGOS[0];
-  const partido = escolha?.partido || (m.partido || '').toUpperCase();
-
-  const pcts = useMemo(() => {
-    const out = new Map<string, number>();
-    let max = 0, validos = 0, total = 0, lider = 0;
-    if (mun.dados) {
-      for (const [id, x] of Object.entries(mun.dados.mun)) {
-        const b = cargo.pega(x);
-        if (!b || !b.v) continue;
-        const v = b.p.find((q) => q[0] === partido)?.[1] ?? 0;
-        const p = (v / b.v) * 100;
-        out.set(id, p);
-        if (p > max) max = p;
-        validos += b.v;
-        total += v;
-        if (b.p[0]?.[0] === partido) lider++;
-      }
-    }
-    return { out, max, validos, total, lider };
-  }, [mun.dados, cargo, partido]);
-
+  const partido = (m.partido || '').toUpperCase();
   if (!m.uf) return semUF;
-  if (!partido) return <p className="sem">Escolha um partido no mapa de calor da pergunta 5 para ele aparecer aqui.</p>;
+  if (!partido) return <p className="sem">Informe o partido em “Dados do mandato” para ver a conjuntura.</p>;
 
-  const cor = corPartido(partido);
-  const fill = (id: string) =>
-    pcts.out.has(id) ? mistura(cor, 0.06 + 0.94 * (pcts.max ? pcts.out.get(id)! / pcts.max : 0)) : '#d9d2c3';
   const cadUF = uf.dados?.cadeiras ?? {};
   const totUF = (k: string) => Object.values(cadUF[k] ?? {}).reduce((a, b) => a + b, 0);
   const totBR = (k: string) => Object.values(nac.dados?.[k as keyof typeof nac.dados] ?? {}).reduce((a, b) => a + b, 0);
+  const somaFil = (mapa?: Record<string, FilAcum>) => Object.values(mapa ?? {}).reduce((a, b) => a + b[0], 0);
+  const filA = fil.dados?.uf[partido]?.[0] ?? 0, filB = filBR.dados?.br[partido]?.[0] ?? 0;
+  const cdi = (D.tse as { cdi?: string }).cdi || m.municipio || '';
+  const nomeMun = mun.dados?.mun[cdi]?.nm;
+  const c = D.conj2;
+
+  const esferas: { k: EsferaExec; rot: string; eleito: ExecEleito | undefined }[] = [
+    { k: 'pres', rot: 'Presidência da República', eleito: exBR.dados?.pres },
+    { k: 'gov', rot: `Governo de ${uf.dados?.nome ?? m.uf}`, eleito: exUF.dados?.gov },
+    { k: 'pref', rot: `Prefeitura de ${nomeMun ?? 'seu município'}`, eleito: cdi ? exUF.dados?.pref[cdi] : undefined },
+  ];
 
   return (
     <div className="ilha-corpo">
-      <h4>Mapa de calor · {partido} · {cargo.rot} {cargo.ano}</h4>
-      {(mun.carregando || geo.carregando) && <p className="sem">Carregando mapa…</p>}
-      {(mun.erro || geo.erro) && <div className="erro-cx">Não foi possível carregar o mapa de {m.uf}.</div>}
-      {mun.dados && geo.dados && (
-        <div className="ilha-lado">
-          <div>
-            <MapaMunicipios geo={geo.dados} fill={fill} selecionado={null} onSelecionar={nada}
-              titulo={(id, nm) => `${nm}: ${pcts.out.has(id) ? pct(pcts.out.get(id)!) : 'sem dados'}`} />
-            <div className="escala-l">
-              <span>0%</span>
-              <i style={{ background: `linear-gradient(90deg, ${mistura(cor, 0.06)}, ${cor})` }} />
-              <span>{pct(pcts.max, 0)} dos votos válidos do município</span>
-            </div>
-          </div>
-          <div className="kpis" style={{ gridTemplateColumns: '1fr' }}>
-            <div className="kp"><b>{pct(pcts.validos ? (pcts.total / pcts.validos) * 100 : 0, 1)}</b><span>{partido} no estado · {nf.format(pcts.total)} votos</span></div>
-            <div className="kp"><b>{pcts.lider}</b><span>municípios em que é o mais votado</span></div>
-          </div>
-        </div>
-      )}
-      <h4>Cadeiras do {partido} em todos os níveis</h4>
+      <h4>Cadeiras e filiados do {partido}</h4>
       <div className="rolar">
         <table className="tb" style={{ minWidth: 0 }}>
           <thead><tr><th>Nível</th><th>{m.uf}</th><th>% em {m.uf}</th><th>Brasil</th><th>% no Brasil</th></tr></thead>
@@ -93,9 +62,27 @@ export function CalorResumo() {
                 </tr>
               );
             })}
+            <tr>
+              <td><strong>Filiados</strong></td><td>{nf.format(filA)}</td>
+              <td>{somaFil(fil.dados?.uf) ? pct((filA / somaFil(fil.dados?.uf)) * 100, 1) : '—'}</td><td>{nf.format(filB)}</td>
+              <td>{somaFil(filBR.dados?.br) ? pct((filB / somaFil(filBR.dados?.br)) * 100, 1) : '—'}</td>
+            </tr>
           </tbody>
         </table>
       </div>
+      <h4>Posição diante do Executivo</h4>
+      <ul className="v2-pos-lista">
+        {esferas.map((e) => {
+          const eleito = e.eleito && !('pend' in e.eleito) ? e.eleito : null;
+          const p = c?.posicao?.[e.k] ?? sugere(eleito ?? undefined, partido);
+          return (
+            <li key={e.k}>
+              <span>{e.rot}{eleito ? ` · ${eleito.n} (${eleito.p})` : e.eleito && 'pend' in e.eleito ? ' · 2º turno pendente' : ''}</span>
+              <strong>{p ? ROT_POS[p] : 'a definir'}</strong>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

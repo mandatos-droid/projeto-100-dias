@@ -662,3 +662,41 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .so-google.com-email #btComEmail{display:none}
 .so-google .bts{margin-top:0}
 .so-google .aviso-modo{display:none}
+
+/* menu lateral: exercícios sob cada missão */
+.lado a.it{position:relative}
+.lado .sub-seta{flex:none;background:none;border:0;color:rgba(255,255,255,.55);cursor:pointer;font-size:12px;
+  width:16px;padding:3px 0 0;margin-right:-6px;transition:transform .15s}
+.lado .sub-seta:hover{color:#fff}
+.lado .sub-seta.aberta{transform:rotate(90deg)}
+.sub-lista{margin:0 0 6px 29px;padding-left:10px;border-left:1px solid rgba(255,255,255,.16)}
+.lado a.sub{display:flex;gap:9px;align-items:flex-start;padding:6px 8px;border-radius:var(--r);
+  color:rgba(255,255,255,.72);text-decoration:none;font-size:13px;line-height:1.35}
+.lado a.sub:hover{background:rgba(255,255,255,.08);color:#fff}
+.lado a.sub.on{background:rgba(255,255,255,.14);color:#fff;font-weight:700}
+.lado a.sub .pt{flex:none;width:8px;height:8px;margin-top:5px;border-radius:50%;border:1.5px solid rgba(255,255,255,.4);box-sizing:border-box}
+.lado a.sub.and .pt{border-color:var(--c,#fff);background:linear-gradient(90deg,var(--c,#fff) 50%,transparent 50%)}
+.lado a.sub.ok .pt{border-color:var(--turquesa);background:var(--turquesa)}
+
+/* Conjuntura partidária (m1.q5): Executivo, filiados e placar */
+.v2-pos-lista{list-style:none;margin:6px 0 0;padding:0;font-size:14px}
+.v2-pos-lista li{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--linha-2)}
+.v2-pos-lista strong{color:var(--vinho);text-align:right}
+.v2-exec{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 24px;align-items:center;border:1.5px solid var(--linha);background:#fff;border-radius:var(--r);padding:12px 14px;margin:10px 0}
+.v2-exec h5{margin:0 0 4px;font-size:15px}
+.v2-exec p{margin:3px 0}
+.v2-seg{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.v2-seg button{border:2px solid var(--linha);background:#fff;color:var(--tinta);padding:6px 11px;font:inherit;font-size:13px;font-weight:700;border-radius:var(--r);cursor:pointer}
+.v2-seg button small{font-weight:400;opacity:.8}
+.v2-seg button:hover{border-color:var(--tinta-3)}
+.v2-seg button[aria-checked=true]{background:var(--vinho);border-color:var(--vinho);color:#fff}
+@media(max-width:760px){.v2-exec{grid-template-columns:1fr}.v2-seg{justify-content:flex-start}}
+.v2-recs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px 30px;margin:8px 0 16px}
+.v2-rec h5{margin:0 0 6px;font-size:14px}
+.v2-rec-l{display:grid;grid-template-columns:minmax(120px,190px) 1fr 52px 52px;gap:8px;align-items:center;font-size:13px;padding:3px 0}
+.v2-rec-l .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v2-rec-l .fundo{position:relative;background:var(--linha-2);height:12px;border-radius:2px}
+.v2-rec-l .fundo i{display:block;height:100%;border-radius:2px}
+.v2-rec-l .fundo b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--tinta);margin-left:-1px}
+.v2-rec-l .t{color:var(--tinta-3)}
+.v2-rec-l .v,.v2-rec-l .t{text-align:right}

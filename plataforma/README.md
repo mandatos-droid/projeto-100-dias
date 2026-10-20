@@ -7,13 +7,13 @@ Os módulos novos da Missão 1 entram dentro dos exercícios como "ilhas" React:
 |---|---|
 | A persona · pergunta 2 | Desempenho eleitoral 2026 (TSE): votos, %, ranking |
 | A conjuntura · pergunta 1 | Hemiciclo da Casa, filtro por partido, parceiro/concorrente |
-| A conjuntura · pergunta 2 | Mapa de calor municipal (2026 e 2024) e cadeiras por partido |
+| A conjuntura · pergunta 2 | Placar do partido (cadeiras, vereadores, prefeituras, filiados), mapa municipal (votos, vereadores, filiados), posição diante do Executivo pela coligação e perfil dos filiados (gênero, idade, escolaridade) |
 | A conjuntura · pergunta 3 | Município: prefeito, vereadores, deputados, parceiro/concorrente |
 | Cadastro do mandato | Caixa de seleção de parlamentares eleitos (preenche nome, partido e Casa) |
 
-No **Resumo**, cada pergunta é um link para a sua página no exercício, e os mapas (calor do partido,
+No **Resumo**, cada pergunta é um link para a sua página no exercício, e os mapas (placar do partido,
 político do estado, hemiciclo) aparecem sob as respostas (`ilhas/Resumos.tsx`). As escolhas feitas nos mapas
-ficam em `D.calor`, `D.munSel` e `D.casaSel`.
+ficam em `D.conj2`, `D.munSel` e `D.casaSel`.
 
 ## Rodar
     npm install

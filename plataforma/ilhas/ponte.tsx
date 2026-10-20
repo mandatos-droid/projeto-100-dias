@@ -4,12 +4,12 @@ import { createRoot, type Root } from 'react-dom/client';
 import type { Conj2, ConjSocial, Eleitorado, Pleito, Relacao, Status } from '@/lib/types';
 import Persona from './Persona';
 import Assentos from './Assentos';
-import CalorSwitch from './CalorSwitch';
+import Conjuntura from './Conjuntura';
 import Municipio from './Municipio';
 import EleitoradoIlha, { EleitoradoResumo } from './Eleitorado';
 import SocialIlha, { SocialResumo } from './Social';
 import { Ficha, Organograma, Rotinas } from './Equipe';
-import { AssentosResumo, CalorResumo, MunicipioResumo } from './Resumos';
+import { AssentosResumo, ConjunturaResumo, MunicipioResumo } from './Resumos';
 
 /* ---------- acesso ao estado do Guia original (globais D e Store) ---------- */
 type Legado = {
@@ -18,12 +18,10 @@ type Legado = {
     /* pleitos lançados à mão (anos anteriores, outros cargos) */
     pleitos?: Pleito[];
     /* escolhas feitas nos mapas, guardadas para o Resumo repetir a mesma visão */
-    calor?: { ano: 2026 | 2024; cargoId: string; partido: string };
     munSel?: string | null;
     casaSel?: string;
     escopoSel?: string; // 'BR' ou sigla da UF
-    calorVer?: 1 | 2;   // versão da pergunta 2 da Conjuntura (1 = mapa de calor, 2 = conjuntura partidária)
-    conj2?: Conj2;
+    conj2?: Conj2;      // conjuntura partidária (pergunta m1.q5)
     eleitorado?: Eleitorado;
     social?: ConjSocial;
   };
@@ -76,14 +74,14 @@ export function atualizaMandato(c: Record<string, unknown>) {
 const ILHAS: Record<string, () => React.ReactElement> = {
   'persona-tse': () => <Persona />,
   assentos: () => <Assentos />,
-  calor: () => <CalorSwitch />,
+  calor: () => <Conjuntura />,
   municipio: () => <Municipio />,
   eleitorado: () => <EleitoradoIlha />,
   'eleitorado-resumo': () => <EleitoradoResumo />,
   social: () => <SocialIlha />,
   'social-resumo': () => <SocialResumo />,
   'assentos-resumo': () => <AssentosResumo />,
-  'calor-resumo': () => <CalorResumo />,
+  'calor-resumo': () => <ConjunturaResumo />,
   'municipio-resumo': () => <MunicipioResumo />,
   organograma: () => <Organograma />,
   rotinas: () => <Rotinas />,

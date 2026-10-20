@@ -184,7 +184,7 @@ window.ResumoIlhas={
     var h='',t=D.tse||{};
     if(ilha==='social')return this.mapa('social','Problemas e potencialidades por agenda e território');
     if(ilha==='eleitorado')return this.mapa('eleitorado','Promessas e grupos sociais por município');
-    if(ilha==='calor')return this.mapa('calor','Mapa de calor do partido e cadeiras por nível');
+    if(ilha==='calor')return this.mapa('calor','Cadeiras, filiados e posição do partido diante do Executivo');
     if(ilha==='persona-tse'){
       h+='<dt style="color:var(--tinta)">Desempenho eleitoral'+(t.ano?' em '+t.ano:' em 2026')+' (dados do TSE)</dt>';
       var pl=(D.pleitos||[]).slice().sort(function(a,b){return b.ano-a.ano});
@@ -371,4 +371,38 @@ Guia.abrir=function(nm,id){
   Guia.bloco=function(p,n){return _gb.call(this,p,n).replace(CX,widget)};
   var _cp=Comp.campos;
   Comp.campos=function(ex){return _cp.call(this,ex).replace(CX,widget)};
+})();
+
+/* ---------- menu lateral: exercícios de cada missão como sub-itens ---------- */
+(function(){
+  var abertas={};   // missões abertas à mão (a missão da tela atual abre sozinha)
+  var _lat=App.lateral;
+  App.lateral=function(){
+    _lat.call(this);
+    var nav=document.getElementById('ladoNav');if(!nav)return;
+    var p=(location.hash||'#/').replace('#/','').split('/');
+    var atual=p[0]==='m'?+p[1]:0, exAtual=p[2]||'';
+    MISSOES.forEach(function(mi){
+      var a=nav.querySelector('a.it[href="#/m/'+mi.n+'"]');if(!a)return;
+      var aberta=abertas[mi.n]!=null?abertas[mi.n]:mi.n===atual;
+      var seta=document.createElement('button');
+      seta.type='button';seta.className='sub-seta'+(aberta?' aberta':'');
+      seta.setAttribute('aria-expanded',aberta);
+      seta.setAttribute('aria-label',(aberta?'Recolher':'Mostrar')+' exercícios da missão '+mi.n);
+      seta.textContent='▸';
+      seta.onclick=function(e){e.preventDefault();e.stopPropagation();abertas[mi.n]=!aberta;App.lateral()};
+      a.insertBefore(seta,a.firstChild);
+      if(!aberta)return;
+      var ul=document.createElement('div');ul.className='sub-lista';
+      mi.exercicios.forEach(function(ex){
+        var s=estadoEx(ex);
+        var l=document.createElement('a');
+        l.className='sub'+(ex.id===exAtual?' on':'')+(s==='ok'?' ok':s==='andamento'?' and':'');
+        l.href='#/m/'+mi.n+'/'+ex.id;l.style.setProperty('--c',mi.corNav||mi.cor);
+        l.innerHTML='<span class="pt"></span><span class="tx">'+esc(ex.t)+'</span>';
+        ul.appendChild(l);
+      });
+      a.parentNode.insertBefore(ul,a.nextSibling);
+    });
+  };
 })();

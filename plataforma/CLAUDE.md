@@ -21,6 +21,8 @@ Scripts Python (só biblioteca padrão; brutos do TSE em `scripts/.cache`, fora 
 | `build_eleitos.py` | `public/data/eleitos.json` (rode depois do `build_data.py`) |
 | `build_historico.py` | `public/data/hist/{uf}.json` (2022 e 2020; exige `vcm22.zip`/`vcm20.zip` em `scripts/.cache`) |
 | `build_mapa_br.py` | `public/geo/br.json` |
+| `build_filiados.py` | `public/data/filiados/{uf}.json` e `br.json` (filiados por partido × município com gênero, faixa etária e escolaridade). Baixa o "Perfil Filiação Partidária" do TSE (~230 MB zip, 3,5 GB csv) para `scripts/.cache` e reduz a ~7 MB; o TSE atualiza todo mês, rode de novo com `--refresh`. Exige `cdmun.json` |
+| `build_executivo.py` | `public/data/exec/{uf}.json` e `br.json`: eleito, partido e coligação da Presidência/governo (2026) e das prefeituras (2024). Quando sair o 2º turno, rode com `--refresh` |
 | `build_social.py` | `public/data/social/*` a partir da planilha IDSC-BR em `../contexto inicial` |
 | `extrair_legado.py` | `public/legacy/*`, `lib/legacyBody.ts`, `public/painel.html` (ver abaixo) |
 
@@ -34,14 +36,14 @@ O app **não é um app Next.js convencional**. O Guia original (HTML/JS vanilla,
 - `ilhas/ponte.tsx` é a ponte: expõe `window.Ilhas.ligar(raiz)`, que o legado chama a cada troca de tela. Ela procura `[data-ilha="nome"]` e monta o componente React registrado no mapa `ILHAS` (cada chamada desmonta as raízes anteriores). `ficha-N` é dinâmico (`Ficha i={N}`).
 - **Nova ilha**: criar o componente em `ilhas/`, registrá-lo em `ILHAS` na ponte e emitir `<div class="ilha" data-ilha="nome"></div>` no ponto certo de `public/legacy/conteudo.js` (ou `guia.js`/`novos.js`). Para aparecer no Resumo, usar a ilha `nome-resumo` (ver `novos.js`).
 - **Estado**: vive nos globais do legado, não em React. Use os helpers da ponte: `useLegado()` (re-render no evento `guia:mudou`, devolve `{ D, m, bump }`; `bump()` salva e notifica), `dadosGuia()`, `mandato()`, `marca()`, `atualizaMandato()`, `aviso()`, `salva()`. Não crie estado global paralelo.
-- Dados das ilhas ficam dentro do mesmo JSON do mandato (`mandatos.dados`, jsonb): `D.tse`, `D.relacoes`, `D.pleitos`, `D.calor`, `D.munSel`, `D.casaSel`, `D.escopoSel`, `D.calorVer`, `D.conj2`, `D.eleitorado`, `D.social`. Tipos em `lib/types.ts`. Ao criar um campo novo, tipar em `Legado` (`ilhas/ponte.tsx`) e em `lib/types.ts`.
+- Dados das ilhas ficam dentro do mesmo JSON do mandato (`mandatos.dados`, jsonb): `D.tse`, `D.relacoes`, `D.pleitos`, `D.munSel`, `D.casaSel`, `D.escopoSel`, `D.conj2`, `D.eleitorado`, `D.social`. Tipos em `lib/types.ts`. Ao criar um campo novo, tipar em `Legado` (`ilhas/ponte.tsx`) e em `lib/types.ts`.
 
 ### Regras ao mexer no legado
 
 - `lib/legacyBody.ts` é **gerado** (`scripts/extrair_legado.py`): não editar à mão.
 - `public/legacy/*.js` e `legacy.css` são extraídos do HTML original com 7 retoques conferidos (cada um precisa casar exatamente uma vez). Se o HTML original mudar, rode `python scripts/extrair_legado.py`, que avisa quando um retoque não casa. Edições diretas nesses arquivos são **sobrescritas** na próxima extração; se for uma mudança permanente, coloque-a como retoque no script.
 - `public/legacy/novos.js` e `ilhas.css` são escritos à mão e não são tocados pela extração.
-- `public/painel.html` é o painel da Legisla (original + fonte "Este navegador"). Ainda não exibe parceiros/concorrentes.
+- `public/painel.html` é o painel da Legisla, **mantido à mão** (não é mais gerado pelo `extrair_legado.py`). Em `/painel` ele reaproveita a sessão `legisla.tok` do app (ou entra com Google/e-mail), lê URL e chave pública de `nucleo.js` em tempo de execução, exige linha em `equipe_legisla` e lê `mandatos` + `membros` do Supabase; também aceita arquivos JSON, "Este navegador" e demonstração. Só exibe contagens e percentuais, nunca o texto escrito pelos gabinetes. Ainda não exibe parceiros/concorrentes.
 
 ## Dados e backend
 
@@ -55,7 +57,7 @@ O app **não é um app Next.js convencional**. O Guia original (HTML/JS vanilla,
 ## Convenções
 
 - TypeScript `strict`, alias `@/*` aponta para a raiz. Componentes de ilha são `'use client'`.
-- Estilo do código existente: compacto, comentários curtos em português explicando o *porquê*; ilhas grandes em um arquivo por módulo (`Persona`, `Assentos`, `CalorV2`, `Municipio`, `Eleitorado`, `Social`, `Equipe`, `Resumos`). `ilhas/pecas.tsx` guarda peças visuais compartilhadas.
+- Estilo do código existente: compacto, comentários curtos em português explicando o *porquê*; ilhas grandes em um arquivo por módulo (`Persona`, `Assentos`, `Conjuntura`, `Municipio`, `Eleitorado`, `Social`, `Equipe`, `Resumos`). `ilhas/pecas.tsx` guarda peças visuais compartilhadas.
 - Cuidado com limitações de dados já documentadas no README: RO ainda "aguardando reprocessamento" no TSE (`npm run dados -- --refresh`); Senado só com eleitos de 2026 (+ 2022 em `eleitos.json`); município lista só os 6 deputados mais votados; votos de partido são nominais; cruzamento de reeleição é por nome civil + UF (sem CPF).
 - Dados pessoais: `mandatos.permite_pesquisa` controla se a equipe da Legisla lê o conteúdo escrito (não só agregados). Respeite isso em qualquer consulta ou painel novo.
 

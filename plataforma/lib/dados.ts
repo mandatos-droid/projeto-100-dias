@@ -1,4 +1,4 @@
-import type { Eleito, GeoUF, Nacional, MunUF, UFData, UFIdx } from './types';
+import type { Eleito, ExecBR, ExecUF, FiliadosBR, FiliadosUF, GeoUF, Nacional, MunUF, UFData, UFIdx } from './types';
 
 const cache = new Map<string, Promise<unknown>>();
 function carrega<T>(url: string): Promise<T> {
@@ -24,3 +24,8 @@ export const carregaMapaBR = () => carrega<{ w: number; h: number; uf: { id: str
 /** Votos por partido em 2022 (presidente a deputado) e 2020 (prefeito, vereador), por município. */
 export type Hist = Record<string, Record<string, { v: number; p: [string, number][] }>>;
 export const carregaHist = (uf: string) => carrega<Hist>(`/data/hist/${uf.toLowerCase()}.json`);
+/** Filiados por partido e município (TSE, mensal) e quem ocupa o Executivo, com a coligação da eleição. */
+export const carregaFiliadosUF = (uf: string) => carrega<FiliadosUF>(`/data/filiados/${uf.toLowerCase()}.json`);
+export const carregaFiliadosBR = () => carrega<FiliadosBR>('/data/filiados/br.json');
+export const carregaExecUF = (uf: string) => carrega<ExecUF>(`/data/exec/${uf.toLowerCase()}.json`);
+export const carregaExecBR = () => carrega<ExecBR>('/data/exec/br.json');

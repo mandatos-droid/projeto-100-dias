@@ -86,15 +86,29 @@ export type ItemSoc = {
 };
 export type ConjSocial = { itens: ItemSoc[] };
 
-/** Registro da Conjuntura partidária (versão 2 da pergunta 2): fica em D.conj2, no mesmo JSON do mandato. */
+/** Registro da Conjuntura partidária (pergunta m1.q5): fica em D.conj2, no mesmo JSON do mandato.
+ *  Mandatos antigos podem trazer `foros`/`foroExtra` (setoriais, removidos da tela): são ignorados. */
 export type TagMun = 'base' | 'expansao' | 'risco';
-export type StForo = 'quero' | 'ja' | 'avaliar' | 'descarta';
+export type EsferaExec = 'pres' | 'gov' | 'pref';
+export type PosExec = 'governo' | 'base' | 'oposicao' | 'independente';
 export type Conj2 = {
   muns: Record<string, { tag: TagMun; nota: string }>;
-  foros: Record<string, { st: StForo; nota: string }>;
-  foroExtra: { id: string; nome: string }[];
+  posicao?: Partial<Record<EsferaExec, PosExec>>; // escolha da equipe; sem ela vale a sugestão pela coligação
   relacao: string;
   relacaoPq: string;
   desafios: string[];
   oportunidades: string[];
 };
+
+/** Filiados (public/data/filiados, gerado por scripts/build_filiados.py a partir do TSE).
+ *  Cada partido: [total, [masc, fem], [faixas etárias], [escolaridade]] (categorias em ilhas/Conjuntura.tsx). */
+export type FilAcum = [number, number[], number[], number[]];
+export type FiliadosUF = { ref: string; geracao: string; uf: Record<string, FilAcum>; mun: Record<string, Record<string, FilAcum>> };
+export type FiliadosBR = { ref: string; geracao: string; br: Record<string, FilAcum>; uf: Record<string, Record<string, FilAcum>> };
+
+/** Executivo (public/data/exec, gerado por scripts/build_executivo.py): eleito e coligação da eleição.
+ *  `pend` = 2º turno ainda sem resultado (os candidatos que disputam). */
+export type RegExec = { n: string; p: string; c: string[] };
+export type ExecEleito = RegExec | { pend: RegExec[] } | null;
+export type ExecUF = { gov: ExecEleito; pref: Record<string, RegExec> };
+export type ExecBR = { ref: string; pres: ExecEleito };
