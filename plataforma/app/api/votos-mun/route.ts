@@ -1,4 +1,5 @@
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -10,7 +11,8 @@ export const maxDuration = 120;
 const BASE = 'https://resultados.tse.jus.br/oficial/ele2026/6259/dados';
 const CARGO: Record<string, (uf: string) => number> = { senado: () => 5, federal: () => 6, estadual: (uf) => (uf === 'df' ? 8 : 7) };
 const TTL = 30 * 60 * 1000;
-const PASTA = path.join(process.cwd(), '.cache-api');
+// Na Vercel só /tmp é gravável; local usa .cache-api/
+const PASTA = process.env.VERCEL ? path.join(tmpdir(), 'cache-api') : path.join(process.cwd(), '.cache-api');
 const emCurso = new Map<string, Promise<Resp>>();
 
 type Resp = { atualizado: string; mun: Record<string, [number, number]> };
@@ -66,8 +68,8 @@ export async function GET(req: NextRequest) {
   if (!job) {
     job = calcula(uf, casa, sq).then(async (r) => {
       if (Object.keys(r.mun).length > 0) {
-        await mkdir(PASTA, { recursive: true });
-        await writeFile(arq, JSON.stringify(r));
+        // cache é só otimização: falha de gravação nunca derruba a resposta
+        try { await mkdir(PASTA, { recursive: true }); await writeFile(arq, JSON.stringify(r)); } catch { /* sem cache */ }
       }
       return r;
     }).finally(() => emCurso.delete(chave));
