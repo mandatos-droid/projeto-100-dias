@@ -1,14 +1,15 @@
 /* =====================================================================
    SUGESTÕES E CORREÇÕES (não gerado: este arquivo é mantido à mão)
    1. Botão flutuante "Sugestões para Pedrinho" + formulário com print colado
-   2. Aba "Sugestões e correções" no menu lateral, só para a equipe Legisla
+   2. Aba "Sugestões e correções" no menu lateral, aberta a todos os logados (resolver/apagar: só equipe Legisla)
    Tabela public.sugestoes (migration 20261020120000). Carregado depois de app.js.
    ===================================================================== */
 (function(){
 
 var MAX_LADO=1600;      // o print é reduzido a no máximo 1600 px de largura/altura
 var Sug={
-  equipe:null,          // null = ainda não checou; true/false depois
+  equipe:null,          // pode ver a aba (qualquer pessoa logada); null = ainda não checou
+  ehEquipe:false,       // é da equipe Legisla: só ela marca como resolvida e apaga
   abertas:0,
   imagem:null,          // data URL do print em preparação
   filtro:'abertas',
@@ -119,10 +120,10 @@ var Sug={
   async checarEquipe(){
     try{
       var r=await Nuvem.rest('equipe_legisla?select=papel&user_id=eq.'+Store.usuario.id);
-      this.equipe=!!(r&&r.length);
-    }catch(e){this.equipe=false}
+      this.ehEquipe=!!(r&&r.length);
+    }catch(e){this.ehEquipe=false}
+    this.equipe=!!(Store.usuario&&Store.usuario.id);
     if(this.equipe)await this.contar();
-    else if(ehDev){this.equipe=true;this.previa=true;this.abertas=this.exemplos().filter(function(x){return !x.resolvida}).length} // localhost: a aba aparece com exemplos
     if(this.equipe)App.lateral();
   },
   /* exemplos fictícios, só para ver o layout da tela */
@@ -146,7 +147,7 @@ var Sug={
     if(this.equipe===null){this.equipe=false;await this.checarEquipe()} // abriu o link direto, antes da checagem do menu
     if(!this.equipe){
       t.innerHTML='<div class="etiqueta">Mandato</div><h1>Sugestões e correções</h1>'+
-        '<p class="chamada">Esta área é restrita à equipe da Legisla.</p>';return;
+        '<p class="chamada">Entre na sua conta para ver as sugestões.</p>';return;
     }
     t.innerHTML='<div class="etiqueta">Mandato</div><h1>Sugestões e correções</h1><p class="chamada">Carregando…</p>';
     if(!this.previa){
@@ -159,11 +160,11 @@ var Sug={
     this.desenhar();App.lateral();
   },
   desenhar:function(){
-    var f=this.filtro,ab=this.lista.filter(function(x){return !x.resolvida}).length,rs=this.lista.length-ab;
+    var eq=this.ehEquipe||this.previa,f=this.filtro,ab=this.lista.filter(function(x){return !x.resolvida}).length,rs=this.lista.length-ab;
     var vis=this.lista.filter(function(x){return f==='todas'||(f==='abertas')===!x.resolvida});
     var h='<div class="etiqueta">Mandato</div><h1>Sugestões e correções</h1>'+
-      '<p class="chamada">O que o time enviou pelo botão “Sugestões para Pedrinho”.</p>'+
-      (this.previa?'<div class="apoio atencao"><span class="tag">Prévia</span>Estes são exemplos fictícios, só para mostrar a tela. As sugestões reais aparecem aqui quando o banco estiver ativo e você estiver na equipe Legisla.</div>':'')+
+      '<p class="chamada">O que as pessoas enviaram pelo botão “Sugestões para Pedrinho”.</p>'+
+      (this.previa?'<div class="apoio atencao"><span class="tag">Prévia</span>Estes são exemplos fictícios, só para mostrar a tela. As sugestões reais aparecem aqui quando o banco estiver ativo e você estiver logado.</div>':'')+
       '<div class="abas sug-abas" role="tablist">'+
       [['abertas','Abertas ('+ab+')'],['resolvidas','Resolvidas ('+rs+')'],['todas','Todas ('+this.lista.length+')']].map(function(a){
         return '<button role="tab" aria-selected="'+(f===a[0])+'" onclick="Sug.filtrar(\''+a[0]+'\')">'+a[1]+'</button>'}).join('')+'</div>';
@@ -176,9 +177,9 @@ var Sug={
         (x.pagina?' · tela <a href="'+esc(x.pagina)+'">'+esc(x.pagina)+'</a>':'')+'</div>'+
         '<p class="sug-texto">'+esc(x.texto).replace(/\n/g,'<br>')+'</p>'+
         (x.tem_imagem?'<div class="sug-img" id="sugImg-'+x.id+'"><button class="bt fant peq" onclick="Sug.verImagem('+x.id+')">Ver print</button></div>':'')+
-        '<div class="bts">'+
+        (eq?'<div class="bts">'+
         '<button class="bt sec peq" onclick="Sug.resolver('+x.id+','+(!x.resolvida)+')">'+(x.resolvida?'Reabrir':'Marcar como resolvida')+'</button>'+
-        '<button class="bt fant peq" onclick="Sug.apagar('+x.id+')">Apagar</button></div></article>';
+        '<button class="bt fant peq" onclick="Sug.apagar('+x.id+')">Apagar</button></div>':'')+'</article>';
     });
     document.getElementById('tela').innerHTML=h;
   },
