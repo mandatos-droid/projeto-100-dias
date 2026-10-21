@@ -1,4 +1,4 @@
-import type { Eleito, ExecBR, ExecUF, FiliadosBR, FiliadosUF, GeoUF, Nacional, MunUF, UFData, UFIdx } from './types';
+import type { Eleito, ExecBR, ExecUF, FiliadosBR, FiliadosUF, GeoUF, Nacional, MunCand, MunUF, UFData, UFIdx } from './types';
 
 const cache = new Map<string, Promise<unknown>>();
 function carrega<T>(url: string): Promise<T> {
@@ -22,8 +22,12 @@ export const carregaNacional = () => carrega<Nacional>('/data/nacional.json');
 export const carregaEleitos = () => carrega<Eleito[]>('/data/eleitos.json');
 export const carregaMapaBR = () => carrega<{ w: number; h: number; uf: { id: string; d: string; cx: number; cy: number }[] }>('/geo/br.json');
 /** Votos por partido em 2022 (presidente a deputado) e 2020 (prefeito, vereador), por município. */
-export type Hist = Record<string, Record<string, { v: number; p: [string, number][] }>>;
+export type HistBloco = { v: number; p: [string, number][]; c?: MunCand[] }; // c: 6 mais votados (só 2022)
+export type Hist = Record<string, Record<string, HistBloco>>;
 export const carregaHist = (uf: string) => carrega<Hist>(`/data/hist/${uf.toLowerCase()}.json`);
+/** Pleitos anteriores por sequencial TSE da candidatura atual (2026, ou 2024 para eleitos municipais), cruzados pelo título eleitoral. */
+export type PleitoTSE = [number, string, string, string, string, string, number, number, string]; // ano, cargo, uf, município, partido, número, votos, % nominais, situação
+export const carregaPleitos = (uf: string) => carrega<Record<string, PleitoTSE[]>>(`/data/pleitos/${uf.toLowerCase()}.json`);
 /** Filiados por partido e município (TSE, mensal) e quem ocupa o Executivo, com a coligação da eleição. */
 export const carregaFiliadosUF = (uf: string) => carrega<FiliadosUF>(`/data/filiados/${uf.toLowerCase()}.json`);
 export const carregaFiliadosBR = () => carrega<FiliadosBR>('/data/filiados/br.json');

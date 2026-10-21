@@ -114,7 +114,9 @@ var Cad={
             :(this.temMandatos()?'<button type="button" class="bt fant" onclick="App.sair()" style="margin-left:-10px">← Voltar à seleção de mandatos</button>':'')))+'</div>'
         :'<hr class="regra"><h3>Seus dados</h3><p class="texto">'+(NUVEM?'Conta: '+esc((Store.usuario&&Store.usuario.email)||'')+'. ':'Os dados deste mandato ficam salvos apenas neste navegador. ')+
           'Para solicitar acesso, correção, portabilidade ou eliminação dos seus dados, escreva para '+
-          '<a href="mailto:contato@legislabrasil.org">contato@legislabrasil.org</a>.</p>');
+          '<a href="mailto:contato@legislabrasil.org">contato@legislabrasil.org</a>.</p>'+
+          '<hr class="regra"><h3>Excluir cadastro</h3><p class="texto">Apaga este mandato e tudo o que foi preenchido nele, para toda a equipe. Não dá para desfazer.</p>'+
+          '<div class="bts"><button type="button" class="bt sec" id="cadExcluir" style="color:var(--erro);border-color:var(--erro)" onclick="Cad.excluir(this)">Excluir cadastro</button></div>');
     this.tela(false);
   },
   blocoCodigo:function(){
@@ -486,6 +488,27 @@ var Cad={
       aviso('Não foi possível salvar: '+(err&&err.message?err.message:'tente de novo')+'.');
       if(bt){bt.disabled=false;bt.textContent=rot}
     }
+  }
+};
+/* Excluir o cadastro aberto: nuvem pela função excluir_mandato (só a coordenação), local direto no navegador */
+Store.excluirMandato=async function(id){
+  if(NUVEM)await Nuvem.rest('rpc/excluir_mandato',{method:'POST',body:{p_id:id}});
+  else{var b=Local.ler();if(b.mandatos)delete b.mandatos[id];Local.gravar(b)}
+};
+Cad.excluir=async function(bt){
+  var m=Store.mandato;if(!m)return;
+  var nome=m.nome_parlamentar||m.nome_civil||'este mandato';
+  if(!confirm('Excluir o cadastro de '+nome+'?\n\nTudo o que foi preenchido nele será apagado, para toda a equipe. Não dá para desfazer.'))return;
+  if(bt){bt.disabled=true;bt.textContent='Excluindo…'}
+  try{
+    clearTimeout(Store._t); /* evita regravar o mandato depois de apagado */
+    await Store.excluirMandato(m.id);
+    this.sujo=false;window.onbeforeunload=null;
+    localStorage.removeItem('legisla.mandatoAtual');
+    location.hash='';location.reload();
+  }catch(err){
+    aviso('Não foi possível excluir: '+(err&&err.message?err.message:'tente de novo')+'.');
+    if(bt){bt.disabled=false;bt.textContent='Excluir cadastro'}
   }
 };
 Cad.codigo=async function(){

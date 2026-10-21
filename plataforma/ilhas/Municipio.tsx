@@ -1,6 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
 import { carregaGeo, carregaHist, carregaMun } from '@/lib/dados';
+import { bloco22, variacaoPartidos } from '@/lib/eleicao22';
 import { nf, pct, semAcento } from '@/lib/format';
 import { corPartido } from '@/lib/partidos';
 import type { Relacao } from '@/lib/types';
@@ -172,9 +173,11 @@ export default function Municipio() {
   const vereadores: Pessoa[] = (x?.m24?.ver.eleitos ?? []).map((c) => ({
     sq: c[3], nome: c[0], partido: c[1], votos: c[2], pctMun: (c[2] / (x?.m24?.ver.v || 1)) * 100, eleito: true, cargo: 'Vereador',
   }));
+  // deputados: o ano do painel (2026 ou 2022) escolhe de onde vêm os seis mais votados e os partidos
+  const blocoDep = (chave: 'estadual' | 'federal') => (ano === 2022 ? bloco22(hist.dados, sel ?? '', chave) : x?.[chave]);
   const deputados = (chave: 'estadual' | 'federal', rotulo: string): Pessoa[] =>
-    (x?.[chave]?.c ?? []).map((c) => ({
-      sq: c[3], nome: c[0], partido: c[1], votos: c[2], pctMun: (c[2] / (x?.[chave]?.v || 1)) * 100, eleito: !!c[4], cargo: rotulo,
+    (blocoDep(chave)?.c ?? []).map((c) => ({
+      sq: c[3], nome: c[0], partido: c[1], votos: c[2], pctMun: (c[2] / (blocoDep(chave)?.v || 1)) * 100, eleito: !!c[4], cargo: rotulo,
     }));
   const estaduais = deputados('estadual', m.uf === 'DF' ? 'Deputado Distrital' : 'Deputado Estadual');
   const federais = deputados('federal', 'Deputado Federal');
@@ -191,11 +194,13 @@ export default function Municipio() {
   const NOTAS: Record<Ator, string> = {
     pref: 'Candidatos do 1º turno de 2024; “eleito” indica quem venceu.',
     ver: 'Todos os vereadores eleitos em 2024.',
-    est: 'Os seis mais votados neste município. “Eleito” = conquistou cadeira no estado.',
-    fed: 'Os seis mais votados neste município. “Eleito” = conquistou cadeira no estado.',
+    est: `Os seis mais votados neste município em ${ano}. “Eleito” = conquistou cadeira no estado.`,
+    fed: `Os seis mais votados neste município em ${ano}. “Eleito” = conquistou cadeira no estado.`,
   };
-  const barrasPartido = ator === 'ver' ? resumoVer : ator === 'est' ? x?.estadual?.p.slice(0, 6) : ator === 'fed' ? x?.federal?.p.slice(0, 6) : null;
-  const tituloBarras = ator === 'ver' ? 'Câmara de vereadores por partido' : 'Partidos mais votados no município (2026)';
+  const barrasPartido = ator === 'ver' ? resumoVer : ator === 'est' ? blocoDep('estadual')?.p.slice(0, 6) : ator === 'fed' ? blocoDep('federal')?.p.slice(0, 6) : null;
+  const cargoDep = ator === 'est' ? 'estadual' : 'federal';
+  const variacao = ator === 'est' || ator === 'fed' ? variacaoPartidos(bloco22(hist.dados, sel ?? '', cargoDep), x?.[cargoDep]) : [];
+  const tituloBarras = ator === 'ver' ? 'Câmara de vereadores por partido' : `Partidos mais votados no município (${ano})`;
 
   const top = camadaInfo && camada !== 'pref'
     ? [...camadaInfo.linhas].filter((l) => l.num > 0).sort((a, b) => b.num - a.num).slice(0, 8) : [];
@@ -321,13 +326,18 @@ export default function Municipio() {
                       <button key={a.k} type="button" role="tab" aria-selected={ator === a.k} onClick={() => setAtor(a.k)}>{a.t}<small>{a.n}</small></button>
                     ))}
                   </div>
+                  {(ator === 'est' || ator === 'fed') && (
+                    <div className="cj-mini" role="group" aria-label="Ano da eleição dos deputados" style={{ margin: '8px 0 0' }}>
+                      {([2026, 2022] as const).map((a) => <button key={a} type="button" aria-pressed={ano === a} onClick={() => setAno(a)}>{a}</button>)}
+                    </div>
+                  )}
                   <p className="peq-t" style={{ margin: '8px 0 4px' }}>{NOTAS[ator]}</p>
 
                   {lugares.length === 0 ? <p className="sem">Sem dados para este município.</p> : (
                     <ul className="cj-pessoas rolagem">
                       {lugares.map((p) => (
                         <li key={p.sq}>
-                          <Foto sq={p.sq} uf={m.uf} ano={p.cargo === 'Prefeito' || p.cargo === 'Vereador' ? 2024 : 2026} nome={p.nome} tam={38} />
+                          <Foto sq={ano === 2022 && p.cargo.startsWith('Deputado') ? '' : p.sq} uf={m.uf} ano={p.cargo === 'Prefeito' || p.cargo === 'Vereador' ? 2024 : 2026} nome={p.nome} tam={38} />
                           <div className="cj-pnome">
                             <strong>{p.nome}</strong>
                             <span><Chip p={p.partido} />{p.eleito && p.cargo !== 'Vereador' && <span className="selo ok">eleito</span>}</span>
@@ -339,6 +349,16 @@ export default function Municipio() {
                     </ul>
                   )}
                   {barrasPartido && barrasPartido.length > 0 && (<><h4 style={{ marginTop: 18 }}>{tituloBarras}</h4><BarrasPartido dados={barrasPartido as [string, number][]} /></>)}
+                  {(ator === 'est' || ator === 'fed') && variacao.length > 0 && (
+                    <>
+                      <h4 style={{ marginTop: 18 }}>Mudança de 2022 para 2026 (% dos votos)</h4>
+                      <ul className="cj-partidos" aria-label="Partidos que mais ganharam e perderam votos no município">
+                        {[...variacao.slice(0, 3), ...variacao.slice(-3).reverse()].filter((v, i, a) => a.findIndex((o) => o.partido === v.partido) === i).map((v) => (
+                          <li key={v.partido}><i style={{ background: corPartido(v.partido) }} />{v.partido}<b>{v.dp > 0 ? '+' : ''}{v.dp.toFixed(1).replace('.', ',')} p.p.</b></li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
                 </>
               ) : (
                 <>

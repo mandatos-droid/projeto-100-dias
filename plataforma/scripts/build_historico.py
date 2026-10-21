@@ -1,7 +1,7 @@
 """Gera public/data/hist/{uf}.json: votos por partido em cada município nas eleições de 2022 e 2020.
 
 Fonte: dados abertos do TSE (votacao_candidato_munzona_{ano}.zip), baixados antes em scripts/.cache
-(vcm22.zip, vcm20.zip). Só votos nominais, como em 2024. Siglas antigas são levadas para as atuais.
+(vcm22.zip, vcm20.zip). Só votos nominais, como em 2024. Em 2022 cada bloco traz também "c": os 6 candidatos mais votados do município. Siglas antigas são levadas para as atuais.
 Uso:  python scripts/build_historico.py
 """
 import csv, io, json, zipfile
@@ -32,6 +32,7 @@ def num(s):
 def le(ano, cd2cdi):
     z = zipfile.ZipFile(CACHE / f"vcm{str(ano)[2:]}.zip")
     tot = defaultdict(lambda: defaultdict(int))  # (uf, cdi, chave) -> partido -> votos
+    cands = defaultdict(dict)  # (uf, cdi, chave) -> sq -> [nome, partido, votos, sq, eleito] (só 2022)
     for nome in z.namelist():
         if not nome.lower().endswith(".csv"):
             continue
@@ -48,9 +49,16 @@ def le(ano, cd2cdi):
                 sg = r["SG_PARTIDO"].strip().upper()
                 if sg.startswith("UNI") and len(sg) == 5:   # o TSE grafa "UNIÃO" com byte inválido em alguns anos
                     sg = "UNIÃO"
-                tot[(r["SG_UF"].lower(), cdi, chave)][ATUAL.get(sg, sg)] += num(r["QT_VOTOS_NOMINAIS_VALIDOS"] if "QT_VOTOS_NOMINAIS_VALIDOS" in r else r["QT_VOTOS_NOMINAIS"])
+                v = num(r["QT_VOTOS_NOMINAIS_VALIDOS"] if "QT_VOTOS_NOMINAIS_VALIDOS" in r else r["QT_VOTOS_NOMINAIS"])
+                ch = (r["SG_UF"].lower(), cdi, chave)
+                tot[ch][ATUAL.get(sg, sg)] += v
+                if ano == 2022:   # a linha vem por zona: soma as zonas do município
+                    sq = r["SQ_CANDIDATO"]
+                    c = cands[ch].setdefault(sq, [r["NM_URNA_CANDIDATO"].strip().title(), ATUAL.get(sg, sg), 0, sq, 0])
+                    c[2] += v
+                    c[4] = 1 if r["DS_SIT_TOT_TURNO"].upper().startswith("ELEITO") else c[4]
     print(ano, len(tot), "blocos")
-    return tot
+    return tot, cands
 
 
 def main():
@@ -58,10 +66,16 @@ def main():
     cd2cdi = {m["cd"]: m["cdi"] for a in cfg["abr"] for m in a["mu"]}
     saida = defaultdict(lambda: defaultdict(dict))
     for ano in (2022, 2020):
-        for (uf, cdi, chave), ps in le(ano, cd2cdi).items():
+        tot, cands = le(ano, cd2cdi)
+        for (uf, cdi, chave), ps in tot.items():
             lista = sorted(((p, v) for p, v in ps.items() if v), key=lambda kv: -kv[1])
             if lista:
-                saida[uf][cdi][f"{chave}{ano}"] = {"v": sum(v for _, v in lista), "p": lista}
+                bloco = {"v": sum(v for _, v in lista), "p": lista}
+                if cands:   # 6 mais votados no município, como em 2026 (MunCand)
+                    top = sorted((c for c in cands[(uf, cdi, chave)].values() if c[2]), key=lambda c: -c[2])[:6]
+                    if top:
+                        bloco["c"] = top
+                saida[uf][cdi][f"{chave}{ano}"] = bloco
     OUT.mkdir(parents=True, exist_ok=True)
     for uf, d in saida.items():
         (OUT / f"{uf}.json").write_text(json.dumps(d, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

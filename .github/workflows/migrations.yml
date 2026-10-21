@@ -1,0 +1,34 @@
+# Aplica no Supabase, sozinho, toda migration nova que chegar na main.
+# Precisa de 2 segredos no GitHub (Settings > Secrets and variables > Actions):
+#   SUPABASE_ACCESS_TOKEN  (supabase.com/dashboard/account/tokens)
+#   SUPABASE_DB_PASSWORD   (senha do banco do projeto "Projeto 100 Dias")
+name: Migrations do Supabase
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'plataforma/supabase/migrations/**'
+  workflow_dispatch:
+
+concurrency:
+  group: migrations-supabase
+  cancel-in-progress: false
+
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: plataforma
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      PROJECT_REF: fldmekrexvzchynnmeuq
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.110.0
+      - run: supabase link --project-ref "$PROJECT_REF"
+      - run: supabase db push --yes

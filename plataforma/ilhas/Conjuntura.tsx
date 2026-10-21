@@ -7,6 +7,7 @@ import {
   carregaNacional, carregaUF,
 } from '@/lib/dados';
 import { corPartido, mistura } from '@/lib/partidos';
+import { CARGOS_22, bloco22, variacaoPartidos, type Cargo22 } from '@/lib/eleicao22';
 import { nf, pct } from '@/lib/format';
 import type { Conj2, EsferaExec, ExecEleito, FilAcum, Mun, PosExec, RegExec, TagMun } from '@/lib/types';
 import { CARGOS, NIVEIS } from './cargos';
@@ -59,8 +60,8 @@ function somaTodos(mapa: Record<string, FilAcum> | undefined, k: 1 | 2 | 3, n: n
   return out;
 }
 
-type Modo = 'calor' | 'lider' | 'ver' | 'fil' | 'marcas';
-const MODOS: [Modo, string][] = [['calor', '% de votos'], ['lider', 'Quem lidera'], ['ver', 'Vereadores'], ['fil', 'Filiados'], ['marcas', 'Minhas marcações']];
+type Modo = 'calor' | 'lider' | 'var' | 'ver' | 'fil' | 'marcas';
+const MODOS: [Modo, string][] = [['calor', '% de votos'], ['lider', 'Quem lidera'], ['var', 'Variação 2022→2026'], ['ver', 'Vereadores'], ['fil', 'Filiados'], ['marcas', 'Minhas marcações']];
 
 /** Cargos do mapa. 2026 e 2024 vêm do arquivo do município; 2022 e 2020 de public/data/hist. */
 type CargoMapa = { id: string; ano: number; rot: string; pega: (x: Mun, h?: Record<string, { v: number; p: [string, number][] }>) => { v: number; p: [string, number][] } | undefined };
@@ -121,6 +122,7 @@ export default function Conjuntura() {
   const cor = corPartido(partido);
   const [cargoId, setCargoId] = useState('estadual2026');
   const [modo, setModo] = useState<Modo>('calor');
+  const [cargoVar, setCargoVar] = useState<Cargo22>('federal');
   const [sel, setSel] = useState<string | null>(null);        // município aberto no painel do mapa
   const [munFil, setMunFil] = useState<string | null>(null);   // município do perfil de filiados (fechar o painel não o muda)
   const [esc, setEsc] = useState<'mun' | 'uf' | 'br' | null>(null);
@@ -166,6 +168,22 @@ export default function Conjuntura() {
     }
     return { out, max };
   }, [mun.dados, his.dados, cargo, partido]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* variação do partido de 2022 para 2026, em pontos percentuais da votação do cargo, por município */
+  const varMun = useMemo(() => {
+    const out = new Map<string, { dp: number; p22: number; p26: number }>();
+    let max = 0;
+    if (mun.dados && his.dados) {
+      for (const [id, x] of Object.entries(mun.dados.mun)) {
+        const a = bloco22(his.dados, id, cargoVar), b = x[cargoVar];
+        if (!a?.v || !b?.v) continue;
+        const e = variacaoPartidos(a, b).find((q) => q.partido === partido) ?? { p22: 0, p26: 0, dp: 0 };
+        out.set(id, { dp: e.dp, p22: e.p22, p26: e.p26 });
+        max = Math.max(max, Math.abs(e.dp));
+      }
+    }
+    return { out, max };
+  }, [mun.dados, his.dados, cargoVar, partido]);
 
   /* vereadores eleitos em 2024 e filiados, por município: parte do partido no total do município */
   const porMun = useMemo(() => {
@@ -255,6 +273,7 @@ export default function Conjuntura() {
   const fill = (id: string) => {
     if (modo === 'marcas') return c.muns[id] ? COR_TAG[c.muns[id].tag] : '#d9d2c3';
     if (modo === 'lider') { const l = res?.lider.get(id); return l ? mistura(corPartido(l), 0.85) : '#d9d2c3'; }
+    if (modo === 'var') { const x = varMun.out.get(id); return x ? mistura(x.dp >= 0 ? cor : '#a8442d', 0.1 + 0.9 * (varMun.max ? Math.abs(x.dp) / varMun.max : 0)) : '#d9d2c3'; }
     if (modo === 'ver') { const x = porMun.ver.get(id); return x ? escala(x.p, porMun.maxVer) : '#d9d2c3'; }
     if (modo === 'fil') { const x = porMun.fl.get(id); return x ? escala(x.p, porMun.maxFil) : '#d9d2c3'; }
     return pcts.out.has(id) ? escala(pcts.out.get(id)!, pcts.max) : '#d9d2c3';
@@ -262,6 +281,7 @@ export default function Conjuntura() {
   const dica = (id: string, nm: string) => {
     const t = c.muns[id] ? ` · ${TAGS.find((x) => x.k === c.muns[id].tag)?.rot}` : '';
     if (modo === 'lider') return `${nm}: ${res?.lider.get(id) ?? 'sem dados'}${t}`;
+    if (modo === 'var') { const x = varMun.out.get(id); return `${nm}: ${x ? `${x.dp > 0 ? '+' : ''}${x.dp.toFixed(1).replace('.', ',')} p.p. (${pct(x.p22, 1)} → ${pct(x.p26, 1)})` : 'sem dados'}${t}`; }
     if (modo === 'ver') { const x = porMun.ver.get(id); return `${nm}: ${x ? `${x.v} de ${x.t} vereadores` : 'sem dados'}${t}`; }
     if (modo === 'fil') { const x = porMun.fl.get(id); return `${nm}: ${x ? `${nf.format(x.v)} filiados (${pct(x.p, 1)} do município)` : 'sem dados'}${t}`; }
     return `${nm}: ${pcts.out.has(id) ? pct(pcts.out.get(id)!) : 'sem dados'}${t}`;
@@ -314,7 +334,10 @@ export default function Conjuntura() {
   };
   const lidera = new Map<string, number>();
   res?.lider.forEach((p) => lidera.set(p, (lidera.get(p) ?? 0) + 1));
-  const ranking = modo === 'ver' ? { titulo: 'Vereadores eleitos em 2024 no estado', dados: top(Object.entries(porMun.verPart)) }
+  const votos22 = new Map<string, number>();
+  if (modo === 'var') for (const id of Object.keys(mun.dados?.mun ?? {})) bloco22(his.dados, id, cargoVar)?.p.forEach(([p, v]) => votos22.set(p, (votos22.get(p) ?? 0) + v));
+  const ranking = modo === 'var' ? { titulo: `Votos em 2022 no estado (${CARGOS_MAPA.find((x) => x.id === `${cargoVar}2026`)?.rot})`, dados: top([...votos22.entries()]) }
+    : modo === 'ver' ? { titulo: 'Vereadores eleitos em 2024 no estado', dados: top(Object.entries(porMun.verPart)) }
     : modo === 'fil' ? { titulo: 'Filiados por partido no estado', dados: top(rankUF) }
     : modo === 'lider' ? { titulo: `Municípios em que lidera (${cargo.rot} ${cargo.ano})`, dados: top([...lidera.entries()]) }
     : { titulo: `Votos no estado (${cargo.rot} ${cargo.ano})`, dados: top(res?.lista ?? []) };
@@ -390,6 +413,12 @@ export default function Conjuntura() {
         <div className="abas" style={{ margin: 0 }} role="tablist" aria-label="Camada do mapa">
           {MODOS.map(([k, r]) => <button key={k} type="button" role="tab" aria-selected={modo === k} onClick={() => setModo(k)}>{r}</button>)}
         </div>
+        {modo === 'var' && (
+          <label className="campo"><span className="rot">Cargo</span>
+            <select value={cargoVar} onChange={(e) => setCargoVar(e.target.value as Cargo22)}>
+              {CARGOS_22.map((k) => <option key={k} value={k}>{CARGOS_MAPA.find((x) => x.id === `${k}2026`)?.rot ?? k}</option>)}
+            </select></label>
+        )}
         {(modo === 'calor' || modo === 'lider' || modo === 'marcas') && (
           <label className="campo"><span className="rot">Cargo</span>
             <select value={cargo.id} onChange={(e) => setCargoId(e.target.value)}>
@@ -407,13 +436,14 @@ export default function Conjuntura() {
             <MapaMunicipios geo={geo.dados} fill={fill} selecionado={sel} onSelecionar={escolheMun} titulo={dica} />
             <div className="escala-l">
               {modo === 'calor' && <><span>0%</span><i style={{ background: `linear-gradient(90deg, ${mistura(cor, 0.06)}, ${cor})` }} /><span>{pct(pcts.max, 0)} dos votos</span></>}
+              {modo === 'var' && <><span>−{varMun.max.toFixed(0)} p.p.</span><i style={{ background: `linear-gradient(90deg, #a8442d, ${mistura(cor, 0.06)} 50%, ${cor})` }} /><span>+{varMun.max.toFixed(0)} p.p.</span></>}
               {modo === 'ver' && <><span>0%</span><i style={{ background: `linear-gradient(90deg, ${mistura(cor, 0.06)}, ${cor})` }} /><span>{pct(porMun.maxVer, 0)} dos vereadores</span></>}
               {modo === 'fil' && <><span>0%</span><i style={{ background: `linear-gradient(90deg, ${mistura(cor, 0.06)}, ${cor})` }} /><span>{pct(porMun.maxFil, 0)} dos filiados</span></>}
               {modo === 'lider' && res.lista.slice(0, 6).map(([p]) => <span key={p} className="v2-leg"><i style={{ background: mistura(corPartido(p), 0.85) }} />{p}</span>)}
               {modo === 'marcas' && TAGS.map((t) => <span key={t.k} className="v2-leg"><i style={{ background: t.cor }} />{t.rot}</span>)}
             </div>
             <p className="peq-t">
-              {modo === 'ver' ? 'Parte das cadeiras da Câmara Municipal que é do partido (eleição de 2024). ' : modo === 'fil' ? 'Parte dos filiados do município que é do partido. ' : ''}
+              {modo === 'var' ? `Variação da parte do ${partido} nos votos nominais do cargo, de 2022 para 2026. Cor do partido = ganhou; vermelho = perdeu. ` : modo === 'ver' ? 'Parte das cadeiras da Câmara Municipal que é do partido (eleição de 2024). ' : modo === 'fil' ? 'Parte dos filiados do município que é do partido. ' : ''}
               Clique num município para detalhar e marcar. Cinza = sem dados.
             </p>
           </div>

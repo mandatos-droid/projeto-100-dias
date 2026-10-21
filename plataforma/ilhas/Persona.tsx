@@ -1,6 +1,6 @@
 'use client';
 import { useMemo, useState, type ReactNode } from 'react';
-import { carregaUF } from '@/lib/dados';
+import { carregaPleitos, carregaUF } from '@/lib/dados';
 import { corPartido } from '@/lib/partidos';
 import { nf, pct, semAcento } from '@/lib/format';
 import type { Cand, CasaChave, Pleito, UFData } from '@/lib/types';
@@ -128,6 +128,7 @@ export default function Persona() {
   const { D, m, bump } = useLegado();
   const { dados: uf, erro, carregando } = useCarga(() => carregaUF(m.uf), m.uf);
   const [busca, setBusca] = useState(m.nome_parlamentar || '');
+  const tsePl = useCarga(() => (m.uf ? carregaPleitos(m.uf) : Promise.reject(new Error('sem UF'))), m.uf);
   const [abertos, setAbertos] = useState<Record<string, boolean>>({ tse: true });
   const [form, setForm] = useState<string | null>(null); // 'novo' | id do pleito em edição
   const sq = (D.tse as { sq?: string }).sq;
@@ -321,7 +322,29 @@ export default function Persona() {
         </Cartao>
       ),
     })),
-  ].sort((a, b) => b.ano - a.ano);
+  ];
+  /* pleitos anteriores (2006 a 2024) reconhecidos pelo título eleitoral (scripts/build_pleitos.py), salvo os lançados à mão */
+  const doTse = (sq ? tsePl.dados?.[sq] : undefined) ?? [];
+  doTse.forEach((p, i) => {
+    const [ano, cargo, puf, mun, partido, numero, votos, pc, situacao] = p;
+    if (pleitos.some((x) => x.ano === ano && x.cargo.toLowerCase() === cargo.toLowerCase() && (x.municipio ?? '') === mun)) return;
+    const key = `tse-${ano}-${i}`;
+    itens.push({
+      key, ano,
+      no: (
+        <Cartao key={key} aberto={!!abertos[key]} onAlterna={() => alterna(key)}
+          resumo={<Resumo ano={ano} cargo={cargo} lugar={[mun, puf.toUpperCase()].filter(Boolean).join(' · ') + ' · TSE'} partido={partido} votos={votos} situacao={situacao.replace(/ qp$/i, ' QP') || undefined} />}>
+          <div className="kpis">
+            <div className="kp"><b>{nf.format(votos)}</b><span>votos nominais (1º turno)</span></div>
+            {pc > 0 && <div className="kp"><b>{pct(pc)}</b><span>dos votos nominais do cargo{mun ? ' no município' : ''}</span></div>}
+            <div className="kp"><b>{numero}</b><span>número de urna</span></div>
+          </div>
+          <p className="peq-t">Pleito encontrado pelo título eleitoral nos dados abertos do TSE (eleição de {ano}). Se algo estiver errado, lance o pleito à mão pelo “+”: ele substitui este.</p>
+        </Cartao>
+      ),
+    });
+  });
+  itens.sort((a, b) => b.ano - a.ano);
 
   return (
     <div className="ilha-corpo">

@@ -4,7 +4,7 @@
   public/legacy/logo-N.png      logos embutidas no HTML
   public/legacy/*.js            os scripts originais, com poucos retoques (ver PATCHES)
   lib/legacyBody.ts             marcação do <body>
-  public/painel.html            painel da Legisla (original + fonte "Este navegador")
+  (public/painel.html agora é mantido à mão, não é gerado)
 
 Refazer a extração quando o HTML original mudar:  python scripts/extrair_legado.py
 Cada retoque é conferido (precisa casar exatamente uma vez); se o original mudou, o script avisa.
@@ -93,26 +93,6 @@ S["app"] = troca(
 for nome, txt in S.items():
     (OUT / f"{nome}.js").write_text(txt, encoding="utf-8")
 
-# ---------- painel ----------
-p = (ORIG / "painel.html").read_text(encoding="utf-8")
-p = troca(p, """      <div>
-        <h4>Dados de demonstração</h4>""", """      <div>
-        <h4>Este navegador</h4>
-        <p>Lê os mandatos cadastrados e preenchidos nesta mesma plataforma, neste navegador.</p>
-        <button class="bt pri" onclick="Fonte.local()">Usar mandatos deste navegador</button>
-      </div>
-      <div>
-        <h4>Dados de demonstração</h4>""")
-p = troca(p, """  demo(){
-    BASE={mandatos:Demo.gerar()""", """  local(){
-    var b={};try{b=JSON.parse(localStorage.getItem('legisla.regimento.v3')||'{}')}catch(e){}
-    var ms=Object.keys(b.mandatos||{}).map(function(k){return lerMandato(b.mandatos[k])});
-    if(!ms.length){document.getElementById('fonteErro').innerHTML=
-      '<div class="nota aviso"><span class="tag">Sem mandatos</span>Nenhum mandato foi cadastrado neste navegador ainda.</div>';return}
-    BASE={mandatos:ms,origem:'este navegador · '+ms.length+' mandato'+(ms.length>1?'s':'')};
-    Painel.montar();
-  },
-  demo(){
-    BASE={mandatos:Demo.gerar()""")
-(RAIZ / "public" / "painel.html").write_text(p, encoding="utf-8")
-print("ok:", ", ".join(sorted(x.name for x in OUT.iterdir())))
+# public/painel.html NÃO é mais gerado aqui: virou arquivo mantido à mão
+# (login pela sessão do app, leitura do Supabase). Não sobrescrever.
+print("ok:",", ".join(sorted(x.name for x in OUT.iterdir())))

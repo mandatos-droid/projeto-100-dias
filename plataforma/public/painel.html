@@ -149,12 +149,13 @@ tr:hover td{background:rgba(87,23,48,.03)}
     <div class="fonte-op">
       <div>
         <h4>Banco na nuvem</h4>
-        <p>Lê direto do Supabase. Exige que sua conta esteja na tabela <code>equipe_legisla</code>.</p>
-        <input class="campo-mini" type="text" id="suUrl" placeholder="https://xxxx.supabase.co">
-        <input class="campo-mini" type="text" id="suKey" placeholder="chave anon">
-        <input class="campo-mini" type="text" id="suEmail" placeholder="seu e-mail">
-        <input class="campo-mini" type="password" id="suSenha" placeholder="sua senha">
-        <button class="bt pri" onclick="Fonte.nuvem()">Conectar</button>
+        <p id="nuvemSt">Lê os mandatos reais no Supabase. Exige que sua conta esteja na equipe da Legisla (<code>equipe_legisla</code>).</p>
+        <button class="bt pri" id="btGoogle" onclick="Fonte.google()">Entrar com Google</button>
+        <details style="margin-top:12px"><summary style="cursor:pointer;font-size:13px">Entrar com e-mail e senha</summary>
+          <input class="campo-mini" type="text" id="suEmail" placeholder="seu e-mail" style="margin-top:10px">
+          <input class="campo-mini" type="password" id="suSenha" placeholder="sua senha">
+          <button class="bt sec" onclick="Fonte.nuvem()">Conectar</button>
+        </details>
       </div>
       <div>
         <h4>Arquivos exportados</h4>
@@ -797,6 +798,7 @@ function lerMandato(m){
     id:m.id, nome:m.nome_parlamentar||m.nome_civil||'(sem nome)',
     cargo:m.cargo||'', uf:m.uf||'', partido:m.partido||'', casa:m.casa||'',
     posse:m.data_posse||null, resp:m.resp_nome||'', permite:!!m.permite_pesquisa,
+    criado:m.criado_em||null, atualizado:m.atualizado_em||null, pessoas:0,
     prog:pct(feitosEx,totalEx), feitosEx:feitosEx, totalEx:totalEx, porMissao:porMissao,
     preditores:(d.preditores||[]).slice(),
     bandeiras:[c['m3.b1'],c['m3.b2'],c['m3.b3']].filter(function(x){return (x||'').trim()}),
@@ -824,23 +826,86 @@ function filtrados(){
 
 /* ---------- fontes ---------- */
 var Fonte={
+  /* Supabase: mesma configuração e mesma sessão (legisla.tok) do app, que roda na mesma origem.
+     A URL e a chave pública são lidas de nucleo.js para não duplicar nem divergir. */
+  cfg:null,
+  async config(){
+    if(this.cfg)return this.cfg;
+    var t=await (await fetch('/legacy/nucleo.js')).text();
+    var m=t.match(/prod:\{url:'([^']+)',key:'([^']+)'/);
+    if(!m||!m[1]||!m[2])throw new Error('O banco ainda não está configurado em nucleo.js.');
+    return this.cfg={url:m[1],key:m[2]};
+  },
+  async api(c,tok,path,o){
+    o=o||{};
+    var r=await fetch(c.url+path,{method:o.method||'GET',
+      headers:{apikey:c.key,'Content-Type':'application/json',Authorization:'Bearer '+(tok||c.key)},
+      body:o.body?JSON.stringify(o.body):undefined});
+    var d=await r.json().catch(function(){return null});
+    if(!r.ok)throw new Error((d&&(d.error_description||d.msg||d.message))||'Falha ao falar com o banco ('+r.status+')');
+    return d;
+  },
+  erro(t,msg){document.getElementById('fonteErro').innerHTML='<div class="nota aviso"><span class="tag">'+esc(t)+'</span>'+msg+'</div>'},
+  async google(){
+    try{var c=await this.config();
+      location.href=c.url+'/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(location.origin+'/painel')}
+    catch(e){this.erro('Não deu certo',esc(e.message))}
+  },
   async nuvem(){
-    var url=val('suUrl'),key=val('suKey'),em=val('suEmail'),se=document.getElementById('suSenha').value;
-    var cx=document.getElementById('fonteErro');cx.innerHTML='';
-    if(!url||!key||!em){cx.innerHTML='<div class="nota aviso">Preencha endereço, chave e e-mail.</div>';return}
+    var em=val('suEmail'),se=document.getElementById('suSenha').value;
+    if(!em||!se){this.erro('Faltou algo','Preencha e-mail e senha.');return}
     try{
-      var r=await fetch(url+'/auth/v1/token?grant_type=password',{method:'POST',
-        headers:{apikey:key,'Content-Type':'application/json'},body:JSON.stringify({email:em,password:se})});
-      var a=await r.json();
-      if(!r.ok)throw new Error(a.error_description||a.msg||'Login recusado');
-      var h={apikey:key,Authorization:'Bearer '+a.access_token};
-      var rr=await fetch(url+'/rest/v1/mandatos?select=*',{headers:h});
-      var ms=await rr.json();
-      if(!rr.ok)throw new Error(ms.message||'Sem permissão para ler os mandatos');
-      if(!ms.length)throw new Error('A consulta não retornou mandatos. Verifique se sua conta está em equipe_legisla.');
-      BASE={mandatos:ms.map(lerMandato),origem:'banco na nuvem · '+ms.length+' mandatos'};
-      Painel.montar();
-    }catch(e){cx.innerHTML='<div class="nota aviso"><span class="tag">Não deu certo</span>'+esc(e.message)+'</div>'}
+      var c=await this.config();
+      var a=await this.api(c,null,'/auth/v1/token?grant_type=password',{method:'POST',body:{email:em,password:se}});
+      localStorage.setItem('legisla.tok',JSON.stringify(a));
+      await this.carregar(c,a.access_token);
+    }catch(e){this.erro('Não deu certo',esc(e.message))}
+  },
+  /* na abertura: aproveita a sessão do app (ou o retorno do Google) sem pedir nada */
+  async auto(){
+    var h=new URLSearchParams(location.hash.slice(1));
+    if(h.get('access_token')){
+      localStorage.setItem('legisla.tok',JSON.stringify({access_token:h.get('access_token'),refresh_token:h.get('refresh_token')}));
+      history.replaceState(null,'',location.pathname);
+    }else if(h.get('error_description')){
+      history.replaceState(null,'',location.pathname);
+      this.erro('Google recusou',esc(h.get('error_description').replace(/\+/g,' ')));return;
+    }
+    var s=null;try{s=JSON.parse(localStorage.getItem('legisla.tok')||'null')}catch(e){}
+    if(!s||!s.access_token)return;
+    var st=document.getElementById('nuvemSt');st.textContent='Entrando com a sessão da plataforma…';
+    try{
+      var c=await this.config(),tok=s.access_token;
+      try{await this.api(c,tok,'/auth/v1/user')}
+      catch(e){ // token vencido: renova com o refresh_token
+        if(!s.refresh_token)throw e;
+        var n=await this.api(c,null,'/auth/v1/token?grant_type=refresh_token',{method:'POST',body:{refresh_token:s.refresh_token}});
+        localStorage.setItem('legisla.tok',JSON.stringify(n));tok=n.access_token;
+      }
+      await this.carregar(c,tok);
+    }catch(e){
+      st.innerHTML='Lê os mandatos reais no Supabase. Exige que sua conta esteja na equipe da Legisla.';
+      this.erro('Sessão não aproveitada',esc(e.message));
+    }
+  },
+  async carregar(c,tok){
+    var u=await this.api(c,tok,'/auth/v1/user');
+    var eq=await this.api(c,tok,'/rest/v1/equipe_legisla?select=papel,nome&user_id=eq.'+u.id);
+    if(!eq.length){
+      document.getElementById('nuvemSt').innerHTML='Lê os mandatos reais no Supabase. Exige que sua conta esteja na equipe da Legisla.';
+      this.erro('Sem acesso','A conta <b>'+esc(u.email)+'</b> não está na equipe da Legisla. Peça a um administrador para incluí-la em <code>equipe_legisla</code>.');
+      return;
+    }
+    var r=await Promise.all([
+      this.api(c,tok,'/rest/v1/mandatos?select=*&order=criado_em.desc'),
+      this.api(c,tok,'/rest/v1/membros?select=mandato_id,user_id,papel,criado_em')]);
+    var ms=r[0],mb=r[1],pessoas={};
+    mb.forEach(function(x){(pessoas[x.mandato_id]=pessoas[x.mandato_id]||{})[x.user_id]=1});
+    var lista=ms.map(function(m){var l=lerMandato(m);l.pessoas=Object.keys(pessoas[m.id]||{}).length;return l});
+    var todos={};mb.forEach(function(x){todos[x.user_id]=1});
+    BASE={mandatos:lista,origem:'banco na nuvem · '+ms.length+' mandato'+(ms.length==1?'':'s')+' · '+(eq[0].nome||u.email),
+      uso:{pessoas:Object.keys(todos).length}};
+    Painel.montar();
   },
   arquivos(ev){
     var fs=Array.from(ev.target.files||[]),lidos=[],n=0;
@@ -908,6 +973,8 @@ var Painel={
       '<span class="d">planejamento estratégico completo</span></div>'+
       '<div class="cartao"><span class="n">'+totalMetas+'</span><span class="r">metas escritas</span>'+
       '<span class="d">média de '+(L.length?(totalMetas/L.length).toFixed(1):0)+' por mandato</span></div></div>';
+
+    h+=this.uso(L);
 
     /* progresso por missão */
     h+='<h2>Onde os mandatos avançam e onde travam</h2>'+
@@ -1013,6 +1080,32 @@ var Painel={
       ' mandatos autorizaram.</p></div>';
 
     document.getElementById('painel').innerHTML=h;
+  },
+
+  /* uso da plataforma: só existe quando a fonte traz datas de cadastro (banco na nuvem) */
+  uso(L){
+    var com=L.filter(function(m){return m.criado});
+    if(!com.length)return '';
+    var DIA=86400000,agora=Date.now(),sem=com.filter(function(m){return agora-new Date(m.criado)<7*DIA}).length;
+    var ativos=com.filter(function(m){return m.atualizado&&agora-new Date(m.atualizado)<7*DIA}).length;
+    var pessoas=BASE.uso?BASE.uso.pessoas:null;
+    var h='<h2>Uso da plataforma</h2><p class="h2sub">Cadastros e atividade recente. Mostra só contagens.</p>'+
+      '<div class="cartoes">'+
+      (pessoas!=null?'<div class="cartao"><span class="n">'+pessoas+'</span><span class="r">pessoas com acesso</span>'+
+        '<span class="d">'+L.filter(function(m){return m.pessoas>1}).length+' mandatos com mais de uma pessoa</span></div>':'')+
+      '<div class="cartao"><span class="n">'+sem+'</span><span class="r">mandatos criados na semana</span>'+
+        '<span class="d">últimos 7 dias</span></div>'+
+      '<div class="cartao"><span class="n">'+ativos+'</span><span class="r">com atividade na semana</span>'+
+        '<span class="d">houve alteração nos últimos 7 dias</span></div></div>';
+    var dias=[];
+    for(var i=13;i>=0;i--){var d=new Date(agora-i*DIA),k=d.toISOString().slice(0,10);
+      dias.push({k:k,rot:String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0'),n:0})}
+    com.forEach(function(m){var k=new Date(m.criado).toISOString().slice(0,10);
+      dias.forEach(function(x){if(x.k===k)x.n++})});
+    var mx=Math.max.apply(null,dias.map(function(x){return x.n}))||1;
+    h+='<div class="barras" style="max-width:720px;margin-top:18px">';
+    dias.forEach(function(x){h+=Painel.barra(x.rot,x.n,mx,'var(--turquesa)',x.n+(x.n==1?' mandato':' mandatos'))});
+    return h+'</div>';
   },
 
   barra(rot,v,max,cor,txt){
@@ -1136,6 +1229,8 @@ var Demo={
     });
   }
 };
+
+Fonte.auto();
 </script>
 </body>
 </html>
