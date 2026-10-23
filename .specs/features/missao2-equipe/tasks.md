@@ -704,7 +704,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T24: Rotinas, abas e visão por área
+### T24: Rotinas, abas e visão por área ✅
 
 **What**: Criar `ilhas/equipe/Rotinas.tsx` com as abas "Por área", "Cadeia" e "Entre áreas" (só a primeira pronta), mostrando por área: quem coordena, quem participa, escopo de cada pessoa, vagas, e o desligar de rotina; registrar `rotinas` em `ponte.tsx` no lugar da antiga.
 **Where**: `ilhas/equipe/Rotinas.tsx`
@@ -719,10 +719,10 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Uma área de 3 cadeiras mostra a reunião semanal com 3 participantes e 45 min
-- [ ] Cadeira sem nome aparece como "vaga" e fora da contagem de confirmados
-- [ ] Desligar uma rotina a tira da lista e do checklist
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 3 testes e2e novos, nenhum removido
+- [x] Uma área de 3 cadeiras mostra a reunião semanal com 3 participantes e 45 min
+- [x] Cadeira sem nome aparece como "vaga" e fora da contagem de confirmados
+- [x] Desligar uma rotina a tira da lista e do checklist
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 3 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
