@@ -109,6 +109,18 @@ export function alternaArea(c: Campos, coord: string, ligar: boolean): { patch: 
   return comNome.length ? { patch, confirma: comNome.map((i) => nomeLimpo(c, i)) } : { patch };
 }
 
+/** Define a liderança imediata. Se criaria um ciclo, devolve `ciclo` (da cadeira até quem a lideraria de volta) e nenhum patch. */
+export function defineLider(c: Campos, i: number, novo: number | null): { patch?: Patch; ciclo?: number[] } {
+  if (novo === null) return { patch: { [chaveFicha(i, 'lider')]: '-' } };
+  const subida = [novo];
+  for (let p: number | null = novo; p !== null && p !== i && subida.length < 60; subida.push(p)) {
+    p = liderDe(c, p);
+    if (p === null) break;
+  }
+  if (novo === i || subida.includes(i)) return { ciclo: novo === i ? [i] : [i, ...subida.slice(0, subida.indexOf(i)).reverse()] };
+  return { patch: { [chaveFicha(i, 'lider')]: String(novo) } };
+}
+
 /** Acrescenta uma cadeira: reativa a do modelo (`modelo`) ou cria a de índice livre 20+, na área e sob a liderança dadas. */
 export function acrescenta(c: Campos, o: { modelo?: number; area?: string; sob?: number }): { patch: Patch; erro?: string } {
   const on = ativas(c);
