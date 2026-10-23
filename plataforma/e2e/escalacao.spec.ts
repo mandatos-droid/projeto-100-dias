@@ -83,3 +83,39 @@ test.describe('Etapa 1: áreas do mandato (MEQ-02, MEQ-04)', () => {
     expect(perguntou).toBe(false);
   });
 });
+
+const ate39 = Array.from({ length: 40 }, (_, i) => i).join('|');
+
+test.describe('Etapa 2: ajustar as cadeiras (MEQ-02, MEQ-03)', () => {
+  const na2 = { 'm2.etapa': '2', 'm2.coords': MODELO, 'm2.on': todas };
+
+  test('remover e acrescentar mudam a contagem', async ({ page }) => {
+    await abre(page, [ILHA], na2);
+    const cont = page.getByRole('status').filter({ hasText: 'de 40 cadeiras' });
+    await expect(cont).toContainText('20 de 40 cadeiras');
+    await page.getByRole('button', { name: 'Remover Motorista' }).click();
+    await expect(cont).toContainText('19 de 40 cadeiras');
+    await page.getByLabel('Acrescentar cadeira').selectOption({ label: 'Do modelo: Motorista' });
+    await page.getByRole('button', { name: 'Acrescentar', exact: true }).click();
+    await expect(cont).toContainText('20 de 40 cadeiras');
+    await page.getByLabel('Acrescentar cadeira').selectOption('branco');
+    await page.getByRole('button', { name: 'Acrescentar', exact: true }).click();
+    await expect(cont).toContainText('21 de 40 cadeiras');
+    expect((await camposDe(page))['m2.on']).toBe(todas + '|20');
+  });
+
+  test('com 40 cadeiras o botão de acrescentar fica desabilitado e explica o limite', async ({ page }) => {
+    await abre(page, [ILHA], { ...na2, 'm2.on': ate39 });
+    await expect(page.getByRole('button', { name: 'Acrescentar', exact: true })).toBeDisabled();
+    await expect(page.getByText(/40 cadeiras permitidas/)).toBeVisible();
+  });
+
+  test('a Chefia de gabinete não tem botão de remover e os temáticos aparecem sem bandeira', async ({ page }) => {
+    await abre(page, [ILHA], na2);
+    await expect(page.getByRole('button', { name: 'Remover Chefia de gabinete' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Remover Social-media' })).toHaveCount(1);
+    const tematico = page.locator('.es-cad', { hasText: 'Especialista temático(a) 1' });
+    await expect(tematico.getByText('Temático', { exact: true })).toBeVisible();
+    await expect(page.locator('[data-etapa]')).not.toContainText(/bandeira/i);
+  });
+});
