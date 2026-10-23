@@ -365,7 +365,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T11: Playwright e script de testes de tela
+### T11: Playwright e script de testes de tela ✅
 
 **What**: Instalar `@playwright/test` (devDependency), criar `playwright.config.ts` (Chromium, `webServer: npm run dev`, `baseURL` local) e o script `test:e2e` no `package.json`; instalar o Chromium.
 **Where**: `playwright.config.ts`
@@ -380,9 +380,9 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] `npm run test:e2e` executa um teste de exemplo e sai com código 0 (cria `e2e/harness.spec.ts` com 1 teste que abre `/`)
-- [ ] `.gitignore` ignora `test-results/` e `playwright-report/`
-- [ ] Gate: `npm run test:e2e`; 1 teste e2e passa
+- [x] `npm run test:e2e` executa um teste de exemplo e sai com código 0 (cria `e2e/harness.spec.ts` com 1 teste que abre `/`)
+- [x] `.gitignore` ignora `test-results/` e `playwright-report/`
+- [x] Gate: `npm run test:e2e`; 1 teste e2e passa
 
 **Tests**: e2e
 **Gate**: full
