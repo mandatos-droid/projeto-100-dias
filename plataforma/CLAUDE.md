@@ -26,6 +26,7 @@ Scripts Python (só biblioteca padrão; brutos do TSE em `scripts/.cache`, fora 
 | `build_filiados.py` | `public/data/filiados/{uf}.json` e `br.json` (filiados por partido × município com gênero, faixa etária e escolaridade). Baixa o "Perfil Filiação Partidária" do TSE (~230 MB zip, 3,5 GB csv) para `scripts/.cache` e reduz a ~7 MB; o TSE atualiza todo mês, rode de novo com `--refresh`. Exige `cdmun.json` |
 | `build_executivo.py` | `public/data/exec/{uf}.json` e `br.json`: eleito, partido e coligação da Presidência/governo (2026) e das prefeituras (2024). Quando sair o 2º turno, rode com `--refresh` |
 | `build_social.py` | `public/data/social/*` a partir da planilha IDSC-BR em `../contexto inicial` |
+| `build_comissoes.py` | `public/data/comissoes/br.json`: comissões permanentes da Câmara (`nome`, `sigla`), da API de dados abertos (`/api/v2/orgaos?codTipoOrgao=2`); falha sem gravar se a fonte vier vazia. Formato `{ gerado, fonte, comissoes: [{ nome, sigla }] }`; um `public/data/comissoes/{uf}.json` do mesmo formato (curado à mão, nenhum existe ainda) vira o catálogo das Assembleias na ilha de espaços da Missão 3 |
 | `extrair_legado.py` | `public/legacy/*`, `lib/legacyBody.ts`, `public/painel.html` (ver abaixo) |
 
 ## Arquitetura: Guia legado + ilhas React

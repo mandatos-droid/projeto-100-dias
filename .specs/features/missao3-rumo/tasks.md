@@ -323,7 +323,7 @@ T22 → T23 → T24
 
 ---
 
-### T9: Catálogo de comissões da Câmara dos Deputados
+### T9: Catálogo de comissões da Câmara dos Deputados ✅
 
 **What**: Criar `scripts/build_comissoes.py` e gerar `public/data/comissoes/br.json`. Primeiro passo: conferir na documentação oficial de dados abertos da Câmara o endpoint e o formato (a spec registra que não foram verificados); só então escrever o parser.
 **Where**: `scripts/build_comissoes.py`, `public/data/comissoes/br.json`, `tests/comissoes.test.ts`, `CLAUDE.md` (linha na tabela de scripts)
@@ -338,12 +338,12 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] O formato real da fonte foi conferido e a URL consultada fica comentada no topo do script
-- [ ] `br.json` tem `{ gerado: ISO, fonte: URL, comissoes: [{ nome, sigla }] }` com ao menos 20 comissões permanentes (RUM-50.2)
-- [ ] O script falha com mensagem clara e não grava arquivo se a fonte não responder ou vier sem comissões
-- [ ] O JSON não contém nome de pessoa, CPF ou contato
-- [ ] `public/data/comissoes/` aceita um `{uf}.json` do mesmo formato (documentado em `CLAUDE.md`), sem nenhum criado agora (RUM-50.3)
-- [ ] Gate: `npm test`; testes novos em `tests/comissoes.test.ts`, nenhum removido
+- [x] O formato real da fonte foi conferido e a URL consultada fica comentada no topo do script
+- [x] `br.json` tem `{ gerado: ISO, fonte: URL, comissoes: [{ nome, sigla }] }` com ao menos 20 comissões permanentes (RUM-50.2)
+- [x] O script falha com mensagem clara e não grava arquivo se a fonte não responder ou vier sem comissões
+- [x] O JSON não contém nome de pessoa, CPF ou contato
+- [x] `public/data/comissoes/` aceita um `{uf}.json` do mesmo formato (documentado em `CLAUDE.md`), sem nenhum criado agora (RUM-50.3)
+- [x] Gate: `npm test`; testes novos em `tests/comissoes.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick

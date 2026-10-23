@@ -1,0 +1,126 @@
+{
+ "gerado": "2026-10-23T06:34:08Z",
+ "fonte": "https://dadosabertos.camara.leg.br/api/v2/orgaos?codTipoOrgao=2",
+ "comissoes": [
+  {
+   "nome": "Comissão de Agricultura, Pecuária, Abastecimento e Desenvolvimento Rural",
+   "sigla": "CAPADR"
+  },
+  {
+   "nome": "Comissão de Administração e Serviço Público",
+   "sigla": "CASP"
+  },
+  {
+   "nome": "Comissão de Constituição e Justiça e de Cidadania",
+   "sigla": "CCJC"
+  },
+  {
+   "nome": "Comissão de Comunicação",
+   "sigla": "CCOM"
+  },
+  {
+   "nome": "Comissão de Ciência, Tecnologia e Inovação",
+   "sigla": "CCTI"
+  },
+  {
+   "nome": "Comissão de Cultura",
+   "sigla": "CCULT"
+  },
+  {
+   "nome": "Comissão de Defesa do Consumidor",
+   "sigla": "CDC"
+  },
+  {
+   "nome": "Comissão de Desenvolvimento Econômico",
+   "sigla": "CDE"
+  },
+  {
+   "nome": "Comissão de Direitos Humanos, Minorias e Igualdade Racial",
+   "sigla": "CDHMIR"
+  },
+  {
+   "nome": "Comissão de Desenvolvimento Urbano",
+   "sigla": "CDU"
+  },
+  {
+   "nome": "Comissão de Educação",
+   "sigla": "CE"
+  },
+  {
+   "nome": "Comissão do Esporte",
+   "sigla": "CESPO"
+  },
+  {
+   "nome": "Comissão de Fiscalização Financeira e Controle",
+   "sigla": "CFFC"
+  },
+  {
+   "nome": "Comissão de Finanças e Tributação",
+   "sigla": "CFT"
+  },
+  {
+   "nome": "Comissão de Indústria, Comércio e Serviços",
+   "sigla": "CICS"
+  },
+  {
+   "nome": "Comissão de Defesa dos Direitos da Pessoa Idosa",
+   "sigla": "CIDOSO"
+  },
+  {
+   "nome": "Comissão de Integração Nacional e Desenvolvimento Regional",
+   "sigla": "CINDRE"
+  },
+  {
+   "nome": "Comissão de Legislação Participativa",
+   "sigla": "CLP"
+  },
+  {
+   "nome": "Comissão de Meio Ambiente e Desenvolvimento Sustentável",
+   "sigla": "CMADS"
+  },
+  {
+   "nome": "Comissão de Minas e Energia",
+   "sigla": "CME"
+  },
+  {
+   "nome": "Comissão de Defesa dos Direitos da Mulher",
+   "sigla": "CMULHER"
+  },
+  {
+   "nome": "Comissão de Previdência, Assistência Social, Infância, Adolescência e Família",
+   "sigla": "CPASF"
+  },
+  {
+   "nome": "Comissão de Defesa dos Direitos das Pessoas com Deficiência",
+   "sigla": "CPD"
+  },
+  {
+   "nome": "Comissão da Amazônia e dos Povos Originários e Tradicionais",
+   "sigla": "CPOVOS"
+  },
+  {
+   "nome": "Comissão de Relações Exteriores e de Defesa Nacional",
+   "sigla": "CREDN"
+  },
+  {
+   "nome": "Comissão de Saúde",
+   "sigla": "CSAUDE"
+  },
+  {
+   "nome": "Comissão de Segurança Pública e Combate ao Crime Organizado",
+   "sigla": "CSPCCO"
+  },
+  {
+   "nome": "Comissão de Trabalho",
+   "sigla": "CTRAB"
+  },
+  {
+   "nome": "Comissão de Turismo",
+   "sigla": "CTUR"
+  },
+  {
+   "nome": "Comissão de Viação e Transportes",
+   "sigla": "CVT"
+  }
+ ]
+}
