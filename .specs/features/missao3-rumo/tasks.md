@@ -604,7 +604,7 @@ T22 → T23 → T24
 
 ---
 
-### T19: Metas com retorno SMART, responsável e apoio
+### T19: Metas com retorno SMART, responsável e apoio ✅
 
 **What**: Implementar `ilhas/rumo/Metas.tsx` e `ilhas/rumo/CartaoMeta.tsx`: metas agrupadas por objetivo, retorno SMART ao vivo, confirmação de "alcançável", seletor de responsável e apoios (chips das pessoas da Missão 2 + texto livre), contador 10 a 16, limite de 4 por objetivo. `CartaoMeta` aceita `comStatus` (usado na aba, T21).
 **Where**: `ilhas/rumo/Metas.tsx`, `ilhas/rumo/CartaoMeta.tsx`, `ilhas/rumo/rumo.css`, `e2e/rumo-metas.spec.ts`
@@ -619,15 +619,15 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Sem preditor, "Acrescentar meta" está desabilitado e aponta para a etapa de preditores (RUM-30.2)
-- [ ] Acrescentar meta exige escolher o objetivo; o quinto do mesmo objetivo é bloqueado com a mensagem do limite (RUM-30.1, RUM-30.15)
-- [ ] Digitar a meta de exemplo do Guia mostra S, M, T atendidas e R atendida pelo vínculo; confirmar "Cabe na capacidade da equipe" acende A (RUM-31.3, RUM-31.7, RUM-31.8)
-- [ ] "Enviar e-mail semanal" mostra o alerta "Meta não é tarefa diária" (RUM-31.9)
-- [ ] Responsável vem das cadeiras nomeadas da Missão 2, aceita texto livre, e apoio igual ao responsável é recusado (RUM-32.10, RUM-32.12)
-- [ ] Sem cadeiras nomeadas, texto livre funciona e o aviso aponta para a Missão 2 (RUM-32.13)
-- [ ] Contador verde de 10 a 16 e em aviso fora disso, sem bloquear (RUM-30.14)
-- [ ] Metas antigas (só `pred`, `texto`, `resp`, `apoio`) abrem sem erro e sem perder texto (RUM-70)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-metas.spec.ts`, nenhum removido
+- [x] Sem preditor, "Acrescentar meta" está desabilitado e aponta para a etapa de preditores (RUM-30.2)
+- [x] Acrescentar meta exige escolher o objetivo; o quinto do mesmo objetivo é bloqueado com a mensagem do limite (RUM-30.1, RUM-30.15)
+- [x] Digitar a meta de exemplo do Guia mostra S, M, T atendidas e R atendida pelo vínculo; confirmar "Cabe na capacidade da equipe" acende A (RUM-31.3, RUM-31.7, RUM-31.8)
+- [x] "Enviar e-mail semanal" mostra o alerta "Meta não é tarefa diária" (RUM-31.9)
+- [x] Responsável vem das cadeiras nomeadas da Missão 2, aceita texto livre, e apoio igual ao responsável é recusado (RUM-32.10, RUM-32.12)
+- [x] Sem cadeiras nomeadas, texto livre funciona e o aviso aponta para a Missão 2 (RUM-32.13)
+- [x] Contador verde de 10 a 16 e em aviso fora disso, sem bloquear (RUM-30.14)
+- [x] Metas antigas (só `pred`, `texto`, `resp`, `apoio`) abrem sem erro e sem perder texto (RUM-70)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-metas.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
