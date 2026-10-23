@@ -1013,7 +1013,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T36: Teste de ponta a ponta com mandato antigo
+### T36: Teste de ponta a ponta com mandato antigo ✅
 
 **What**: Criar `e2e/migracao.spec.ts`: semear um mandato da versão antiga e conferir que nada se perde na escalação, no organograma, nas rotinas e nas contagens.
 **Where**: `e2e/migracao.spec.ts`
@@ -1028,10 +1028,10 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Mandato com 20 `m2.f`, fichas e `m2.areas` abre com as 20 cadeiras ativas e nomes intactos (E-15)
-- [ ] `m2.areas` continua gravada e não aparece na tela
-- [ ] A contagem do Resumo e a do painel mostram o mesmo número que a tela
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 3 testes e2e novos, nenhum removido
+- [x] Mandato com 20 `m2.f`, fichas e `m2.areas` abre com as 20 cadeiras ativas e nomes intactos (E-15)
+- [x] `m2.areas` continua gravada e não aparece na tela
+- [x] A contagem do Resumo e a do painel mostram o mesmo número que a tela
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 3 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
