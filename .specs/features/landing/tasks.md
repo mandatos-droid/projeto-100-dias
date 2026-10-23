@@ -413,12 +413,12 @@ T22
 
 **Done when**:
 
-- [ ] Percentual e posição somem quando `resumo.posicao` é `null` (Demo AC 12)
-- [ ] `onError` da foto troca para a inicial do nome (Demo AC 10)
-- [ ] Os três estados do histórico (linhas, vazio, falha) têm o texto exato da spec (Demo AC 9, edge)
-- [ ] Nenhum campo de título, CPF ou nascimento é renderizado (Demo AC 13)
-- [ ] O botão "Salvar meu mapa" é um `<a href="/guia">` (Demo AC 11)
-- [ ] Gate Build passa
+- [x] Percentual e posição somem quando `resumo.posicao` é `null` (Demo AC 12)
+- [x] `onError` da foto troca para a inicial do nome (Demo AC 10)
+- [x] Os três estados do histórico (linhas, vazio, falha) têm o texto exato da spec (Demo AC 9, edge)
+- [x] Nenhum campo de título, CPF ou nascimento é renderizado (Demo AC 13)
+- [x] O botão "Salvar meu mapa" é um `<a href="/guia">` (Demo AC 11)
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
