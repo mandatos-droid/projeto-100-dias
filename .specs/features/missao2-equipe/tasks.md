@@ -151,7 +151,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T3: Acrescentar e remover cadeira com limites e repasse
+### T3: Acrescentar e remover cadeira com limites e repasse ✅
 
 **What**: Acrescentar a `lib/cadeiras.ts` `acrescenta` (limite 40, índice 20+ para cadeira nova, ou reativa cadeira do modelo) e `remove` (recusa a cadeira 0, repassa a liderança, guarda cópia em `m2.arq.{n}`).
 **Where**: `lib/cadeiras.ts`
@@ -166,11 +166,11 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Acrescentar com 40 cadeiras devolve `erro` e o total continua 40 (T-03)
-- [ ] Remover a cadeira 0 devolve `erro` (T-04)
-- [ ] Remover B em A→B→C deixa C liderada por A (T-10)
-- [ ] Remover cadeira com nome ou ficha devolve `confirma`; a cópia fica em `m2.arq.{n}` como JSON `{nome, ficha}`
-- [ ] Gate: `npm test`; 4 testes novos, nenhum removido
+- [x] Acrescentar com 40 cadeiras devolve `erro` e o total continua 40 (T-03)
+- [x] Remover a cadeira 0 devolve `erro` (T-04)
+- [x] Remover B em A→B→C deixa C liderada por A (T-10)
+- [x] Remover cadeira com nome ou ficha devolve `confirma`; a cópia fica em `m2.arq.{n}` como JSON `{nome, ficha}`
+- [x] Gate: `npm test`; 4 testes novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
