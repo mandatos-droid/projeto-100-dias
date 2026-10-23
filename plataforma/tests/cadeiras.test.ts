@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { AREAS, MAX_CADEIRAS, acrescenta, alternaArea, remove, aplica, ativas, coordDe, coordsDe, liderDe, modeloCompleto, sugeridasDaArea, SEM_AREA } from '../lib/cadeiras.ts';
+import { AREAS, MAX_CADEIRAS, defineLider, acrescenta, alternaArea, remove, aplica, ativas, coordDe, coordsDe, liderDe, modeloCompleto, sugeridasDaArea, SEM_AREA } from '../lib/cadeiras.ts';
 
 type C = Record<string, string>;
 
@@ -179,4 +179,39 @@ test('remover cadeira vazia não pede confirmação (MEQ-08)', () => {
   const r = remove(c, 19);
   assert.equal(r.confirma, undefined);
   assert.equal(r.erro, undefined);
+});
+
+/* ---------- T4: liderança sem ciclo ---------- */
+const cadeia3 = (): C => ({ 'm2.on': '0|20|21|22', 'm2.p21.lider': '0', 'm2.p22.lider': '20', 'm2.p23.lider': '21' });
+
+test('A lidera B: definir B como líder de A é recusado e mostra A→B (MEQ-07, T-08)', () => {
+  const c = cadeia3();
+  const r = defineLider(c, 20, 21);
+  assert.deepEqual(r.ciclo, [20, 21]);
+  assert.equal(r.patch, undefined);
+});
+
+test('A→B→C: definir C como líder de A é recusado e devolve a cadeia A, B, C (MEQ-07, T-09)', () => {
+  const c = cadeia3();
+  const r = defineLider(c, 20, 22);
+  assert.deepEqual(r.ciclo, [20, 21, 22]);
+  assert.equal(r.patch, undefined);
+});
+
+test('uma cadeira não pode ser líder de si mesma (MEQ-07)', () => {
+  assert.deepEqual(defineLider(cadeia3(), 21, 21).ciclo, [21]);
+});
+
+test('liderança sem ciclo devolve o patch e nenhum ciclo (MEQ-07)', () => {
+  const c = cadeia3();
+  const r = defineLider(c, 22, 20);
+  assert.equal(r.ciclo, undefined);
+  aplica(c, r.patch!);
+  assert.equal(liderDe(c, 22), 20);
+});
+
+test('definir o topo grava "-" e a cadeira passa a não ter líder (MEQ-07)', () => {
+  const c = cadeia3();
+  aplica(c, defineLider(c, 22, null).patch!);
+  assert.equal(liderDe(c, 22), null);
 });

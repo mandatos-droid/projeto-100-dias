@@ -178,7 +178,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T4: Liderança sem ciclo
+### T4: Liderança sem ciclo ✅
 
 **What**: Acrescentar a `lib/cadeiras.ts` `defineLider`, que recusa ciclo direto ou indireto e devolve a cadeia que o formaria.
 **Where**: `lib/cadeiras.ts`
@@ -193,10 +193,10 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] A lidera B e definir B como líder de A devolve `ciclo` (T-08)
-- [ ] A→B→C e definir C como líder de A devolve `ciclo = [A, B, C]` (T-09)
-- [ ] Liderança sem ciclo devolve `patch` e não devolve `ciclo`
-- [ ] Gate: `npm test`; 3 testes novos, nenhum removido
+- [x] A lidera B e definir B como líder de A devolve `ciclo` (T-08)
+- [x] A→B→C e definir C como líder de A devolve `ciclo = [A, B, C]` (T-09)
+- [x] Liderança sem ciclo devolve `patch` e não devolve `ciclo`
+- [x] Gate: `npm test`; 3 testes novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
