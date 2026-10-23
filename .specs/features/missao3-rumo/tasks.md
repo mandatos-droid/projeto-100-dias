@@ -127,7 +127,7 @@ T22 → T23 → T24
 
 ---
 
-### T2: Critérios, notas e ranking das bandeiras
+### T2: Critérios, notas e ranking das bandeiras ✅
 
 **What**: Criar `lib/criterios.ts` com `CRITERIOS_GUIA`, `total`, `ranking`, `alternaPrioritaria`, `adicionaCriterio`, `removeCriterio`.
 **Where**: `lib/criterios.ts`, `tests/criterios.test.ts`
@@ -142,11 +142,11 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] `total` soma notas inteiras de 0 a 5 e recusa nota fora da faixa ou não inteira (RUM-01.4)
-- [ ] `ranking` ordena por total desc, desempata pela ordem de entrada e só marca `sugerida` com 2 ou mais bandeiras com nota (RUM-01.5)
-- [ ] `alternaPrioritaria` recusa a quarta com mensagem que cita a prioritária a desmarcar e preserva a ordem de confirmação (RUM-02.6, RUM-02.7)
-- [ ] `adicionaCriterio` para em 8 critérios; `removeCriterio` remove também as notas daquele critério (RUM-01.3)
-- [ ] Gate: `npm test`; testes novos em `tests/criterios.test.ts`, nenhum removido
+- [x] `total` soma notas inteiras de 0 a 5 e recusa nota fora da faixa ou não inteira (RUM-01.4)
+- [x] `ranking` ordena por total desc, desempata pela ordem de entrada e só marca `sugerida` com 2 ou mais bandeiras com nota (RUM-01.5)
+- [x] `alternaPrioritaria` recusa a quarta com mensagem que cita a prioritária a desmarcar e preserva a ordem de confirmação (RUM-02.6, RUM-02.7)
+- [x] `adicionaCriterio` para em 8 critérios; `removeCriterio` remove também as notas daquele critério (RUM-01.3)
+- [x] Gate: `npm test`; testes novos em `tests/criterios.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
