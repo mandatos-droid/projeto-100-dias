@@ -69,3 +69,40 @@ test('rotina desligada sai da lista, aparece em desligadas e volta ao religar (M
   assert.equal(ids(c).includes('area:Comunicação'), true);
   assert.equal(c['m2.rotoff'], undefined);
 });
+
+/* ---------- T6: cadeia ---------- */
+import { cadeia, cadeirasDoElo, rotinasDaCadeira } from '../lib/rotinas.ts';
+const equipe: C = { 'm2.f1': 'Ana', 'm2.on': '0|1|2|7|8' };
+
+test('a cadeia segue planejamento, monitoramento, alinhamento, reunião de área, feedback (MEQ-18, T-17)', () => {
+  const elos = cadeia(gerarRotinas(equipe));
+  assert.deepEqual(elos.map((e) => e.tipo), ['plan', 'mensal', 'semanal', 'area', 'feedback']);
+  assert.deepEqual(elos.map((e) => e.ordem), [1, 2, 3, 4, 5]);
+});
+
+test('cada elo agrupa as rotinas do tipo e conta as cadeiras envolvidas, sem repetir (MEQ-18)', () => {
+  const elos = cadeia(gerarRotinas(equipe));
+  const area = elos.find((e) => e.tipo === 'area')!;
+  assert.deepEqual([...area.ids].sort(), ['area:Comunicação', 'area:Legislativo']);
+  assert.equal(area.cadeiras.length, 4);
+  assert.equal(elos[0].cadeiras.length, 5);
+  const fb = elos.find((e) => e.tipo === 'feedback')!;
+  assert.equal(fb.ids.length, 4);
+  assert.equal(fb.freq, 'Semestralmente');
+});
+
+test('elo sem rotina não aparece na cadeia (MEQ-18)', () => {
+  const elos = cadeia(gerarRotinas({ 'm2.f1': 'Ana' }));
+  assert.deepEqual(elos.map((e) => e.tipo), ['plan', 'mensal', 'semanal']);
+});
+
+test('as cadeiras do elo "reunião da área Comunicação" são só as de Comunicação (MEQ-19, T-18)', () => {
+  assert.deepEqual(cadeirasDoElo(gerarRotinas(equipe), 'area:Comunicação'), [7, 8]);
+  assert.deepEqual(cadeirasDoElo(gerarRotinas(equipe), 'inexistente'), []);
+});
+
+test('rotinasDaCadeira lista as rotinas de que a cadeira participa (MEQ-19)', () => {
+  const rs = gerarRotinas(equipe);
+  assert.deepEqual(rotinasDaCadeira(rs, 8).map((r) => r.id), ['plan', 'mensal', 'semanal', 'area:Comunicação', 'fb:7>8']);
+  assert.deepEqual(rotinasDaCadeira(rs, 99), []);
+});
