@@ -8,7 +8,7 @@ import { CHEFIA, MAX_CADEIRAS, SEM_AREA, acrescenta, ativas, coordDe, type Campo
 import { COR_COORD, chaveFicha, lista } from '@/lib/equipe';
 import { layoutOrg } from '@/lib/layoutOrg';
 import { cargoNome } from './cargos';
-import { assinar, limparFoco } from './foco';
+import { assinar, definirFoco, limparFoco } from './foco';
 import PainelCadeira from './PainelCadeira';
 import { useEquipe } from './useEquipe';
 import './equipe.css';
@@ -44,6 +44,10 @@ function NoCadeira({ data, selected }: NodeProps<Node<Dado>>) {
         <Anel n={data.feitos} />
       </span>
       <Handle type="source" position={Position.Bottom} isConnectable={false} />
+      <Handle id="l" type="target" position={Position.Left} isConnectable={false} style={{ opacity: 0 }} />
+      <Handle id="r" type="source" position={Position.Right} isConnectable={false} style={{ opacity: 0 }} />
+      <Handle id="rt" type="target" position={Position.Right} isConnectable={false} style={{ opacity: 0 }} />
+      <Handle id="ls" type="source" position={Position.Left} isConnectable={false} style={{ opacity: 0 }} />
     </div>
   );
 }
@@ -62,9 +66,9 @@ export default function Organograma() {
   const on = ativas(c);
   const comEscopo = on.filter((i) => temEscopo(c, i)).length;
   const aberto = sel !== null && on.includes(sel);
-  const chave = JSON.stringify([l.nos.map((n) => [n.i, n.x, n.y, n.nome, n.coord, cargoNome(c, n.i), preenchidos(c, n.i), temEscopo(c, n.i)]), l.arestas.map((a) => a.id), filtro, destaque, aberto && sel]);
+  const chave = JSON.stringify([l.nos.map((n) => [n.i, n.x, n.y, n.nome, n.coord, cargoNome(c, n.i), preenchidos(c, n.i), temEscopo(c, n.i)]), l.arestas.map((a) => [a.id, a.rotulo]), filtro, destaque, aberto && sel]);
   /* o canvas só é remontado (e reenquadrado) quando a estrutura muda; editar nome ou escopo só atualiza as caixas */
-  const estrutura = JSON.stringify([l.nos.map((n) => n.i), l.arestas.map((a) => a.id), reajusta]);
+  const estrutura = JSON.stringify([l.nos.map((n) => n.i), l.arestas.filter((a) => a.tipo === 'hierarquia').map((a) => a.id), reajusta]);
   const { nos, arestas } = useMemo(() => ({
     nos: l.nos.map<Node<Dado>>((n) => ({
       id: String(n.i), type: 'cadeira', position: { x: n.x, y: n.y }, draggable: false, selected: sel === n.i, focusable: true,
@@ -72,9 +76,18 @@ export default function Organograma() {
       data: { i: n.i, cargo: cargoNome(c, n.i), nome: n.nome, coord: n.coord, vaga: n.vaga, aberto: n.aberto, feitos: preenchidos(c, n.i), escopo: temEscopo(c, n.i) },
       style: { width: n.w, opacity: (destaque.length ? !destaque.includes(n.i) : filtro && coordDe(c, n.i) !== filtro) ? 0.25 : 1 },
     })),
-    arestas: l.arestas.filter((a) => a.tipo === 'hierarquia').map<Edge>((a) => ({
-      id: a.id, source: String(a.de), target: String(a.para), type: 'smoothstep', style: { stroke: COR_COORD[a.coord] ?? '#5E524C', strokeWidth: 2 },
-    })),
+    arestas: l.arestas.map<Edge>((a) => {
+      if (a.tipo === 'entre') {
+        /* linha pontilhada lateral, rotulada: não é hierarquia */
+        const aEsq = (l.nos.find((n) => n.i === a.de)?.x ?? 0) <= (l.nos.find((n) => n.i === a.para)?.x ?? 0);
+        return {
+          id: a.id, source: String(a.de), target: String(a.para), sourceHandle: aEsq ? 'r' : 'ls', targetHandle: aEsq ? 'l' : 'rt', type: 'default',
+          label: a.rotulo, labelStyle: { fontSize: 11, fill: '#5E524C' }, labelBgStyle: { fill: '#FBF8F3' }, labelBgPadding: [4, 2],
+          style: { stroke: '#5E524C', strokeWidth: 2, strokeDasharray: '6 5' }, data: { tipo: 'entre' }, interactionWidth: 20,
+        };
+      }
+      return { id: a.id, source: String(a.de), target: String(a.para), type: 'smoothstep', style: { stroke: COR_COORD[a.coord] ?? '#5E524C', strokeWidth: 2 }, data: { tipo: 'hierarquia' } };
+    }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [chave]);
 
@@ -114,7 +127,8 @@ export default function Organograma() {
       }}>
         <ReactFlow key={estrutura} nodes={nos} edges={arestas} nodeTypes={tipos} fitView fitViewOptions={{ padding: 0.12 }} minZoom={0.2} maxZoom={1.5}
           nodesConnectable={false} proOptions={{ hideAttribution: true }}
-          onNodeClick={(_, n) => setSel(Number(n.id))} onPaneClick={() => setSel(null)}>
+          onNodeClick={(_, n) => setSel(Number(n.id))} onPaneClick={() => setSel(null)}
+          onEdgeClick={(_, e) => { if (e.data?.tipo === 'entre') definirFoco({ cadeiras: [Number(e.source), Number(e.target)], id: e.id }); }}>
           <Background gap={22} color="#E6DCCE" />
           <Controls showInteractive={false} />
         </ReactFlow>
