@@ -806,7 +806,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T28: Aba Entre áreas
+### T28: Aba Entre áreas ✅
 
 **What**: Em `Rotinas.tsx`, aba "Entre áreas": 4 sugestões condicionais, formulário (origem, destino, finalidade, frequência, canal), recusa de par igual, arquivar e restaurar.
 **Where**: `ilhas/equipe/Rotinas.tsx`
@@ -821,11 +821,11 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Aceitar a sugestão Legislativo→Comunicação grava a rotina com frequência e canal escolhidos (E-11)
-- [ ] Escolher a mesma área em origem e destino mostra o erro e não grava
-- [ ] Desmarcar a área na escalação arquiva a rotina; remarcar a restaura
-- [ ] Estado vazio mostra "Nenhuma rotina entre áreas ainda"
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 4 testes e2e novos, nenhum removido
+- [x] Aceitar a sugestão Legislativo→Comunicação grava a rotina com frequência e canal escolhidos (E-11)
+- [x] Escolher a mesma área em origem e destino mostra o erro e não grava
+- [x] Desmarcar a área na escalação arquiva a rotina; remarcar a restaura
+- [x] Estado vazio mostra "Nenhuma rotina entre áreas ainda"
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 4 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
