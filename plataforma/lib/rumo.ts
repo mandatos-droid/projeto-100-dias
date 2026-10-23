@@ -60,7 +60,7 @@ const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,
 const ehObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 const str = (v: unknown, padrao = '') => (typeof v === 'string' ? v : padrao);
 const nota = (v: unknown): v is number => typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= 5;
-const idOutra = (rot: string) => `x-${norm(rot).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'bandeira'}`;
+export const idOutra = (rot: string) => `x-${norm(rot).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'bandeira'}`;
 
 // ---------- migração do formato antigo (m3.mural, m3.b1..b3, m3.legado, m3.cargo) ----------
 
@@ -90,7 +90,7 @@ function rotuloPrioritaria(t: string): string {
   return contido ? contido.rot : t.trim();
 }
 
-const novaBandeira = (rot: string): BandeiraRumo => {
+export const novaBandeira = (rot: string): BandeiraRumo => {
   const t = bandeiraDoRotulo(rot);
   return { id: t ? t.id : idOutra(rot), rot: t ? t.rot : rot, argumentos: '', notas: {}, prioridade: null };
 };

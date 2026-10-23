@@ -432,7 +432,7 @@ T22 → T23 → T24
 
 ---
 
-### T13: Ilha de bandeiras: mural, argumentos, critérios e ranking
+### T13: Ilha de bandeiras: mural, argumentos, critérios e ranking ✅
 
 **What**: Implementar `ilhas/rumo/Bandeiras.tsx`: chips das 19 agendas e "Outra bandeira"; selecionar abre o card com argumentos e notas 0 a 5 por critério; critérios próprios; ranking com estrela de prioritária; resumo da Missão 1.
 **Where**: `ilhas/rumo/Bandeiras.tsx`, `ilhas/rumo/rumo.css`, `e2e/rumo-bandeiras.spec.ts`
@@ -447,14 +447,14 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Selecionar "Educação" adiciona o chip ativo e abre o card com "Argumentos" e as 4 notas na mesma interação (RUM-01.1)
-- [ ] Digitar argumento e dar notas atualiza o total do card e `m3.argumentos` na hora (RUM-01.2, RUM-02.10)
-- [ ] Com 2 bandeiras com nota, o ranking ordena e marca as 3 primeiras como sugeridas (RUM-01.5)
-- [ ] Confirmar a quarta prioritária mostra a recusa e não grava (RUM-02.7); confirmar as três grava `m3.b1..b3` na ordem (RUM-02.6)
-- [ ] Remover bandeira com notas pede confirmação e a tira das prioritárias (RUM-01.8)
-- [ ] Critério próprio entra até o 8º; o 9º é recusado (RUM-01.3)
-- [ ] Mandato antigo com `m3.mural` abre com os chips marcados e o texto antigo intacto (RUM-02.9)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-bandeiras.spec.ts`, nenhum removido
+- [x] Selecionar "Educação" adiciona o chip ativo e abre o card com "Argumentos" e as 4 notas na mesma interação (RUM-01.1)
+- [x] Digitar argumento e dar notas atualiza o total do card e `m3.argumentos` na hora (RUM-01.2, RUM-02.10)
+- [x] Com 2 bandeiras com nota, o ranking ordena e marca as 3 primeiras como sugeridas (RUM-01.5)
+- [x] Confirmar a quarta prioritária mostra a recusa e não grava (RUM-02.7); confirmar as três grava `m3.b1..b3` na ordem (RUM-02.6)
+- [x] Remover bandeira com notas pede confirmação e a tira das prioritárias (RUM-01.8)
+- [x] Critério próprio entra até o 8º; o 9º é recusado (RUM-01.3)
+- [x] Mandato antigo com `m3.mural` abre com os chips marcados e o texto antigo intacto (RUM-02.9)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-bandeiras.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full

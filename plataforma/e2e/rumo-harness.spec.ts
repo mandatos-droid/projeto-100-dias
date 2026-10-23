@@ -4,20 +4,20 @@ import { abre, camposDe, dadoDe, EQUIPE, MANDATO } from './semente-rumo';
 const ILHAS = ['rumo-bandeiras', 'rumo-espacos', 'rumo-legado', 'rumo-preditores', 'rumo-metas', 'plano', 'plano-resumo'];
 
 for (const ilha of ILHAS) {
-  test(`a rota de teste monta o esqueleto de ${ilha} (RUM-70)`, async ({ page }) => {
+  test(`a rota de teste monta a ilha ${ilha} (RUM-70)`, async ({ page }) => {
     await abre(page, [ilha]);
-    await expect(page.locator(`[data-esqueleto="${ilha}"]`)).toBeVisible();
+    await expect(page.locator(`[data-ilha="${ilha}"] .ilha-corpo`)).toBeVisible();
   });
 }
 
 test('monta várias ilhas de uma vez', async ({ page }) => {
   await abre(page, ['rumo-bandeiras', 'rumo-metas']);
-  await expect(page.locator('[data-esqueleto]')).toHaveCount(2);
+  await expect(page.locator('.ilha-corpo')).toHaveCount(2);
 });
 
 test('o hook lê o mandato antigo e migra o mural sem gravar nada (RUM-70)', async ({ page }) => {
   await abre(page, ['rumo-bandeiras'], { campos: { 'm3.mural': 'Educação\nSaúde', 'm3.b1': 'Educação' } });
-  await expect(page.locator('[data-n-bandeiras="2"]')).toBeVisible();
+  await expect(page.locator('.rm-chip[aria-pressed="true"]')).toHaveCount(2);
   expect(await dadoDe(page, 'rumo')).toBeUndefined();
   expect((await camposDe(page))['m3.mural']).toBe('Educação\nSaúde');
 });
