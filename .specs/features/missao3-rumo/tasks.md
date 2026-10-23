@@ -154,7 +154,7 @@ T22 → T23 → T24
 
 ---
 
-### T3: Composição da manchete, modelos e cargos postuláveis
+### T3: Composição da manchete, modelos e cargos postuláveis ✅
 
 **What**: Criar `lib/manchete.ts` com `cargosPostulaveis`, `compoe`, `MODELOS`, `aplicaModelo`, `mencionaCargo`, `avisos`, `dataEdicao`.
 **Where**: `lib/manchete.ts`, `tests/manchete.test.ts`
@@ -169,13 +169,13 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] `cargosPostulaveis('Deputado(a) Estadual')` devolve as opções da tabela do design, com reeleição primeiro; cargo vazio devolve a lista completa (RUM-11.2, edge case)
-- [ ] `compoe` inclui nome, entrega, resultado e o cargo na frase; elemento vazio não deixa "undefined" nem espaços duplos (RUM-10.3)
-- [ ] `mencionaCargo` reconhece "Governo do Estado", "Governador(a)" e "Senado" para os cargos correspondentes, ignorando acento e caixa (RUM-11.7)
-- [ ] `avisos` devolve o aviso de cargo ausente e o de mais de 280 caracteres (RUM-11.7, edge case)
-- [ ] `aplicaModelo` devolve os 4 modelos pré-preenchidos com nome e bandeiras e todos rotulados `sugestao: true` (RUM-52.1, RUM-52.2)
-- [ ] `dataEdicao('2027-02-01')` = "dezembro de 2030"; sem data = "ao fim da legislatura"
-- [ ] Gate: `npm test`; testes novos em `tests/manchete.test.ts`, nenhum removido
+- [x] `cargosPostulaveis('Deputado(a) Estadual')` devolve as opções da tabela do design, com reeleição primeiro; cargo vazio devolve a lista completa (RUM-11.2, edge case)
+- [x] `compoe` inclui nome, entrega, resultado e o cargo na frase; elemento vazio não deixa "undefined" nem espaços duplos (RUM-10.3)
+- [x] `mencionaCargo` reconhece "Governo do Estado", "Governador(a)" e "Senado" para os cargos correspondentes, ignorando acento e caixa (RUM-11.7)
+- [x] `avisos` devolve o aviso de cargo ausente e o de mais de 280 caracteres (RUM-11.7, edge case)
+- [x] `aplicaModelo` devolve os 4 modelos pré-preenchidos com nome e bandeiras e todos rotulados `sugestao: true` (RUM-52.1, RUM-52.2)
+- [x] `dataEdicao('2027-02-01')` = "dezembro de 2030"; sem data = "ao fim da legislatura"
+- [x] Gate: `npm test`; testes novos em `tests/manchete.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
