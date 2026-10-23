@@ -37,5 +37,5 @@ export async function abreGuia(page: Page, hash = '#/', m: MandatoReal = {}) {
 /** Lê o mandato salvo (o que a nuvem receberia). */
 export const salvoDe = (page: Page) => page.evaluate(() => {
   const b = JSON.parse(localStorage.getItem('legisla.regimento.v3') ?? '{}');
-  return b.mandatos?.m_teste as { dados: Record<string, unknown>; eventos: { texto: string }[] };
+  return Object.values(b.mandatos ?? {})[0] as { dados: Record<string, unknown>; eventos: { texto: string }[] };
 });

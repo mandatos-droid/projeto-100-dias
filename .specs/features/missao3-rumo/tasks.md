@@ -722,7 +722,7 @@ T22 → T23 → T24
 
 ---
 
-### T23: Migração ponta a ponta e verificação em tela
+### T23: Migração ponta a ponta e verificação em tela ✅
 
 **What**: Teste e2e que abre um mandato com dados da Missão 3 no formato antigo (texto em `m3.*`, `D.metas` só com `pred/texto/resp/apoio`, `D.preditores`) e percorre exercício, aba e Painel sem perda; capturas de tela de cada ilha em 375 px e 1280 px conferidas; `graphify update .`.
 **Where**: `e2e/rumo-migracao.spec.ts`, `e2e/semente-rumo.ts`
@@ -737,11 +737,11 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Nenhum texto de `m3.*`, nenhuma meta e nenhum preditor do mandato antigo some após abrir e editar uma meta (critério de sucesso 3)
-- [ ] Metas antigas aparecem na aba como "Não concluída" e contam 0 até alguém mudar o status (edge case)
-- [ ] Capturas de tela das 7 ilhas em 375 px e 1280 px não têm rolagem horizontal da página
-- [ ] Resumo (`#/resumo`) continua mostrando bandeiras, legado, preditores e metas
-- [ ] Gate: `npx tsc --noEmit && npm test && npm run test:e2e && npm run build`; testes novos em `e2e/rumo-migracao.spec.ts`, nenhum removido
+- [x] Nenhum texto de `m3.*`, nenhuma meta e nenhum preditor do mandato antigo some após abrir e editar uma meta (critério de sucesso 3)
+- [x] Metas antigas aparecem na aba como "Não concluída" e contam 0 até alguém mudar o status (edge case)
+- [x] Capturas de tela das 7 ilhas em 375 px e 1280 px não têm rolagem horizontal da página
+- [x] Resumo (`#/resumo`) continua mostrando bandeiras, legado, preditores e metas
+- [x] Gate: `npx tsc --noEmit && npm test && npm run test:e2e && npm run build`; testes novos em `e2e/rumo-migracao.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: build
