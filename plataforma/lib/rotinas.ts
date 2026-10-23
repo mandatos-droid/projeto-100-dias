@@ -1,7 +1,7 @@
 /* Missão 2 · rotinas do mandato geradas a partir das cadeiras (função pura, nunca guardada).
    Só as preferências do usuário (rotinas desligadas, rotinas entre áreas) vão para D.campos. */
-import { AREAS, CHEFIA, SEP, ativas, coordDe, liderDe, nomeLimpo, type Campos, type Patch } from './cadeiras.ts';
-import { lista } from './equipe.ts';
+import { AREAS, CHEFIA, SEP, ativas, coordDe, coordsDe, liderDe, nomeLimpo, type Campos, type Patch } from './cadeiras.ts';
+import { COORDENACOES, lista } from './equipe.ts';
 
 export type Freq = 'Semanalmente' | 'Mensalmente' | 'Quadrimestralmente' | 'Semestralmente';
 export type Rotina = {
@@ -71,3 +71,58 @@ export const cadeirasDoElo = (rotinas: Rotina[], id: string): number[] =>
 
 export const rotinasDaCadeira = (rotinas: Rotina[], i: number): Rotina[] =>
   rotinas.filter((r) => r.participantes.includes(i));
+
+/* ---------- rotinas entre áreas (m2.x: JSON [{id,de,para,finalidade,freq,canal}]) ---------- */
+export const CHAVE_ENTRE = 'm2.x';
+const FREQS: Freq[] = ['Semanalmente', 'Mensalmente', 'Quadrimestralmente', 'Semestralmente'];
+const CHEFIA_AREA = 'Chefia de área'; // a Chefia de gabinete é sempre ativa e pode ser ponta de uma rotina
+export type EntreAreas = { de: string; para: string; finalidade: string; freq: Freq; canal: string };
+type Guardada = EntreAreas & { id: string };
+
+const guardadas = (c: Campos): Guardada[] => {
+  try {
+    const v = JSON.parse(c[CHAVE_ENTRE] ?? '[]');
+    return Array.isArray(v) ? v.filter((x) => x && typeof x.id === 'string' && typeof x.de === 'string' && typeof x.para === 'string') : [];
+  } catch { return []; }
+};
+const ativaArea = (c: Campos, a: string) => a === CHEFIA_AREA || coordsDe(c).includes(a);
+const topoDe = (c: Campos, area: string): number => {
+  if (area === CHEFIA_AREA) return CHEFIA;
+  const gente = ativas(c).filter((i) => i !== CHEFIA && coordDe(c, i) === area);
+  return gente.find((i) => { const l = liderDe(c, i); return l === null || coordDe(c, l) !== area; }) ?? gente[0] ?? CHEFIA;
+};
+const comoRotina = (c: Campos, g: Guardada): Rotina => {
+  const participantes = [...new Set([topoDe(c, g.de), topoDe(c, g.para)])];
+  return nova(c, { id: g.id, tipo: 'entre', titulo: `${g.de} → ${g.para}`, freq: g.freq, duracao: '', convoca: participantes[0], participantes, de: g.de, para: g.para, finalidade: g.finalidade, canal: g.canal });
+};
+
+/** Rotinas entre áreas cujas duas pontas estão ativas. */
+export const rotinasEntreAreas = (c: Campos): Rotina[] =>
+  guardadas(c).filter((g) => ativaArea(c, g.de) && ativaArea(c, g.para)).map((g) => comoRotina(c, g));
+/** As que ficaram guardadas porque uma das áreas foi desmarcada; voltam ao remarcar. */
+export const entreAreasArquivadas = (c: Campos): Rotina[] =>
+  guardadas(c).filter((g) => !(ativaArea(c, g.de) && ativaArea(c, g.para))).map((g) => comoRotina(c, g));
+
+export function criaEntreAreas(c: Campos, r: EntreAreas): { patch: Patch; erro?: string } {
+  if (r.de === r.para) return { patch: {}, erro: 'Escolha duas áreas diferentes: a origem e o destino não podem ser a mesma área.' };
+  if (!(COORDENACOES as readonly string[]).includes(r.de) || !(COORDENACOES as readonly string[]).includes(r.para)) return { patch: {}, erro: 'Área desconhecida.' };
+  if (!FREQS.includes(r.freq)) return { patch: {}, erro: 'Escolha uma frequência da lista.' };
+  const atuais = guardadas(c);
+  const n = Math.max(0, ...atuais.map((g) => Number(g.id.replace(/\D/g, '')) || 0)) + 1;
+  return { patch: { [CHAVE_ENTRE]: JSON.stringify([...atuais, { id: `x${n}`, ...r }]) } };
+}
+
+export const removeEntreAreas = (c: Campos, id: string): Patch => {
+  const resto = guardadas(c).filter((g) => g.id !== id);
+  return { [CHAVE_ENTRE]: resto.length ? JSON.stringify(resto) : '' };
+};
+
+/** Sugestões iniciais (conteúdo a validar com a Legisla): só quando as duas áreas estão ativas e o par ainda não existe. */
+const SUGESTOES: EntreAreas[] = [
+  { de: 'Legislativo', para: 'Comunicação', freq: 'Semanalmente', finalidade: 'Pauta da semana: o que tramita e o que vira comunicação', canal: 'Reunião curta entre as coordenações' },
+  { de: 'Articulação de aliados', para: 'Legislativo', freq: 'Semanalmente', finalidade: 'Compromissos políticos que dependem de voto, emenda ou tramitação', canal: 'Reunião curta entre as coordenações' },
+  { de: 'Mobilização de pessoas', para: 'Comunicação', freq: 'Mensalmente', finalidade: 'Agenda de base e território para cobertura e divulgação', canal: 'Reunião entre as lideranças' },
+  { de: 'Secretariado', para: CHEFIA_AREA, freq: 'Semanalmente', finalidade: 'Agenda e prazos da semana do parlamentar', canal: 'Conversa com a Chefia de gabinete' },
+];
+export const sugestoesEntreAreas = (c: Campos): EntreAreas[] =>
+  SUGESTOES.filter((s) => ativaArea(c, s.de) && ativaArea(c, s.para) && !guardadas(c).some((g) => g.de === s.de && g.para === s.para));

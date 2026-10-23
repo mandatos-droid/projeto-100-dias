@@ -106,3 +106,81 @@ test('rotinasDaCadeira lista as rotinas de que a cadeira participa (MEQ-19)', ()
   assert.deepEqual(rotinasDaCadeira(rs, 8).map((r) => r.id), ['plan', 'mensal', 'semanal', 'area:Comunicação', 'fb:7>8']);
   assert.deepEqual(rotinasDaCadeira(rs, 99), []);
 });
+
+/* ---------- T7: rotinas entre áreas ---------- */
+import { alternaArea } from '../lib/cadeiras.ts';
+import { criaEntreAreas, entreAreasArquivadas, removeEntreAreas, rotinasEntreAreas, sugestoesEntreAreas } from '../lib/rotinas.ts';
+
+const duasAreas = (): C => {
+  const c: C = { 'm2.f1': 'Ana' };
+  aplica(c, alternaArea(c, 'Legislativo', true).patch);
+  aplica(c, alternaArea(c, 'Comunicação', true).patch);
+  return c;
+};
+const par = { de: 'Legislativo', para: 'Comunicação', finalidade: 'Pauta da semana', freq: 'Semanalmente' as const, canal: 'Grupo da área' };
+
+test('origem igual ao destino é recusada e nada é gravado (MEQ-20, T-19)', () => {
+  const c = duasAreas();
+  const r = criaEntreAreas(c, { ...par, para: 'Legislativo' });
+  assert.match(r.erro ?? '', /mesma área/i);
+  assert.deepEqual(r.patch, {});
+});
+
+test('criar um par grava a rotina com finalidade, frequência e canal, e convoca a cadeira de topo de cada área (MEQ-20)', () => {
+  const c = duasAreas();
+  aplica(c, criaEntreAreas(c, par).patch);
+  const [r] = rotinasEntreAreas(c);
+  assert.equal(r.tipo, 'entre');
+  assert.deepEqual([r.de, r.para, r.finalidade, r.freq, r.canal], ['Legislativo', 'Comunicação', 'Pauta da semana', 'Semanalmente', 'Grupo da área']);
+  assert.deepEqual(r.participantes, [1, 7]);
+  assert.equal(r.convoca, 1);
+});
+
+test('área fora da lista ou frequência inválida é recusada (MEQ-20)', () => {
+  const c = duasAreas();
+  assert.ok(criaEntreAreas(c, { ...par, de: 'Inventada' }).erro);
+  assert.ok(criaEntreAreas(c, { ...par, freq: 'Diariamente' as never }).erro);
+});
+
+test('desmarcar uma das áreas esconde a rotina e remarcar a devolve idêntica (MEQ-22, T-20)', () => {
+  const c = duasAreas();
+  aplica(c, criaEntreAreas(c, par).patch);
+  const antes = rotinasEntreAreas(c);
+  aplica(c, alternaArea(c, 'Comunicação', false).patch);
+  assert.deepEqual(rotinasEntreAreas(c), []);
+  assert.equal(entreAreasArquivadas(c).length, 1);
+  aplica(c, alternaArea(c, 'Comunicação', true).patch);
+  assert.deepEqual(rotinasEntreAreas(c), antes);
+  assert.equal(entreAreasArquivadas(c).length, 0);
+});
+
+test('as sugestões só aparecem com as duas áreas ativas e somem depois de aceitas (MEQ-20)', () => {
+  const c: C = { 'm2.f1': 'Ana' };
+  assert.deepEqual(sugestoesEntreAreas(c), []);
+  aplica(c, alternaArea(c, 'Legislativo', true).patch);
+  aplica(c, alternaArea(c, 'Comunicação', true).patch);
+  assert.deepEqual(sugestoesEntreAreas(c).map((s) => `${s.de}>${s.para}`), ['Legislativo>Comunicação']);
+  aplica(c, criaEntreAreas(c, par).patch);
+  assert.deepEqual(sugestoesEntreAreas(c), []);
+});
+
+test('com todas as áreas o Guia oferece as 4 sugestões (MEQ-20)', () => {
+  const c: C = { 'm2.f1': 'Ana', 'm2.coords': 'Comunicação|Mobilização de pessoas|Legislativo|Articulação de aliados|Secretariado|Logística' };
+  assert.deepEqual(sugestoesEntreAreas(c).map((s) => `${s.de}>${s.para}`), [
+    'Legislativo>Comunicação', 'Articulação de aliados>Legislativo', 'Mobilização de pessoas>Comunicação', 'Secretariado>Chefia de área',
+  ]);
+});
+
+test('JSON inválido em m2.x devolve lista vazia sem lançar erro (MEQ-20)', () => {
+  assert.deepEqual(rotinasEntreAreas({ 'm2.f1': 'Ana', 'm2.x': '{quebrado' }), []);
+  assert.deepEqual(rotinasEntreAreas({ 'm2.f1': 'Ana', 'm2.x': '{"a":1}' }), []);
+});
+
+test('remover uma rotina entre áreas a tira da lista (MEQ-20)', () => {
+  const c = duasAreas();
+  aplica(c, criaEntreAreas(c, par).patch);
+  const [r] = rotinasEntreAreas(c);
+  aplica(c, removeEntreAreas(c, r.id));
+  assert.deepEqual(rotinasEntreAreas(c), []);
+  assert.equal(entreAreasArquivadas(c).length, 0);
+});
