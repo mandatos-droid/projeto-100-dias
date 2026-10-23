@@ -9,10 +9,8 @@ import vm from 'node:vm';
 const CODIGO = readFileSync(new URL('../public/legacy/m3.js', import.meta.url), 'utf8');
 const CONTEUDO = readFileSync(new URL('../public/legacy/conteudo.js', import.meta.url), 'utf8');
 
-/* Hash gravado na T11, antes de qualquer mudança, sobre os textos da Missão 3 e dos 4 exercícios. */
-const HASH_TEXTOS = '87baff53f9594c8c189a2a90d20944af90b724c601ac7386cabd5e36d3449ffc';
-const CAMPOS_MISSAO = ['titulo', 'curto', 'abre', 'agenda', 'resumo', 'entrega', 'momento', 'lidera', 'fecho'];
-const CAMPOS_EX = ['id', 't', 'd', 'intro', 'passos', 'fim'];
+/* Hash do JSON inteiro da Missão 3 (itens, listaExtra, ct, prazo e todos os exercícios), calculado sobre o conteudo.js de antes da feature. */
+const HASH_TEXTOS = '56d6bb25b6342257716152b54716fafbc840955cac761405d1399554005010ba';
 
 type Ex = Record<string, unknown> & { id: string; intro: string; fim?: string; listaExtra?: { titulo: string; chave: string } };
 type Missao = Record<string, unknown> & { n: number; exercicios: Ex[] };
@@ -23,11 +21,9 @@ function guia(extra: Record<string, unknown> = {}) {
   vm.runInContext(`${CONTEUDO};this.MISSOES=MISSOES;`, ctx);
   return ctx as { MISSOES: Missao[] } & Record<string, unknown>;
 }
-const pega = (obj: Record<string, unknown>, campos: string[]) => Object.fromEntries(campos.map((k) => [k, obj[k]]));
 function hashDosTextos(missoes: Missao[]) {
   const m = missoes.find((x) => x.n === 3)!;
-  const o = { missao: pega(m, CAMPOS_MISSAO), ex: m.exercicios.map((e) => pega(e, CAMPOS_EX)) };
-  return createHash('sha256').update(JSON.stringify(o)).digest('hex');
+  return createHash('sha256').update(JSON.stringify(m)).digest('hex');
 }
 const ex3 = (w: { MISSOES: Missao[] }, id: string) => w.MISSOES.find((m) => m.n === 3)!.exercicios.find((e) => e.id === id)!;
 
