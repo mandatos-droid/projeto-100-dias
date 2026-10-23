@@ -339,7 +339,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T10: Exportação do organograma em SVG
+### T10: Exportação do organograma em SVG ✅
 
 **What**: Criar `lib/exporta.ts` com `organogramaSvg(c)`: SVG completo com caixas, linhas, cores por área e legenda.
 **Where**: `lib/exporta.ts`
@@ -354,10 +354,10 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] O SVG contém o nome de cada pessoa, o cargo e o nome da área (T-25)
-- [ ] O SVG contém a legenda com as áreas ativas e nenhuma inativa (T-25)
-- [ ] Nomes com `&`, `<` e aspas saem escapados e o SVG continua bem formado (T-25)
-- [ ] Gate: `npm test`; 3 testes novos, nenhum removido
+- [x] O SVG contém o nome de cada pessoa, o cargo e o nome da área (T-25)
+- [x] O SVG contém a legenda com as áreas ativas e nenhuma inativa (T-25)
+- [x] Nomes com `&`, `<` e aspas saem escapados e o SVG continua bem formado (T-25)
+- [x] Gate: `npm test`; 3 testes novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
