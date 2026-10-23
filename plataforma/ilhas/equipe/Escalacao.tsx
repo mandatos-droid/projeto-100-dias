@@ -3,6 +3,7 @@
    A etapa atual fica em D.campos['m2.etapa'] para sobreviver à troca de tela e ao recarregar. */
 import { useEffect, useRef } from 'react';
 import { coordsDe } from '@/lib/cadeiras';
+import EtapaAreas from './EtapaAreas';
 import { useEquipe } from './useEquipe';
 import './equipe.css';
 
@@ -46,6 +47,7 @@ export default function Escalacao() {
       {!liberada && etapa < 3 && <p className="es-motivo" role="status">{SEM_AREA_MOTIVO}</p>}
       <div ref={corpo} className="es-etapa-corpo" data-etapa={etapa}>
         <h4 tabIndex={-1}>{ETAPAS[etapa - 1]}</h4>
+        {etapa === 1 && <EtapaAreas />}
       </div>
       <div className="es-nav">
         {etapa > 1 && <button type="button" className="bt sec peq es-bt" onClick={() => vai(etapa - 1)}>Voltar</button>}
