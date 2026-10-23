@@ -442,7 +442,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T14: Escalação, casca com as 3 etapas
+### T14: Escalação, casca com as 3 etapas ✅
 
 **What**: Criar `ilhas/equipe/Escalacao.tsx` com stepper "Etapa X de 3", voltar sem perder dados, etapa 3 bloqueada sem área, persistência em `m2.etapa`, foco no primeiro campo da etapa; registrar `equipe-escalacao` em `ponte.tsx`.
 **Where**: `ilhas/equipe/Escalacao.tsx`
@@ -457,10 +457,10 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Ao abrir sem dados mostra "Etapa 1 de 3" e a etapa "Nomes" bloqueada com o motivo (E-01)
-- [ ] Voltar de uma etapa mantém tudo o que foi digitado; recarregar mantém `m2.etapa` (E-06)
-- [ ] O foco vai ao primeiro campo da etapa ao trocar de etapa
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 2 testes e2e novos, nenhum removido
+- [x] Ao abrir sem dados mostra "Etapa 1 de 3" e a etapa "Nomes" bloqueada com o motivo (E-01)
+- [x] Voltar de uma etapa mantém tudo o que foi digitado; recarregar mantém `m2.etapa` (E-06)
+- [x] O foco vai ao primeiro campo da etapa ao trocar de etapa
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 2 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
