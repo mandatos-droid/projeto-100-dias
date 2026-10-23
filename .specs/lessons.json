@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "promote_threshold": 2,
+  "window_days": 45,
+  "quarantine_threshold": 2,
+  "next_id": 6,
+  "lessons": [
+    {
+      "id": "L-001",
+      "key": "surviving_mutant::cover each data source branch wired in a ui island such as a per region catalog fetch with an e2e test that stubs the request not only the pure function that consumes the data",
+      "text": "Cover each data-source branch wired in a UI island (such as a per-region catalog fetch) with an e2e test that stubs the request, not only the pure function that consumes the data",
+      "signal": "surviving_mutant",
+      "scope": "ilhas",
+      "status": "candidate",
+      "features": [
+        "missao3-rumo"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "E4 plataforma/ilhas/rumo/Espacos.tsx:37 (ilhas)"
+      ],
+      "created": "2026-10-23T13:05:19Z",
+      "last_seen": "2026-10-23T13:05:19Z"
+    },
+    {
+      "id": "L-002",
+      "key": "ac_gap::cover each data source branch wired in a ui island such as a per region catalog fetch with an e2e test that stubs the request not only the pure function that consumes the data",
+      "text": "Cover each data-source branch wired in a UI island (such as a per-region catalog fetch) with an e2e test that stubs the request, not only the pure function that consumes the data",
+      "signal": "ac_gap",
+      "scope": "ilhas",
+      "status": "candidate",
+      "features": [
+        "missao3-rumo"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "RUM-50.3 (ilhas)"
+      ],
+      "created": "2026-10-23T13:05:19Z",
+      "last_seen": "2026-10-23T13:05:19Z"
+    },
+    {
+      "id": "L-003",
+      "key": "surviving_mutant::list every alternative of a keyword regex in the test table one case per alternative so removing one is detected",
+      "text": "List every alternative of a keyword regex in the test table, one case per alternative, so removing one is detected",
+      "signal": "surviving_mutant",
+      "scope": "lib",
+      "status": "candidate",
+      "features": [
+        "missao3-rumo"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M28 plataforma/lib/smart.ts:32 (lib)"
+      ],
+      "created": "2026-10-23T13:05:19Z",
+      "last_seen": "2026-10-23T13:05:19Z"
+    },
+    {
+      "id": "L-004",
+      "key": "surviving_mutant::give each normalization step for corrupted input such as dedupe by id its own test case",
+      "text": "Give each normalization step for corrupted input (such as dedupe by id) its own test case",
+      "signal": "surviving_mutant",
+      "scope": "lib",
+      "status": "candidate",
+      "features": [
+        "missao3-rumo"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M34 plataforma/lib/rumo.ts:171 (lib)"
+      ],
+      "created": "2026-10-23T13:05:20Z",
+      "last_seen": "2026-10-23T13:05:20Z"
+    },
+    {
+      "id": "L-005",
+      "key": "gate_fail::before verifying confirm committed code does not import untracked files by running tests in a clean worktree of head",
+      "text": "Before verifying, confirm committed code does not import untracked files by running tests in a clean worktree of HEAD",
+      "signal": "gate_fail",
+      "scope": "delivery",
+      "status": "candidate",
+      "features": [
+        "missao3-rumo"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "G1 plataforma/lib/rumo.ts:4 (delivery)"
+      ],
+      "created": "2026-10-23T13:05:21Z",
+      "last_seen": "2026-10-23T13:05:21Z"
+    }
+  ]
+}
