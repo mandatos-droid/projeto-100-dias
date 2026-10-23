@@ -378,7 +378,7 @@ T22 → T23 → T24
 
 ---
 
-### T11: Gancho `m3.js`: exercícios da Missão 3 sem tocar nos textos
+### T11: Gancho `m3.js`: exercícios da Missão 3 sem tocar nos textos ✅
 
 **What**: Criar `public/legacy/m3.js` com os overrides de `Comp.campos` (corpo de `m3.bandeiras` e `m3.legado`), `Comp.preditores` e `Comp.metas`, cada um devolvendo `<div class="ilha" data-ilha="...">`; carregar o arquivo em `app/guia/page.tsx` depois de `m2.js`. Criar o teste de regressão de textos.
 **Where**: `public/legacy/m3.js`, `app/guia/page.tsx`, `tests/legado-m3.test.ts`
@@ -393,12 +393,12 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] `git diff app/guia/page.tsx` foi lido antes da edição e a mudança do usuário permanece
-- [ ] O hash de `t`, `d`, `intro`, `passos`, `fim`, `agenda`, `entrega`, `momento`, `lidera`, `resumo` e `fecho` dos exercícios e da missão 3, calculado com `conteudo.js` em `node:vm`, é igual ao gravado no teste (gravado nesta tarefa, antes de qualquer outra mudança) (RUM-12.11)
-- [ ] `Comp.campos` devolve a ilha para `m3.bandeiras` e `m3.legado` e delega ao original para qualquer outro exercício (entrada antiga e nova)
-- [ ] `Comp.preditores()` e `Comp.metas()` devolvem os contêineres das ilhas `rumo-preditores` e `rumo-metas`
-- [ ] `#blocoMetasRef` continua no `intro` das metas (verificado pelo hash)
-- [ ] Gate: `npm test && npx tsc --noEmit`; testes novos em `tests/legado-m3.test.ts`, nenhum removido
+- [x] `git diff app/guia/page.tsx` foi lido antes da edição e a mudança do usuário permanece
+- [x] O hash de `t`, `d`, `intro`, `passos`, `fim`, `agenda`, `entrega`, `momento`, `lidera`, `resumo` e `fecho` dos exercícios e da missão 3, calculado com `conteudo.js` em `node:vm`, é igual ao gravado no teste (gravado nesta tarefa, antes de qualquer outra mudança) (RUM-12.11)
+- [x] `Comp.campos` devolve a ilha para `m3.bandeiras` e `m3.legado` e delega ao original para qualquer outro exercício (entrada antiga e nova)
+- [x] `Comp.preditores()` e `Comp.metas()` devolvem os contêineres das ilhas `rumo-preditores` e `rumo-metas`
+- [x] `#blocoMetasRef` continua no `intro` das metas (verificado pelo hash)
+- [x] Gate: `npm test && npx tsc --noEmit`; testes novos em `tests/legado-m3.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
