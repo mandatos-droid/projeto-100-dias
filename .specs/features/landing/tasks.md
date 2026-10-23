@@ -470,10 +470,10 @@ T22
 
 **Done when**:
 
-- [ ] `<h1>` com o texto exato da spec e CTA `<a href="/guia">` com o texto exato
-- [ ] CTA também na barra superior (Chegar AC 7)
-- [ ] CTA e título aparecem na primeira dobra em 1280×720 (conferido na fumaça final)
-- [ ] Gate Build passa
+- [x] `<h1>` com o texto exato da spec e CTA `<a href="/guia">` com o texto exato
+- [x] CTA também na barra superior (Chegar AC 7)
+- [x] CTA e título aparecem na primeira dobra em 1280×720 (conferido na fumaça final)
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
