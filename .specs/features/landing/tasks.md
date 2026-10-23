@@ -169,9 +169,9 @@ T22
 
 **Done when**:
 
-- [ ] `/` responde 200 com o `<h1>` "Os primeiros 100 dias moldam o resto do mandato"
-- [ ] O link usa `<a href="/guia">` comum (funciona sem JavaScript)
-- [ ] Gate Build passa
+- [x] `/` responde 200 com o `<h1>` "Os primeiros 100 dias moldam o resto do mandato"
+- [x] O link usa `<a href="/guia">` comum (funciona sem JavaScript)
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
