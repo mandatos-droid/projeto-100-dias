@@ -295,7 +295,7 @@ T22 → T23 → T24
 
 ---
 
-### T8: Sugestões e alertas dos espaços
+### T8: Sugestões e alertas dos espaços ✅
 
 **What**: Criar `lib/espacos.ts` com `TIPOS_ESPACO`, `TEMAS_POR_BANDEIRA`, `sugestoes`, `alerta`, `faltaBandeira1`.
 **Where**: `lib/espacos.ts`, `tests/espacos.test.ts`
@@ -310,12 +310,12 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] `sugestoes` com cargo Federal e catálogo devolve as comissões do catálogo, com as da bandeira prioritária destacadas (RUM-50.2, RUM-50.5)
-- [ ] `sugestoes` com cargo Estadual sem catálogo devolve nomes genéricos por bandeira (RUM-50.4); com catálogo da UF devolve os dele (RUM-50.3)
-- [ ] `TEMAS_POR_BANDEIRA` tem entrada para as 19 bandeiras de `BANDEIRAS`
-- [ ] `alerta` devolve o texto "Este espaço não conversa com as bandeiras prioritárias" quando a bandeira do espaço não está entre as prioritárias, e `null` quando está (RUM-51.7)
-- [ ] `faltaBandeira1` é verdadeiro enquanto nenhum espaço aponta a bandeira prioritária 1 (RUM-51.8)
-- [ ] Gate: `npm test`; testes novos em `tests/espacos.test.ts`, nenhum removido
+- [x] `sugestoes` com cargo Federal e catálogo devolve as comissões do catálogo, com as da bandeira prioritária destacadas (RUM-50.2, RUM-50.5)
+- [x] `sugestoes` com cargo Estadual sem catálogo devolve nomes genéricos por bandeira (RUM-50.4); com catálogo da UF devolve os dele (RUM-50.3)
+- [x] `TEMAS_POR_BANDEIRA` tem entrada para as 19 bandeiras de `BANDEIRAS`
+- [x] `alerta` devolve o texto "Este espaço não conversa com as bandeiras prioritárias" quando a bandeira do espaço não está entre as prioritárias, e `null` quando está (RUM-51.7)
+- [x] `faltaBandeira1` é verdadeiro enquanto nenhum espaço aponta a bandeira prioritária 1 (RUM-51.8)
+- [x] Gate: `npm test`; testes novos em `tests/espacos.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
