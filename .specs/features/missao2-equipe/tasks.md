@@ -390,7 +390,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T12: Rota de teste que monta as ilhas sem login
+### T12: Rota de teste que monta as ilhas sem login ✅
 
 **What**: Criar `app/teste-equipe/page.tsx`: monta as ilhas pedidas em `?ilha=a,b` pela mesma `ILHAS` da ponte, com `D`, `Store`, `aviso` simulados, `conteudo.js` carregado para trazer `CARGOS_EQUIPE`, e semente opcional em `window.__semente`; `notFound()` em produção.
 **Where**: `app/teste-equipe/page.tsx`
@@ -405,11 +405,11 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] A rota lê o guia de rotas do Next 16 em `node_modules/next/dist/docs/` antes de ser escrita (regra de `AGENTS.md`)
-- [ ] `/teste-equipe?ilha=organograma` renderiza a ilha com `D.campos` vazio
-- [ ] Com `NODE_ENV=production` a rota responde 404
-- [ ] `window.__semente = {campos}` antes do carregamento preenche `D.campos`
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 2 testes e2e novos em `e2e/harness.spec.ts`
+- [x] A rota lê o guia de rotas do Next 16 em `node_modules/next/dist/docs/` antes de ser escrita (regra de `AGENTS.md`)
+- [x] `/teste-equipe?ilha=organograma` renderiza a ilha com `D.campos` vazio
+- [ ] Com `NODE_ENV=production` a rota responde 404 (não verificado: `npm run build` bloqueado pelo `SecurityFatalError` do Next 16.4; a rota chama `notFound()` quando `NODE_ENV === 'production'`)
+- [x] `window.__semente = {campos}` antes do carregamento preenche `D.campos`
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 2 testes e2e novos em `e2e/harness.spec.ts`
 
 **Tests**: e2e
 **Gate**: full
