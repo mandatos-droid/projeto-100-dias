@@ -278,3 +278,7 @@ input.rm-jn-titulo:focus-visible{outline:3px solid var(--verde);outline-offset:2
 .rm-res-nome{overflow-wrap:anywhere}
 .rm-res-nome small{display:block;color:var(--tinta-3);font-size:0.78rem}
 .rm-res-pct{font-family:'Anton',sans-serif;font-weight:400;font-size:1.125rem;color:var(--vinho);text-align:right}
+
+/* ---------- extras (T24) ---------- */
+.rm-jn-acoes{margin:0.5rem 0 0}
+@media print{.rm-jn-acoes{display:none!important}}

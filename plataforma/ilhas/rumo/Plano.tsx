@@ -29,9 +29,14 @@ export default function Plano() {
   const { d, c, arv, objetivos, pessoas, metas, setMeta, addMeta, rmMeta } = useRumo();
   const [editando, setEditando] = useState<number | null>(null);
   const [filtro, setFiltro] = useState('');
+  const [ordenar, setOrdenar] = useState(false);
   const total = pctTotal(arv.objetivos.map((o) => pctObjetivo(o.metas)));
   const vazio = !arv.objetivos.some((o) => o.metas.length > 0);
   const nMetas = metas.length;
+  /* "Ordenar por atingimento": do menor para o maior; objetivo sem atingimento ("—") vai ao fim; empate mantém a ordem dos preditores */
+  const ordenado = ordenar
+    ? { ...arv, objetivos: arv.objetivos.map((o, i) => ({ o, i, p: pctObjetivo(o.metas) })).sort((a, b) => (a.p ?? Infinity) - (b.p ?? Infinity) || a.i - b.i).map((x) => x.o) }
+    : arv;
 
   const podeMover = (pid: string) => { const r = podeAcrescentarMeta(d, pid); return r.ok ? null : r.motivo ?? ''; };
   const remove = (idx: number) => {
@@ -91,11 +96,12 @@ export default function Plano() {
                   {gente.map((n) => <option key={n} value={n}>{n}</option>)}
                 </select>
               </label>
+              <button type="button" className="bt sec peq" aria-pressed={ordenar} onClick={() => setOrdenar(!ordenar)}>Ordenar por atingimento</button>
               <button type="button" className="bt sec peq" onClick={() => window.print()}>Imprimir</button>
             </div>
           </div>
           {filtro && <p className="rm-dica rm-nao-imprime" role="status">Em destaque: metas em que {filtro} é responsável ou apoio. As demais ficam esmaecidas.</p>}
-          <ArvorePlano modo="plano" arv={arv} opcoes={opcoes}
+          <ArvorePlano modo="plano" arv={ordenado} opcoes={opcoes}
             onAtiva={(id) => { if (id.startsWith('meta-')) { const i = Number(id.slice(5)); setEditando(editando === i ? null : i); } }} />
         </>
       )}

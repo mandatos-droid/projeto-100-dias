@@ -1,6 +1,8 @@
 'use client';
 /* Missão 3 · primeira página de jornal do Legado. Só apresentação: HTML e CSS, sem imagem externa.
    Todo texto entra como texto (o React escapa); as colunas e a "foto" são decorativas e ficam fora da árvore de acessibilidade. */
+import { useRef } from 'react';
+import { aviso } from '../ponte';
 import './rumo.css';
 
 export interface JornalProps {
@@ -18,6 +20,8 @@ export interface JornalProps {
   onJornal?: (nome: string) => void;
   /** a impressão mostra só esta página (padrão); falso quando o jornal é um resumo dentro de outra tela */
   imprime?: boolean;
+  /** mostra o botão "Baixar imagem" (PNG da primeira página) */
+  baixavel?: boolean;
 }
 
 /* larguras das linhas cinza que simulam a matéria; o padrão é fixo para a página não "pular" a cada tecla */
@@ -29,10 +33,22 @@ function Coluna({ linhas }: { linhas: number[] }) {
   return <div className="rm-jn-col" aria-hidden="true">{linhas.map((l, i) => <i key={i} style={{ width: `${l}%` }} />)}</div>;
 }
 
-export default function Jornal({ jornal, nome, manchete, linhaFina, dataEdicao, fechado, onJornal, imprime = true }: JornalProps) {
+export default function Jornal({ jornal, nome, manchete, linhaFina, dataEdicao, fechado, onJornal, imprime = true, baixavel = false }: JornalProps) {
   const texto = manchete.trim();
-  return (
-    <article className="rm-jornal" aria-label={`Primeira página de ${jornal}`} data-imprime={imprime ? '' : undefined} data-fechado={fechado}>
+  const ref = useRef<HTMLElement>(null);
+  const baixa = async () => {
+    if (!ref.current) return;
+    try {
+      const { toPng } = await import('html-to-image'); // só carrega quando alguém pede a imagem
+      const url = await toPng(ref.current, { pixelRatio: 2, backgroundColor: '#F5ECD9', cacheBust: true });
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${jornal.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'primeira-pagina'}.png`;
+      a.click();
+    } catch { aviso('Não foi possível gerar a imagem. Use a impressão do navegador.'); }
+  };
+  const pagina = (
+    <article ref={ref} className="rm-jornal" aria-label={`Primeira página de ${jornal}`} data-imprime={imprime ? '' : undefined} data-fechado={fechado}>
       <header className="rm-jn-cabeca">
         {onJornal
           ? <input className="rm-jn-titulo" value={jornal} onChange={(e) => onJornal(e.target.value)} aria-label="Nome do jornal" maxLength={40} />
@@ -56,5 +72,12 @@ export default function Jornal({ jornal, nome, manchete, linhaFina, dataEdicao, 
         </div>
       </div>
     </article>
+  );
+  if (!baixavel) return pagina;
+  return (
+    <>
+      {pagina}
+      <p className="rm-jn-acoes"><button type="button" className="bt sec peq" onClick={baixa}>Baixar imagem</button></p>
+    </>
   );
 }

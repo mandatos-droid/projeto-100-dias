@@ -749,7 +749,7 @@ T22 → T23 → T24
 
 ---
 
-### T24: Imagem da primeira página e ordenação por atingimento (P3, opcional)
+### T24: Imagem da primeira página e ordenação por atingimento (P3, opcional) ✅
 
 **What**: Botão "Baixar imagem" na primeira página (PNG) e "Ordenar por atingimento" na aba. Verificar a biblioteca de captura (`html-to-image`) antes de adotar; se não cumprir o gate, usar a impressão e registrar.
 **Where**: `ilhas/rumo/Jornal.tsx`, `ilhas/rumo/Plano.tsx`, `package.json`, `e2e/rumo-extras.spec.ts`
@@ -764,10 +764,10 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] "Baixar imagem" gera um PNG com a manchete atual (download verificado no e2e) (RUM-60.1)
-- [ ] "Ordenar por atingimento" reordena os objetivos do menor para o maior, com "—" ao final (RUM-60.2)
-- [ ] A biblioteca escolhida e a versão foram conferidas na documentação antes de entrar em `package.json`
-- [ ] Gate: `npx tsc --noEmit && npm test && npm run test:e2e && npm run build`; testes novos em `e2e/rumo-extras.spec.ts`, nenhum removido
+- [x] "Baixar imagem" gera um PNG com a manchete atual (download verificado no e2e) (RUM-60.1)
+- [x] "Ordenar por atingimento" reordena os objetivos do menor para o maior, com "—" ao final (RUM-60.2)
+- [x] A biblioteca escolhida e a versão foram conferidas na documentação antes de entrar em `package.json`
+- [x] Gate: `npx tsc --noEmit && npm test && npm run test:e2e && npm run build`; testes novos em `e2e/rumo-extras.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: build
