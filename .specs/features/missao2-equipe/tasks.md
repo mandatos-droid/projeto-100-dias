@@ -286,7 +286,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T8: Layout do organograma
+### T8: Layout do organograma ✅
 
 **What**: Criar `lib/layoutOrg.ts` com `layoutOrg` (posições por dagre, arestas de hierarquia subindo até o líder visível, arestas pontilhadas entre áreas), extraindo a lógica de `ilhas/Equipe.tsx:142-172`.
 **Where**: `lib/layoutOrg.ts`
@@ -301,11 +301,11 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] O import de `@dagrejs/dagre` roda sob `node --test` (se não rodar, registrar e ajustar o import antes de seguir)
-- [ ] Cadeira com líder escondido sobe até o líder visível mais próximo (T-24)
-- [ ] Cada rotina entre áreas ativa gera uma aresta `tipo: 'entre'` rotulada, sem alterar as arestas de hierarquia (T-24)
-- [ ] O filtro "só preenchidas" remove da lista as cadeiras sem nome
-- [ ] Gate: `npm test`; 4 testes novos, nenhum removido
+- [x] O import de `@dagrejs/dagre` roda sob `node --test` (se não rodar, registrar e ajustar o import antes de seguir)
+- [x] Cadeira com líder escondido sobe até o líder visível mais próximo (T-24)
+- [x] Cada rotina entre áreas ativa gera uma aresta `tipo: 'entre'` rotulada, sem alterar as arestas de hierarquia (T-24)
+- [x] O filtro "só preenchidas" remove da lista as cadeiras sem nome
+- [x] Gate: `npm test`; 4 testes novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
