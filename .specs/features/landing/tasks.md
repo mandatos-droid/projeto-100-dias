@@ -627,9 +627,9 @@ T22
 
 **Done when**:
 
-- [ ] Usa `location.replace` (não deixa `/` no histórico)
-- [ ] Não renderiza nada na tela
-- [ ] Gate Build passa
+- [x] Usa `location.replace` (não deixa `/` no histórico)
+- [x] Não renderiza nada na tela
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
