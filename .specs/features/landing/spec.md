@@ -89,7 +89,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 9. IF o carregamento do histórico de pleitos falha THEN the system SHALL manter o cartão do eleito visível e exibir "Histórico indisponível agora".
 10. IF a foto do TSE não carrega THEN the system SHALL exibir a inicial do nome no lugar da foto.
 11. WHEN o cartão do eleito é exibido THEN the system SHALL mostrar o botão "Salvar meu mapa" que leva a `/guia`.
-12. WHEN o eleito escolhido é senador eleito em 2022 THEN the system SHALL omitir o percentual dos votos válidos e a posição por votos.
+12. WHEN o eleito escolhido é senador eleito em 2022 THEN the system SHALL omitir os votos nominais, o percentual dos votos válidos e a posição por votos.
 13. The system SHALL NOT exibir título eleitoral, CPF nem data de nascimento.
 
 **Independent Test**: Digitar "silva", escolher um resultado, conferir o cartão; digitar "zzzz" e ver a mensagem; bloquear `pleitos` na rede e ver "Histórico indisponível agora".
@@ -145,14 +145,14 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| LAND-01 | P1: Chegar na landing e entrar no Guia | Tasks | Pending |
-| LAND-02 | P1: Chegar na landing e entrar no Guia | Tasks | Pending |
-| LAND-03 | P1: Demonstração com dados do TSE | Tasks | Pending |
-| LAND-04 | P1: Demonstração com dados do TSE | Tasks | Pending |
-| LAND-05 | P1: Demonstração com dados do TSE | Tasks | Pending |
-| LAND-06 | P1: Demonstração com dados do TSE | Tasks | Pending |
-| LAND-07 | P2: Entender o caminho completo | Tasks | Pending |
-| LAND-08 | P2: Qualidade de acesso | Tasks | Pending |
+| LAND-01 | P1: Chegar na landing e entrar no Guia | Tasks | Verified |
+| LAND-02 | P1: Chegar na landing e entrar no Guia | Tasks | Verified |
+| LAND-03 | P1: Demonstração com dados do TSE | Tasks | Verified |
+| LAND-04 | P1: Demonstração com dados do TSE | Tasks | Verified |
+| LAND-05 | P1: Demonstração com dados do TSE | Tasks | Verified |
+| LAND-06 | P1: Demonstração com dados do TSE | Tasks | Verified |
+| LAND-07 | P2: Entender o caminho completo | Tasks | Verified |
+| LAND-08 | P2: Qualidade de acesso | Tasks | Verified |
 
 Mapeamento ACs → IDs: LAND-01 = P1 Chegar AC 1, 4, 7; LAND-02 = P1 Chegar AC 2, 3, 5, 6; LAND-03 = P1 Demo AC 1, 2 e edge de busca; LAND-04 = P1 Demo AC 3 a 7 e 12; LAND-05 = P1 Demo AC 8 a 10 e edges de falha; LAND-06 = P1 Demo AC 11 e 13; LAND-07 = P2 Entender AC 1 a 5; LAND-08 = P2 Qualidade AC 1 a 4.
 

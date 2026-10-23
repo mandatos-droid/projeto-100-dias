@@ -13,4 +13,5 @@ test('retorno do login com erro vai para /guia preservando o hash (Chegar AC 5)'
 test('hash vazio ou comum não redireciona (Chegar AC 5, caso negativo)', () => {
   assert.equal(destinoAuth(''), null);
   assert.equal(destinoAuth('#missoes'), null);
+  assert.equal(destinoAuth('#xaccess_token=1'), null);
 });

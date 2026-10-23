@@ -16,4 +16,4 @@
 
 ## Handoff
 
-Nada em andamento. Feature `landing`: spec e tasks criadas, execução não iniciada.
+Feature `landing` concluída e verificada (validation.md: PASS). Pendente fora do código: incluir `<domínio>/guia` nas Redirect URLs do Supabase; `git push` e deploy aguardam go-ahead.
