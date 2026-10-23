@@ -73,6 +73,15 @@ test('Temporal aceita data, mês, "até", prazo e frequência (RUM-31.5)', () =>
     assert.equal(avaliaMeta({ texto: t }).letras.T.ok, false, t));
 });
 
+test('"diariamente" descreve rotina, não prazo: não atende T e dispara o alerta; mensalmente e semanal atendem T (RUM-31.5, RUM-31.9)', () => {
+  const r = avaliaMeta({ texto: 'Postar diariamente nas redes' });
+  assert.equal(r.letras.T.ok, false);
+  assert.deepEqual(r.alertas, [ALERTA_ROTINA]);
+  assert.equal(avaliaMeta({ texto: 'Realizar audiências diárias na região' }).letras.T.ok, false);
+  assert.equal(avaliaMeta({ texto: 'Postar mensalmente nas redes' }).letras.T.ok, true);
+  assert.equal(avaliaMeta({ texto: 'Fazer reunião semanal com a equipe' }).letras.T.ok, true);
+});
+
 test('Relevante só atende com objetivo vinculado; Alcançável só com confirmação (RUM-31.7, RUM-31.8)', () => {
   const texto = 'Aprovar 2 projetos de lei sobre educação até dezembro de 2027';
   assert.equal(avaliaMeta({ texto }).letras.R.ok, false);

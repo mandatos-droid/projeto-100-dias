@@ -29,7 +29,7 @@ const QUANTIDADE = /\b(um|uma|dois|duas|tres|quatro|cinco|seis|sete|oito|nove|de
 const PRAZO = new RegExp([
   '\\bate\\b', '\\b(dias|semanas|meses|anos)\\b', '\\b(19|20)\\d{2}\\b',
   '\\b(janeiro|fevereiro|marco|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\\b',
-  '\\b(mens|seman|quinzen|bimestr|trimestr|semestr|anu)(al|ais|almente)\\b', '\\bdiari\\w*', '\\bpor (mes|semana|ano)\\b',
+  '\\b(mens|seman|quinzen|bimestr|trimestr|semestr|anu)(al|ais|almente)\\b', '\\bpor (mes|semana|ano)\\b',
 ].join('|'));
 const ROTINA = /\benviar e-?mails?\b|\bfazer reuni|\bresponder\b|\batender\b|\bpostar\b|\bpublicar diariamente|\btodo dia\b|\bdiariamente\b/;
 
