@@ -233,7 +233,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T6: Cadeia de rotinas e cadeiras por elo
+### T6: Cadeia de rotinas e cadeiras por elo ✅
 
 **What**: Acrescentar a `lib/rotinas.ts` `cadeia`, `cadeirasDoElo` e `rotinasDaCadeira`.
 **Where**: `lib/rotinas.ts`
@@ -248,10 +248,10 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] A ordem dos elos é planejamento, monitoramento, alinhamento, reunião de área, feedback (T-17)
-- [ ] `cadeirasDoElo('area:Comunicação')` devolve só as cadeiras de Comunicação (T-18)
-- [ ] `rotinasDaCadeira` lista todas as rotinas de que a cadeira participa
-- [ ] Gate: `npm test`; 3 testes novos, nenhum removido
+- [x] A ordem dos elos é planejamento, monitoramento, alinhamento, reunião de área, feedback (T-17)
+- [x] `cadeirasDoElo('area:Comunicação')` devolve só as cadeiras de Comunicação (T-18)
+- [x] `rotinasDaCadeira` lista todas as rotinas de que a cadeira participa
+- [x] Gate: `npm test`; 3 testes novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick

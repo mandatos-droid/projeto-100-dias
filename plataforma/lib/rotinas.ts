@@ -48,3 +48,26 @@ export const rotinasDesligadas = (c: Campos): Rotina[] => todas(c).filter((r) =>
 
 export const desliga = (c: Campos, id: string): Patch => ({ [CHAVE_ROTOFF]: [...new Set([...desligadas(c), id])].join(SEP) });
 export const religa = (c: Campos, id: string): Patch => ({ [CHAVE_ROTOFF]: desligadas(c).filter((x) => x !== id).join(SEP) });
+
+const ORDEM: Rotina['tipo'][] = ['plan', 'mensal', 'semanal', 'area', 'feedback'];
+export type Elo = { tipo: Rotina['tipo']; ordem: number; titulo: string; freq: Freq; duracao: string; ids: string[]; cadeiras: number[] };
+
+/** A cadeia: do ritual mais amplo ao mais restrito; só entram os elos que têm rotina. */
+export function cadeia(rotinas: Rotina[]): Elo[] {
+  return ORDEM.map((tipo, n) => {
+    const rs = rotinas.filter((r) => r.tipo === tipo);
+    if (!rs.length) return null;
+    const dur = [...new Set(rs.map((r) => r.duracao))];
+    return {
+      tipo, ordem: n + 1, titulo: tipo === 'area' ? 'Reunião de área' : tipo === 'feedback' ? 'Feedback 1:1' : rs[0].titulo.split(' — ')[0],
+      freq: rs[0].freq, duracao: dur.length === 1 ? dur[0] : dur.join(' ou '),
+      ids: rs.map((r) => r.id), cadeiras: [...new Set(rs.flatMap((r) => r.participantes))].sort((a, b) => a - b),
+    };
+  }).filter((e): e is Elo => e !== null);
+}
+
+export const cadeirasDoElo = (rotinas: Rotina[], id: string): number[] =>
+  rotinas.find((r) => r.id === id)?.participantes ?? [];
+
+export const rotinasDaCadeira = (rotinas: Rotina[], i: number): Rotina[] =>
+  rotinas.filter((r) => r.participantes.includes(i));
