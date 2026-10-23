@@ -7,7 +7,9 @@ export type Campos = Record<string, string>;
 /** chave → valor; '' apaga a chave */
 export type Patch = Record<string, string>;
 
+export const CHAVE_COORDS = 'm2.coords';   // áreas marcadas (SEP)
 export const CHAVE_ON = 'm2.on';           // índices das cadeiras ativas (SEP); 20 em diante = acrescentadas à mão
+export const chaveArq = (i: number) => `m2.arq.${i + 1}`; // cópia JSON {nome, ficha} de cadeira retirada
 export const N_BASE = 20;                  // cadeiras do modelo original (CARGOS_EQUIPE)
 export const CHEFIA = 0;
 export const SEM_AREA = 'Sem área';
@@ -51,5 +53,65 @@ export function liderDe(c: Campos, i: number): number | null {
   }
   return null;
 }
+
+const ficha = (c: Campos, i: number) => Object.fromEntries(
+  FICHA_CAMPOS.map((k) => [k, (c[chaveFicha(i, k)] ?? '')] as const).filter(([, v]) => v.trim() !== ''));
+const grava = (ids: number[]) => [...new Set(ids)].sort((a, b) => a - b).join(SEP);
+
+/** Áreas marcadas, na ordem de AREAS. Sem m2.coords (mandato antigo), deriva das cadeiras ativas. */
+export function coordsDe(c: Campos): string[] {
+  const bruto = c[CHAVE_COORDS];
+  const marcadas = bruto !== undefined ? lista(bruto) : ativas(c).map((i) => coordDe(c, i));
+  return AREAS.filter((a) => marcadas.includes(a));
+}
+
+/** Cadeiras que o modelo sugere para a área (índices do modelo, sem a Chefia). */
+export const sugeridasDaArea = (coord: string): number[] =>
+  PADRAO.map((p, i) => (i !== CHEFIA && p.coord === coord ? i : -1)).filter((i) => i >= 0);
+
+/** Patch que tira a cadeira: guarda cópia em m2.arq.{n} (se tinha nome ou ficha), apaga nome e ficha e repassa
+ *  quem ela liderava para a liderança dela. Não mexe em m2.on: quem chama decide. */
+function retira(c: Campos, i: number): Patch {
+  const patch: Patch = {};
+  const nome = nomeDe(c, i), f = ficha(c, i);
+  if (nome !== '' || Object.keys(f).length) patch[chaveArq(i)] = JSON.stringify({ nome, ficha: f });
+  patch[chaveNome(i)] = '';
+  FICHA_CAMPOS.forEach((k) => { patch[chaveFicha(i, k)] = ''; });
+  const acima = liderDe(c, i);
+  ativas(c).forEach((j) => {
+    if (j === i) return;
+    const bruto = c[chaveFicha(j, 'lider')] ?? '';
+    const aponta = bruto !== '' ? Number(bruto) === i : PADRAO[j]?.lider === i;
+    if (aponta) patch[chaveFicha(j, 'lider')] = acima === null ? '-' : String(acima);
+  });
+  return patch;
+}
+
+/** Marcar ou desmarcar uma área. Ao desmarcar, se alguma cadeira dela tem nome, devolve `confirma` com os nomes:
+ *  quem chama pede confirmação antes de aplicar o patch (as cadeiras com nome vão para Sem área). */
+export function alternaArea(c: Campos, coord: string, ligar: boolean): { patch: Patch; confirma?: string[] } {
+  const coords = coordsDe(c), on = ativas(c);
+  if (ligar) {
+    return { patch: {
+      [CHAVE_COORDS]: AREAS.filter((a) => a === coord || coords.includes(a)).join(SEP),
+      [CHAVE_ON]: grava([...on, ...sugeridasDaArea(coord)]),
+    } };
+  }
+  const daArea = on.filter((i) => i !== CHEFIA && coordDe(c, i) === coord);
+  const comNome = daArea.filter((i) => nomeLimpo(c, i) !== '');
+  const patch: Patch = {
+    [CHAVE_COORDS]: coords.filter((a) => a !== coord).join(SEP),
+    [CHAVE_ON]: grava(on.filter((i) => !daArea.includes(i) || comNome.includes(i))),
+  };
+  daArea.filter((i) => !comNome.includes(i)).forEach((i) => Object.assign(patch, retira(c, i)));
+  comNome.forEach((i) => { patch[chaveFicha(i, 'coord')] = SEM_AREA; });
+  return comNome.length ? { patch, confirma: comNome.map((i) => nomeLimpo(c, i)) } : { patch };
+}
+
+/** O modelo original: as 6 áreas e as 20 cadeiras (mantém as acrescentadas à mão). */
+export const modeloCompleto = (c: Campos): Patch => ({
+  [CHAVE_COORDS]: AREAS.join(SEP),
+  [CHAVE_ON]: grava([...ativas(c), ...Array.from({ length: N_BASE }, (_, i) => i)]),
+});
 
 export { SEP };

@@ -124,7 +124,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T2: Cadeiras por área e modelo completo
+### T2: Cadeiras por área e modelo completo ✅
 
 **What**: Acrescentar a `lib/cadeiras.ts` `sugeridasDaArea`, `alternaArea` (com `confirma` quando há nomes) e `modeloCompleto`; `SEM_AREA`.
 **Where**: `lib/cadeiras.ts`
@@ -139,11 +139,11 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Área Legislativo marcada gera Chefia + 6 cadeiras = 7 ativas (T-01)
-- [ ] `modeloCompleto` marca as 6 áreas e totaliza 20 cadeiras, na ordem de `CARGOS_EQUIPE` (T-02)
-- [ ] Desmarcar área sem nomes remove as cadeiras sem confirmação (T-05)
-- [ ] Desmarcar área com nome devolve `confirma` com os nomes e, ao confirmar, move as cadeiras para `SEM_AREA` sem apagá-las (T-06)
-- [ ] Gate: `npm test`; 4 testes novos, nenhum removido
+- [x] Área Legislativo marcada gera Chefia + 6 cadeiras = 7 ativas (T-01)
+- [x] `modeloCompleto` marca as 6 áreas e totaliza 20 cadeiras, na ordem de `CARGOS_EQUIPE` (T-02)
+- [x] Desmarcar área sem nomes remove as cadeiras sem confirmação (T-05)
+- [x] Desmarcar área com nome devolve `confirma` com os nomes e, ao confirmar, move as cadeiras para `SEM_AREA` sem apagá-las (T-06)
+- [x] Gate: `npm test`; 4 testes novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
