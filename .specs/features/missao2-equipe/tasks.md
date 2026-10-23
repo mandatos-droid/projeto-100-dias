@@ -204,7 +204,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T5: Geração das rotinas
+### T5: Geração das rotinas ✅
 
 **What**: Criar `lib/rotinas.ts` com `gerarRotinas`: planejamento, monitoramento e alinhamento (todas as cadeiras), reunião de área (2 ou mais cadeiras), feedback por par líder/liderado, honrando `m2.rotoff`.
 **Where**: `lib/rotinas.ts`
@@ -219,13 +219,13 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] 1 cadeira com nome gera as 3 rotinas coletivas (T-11)
-- [ ] Área com 3 cadeiras gera 1 reunião de 45 min com 3 participantes e convocador = cadeira de topo da área (T-12)
-- [ ] Área com 1 cadeira não gera reunião (T-13)
-- [ ] 2 liderados de um líder geram 2 feedbacks de 30 min, com `grupo` = líder (T-14)
-- [ ] Cadeira sem nome entra em `participantes` e fica fora de `confirmados` (T-15)
-- [ ] Gerar duas vezes devolve o mesmo resultado, sem duplicados (T-16)
-- [ ] Gate: `npm test`; 6 testes novos, nenhum removido
+- [x] 1 cadeira com nome gera as 3 rotinas coletivas (T-11)
+- [x] Área com 3 cadeiras gera 1 reunião de 45 min com 3 participantes e convocador = cadeira de topo da área (T-12)
+- [x] Área com 1 cadeira não gera reunião (T-13)
+- [x] 2 liderados de um líder geram 2 feedbacks de 30 min, com `grupo` = líder (T-14)
+- [x] Cadeira sem nome entra em `participantes` e fica fora de `confirmados` (T-15)
+- [x] Gerar duas vezes devolve o mesmo resultado, sem duplicados (T-16)
+- [x] Gate: `npm test`; 6 testes novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
