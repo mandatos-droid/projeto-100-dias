@@ -31,6 +31,32 @@ test.describe('Deputado(a) Federal com catálogo da Câmara (RUM-50.2, RUM-50.5,
   });
 });
 
+const MINAS = { ...MANDATO, uf: 'MG' };
+const ALMG = { gerado: '2026-10-01T00:00:00Z', fonte: 'https://exemplo.test/almg', comissoes: [{ nome: 'Comissão de Educação, Cultura, Ciência e Tecnologia da ALMG', sigla: 'CECCT' }, { nome: 'Comissão de Obras Públicas da ALMG', sigla: 'COP' }] };
+
+test.describe('Deputado(a) Estadual com catálogo da UF (RUM-50.3, RUM-50.4)', () => {
+  test('MG com mg.json: as comissões da Assembleia aparecem, a de Educação destacada, sem nomes genéricos', async ({ page }) => {
+    let pedidos = 0;
+    await page.route('**/data/comissoes/mg.json', (r) => { pedidos++; return r.fulfill({ json: ALMG }); });
+    await abre(page, [ILHA], { campos: EDUCACAO, mandato: MINAS });
+    const destacada = page.locator('.rm-sug-c.dest', { hasText: 'Comissão de Educação, Cultura, Ciência e Tecnologia da ALMG' });
+    await expect(destacada).toBeVisible();
+    await expect(page.locator('.rm-antigo summary')).toContainText('Todas as comissões');
+    await expect(page.getByText('Comissão de Obras Públicas da ALMG')).toBeAttached();
+    await expect(page.getByText('Nomes genéricos por bandeira')).toHaveCount(0);
+    expect(pedidos).toBeGreaterThan(0);
+  });
+
+  test('MG com mg.json em 404: cai no modo genérico por bandeira e continua aceitando nome livre', async ({ page }) => {
+    await page.route('**/data/comissoes/mg.json', (r) => r.fulfill({ status: 404, body: 'não existe' }));
+    await abre(page, [ILHA], { campos: EDUCACAO, mandato: MINAS });
+    await expect(page.getByText('Nomes genéricos por bandeira')).toBeVisible();
+    await expect(page.locator('.rm-sug-c.dest', { hasText: 'Comissão de Educação' })).toBeVisible();
+    await expect(page.locator('.rm-antigo')).toHaveCount(0);
+    await expect(page.getByLabel('Comissão ou espaço')).toBeVisible();
+  });
+});
+
 test.describe('Deputado(a) Estadual sem catálogo da UF (RUM-50.4)', () => {
   test('mostra nomes genéricos por bandeira e aceita nome livre', async ({ page }) => {
     await abre(page, [ILHA], { campos: EDUCACAO, mandato: MANDATO });
