@@ -2,7 +2,7 @@
 /* Missão 2 · Tarefa 2: organograma do mandato. Cada caixa é uma cadeira; o painel (clique na caixa) edita escopo e perfil.
    O desenho vem de lib/layoutOrg, o mesmo da prévia e da exportação. */
 import { useEffect, useMemo, useState } from 'react';
-import { Background, Controls, Handle, Position, ReactFlow, type Edge, type Node, type NodeProps } from '@xyflow/react';
+import { Controls, Handle, Position, ReactFlow, type Edge, type Node, type NodeProps } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { CHEFIA, MAX_CADEIRAS, SEM_AREA, acrescenta, ativas, coordDe, type Campos } from '@/lib/cadeiras';
 import { COR_COORD, chaveFicha, lista } from '@/lib/equipe';
@@ -64,6 +64,9 @@ export default function Organograma() {
 
   const l = layoutOrg(c, { soPreenchidas });
   const on = ativas(c);
+  /* altura pelo conteúdo: sem faixa vazia embaixo; o zoom inicial nunca fica menor que 55% (legível) */
+  const baixo = l.nos.reduce((m, n) => Math.max(m, n.y + n.h), 0);
+  const alturaCanvas = Math.min(720, Math.max(380, Math.round(baixo * 0.75) + 90));
   const comEscopo = on.filter((i) => temEscopo(c, i)).length;
   const aberto = sel !== null && on.includes(sel);
   const chave = JSON.stringify([l.nos.map((n) => [n.i, n.x, n.y, n.nome, n.coord, cargoNome(c, n.i), preenchidos(c, n.i), temEscopo(c, n.i)]), l.arestas.map((a) => [a.id, a.rotulo]), filtro, destaque, aberto && sel]);
@@ -120,16 +123,16 @@ export default function Organograma() {
         </div>
       </div>
       <div className={'es-org-corpo' + (aberto ? ' com-painel' : '')}>
-      <div className="eq-canvas" onKeyDown={(e) => {
+      <div className="eq-canvas" style={{ height: alturaCanvas }} onKeyDown={(e) => {
         /* Enter ou Espaço numa caixa focada abre o painel (o React Flow só a seleciona) */
         const no = (e.target as HTMLElement).closest<HTMLElement>('.react-flow__node');
         if ((e.key === 'Enter' || e.key === ' ') && no && e.target === no) { e.preventDefault(); setSel(Number(no.dataset.id)); }
       }}>
-        <ReactFlow key={estrutura} nodes={nos} edges={arestas} nodeTypes={tipos} fitView fitViewOptions={{ padding: 0.12 }} minZoom={0.2} maxZoom={1.5}
+        <ReactFlow key={estrutura} nodes={nos} edges={arestas} nodeTypes={tipos} fitView fitViewOptions={{ padding: 0.08, minZoom: 0.55, maxZoom: 1 }} minZoom={0.2} maxZoom={1.5}
           nodesConnectable={false} proOptions={{ hideAttribution: true }}
+          zoomOnScroll={false} preventScrolling={false}
           onNodeClick={(_, n) => setSel(Number(n.id))} onPaneClick={() => setSel(null)}
           onEdgeClick={(_, e) => { if (e.data?.tipo === 'entre') definirFoco({ cadeiras: [Number(e.source), Number(e.target)], id: e.id }); }}>
-          <Background gap={22} color="#E6DCCE" />
           <Controls showInteractive={false} />
         </ReactFlow>
       </div>
