@@ -11,6 +11,7 @@ export const focoAtual = (): Foco => atual;
 export function definirFoco(f: Foco) {
   atual = f;
   ouvintes.forEach((o) => o(atual));
+  if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('equipe:foco', { detail: atual })); // observável de fora (testes de tela)
 }
 
 export const limparFoco = () => definirFoco({ cadeiras: [] });

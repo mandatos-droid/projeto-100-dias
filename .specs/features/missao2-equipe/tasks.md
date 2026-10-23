@@ -730,7 +730,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T25: Aba Cadeia
+### T25: Aba Cadeia ✅
 
 **What**: Em `Rotinas.tsx`, aba "Cadeia": elos em ordem com frequência, duração, quantidade de cadeiras, número e ícone; selecionar um elo publica o foco; "Mostrar todos" limpa.
 **Where**: `ilhas/equipe/Rotinas.tsx`
@@ -745,10 +745,10 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Os 5 elos aparecem na ordem da spec, cada um com número e ícone além da cor
-- [ ] Selecionar um elo publica as cadeiras envolvidas no `foco`
-- [ ] "Mostrar todos" limpa o foco
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 3 testes e2e novos, nenhum removido
+- [x] Os 5 elos aparecem na ordem da spec, cada um com número e ícone além da cor
+- [x] Selecionar um elo publica as cadeiras envolvidas no `foco`
+- [x] "Mostrar todos" limpa o foco
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 3 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full

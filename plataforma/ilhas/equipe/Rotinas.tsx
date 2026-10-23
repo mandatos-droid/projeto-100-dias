@@ -1,16 +1,18 @@
 'use client';
 /* Missão 2 · rotinas do mandato, geradas a partir das cadeiras: por área, em cadeia e entre áreas. */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ativas, coordDe, nomeLimpo, type Campos } from '@/lib/cadeiras';
 import { COR_COORD, chaveFicha, lista } from '@/lib/equipe';
-import { desliga, gerarRotinas, religa, rotinasDesligadas, type Rotina } from '@/lib/rotinas';
+import { cadeia, desliga, gerarRotinas, religa, rotinasDesligadas, type Rotina } from '@/lib/rotinas';
 import { cargoNome } from './cargos';
+import { assinar, definirFoco, limparFoco } from './foco';
 import { useEquipe } from './useEquipe';
 import './equipe.css';
 
 type Aba = 'area' | 'cadeia' | 'entre';
 const ABAS: [Aba, string][] = [['area', 'Por área'], ['cadeia', 'Cadeia'], ['entre', 'Entre áreas']];
 
+const ICONES: Record<string, string> = { plan: '◈', mensal: '▤', semanal: '▥', area: '▣', feedback: '◉' };
 const pessoa = (c: Campos, i: number) => nomeLimpo(c, i) || '';
 const quem = (c: Campos, i: number | null) => (i === null ? '' : pessoa(c, i) || cargoNome(c, i));
 
@@ -21,6 +23,15 @@ function Participantes({ c, r }: { c: Campos; r: Rotina }) {
 export default function Rotinas() {
   const { c, agir } = useEquipe();
   const [aba, setAba] = useState<Aba>('area');
+  const [ativo, setAtivo] = useState<string | null>(null);
+  /* o destaque é compartilhado com o organograma; se ele for limpo de fora, a seleção daqui limpa junto */
+  useEffect(() => assinar((f) => { if (!f.cadeiras.length) setAtivo(null); }), []);
+  useEffect(() => () => limparFoco(), []);
+  const escolhe = (id: string, cadeiras: number[]) => {
+    if (ativo === id) { limparFoco(); return; }
+    setAtivo(id);
+    definirFoco({ cadeiras, id });
+  };
   const rs = gerarRotinas(c);
   const off = rotinasDesligadas(c);
   const por = (t: Rotina['tipo']) => rs.filter((r) => r.tipo === t);
@@ -90,7 +101,33 @@ export default function Rotinas() {
               </details>
             )}
           </>))}
-        {aba === 'cadeia' && <p className="sem">A cadeia de rotinas aparece aqui.</p>}
+        {aba === 'cadeia' && (rs.length === 0
+          ? <p className="sem">Dê nome a ao menos uma cadeira para a cadeia de rotinas aparecer aqui.</p>
+          : (<>
+            <p className="eq-ajuda">Do encontro mais amplo ao mais restrito. Escolha um elo para ver, no organograma, as cadeiras que participam dele.</p>
+            {ativo && <button type="button" className="bt sec peq es-bt" onClick={() => limparFoco()}>Mostrar todos</button>}
+            <ol className="es-cadeia">
+              {cadeia(rs).map((e) => (
+                <li key={e.tipo} className={'es-elo' + (ativo === e.tipo ? ' on' : '')} data-elo={e.tipo}>
+                  <button type="button" className="es-elo-bt" aria-pressed={ativo === e.tipo} onClick={() => escolhe(e.tipo, e.cadeiras)}>
+                    <b className="es-elo-n" aria-hidden="true">{e.ordem}</b>
+                    <span className="es-elo-ic" aria-hidden="true">{ICONES[e.tipo]}</span>
+                    <span className="es-elo-t"><strong>{e.titulo}</strong>
+                      <small>{e.freq} · {e.duracao} · {e.cadeiras.length} {e.cadeiras.length === 1 ? 'cadeira' : 'cadeiras'}</small></span>
+                  </button>
+                  {e.ids.length > 1 && (
+                    <ul className="es-elo-sub">
+                      {rs.filter((r) => e.ids.includes(r.id)).map((r) => (
+                        <li key={r.id}><button type="button" className="es-elo-sb" aria-pressed={ativo === r.id} onClick={() => escolhe(r.id, r.participantes)}>
+                          {r.tipo === 'area' ? `Reunião da área ${r.area}` : `Feedback: ${quem(c, r.participantes[0])} e ${quem(c, r.participantes[1])}`}
+                        </button></li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </>))}
         {aba === 'entre' && <p className="sem">As rotinas entre áreas aparecem aqui.</p>}
       </div>
     </div>
