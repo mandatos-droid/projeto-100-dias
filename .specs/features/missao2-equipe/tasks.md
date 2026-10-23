@@ -652,7 +652,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T22: Acrescentar e remover cadeira no organograma
+### T22: Acrescentar e remover cadeira no organograma ✅
 
 **What**: Em `Organograma.tsx`, botão "Acrescentar cadeira" (subordinada à caixa selecionada, abre o painel) e remoção pelo painel com confirmação e repasse de liderança.
 **Where**: `ilhas/equipe/Organograma.tsx`
@@ -667,10 +667,10 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Com uma caixa selecionada, "Acrescentar cadeira" cria a cadeira subordinada e abre o painel
-- [ ] Remover um líder pede confirmação e reatribui os liderados ao líder do removido (E-09)
-- [ ] A cadeira 0 não oferece remover
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 3 testes e2e novos, nenhum removido
+- [x] Com uma caixa selecionada, "Acrescentar cadeira" cria a cadeira subordinada e abre o painel
+- [x] Remover um líder pede confirmação e reatribui os liderados ao líder do removido (E-09)
+- [x] A cadeira 0 não oferece remover
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 3 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full

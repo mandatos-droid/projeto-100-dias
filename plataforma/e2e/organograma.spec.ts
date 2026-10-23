@@ -132,3 +132,53 @@ test.describe('Painel da cadeira (MEQ-09, MEQ-10)', () => {
     expect(await page.evaluate(() => !!document.activeElement?.closest('.react-flow__node')?.querySelector('[data-cadeira="7"]'))).toBe(true);
   });
 });
+
+test.describe('Acrescentar e remover cadeiras no organograma (MEQ-08, MEQ-09)', () => {
+  const painel = (page: import('@playwright/test').Page) => page.getByRole('complementary', { name: /Painel da cadeira/ });
+  const cadeia = { 'm2.coords': 'Legislativo', 'm2.on': '0|20|21|22', 'm2.f1': 'Ana', 'm2.p21.nome_cargo': 'Alfa', 'm2.p22.nome_cargo': 'Beta', 'm2.p23.nome_cargo': 'Gama', 'm2.p21.lider': '0', 'm2.p22.lider': '20', 'm2.p23.lider': '21', 'm2.p21.coord': 'Legislativo', 'm2.p22.coord': 'Legislativo', 'm2.p23.coord': 'Legislativo' };
+
+  test('com uma caixa selecionada, "Acrescentar cadeira" cria a subordinada na mesma área e abre o painel', async ({ page }) => {
+    await abre(page, [ILHA], base);
+    await page.locator('.es-no[data-cadeira="7"]').click();
+    await page.getByRole('button', { name: 'Acrescentar cadeira' }).click();
+    await expect(page.locator('.es-no[data-cadeira="20"]')).toBeVisible();
+    await expect(painel(page)).toContainText('Cadeira acrescentada');
+    await expect(painel(page).getByLabel('Liderança imediata')).toHaveValue('7');
+    await expect(painel(page).getByLabel('Coordenação')).toHaveValue('Comunicação');
+    expect((await camposDe(page))['m2.on']).toBe('0|1|2|7|8|20');
+  });
+
+  test('sem seleção, a nova cadeira entra sob a Chefia, sem área', async ({ page }) => {
+    await abre(page, [ILHA], base);
+    await page.getByRole('button', { name: 'Acrescentar cadeira' }).click();
+    await expect(painel(page).getByLabel('Liderança imediata')).toHaveValue('0');
+    await expect(painel(page).getByLabel('Coordenação')).toHaveValue('Sem área');
+  });
+
+  test('remover um líder pede confirmação e reatribui os liderados ao líder do removido (E-09)', async ({ page }) => {
+    await abre(page, [ILHA], cadeia);
+    await page.locator('.es-no[data-cadeira="21"]').click();
+    const msgs: string[] = [];
+    page.once('dialog', (d) => { msgs.push(d.message()); d.dismiss(); });
+    await painel(page).getByRole('button', { name: 'Remover esta cadeira' }).click();
+    expect(msgs[0]).toContain('Gama');
+    expect((await camposDe(page))['m2.on']).toBe('0|20|21|22');
+
+    page.once('dialog', (d) => d.accept());
+    await painel(page).getByRole('button', { name: 'Remover esta cadeira' }).click();
+    await expect(page.locator('.es-no[data-cadeira="21"]')).toHaveCount(0);
+    await expect(painel(page)).toHaveCount(0);
+    const c = await camposDe(page);
+    expect(c['m2.on']).toBe('0|20|22');
+    expect(c['m2.p23.lider']).toBe('20');
+    await page.locator('.es-no[data-cadeira="22"]').click();
+    await expect(painel(page).getByLabel('Liderança imediata')).toHaveValue('20');
+  });
+
+  test('a Chefia de gabinete não oferece remover', async ({ page }) => {
+    await abre(page, [ILHA], base);
+    await page.locator('.es-no[data-cadeira="0"]').click();
+    await expect(painel(page)).toBeVisible();
+    await expect(painel(page).getByRole('button', { name: 'Remover esta cadeira' })).toHaveCount(0);
+  });
+});
