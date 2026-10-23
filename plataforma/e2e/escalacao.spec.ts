@@ -119,3 +119,49 @@ test.describe('Etapa 2: ajustar as cadeiras (MEQ-02, MEQ-03)', () => {
     await expect(page.locator('[data-etapa]')).not.toContainText(/bandeira/i);
   });
 });
+
+test.describe('Etapa 3: nomes, coordenação e liderança (MEQ-05, MEQ-06, MEQ-07)', () => {
+  const na3 = { 'm2.etapa': '3', 'm2.coords': 'Comunicação|Legislativo', 'm2.on': '0|1|2|3|4|5|6|7|8|9|10' };
+  const cadeia = { 'm2.etapa': '3', 'm2.coords': 'Legislativo', 'm2.on': '0|20|21|22', 'm2.p21.nome_cargo': 'Alfa', 'm2.p22.nome_cargo': 'Beta', 'm2.p23.nome_cargo': 'Gama', 'm2.p21.lider': '0', 'm2.p22.lider': '20', 'm2.p23.lider': '21' };
+
+  test('mostra só pessoa, cargo, coordenação e liderança por cadeira, já preenchidas (E-03)', async ({ page }) => {
+    await abre(page, [ILHA], na3);
+    const corpo = page.locator('[data-etapa]');
+    await expect(corpo.locator('.es-nome')).toHaveCount(11);
+    await expect(page.getByLabel('Coordenação, Assessor/a Legislativo/a')).toHaveValue('Legislativo');
+    await expect(page.getByLabel('Liderança imediata, Assessor/a Legislativo/a')).toHaveValue('1');
+    await expect(corpo.locator('textarea')).toHaveCount(0);
+    await expect(corpo).not.toContainText(/escopo|habilidade|repertório/i);
+  });
+
+  test('liderança em ciclo mostra a cadeia e mantém o valor anterior (E-05)', async ({ page }) => {
+    await abre(page, [ILHA], cadeia);
+    await page.getByLabel('Liderança imediata, Alfa').selectOption({ label: 'Gama' });
+    await expect(page.locator('[data-etapa]').getByRole('alert')).toContainText('Alfa → Beta → Gama voltaria para Alfa');
+    await expect(page.getByLabel('Liderança imediata, Alfa')).toHaveValue('0');
+    expect((await camposDe(page))['m2.p21.lider']).toBe('0');
+  });
+
+  test('digitar * marca a cadeira como processo seletivo de ampla concorrência', async ({ page }) => {
+    await abre(page, [ILHA], na3);
+    await page.getByLabel('Pessoa, Social-media').fill('*');
+    await expect(page.locator('.es-nome', { hasText: 'Social-media' }).getByText('Processo seletivo de ampla concorrência')).toBeVisible();
+    expect((await camposDe(page))['m2.f9']).toBe('*');
+  });
+
+  test('o nome digitado fica salvo depois de recarregar (E-06)', async ({ page }) => {
+    await abre(page, [ILHA], na3);
+    await page.getByLabel('Pessoa, Social-media').fill('Bia Lima');
+    await page.reload();
+    await page.locator('#tela[data-pronto="true"]').waitFor();
+    await expect(page.getByLabel('Pessoa, Social-media')).toHaveValue('Bia Lima');
+  });
+
+  test('a mesma pessoa em 2 cadeiras é aceita, com aviso nas duas', async ({ page }) => {
+    await abre(page, [ILHA], na3);
+    await page.getByLabel('Pessoa, Social-media').fill('Bia Lima');
+    await page.getByLabel('Pessoa, Vídeo-maker').fill('bia lima');
+    await expect(page.getByText('mesma pessoa em 2 cadeiras')).toHaveCount(2);
+    expect((await camposDe(page))['m2.f10']).toBe('bia lima');
+  });
+});

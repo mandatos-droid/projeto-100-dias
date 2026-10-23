@@ -29,3 +29,8 @@
 .es-add{display:flex;flex-wrap:wrap;gap:0.5rem 0.875rem;align-items:flex-end;margin:0.875rem 0 0.25rem}
 .es-add .eq-campo{margin:0;min-width:200px}
 .es-bt:disabled{opacity:.5;cursor:not-allowed}
+.es-nomes{list-style:none;margin:0.5rem 0;padding:0;display:grid;gap:0.625rem}
+.es-nome{background:#fff;border:1px solid var(--linha);border-left:6px solid var(--vinho);border-radius:var(--r);padding:0.5rem 0.875rem 0.25rem}
+.es-nome header{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.25rem 0.75rem}
+.es-nome header small{font-size:0.75rem;color:var(--tinta-3)}
+.es-tag.aviso{color:var(--andamento);border-color:var(--andamento)}

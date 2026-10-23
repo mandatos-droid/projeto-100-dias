@@ -521,7 +521,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T17: Etapa 3, nomes, coordenação e liderança
+### T17: Etapa 3, nomes, coordenação e liderança ✅
 
 **What**: Criar `ilhas/equipe/EtapaNomes.tsx`: por cadeira, nome (com `*`), nome do cargo, coordenação e liderança imediata já pré-preenchidas, erro de ciclo inline, aviso "mesma pessoa em 2 cadeiras"; sem campos de escopo, perfil nem repertório.
 **Where**: `ilhas/equipe/EtapaNomes.tsx`
@@ -536,11 +536,11 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] A etapa mostra só nome, cargo, coordenação e liderança por cadeira (E-03)
-- [ ] Escolher liderança em ciclo mostra "A → B → C voltaria para A" e mantém o valor anterior (E-05)
-- [ ] Digitar `*` marca "processo seletivo de ampla concorrência"
-- [ ] Digitar o nome e recarregar mantém o nome (E-06)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 4 testes e2e novos, nenhum removido
+- [x] A etapa mostra só nome, cargo, coordenação e liderança por cadeira (E-03)
+- [x] Escolher liderança em ciclo mostra "A → B → C voltaria para A" e mantém o valor anterior (E-05)
+- [x] Digitar `*` marca "processo seletivo de ampla concorrência"
+- [x] Digitar o nome e recarregar mantém o nome (E-06)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 4 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
