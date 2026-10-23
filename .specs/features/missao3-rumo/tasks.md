@@ -549,7 +549,7 @@ T22 → T23 → T24
 
 ---
 
-### T17: Modelos de manchete e rascunhos dos grupos (P2)
+### T17: Modelos de manchete e rascunhos dos grupos (P2) ✅
 
 **What**: Acrescentar a `Legado.tsx` o carrossel dos 4 modelos "sugestão da plataforma" e a gaveta "Manchetes dos grupos" com "Usar como base" e unificação de elementos.
 **Where**: `ilhas/rumo/Legado.tsx`, `ilhas/rumo/rumo.css`, `e2e/rumo-legado.spec.ts`
@@ -564,11 +564,11 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Escolher "reeleição" pré-preenche os 4 passos com nome e bandeiras e cada lacuna segue editável (RUM-52.2)
-- [ ] Os 4 cartões mostram o selo "sugestão da plataforma" (RUM-52.1)
-- [ ] Salvar rascunho de grupo guarda grupo, manchete e cargo; "Usar como base" o carrega nos passos (RUM-52.3, RUM-52.4)
-- [ ] Unificar elementos de dois rascunhos monta os passos com o elemento escolhido de cada um (RUM-11.9)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-legado.spec.ts`, nenhum removido
+- [x] Escolher "reeleição" pré-preenche os 4 passos com nome e bandeiras e cada lacuna segue editável (RUM-52.2)
+- [x] Os 4 cartões mostram o selo "sugestão da plataforma" (RUM-52.1)
+- [x] Salvar rascunho de grupo guarda grupo, manchete e cargo; "Usar como base" o carrega nos passos (RUM-52.3, RUM-52.4)
+- [x] Unificar elementos de dois rascunhos monta os passos com o elemento escolhido de cada um (RUM-11.9)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-legado.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full

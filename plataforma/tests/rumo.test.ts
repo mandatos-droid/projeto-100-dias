@@ -157,3 +157,15 @@ test('status válidos são mantidos e lerMetas aceita D.metas inválido', () => 
   assert.deepEqual(lerMetas({ metas: 'lixo' }), []);
   assert.equal(lerMetas({ metas: [{ texto: 'a' }, 7, null] }).length, 1);
 });
+
+test('rascunho de grupo guarda os elementos opcionais; rascunho antigo, só com manchete e cargo, continua válido (RUM-52.3, RUM-11.9)', () => {
+  const r = lerRumo({ rumo: { v: 1, legado: { rascunhos: [
+    { id: 'a', grupo: 'Grupo Azul', manchete: 'M1', cargo: 'Senador(a)', el: { protagonista: 'Ana', entrega: 'E1', resultado: 'R1', lixo: 1 } },
+    { id: 'b', grupo: 'Grupo Verde', manchete: 'M2', cargo: '' },
+    { id: 'c', grupo: 'Grupo Roxo', manchete: 'M3', cargo: '', el: 'corrompido' },
+  ] } } });
+  assert.deepEqual(r.legado.rascunhos[0].el, { protagonista: 'Ana', entrega: 'E1', resultado: 'R1' });
+  assert.equal(r.legado.rascunhos[1].el, undefined);
+  assert.equal(r.legado.rascunhos[2].el, undefined);
+  assert.equal(r.legado.rascunhos[2].manchete, 'M3');
+});

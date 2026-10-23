@@ -4,7 +4,7 @@ import { abre, camposDe, dadoDe, MANDATO } from './semente-rumo';
 const ILHA = 'rumo-legado';
 const BANDEIRAS = { 'm3.mural': 'Educação; Saúde', 'm3.b1': 'Educação', 'm3.b2': 'Saúde' };
 const passo = (page: Page, rot: string) => page.locator('.rm-passo', { hasText: rot });
-const protagonista = (page: Page) => page.getByRole('textbox', { name: /Protagonista/ });
+const protagonista = (page: Page) => page.getByRole('textbox', { name: /^Protagonista( Usar .*)?$/ });
 const continuar = (page: Page) => page.getByRole('button', { name: 'Continuar' });
 const manchete = (page: Page) => page.getByLabel('Texto final da manchete');
 const jornalH2 = (page: Page) => page.locator('.rm-jornal').getByRole('heading', { level: 2 });
@@ -192,4 +192,160 @@ test('HTML digitado em qualquer passo aparece como texto no jornal', async ({ pa
   await expect(jornalH2(page)).toContainText('<b>Ana</b><script>window.__xss=1</script>');
   expect(await page.locator('.rm-jornal b, .rm-jornal script').count()).toBe(0);
   expect(await page.evaluate(() => (window as unknown as { __xss?: number }).__xss)).toBeUndefined();
+});
+
+/* ---------- modelos e rascunhos dos grupos (T17) ---------- */
+const modelo = (page: Page, rot: string) => page.locator('.rm-modelo', { hasText: rot });
+type Rasc = { id: string; grupo: string; manchete: string; cargo: string; el?: Record<string, string> };
+const rascunhos = async (page: Page) => (await legadoDe(page)).rascunhos as Rasc[];
+
+/** a gaveta começa fechada enquanto não há rascunhos */
+async function abreGaveta(page: Page) {
+  if (!(await page.locator('.rm-gaveta[open]').count())) await page.locator('.rm-gaveta > summary').click();
+}
+
+async function guarda(page: Page, o: { grupo: string; manchete: string; cargo?: string; protagonista?: string; entrega?: string; resultado?: string }) {
+  await abreGaveta(page);
+  await page.getByLabel('Nome do grupo').fill(o.grupo);
+  await page.getByLabel('Manchete do grupo').fill(o.manchete);
+  if (o.cargo) await page.getByLabel('Cargo do grupo').selectOption(o.cargo);
+  if (o.protagonista || o.entrega || o.resultado) {
+    const aberto = await page.locator('.rm-rasc-form details[open]').count();
+    if (!aberto) await page.locator('.rm-rasc-form summary').click();
+    if (o.protagonista) await page.getByLabel('Protagonista do grupo').fill(o.protagonista);
+    if (o.entrega) await page.getByLabel('Entrega do grupo').fill(o.entrega);
+    if (o.resultado) await page.getByLabel('Resultado do grupo').fill(o.resultado);
+  }
+  await page.getByRole('button', { name: 'Guardar rascunho' }).click();
+}
+
+test.describe('Modelos de manchete (RUM-52.1, RUM-52.2)', () => {
+  test('os 4 cartões mostram o selo "sugestão da plataforma"', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await expect(page.locator('.rm-modelo')).toHaveCount(4);
+    for (const rot of ['Reeleição', 'Candidatura a outro cargo', 'Da Câmara ao Senado', 'Entrega legislativa']) {
+      await expect(modelo(page, rot)).toContainText('sugestão da plataforma');
+    }
+  });
+
+  test('escolher "Reeleição" pré-preenche os 4 passos com nome e bandeiras, e cada lacuna segue editável', async ({ page }) => {
+    await abre(page, [ILHA], { campos: BANDEIRAS, mandato: MANDATO });
+    await page.getByRole('button', { name: 'Usar o modelo Reeleição' }).click();
+    for (const r of ['Protagonista', 'Entrega', 'Resultado', 'Cargo']) await expect(passo(page, r)).toHaveClass(/ok/);
+    await expect(protagonista(page)).toHaveValue('Ana Souza');
+    await continuar(page).click();
+    await expect(page.getByLabel('Principal entrega')).toHaveValue('liderou a agenda de educação');
+    await page.getByLabel('Principal entrega').fill('liderou a agenda de educação e de saúde');
+    await expect(jornalH2(page)).toContainText('liderou a agenda de educação e de saúde');
+    const c = await camposDe(page);
+    expect(c['m3.cargo']).toBe('Reeleição a Deputado(a) Estadual');
+    expect(c['m3.legado']).toContain('conquista a reeleição a Deputado(a) Estadual');
+    expect(((await dadoDe(page, 'rumo')) as { legado: { modelo: string } }).legado.modelo).toBe('reeleicao');
+  });
+
+  test('modelo sem bandeira prioritária usa a lacuna neutra, sem "undefined"', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await page.getByRole('button', { name: 'Usar o modelo Entrega legislativa' }).click();
+    await expect(manchete(page)).toHaveValue(/colocou a pauta prioritária no centro do debate político/);
+    await expect(manchete(page)).not.toHaveValue(/undefined/);
+  });
+
+  test('com texto já escrito, pede confirmação antes de substituir; recusar mantém tudo', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await protagonista(page).fill('Joaquim José');
+    let msg = '';
+    page.once('dialog', (d) => { msg = d.message(); d.dismiss(); });
+    await page.getByRole('button', { name: 'Usar o modelo Reeleição' }).click();
+    expect(msg).toContain('Substituir');
+    await expect(protagonista(page)).toHaveValue('Joaquim José');
+    page.once('dialog', (d) => d.accept());
+    await page.getByRole('button', { name: 'Usar o modelo Reeleição' }).click();
+    await expect(protagonista(page)).toHaveValue('Ana Souza');
+  });
+});
+
+test.describe('Rascunhos dos grupos (RUM-52.3, RUM-52.4, RUM-11.9)', () => {
+  test('guardar um rascunho grava grupo, manchete e cargo e o lista em cartão', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await guarda(page, { grupo: 'Grupo Azul', manchete: 'Ana Souza, a mais votada, vai ao Senado', cargo: 'Senador(a)' });
+    await expect(page.locator('.rm-rascunhos li')).toHaveCount(1);
+    await expect(page.locator('[data-rascunho]')).toContainText('Grupo Azul');
+    await expect(page.locator('[data-rascunho]')).toContainText('Senador(a)');
+    expect(await rascunhos(page)).toEqual([expect.objectContaining({ grupo: 'Grupo Azul', manchete: 'Ana Souza, a mais votada, vai ao Senado', cargo: 'Senador(a)' })]);
+    await page.reload();
+    await page.locator('#tela[data-pronto="true"]').waitFor();
+    await expect(page.locator('.rm-rascunhos li')).toHaveCount(1);
+  });
+
+  test('sem nome do grupo ou sem manchete não guarda e avisa', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await abreGaveta(page);
+    await page.getByLabel('Manchete do grupo').fill('Só a manchete');
+    await page.getByRole('button', { name: 'Guardar rascunho' }).click();
+    await expect(page.locator('#avisos')).toContainText('Escreva o nome do grupo e a manchete');
+    expect(await dadoDe(page, 'rumo')).toBeUndefined();
+  });
+
+  test('"Usar como base" carrega manchete, cargo e elementos do rascunho nos passos', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await guarda(page, { grupo: 'Grupo Azul', manchete: 'Ana Souza: zerou a fila das creches e conquista a reeleição a Deputado(a) Estadual', cargo: 'Reeleição a Deputado(a) Estadual', protagonista: 'Ana Souza', entrega: 'zerou a fila das creches' });
+    await page.getByRole('button', { name: 'Usar Grupo Azul como base' }).click();
+    await expect(manchete(page)).toHaveValue('Ana Souza: zerou a fila das creches e conquista a reeleição a Deputado(a) Estadual');
+    expect((await camposDe(page))['m3.cargo']).toBe('Reeleição a Deputado(a) Estadual');
+    await expect(protagonista(page)).toHaveValue('Ana Souza');
+    await expect(jornalH2(page)).toContainText('zerou a fila das creches');
+    await continuar(page).click();
+    await expect(page.getByLabel('Principal entrega')).toHaveValue('zerou a fila das creches');
+  });
+
+  test('rascunho só com manchete vira texto manual', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await guarda(page, { grupo: 'Grupo Verde', manchete: 'Manchete livre do grupo verde' });
+    await page.getByRole('button', { name: 'Usar Grupo Verde como base' }).click();
+    await expect(manchete(page)).toHaveValue('Manchete livre do grupo verde');
+    expect((await legadoDe(page)).manual).toBe(true);
+  });
+
+  test('unificar elementos de dois rascunhos monta os passos com o elemento escolhido de cada um', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await guarda(page, { grupo: 'Grupo Azul', manchete: 'M azul', cargo: 'Senador(a)', protagonista: 'Ana Souza', entrega: 'zerou a fila das creches', resultado: 'em 4 anos' });
+    await guarda(page, { grupo: 'Grupo Verde', manchete: 'M verde', cargo: 'Governador(a)', protagonista: 'A deputada', entrega: 'aprovou o Plano Estadual de Educação', resultado: 'com 90% de aprovação' });
+    await expect(page.getByRole('heading', { name: 'Unificar elementos de mais de um rascunho' })).toBeVisible();
+    const sel = (rot: string) => page.locator('.rm-unifica .campo', { hasText: `${rot} de` }).locator('select');
+    await sel('Protagonista').selectOption({ label: 'Grupo Azul: Ana Souza' });
+    await sel('Entrega').selectOption({ label: 'Grupo Verde: aprovou o Plano Estadual de Educação' });
+    await sel('Resultado').selectOption({ label: 'Grupo Azul: em 4 anos' });
+    await sel('Cargo').selectOption({ label: 'Grupo Verde: Governador(a)' });
+    await page.getByRole('button', { name: 'Montar os passos com a escolha' }).click();
+    await expect(manchete(page)).toHaveValue('Ana Souza: aprovou o Plano Estadual de Educação, em 4 anos e se candidata a Governador(a)');
+    expect((await camposDe(page))['m3.cargo']).toBe('Governador(a)');
+    await expect(passo(page, 'Cargo')).toHaveClass(/ok/);
+    expect((await legadoDe(page)).manual).toBe(false);
+  });
+
+  test('unificar sem escolher nada avisa e não muda a manchete; com um rascunho só, o bloco não aparece', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await guarda(page, { grupo: 'Grupo Azul', manchete: 'M azul' });
+    await expect(page.getByRole('heading', { name: 'Unificar elementos de mais de um rascunho' })).toHaveCount(0);
+    await guarda(page, { grupo: 'Grupo Verde', manchete: 'M verde' });
+    await page.getByRole('button', { name: 'Montar os passos com a escolha' }).click();
+    await expect(page.locator('#avisos')).toContainText('Escolha ao menos um elemento');
+    await expect(manchete(page)).toHaveValue('');
+  });
+
+  test('remover um rascunho o tira da lista e do estado', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await guarda(page, { grupo: 'Grupo Azul', manchete: 'M azul' });
+    await page.getByRole('button', { name: 'Remover rascunho de Grupo Azul' }).click();
+    await expect(page.locator('.rm-rascunhos li')).toHaveCount(0);
+    expect(await rascunhos(page)).toEqual([]);
+  });
+
+  test('HTML digitado no rascunho aparece como texto', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await guarda(page, { grupo: '<b>G</b>', manchete: '<img src=x onerror="window.__xss=1">' });
+    await expect(page.locator('[data-rascunho] p')).toHaveText('<img src=x onerror="window.__xss=1">');
+    expect(await page.locator('[data-rascunho] img, [data-rascunho] b').count()).toBe(0);
+    expect(await page.evaluate(() => (window as unknown as { __xss?: number }).__xss)).toBeUndefined();
+  });
 });

@@ -14,7 +14,8 @@ export interface BandeiraRumo {
   prioridade: number | null;           // 1..3, na ordem de confirmação
 }
 export interface ElementosLegado { protagonista: string; entrega: string; resultado: string; cargo: string; cargoOutro?: string }
-export interface RascunhoLegado { id: string; grupo: string; manchete: string; cargo: string }
+/** `el`: elementos que o grupo escreveu (opcionais); com eles dá para usar como base nos passos e unificar com outro rascunho */
+export interface RascunhoLegado { id: string; grupo: string; manchete: string; cargo: string; el?: { protagonista?: string; entrega?: string; resultado?: string } }
 export type ModeloId = 'reeleicao' | 'outro-cargo' | 'camara-senado' | 'entrega';
 export interface LegadoRumo {
   modelo?: ModeloId;
@@ -141,7 +142,11 @@ function lerLegado(v: unknown, antigo: LegadoRumo): LegadoRumo {
   const el = ehObj(v.el) ? v.el : {};
   const cargoOutro = typeof el.cargoOutro === 'string' ? el.cargoOutro : undefined;
   const rascunhos = (Array.isArray(v.rascunhos) ? v.rascunhos : []).filter(ehObj).filter((r) => typeof r.id === 'string')
-    .map((r) => ({ id: r.id as string, grupo: str(r.grupo), manchete: str(r.manchete), cargo: str(r.cargo) }));
+    .map((r): RascunhoLegado => {
+      const e = ehObj(r.el) ? r.el : null;
+      const el = e ? Object.fromEntries((['protagonista', 'entrega', 'resultado'] as const).filter((k) => typeof e[k] === 'string').map((k) => [k, e[k] as string])) : null;
+      return { id: r.id as string, grupo: str(r.grupo), manchete: str(r.manchete), cargo: str(r.cargo), ...(el && Object.keys(el).length ? { el } : {}) };
+    });
   return {
     modelo: MODELOS_IDS.includes(v.modelo as ModeloId) ? (v.modelo as ModeloId) : undefined,
     el: { protagonista: str(el.protagonista), entrega: str(el.entrega), resultado: str(el.resultado), cargo: str(el.cargo), ...(cargoOutro !== undefined ? { cargoOutro } : {}) },

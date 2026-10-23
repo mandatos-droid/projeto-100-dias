@@ -2,8 +2,8 @@
 /* Missão 3 · Legado em 4 passos (protagonista, entrega, resultado, cargo) com a primeira página de jornal ao vivo.
    Estado em D.rumo.legado, espelhado em m3.legado e m3.cargo. O texto final pode ser escrito à mão (manual) ou recomposto. */
 import { useEffect, useRef, useState } from 'react';
-import { avisos, cargosPostulaveis, compoe, dataEdicao } from '@/lib/manchete';
-import type { ElementosLegado } from '@/lib/rumo';
+import { MODELOS, aplicaModelo, avisos, cargosPostulaveis, compoe, dataEdicao, type Modelo } from '@/lib/manchete';
+import type { ElementosLegado, RascunhoLegado } from '@/lib/rumo';
 import { aviso } from '../ponte';
 import Jornal from './Jornal';
 import { useRumo } from './useRumo';
@@ -17,6 +17,10 @@ const PASSOS: Passo[] = [
   { id: 'cargo', rot: 'Cargo', dica: 'Qual cargo a liderança estaria postulando daqui a quatro anos?' },
 ];
 const cargoFinal = (el: ElementosLegado) => (el.cargo === 'Outro' ? (el.cargoOutro ?? '') : el.cargo).trim();
+const uid = () => Math.random().toString(36).slice(2, 10);
+const ELEMENTOS = ['protagonista', 'entrega', 'resultado', 'cargo'] as const;
+const ROT_ELEMENTO = { protagonista: 'Protagonista', entrega: 'Entrega', resultado: 'Resultado', cargo: 'Cargo' };
+const valorDe = (r: RascunhoLegado, k: (typeof ELEMENTOS)[number]) => (k === 'cargo' ? r.cargo : r.el?.[k] ?? '').trim();
 const completo = (el: ElementosLegado, i: number) => (i === 3 ? cargoFinal(el) !== '' : el[PASSOS[i].id].trim() !== '');
 
 export default function Legado() {
@@ -35,6 +39,43 @@ export default function Legado() {
 
   const liberado = (i: number) => [...Array(i).keys()].every((k) => completo(el, k));
   const vai = (i: number) => { if (i < 0 || i > 3 || !liberado(i)) return; moveu.current = true; setPasso(i); };
+
+  const volta = () => { moveu.current = false; setPasso(0); };
+
+  /* modelos da plataforma */
+  const preview = (mo: Modelo) => compoe(aplicaModelo(mo, { ...ctx, cargoAtual: m.cargo ?? '' }), ctx);
+  const usaModelo = (mo: Modelo) => {
+    if ([el.protagonista, el.entrega, el.resultado, el.cargo].some((t) => t.trim()) && !window.confirm('Substituir o que você já escreveu nos passos pelo modelo?')) return;
+    const novo = aplicaModelo(mo, { ...ctx, cargoAtual: m.cargo ?? '' });
+    set({ legado: { modelo: mo.id, el: { ...novo, cargoOutro: '' }, manchete: compoe(novo, ctx), manual: false } });
+    volta();
+  };
+
+  /* rascunhos dos grupos */
+  const [g, setG] = useState({ grupo: '', manchete: '', cargo: '', protagonista: '', entrega: '', resultado: '' });
+  const [escolha, setEscolha] = useState<Record<string, string>>({});
+  const salvaRascunho = () => {
+    if (!g.grupo.trim() || !g.manchete.trim()) { aviso('Escreva o nome do grupo e a manchete para guardar o rascunho.'); return; }
+    const els = Object.fromEntries((['protagonista', 'entrega', 'resultado'] as const).filter((k) => g[k].trim()).map((k) => [k, g[k].trim()]));
+    set({ legado: { rascunhos: [...lg.rascunhos, { id: uid(), grupo: g.grupo.trim(), manchete: g.manchete.trim(), cargo: g.cargo, ...(Object.keys(els).length ? { el: els } : {}) }] } });
+    setG({ grupo: '', manchete: '', cargo: '', protagonista: '', entrega: '', resultado: '' });
+  };
+  const removeRascunho = (id: string) => set({ legado: { rascunhos: lg.rascunhos.filter((r) => r.id !== id) } });
+  const comoBase = (r: RascunhoLegado) => {
+    const novo = { ...el, ...r.el, cargo: r.cargo || el.cargo };
+    set({ legado: { el: { ...r.el, cargo: novo.cargo }, manchete: r.manchete, manual: compoe(novo, ctx) !== r.manchete.trim() } });
+    volta();
+  };
+  const unifica = () => {
+    const novo: Partial<ElementosLegado> = {};
+    ELEMENTOS.forEach((k) => {
+      const r = lg.rascunhos.find((x) => x.id === escolha[k]);
+      if (r && valorDe(r, k)) novo[k] = valorDe(r, k);
+    });
+    if (!Object.keys(novo).length) { aviso('Escolha ao menos um elemento de um rascunho.'); return; }
+    set({ legado: { el: novo, manchete: compoe({ ...el, ...novo }, ctx), manual: false } });
+    volta();
+  };
 
   const mudaEl = (p: Partial<ElementosLegado>) => {
     const novo = { ...el, ...p };
@@ -64,6 +105,19 @@ export default function Legado() {
 
   return (
     <div className="ilha-corpo rm-leg">
+      <section aria-labelledby="rm-mod-t">
+        <h4 id="rm-mod-t">Comece por um modelo</h4>
+        <ul className="rm-modelos" tabIndex={0} aria-label="Modelos de manchete">
+          {MODELOS.map((mo) => (
+            <li key={mo.id} className="rm-modelo" data-modelo={mo.id}>
+              <em className="rm-sug">sugestão da plataforma</em>
+              <strong>{mo.rot}</strong>
+              <p>{preview(mo)}</p>
+              <button type="button" className="bt sec peq" aria-label={`Usar o modelo ${mo.rot}`} onClick={() => usaModelo(mo)}>Usar este modelo</button>
+            </li>
+          ))}
+        </ul>
+      </section>
       <div className="rm-leg-grade">
         <section aria-labelledby="rm-leg-t" className="rm-leg-passos">
           <ol className="rm-passos" aria-label="Elementos da manchete">
@@ -137,6 +191,56 @@ export default function Legado() {
             onJornal={(j) => set({ legado: { jornal: j } })} />
         </div>
       </div>
+
+      <details className="rm-gaveta" open={lg.rascunhos.length > 0}>
+        <summary>Manchetes dos grupos{lg.rascunhos.length > 0 ? ` (${lg.rascunhos.length})` : ''}</summary>
+        {!lg.rascunhos.length && <p className="rm-vazio">Cada grupo guarda aqui a manchete que escreveu. Depois, a equipe escolhe uma como base ou junta elementos de mais de uma.</p>}
+        <ul className="rm-rascunhos">
+          {lg.rascunhos.map((r) => (
+            <li key={r.id} data-rascunho={r.id}>
+              <strong>{r.grupo || 'Grupo sem nome'}</strong>
+              <p>{r.manchete}</p>
+              {r.cargo && <small>{r.cargo}</small>}
+              <span className="rm-nav">
+                <button type="button" className="bt sec peq" aria-label={`Usar ${r.grupo || 'rascunho'} como base`} onClick={() => comoBase(r)}>Usar como base</button>
+                <button type="button" className="rm-link" aria-label={`Remover rascunho de ${r.grupo || 'grupo sem nome'}`} onClick={() => removeRascunho(r.id)}>Remover</button>
+              </span>
+            </li>
+          ))}
+        </ul>
+
+        <h4>Guardar o rascunho de um grupo</h4>
+        <div className="rm-rasc-form">
+          <label className="campo"><span className="rot">Nome do grupo</span><input type="text" value={g.grupo} onChange={(e) => setG({ ...g, grupo: e.target.value })} placeholder="Ex.: Grupo Azul" /></label>
+          <label className="campo"><span className="rot">Manchete do grupo</span><textarea value={g.manchete} onChange={(e) => setG({ ...g, manchete: e.target.value })} placeholder="A manchete que o grupo escreveu" /></label>
+          <label className="campo"><span className="rot">Cargo do grupo</span>
+            <select value={g.cargo} onChange={(e) => setG({ ...g, cargo: e.target.value })}><option value="">Sem cargo</option>{cargos.map((c) => <option key={c}>{c}</option>)}</select>
+          </label>
+          <details className="rm-antigo"><summary>Elementos do grupo (opcional, para unificar depois)</summary>
+            {(['protagonista', 'entrega', 'resultado'] as const).map((k) => (
+              <label className="campo" key={k}><span className="rot">{ROT_ELEMENTO[k]} do grupo</span><input type="text" value={g[k]} onChange={(e) => setG({ ...g, [k]: e.target.value })} /></label>
+            ))}
+          </details>
+          <button type="button" className="bt pri peq" onClick={salvaRascunho}>Guardar rascunho</button>
+        </div>
+
+        {lg.rascunhos.length >= 2 && (
+          <>
+            <h4>Unificar elementos de mais de um rascunho</h4>
+            <div className="rm-unifica">
+              {ELEMENTOS.map((k) => (
+                <label className="campo" key={k}><span className="rot">{ROT_ELEMENTO[k]} de</span>
+                  <select value={escolha[k] ?? ''} onChange={(e) => setEscolha({ ...escolha, [k]: e.target.value })}>
+                    <option value="">Manter o atual</option>
+                    {lg.rascunhos.filter((r) => valorDe(r, k)).map((r) => <option key={r.id} value={r.id}>{r.grupo || 'Grupo'}: {valorDe(r, k)}</option>)}
+                  </select>
+                </label>
+              ))}
+              <button type="button" className="bt sec peq" onClick={unifica}>Montar os passos com a escolha</button>
+            </div>
+          </>
+        )}
+      </details>
     </div>
   );
 }
