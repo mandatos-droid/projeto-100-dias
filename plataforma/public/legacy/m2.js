@@ -40,3 +40,63 @@
       '<div class="apoio atencao"><span class="tag">Atenção</span>Não é necessário chegar, imediatamente, até o que está previsto em "próximo passo". Você poderá fazê-lo até o fim dos primeiros 45 dias. O checklist abaixo traz o que deve ser estabelecido antes de partir para a próxima missão.</div>';
   }
 })();
+
+/* ---------- contadores e Resumo: contam as cadeiras ativas (m2.on), não as 20 fixas do modelo ----------
+   Mesma regra de lib/cadeiras.ts (ativas): sem m2.on, vale o formato antigo (a Chefia e toda cadeira com nome ou ficha). */
+(function(){
+  var FICHA=['nome_cargo','coord','lider','escopo','espec','hab_dest','hab_dev','rep_dest','rep_dev','ritmo','rel','entrega','fb_falei','fb_ouvi','fb_dev'];
+  var N_BASE=20;
+  function campos(){return (typeof D!=='undefined'&&D&&D.campos)||{}}
+  function nome(i){return String(campos()['m2.f'+(i+1)]||'').trim()}
+  function temFicha(i){var c=campos();return FICHA.some(function(k){return String(c['m2.p'+(i+1)+'.'+k]||'').trim()!==''})}
+  function ativas(){
+    var c=campos(),raw=c['m2.on'],base=[];
+    if(raw!==undefined&&raw!==null){
+      String(raw).split('|').forEach(function(x){var n=Number(x);if(x!==''&&Number.isInteger(n)&&n>=0)base.push(n)});
+    }else{
+      for(var i=0;i<N_BASE;i++)if(nome(i)!==''||temFicha(i))base.push(i);
+    }
+    base.push(0);
+    return base.filter(function(n,k){return base.indexOf(n)===k}).sort(function(a,b){return a-b});
+  }
+  function cargo(i){
+    var n=String(campos()['m2.p'+(i+1)+'.nome_cargo']||'').trim();
+    return n||(typeof CARGOS_EQUIPE!=='undefined'&&CARGOS_EQUIPE[i]?CARGOS_EQUIPE[i][0]:'Cadeira acrescentada');
+  }
+  /* nomeadas: cadeiras ativas com nome (o * conta: é processo seletivo a abrir). total: cadeiras ativas;
+     enquanto nada foi escolhido nem escrito, o total segue sendo o do modelo (20). */
+  function situacao(){
+    var c=campos(),a=ativas(),nomeadas=a.filter(function(i){return nome(i)!==''});
+    var comecou=c['m2.on']!==undefined||a.length>1||nomeadas.length>0;
+    return {nomeadas:nomeadas,total:comecou?a.length:N_BASE};
+  }
+
+  if(typeof temConteudo!=='undefined'){
+    var _tc=temConteudo;
+    temConteudo=function(ex){
+      if(ex.tipo==='funcoes')return ativas().some(function(i){return nome(i)!==''})||String(campos()['m2.coords']||'').trim()!=='';
+      return _tc(ex);
+    };
+  }
+  if(typeof Telas!=='undefined'&&Telas.estadoTxt){
+    var _et=Telas.estadoTxt;
+    Telas.estadoTxt=function(ex,e){
+      var r=_et.call(this,ex,e);
+      if(ex.tipo!=='funcoes')return r;
+      var s=situacao();
+      return r.replace(/\d+ de \d+ cargos/,s.nomeadas.length+' de '+s.total+' cargos');
+    };
+  }
+  if(typeof Resumo!=='undefined'&&Resumo.ex){
+    var _rx=Resumo.ex;
+    Resumo.ex=function(ex){
+      if(ex.tipo!=='funcoes')return _rx.call(this,ex);
+      var s=situacao();
+      return '<dl class="cmp"><dt>Cargos preenchidos ('+s.nomeadas.length+' de '+s.total+')</dt><dd>'+
+        (s.nomeadas.length?'<ul class="marcados">'+s.nomeadas.map(function(i){
+          var v=nome(i);
+          return '<li>'+esc(cargo(i))+': <strong>'+esc(v)+'</strong>'+(v.indexOf('*')>=0?' <em>(processo seletivo a abrir)</em>':'')+'</li>';
+        }).join('')+'</ul>':this.sem)+'</dd></dl>';
+    };
+  }
+})();
