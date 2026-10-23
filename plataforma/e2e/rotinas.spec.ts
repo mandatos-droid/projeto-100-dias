@@ -106,3 +106,74 @@ test.describe('Aba Cadeia (MEQ-18, MEQ-19)', () => {
     await expect(page.getByText('Dê nome a ao menos uma cadeira para a cadeia')).toBeVisible();
   });
 });
+
+test.describe('Aba Entre áreas (MEQ-20, MEQ-22)', () => {
+  const duas = { 'm2.coords': 'Comunicação|Legislativo', 'm2.on': '0|1|2|7|8', 'm2.f1': 'Ana Souza', 'm2.f2': 'Eva Prado', 'm2.f8': 'Bia Lima' };
+  const aba = (page: import('@playwright/test').Page) => page.getByRole('tab', { name: 'Entre áreas' }).click();
+
+  test('aceitar a sugestão Legislativo → Comunicação grava a rotina e a tira das sugestões (E-11)', async ({ page }) => {
+    await abre(page, ['rotinas'], duas);
+    await aba(page);
+    await expect(page.getByText('Sugestões da Legisla')).toBeVisible();
+    await page.getByRole('button', { name: 'Aceitar sugestão: Legislativo → Comunicação' }).click();
+    const item = page.locator('.es-ent [data-rotina="x1"]');
+    await expect(item).toContainText('Legislativo → Comunicação');
+    await expect(item).toContainText('Semanalmente');
+    await expect(page.getByRole('button', { name: /Aceitar sugestão: Legislativo/ })).toHaveCount(0);
+    const x = JSON.parse((await camposDe(page))['m2.x']);
+    expect(x).toHaveLength(1);
+    expect([x[0].de, x[0].para, x[0].freq]).toEqual(['Legislativo', 'Comunicação', 'Semanalmente']);
+  });
+
+  test('o formulário registra origem, destino, finalidade, frequência e canal', async ({ page }) => {
+    await abre(page, ['rotinas'], duas);
+    await aba(page);
+    const form = page.locator('.es-form');
+    await form.getByLabel('Origem').selectOption('Comunicação');
+    await form.getByLabel('Destino').selectOption('Legislativo');
+    await form.getByLabel('Finalidade').fill('Revisar os textos antes de publicar');
+    await form.getByLabel('Frequência').selectOption('Mensalmente');
+    await form.getByLabel('Canal').fill('Grupo das coordenações');
+    await form.getByRole('button', { name: 'Registrar rotina' }).click();
+    const x = JSON.parse((await camposDe(page))['m2.x']);
+    expect([x[0].de, x[0].para, x[0].finalidade, x[0].freq, x[0].canal]).toEqual(['Comunicação', 'Legislativo', 'Revisar os textos antes de publicar', 'Mensalmente', 'Grupo das coordenações']);
+    await expect(page.locator('.es-ent')).toContainText('Comunicação → Legislativo');
+  });
+
+  test('a mesma área em origem e destino mostra o erro e não grava', async ({ page }) => {
+    await abre(page, ['rotinas'], duas);
+    await aba(page);
+    const form = page.locator('.es-form');
+    await form.getByLabel('Origem').selectOption('Legislativo');
+    await form.getByLabel('Destino').selectOption('Legislativo');
+    await form.getByLabel('Finalidade').fill('qualquer');
+    await form.getByRole('button', { name: 'Registrar rotina' }).click();
+    await expect(page.locator('.es-entre').getByRole('alert')).toContainText('não podem ser a mesma área');
+    expect((await camposDe(page))['m2.x']).toBeUndefined();
+  });
+
+  test('desmarcar a área guarda a rotina e remarcar a restaura', async ({ page }) => {
+    const x = JSON.stringify([{ id: 'x1', de: 'Legislativo', para: 'Comunicação', finalidade: 'Pauta da semana', freq: 'Semanalmente', canal: 'Grupo' }]);
+    await abre(page, ['rotinas'], { ...duas, 'm2.coords': 'Legislativo', 'm2.x': x });
+    await aba(page);
+    await expect(page.locator('.es-ent')).toHaveCount(0);
+    await expect(page.getByText('Guardadas porque uma das áreas foi desmarcada (1)')).toBeVisible();
+    await page.evaluate(() => {
+      const w = window as unknown as { D: { campos: Record<string, string> } };
+      w.D.campos['m2.coords'] = 'Comunicação|Legislativo';
+      window.dispatchEvent(new Event('guia:mudou'));
+    });
+    await expect(page.locator('.es-ent [data-rotina="x1"]')).toContainText('Pauta da semana');
+    await expect(page.getByText(/Guardadas porque/)).toHaveCount(0);
+  });
+
+  test('sem rotinas mostra o estado vazio e remover tira da lista', async ({ page }) => {
+    await abre(page, ['rotinas'], duas);
+    await aba(page);
+    await expect(page.getByText('Nenhuma rotina entre áreas ainda')).toBeVisible();
+    await page.getByRole('button', { name: 'Aceitar sugestão: Legislativo → Comunicação' }).click();
+    await page.getByRole('button', { name: 'Remover: Legislativo → Comunicação' }).click();
+    await expect(page.getByText('Nenhuma rotina entre áreas ainda')).toBeVisible();
+    expect((await camposDe(page))['m2.x']).toBeUndefined();
+  });
+});

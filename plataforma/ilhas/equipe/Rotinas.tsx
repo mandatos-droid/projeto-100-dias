@@ -5,6 +5,7 @@ import { ativas, coordDe, nomeLimpo, type Campos } from '@/lib/cadeiras';
 import { COR_COORD, chaveFicha, lista } from '@/lib/equipe';
 import { cadeia, desliga, gerarRotinas, religa, rotinasDesligadas, type Rotina } from '@/lib/rotinas';
 import { cargoNome } from './cargos';
+import EntreAreas from './EntreAreas';
 import { assinar, definirFoco, limparFoco } from './foco';
 import { useEquipe } from './useEquipe';
 import './equipe.css';
@@ -128,7 +129,7 @@ export default function Rotinas() {
               ))}
             </ol>
           </>))}
-        {aba === 'entre' && <p className="sem">As rotinas entre áreas aparecem aqui.</p>}
+        {aba === 'entre' && <EntreAreas />}
       </div>
     </div>
   );
