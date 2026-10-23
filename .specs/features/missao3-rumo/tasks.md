@@ -211,7 +211,7 @@ T22 → T23 → T24
 
 ---
 
-### T5: Objetivos, árvore e regras das metas
+### T5: Objetivos, árvore e regras das metas ✅
 
 **What**: Criar `lib/plano.ts` com `objetivos`, `arvore`, `podeAcrescentarMeta`, `contagemMetas`, `desmarcaPreditor`, `normalizaMeta`, `alternaPreditor` (limite de 3).
 **Where**: `lib/plano.ts`, `tests/plano.test.ts`
@@ -226,14 +226,14 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] `objetivos` devolve um por preditor escolhido, com o texto de `m3.obj.{pid}` ou o nome do preditor quando vazio (RUM-20.2)
-- [ ] `alternaPreditor` recusa o quarto com mensagem que cita qual desmarcar (RUM-20.3)
-- [ ] `desmarcaPreditor` informa quantas metas serão afetadas e devolve patch que limpa `pred` delas sem apagá-las (RUM-21.4)
-- [ ] `podeAcrescentarMeta` nega sem preditor (motivo aponta a etapa de preditores) e nega a quinta meta do mesmo objetivo (RUM-30.2, RUM-30.15)
-- [ ] `contagemMetas` devolve `abaixo` com 9, `ok` com 10 e 16, `acima` com 17 (RUM-30.14)
-- [ ] `arvore` coloca metas sem `pred` em `semObjetivo`
-- [ ] `PREDITORES`/`OBJ_ESPECIFICOS` do TS são idênticos aos de `conteudo.js` (teste de paridade)
-- [ ] Gate: `npm test`; testes novos em `tests/plano.test.ts`, nenhum removido
+- [x] `objetivos` devolve um por preditor escolhido, com o texto de `m3.obj.{pid}` ou o nome do preditor quando vazio (RUM-20.2)
+- [x] `alternaPreditor` recusa o quarto com mensagem que cita qual desmarcar (RUM-20.3)
+- [x] `desmarcaPreditor` informa quantas metas serão afetadas e devolve patch que limpa `pred` delas sem apagá-las (RUM-21.4)
+- [x] `podeAcrescentarMeta` nega sem preditor (motivo aponta a etapa de preditores) e nega a quinta meta do mesmo objetivo (RUM-30.2, RUM-30.15)
+- [x] `contagemMetas` devolve `abaixo` com 9, `ok` com 10 e 16, `acima` com 17 (RUM-30.14)
+- [x] `arvore` coloca metas sem `pred` em `semObjetivo`
+- [x] `PREDITORES`/`OBJ_ESPECIFICOS` do TS são idênticos aos de `conteudo.js` (teste de paridade)
+- [x] Gate: `npm test`; testes novos em `tests/plano.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
