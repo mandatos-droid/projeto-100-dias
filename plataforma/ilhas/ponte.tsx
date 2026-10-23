@@ -11,6 +11,13 @@ import SocialIlha, { SocialResumo } from './Social';
 import { Ficha } from './Equipe';
 import Rotinas from './equipe/Rotinas';
 import Entrega from './equipe/Entrega';
+import Bandeiras from './rumo/Bandeiras';
+import Espacos from './rumo/Espacos';
+import Legado from './rumo/Legado';
+import Preditores from './rumo/Preditores';
+import Metas from './rumo/Metas';
+import Plano from './rumo/Plano';
+import PlanoResumo from './rumo/PlanoResumo';
 import Organograma from './equipe/Organograma';
 import Escalacao from './equipe/Escalacao';
 import { AssentosResumo, ConjunturaResumo, MunicipioResumo } from './Resumos';
@@ -28,6 +35,8 @@ type Legado = {
     conj2?: Conj2;      // conjuntura partidária (pergunta m1.q5)
     eleitorado?: Eleitorado;
     social?: ConjSocial;
+    /* Missão 3: estado estruturado e listas do Guia (formato em lib/rumo.ts) */
+    rumo?: unknown; metas?: unknown; preditores?: unknown; comissoesDesejadas?: unknown;
   };
   Store: { mandato: Record<string, string>; salvar(): void; atualizar(c: Record<string, unknown>): Promise<void> };
   aviso(t: string): void;
@@ -91,6 +100,13 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   organograma: () => <Organograma />,
   rotinas: () => <Rotinas />,
   entrega: () => <Entrega />,
+  'rumo-bandeiras': () => <Bandeiras />,
+  'rumo-espacos': () => <Espacos />,
+  'rumo-legado': () => <Legado />,
+  'rumo-preditores': () => <Preditores />,
+  'rumo-metas': () => <Metas />,
+  plano: () => <Plano />,
+  'plano-resumo': () => <PlanoResumo />,
 };
 const raizes = new Set<Root>();
 

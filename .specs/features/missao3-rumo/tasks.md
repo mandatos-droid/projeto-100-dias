@@ -351,7 +351,7 @@ T22 → T23 → T24
 
 ---
 
-### T10: Hook `useRumo`, registro das ilhas e rota de teste
+### T10: Hook `useRumo`, registro das ilhas e rota de teste ✅
 
 **What**: Criar `ilhas/rumo/useRumo.ts`, esqueleto das 7 ilhas novas registradas em `ILHAS` de `ponte.tsx`, `app/teste-rumo/` (rota só de teste, modelada em `app/teste-equipe/`) e `e2e/rumo-harness.spec.ts` + `e2e/semente-rumo.ts` (mandato de teste com `D`, `Store` e Missão 2 semeados).
 **Where**: `ilhas/rumo/useRumo.ts`, `ilhas/rumo/*.tsx` (esqueletos), `ilhas/rumo/rumo.css`, `ilhas/ponte.tsx`, `app/teste-rumo/page.tsx`, `app/teste-rumo/Harness.tsx`, `e2e/rumo-harness.spec.ts`, `e2e/semente-rumo.ts`
@@ -366,11 +366,11 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] `git diff ilhas/ponte.tsx` foi lido antes da edição e a mudança do usuário permanece
-- [ ] `/teste-rumo?ilha=rumo-bandeiras` (e as outras 6) monta o esqueleto da ilha pedida (teste de fumaça por ilha)
-- [ ] Em produção a rota de teste devolve 404 (mesmo comportamento da Missão 2)
-- [ ] `useRumo` escreve sempre via `aplicaRumo`/`normalizaMeta` e termina em `bump()`; `npx tsc --noEmit` passa
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; fumaça nova em `e2e/rumo-harness.spec.ts`, nenhum teste removido
+- [x] `git diff ilhas/ponte.tsx` foi lido antes da edição e a mudança do usuário permanece
+- [x] `/teste-rumo?ilha=rumo-bandeiras` (e as outras 6) monta o esqueleto da ilha pedida (teste de fumaça por ilha)
+- [x] Em produção a rota de teste devolve 404 (mesmo código da Missão 2: `notFound()` em `NODE_ENV=production`; não verificado em build, que não roda neste lote)
+- [x] `useRumo` escreve sempre via `aplicaRumo`/`normalizaMeta` e termina em `bump()`; `npx tsc --noEmit` passa
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; fumaça nova em `e2e/rumo-harness.spec.ts`, nenhum teste removido
 
 **Tests**: e2e
 **Gate**: full
