@@ -30,6 +30,12 @@
       return _mt.call(this,ex);
     };
   }
+  /* o passo "Comissões e espaços que o mandato pretende compor" troca a lista genérica pela ilha; as outras listas do Guia ficam como são */
+  var _li=Comp.lista;
+  Comp.lista=function(ex,dono){
+    if(ex&&ex.chave==='comissoesDesejadas')return ilha('rumo-espacos');
+    return _li.call(this,ex,dono);
+  };
   Comp.preditores=function(){return ilha('rumo-preditores')};
   Comp.metas=function(){return ilha('rumo-metas')};
 })();

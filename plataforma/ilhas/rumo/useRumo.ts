@@ -46,6 +46,9 @@ export function useRumo() {
       bump();
       return null;
     },
+    /** Registros de D.comissoesDesejadas (espaços pretendidos); a ilha de espaços grava a lista inteira. */
+    espacos: (Array.isArray(D.comissoesDesejadas) ? D.comissoesDesejadas : []) as Record<string, string>[],
+    setEspacos(lista: Record<string, string>[]) { D.comissoesDesejadas = lista; bump(); },
     rmMeta(idx: number) {
       if (!lista()[idx]) return;
       lista().splice(idx, 1);

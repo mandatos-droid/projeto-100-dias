@@ -14,7 +14,7 @@ const HASH_TEXTOS = '87baff53f9594c8c189a2a90d20944af90b724c601ac7386cabd5e36d34
 const CAMPOS_MISSAO = ['titulo', 'curto', 'abre', 'agenda', 'resumo', 'entrega', 'momento', 'lidera', 'fecho'];
 const CAMPOS_EX = ['id', 't', 'd', 'intro', 'passos', 'fim'];
 
-type Ex = Record<string, unknown> & { id: string; intro: string; fim?: string; listaExtra?: { titulo: string } };
+type Ex = Record<string, unknown> & { id: string; intro: string; fim?: string; listaExtra?: { titulo: string; chave: string } };
 type Missao = Record<string, unknown> & { n: number; exercicios: Ex[] };
 
 function guia(extra: Record<string, unknown> = {}) {
@@ -59,7 +59,7 @@ function janela() {
   };
   const w = guia(ctx);
   vm.runInContext(CODIGO, w as unknown as vm.Context);
-  return w as unknown as { MISSOES: Missao[]; Comp: { campos(ex: unknown): string; preditores(): string; metas(): string }; Guia: { montar(ex: unknown): { k: string }[] } };
+  return w as unknown as { MISSOES: Missao[]; Comp: { campos(ex: unknown): string; preditores(): string; metas(): string; lista(ex: unknown, dono: string): string }; Guia: { montar(ex: unknown): { k: string }[] } };
 }
 
 test('Comp.campos devolve a ilha de bandeiras para m3.bandeiras, sem os campos m3.* de texto (RUM-01, RUM-12)', () => {
@@ -105,6 +105,22 @@ test('os passos de qualquer outro exercício vêm do Guia.montar anterior', () =
   const w = janela();
   assert.deepEqual(w.Guia.montar({ id: 'm3.metas' }), [{ k: 'original:m3.metas' }]);
   assert.deepEqual(w.Guia.montar({ id: 'm1.q1' }), [{ k: 'original:m1.q1' }]);
+});
+
+/* ---------- espaços pretendidos (RUM-50, RUM-51.9) ---------- */
+test('a lista de comissões do Guia vira a ilha de espaços; qualquer outra lista passa direto (RUM-50)', () => {
+  const w = janela();
+  const ex = ex3(w, 'm3.bandeiras').listaExtra!;
+  assert.equal(ex.chave, 'comissoesDesejadas');
+  assert.equal(w.Comp.lista(ex, 'm3.bandeiras'), '<div class="ilha" data-ilha="rumo-espacos"></div>');
+  assert.equal(w.Comp.lista({ chave: 'outraLista' }, 'x'), '<lista outraLista x>');
+});
+
+test('o texto "No futuro" segue no fecho, que é um passo próprio depois dos espaços (RUM-51.9)', () => {
+  const w = janela();
+  const passos = [...w.Guia.montar(ex3(w, 'm3.bandeiras'))].map((p) => p.k);
+  assert.ok(passos.indexOf('listaExtra') < passos.indexOf('fim'));
+  assert.ok(ex3(w, 'm3.bandeiras').fim!.includes('No futuro'));
 });
 
 /* ---------- conclusão dos exercícios pelo estado novo (RUM-02, RUM-11, RUM-70) ---------- */

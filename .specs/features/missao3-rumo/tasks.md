@@ -462,7 +462,7 @@ T22 → T23 → T24
 
 ---
 
-### T14: Ilha de espaços que o mandato pretende compor
+### T14: Ilha de espaços que o mandato pretende compor ✅
 
 **What**: Implementar `ilhas/rumo/Espacos.tsx` e ligá-la ao corpo do exercício de bandeiras, no lugar do `listaExtra` (hook no `m3.js` que troca a lista genérica pela ilha `rumo-espacos`, mantendo o texto "No futuro").
 **Where**: `ilhas/rumo/Espacos.tsx`, `public/legacy/m3.js`, `e2e/rumo-espacos.spec.ts`, `tests/legado-m3.test.ts`
@@ -477,12 +477,12 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Mandato Federal com Educação prioritária mostra "Comissão de Educação" destacada e registra como titular em `D.comissoesDesejadas` (RUM-50.2, RUM-50.5, RUM-51.6)
-- [ ] Mandato Estadual sem `{uf}.json` mostra nomes genéricos por bandeira e aceita nome livre (RUM-50.4)
-- [ ] Espaço sem bandeira prioritária mostra o alerta e grava mesmo assim (RUM-51.7)
-- [ ] Enquanto a bandeira 1 não tem espaço, a dica do Guia aparece (RUM-51.8)
-- [ ] Registros antigos de `comissoesDesejadas` (sem `papel`) aparecem sem erro e o texto "No futuro" segue idêntico (RUM-51.9; hash da T11 continua verde)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-espacos.spec.ts`, nenhum removido
+- [x] Mandato Federal com Educação prioritária mostra "Comissão de Educação" destacada e registra como titular em `D.comissoesDesejadas` (RUM-50.2, RUM-50.5, RUM-51.6)
+- [x] Mandato Estadual sem `{uf}.json` mostra nomes genéricos por bandeira e aceita nome livre (RUM-50.4)
+- [x] Espaço sem bandeira prioritária mostra o alerta e grava mesmo assim (RUM-51.7)
+- [x] Enquanto a bandeira 1 não tem espaço, a dica do Guia aparece (RUM-51.8)
+- [x] Registros antigos de `comissoesDesejadas` (sem `papel`) aparecem sem erro e o texto "No futuro" segue idêntico (RUM-51.9; hash da T11 continua verde)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-espacos.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
