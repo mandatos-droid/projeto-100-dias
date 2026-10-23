@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "dados": "python scripts/build_data.py"
+    "dados": "python scripts/build_data.py",
+    "test": "node --test \"tests/**/*.test.ts\""
   },
   "dependencies": {
     "@dagrejs/dagre": "^3.1.1",
