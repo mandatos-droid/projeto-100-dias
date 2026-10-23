@@ -33,7 +33,7 @@ Scripts Python (só biblioteca padrão; brutos do TSE em `scripts/.cache`, fora 
 O app **não é um app Next.js convencional**. O Guia original (HTML/JS vanilla, ver `../contexto inicial/index (6).html`) roda como está dentro de uma única página, e os módulos novos entram como "ilhas" React montadas dentro dos exercícios.
 
 - `app/page.tsx` é a **landing** (`app/_landing/*`, estilo em `app/landing.css`, tudo sob `.ld`): hero, demonstração com busca em `eleitos.json`/`pleitos/{uf}.json` (lógica pura em `lib/demo.ts`, testes em `tests/` com `npm test`), missões, FAQ. Todo CTA leva a `/guia`. Se o login Google voltar na raiz com `#access_token`, `RedirecionaAuth` repassa para `/guia`.
-- `app/guia/page.tsx` (client): injeta o corpo do Guia via `dangerouslySetInnerHTML` (`lib/legacyBody.ts`) e carrega **em sequência** os scripts de `public/legacy/`: `conteudo, nucleo, app, guia, resumo, novos, cadastro, iniciar`. A ordem importa; os scripts compartilham globais (`D`, `Store`, `Nuvem`, `Resumo`, `App`).
+- `app/guia/page.tsx` (client): injeta o corpo do Guia via `dangerouslySetInnerHTML` (`lib/legacyBody.ts`) e carrega **em sequência** os scripts de `public/legacy/`: `conteudo, nucleo, app, guia, resumo, novos, m2, cadastro, iniciar`. A ordem importa; os scripts compartilham globais (`D`, `Store`, `Nuvem`, `Resumo`, `App`).
 - `app/guia/layout.tsx` carrega `legacy.css` e `ilhas.css` por `<link>` (só em `/guia`; o `app/layout.tsx` raiz não carrega CSS global). O retorno do login Google usa `location.pathname`, então volta em `/guia`: a URL `<domínio>/guia` precisa estar nas Redirect URLs do Supabase.
 - `next.config.mjs`: `reactStrictMode: false` de propósito (o Guia mexe no DOM direto e o modo estrito montaria tudo duas vezes); `/painel` é rewrite para `public/painel.html`.
 - `ilhas/ponte.tsx` é a ponte: expõe `window.Ilhas.ligar(raiz)`, que o legado chama a cada troca de tela. Ela procura `[data-ilha="nome"]` e monta o componente React registrado no mapa `ILHAS` (cada chamada desmonta as raízes anteriores). `ficha-N` é dinâmico (`Ficha i={N}`).
@@ -45,7 +45,7 @@ O app **não é um app Next.js convencional**. O Guia original (HTML/JS vanilla,
 
 - `lib/legacyBody.ts` é **gerado** (`scripts/extrair_legado.py`): não editar à mão.
 - `public/legacy/*.js` e `legacy.css` são extraídos do HTML original com 7 retoques conferidos (cada um precisa casar exatamente uma vez). Se o HTML original mudar, rode `python scripts/extrair_legado.py`, que avisa quando um retoque não casa. Edições diretas nesses arquivos são **sobrescritas** na próxima extração; se for uma mudança permanente, coloque-a como retoque no script.
-- `public/legacy/novos.js` e `ilhas.css` são escritos à mão e não são tocados pela extração.
+- `public/legacy/novos.js`, `public/legacy/m2.js` e `ilhas.css` são escritos à mão e não são tocados pela extração. Mudança nova no comportamento do Guia entra neles por override, não nos arquivos extraídos. `m2.js` guarda os ganchos da Missão 2 (escalação, textos, contadores de cadeiras).
 - `public/painel.html` é o painel da Legisla, **mantido à mão** (não é mais gerado pelo `extrair_legado.py`). Em `/painel` ele reaproveita a sessão `legisla.tok` do app (ou entra com Google/e-mail), lê URL e chave pública de `nucleo.js` em tempo de execução, exige linha em `equipe_legisla` e lê `mandatos` + `membros` do Supabase; também aceita arquivos JSON, "Este navegador" e demonstração. Só exibe contagens e percentuais, nunca o texto escrito pelos gabinetes. Ainda não exibe parceiros/concorrentes.
 
 ## Dados e backend
