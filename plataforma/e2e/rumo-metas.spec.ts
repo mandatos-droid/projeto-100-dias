@@ -82,6 +82,13 @@ test.describe('Retorno SMART (RUM-31.3, RUM-31.7, RUM-31.8, RUM-31.9)', () => {
     expect(m.alcancavel).toBe(true);
   });
 
+  test('o retorno SMART aparece em até 300 ms depois de digitar (RUM-31.3)', async ({ page }) => {
+    await abre(page, [ILHA], { D: { preditores: ['p1'], metas: [{ id: 'a', pred: 'p1' }] } });
+    await texto(page, 0).fill(EXEMPLO);
+    for (const l of ['S', 'M', 'R', 'T']) await expect(letra(page, 0, l)).toHaveAttribute('data-ok', 'true', { timeout: 300 });
+    await expect(meta(page, 0).locator('[data-pontos]')).toHaveText('4 de 5 letras atendidas', { timeout: 300 });
+  });
+
   test('texto que não atende mostra a dica da primeira letra que falta, que pode ser ignorada', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1'], metas: [{ id: 'a', pred: 'p1' }] } });
     await texto(page, 0).fill('Melhorar a educação');

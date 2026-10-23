@@ -155,6 +155,19 @@ test.describe('Edição pela aba (RUM-40.8, RUM-40.9, RUM-40.10)', () => {
     await expect(no(page, 'obj-p2')).toContainText('Concluída 70%');
   });
 
+  test('o cartão da meta na aba mostra o retorno SMART (S M A R T) ao editar o texto (RUM-40.8)', async ({ page }) => {
+    await abre(page, [ILHA], { D: { preditores: ['p1'], metas: [{ id: 'a', pred: 'p1', texto: 'Melhorar a educação' }] } });
+    await edita(page, 0).click();
+    const c = cartao(page, 0);
+    expect(await c.locator('[data-letra]').evaluateAll((els) => els.map((e) => e.getAttribute('data-letra')))).toEqual(['S', 'M', 'A', 'R', 'T']);
+    await expect(c.locator('[data-letra="S"]')).toHaveAttribute('data-ok', 'false');
+    await expect(c.locator('[data-letra="T"]')).toHaveAttribute('data-ok', 'false');
+    await c.getByRole('textbox', { name: /no formato SMART/ }).fill('Aprovar 2 projetos de lei sobre educação até dezembro de 2027');
+    for (const l of ['S', 'M', 'R', 'T']) await expect(c.locator(`[data-letra="${l}"]`)).toHaveAttribute('data-ok', 'true', { timeout: 300 });
+    await expect(c.locator('[data-letra="A"]')).toHaveAttribute('data-ok', 'false');
+    await expect(c.locator('[data-pontos]')).toHaveText('4 de 5 letras atendidas');
+  });
+
   test('remover pede confirmação e sai da árvore', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1'], metas: [{ id: 'a', pred: 'p1', texto: 'Visitar 10 escolas' }, { id: 'b', pred: 'p1', texto: 'Aprovar 2 projetos' }] } });
     await edita(page, 0).click();
