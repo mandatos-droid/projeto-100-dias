@@ -884,7 +884,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T31: Carregar o arquivo de ganchos da Missão 2
+### T31: Carregar o arquivo de ganchos da Missão 2 ✅
 
 **What**: Em `app/guia/page.tsx`, acrescentar `m2` à sequência de scripts, depois de `novos`.
 **Where**: `app/guia/page.tsx`
@@ -899,9 +899,9 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] `m2.js` é carregado logo depois de `novos.js`, e a ordem dos demais scripts não muda
-- [ ] `CLAUDE.md` do projeto cita `m2.js` na lista de scripts do legado
-- [ ] `npx tsc --noEmit` e `npm run build` sem erro novo
+- [x] `m2.js` é carregado logo depois de `novos.js`, e a ordem dos demais scripts não muda
+- [x] `CLAUDE.md` do projeto cita `m2.js` na lista de scripts do legado
+- [x] `npx tsc --noEmit` e `npm run build` sem erro novo
 
 **Tests**: none
 **Gate**: build
