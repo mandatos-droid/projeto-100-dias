@@ -268,7 +268,7 @@ T22 → T23 → T24
 
 ---
 
-### T7: Pessoas da Missão 2 como responsável e apoio
+### T7: Pessoas da Missão 2 como responsável e apoio ✅
 
 **What**: Criar `lib/pessoas.ts` com `pessoas`, `resolve`, `validaApoio`.
 **Where**: `lib/pessoas.ts`, `tests/pessoas.test.ts`
@@ -283,11 +283,11 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] `pessoas` lista só cadeiras ativas com nome, sem o asterisco, com cargo e área (RUM-32.10)
-- [ ] `resolve` mostra o nome atual da cadeira quando ele muda e o nome gravado com `foraDaEquipe: true` quando a cadeira some (edge cases)
-- [ ] `validaApoio` recusa apoio igual ao responsável e mais de 3 apoios, com mensagem; aceita 0 (RUM-32.11, RUM-32.12)
-- [ ] Sem cadeiras nomeadas, `pessoas` devolve lista vazia e `resolve` mantém o texto livre antigo (RUM-32.13)
-- [ ] Gate: `npm test`; testes novos em `tests/pessoas.test.ts`, nenhum removido
+- [x] `pessoas` lista só cadeiras ativas com nome, sem o asterisco, com cargo e área (RUM-32.10)
+- [x] `resolve` mostra o nome atual da cadeira quando ele muda e o nome gravado com `foraDaEquipe: true` quando a cadeira some (edge cases)
+- [x] `validaApoio` recusa apoio igual ao responsável e mais de 3 apoios, com mensagem; aceita 0 (RUM-32.11, RUM-32.12)
+- [x] Sem cadeiras nomeadas, `pessoas` devolve lista vazia e `resolve` mantém o texto livre antigo (RUM-32.13)
+- [x] Gate: `npm test`; testes novos em `tests/pessoas.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
