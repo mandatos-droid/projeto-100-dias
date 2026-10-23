@@ -1,13 +1,14 @@
 'use client';
 /* Missão 2 · Tarefa 2: organograma do mandato. Cada caixa é uma cadeira; o painel (clique na caixa) edita escopo e perfil.
    O desenho vem de lib/layoutOrg, o mesmo da prévia e da exportação. */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Background, Controls, Handle, Position, ReactFlow, type Edge, type Node, type NodeProps } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { CHEFIA, MAX_CADEIRAS, SEM_AREA, acrescenta, ativas, coordDe, type Campos } from '@/lib/cadeiras';
 import { COR_COORD, chaveFicha, lista } from '@/lib/equipe';
 import { layoutOrg } from '@/lib/layoutOrg';
 import { cargoNome } from './cargos';
+import { assinar, limparFoco } from './foco';
 import PainelCadeira from './PainelCadeira';
 import { useEquipe } from './useEquipe';
 import './equipe.css';
@@ -54,12 +55,14 @@ export default function Organograma() {
   const [soPreenchidas, setSo] = useState(false);
   const [reajusta, setReajusta] = useState(0);
   const [sel, setSel] = useState<number | null>(null);
+  const [destaque, setDestaque] = useState<number[]>([]); // cadeiras de um elo da cadeia de rotinas (vem da ilha de rotinas)
+  useEffect(() => assinar((f) => setDestaque(f.cadeiras)), []);
 
   const l = layoutOrg(c, { soPreenchidas });
   const on = ativas(c);
   const comEscopo = on.filter((i) => temEscopo(c, i)).length;
   const aberto = sel !== null && on.includes(sel);
-  const chave = JSON.stringify([l.nos.map((n) => [n.i, n.x, n.y, n.nome, n.coord, cargoNome(c, n.i), preenchidos(c, n.i), temEscopo(c, n.i)]), l.arestas.map((a) => a.id), filtro, aberto && sel]);
+  const chave = JSON.stringify([l.nos.map((n) => [n.i, n.x, n.y, n.nome, n.coord, cargoNome(c, n.i), preenchidos(c, n.i), temEscopo(c, n.i)]), l.arestas.map((a) => a.id), filtro, destaque, aberto && sel]);
   /* o canvas só é remontado (e reenquadrado) quando a estrutura muda; editar nome ou escopo só atualiza as caixas */
   const estrutura = JSON.stringify([l.nos.map((n) => n.i), l.arestas.map((a) => a.id), reajusta]);
   const { nos, arestas } = useMemo(() => ({
@@ -67,7 +70,7 @@ export default function Organograma() {
       id: String(n.i), type: 'cadeira', position: { x: n.x, y: n.y }, draggable: false, selected: sel === n.i, focusable: true,
       ariaLabel: `${n.vaga ? (n.aberto ? 'Processo seletivo' : 'Vaga em aberto') : n.nome}, ${cargoNome(c, n.i)}, área ${n.coord === 'Chefia de área' ? 'Chefia de gabinete' : n.coord}, escopo ${temEscopo(c, n.i) ? 'definido' : 'pendente'}. Enter abre o painel.`,
       data: { i: n.i, cargo: cargoNome(c, n.i), nome: n.nome, coord: n.coord, vaga: n.vaga, aberto: n.aberto, feitos: preenchidos(c, n.i), escopo: temEscopo(c, n.i) },
-      style: { width: n.w, opacity: filtro && coordDe(c, n.i) !== filtro ? 0.25 : 1 },
+      style: { width: n.w, opacity: (destaque.length ? !destaque.includes(n.i) : filtro && coordDe(c, n.i) !== filtro) ? 0.25 : 1 },
     })),
     arestas: l.arestas.filter((a) => a.tipo === 'hierarquia').map<Edge>((a) => ({
       id: a.id, source: String(a.de), target: String(a.para), type: 'smoothstep', style: { stroke: COR_COORD[a.coord] ?? '#5E524C', strokeWidth: 2 },
@@ -93,6 +96,7 @@ export default function Organograma() {
         <label className="eq-tg"><input type="checkbox" checked={soPreenchidas} onChange={(e) => setSo(e.target.checked)} /> só cadeiras com nome</label>
         <button type="button" className="bt pri peq es-bt" disabled={on.length >= MAX_CADEIRAS} title={on.length >= MAX_CADEIRAS ? `Limite de ${MAX_CADEIRAS} cadeiras` : undefined} onClick={acrescentaCadeira}>Acrescentar cadeira</button>
         <button type="button" className="bt sec peq es-bt" onClick={() => setReajusta((n) => n + 1)}>Ajustar layout</button>
+        {destaque.length > 0 && <button type="button" className="bt sec peq es-bt" onClick={() => limparFoco()}>Mostrar todos</button>}
         <div className="eq-legenda" role="group" aria-label="Filtrar por área">
           <button type="button" className={!filtro ? 'on' : ''} aria-pressed={!filtro} onClick={() => setFiltro('')}>Todas</button>
           {l.areas.map((a) => (

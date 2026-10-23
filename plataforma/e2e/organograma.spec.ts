@@ -217,3 +217,27 @@ test.describe('Organograma só com teclado (MEQ-16)', () => {
     await expect(page.getByRole('button', { name: 'Legislativo' })).toHaveAttribute('aria-pressed', 'true');
   });
 });
+
+test.describe('Destaque vindo da cadeia de rotinas (MEQ-19)', () => {
+  const duas = { ...base, 'm2.coords': 'Comunicação|Legislativo', 'm2.on': '0|1|2|7|8|9', 'm2.f2': 'Eva Prado', 'm2.f3': 'Gil Neves' };
+
+  test('selecionar "Reunião da área Comunicação" na cadeia deixa só as cadeiras de Comunicação em destaque (E-10)', async ({ page }) => {
+    await abre(page, [ILHA, 'rotinas'], duas);
+    await page.getByRole('tab', { name: 'Cadeia' }).click();
+    await page.getByRole('button', { name: 'Reunião da área Comunicação' }).click();
+    for (const i of [7, 8, 9]) expect(Number(await opacidade(page, i))).toBe(1);
+    for (const i of [0, 1, 2]) expect(Number(await opacidade(page, i))).toBeLessThan(1);
+    await expect(page.locator('.es-no')).toHaveCount(6);
+  });
+
+  test('"Mostrar todos" devolve todas as caixas ao normal', async ({ page }) => {
+    await abre(page, [ILHA, 'rotinas'], duas);
+    await page.getByRole('tab', { name: 'Cadeia' }).click();
+    await page.getByRole('button', { name: 'Reunião da área Comunicação' }).click();
+    expect(Number(await opacidade(page, 1))).toBeLessThan(1);
+    await page.locator('.es-org').getByRole('button', { name: 'Mostrar todos' }).click();
+    for (const i of [0, 1, 2, 7, 8, 9]) expect(Number(await opacidade(page, i))).toBe(1);
+    await expect(page.getByRole('tab', { name: 'Cadeia' })).toBeVisible();
+    await expect(page.locator('.es-rot').getByRole('button', { name: 'Mostrar todos' })).toHaveCount(0);
+  });
+});
