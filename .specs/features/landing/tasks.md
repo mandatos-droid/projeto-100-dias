@@ -575,9 +575,9 @@ T22
 
 **Done when**:
 
-- [ ] 4 perguntas, funcionando sem JavaScript
-- [ ] A resposta sobre os 100 dias reproduz a orientação do Guia: adaptar à realidade do mandato e passar por todas as missões
-- [ ] Gate Build passa
+- [x] 4 perguntas, funcionando sem JavaScript
+- [x] A resposta sobre os 100 dias reproduz a orientação do Guia: adaptar à realidade do mandato e passar por todas as missões
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
