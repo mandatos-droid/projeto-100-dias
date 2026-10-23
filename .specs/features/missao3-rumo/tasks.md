@@ -576,7 +576,7 @@ T22 → T23 → T24
 
 ---
 
-### T18: Preditores com objetivo específico e árvore ao vivo
+### T18: Preditores com objetivo específico e árvore ao vivo ✅
 
 **What**: Implementar `ilhas/rumo/Preditores.tsx` e `ilhas/rumo/ArvorePlano.tsx` (modo `previa`): cartões dos 5 preditores, campo do objetivo que abre ao selecionar com o exemplo do Guia, tabela de exemplos preservada, árvore ao lado.
 **Where**: `ilhas/rumo/Preditores.tsx`, `ilhas/rumo/ArvorePlano.tsx`, `ilhas/rumo/rumo.css`, `e2e/rumo-preditores.spec.ts`
@@ -591,12 +591,12 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Selecionar um preditor abre o campo do objetivo e acrescenta o nó na árvore (RUM-20.1)
-- [ ] Objetivo vazio mostra o nome do preditor na árvore (RUM-20.2)
-- [ ] O quarto preditor é recusado com mensagem (RUM-20.3)
-- [ ] Desmarcar preditor com metas pede confirmação com a contagem e deixa as metas "sem objetivo" (RUM-21.4)
-- [ ] A árvore tem `role="tree"`, nós focáveis e setas/Enter/Espaço funcionam (RUM-42.14, primeira parte)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-preditores.spec.ts`, nenhum removido
+- [x] Selecionar um preditor abre o campo do objetivo e acrescenta o nó na árvore (RUM-20.1)
+- [x] Objetivo vazio mostra o nome do preditor na árvore (RUM-20.2)
+- [x] O quarto preditor é recusado com mensagem (RUM-20.3)
+- [x] Desmarcar preditor com metas pede confirmação com a contagem e deixa as metas "sem objetivo" (RUM-21.4)
+- [x] A árvore tem `role="tree"`, nós focáveis e setas/Enter/Espaço funcionam (RUM-42.14, primeira parte)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-preditores.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
