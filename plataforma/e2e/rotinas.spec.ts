@@ -57,3 +57,52 @@ test.describe('Rotinas por área (MEQ-17)', () => {
     await expect(fb.locator('[data-rotina="fb:7>9"]')).toContainText('Dora Alves');
   });
 });
+
+test.describe('Aba Cadeia (MEQ-18, MEQ-19)', () => {
+  const aba = (page: import('@playwright/test').Page) => page.getByRole('tab', { name: 'Cadeia' }).click();
+  const foco = (page: import('@playwright/test').Page) => page.evaluate(() => (window as unknown as { __focos: { cadeiras: number[] }[] }).__focos.at(-1)?.cadeiras);
+  const escuta = (page: import('@playwright/test').Page) => page.evaluate(() => {
+    const w = window as unknown as { __focos: unknown[] };
+    w.__focos = [];
+    window.addEventListener('equipe:foco', (e) => w.__focos.push((e as CustomEvent).detail));
+  });
+
+  test('os 5 elos aparecem na ordem da spec, cada um com número, ícone, frequência, duração e quantidade de cadeiras', async ({ page }) => {
+    await abre(page, ['rotinas'], base);
+    await aba(page);
+    const elos = page.locator('.es-elo');
+    await expect(elos).toHaveCount(5);
+    await expect(elos.nth(0)).toContainText('Planejamento estratégico');
+    await expect(elos.nth(0)).toContainText('Quadrimestralmente · 2 períodos de 6h · 4 cadeiras');
+    await expect(elos.nth(1)).toContainText('Monitoramento de avanços');
+    await expect(elos.nth(2)).toContainText('Alinhamento de atualização coletiva');
+    await expect(elos.nth(3)).toContainText('Reunião de área');
+    await expect(elos.nth(3)).toContainText('Semanalmente · 45 min · 3 cadeiras');
+    await expect(elos.nth(4)).toContainText('Feedback 1:1');
+    await expect(elos.nth(4)).toContainText('Semestralmente · 30 min');
+    for (let k = 0; k < 5; k++) {
+      await expect(elos.nth(k).locator('.es-elo-n')).toHaveText(String(k + 1));
+      await expect(elos.nth(k).locator('.es-elo-ic')).not.toBeEmpty();
+    }
+  });
+
+  test('selecionar um elo publica as cadeiras envolvidas e "Mostrar todos" limpa', async ({ page }) => {
+    await abre(page, ['rotinas'], { ...base, 'm2.coords': 'Comunicação|Legislativo', 'm2.on': '0|1|2|7|8|9' });
+    await escuta(page);
+    await aba(page);
+    await page.locator('[data-elo="area"] .es-elo-bt').click();
+    expect(await foco(page)).toEqual([1, 2, 7, 8, 9]);
+    await expect(page.locator('[data-elo="area"] .es-elo-bt')).toHaveAttribute('aria-pressed', 'true');
+    await page.getByRole('button', { name: 'Reunião da área Comunicação' }).click();
+    expect(await foco(page)).toEqual([7, 8, 9]);
+    await page.getByRole('button', { name: 'Mostrar todos' }).click();
+    expect(await foco(page)).toEqual([]);
+    await expect(page.getByRole('button', { name: 'Mostrar todos' })).toHaveCount(0);
+  });
+
+  test('sem rotinas a aba mostra o estado vazio', async ({ page }) => {
+    await abre(page, ['rotinas'], {});
+    await aba(page);
+    await expect(page.getByText('Dê nome a ao menos uma cadeira para a cadeia')).toBeVisible();
+  });
+});
