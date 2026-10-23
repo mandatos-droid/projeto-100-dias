@@ -518,7 +518,7 @@ T22 → T23 → T24
 
 ---
 
-### T16: Legado guiado em 4 passos com cargo postulado
+### T16: Legado guiado em 4 passos com cargo postulado ✅
 
 **What**: Implementar `ilhas/rumo/Legado.tsx`: marcador de edição (Protagonista, Entrega, Resultado, Cargo), seletor de cargo por cargo atual, manchete composta com "Recompor", aviso de cargo ausente, texto final editável à mão, "Fechar a edição", jornal ao vivo ao lado.
 **Where**: `ilhas/rumo/Legado.tsx`, `ilhas/rumo/rumo.css`, `e2e/rumo-legado.spec.ts`
@@ -533,15 +533,15 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] A etapa abre no passo 1 com marcador de progresso; completar um passo "acende" o item e libera o próximo (RUM-10.1)
-- [ ] Escolher o cargo no passo 4 grava `m3.cargo` e a manchete composta contém o cargo (RUM-11.2, RUM-10.3)
-- [ ] Editar um elemento atualiza o jornal em menos de 300 ms (RUM-10.4)
-- [ ] Editar o texto final à mão passa a usar o texto manual; "Recompor" volta à composição (RUM-11.6)
-- [ ] Manchete que não cita o cargo mostra o aviso e grava mesmo assim (RUM-11.7)
-- [ ] "Fechar a edição" grava `m3.legado`, mostra o selo e conta o exercício como feito (RUM-11.8)
-- [ ] Mandato com `Store.mandato.cargo` vazio mostra a lista completa de cargos e não bloqueia (edge case)
-- [ ] Mandato antigo com `m3.legado` abre mostrando a manchete antiga como texto manual (RUM-70)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-legado.spec.ts`, nenhum removido
+- [x] A etapa abre no passo 1 com marcador de progresso; completar um passo "acende" o item e libera o próximo (RUM-10.1)
+- [x] Escolher o cargo no passo 4 grava `m3.cargo` e a manchete composta contém o cargo (RUM-11.2, RUM-10.3)
+- [x] Editar um elemento atualiza o jornal em menos de 300 ms (RUM-10.4)
+- [x] Editar o texto final à mão passa a usar o texto manual; "Recompor" volta à composição (RUM-11.6)
+- [x] Manchete que não cita o cargo mostra o aviso e grava mesmo assim (RUM-11.7)
+- [x] "Fechar a edição" grava `m3.legado`, mostra o selo e conta o exercício como feito (RUM-11.8)
+- [x] Mandato com `Store.mandato.cargo` vazio mostra a lista completa de cargos e não bloqueia (edge case)
+- [x] Mandato antigo com `m3.legado` abre mostrando a manchete antiga como texto manual (RUM-70)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-legado.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
