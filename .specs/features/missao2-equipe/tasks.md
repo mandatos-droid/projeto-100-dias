@@ -259,7 +259,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T7: Rotinas entre áreas
+### T7: Rotinas entre áreas ✅
 
 **What**: Acrescentar a `lib/rotinas.ts` `sugestoesEntreAreas`, `criaEntreAreas` (recusa origem = destino) e a leitura de `m2.x` com arquivamento quando a área é desmarcada.
 **Where**: `lib/rotinas.ts`
@@ -274,11 +274,11 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Origem igual ao destino devolve `erro` (T-19)
-- [ ] Desmarcar uma das áreas esconde as rotinas que a envolvem e remarcar as devolve idênticas (T-20)
-- [ ] As 4 sugestões só aparecem quando as duas áreas estão ativas
-- [ ] JSON inválido em `m2.x` devolve lista vazia sem lançar erro
-- [ ] Gate: `npm test`; 4 testes novos, nenhum removido
+- [x] Origem igual ao destino devolve `erro` (T-19)
+- [x] Desmarcar uma das áreas esconde as rotinas que a envolvem e remarcar as devolve idênticas (T-20)
+- [x] As 4 sugestões só aparecem quando as duas áreas estão ativas
+- [x] JSON inválido em `m2.x` devolve lista vazia sem lançar erro
+- [x] Gate: `npm test`; 4 testes novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
