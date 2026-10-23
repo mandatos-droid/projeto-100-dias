@@ -169,3 +169,14 @@ test('rascunho de grupo guarda os elementos opcionais; rascunho antigo, só com 
   assert.equal(r.legado.rascunhos[2].el, undefined);
   assert.equal(r.legado.rascunhos[2].manchete, 'M3');
 });
+
+test('D.rumo com bandeira de id repetido: fica uma só, a primeira vence (RUM-70)', () => {
+  const r = lerRumo({ rumo: { v: 1, bandeiras: [
+    { id: 'educacao', rot: 'Educação', argumentos: 'primeira', notas: {}, prioridade: 1 },
+    { id: 'saude', rot: 'Saúde', argumentos: '', notas: {}, prioridade: null },
+    { id: 'educacao', rot: 'Educação', argumentos: 'segunda', notas: {}, prioridade: 2 },
+  ] } });
+  assert.deepEqual(r.bandeiras.map((b) => b.id), ['educacao', 'saude']);
+  assert.equal(porId(r, 'educacao')!.argumentos, 'primeira');
+  assert.equal(porId(r, 'educacao')!.prioridade, 1);
+});
