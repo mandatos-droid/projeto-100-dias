@@ -165,3 +165,33 @@ test.describe('Etapa 3: nomes, coordenação e liderança (MEQ-05, MEQ-06, MEQ-0
     expect((await camposDe(page))['m2.f10']).toBe('bia lima');
   });
 });
+
+test.describe('Mini-organograma ao vivo (MEQ-05, MEQ-06)', () => {
+  const na3 = { 'm2.etapa': '3', 'm2.coords': 'Comunicação', 'm2.on': '0|7|8|9|10', 'm2.f8': 'Bia Lima' };
+
+  test('trocar a liderança de uma cadeira move a caixa na prévia em menos de 300 ms (E-04)', async ({ page }) => {
+    await abre(page, [ILHA], na3);
+    const caixa = page.locator('.es-mini [data-cadeira="8"]');
+    await expect(caixa).toBeVisible();
+    const antes = (await caixa.boundingBox())!.y;
+    await page.evaluate(() => {
+      const w = window as unknown as { __dt?: number };
+      const cont = document.querySelector('.es-mini')!;
+      let t0 = 0;
+      document.addEventListener('change', () => { t0 = performance.now(); }, { capture: true, once: true });
+      new MutationObserver(() => { if (t0 && w.__dt === undefined) w.__dt = performance.now() - t0; }).observe(cont, { childList: true, subtree: true, attributes: true });
+    });
+    await page.getByLabel('Liderança imediata, Social-media').selectOption('0'); // sobe para a Chefia de gabinete
+    await expect.poll(async () => (await page.locator('.es-mini [data-cadeira="8"]').boundingBox())!.y).not.toBe(antes);
+    expect(await page.evaluate(() => (window as unknown as { __dt?: number }).__dt)).toBeLessThan(300);
+    expect((await camposDe(page))['m2.p9.lider']).toBe('0');
+  });
+
+  test('a prévia mostra só as cadeiras ativas e não abre painel nem edita nada', async ({ page }) => {
+    await abre(page, [ILHA], na3);
+    await expect(page.locator('.es-mini [data-cadeira]')).toHaveCount(5);
+    await page.locator('.es-mini [data-cadeira="7"]').click({ force: true });
+    await expect(page.locator('.eq-detalhe')).toHaveCount(0);
+    expect(await camposDe(page)).toEqual(na3);
+  });
+});

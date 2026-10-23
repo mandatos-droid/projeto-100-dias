@@ -6,6 +6,7 @@ import { coordsDe } from '@/lib/cadeiras';
 import EtapaAreas from './EtapaAreas';
 import EtapaCadeiras from './EtapaCadeiras';
 import EtapaNomes from './EtapaNomes';
+import MiniOrg from './MiniOrg';
 import { useEquipe } from './useEquipe';
 import './equipe.css';
 
@@ -51,7 +52,7 @@ export default function Escalacao() {
         <h4 tabIndex={-1}>{ETAPAS[etapa - 1]}</h4>
         {etapa === 1 && <EtapaAreas />}
         {etapa === 2 && <EtapaCadeiras />}
-        {etapa === 3 && <EtapaNomes />}
+        {etapa === 3 && <div className="es-duas"><EtapaNomes /><MiniOrg /></div>}
       </div>
       <div className="es-nav">
         {etapa > 1 && <button type="button" className="bt sec peq es-bt" onClick={() => vai(etapa - 1)}>Voltar</button>}

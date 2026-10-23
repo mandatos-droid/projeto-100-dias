@@ -548,7 +548,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T18: Mini-organograma ao vivo
+### T18: Mini-organograma ao vivo ✅
 
 **What**: Criar `ilhas/equipe/MiniOrg.tsx`: prévia do organograma ao lado da etapa "Nomes", atualizada a cada edição, sem painel.
 **Where**: `ilhas/equipe/MiniOrg.tsx`
@@ -563,9 +563,9 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Trocar a liderança de uma cadeira move a caixa no mini-organograma em menos de 300 ms (E-04)
-- [ ] O mini-organograma não abre painel nem edita nada
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 2 testes e2e novos, nenhum removido
+- [x] Trocar a liderança de uma cadeira move a caixa no mini-organograma em menos de 300 ms (E-04)
+- [x] O mini-organograma não abre painel nem edita nada
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 2 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
