@@ -573,7 +573,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T19: Destaque transitório entre ilhas
+### T19: Destaque transitório entre ilhas ✅
 
 **What**: Criar `ilhas/equipe/foco.ts`: pub-sub mínimo (`definirFoco`, `limparFoco`, `assinar`) para o destaque de cadeiras compartilhado entre as ilhas.
 **Where**: `ilhas/equipe/foco.ts`
@@ -588,9 +588,9 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] `assinar` recebe o foco atual e cada mudança; cancelar a assinatura para as notificações (T-26)
-- [ ] `limparFoco` notifica com lista vazia (T-26)
-- [ ] Gate: `npm test`; 2 testes novos em `tests/foco.test.ts`, nenhum removido
+- [x] `assinar` recebe o foco atual e cada mudança; cancelar a assinatura para as notificações (T-26)
+- [x] `limparFoco` notifica com lista vazia (T-26)
+- [x] Gate: `npm test`; 2 testes novos em `tests/foco.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
