@@ -1,3 +1,4 @@
+import type { PleitoTSE } from './dados.ts';
 import type { Eleito } from './types.ts';
 
 const MAX_SUGESTOES = 8;
@@ -49,4 +50,16 @@ export function resumo(e: Eleito, todos: Eleito[]): Resumo {
     cadeirasPartido: casa.filter((o) => o.p === e.p).length,
     trajetoria: TRAJETORIA[e.m] ?? null,
   };
+}
+
+const MAX_PLEITOS = 6;
+
+export type LinhaPleito = { ano: number; cargo: string; municipio: string; partido: string; votos: number; situacao: string };
+
+/** Até 6 pleitos anteriores, do mais recente ao mais antigo. Só campos públicos de resultado. */
+export function historico(pleitos: PleitoTSE[] | undefined): LinhaPleito[] {
+  return [...(pleitos ?? [])]
+    .sort((a, b) => b[0] - a[0])
+    .slice(0, MAX_PLEITOS)
+    .map((p) => ({ ano: p[0], cargo: p[1], municipio: p[3], partido: p[4], votos: p[6], situacao: p[8] }));
 }
