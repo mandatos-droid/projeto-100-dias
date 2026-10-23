@@ -756,9 +756,9 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T26: Organograma reage ao destaque
+### T26: Organograma reage ao destaque ✅
 
-**What**: Em `Organograma.tsx`, assinar `foco.ts`: cadeiras do foco em destaque, demais esmaecidas; clicar numa cadeira publica o foco dela.
+**What**: Em `Organograma.tsx`, assinar `foco.ts`: cadeiras do foco em destaque, demais esmaecidas. (Decisão na execução: clicar numa caixa não publica foco, porque esmaeceria o resto do organograma toda vez que o painel abrisse; a spec só exige o destaque vindo da cadeia.)
 **Where**: `ilhas/equipe/Organograma.tsx`
 **Depends on**: T25
 **Reuses**: `foco.ts`
@@ -771,9 +771,9 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Selecionar "Reunião da área Comunicação" na cadeia deixa só as cadeiras de Comunicação em destaque (E-10)
-- [ ] "Mostrar todos" devolve todas as caixas ao normal
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 2 testes e2e novos, nenhum removido
+- [x] Selecionar "Reunião da área Comunicação" na cadeia deixa só as cadeiras de Comunicação em destaque (E-10)
+- [x] "Mostrar todos" devolve todas as caixas ao normal
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 2 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
