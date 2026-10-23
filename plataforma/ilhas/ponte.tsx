@@ -10,6 +10,7 @@ import EleitoradoIlha, { EleitoradoResumo } from './Eleitorado';
 import SocialIlha, { SocialResumo } from './Social';
 import { Ficha } from './Equipe';
 import Rotinas from './equipe/Rotinas';
+import Entrega from './equipe/Entrega';
 import Organograma from './equipe/Organograma';
 import Escalacao from './equipe/Escalacao';
 import { AssentosResumo, ConjunturaResumo, MunicipioResumo } from './Resumos';
@@ -89,6 +90,7 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   'equipe-escalacao': () => <Escalacao />,
   organograma: () => <Organograma />,
   rotinas: () => <Rotinas />,
+  entrega: () => <Entrega />,
 };
 const raizes = new Set<Root>();
 
