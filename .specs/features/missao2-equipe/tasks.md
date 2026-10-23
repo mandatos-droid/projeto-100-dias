@@ -833,7 +833,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T29: Linhas pontilhadas entre áreas no organograma
+### T29: Linhas pontilhadas entre áreas no organograma ✅
 
 **What**: Em `Organograma.tsx`, desenhar as arestas `entre` de `layoutOrg` como linhas pontilhadas rotuladas, sem mudar a hierarquia; selecionar uma rotina destaca as cadeiras de convocação das duas áreas.
 **Where**: `ilhas/equipe/Organograma.tsx`
@@ -848,9 +848,9 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Criar Legislativo→Comunicação desenha uma linha pontilhada rotulada entre as duas áreas (E-11)
-- [ ] As arestas de hierarquia não mudam
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 2 testes e2e novos, nenhum removido
+- [x] Criar Legislativo→Comunicação desenha uma linha pontilhada rotulada entre as duas áreas (E-11)
+- [x] As arestas de hierarquia não mudam
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 2 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full

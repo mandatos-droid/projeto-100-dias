@@ -274,3 +274,39 @@ test.describe('Rotinas da cadeira no painel (MEQ-19)', () => {
     expect(Number(await opacidade(page, 9))).toBeLessThan(1);
   });
 });
+
+test.describe('Linhas entre áreas no organograma (MEQ-21)', () => {
+  const x = JSON.stringify([{ id: 'x1', de: 'Legislativo', para: 'Comunicação', finalidade: 'Pauta da semana', freq: 'Semanalmente', canal: 'Grupo' }]);
+  const duas = { ...base, 'm2.coords': 'Comunicação|Legislativo', 'm2.on': '0|1|2|7|8', 'm2.f2': 'Eva Prado' };
+  const arestas = (page: import('@playwright/test').Page) => page.locator('.react-flow__edge');
+
+  test('uma rotina entre áreas desenha uma linha pontilhada rotulada, sem mudar a hierarquia', async ({ page }) => {
+    await abre(page, [ILHA], duas);
+    const sem = await arestas(page).count();
+    await page.evaluate((v) => {
+      const w = window as unknown as { D: { campos: Record<string, string> } };
+      w.D.campos['m2.x'] = v;
+      window.dispatchEvent(new Event('guia:mudou'));
+    }, x);
+    await expect(arestas(page)).toHaveCount(sem + 1);
+    const linha = page.locator('.react-flow__edge[data-id="x1"]');
+    await expect(linha.locator('path.react-flow__edge-path')).toHaveCSS('stroke-dasharray', /6/);
+    await expect(page.locator('.react-flow__edge-textwrapper, .react-flow__edge-text').filter({ hasText: 'Semanalmente: Pauta da semana' }).first()).toBeVisible();
+    await expect(page.locator('.react-flow__edge[data-id="0-1"]')).toBeVisible();
+  });
+
+  test('sem as duas áreas ativas a linha não aparece', async ({ page }) => {
+    await abre(page, [ILHA], { ...duas, 'm2.coords': 'Legislativo', 'm2.x': x });
+    await expect(page.locator('.react-flow__edge[data-id="x1"]')).toHaveCount(0);
+  });
+
+  test('"Destacar" na aba Entre áreas destaca as cadeiras que convocam nas duas áreas', async ({ page }) => {
+    await abre(page, [ILHA, 'rotinas'], { ...duas, 'm2.x': x });
+    await page.getByRole('tab', { name: 'Entre áreas' }).click();
+    await page.getByRole('button', { name: 'Destacar no organograma: Legislativo → Comunicação' }).click();
+    expect(Number(await opacidade(page, 1))).toBe(1);
+    expect(Number(await opacidade(page, 7))).toBe(1);
+    expect(Number(await opacidade(page, 0))).toBeLessThan(1);
+    expect(Number(await opacidade(page, 2))).toBeLessThan(1);
+  });
+});
