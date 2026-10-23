@@ -220,9 +220,9 @@ T22
 
 **Done when**:
 
-- [ ] `compilerOptions.allowImportingTsExtensions` é `true`
-- [ ] `npx tsc --noEmit` continua com o mesmo resultado de antes da mudança
-- [ ] Gate Build passa
+- [x] `compilerOptions.allowImportingTsExtensions` é `true`
+- [x] `npx tsc --noEmit` continua com o mesmo resultado de antes da mudança
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
