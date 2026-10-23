@@ -304,11 +304,11 @@ T22
 
 **Done when**:
 
-- [ ] Teste: ordena por ano decrescente (Demo AC 7)
-- [ ] Teste: com 8 pleitos devolve 6 (Demo AC 7)
-- [ ] Teste: `undefined` e `[]` devolvem `[]`, base da mensagem "Sem pleitos anteriores no TSE" (edge)
-- [ ] Teste: as linhas não têm campos de título, CPF ou nascimento (Demo AC 13)
-- [ ] Gate quick passa; contagem de testes registrada
+- [x] Teste: ordena por ano decrescente (Demo AC 7)
+- [x] Teste: com 8 pleitos devolve 6 (Demo AC 7)
+- [x] Teste: `undefined` e `[]` devolvem `[]`, base da mensagem "Sem pleitos anteriores no TSE" (edge)
+- [x] Teste: as linhas não têm campos de título, CPF ou nascimento (Demo AC 13)
+- [x] Gate quick passa; contagem de testes registrada
 
 **Tests**: unit
 **Gate**: quick

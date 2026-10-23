@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { busca, normaliza, resumo } from '../lib/demo.ts';
+import { busca, historico, normaliza, resumo } from '../lib/demo.ts';
+import type { PleitoTSE } from '../lib/dados.ts';
 import type { Eleito } from '../lib/types.ts';
 
 const el = (o: Partial<Eleito> = {}): Eleito => ({
@@ -86,4 +87,35 @@ test('rótulo do cargo respeita Casa, DF e gênero (Demo AC 3)', () => {
   assert.equal(c({ k: 'e', g: 'F', uf: 'DF' }), 'Deputada Distrital');
   assert.equal(c({ k: 's', g: 'M' }), 'Senador');
   assert.equal(c({ k: 's', g: 'F' }), 'Senadora');
+});
+
+const pl = (ano: number, cargo = 'Deputado Estadual'): PleitoTSE => [ano, cargo, 'go', 'Goiânia', 'PT', '13123', 5000 + ano, 1.2, 'Eleito'];
+
+test('histórico ordena do pleito mais recente ao mais antigo (Demo AC 7)', () => {
+  const r = historico([pl(2014), pl(2022), pl(2018)]);
+  assert.deepEqual(r.map((l) => l.ano), [2022, 2018, 2014]);
+});
+
+test('histórico devolve no máximo 6 pleitos (Demo AC 7)', () => {
+  const todos = [2006, 2008, 2010, 2012, 2014, 2016, 2018, 2020].map((a) => pl(a));
+  const r = historico(todos);
+  assert.equal(r.length, 6);
+  assert.equal(r[0].ano, 2020);
+  assert.equal(r[5].ano, 2010);
+});
+
+test('histórico traz ano, cargo, partido, votos e situação (Demo AC 7)', () => {
+  assert.deepEqual(historico([pl(2022, 'Vereador')])[0], {
+    ano: 2022, cargo: 'Vereador', municipio: 'Goiânia', partido: 'PT', votos: 7022, situacao: 'Eleito',
+  });
+});
+
+test('sem pleitos: undefined e lista vazia devolvem [] (edge)', () => {
+  assert.deepEqual(historico(undefined), []);
+  assert.deepEqual(historico([]), []);
+});
+
+test('as linhas do histórico não carregam título, CPF nem nascimento (Demo AC 13)', () => {
+  const chaves = Object.keys(historico([pl(2022)])[0]).sort();
+  assert.deepEqual(chaves, ['ano', 'cargo', 'municipio', 'partido', 'situacao', 'votos']);
 });
