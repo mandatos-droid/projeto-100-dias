@@ -183,7 +183,7 @@ T22 → T23 → T24
 
 ---
 
-### T4: Retorno SMART das metas
+### T4: Retorno SMART das metas ✅
 
 **What**: Criar `lib/smart.ts` com `avaliaMeta`: letras S, M, A, R, T com dica, alerta de tarefa rotineira e pontos.
 **Where**: `lib/smart.ts`, `tests/smart.test.ts`
@@ -198,12 +198,12 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] O exemplo de `FORMULA_META.exemplo` avaliado com `pred` e `alcancavel: true` dá 5 letras atendidas (RUM-31.3)
-- [ ] "Aprovar 2 projetos de lei sobre educação até dezembro de 2027" atende S, M e T; "Melhorar a educação" não atende S, M nem T e a dica da primeira letra que falta é a de S (RUM-31.4 a 6)
-- [ ] R só atende com `pred`; A só atende com `alcancavel === true` (RUM-31.7, RUM-31.8)
-- [ ] "Enviar e-mail semanal aos assessores" dispara o alerta "Meta não é tarefa diária"; texto sem esse padrão não dispara (RUM-31.9)
-- [ ] Texto vazio ou só espaços devolve nenhuma letra atendida e 0 pontos, sem exceção
-- [ ] Gate: `npm test`; testes novos em `tests/smart.test.ts`, nenhum removido
+- [x] O exemplo de `FORMULA_META.exemplo` avaliado com `pred` e `alcancavel: true` dá 5 letras atendidas (RUM-31.3)
+- [x] "Aprovar 2 projetos de lei sobre educação até dezembro de 2027" atende S, M e T; "Melhorar a educação" não atende S, M nem T e a dica da primeira letra que falta é a de S (RUM-31.4 a 6)
+- [x] R só atende com `pred`; A só atende com `alcancavel === true` (RUM-31.7, RUM-31.8)
+- [x] "Enviar e-mail semanal aos assessores" dispara o alerta "Meta não é tarefa diária"; texto sem esse padrão não dispara (RUM-31.9)
+- [x] Texto vazio ou só espaços devolve nenhuma letra atendida e 0 pontos, sem exceção
+- [x] Gate: `npm test`; testes novos em `tests/smart.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
