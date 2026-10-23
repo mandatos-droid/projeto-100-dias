@@ -653,11 +653,11 @@ T22
 
 **Done when**:
 
-- [ ] O HTML servido de `/` contém o título, o `<title>` da landing e 3 links "Começar meu Mapa Político" para `/guia` (topo, após a demonstração, fechamento)
-- [ ] O HTML de `/` não contém `legacy.css` nem `ilhas.css`; o de `/guia` contém os dois
-- [ ] `/painel` responde 200
-- [ ] `lang="pt-BR"` presente
-- [ ] Gate Build passa
+- [x] O HTML servido de `/` contém o título, o `<title>` da landing e 3 links "Começar meu Mapa Político" para `/guia` (topo, após a demonstração, fechamento)
+- [x] O HTML de `/` não contém `legacy.css` nem `ilhas.css`; o de `/guia` contém os dois
+- [x] `/painel` responde 200
+- [x] `lang="pt-BR"` presente
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
