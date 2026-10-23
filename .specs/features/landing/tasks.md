@@ -549,9 +549,9 @@ T22
 
 **Done when**:
 
-- [ ] Texto afirma que os dados do mandato ficam com o mandato e que a demonstração usa só dados públicos do TSE
-- [ ] Cita TSE e IDSC-BR e a Legisla Brasil
-- [ ] Gate Build passa
+- [x] Texto afirma que os dados do mandato ficam com o mandato e que a demonstração usa só dados públicos do TSE
+- [x] Cita TSE e IDSC-BR e a Legisla Brasil
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
