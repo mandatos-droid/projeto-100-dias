@@ -601,9 +601,9 @@ T22
 
 **Done when**:
 
-- [ ] CTA `<a href="/guia">` com o texto exato (Chegar AC 7)
-- [ ] Rodapé identifica a Legisla Brasil
-- [ ] Gate Build passa
+- [x] CTA `<a href="/guia">` com o texto exato (Chegar AC 7)
+- [x] Rodapé identifica a Legisla Brasil
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
