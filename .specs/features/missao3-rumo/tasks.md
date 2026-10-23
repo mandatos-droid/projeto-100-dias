@@ -241,7 +241,7 @@ T22 → T23 → T24
 
 ---
 
-### T6: Status e atingimento
+### T6: Status e atingimento ✅
 
 **What**: Criar `lib/atingimento.ts` com `STATUS`, `pctMeta`, `pctObjetivo`, `pctTotal`.
 **Where**: `lib/atingimento.ts`, `tests/atingimento.test.ts`
@@ -256,11 +256,11 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] `pctMeta` devolve 100, 70, 0 e `null` para concluída, concluída 70%, não concluída e congelada (RUM-41.4)
-- [ ] `pctObjetivo([100, 70, 0, congelada])` = 57 (média de 100, 70 e 0 arredondada), e `null` quando só há congeladas ou nenhuma meta (RUM-41.5, RUM-41.7)
-- [ ] `pctTotal` faz a média só dos objetivos não nulos e devolve `null` se todos forem nulos; dois objetivos 57 e 100 dão 79 (RUM-41.6)
-- [ ] Meta sem `status` conta como 0
-- [ ] Gate: `npm test`; testes novos em `tests/atingimento.test.ts`, nenhum removido
+- [x] `pctMeta` devolve 100, 70, 0 e `null` para concluída, concluída 70%, não concluída e congelada (RUM-41.4)
+- [x] `pctObjetivo([100, 70, 0, congelada])` = 57 (média de 100, 70 e 0 arredondada), e `null` quando só há congeladas ou nenhuma meta (RUM-41.5, RUM-41.7)
+- [x] `pctTotal` faz a média só dos objetivos não nulos e devolve `null` se todos forem nulos; dois objetivos 57 e 100 dão 79 (RUM-41.6)
+- [x] Meta sem `status` conta como 0
+- [x] Gate: `npm test`; testes novos em `tests/atingimento.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
