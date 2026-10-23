@@ -48,3 +48,14 @@
   .es-mini{order:0;position:sticky;top:0.75rem}
   .es-mini-canvas{height:min(70vh,560px)}
 }
+.es-org .eq-canvas{height:min(76vh,720px)}
+.es-no{width:230px;background:#fff;border:1px solid var(--linha);border-top:5px solid var(--vinho);border-radius:var(--r);padding:0.4375rem 0.75rem 0.375rem;display:flex;flex-direction:column;gap:1px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.es-no.vaga{border-style:dashed;border-top-style:solid;background:var(--papel)}
+.es-no.sel{box-shadow:0 0 0 2px var(--verde)}
+.es-no-area{font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.es-no-nome{font-size:0.9375rem;line-height:1.2}
+.es-no.vaga .es-no-nome{color:var(--tinta-3);font-weight:400;font-style:italic}
+.es-no-cargo{font-size:0.7812rem;color:var(--tinta-2);line-height:1.25;min-height:1.95em}
+.es-no-rodape{display:flex;justify-content:space-between;align-items:center;min-height:30px}
+.es-selo{font-style:normal;font-size:0.6875rem;font-weight:700;color:var(--andamento);background:#F6E6D3;border-radius:999px;padding:1px 0.5rem}
+.es-anel{margin-left:auto}

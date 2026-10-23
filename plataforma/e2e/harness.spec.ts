@@ -17,5 +17,5 @@ test('a rota de teste monta a ilha pedida com D.campos vazio', async ({ page }) 
 test('a semente preenche D.campos antes de a ilha montar', async ({ page }) => {
   await abre(page, ['organograma'], { 'm2.f1': 'Ana Souza' });
   expect((await camposDe(page))['m2.f1']).toBe('Ana Souza');
-  await expect(page.locator('.eq-org')).toContainText('1 de 20');
+  await expect(page.locator('.es-no[data-cadeira="0"]')).toContainText('Ana Souza');
 });

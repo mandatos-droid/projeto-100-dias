@@ -598,7 +598,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T20: Organograma, canvas e caixa
+### T20: Organograma, canvas e caixa ✅
 
 **What**: Criar `ilhas/equipe/Organograma.tsx`: canvas React Flow com a caixa nova (pessoa, cargo, área com cor e rótulo, anel de progresso, selo "escopo pendente", vaga tracejada), filtro por área esmaecendo, "Só preenchidas", "Ajustar layout", contador "X/Y cadeiras com escopo"; registrar `organograma` em `ponte.tsx` no lugar do organograma antigo.
 **Where**: `ilhas/equipe/Organograma.tsx`
@@ -613,11 +613,11 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] A caixa mostra só pessoa, cargo, área e anel; cadeira sem escopo mostra o selo
-- [ ] O filtro por área esmaece as outras áreas sem escondê-las
-- [ ] O contador "X/Y" muda quando o escopo de uma cadeira muda
-- [ ] "Ajustar layout" reorganiza e enquadra tudo
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 4 testes e2e novos, nenhum removido
+- [x] A caixa mostra só pessoa, cargo, área e anel; cadeira sem escopo mostra o selo
+- [x] O filtro por área esmaece as outras áreas sem escondê-las
+- [x] O contador "X/Y" muda quando o escopo de uma cadeira muda
+- [x] "Ajustar layout" reorganiza e enquadra tudo
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 4 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full

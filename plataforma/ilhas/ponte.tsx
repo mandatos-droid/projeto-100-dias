@@ -8,7 +8,8 @@ import Conjuntura from './Conjuntura';
 import Municipio from './Municipio';
 import EleitoradoIlha, { EleitoradoResumo } from './Eleitorado';
 import SocialIlha, { SocialResumo } from './Social';
-import { Ficha, Organograma, Rotinas } from './Equipe';
+import { Ficha, Rotinas } from './Equipe';
+import Organograma from './equipe/Organograma';
 import Escalacao from './equipe/Escalacao';
 import { AssentosResumo, ConjunturaResumo, MunicipioResumo } from './Resumos';
 
