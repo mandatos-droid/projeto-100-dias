@@ -9,6 +9,7 @@ import Municipio from './Municipio';
 import EleitoradoIlha, { EleitoradoResumo } from './Eleitorado';
 import SocialIlha, { SocialResumo } from './Social';
 import { Ficha, Organograma, Rotinas } from './Equipe';
+import Escalacao from './equipe/Escalacao';
 import { AssentosResumo, ConjunturaResumo, MunicipioResumo } from './Resumos';
 
 /* ---------- acesso ao estado do Guia original (globais D e Store) ---------- */
@@ -83,6 +84,7 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   'assentos-resumo': () => <AssentosResumo />,
   'calor-resumo': () => <ConjunturaResumo />,
   'municipio-resumo': () => <MunicipioResumo />,
+  'equipe-escalacao': () => <Escalacao />,
   organograma: () => <Organograma />,
   rotinas: () => <Rotinas />,
 };
