@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { CHEFIA, SEM_AREA, ativas, coordDe, defineLider, liderDe, nomeDe, nomeLimpo, remove } from '@/lib/cadeiras';
 import { COORDENACOES, COR_COORD, ESCOPOS, HABILIDADES, SEP, chaveFicha, chaveNome, lista } from '@/lib/equipe';
 import Chips from './Chips';
+import { gerarRotinas, rotinasDaCadeira, rotinasEntreAreas } from '@/lib/rotinas';
 import { cargoNome, modeloEscopo, modeloFuncao, modeloNome } from './cargos';
+import { definirFoco } from './foco';
 import { useEquipe } from './useEquipe';
 
 export default function PainelCadeira({ i, onFechar }: { i: number; onFechar: () => void }) {
@@ -16,6 +18,7 @@ export default function PainelCadeira({ i, onFechar }: { i: number; onFechar: ()
   const L = (k: Parameters<typeof chaveFicha>[1]) => lista(c[chaveFicha(i, k)]);
   const grava = (k: Parameters<typeof chaveFicha>[1]) => (v: string[]) => agir({ patch: { [chaveFicha(i, k)]: v.join(SEP) } });
   const texto = (k: Parameters<typeof chaveFicha>[1], v: string) => agir({ patch: { [chaveFicha(i, k)]: v } });
+  const minhas = [...rotinasDaCadeira(gerarRotinas(c), i), ...rotinasDaCadeira(rotinasEntreAreas(c), i)];
   const cor = COR_COORD[coordDe(c, i)] ?? '#5E524C';
   const lider = liderDe(c, i);
 
@@ -88,6 +91,15 @@ ${liderados.length === 1 ? 'A cadeira liderada' : `As ${liderados.length} cadeir
       <Chips rotulo="Repertório técnico de destaque" opcoes={ESCOPOS} valor={L('rep_dest')} onChange={grava('rep_dest')} />
       <span className="rot">Repertório técnico a ser desenvolvido</span>
       <Chips rotulo="Repertório técnico a ser desenvolvido" opcoes={ESCOPOS} valor={L('rep_dev')} onChange={grava('rep_dev')} />
+      <h5 className="es-sec">Rotinas desta cadeira</h5>
+      {minhas.length === 0
+        ? <p className="sem">Nenhuma rotina ainda: ela aparece quando há pessoas nomeadas e, para a reunião de área, duas ou mais cadeiras na área.</p>
+        : <ul className="es-minhas">{minhas.map((r) => (
+          <li key={r.id} data-rotina={r.id}>
+            <span><strong>{r.tipo === 'area' ? `${r.titulo}: ${r.area}` : r.tipo === 'entre' ? `Entre áreas: ${r.titulo}` : r.titulo}</strong>
+              <small>{r.freq}{r.duracao ? ` · ${r.duracao}` : ''} · {r.participantes.length} {r.participantes.length === 1 ? 'cadeira' : 'cadeiras'}</small></span>
+            <button type="button" className="bt sec peq es-bt" aria-label={`Destacar quem participa: ${r.titulo}`} onClick={() => definirFoco({ cadeiras: r.participantes, id: r.id })}>Destacar</button>
+          </li>))}</ul>}
       {i !== CHEFIA && <div className="es-perigo"><button type="button" className="bt sec peq es-bt" onClick={tira}>Remover esta cadeira</button></div>}
     </aside>
   );

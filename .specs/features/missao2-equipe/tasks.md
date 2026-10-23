@@ -781,7 +781,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T27: Rotinas da cadeira no painel
+### T27: Rotinas da cadeira no painel ✅
 
 **What**: Em `PainelCadeira.tsx`, listar as rotinas de que a cadeira participa, com atalho para destacá-las.
 **Where**: `ilhas/equipe/PainelCadeira.tsx`
@@ -796,9 +796,9 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] O painel de uma cadeira com nome lista as rotinas em que ela participa, com frequência e duração
-- [ ] O painel de uma cadeira sozinha numa área não lista reunião de área
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 2 testes e2e novos, nenhum removido
+- [x] O painel de uma cadeira com nome lista as rotinas em que ela participa, com frequência e duração
+- [x] O painel de uma cadeira sozinha numa área não lista reunião de área
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 2 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full

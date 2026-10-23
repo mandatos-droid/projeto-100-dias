@@ -241,3 +241,36 @@ test.describe('Destaque vindo da cadeia de rotinas (MEQ-19)', () => {
     await expect(page.locator('.es-rot').getByRole('button', { name: 'Mostrar todos' })).toHaveCount(0);
   });
 });
+
+test.describe('Rotinas da cadeira no painel (MEQ-19)', () => {
+  const painel = (page: import('@playwright/test').Page) => page.getByRole('complementary', { name: /Painel da cadeira/ });
+  const tres = { 'm2.coords': 'Comunicação', 'm2.on': '0|7|8|9', 'm2.f1': 'Ana Souza', 'm2.f8': 'Bia Lima', 'm2.f9': 'Caio Reis', 'm2.f10': 'Dora Alves' };
+
+  test('lista as rotinas em que a cadeira participa, com frequência e duração', async ({ page }) => {
+    await abre(page, [ILHA], tres);
+    await page.locator('.es-no[data-cadeira="8"]').click();
+    const lista = painel(page).locator('.es-minhas');
+    await expect(lista.locator('[data-rotina="plan"]')).toContainText('Quadrimestralmente · 2 períodos de 6h · 4 cadeiras');
+    await expect(lista.locator('[data-rotina="area:Comunicação"]')).toContainText('Reunião semanal da área: Comunicação');
+    await expect(lista.locator('[data-rotina="area:Comunicação"]')).toContainText('Semanalmente · 45 min · 3 cadeiras');
+    await expect(lista.locator('[data-rotina="fb:7>8"]')).toContainText('Semestralmente · 30 min');
+    await expect(lista.locator('[data-rotina="fb:7>9"]')).toHaveCount(0);
+  });
+
+  test('cadeira sozinha na área não lista reunião de área', async ({ page }) => {
+    await abre(page, [ILHA], { 'm2.coords': 'Comunicação', 'm2.on': '0|7', 'm2.f1': 'Ana Souza' });
+    await page.locator('.es-no[data-cadeira="7"]').click();
+    await expect(painel(page).locator('.es-minhas [data-rotina="plan"]')).toBeVisible();
+    await expect(painel(page).locator('[data-rotina^="area:"]')).toHaveCount(0);
+  });
+
+  test('"Destacar" esmaece, no organograma, quem não participa da rotina', async ({ page }) => {
+    await abre(page, [ILHA], tres);
+    await page.locator('.es-no[data-cadeira="8"]').click();
+    await painel(page).getByRole('button', { name: /Destacar quem participa: Feedback estruturado individual/ }).click();
+    expect(Number(await opacidade(page, 7))).toBe(1);
+    expect(Number(await opacidade(page, 8))).toBe(1);
+    expect(Number(await opacidade(page, 0))).toBeLessThan(1);
+    expect(Number(await opacidade(page, 9))).toBeLessThan(1);
+  });
+});
