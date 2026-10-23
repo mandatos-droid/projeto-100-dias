@@ -184,3 +184,26 @@ test('remover uma rotina entre áreas a tira da lista (MEQ-20)', () => {
   assert.deepEqual(rotinasEntreAreas(c), []);
   assert.equal(entreAreasArquivadas(c).length, 0);
 });
+
+test('o convocador da reunião de área é a cadeira de topo da área, mesmo que não seja a primeira (MEQ-17)', () => {
+  // Comunicação com as cadeiras 7 e 8; a 7 é liderada pela 8, e a 8 pela Chefia: o topo é a 8
+  const c: C = { 'm2.f1': 'Ana', 'm2.on': '0|7|8', 'm2.p8.lider': '8', 'm2.p9.lider': '0' };
+  const r = gerarRotinas(c).find((x) => x.id === 'area:Comunicação')!;
+  assert.equal(r.convoca, 8);
+});
+
+test('a rotina entre áreas convoca a cadeira de topo de cada área, não a primeira (MEQ-20)', () => {
+  const c: C = { 'm2.f1': 'Ana', 'm2.coords': 'Comunicação|Legislativo', 'm2.on': '0|1|2|7|8', 'm2.p8.lider': '8', 'm2.p9.lider': '0' };
+  aplica(c, criaEntreAreas(c, { de: 'Legislativo', para: 'Comunicação', finalidade: 'x', freq: 'Mensalmente', canal: '' }).patch);
+  const [r] = rotinasEntreAreas(c);
+  assert.deepEqual(r.participantes, [1, 8]);
+});
+
+test('duas rotinas entre áreas ficam com ids distintos e as duas aparecem (MEQ-20)', () => {
+  const c = duasAreas();
+  aplica(c, criaEntreAreas(c, par).patch);
+  aplica(c, criaEntreAreas(c, { ...par, de: 'Comunicação', para: 'Legislativo', finalidade: 'Revisão' }).patch);
+  const rs = rotinasEntreAreas(c);
+  assert.deepEqual(rs.map((r) => r.id), ['x1', 'x2']);
+  assert.deepEqual(rs.map((r) => r.finalidade), ['Pauta da semana', 'Revisão']);
+});

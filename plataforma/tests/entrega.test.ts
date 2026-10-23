@@ -51,3 +51,10 @@ test('a sugestão só devolve valores: nunca grava m2.c1..c3 (MEQ-23)', () => {
   assert.equal(JSON.stringify(c), antes);
   assert.equal(c['m2.c1'], undefined);
 });
+
+test('c2 fica falso quando nenhuma cadeira é liderada direto pela Chefia de gabinete (MEQ-23)', () => {
+  const c: C = { 'm2.f1': 'Ana', 'm2.on': '0|20|21', 'm2.p21.lider': '-', 'm2.p22.lider': '20' };
+  assert.equal(sugestaoChecklist(c).c2, false);
+  c['m2.p21.lider'] = '0';
+  assert.equal(sugestaoChecklist(c).c2, true);
+});

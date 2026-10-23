@@ -215,3 +215,19 @@ test('definir o topo grava "-" e a cadeira passa a não ter líder (MEQ-07)', ()
   aplica(c, defineLider(c, 22, null).patch!);
   assert.equal(liderDe(c, 22), null);
 });
+
+test('desmarcar uma área que remove cadeiras vazias encadeadas leva a cadeira com nome ao ancestral que fica (MEQ-04, MEQ-08)', () => {
+  // 20 (A, fica) ← 21 (vazia) ← 22 (vazia) ← 23 (D, fica): 21 e 22 saem e 23 passa a ser liderada por 20
+  const c: C = {
+    'm2.coords': 'Legislativo', 'm2.on': '0|20|21|22|23',
+    'm2.p21.coord': 'Legislativo', 'm2.p22.coord': 'Legislativo', 'm2.p23.coord': 'Legislativo', 'm2.p24.coord': 'Legislativo',
+    'm2.p21.lider': '0', 'm2.p22.lider': '20', 'm2.p23.lider': '21', 'm2.p24.lider': '22',
+    'm2.f21': 'A', 'm2.f24': 'D',
+  };
+  const r = alternaArea(c, 'Legislativo', false);
+  assert.deepEqual(r.confirma, ['A', 'D']);
+  aplica(c, r.patch);
+  assert.deepEqual(ativas(c), [0, 20, 23]);
+  assert.equal(liderDe(c, 23), 20);
+  assert.equal(liderDe(c, 20), 0);
+});

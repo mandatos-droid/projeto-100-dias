@@ -104,7 +104,15 @@ export function alternaArea(c: Campos, coord: string, ligar: boolean): { patch: 
     [CHAVE_COORDS]: coords.filter((a) => a !== coord).join(SEP),
     [CHAVE_ON]: grava(on.filter((i) => !daArea.includes(i) || comNome.includes(i))),
   };
-  daArea.filter((i) => !comNome.includes(i)).forEach((i) => Object.assign(patch, retira(c, i)));
+  /* retira uma a uma, sobre uma cópia que já reflete as saídas anteriores: assim quem era liderado por uma cadeira
+     removida sobe até a cadeira mais próxima que fica, mesmo com várias removidas em cadeia */
+  const copia: Campos = { ...c, [CHAVE_ON]: grava(on) };
+  daArea.filter((i) => !comNome.includes(i)).forEach((i) => {
+    const p = retira(copia, i);
+    Object.assign(patch, p);
+    aplica(copia, p);
+    copia[CHAVE_ON] = grava(ativas(copia).filter((j) => j !== i));
+  });
   comNome.forEach((i) => { patch[chaveFicha(i, 'coord')] = SEM_AREA; });
   return comNome.length ? { patch, confirma: comNome.map((i) => nomeLimpo(c, i)) } : { patch };
 }
