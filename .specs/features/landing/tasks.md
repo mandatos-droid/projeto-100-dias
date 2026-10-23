@@ -359,10 +359,10 @@ T22
 
 **Done when**:
 
-- [ ] Nenhum seletor fora de `.ld` (conferido por busca no arquivo)
-- [ ] `.ld` define `overflow-x: hidden` apenas no contêiner, e grades colapsam para 1 coluna abaixo de 640 px
-- [ ] Contraste do botão primário (texto branco sobre `#571730`) e do texto (`#17110F` sobre `#FBF6EE`) acima de 4,5:1
-- [ ] Gate Build passa
+- [x] Nenhum seletor fora de `.ld` (conferido por busca no arquivo)
+- [x] `.ld` define `overflow-x: hidden` apenas no contêiner, e grades colapsam para 1 coluna abaixo de 640 px
+- [x] Contraste do botão primário (texto branco sobre `#571730`) e do texto (`#17110F` sobre `#FBF6EE`) acima de 4,5:1
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
