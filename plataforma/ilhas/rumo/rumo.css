@@ -260,3 +260,21 @@ input.rm-jn-titulo:focus-visible{outline:3px solid var(--verde);outline-offset:2
  .rm-plano .rm-nao-imprime{display:none!important}
  .rm-plano .rm-arvore li{break-inside:avoid}
 }
+
+/* ---------- resumo no Painel (T22) ---------- */
+.rm-resumo{margin:2rem 0 0}
+.rm-resumo h2{margin-top:0}
+.rm-resumo.vazio{border:1.5px dashed var(--linha);background:var(--papel);padding:1.25rem 1.5rem;border-radius:var(--r)}
+.rm-resumo.vazio p{margin:0 0 0.875rem;color:var(--tinta-2);max-width:42rem}
+.rm-res-topo{display:flex;flex-wrap:wrap;align-items:center;gap:1rem 1.5rem;margin-bottom:1rem}
+.rm-resumo .rm-anel{width:6rem;height:6rem}
+.rm-resumo .rm-anel b{font-size:1.625rem}
+.rm-res-leg{flex:1 1 16rem;min-width:0}
+.rm-res-et{margin:0;font-size:0.6875rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--tinta-2)}
+.rm-res-manchete{margin:0.25rem 0 0.625rem;font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:1.1875rem;line-height:1.25;overflow-wrap:anywhere}
+.rm-res-manchete.vazia{font-weight:400;font-style:italic;color:var(--tinta-3);font-size:1rem}
+.rm-res-objs{list-style:none;margin:0;padding:0}
+.rm-res-objs li{display:grid;grid-template-columns:minmax(0,2fr) minmax(4rem,1fr) 3rem;gap:0.75rem;align-items:center;padding:0.5rem 0;border-top:1px solid var(--linha-2);font-size:0.9rem}
+.rm-res-nome{overflow-wrap:anywhere}
+.rm-res-nome small{display:block;color:var(--tinta-3);font-size:0.78rem}
+.rm-res-pct{font-family:'Anton',sans-serif;font-weight:400;font-size:1.125rem;color:var(--vinho);text-align:right}

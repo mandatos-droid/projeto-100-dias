@@ -693,7 +693,7 @@ T22 → T23 → T24
 
 ---
 
-### T22: Rota `#/plano`, item de menu e resumo no Painel
+### T22: Rota `#/plano`, item de menu e resumo no Painel ✅
 
 **What**: No `m3.js`, acrescentar `Telas.plano`, envolver `App.rotear` para `#/plano`, `App.lateral` com o item "Planejamento Estratégico" e `Telas.painel` trocando "Últimos registros" pela ilha `plano-resumo`. Implementar `ilhas/rumo/PlanoResumo.tsx`.
 **Where**: `public/legacy/m3.js`, `ilhas/rumo/PlanoResumo.tsx`, `ilhas/rumo/rumo.css`, `tests/legado-m3.test.ts`, `e2e/rumo-painel.spec.ts`
@@ -708,13 +708,13 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] `#/plano` renderiza a ilha `plano` e marca o item do menu como ativo (RUM-43.4)
-- [ ] O Painel com plano mostra manchete, atingimento total e barra por objetivo no lugar do bloco "Últimos registros" (RUM-43.1)
-- [ ] O Painel sem plano mostra o convite com botão para a Missão 3 (RUM-43.2)
-- [ ] "Abrir o planejamento" leva a `#/plano` (RUM-43.3)
-- [ ] `Store.eventos` continua sendo gravado (nenhuma alteração em `Store.registrar`/`eventos`) (RUM-43.5)
-- [ ] O Painel com e sem `Store.eventos` não mostra mais "Últimos registros" e o botão "Ver tudo o que foi preenchido" permanece
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `tests/legado-m3.test.ts` e `e2e/rumo-painel.spec.ts`, nenhum removido
+- [x] `#/plano` renderiza a ilha `plano` e marca o item do menu como ativo (RUM-43.4)
+- [x] O Painel com plano mostra manchete, atingimento total e barra por objetivo no lugar do bloco "Últimos registros" (RUM-43.1)
+- [x] O Painel sem plano mostra o convite com botão para a Missão 3 (RUM-43.2)
+- [x] "Abrir o planejamento" leva a `#/plano` (RUM-43.3)
+- [x] `Store.eventos` continua sendo gravado (nenhuma alteração em `Store.registrar`/`eventos`) (RUM-43.5)
+- [x] O Painel com e sem `Store.eventos` não mostra mais "Últimos registros" e o botão "Ver tudo o que foi preenchido" permanece
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `tests/legado-m3.test.ts` e `e2e/rumo-painel.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full

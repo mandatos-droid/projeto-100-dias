@@ -12,7 +12,7 @@ import './rumo.css';
 
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
 
-function Anel({ pct }: { pct: number | null }) {
+export function Anel({ pct }: { pct: number | null }) {
   const r = 42, c = 2 * Math.PI * r;
   return (
     <div className="rm-anel" role="img" aria-label={pct === null ? 'Atingimento total do planejamento: ainda sem metas ativas' : `Atingimento total do planejamento: ${pct}%`}>

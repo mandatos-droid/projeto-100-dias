@@ -66,3 +66,65 @@
     return _tc(ex);
   };
 })();
+
+/* ---------- aba Planejamento Estratégico (#/plano), item no menu e resumo no Painel ----------
+   Tudo por override: app.js (rotear, lateral, Telas.painel) não é tocado. Store.eventos segue sendo gravado; só deixa de aparecer no Painel. */
+(function(){
+  if(typeof Telas==='undefined'||typeof App==='undefined')return;
+  function ilha(n){return '<div class="ilha" data-ilha="'+n+'"></div>'}
+  function liga(t){if(window.Ilhas)window.Ilhas.ligar(t)}
+
+  Telas.plano=function(){
+    var t=document.getElementById('tela');
+    t.innerHTML='<div class="etiqueta">Missão 3 · Defina o Rumo</div>'+
+      '<h1 class="largo">Planejamento Estratégico</h1>'+
+      '<p class="chamada">O Legado, os objetivos específicos e as metas do mandato em uma só árvore, com o status de cada meta e o atingimento de cada objetivo.</p>'+
+      ilha('plano');
+    t.className='tela largo';
+    liga(t);
+  };
+
+  /* #/plano: o rotear original não conhece a rota (cairia no Painel), então ela é tratada aqui com os mesmos passos finais */
+  var _ro=App.rotear;
+  App.rotear=function(){
+    var h=location.hash||'#/';
+    if(h.replace('#/','').split('/')[0]!=='plano')return _ro.call(this);
+    this.menu(false);
+    document.getElementById('tela').className='tela';
+    Telas.plano();
+    if(this.ultima!==h)window.scrollTo(0,0);
+    this.ultima=h;
+    this.marcar();this.lateral();
+  };
+
+  /* item do menu, entre as missões e a Caixa de ferramentas (grupo "Apoio") */
+  var _lat=App.lateral;
+  App.lateral=function(){
+    _lat.call(this);
+    var nav=document.getElementById('ladoNav');if(!nav||nav.querySelector('a.it[href="#/plano"]'))return;
+    var grupos=nav.querySelectorAll('.nav-grupo'),apoio=null;
+    for(var i=0;i<grupos.length;i++)if(grupos[i].textContent.trim()==='Apoio')apoio=grupos[i];
+    var a=document.createElement('a');a.className='it';a.href='#/plano';
+    a.innerHTML='<span class="nn">◈</span><span class="tx">Planejamento Estratégico</span>';
+    nav.insertBefore(a,apoio);
+    this.marcar();
+  };
+
+  /* Painel: o bloco "Últimos registros" dá lugar ao resumo do plano; sem eventos o resumo entra antes do botão final */
+  var _pn=Telas.painel;
+  Telas.painel=function(){
+    _pn.call(this);
+    var t=document.getElementById('tela'),alvo=null,hs=t.querySelectorAll('h2');
+    for(var i=0;i<hs.length;i++)if(hs[i].textContent.trim()==='Últimos registros')alvo=hs[i];
+    var bloco=document.createElement('div');bloco.className='ilha';bloco.setAttribute('data-ilha','plano-resumo');
+    if(alvo){
+      var lista=alvo.nextElementSibling;
+      if(lista&&lista.tagName==='UL')lista.parentNode.removeChild(lista);
+      alvo.parentNode.replaceChild(bloco,alvo);
+    }else{
+      var bts=t.querySelectorAll('.bts'),ult=bts[bts.length-1];
+      if(ult)ult.parentNode.insertBefore(bloco,ult);else t.appendChild(bloco);
+    }
+    liga(t);
+  };
+})();

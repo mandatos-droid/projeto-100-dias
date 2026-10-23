@@ -167,3 +167,48 @@ test('a checagem dos outros exercícios é a do Guia (preditores e metas ficam c
   assert.equal(w.temConteudo({ id: 'm1.q1', tipo: 'perguntas' }), true);
   assert.equal(w.temConteudo({ id: 'm3.metas', tipo: 'metas' }), false);
 });
+
+/* ---------- rota #/plano, menu e Painel (RUM-43) ---------- */
+function janelaPlano(hash: string) {
+  const chamadas: string[] = [];
+  const tela = { innerHTML: '', className: '' };
+  const ctx: Record<string, unknown> = {
+    location: { hash },
+    window: { scrollTo: () => chamadas.push('scrollTo'), Ilhas: { ligar: () => chamadas.push('ligar') } },
+    document: { getElementById: (id: string) => (id === 'tela' ? tela : null) },
+    Telas: { painel: () => chamadas.push('painel') },
+    App: {
+      ultima: '', menu: () => chamadas.push('menu'), marcar: () => chamadas.push('marcar'), lateral: () => chamadas.push('lateral'),
+      rotear() { chamadas.push('original'); },
+    },
+  };
+  vm.createContext(ctx);
+  vm.runInContext(CONTEUDO + ';this.MISSOES=MISSOES;', ctx);
+  vm.runInContext(CODIGO, ctx);
+  return { ctx: ctx as { App: { rotear(): void; ultima: string }; Telas: { plano(): void } }, chamadas, tela };
+}
+
+test('#/plano renderiza a ilha "plano" com os passos finais do rotear e não chama o roteador original (RUM-43.4)', () => {
+  const { ctx, chamadas, tela } = janelaPlano('#/plano');
+  ctx.App.rotear();
+  assert.ok(tela.innerHTML.includes('<div class="ilha" data-ilha="plano"></div>'));
+  assert.ok(tela.innerHTML.includes('Planejamento Estratégico'));
+  assert.equal(tela.className, 'tela largo');
+  assert.equal(chamadas.includes('original'), false);
+  assert.ok(chamadas.includes('ligar'));
+  assert.deepEqual(chamadas.filter((c) => c === 'marcar' || c === 'lateral'), ['marcar', 'lateral']);
+  assert.equal(ctx.App.ultima, '#/plano');
+});
+
+test('qualquer outra rota segue para o roteador original (#/, #/resumo, #/m/3)', () => {
+  for (const h of ['#/', '', '#/resumo', '#/m/3/m3.metas', '#/planos']) {
+    const { ctx, chamadas } = janelaPlano(h);
+    ctx.App.rotear();
+    assert.deepEqual(chamadas, ['original'], `hash "${h}"`);
+  }
+});
+
+test('carregar o m3.js sem Telas ou App (outras janelas de teste) não falha (RUM-70)', () => {
+  const w = guia({ Comp: { campos: () => '', lista: () => '' } });
+  assert.doesNotThrow(() => vm.runInContext(CODIGO, w as unknown as vm.Context));
+});
