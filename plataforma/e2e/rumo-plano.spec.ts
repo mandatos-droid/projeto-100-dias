@@ -112,3 +112,127 @@ test.describe('Estado vazio, metas sem objetivo e metas antigas (RUM-40.2, RUM-2
     expect((await metasDe(page))[0]).toMatchObject({ resp: 'Fulano', apoio: 'Beltrano', status: 'concluida70' });
   });
 });
+
+
+/* ---------- T21: edição pela aba, filtro por pessoa, impressão e teclado ---------- */
+const EQUIPE4 = { 'm2.on': '0|1|2|3', 'm2.f1': 'Ana Souza', 'm2.f2': 'Bruno Lima', 'm2.f3': 'Carla Dias', 'm2.f4': 'Davi Rocha' };
+const edita = (page: Page, i: number) => page.getByRole('button', { name: `Editar a meta ${String(i + 1).padStart(2, '0')}` });
+const cartao = (page: Page, i: number) => page.locator('[data-ilha="plano"] .rm-no-edicao').locator(`[data-meta="${i}"]`);
+
+test.describe('Edição pela aba (RUM-40.8, RUM-40.9, RUM-40.10)', () => {
+  test('acrescentar meta pela aba aplica o vínculo com o objetivo e o limite de 4 por objetivo', async ({ page }) => {
+    await abre(page, [ILHA], { D: { preditores: ['p1', 'p2'], metas: [{ id: 'a', pred: 'p1', texto: 'Visitar 10 escolas' }, { id: 'b', pred: 'p1', texto: 'Aprovar 2 projetos' }, { id: 'c', pred: 'p1', texto: 'Realizar 3 audiências' }] } });
+    await page.getByRole('button', { name: 'Acrescentar meta a Priorizar a agenda' }).click();
+    let l = await metasDe(page);
+    expect(l).toHaveLength(4);
+    expect([l[3].pred, l[3].status]).toEqual(['p1', 'nao_concluida']);
+    await expect(cartao(page, 3)).toBeVisible(); // a meta nova já abre para editar
+    await page.getByRole('button', { name: 'Acrescentar meta a Priorizar a agenda' }).click();
+    await expect(page.locator('#avisos')).toContainText('no máximo 4 metas (limite do Guia)');
+    l = await metasDe(page);
+    expect(l).toHaveLength(4);
+  });
+
+  test('editar texto, objetivo, responsável, apoio e status na aba reflete no exercício e vice-versa', async ({ page }) => {
+    await abre(page, ['rumo-metas', ILHA], { campos: EQUIPE4, D: { preditores: ['p1', 'p2'], metas: [{ id: 'a', pred: 'p1', texto: 'Visitar 10 escolas' }] } });
+    const exercicio = page.locator('[data-ilha="rumo-metas"] [data-meta="0"]');
+    await edita(page, 0).click();
+    const c = cartao(page, 0);
+    await c.getByRole('textbox', { name: /no formato SMART/ }).fill('Aprovar 2 projetos de lei até dezembro de 2027');
+    await c.getByLabel('Objetivo específico da meta 01').selectOption('p2');
+    await c.getByRole('group', { name: /^Responsável direto/ }).getByRole('button', { name: /Bruno Lima/ }).click();
+    await c.getByRole('group', { name: /^Apoios/ }).getByRole('button', { name: 'Carla Dias' }).click();
+    await c.getByLabel('Status da meta 01').selectOption('concluida70');
+    // o exercício mostra o mesmo dado
+    await expect(exercicio.getByRole('textbox', { name: /no formato SMART/ })).toHaveValue('Aprovar 2 projetos de lei até dezembro de 2027');
+    await expect(exercicio.getByLabel('Objetivo específico da meta 01')).toHaveValue('p2');
+    await expect(exercicio.getByRole('group', { name: /^Responsável direto/ }).getByRole('button', { name: /Bruno Lima/ })).toHaveAttribute('aria-pressed', 'true');
+    await expect(exercicio.getByRole('group', { name: /^Apoios/ }).getByRole('button', { name: 'Carla Dias' })).toHaveAttribute('aria-pressed', 'true');
+    expect((await metasDe(page))[0]).toMatchObject({ pred: 'p2', respCad: 1, resp: 'Bruno Lima', apoioCad: [2], status: 'concluida70' });
+    // e o caminho de volta: editar no exercício muda a árvore
+    await exercicio.getByRole('textbox', { name: /no formato SMART/ }).fill('Realizar 3 audiências até junho');
+    await expect(no(page, 'meta-0')).toContainText('Realizar 3 audiências até junho');
+    await expect(no(page, 'obj-p2')).toContainText('Concluída 70%');
+  });
+
+  test('remover pede confirmação e sai da árvore', async ({ page }) => {
+    await abre(page, [ILHA], { D: { preditores: ['p1'], metas: [{ id: 'a', pred: 'p1', texto: 'Visitar 10 escolas' }, { id: 'b', pred: 'p1', texto: 'Aprovar 2 projetos' }] } });
+    await edita(page, 0).click();
+    page.once('dialog', (dl) => dl.dismiss());
+    await page.getByRole('button', { name: 'Remover a meta 01' }).click();
+    expect(await metasDe(page)).toHaveLength(2);
+    page.once('dialog', (dl) => dl.accept());
+    await page.getByRole('button', { name: 'Remover a meta 01' }).click();
+    await expect.poll(async () => (await metasDe(page)).length).toBe(1);
+    await expect(page.locator('[data-tipo="meta"]')).toHaveCount(1);
+  });
+});
+
+test.describe('Filtro por pessoa (RUM-42.11)', () => {
+  const metas = [
+    { id: 'a', pred: 'p1', texto: 'Visitar 10 escolas', respCad: 1, resp: 'Bruno Lima' },
+    { id: 'b', pred: 'p1', texto: 'Aprovar 2 projetos', respCad: 0, resp: 'Ana Souza', apoioCad: [1], apoio: 'Bruno Lima' },
+    { id: 'c', pred: 'p1', texto: 'Realizar 3 audiências', respCad: 0, resp: 'Ana Souza' },
+    { id: 'd', pred: 'p1', texto: 'Lançar a campanha', resp: 'Dona Maria' },
+  ];
+  test('destaca as metas em que a pessoa é responsável ou apoio e esmaece as demais', async ({ page }) => {
+    await abre(page, [ILHA], { campos: EQUIPE4, D: { preditores: ['p1'], metas } });
+    await page.getByLabel('Filtrar por pessoa').selectOption('Bruno Lima');
+    await expect(no(page, 'meta-0')).toHaveAttribute('data-marca', 'destaque');
+    await expect(no(page, 'meta-1')).toHaveAttribute('data-marca', 'destaque');
+    await expect(no(page, 'meta-2')).toHaveAttribute('data-marca', 'esmaecido');
+    await expect(no(page, 'meta-3')).toHaveAttribute('data-marca', 'esmaecido');
+    await page.getByLabel('Filtrar por pessoa').selectOption('');
+    await expect(page.locator('[data-marca]')).toHaveCount(0);
+  });
+
+  test('nomes em texto livre também entram no filtro', async ({ page }) => {
+    await abre(page, [ILHA], { campos: EQUIPE4, D: { preditores: ['p1'], metas } });
+    await page.getByLabel('Filtrar por pessoa').selectOption('Dona Maria');
+    await expect(no(page, 'meta-3')).toHaveAttribute('data-marca', 'destaque');
+    await expect(no(page, 'meta-0')).toHaveAttribute('data-marca', 'esmaecido');
+  });
+});
+
+test.describe('Imprimir (RUM-42.13)', () => {
+  test('"Imprimir" chama a impressão e, em mídia de impressão, só a árvore fica visível, sem os controles', async ({ page }) => {
+    await abre(page, [ILHA], PLANO);
+    await page.evaluate(() => { const w = window as unknown as { __imprimiu: number }; w.__imprimiu = 0; window.print = () => { w.__imprimiu++; }; });
+    await page.getByRole('button', { name: 'Imprimir' }).click();
+    expect(await page.evaluate(() => (window as unknown as { __imprimiu: number }).__imprimiu)).toBe(1);
+    await page.emulateMedia({ media: 'print' });
+    await expect(no(page, 'obj-p1')).toBeVisible();
+    await expect(no(page, 'meta-0')).toBeVisible();
+    await expect(page.locator('.rm-anel b')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Imprimir' })).toBeHidden();
+    await expect(page.getByRole('button', { name: /^Acrescentar meta a / }).first()).toBeHidden();
+    await expect(page.getByLabel('Status da meta 01')).toBeHidden();
+    await expect(page.getByLabel('Filtrar por pessoa')).toBeHidden();
+    const pos = await page.evaluate(() => getComputedStyle(document.querySelector('.rm-plano')!).position);
+    expect(pos).toBe('absolute');
+    await page.screenshot({ path: 'test-results/plano-impressao.png', fullPage: true });
+  });
+});
+
+test.describe('Teclado na aba (RUM-42.14)', () => {
+  test('Enter abre e fecha a edição da meta; cada nó tem rótulo acessível', async ({ page }) => {
+    await abre(page, [ILHA], PLANO);
+    await no(page, 'meta-0').focus();
+    await expect(no(page, 'meta-0')).toHaveAttribute('aria-label', /^Meta 01: Aprovar 2 projetos de lei até dezembro\. Status: Concluída, 100%/);
+    await page.keyboard.press('Enter');
+    await expect(cartao(page, 0)).toBeVisible();
+    // dentro do cartão as teclas pertencem aos campos, não à árvore
+    await cartao(page, 0).getByRole('textbox', { name: /no formato SMART/ }).press('Space');
+    await expect(no(page, 'obj-p1')).toHaveAttribute('aria-expanded', 'true');
+    await no(page, 'meta-0').focus();
+    await page.keyboard.press('Enter');
+    await expect(cartao(page, 0)).toHaveCount(0);
+    await page.keyboard.press('ArrowDown');
+    await expect(no(page, 'meta-1')).toBeFocused();
+    await page.keyboard.press('ArrowLeft');
+    await expect(no(page, 'obj-p1')).toBeFocused();
+    await page.keyboard.press('Space');
+    await expect(no(page, 'obj-p1')).toHaveAttribute('aria-expanded', 'false');
+    await expect(page.locator('[data-tipo="meta"]')).toHaveCount(1); // só a meta do outro objetivo (p2) segue visível
+  });
+});

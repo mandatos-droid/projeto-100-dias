@@ -56,6 +56,8 @@ export interface OpcoesPlano {
   onStatus: (idx: number, status: StatusMeta) => void;
   /** conteúdo extra dentro do nó da meta (a edição, na T21) */
   extra?: (m: ItemMeta) => ReactNode;
+  /** botões do objetivo (acrescentar meta) */
+  extraObjetivo?: (pid: string) => ReactNode;
   marca?: (m: ItemMeta) => 'esmaecido' | 'destaque' | undefined;
 }
 
@@ -102,6 +104,7 @@ export function nosPlano(arv: Arvore, o: OpcoesPlano): No[] {
           <ul className="rm-cont" aria-label="Metas por status">
             {cont.map((s) => <li key={s.id} data-status={s.id} data-n={s.n}>{s.rot} <b>{s.n}</b></li>)}
           </ul>
+          {o.extraObjetivo?.(ob.pid)}
         </>
       ),
       filhos: ob.metas.map((m) => noMeta(m, o)),

@@ -664,7 +664,7 @@ T22 → T23 → T24
 
 ---
 
-### T21: Edição pela aba: acrescentar, editar, remover, filtrar por pessoa
+### T21: Edição pela aba: acrescentar, editar, remover, filtrar por pessoa ✅
 
 **What**: No `Plano.tsx`, permitir acrescentar meta por objetivo, editar texto, objetivo, responsável, apoios e status com o mesmo `CartaoMeta`, remover com confirmação, filtrar por pessoa e imprimir.
 **Where**: `ilhas/rumo/Plano.tsx`, `ilhas/rumo/CartaoMeta.tsx`, `ilhas/rumo/rumo.css`, `e2e/rumo-plano.spec.ts`
@@ -679,13 +679,13 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Acrescentar meta na aba aplica o vínculo obrigatório e o limite de 4 por objetivo (RUM-40.9)
-- [ ] Editar texto, objetivo, responsável e apoio na aba reflete no exercício da Missão 3 e vice-versa (mesmos dados) (RUM-40.8)
-- [ ] Remover meta pede confirmação (RUM-40.10)
-- [ ] Filtrar por pessoa destaca as metas dela como responsável ou apoio e esmaece as demais (RUM-42.11)
-- [ ] "Imprimir" abre a impressão com a árvore em página limpa (`@media print` verificado por captura) (RUM-42.13)
-- [ ] Setas/Enter/Espaço navegam e editam a árvore; cada nó tem rótulo acessível (RUM-42.14)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-plano.spec.ts`, nenhum removido
+- [x] Acrescentar meta na aba aplica o vínculo obrigatório e o limite de 4 por objetivo (RUM-40.9)
+- [x] Editar texto, objetivo, responsável e apoio na aba reflete no exercício da Missão 3 e vice-versa (mesmos dados) (RUM-40.8)
+- [x] Remover meta pede confirmação (RUM-40.10)
+- [x] Filtrar por pessoa destaca as metas dela como responsável ou apoio e esmaece as demais (RUM-42.11)
+- [x] "Imprimir" abre a impressão com a árvore em página limpa (`@media print` verificado por captura) (RUM-42.13)
+- [x] Setas/Enter/Espaço navegam e editam a árvore; cada nó tem rótulo acessível (RUM-42.14)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-plano.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
