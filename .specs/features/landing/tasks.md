@@ -523,9 +523,9 @@ T22
 
 **Done when**:
 
-- [ ] 4 blocos com os títulos da spec
-- [ ] A equipe recomendada diz "sugestão da plataforma" onde o Guia não define a regra (honestidade já adotada no produto)
-- [ ] Gate Build passa
+- [x] 4 blocos com os títulos da spec
+- [x] A equipe recomendada diz "sugestão da plataforma" onde o Guia não define a regra (honestidade já adotada no produto)
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
