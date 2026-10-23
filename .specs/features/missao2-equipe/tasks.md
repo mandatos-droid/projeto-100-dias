@@ -313,7 +313,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T9: Sugestão do checklist
+### T9: Sugestão do checklist ✅
 
 **What**: Criar `lib/entrega.ts` com `sugestaoChecklist` (c1 escopo completo, c2 hierarquia ligada à Chefia, c3 rotina ativa de cada tipo).
 **Where**: `lib/entrega.ts`
@@ -328,10 +328,10 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Escopo preenchido em todas as cadeiras com nome sugere `c1` (T-23)
-- [ ] Uma cadeira sem escopo mantém `c1` falso
-- [ ] A função nunca grava `m2.c1..c3` (só sugere)
-- [ ] Gate: `npm test`; 3 testes novos, nenhum removido
+- [x] Escopo preenchido em todas as cadeiras com nome sugere `c1` (T-23)
+- [x] Uma cadeira sem escopo mantém `c1` falso
+- [x] A função nunca grava `m2.c1..c3` (só sugere)
+- [x] Gate: `npm test`; 3 testes novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
