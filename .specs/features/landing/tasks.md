@@ -90,9 +90,9 @@ T22
 
 **Done when**:
 
-- [ ] Arquivo exporta um layout que renderiza os dois `<link rel="stylesheet">` e `children`
-- [ ] O layout define `metadata.title` "Guia dos 100 Dias · Legisla Brasil"
-- [ ] Gate Build passa
+- [x] Arquivo exporta um layout que renderiza os dois `<link rel="stylesheet">` e `children`
+- [x] O layout define `metadata.title` "Guia dos 100 Dias · Legisla Brasil"
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
@@ -116,9 +116,9 @@ T22
 
 **Done when**:
 
-- [ ] `app/page.tsx` não existe mais e `app/guia/page.tsx` tem o conteúdo anterior
-- [ ] `next dev` responde 200 em `/guia`
-- [ ] Gate Build passa
+- [x] `app/page.tsx` não existe mais e `app/guia/page.tsx` tem o conteúdo anterior
+- [x] `next dev` responde 200 em `/guia`
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
