@@ -804,8 +804,10 @@ function lerMandato(m){
     bandeiras:[c['m3.b1'],c['m3.b2'],c['m3.b3']].filter(function(x){return (x||'').trim()}),
     metas:(d.metas||[]).length,
     metasComResp:(d.metas||[]).filter(function(x){return (x.resp||'').trim()}).length,
-    cargosPreenchidos:CARGOS_EQUIPE.filter(function(x,i){return (c['m2.f'+(i+1)]||'').trim()}).length,
-    cargosAbertos:CARGOS_EQUIPE.filter(function(x,i){return (c['m2.f'+(i+1)]||'').indexOf('*')>=0}).length,
+    /* Missão 2: as cadeiras são as chaves m2.f{n} (inclusive as acrescentadas à mão); o total é o de m2.on, ou o modelo de 20 quando m2.on não existe */
+    cargosPreenchidos:Object.keys(c).filter(function(k){return /^m2\.f\d+$/.test(k)&&String(c[k]||'').trim()}).length,
+    cargosAbertos:Object.keys(c).filter(function(k){return /^m2\.f\d+$/.test(k)&&String(c[k]||'').indexOf('*')>=0}).length,
+    cargosTotal:(function(){var on=c['m2.on'];if(on===undefined||on===null)return CARGOS_EQUIPE.length;var n=String(on).split('|').filter(function(x){return x!==''}).map(Number);if(n.indexOf(0)<0)n.push(0);return n.filter(function(v,i){return n.indexOf(v)===i}).length})(),
     comissoes:(d.comissoes||[]).length,
     comissoesDesejadas:(d.comissoesDesejadas||[]).length,
     feedbacks:(d.feedbacks||[]).length,
@@ -1146,7 +1148,7 @@ var Painel={
         '<td>'+esc(m.cargo)+'</td><td>'+esc(m.uf)+'</td><td>'+esc(m.partido)+'</td>'+
         '<td>'+(d===null?'—':(d<1?'antes':d>100?'+100':d))+'</td>'+
         '<td><span class="mini-barra"><i style="width:'+m.prog+'%"></i></span><span class="pil '+cls+'">'+m.prog+'%</span></td>'+
-        '<td>'+m.metas+'</td><td>'+m.acoes+'</td><td>'+m.cargosPreenchidos+'/'+CARGOS_EQUIPE.length+'</td>'+
+        '<td>'+m.metas+'</td><td>'+m.acoes+'</td><td>'+m.cargosPreenchidos+'/'+m.cargosTotal+'</td>'+
         '<td>'+esc(m.resp||'—')+'</td></tr>';
     });
     return h+'</tbody></table></div>';

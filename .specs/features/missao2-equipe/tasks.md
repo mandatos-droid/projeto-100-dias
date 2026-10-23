@@ -987,7 +987,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T35: Contagem no painel da Legisla
+### T35: Contagem no painel da Legisla ✅
 
 **What**: Em `public/painel.html`, contar cadeiras com nome entre todas as chaves `m2.f{n}` e usar `m2.on` (ou 20, sem `m2.on`) como total.
 **Where**: `public/painel.html`
@@ -1002,10 +1002,10 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] `cargosPreenchidos` e `cargosAbertos` contam também cadeiras de índice 20 ou mais
-- [ ] O total mostrado é o de `m2.on`, ou 20 quando a chave não existe
-- [ ] O painel continua mostrando só contagens, nunca texto escrito pelos gabinetes
-- [ ] `npm run build` sem erro novo e conferência manual de `/painel` com a demonstração
+- [x] `cargosPreenchidos` e `cargosAbertos` contam também cadeiras de índice 20 ou mais
+- [x] O total mostrado é o de `m2.on`, ou 20 quando a chave não existe
+- [x] O painel continua mostrando só contagens, nunca texto escrito pelos gabinetes
+- [x] `npm run build` sem erro novo e conferência manual de `/painel` com a demonstração
 
 **Tests**: none
 **Gate**: build
