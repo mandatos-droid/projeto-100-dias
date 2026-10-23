@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { aplica, ativas, coordDe, liderDe, SEM_AREA } from '../lib/cadeiras.ts';
+import { AREAS, alternaArea, aplica, ativas, coordDe, coordsDe, liderDe, modeloCompleto, sugeridasDaArea, SEM_AREA } from '../lib/cadeiras.ts';
 
 type C = Record<string, string>;
 
@@ -57,4 +57,63 @@ test('aplica grava as chaves e apaga as vazias (MEQ-06)', () => {
   const c: C = { a: '1', b: '2' };
   aplica(c, { a: '', b: '3', d: '4' });
   assert.deepEqual(c, { b: '3', d: '4' });
+});
+
+/* ---------- T2: áreas e cadeiras sugeridas ---------- */
+const liga = (c: C, area: string) => { aplica(c, alternaArea(c, area, true).patch); return c; };
+
+test('marcar Legislativo acrescenta as 6 cadeiras da área: Chefia + 6 = 7 (MEQ-02, T-01)', () => {
+  assert.deepEqual(sugeridasDaArea('Legislativo'), [1, 2, 3, 4, 5, 6]);
+  const c = liga({}, 'Legislativo');
+  assert.deepEqual(ativas(c), [0, 1, 2, 3, 4, 5, 6]);
+  assert.deepEqual(coordsDe(c), ['Legislativo']);
+});
+
+test('Legislativo + Comunicação dão 11 cadeiras (MEQ-02, E-02)', () => {
+  const c = liga(liga({}, 'Legislativo'), 'Comunicação');
+  assert.equal(ativas(c).length, 11);
+});
+
+test('o modelo completo marca as 6 áreas e totaliza 20 cadeiras, na ordem do modelo (MEQ-02, T-02)', () => {
+  const c: C = {};
+  aplica(c, modeloCompleto(c));
+  assert.deepEqual(ativas(c), Array.from({ length: 20 }, (_, i) => i));
+  assert.deepEqual(coordsDe(c), [...AREAS]);
+  assert.equal(AREAS.length, 6);
+});
+
+test('desmarcar área sem nomes remove as cadeiras sem pedir confirmação (MEQ-04, T-05)', () => {
+  const c = liga(liga({}, 'Legislativo'), 'Comunicação');
+  const r = alternaArea(c, 'Legislativo', false);
+  assert.equal(r.confirma, undefined);
+  aplica(c, r.patch);
+  assert.deepEqual(ativas(c), [0, 7, 8, 9, 10]);
+  assert.deepEqual(coordsDe(c), ['Comunicação']);
+});
+
+test('desmarcar área com nome pede confirmação e, ao confirmar, move a cadeira para Sem área sem apagá-la (MEQ-04, T-06)', () => {
+  const c = liga({ 'm2.f3': 'Ana' }, 'Legislativo');
+  const r = alternaArea(c, 'Legislativo', false);
+  assert.deepEqual(r.confirma, ['Ana']);
+  aplica(c, r.patch);
+  assert.deepEqual(ativas(c), [0, 2]);
+  assert.equal(coordDe(c, 2), SEM_AREA);
+  assert.equal(c['m2.f3'], 'Ana');
+  assert.deepEqual(coordsDe(c), []);
+});
+
+test('mandato antigo ao marcar nova área mantém as cadeiras que já tinha (MEQ-24)', () => {
+  const c: C = { 'm2.f2': 'Bia' };
+  liga(c, 'Comunicação');
+  assert.deepEqual(ativas(c), [0, 1, 7, 8, 9, 10]);
+  assert.equal(c['m2.f2'], 'Bia');
+});
+
+test('cadeira sem nome mas com escopo fica guardada ao desmarcar a área, sem perda (MEQ-04)', () => {
+  const c = liga({}, 'Comunicação');
+  c['m2.p9.escopo'] = 'Criar vídeos institucionais e peças gráficas (posts, infográficos, banners)';
+  aplica(c, alternaArea(c, 'Comunicação', false).patch);
+  assert.deepEqual(ativas(c), [0]);
+  assert.equal(c['m2.p9.escopo'], undefined);
+  assert.match(c['m2.arq.9'], /Criar vídeos institucionais/);
 });
