@@ -495,7 +495,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T16: Etapa 2, ajustar as cadeiras
+### T16: Etapa 2, ajustar as cadeiras ✅
 
 **What**: Criar `ilhas/equipe/EtapaCadeiras.tsx`: cadeiras agrupadas por área, acrescentar (do modelo ou em branco), remover, contagem de 1 a 40, mensagens de limite, etiqueta "Temático" nos especialistas temáticos sem bandeira.
 **Where**: `ilhas/equipe/EtapaCadeiras.tsx`
@@ -510,10 +510,10 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Remover e acrescentar mudam a contagem; com 40 cadeiras o botão de acrescentar fica desabilitado com o motivo
-- [ ] A Chefia de gabinete não tem botão de remover
-- [ ] Os especialistas temáticos aparecem como "Especialista temático(a) N" com a etiqueta "Temático" e nenhuma pergunta de bandeira
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 3 testes e2e novos, nenhum removido
+- [x] Remover e acrescentar mudam a contagem; com 40 cadeiras o botão de acrescentar fica desabilitado com o motivo
+- [x] A Chefia de gabinete não tem botão de remover
+- [x] Os especialistas temáticos aparecem como "Especialista temático(a) N" com a etiqueta "Temático" e nenhuma pergunta de bandeira
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 3 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full

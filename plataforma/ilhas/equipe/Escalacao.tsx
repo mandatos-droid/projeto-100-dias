@@ -4,6 +4,7 @@
 import { useEffect, useRef } from 'react';
 import { coordsDe } from '@/lib/cadeiras';
 import EtapaAreas from './EtapaAreas';
+import EtapaCadeiras from './EtapaCadeiras';
 import { useEquipe } from './useEquipe';
 import './equipe.css';
 
@@ -48,6 +49,7 @@ export default function Escalacao() {
       <div ref={corpo} className="es-etapa-corpo" data-etapa={etapa}>
         <h4 tabIndex={-1}>{ETAPAS[etapa - 1]}</h4>
         {etapa === 1 && <EtapaAreas />}
+        {etapa === 2 && <EtapaCadeiras />}
       </div>
       <div className="es-nav">
         {etapa > 1 && <button type="button" className="bt sec peq es-bt" onClick={() => vai(etapa - 1)}>Voltar</button>}
