@@ -53,12 +53,13 @@ test('o bloco de referência das metas e o texto "No futuro" continuam nos texto
 const ORIGINAL = (ex: { id: string }) => `original:${ex.id}`;
 function janela() {
   const ctx = {
+    Guia: { montar: (ex: { id: string }) => [{ k: `original:${ex.id}` }] },
     Comp: { campos: ORIGINAL, preditores: () => 'antigo', metas: () => 'antigo', lista: (l: { chave: string }, dono: string) => `<lista ${l.chave} ${dono}>` },
     esc: (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'),
   };
   const w = guia(ctx);
   vm.runInContext(CODIGO, w as unknown as vm.Context);
-  return w as unknown as { MISSOES: Missao[]; Comp: { campos(ex: unknown): string; preditores(): string; metas(): string } };
+  return w as unknown as { MISSOES: Missao[]; Comp: { campos(ex: unknown): string; preditores(): string; metas(): string }; Guia: { montar(ex: unknown): { k: string }[] } };
 }
 
 test('Comp.campos devolve a ilha de bandeiras para m3.bandeiras, sem os campos m3.* de texto (RUM-01, RUM-12)', () => {
@@ -66,13 +67,7 @@ test('Comp.campos devolve a ilha de bandeiras para m3.bandeiras, sem os campos m
   const html = w.Comp.campos(ex3(w, 'm3.bandeiras'));
   assert.ok(html.startsWith('<div class="ilha" data-ilha="rumo-bandeiras"></div>'));
   assert.equal(html.includes('data-k="m3.'), false);
-});
-
-test('m3.bandeiras mantém o título e a lista de comissões do Guia até a ilha de espaços (RUM-51.9)', () => {
-  const w = janela();
-  const html = w.Comp.campos(ex3(w, 'm3.bandeiras'));
-  assert.ok(html.includes('<h4>Comissões e espaços que o mandato pretende compor</h4>'));
-  assert.ok(html.includes('<lista comissoesDesejadas m3.bandeiras>'));
+  assert.equal(html.includes('<lista'), false); // a lista de comissões é um passo próprio (Guia.montar)
 });
 
 test('Comp.campos devolve só a ilha do Legado para m3.legado (RUM-10)', () => {
@@ -91,4 +86,68 @@ test('Comp.preditores e Comp.metas devolvem os contêineres das ilhas (RUM-21, R
   const w = janela();
   assert.equal(w.Comp.preditores(), '<div class="ilha" data-ilha="rumo-preditores"></div>');
   assert.equal(w.Comp.metas(), '<div class="ilha" data-ilha="rumo-metas"></div>');
+});
+
+/* ---------- passos do modo guiado: a ilha entra em um passo só, entre a introdução e o fecho ---------- */
+const ks = (ps: { k: string }[]) => [...ps.map((p) => p.k)]; // cópia no realm do teste (o array do vm tem outro protótipo)
+
+test('m3.bandeiras no modo guiado: introdução, a ilha, a lista de comissões e o fecho "No futuro", nesta ordem (RUM-01, RUM-51.9)', () => {
+  const w = janela();
+  assert.deepEqual(ks(w.Guia.montar(ex3(w, 'm3.bandeiras'))), ['intro', 'componente', 'listaExtra', 'fim']);
+});
+
+test('m3.legado no modo guiado: introdução, a ilha e o fecho, sem passos de campo solto (RUM-10, RUM-12.11)', () => {
+  const w = janela();
+  assert.deepEqual(ks(w.Guia.montar(ex3(w, 'm3.legado'))), ['intro', 'componente', 'fim']);
+});
+
+test('os passos de qualquer outro exercício vêm do Guia.montar anterior', () => {
+  const w = janela();
+  assert.deepEqual(w.Guia.montar({ id: 'm3.metas' }), [{ k: 'original:m3.metas' }]);
+  assert.deepEqual(w.Guia.montar({ id: 'm1.q1' }), [{ k: 'original:m1.q1' }]);
+});
+
+/* ---------- conclusão dos exercícios pelo estado novo (RUM-02, RUM-11, RUM-70) ---------- */
+function comEstado(D: Record<string, unknown>) {
+  const ctx = {
+    D,
+    Guia: { montar: () => [] },
+    Comp: { campos: ORIGINAL, preditores: () => '', metas: () => '', lista: () => '' },
+    esc: (s: string) => s,
+    temConteudo: (ex: { tipo: string }) => ex.tipo === 'perguntas',
+  };
+  const w = guia(ctx);
+  vm.runInContext(CODIGO, w as unknown as vm.Context);
+  return w as unknown as { temConteudo(ex: { id?: string; tipo: string }): boolean };
+}
+const BAND = { id: 'm3.bandeiras', tipo: 'campos' };
+const LEG = { id: 'm3.legado', tipo: 'campos' };
+const bandeira = (prioridade: number | null) => ({ id: 'educacao', rot: 'Educação', argumentos: '', notas: {}, prioridade });
+
+test('mandato antigo com texto em m3.legado continua contando como exercício feito (RUM-70)', () => {
+  assert.equal(comEstado({ campos: { 'm3.legado': 'Joaquim José: a educação no centro' } }).temConteudo(LEG), true);
+});
+
+test('mandato novo com a edição fechada conta como feito; sem texto e sem edição fechada, não conta (RUM-11.8)', () => {
+  assert.equal(comEstado({ campos: {}, rumo: { legado: { fechado: true } } }).temConteudo(LEG), true);
+  assert.equal(comEstado({ campos: {}, rumo: { legado: { fechado: false } } }).temConteudo(LEG), false);
+  assert.equal(comEstado({ campos: {} }).temConteudo(LEG), false);
+  assert.equal(comEstado({ campos: { 'm3.legado': '   ', 'm3.cargo': 'Senador(a)' } }).temConteudo(LEG), false, 'só o cargo escolhido ainda não é Legado');
+});
+
+test('m3.bandeiras conta com m3.b1 preenchido ou com uma prioritária em D.rumo (RUM-02)', () => {
+  assert.equal(comEstado({ campos: { 'm3.b1': 'Educação' } }).temConteudo(BAND), true);
+  assert.equal(comEstado({ campos: {}, rumo: { bandeiras: [bandeira(null), bandeira(2)] } }).temConteudo(BAND), true);
+});
+
+test('m3.bandeiras sem nenhuma prioritária não conta, mesmo com mural e argumentos (RUM-02)', () => {
+  assert.equal(comEstado({ campos: { 'm3.mural': 'Educação', 'm3.argumentos': 'Educação: muita demanda' } }).temConteudo(BAND), false);
+  assert.equal(comEstado({ campos: {}, rumo: { bandeiras: [bandeira(null)] } }).temConteudo(BAND), false);
+  assert.equal(comEstado({ campos: {}, rumo: 'corrompido' }).temConteudo(BAND), false);
+});
+
+test('a checagem dos outros exercícios é a do Guia (preditores e metas ficam como estão)', () => {
+  const w = comEstado({ campos: {} });
+  assert.equal(w.temConteudo({ id: 'm1.q1', tipo: 'perguntas' }), true);
+  assert.equal(w.temConteudo({ id: 'm3.metas', tipo: 'metas' }), false);
 });

@@ -406,9 +406,9 @@ T22 → T23 → T24
 
 ---
 
-### T12: Conclusão dos exercícios da Missão 3 pelo novo estado
+### T12: Conclusão dos exercícios da Missão 3 pelo novo estado ✅
 
-**What**: No `m3.js`, ajustar a checagem de exercício feito para `m3.bandeiras` (ao menos 1 prioritária), `m3.legado` (manchete fechada ou texto preenchido) e manter `preditores`/`metas` como estão; sem tocar em `nucleo.js`.
+**What**: No `m3.js`, ajustar a checagem de exercício feito para `m3.bandeiras` (ao menos 1 prioritária), `m3.legado` (manchete fechada ou texto preenchido) e manter `preditores`/`metas` como estão; sem tocar em `nucleo.js`. **Desvio registrado:** o modo guiado monta um passo por campo (`Guia.montar`, `guia.js`) e não passa por `Comp.campos`; `m3.js` também sobrescreve `Guia.montar` para `m3.bandeiras` (intro, ilha, lista de comissões, fecho) e `m3.legado` (intro, ilha, fecho). `Comp.campos` de `m3.bandeiras` passou a devolver só a ilha (a T11 incluía a lista; o teste correspondente foi substituído pelos de `Guia.montar`).
 **Where**: `public/legacy/m3.js`, `tests/legado-m3.test.ts`
 **Depends on**: T11
 **Reuses**: `estadoEx`/`feito` do legado (ler `nucleo.js:230-245` antes)
@@ -421,10 +421,10 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Mandato antigo com texto em `m3.legado` continua contando como exercício feito (RUM-70)
-- [ ] Mandato novo com a edição fechada conta como feito; sem texto e sem edição fechada, não conta (RUM-11.8)
-- [ ] Mandato com `m3.b1` preenchido ou `D.rumo` com uma prioritária conta `m3.bandeiras` como feito
-- [ ] Gate: `npm test && npx tsc --noEmit`; testes novos em `tests/legado-m3.test.ts`, nenhum removido
+- [x] Mandato antigo com texto em `m3.legado` continua contando como exercício feito (RUM-70)
+- [x] Mandato novo com a edição fechada conta como feito; sem texto e sem edição fechada, não conta (RUM-11.8)
+- [x] Mandato com `m3.b1` preenchido ou `D.rumo` com uma prioritária conta `m3.bandeiras` como feito
+- [x] Gate: `npm test && npx tsc --noEmit`; testes novos em `tests/legado-m3.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
