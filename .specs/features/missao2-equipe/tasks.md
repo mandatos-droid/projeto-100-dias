@@ -625,7 +625,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T21: Painel da cadeira
+### T21: Painel da cadeira ✅
 
 **What**: Criar `ilhas/equipe/PainelCadeira.tsx`: nome do cargo, pessoa, coordenação, liderança, escopo (chips), especificidades, habilidades, repertório; painel lateral em 900 px ou mais e gaveta inferior abaixo; ligar ao clique da caixa em `Organograma.tsx`.
 **Where**: `ilhas/equipe/PainelCadeira.tsx`
@@ -640,11 +640,11 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Clicar na caixa abre o painel com os campos; marcar 2 itens de escopo sobe o anel e o contador (E-07)
-- [ ] Trocar a coordenação de uma cadeira muda a cor da caixa e a rotina da área na mesma tela (E-08)
-- [ ] Em 360 px o painel é gaveta inferior e a página não rola na horizontal (E-13)
-- [ ] Esc fecha o painel e devolve o foco à caixa
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 4 testes e2e novos, nenhum removido
+- [x] Clicar na caixa abre o painel com os campos; marcar 2 itens de escopo sobe o anel e o contador (E-07)
+- [x] Trocar a coordenação de uma cadeira muda a cor da caixa e o nome da área (E-08); a parte "rotina da área na mesma tela" é testada na T24, quando a ilha de rotinas nova existe
+- [x] Em 360 px o painel é gaveta inferior e a página não rola na horizontal (E-13)
+- [x] Esc fecha o painel e devolve o foco à caixa
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 4 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full

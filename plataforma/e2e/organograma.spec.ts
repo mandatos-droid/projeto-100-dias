@@ -58,3 +58,77 @@ test.describe('Organograma: canvas e caixa (MEQ-09, MEQ-11, MEQ-15)', () => {
     await expect.poll(async () => vp.getAttribute('style')).toBe(inicial);
   });
 });
+
+import { camposDe } from './semente';
+
+test.describe('Painel da cadeira (MEQ-09, MEQ-10)', () => {
+  const painel = (page: import('@playwright/test').Page) => page.getByRole('complementary', { name: /Painel da cadeira/ });
+  const abrePainel = async (page: import('@playwright/test').Page, i: number) => page.locator(`.es-no[data-cadeira="${i}"]`).click();
+
+  test('clicar na caixa abre o painel; marcar 2 itens de escopo sobe o anel e o contador (E-07)', async ({ page }) => {
+    await abre(page, [ILHA], base);
+    await abrePainel(page, 7);
+    await expect(painel(page)).toBeVisible();
+    await expect(painel(page)).toContainText('Coordenador/a de Comunicação');
+    await expect(page.locator('[data-contador]')).toContainText('0/5');
+    const escopo = painel(page).getByRole('group', { name: 'Escopo de trabalho' });
+    await escopo.getByRole('button', { name: ESCOPO }).click();
+    await expect(page.locator('[data-contador]')).toContainText('1/5');
+    await expect(page.locator('.es-no[data-cadeira="7"]').getByRole('img', { name: '1 de 6 campos do painel preenchidos' })).toBeVisible();
+    await expect(page.locator('.es-no[data-cadeira="7"]').getByText('escopo pendente')).toHaveCount(0);
+    await escopo.getByRole('button', { name: /Produzir conteúdo editorial/ }).click();
+    expect(((await camposDe(page))['m2.p8.escopo']).split('|')).toHaveLength(2);
+    await expect(page.locator('[data-contador]')).toContainText('1/5');
+  });
+
+  test('editar a pessoa no painel muda a caixa na hora e o zoom do canvas não é reenquadrado', async ({ page }) => {
+    await abre(page, [ILHA], base);
+    await page.locator('.react-flow__controls-zoomin').click();
+    const vp = page.locator('.react-flow__viewport');
+    const zoom = await vp.getAttribute('style');
+    await abrePainel(page, 7);
+    await painel(page).getByLabel('Pessoa', { exact: true }).fill('Carla Dias');
+    await expect(page.locator('.es-no[data-cadeira="7"]')).toContainText('Carla Dias');
+    expect(await vp.getAttribute('style')).toBe(zoom);
+  });
+
+  test('trocar a coordenação no painel muda a cor e o nome da área na caixa (E-08)', async ({ page }) => {
+    await abre(page, [ILHA], base);
+    const borda = (i: number) => page.locator(`.es-no[data-cadeira="${i}"]`).evaluate((el) => getComputedStyle(el).borderTopColor);
+    const antes = await borda(8);
+    await abrePainel(page, 8);
+    await painel(page).getByLabel('Coordenação').selectOption('Legislativo');
+    await expect(page.locator('.es-no[data-cadeira="8"]')).toContainText('Legislativo');
+    expect(await borda(8)).not.toBe(antes);
+    expect((await camposDe(page))['m2.p9.coord']).toBe('Legislativo');
+  });
+
+  test('liderança em ciclo no painel mostra a cadeia e mantém o valor (MEQ-07)', async ({ page }) => {
+    const c = { 'm2.coords': 'Legislativo', 'm2.on': '0|20|21', 'm2.f1': 'Ana', 'm2.p21.nome_cargo': 'Alfa', 'm2.p22.nome_cargo': 'Beta', 'm2.p21.lider': '0', 'm2.p22.lider': '20' };
+    await abre(page, [ILHA], c);
+    await abrePainel(page, 20);
+    await painel(page).getByLabel('Liderança imediata').selectOption({ label: 'Beta' });
+    await expect(painel(page).getByRole('alert')).toContainText('Alfa → Beta voltaria para Alfa');
+    await expect(painel(page).getByLabel('Liderança imediata')).toHaveValue('0');
+  });
+
+  test('em 360 px o painel é gaveta inferior e a página não rola na horizontal (E-13)', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 740 });
+    await abre(page, [ILHA], base);
+    await abrePainel(page, 7);
+    await expect(painel(page)).toBeVisible();
+    const caixa = (await painel(page).boundingBox())!;
+    expect(caixa.y + caixa.height).toBeGreaterThan(740 - 2);
+    expect(caixa.width).toBeLessThanOrEqual(360);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+
+  test('Esc fecha o painel e devolve o foco à caixa', async ({ page }) => {
+    await abre(page, [ILHA], base);
+    await abrePainel(page, 7);
+    await expect(painel(page)).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(painel(page)).toHaveCount(0);
+    expect(await page.evaluate(() => !!document.activeElement?.closest('.react-flow__node')?.querySelector('[data-cadeira="7"]'))).toBe(true);
+  });
+});
