@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { AREAS, alternaArea, aplica, ativas, coordDe, coordsDe, liderDe, modeloCompleto, sugeridasDaArea, SEM_AREA } from '../lib/cadeiras.ts';
+import { AREAS, MAX_CADEIRAS, acrescenta, alternaArea, remove, aplica, ativas, coordDe, coordsDe, liderDe, modeloCompleto, sugeridasDaArea, SEM_AREA } from '../lib/cadeiras.ts';
 
 type C = Record<string, string>;
 
@@ -116,4 +116,67 @@ test('cadeira sem nome mas com escopo fica guardada ao desmarcar a área, sem pe
   assert.deepEqual(ativas(c), [0]);
   assert.equal(c['m2.p9.escopo'], undefined);
   assert.match(c['m2.arq.9'], /Criar vídeos institucionais/);
+});
+
+/* ---------- T3: acrescentar e remover ---------- */
+const modelo = (): C => { const c: C = {}; aplica(c, modeloCompleto(c)); return c; };
+
+test('acrescentar com 40 cadeiras devolve erro e o total continua 40 (MEQ-03, T-03)', () => {
+  const c = modelo();
+  for (let k = 0; k < MAX_CADEIRAS - 20; k++) { const r = acrescenta(c, {}); assert.equal(r.erro, undefined); aplica(c, r.patch); }
+  assert.equal(ativas(c).length, 40);
+  const r = acrescenta(c, {});
+  assert.match(r.erro ?? '', /40/);
+  assert.deepEqual(r.patch, {});
+  assert.equal(ativas(c).length, 40);
+});
+
+test('cadeira acrescentada recebe o primeiro índice livre de 20 em diante, com área e liderança escolhidas (MEQ-03)', () => {
+  const c = modelo();
+  aplica(c, acrescenta(c, { area: 'Comunicação', sob: 7 }).patch);
+  assert.ok(ativas(c).includes(20));
+  assert.equal(coordDe(c, 20), 'Comunicação');
+  assert.equal(liderDe(c, 20), 7);
+  aplica(c, acrescenta(c, {}).patch);
+  assert.ok(ativas(c).includes(21));
+  assert.equal(coordDe(c, 21), SEM_AREA);
+});
+
+test('acrescentar uma cadeira do modelo que estava fora a reativa, em vez de criar outra (MEQ-03)', () => {
+  const c = liga({}, 'Legislativo');
+  aplica(c, acrescenta(c, { modelo: 7 }).patch);
+  assert.ok(ativas(c).includes(7));
+  assert.equal(ativas(c).length, 8);
+});
+
+test('remover a Chefia de gabinete é recusado (MEQ-03, T-04)', () => {
+  const c = modelo();
+  const r = remove(c, 0);
+  assert.match(r.erro ?? '', /obrigat/i);
+  assert.deepEqual(r.patch, {});
+});
+
+test('remover B em A→B→C deixa C liderada por A (MEQ-08, T-10)', () => {
+  const c: C = { 'm2.on': '0|20|21|22', 'm2.p21.lider': '0', 'm2.p22.lider': '20', 'm2.p23.lider': '21' };
+  aplica(c, remove(c, 21).patch);
+  assert.deepEqual(ativas(c), [0, 20, 22]);
+  assert.equal(liderDe(c, 22), 20);
+});
+
+test('remover cadeira com nome pede confirmação e guarda cópia do nome e da ficha em m2.arq (MEQ-08)', () => {
+  const c = modelo();
+  c['m2.f8'] = 'Carla'; c['m2.p8.escopo'] = 'Definir a estratégia de comunicação: posicionamento, cronograma e gestão de crises';
+  const r = remove(c, 7);
+  assert.deepEqual(r.confirma, ['Carla']);
+  aplica(c, r.patch);
+  assert.equal(ativas(c).includes(7), false);
+  assert.equal(c['m2.f8'], undefined);
+  assert.deepEqual(JSON.parse(c['m2.arq.8']), { nome: 'Carla', ficha: { escopo: 'Definir a estratégia de comunicação: posicionamento, cronograma e gestão de crises' } });
+});
+
+test('remover cadeira vazia não pede confirmação (MEQ-08)', () => {
+  const c = modelo();
+  const r = remove(c, 19);
+  assert.equal(r.confirma, undefined);
+  assert.equal(r.erro, undefined);
 });

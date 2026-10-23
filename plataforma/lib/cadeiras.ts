@@ -10,7 +10,8 @@ export type Patch = Record<string, string>;
 export const CHAVE_COORDS = 'm2.coords';   // áreas marcadas (SEP)
 export const CHAVE_ON = 'm2.on';           // índices das cadeiras ativas (SEP); 20 em diante = acrescentadas à mão
 export const chaveArq = (i: number) => `m2.arq.${i + 1}`; // cópia JSON {nome, ficha} de cadeira retirada
-export const N_BASE = 20;                  // cadeiras do modelo original (CARGOS_EQUIPE)
+export const N_BASE = 20;
+export const MAX_CADEIRAS = 40;                  // cadeiras do modelo original (CARGOS_EQUIPE)
 export const CHEFIA = 0;
 export const SEM_AREA = 'Sem área';
 /** áreas escolhíveis: a Chefia de gabinete é cadeira obrigatória, não uma área */
@@ -106,6 +107,26 @@ export function alternaArea(c: Campos, coord: string, ligar: boolean): { patch: 
   daArea.filter((i) => !comNome.includes(i)).forEach((i) => Object.assign(patch, retira(c, i)));
   comNome.forEach((i) => { patch[chaveFicha(i, 'coord')] = SEM_AREA; });
   return comNome.length ? { patch, confirma: comNome.map((i) => nomeLimpo(c, i)) } : { patch };
+}
+
+/** Acrescenta uma cadeira: reativa a do modelo (`modelo`) ou cria a de índice livre 20+, na área e sob a liderança dadas. */
+export function acrescenta(c: Campos, o: { modelo?: number; area?: string; sob?: number }): { patch: Patch; erro?: string } {
+  const on = ativas(c);
+  if (on.length >= MAX_CADEIRAS) return { patch: {}, erro: `O gabinete pode ter no máximo ${MAX_CADEIRAS} cadeiras.` };
+  let i = o.modelo;
+  if (i === undefined || on.includes(i)) { i = N_BASE; while (on.includes(i)) i++; }
+  const patch: Patch = { [CHAVE_ON]: grava([...on, i]) };
+  if (i >= N_BASE || o.area) patch[chaveFicha(i, 'coord')] = o.area ?? SEM_AREA;
+  if (o.sob !== undefined) patch[chaveFicha(i, 'lider')] = String(o.sob);
+  else if (i >= N_BASE) patch[chaveFicha(i, 'lider')] = '-';
+  return { patch };
+}
+
+/** Remove a cadeira (a Chefia não sai). Com nome, devolve `confirma`; quem chama pergunta antes de aplicar. */
+export function remove(c: Campos, i: number): { patch: Patch; erro?: string; confirma?: string[] } {
+  if (i === CHEFIA) return { patch: {}, erro: 'A Chefia de gabinete é obrigatória e não pode ser removida.' };
+  const patch: Patch = { ...retira(c, i), [CHAVE_ON]: grava(ativas(c).filter((j) => j !== i)) };
+  return nomeLimpo(c, i) !== '' ? { patch, confirma: [nomeLimpo(c, i)] } : { patch };
 }
 
 /** O modelo original: as 6 áreas e as 20 cadeiras (mantém as acrescentadas à mão). */
