@@ -195,8 +195,8 @@ T22
 
 **Done when**:
 
-- [ ] `npm test` executa e sai com código 0 mesmo sem arquivos de teste ainda, ou com um teste de fumaça mínimo que o T7 substitui
-- [ ] Gate Build passa
+- [x] `npm test` executa e sai com código 0 mesmo sem arquivos de teste ainda, ou com um teste de fumaça mínimo que o T7 substitui
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
