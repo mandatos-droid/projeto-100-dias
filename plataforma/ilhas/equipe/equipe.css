@@ -75,3 +75,4 @@
 @media (max-width:899px){
   .es-painel{position:fixed;left:0;right:0;bottom:0;z-index:30;max-height:72vh;border-radius:var(--r) var(--r) 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.18)}
 }
+.es-perigo{margin-top:1.25rem;padding-top:0.75rem;border-top:1px solid var(--linha-2)}

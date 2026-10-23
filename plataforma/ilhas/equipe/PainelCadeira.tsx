@@ -1,7 +1,7 @@
 'use client';
 /* Painel da cadeira: tudo o que se define de uma cadeira depois de nomeada. Desktop: coluna à direita; celular: gaveta inferior. */
 import { useEffect, useRef, useState } from 'react';
-import { SEM_AREA, ativas, coordDe, defineLider, liderDe, nomeDe, nomeLimpo } from '@/lib/cadeiras';
+import { CHEFIA, SEM_AREA, ativas, coordDe, defineLider, liderDe, nomeDe, nomeLimpo, remove } from '@/lib/cadeiras';
 import { COORDENACOES, COR_COORD, ESCOPOS, HABILIDADES, SEP, chaveFicha, chaveNome, lista } from '@/lib/equipe';
 import Chips from './Chips';
 import { cargoNome, modeloEscopo, modeloFuncao, modeloNome } from './cargos';
@@ -25,6 +25,22 @@ export default function PainelCadeira({ i, onFechar }: { i: number; onFechar: ()
   const fecha = () => {
     onFechar();
     document.querySelector(`.es-no[data-cadeira="${i}"]`)?.closest<HTMLElement>('.react-flow__node')?.focus();
+  };
+  const tira = () => {
+    const r = remove(c, i);
+    const liderados = on.filter((j) => j !== i && liderDe(c, j) === i);
+    if (liderados.length || r.confirma) {
+      const acima = lider === null ? 'ficam sem liderança (topo)' : `passam a ser lideradas por ${rotulo(lider)}`;
+      const msg = `Remover ${cargoNome(c, i)}?` +
+        (r.confirma ? `
+
+${r.confirma.join(', ')} sai do gabinete (uma cópia fica guardada).` : '') +
+        (liderados.length ? `
+
+${liderados.length === 1 ? 'A cadeira liderada' : `As ${liderados.length} cadeiras lideradas`} (${liderados.map(rotulo).join('; ')}) ${acima}.` : '');
+      if (!window.confirm(msg)) return;
+    }
+    if (agir(r)) onFechar();
   };
   const lidera = (v: string) => {
     const r = defineLider(c, i, v === '-' ? null : Number(v));
@@ -72,6 +88,7 @@ export default function PainelCadeira({ i, onFechar }: { i: number; onFechar: ()
       <Chips rotulo="Repertório técnico de destaque" opcoes={ESCOPOS} valor={L('rep_dest')} onChange={grava('rep_dest')} />
       <span className="rot">Repertório técnico a ser desenvolvido</span>
       <Chips rotulo="Repertório técnico a ser desenvolvido" opcoes={ESCOPOS} valor={L('rep_dev')} onChange={grava('rep_dev')} />
+      {i !== CHEFIA && <div className="es-perigo"><button type="button" className="bt sec peq es-bt" onClick={tira}>Remover esta cadeira</button></div>}
     </aside>
   );
 }

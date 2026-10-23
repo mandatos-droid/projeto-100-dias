@@ -4,7 +4,7 @@
 import { useMemo, useState } from 'react';
 import { Background, Controls, Handle, Position, ReactFlow, type Edge, type Node, type NodeProps } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { ativas, coordDe, type Campos } from '@/lib/cadeiras';
+import { CHEFIA, MAX_CADEIRAS, SEM_AREA, acrescenta, ativas, coordDe, type Campos } from '@/lib/cadeiras';
 import { COR_COORD, chaveFicha, lista } from '@/lib/equipe';
 import { layoutOrg } from '@/lib/layoutOrg';
 import { cargoNome } from './cargos';
@@ -49,7 +49,7 @@ function NoCadeira({ data, selected }: NodeProps<Node<Dado>>) {
 const tipos = { cadeira: NoCadeira };
 
 export default function Organograma() {
-  const { c } = useEquipe();
+  const { c, agir } = useEquipe();
   const [filtro, setFiltro] = useState('');
   const [soPreenchidas, setSo] = useState(false);
   const [reajusta, setReajusta] = useState(0);
@@ -74,11 +74,23 @@ export default function Organograma() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [chave]);
 
+  /* nova cadeira: subordinada à caixa selecionada (ou à Chefia), na mesma área; abre o painel dela */
+  const acrescentaCadeira = () => {
+    const sob = sel !== null && on.includes(sel) ? sel : CHEFIA;
+    const area = coordDe(c, sob);
+    const antes = on;
+    const r = acrescenta(c, { sob, area: area === 'Chefia de área' ? SEM_AREA : area });
+    if (!agir(r)) return;
+    const nova = ativas(c).find((i) => !antes.includes(i));
+    if (nova !== undefined) setSel(nova);
+  };
+
   return (
     <div className="ilha-corpo eq-org es-org">
       <div className="eq-barra">
         <span data-contador><strong>{comEscopo}/{on.length}</strong> cadeiras com escopo definido</span>
         <label className="eq-tg"><input type="checkbox" checked={soPreenchidas} onChange={(e) => setSo(e.target.checked)} /> só cadeiras com nome</label>
+        <button type="button" className="bt pri peq es-bt" disabled={on.length >= MAX_CADEIRAS} title={on.length >= MAX_CADEIRAS ? `Limite de ${MAX_CADEIRAS} cadeiras` : undefined} onClick={acrescentaCadeira}>Acrescentar cadeira</button>
         <button type="button" className="bt sec peq es-bt" onClick={() => setReajusta((n) => n + 1)}>Ajustar layout</button>
         <div className="eq-legenda" role="group" aria-label="Filtrar por área">
           <button type="button" className={!filtro ? 'on' : ''} aria-pressed={!filtro} onClick={() => setFiltro('')}>Todas</button>
