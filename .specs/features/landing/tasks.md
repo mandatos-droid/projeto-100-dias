@@ -386,10 +386,10 @@ T22
 
 **Done when**:
 
-- [ ] Input tem rótulo associado e `aria-expanded`, `aria-controls`, `aria-activedescendant`
-- [ ] Setas movem o destaque e Enter chama `onEscolhe` com a sugestão destacada (Qualidade AC 3)
-- [ ] Lista tem `role="listbox"` e cada item `role="option"` (Qualidade AC 2)
-- [ ] Gate Build passa
+- [x] Input tem rótulo associado e `aria-expanded`, `aria-controls`, `aria-activedescendant`
+- [x] Setas movem o destaque e Enter chama `onEscolhe` com a sugestão destacada (Qualidade AC 3)
+- [x] Lista tem `role="listbox"` e cada item `role="option"` (Qualidade AC 2)
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
