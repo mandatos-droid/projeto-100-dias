@@ -332,10 +332,10 @@ T22
 
 **Done when**:
 
-- [ ] Teste: `#access_token=x&type=y` devolve `/guia#access_token=x&type=y` (Chegar AC 5)
-- [ ] Teste: `#error_description=a+b` devolve `/guia#error_description=a+b` (Chegar AC 5)
-- [ ] Teste: `''` e `#missoes` devolvem `null` (Chegar AC 5, caso negativo)
-- [ ] Gate quick passa; contagem de testes registrada
+- [x] Teste: `#access_token=x&type=y` devolve `/guia#access_token=x&type=y` (Chegar AC 5)
+- [x] Teste: `#error_description=a+b` devolve `/guia#error_description=a+b` (Chegar AC 5)
+- [x] Teste: `''` e `#missoes` devolvem `null` (Chegar AC 5, caso negativo)
+- [x] Gate quick passa; contagem de testes registrada
 
 **Tests**: unit
 **Gate**: quick
