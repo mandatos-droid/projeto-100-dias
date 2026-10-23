@@ -56,7 +56,7 @@ function comDados(campos: Record<string, unknown>) {
   const w = janela({
     D: { campos },
     CARGOS_EQUIPE: CARGOS,
-    esc: (s: string) => String(s),
+    esc: (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'),
     temConteudo: () => false,
     Telas: { estadoTxt: () => 'Em andamento · 0 de 20 cargos' },
     Resumo: { sem: '<span class="sem">não preenchido</span>', ex: () => 'original' },
@@ -111,4 +111,11 @@ test('o Resumo lista só as cadeiras ativas com nome e marca o * como processo s
 
 test('sem ninguém com nome o Resumo mostra "não preenchido" (MEQ-24)', () => {
   assert.ok(comDados({}).Resumo.ex(FUNCOES).includes('não preenchido'));
+});
+
+test('o Resumo escapa o nome do cargo e o da pessoa (MEQ-24)', () => {
+  const w = comDados({ 'm2.on': '0', 'm2.f1': 'Ana <b>&</b>', 'm2.p1.nome_cargo': '<i>Chefe</i>' });
+  const h = w.Resumo.ex(FUNCOES);
+  assert.ok(h.includes('&lt;i&gt;Chefe&lt;/i&gt;: <strong>Ana &lt;b&gt;&amp;&lt;/b&gt;</strong>'));
+  assert.equal(h.includes('<i>'), false);
 });
