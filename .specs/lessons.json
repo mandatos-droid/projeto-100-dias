@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 6,
+  "next_id": 7,
   "lessons": [
     {
       "id": "L-001",
@@ -94,6 +94,24 @@
       ],
       "created": "2026-10-23T13:05:21Z",
       "last_seen": "2026-10-23T13:05:21Z"
+    },
+    {
+      "id": "L-006",
+      "key": "spec_precision_gap::when a spec assumption names word variants diario diariamente assert the full outcome of each variant not only the one in the example",
+      "text": "When a spec assumption names word variants (diário, diariamente), assert the full outcome of each variant, not only the one in the example",
+      "signal": "spec_precision_gap",
+      "scope": "lib",
+      "status": "candidate",
+      "features": [
+        "missao3-rumo"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "smart.ts:34 / spec Assumptions (diariamente) (lib)"
+      ],
+      "created": "2026-10-23T13:52:14Z",
+      "last_seen": "2026-10-23T13:52:14Z"
     }
   ]
 }

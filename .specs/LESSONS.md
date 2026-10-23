@@ -44,6 +44,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: G1 plataforma/lib/rumo.ts:4 (delivery)
 - last seen: 2026-10-23T13:05:21Z
 
+### L-006 - When a spec assumption names word variants (diário, diariamente), assert the full outcome of each variant, not only the one in the example
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `lib` · harmful: 0
+- features: missao3-rumo
+- evidence: smart.ts:34 / spec Assumptions (diariamente) (lib)
+- last seen: 2026-10-23T13:52:14Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

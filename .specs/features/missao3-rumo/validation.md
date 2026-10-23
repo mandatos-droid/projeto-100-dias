@@ -2,12 +2,151 @@
 
 **Date**: 2026-10-23
 **Spec**: `.specs/features/missao3-rumo/spec.md`
-**Diff range**: `3f64f5d^..HEAD` (HEAD = `0c02186`). Os 24 commits `(rumo)` vão de `3f64f5d` a `0c02186`; o intervalo também contém 2 commits de outra feature (`01bd49a fix(equipe)`, `2e0d893 docs(equipe)`), que não foram avaliados aqui. 61 arquivos, +7156/-6 no intervalo.
-**Verifier**: independent sub-agent (author ≠ verifier)
+**Diff range rodada 2**: `0c02186..HEAD` (commits `42c5d1e`, `ddf5c8d`, `a025149`, `0c3d772`, `a954fc0`, `a153421`, mais `e961198`, o relatório da rodada 1). A rodada 1 está preservada mais abaixo, em "Rodada 1 (histórico)".
+**Verifier**: independent sub-agent (author ≠ verifier). Rodada 2 de no máximo 3.
 
 ## Validation
 
-**Result**: FAIL
+**Result**: PASS com bloqueio de entrega G1
+
+Nenhum AC falha em comportamento; as lacunas G2, G3, G4, G6 e G7 estão fechadas com evidência e todos os mutantes originais morrem. Resta aberta a G1 (`plataforma/lib/bandeiras.ts` não rastreado no git, importado por `lib/rumo.ts`, `lib/espacos.ts` e `lib/criterios.ts`): o HEAD commitado não é autocontido, então a feature NÃO pode ser empurrada nem implantada até o usuário decidir commitar esse arquivo. G1 é decisão do usuário, não defeito de comportamento. O `validate_state.py` lê só o texto deste relatório: o exit code dele não enxerga G1 (ver "Saída do `validate_state.py`").
+
+Lacuna nova menor (G9): "diário/diária" não dispara o alerta de rotina, ao contrário do que a linha de Assumptions diz. Não bloqueia.
+
+---
+
+## Gate Check (rodada 2, árvore real, `plataforma/`)
+
+- `npx tsc --noEmit`: exit 0.
+- `npm test`: 237 tests, 237 pass, 0 fail, 0 skipped (era 235; +2 = o teste de "diariamente" e o de dedupe).
+- `npm run test:e2e`: 232 passed, 0 failed, 0 skipped (5.1 min), na segunda execução completa. Na primeira, com eu rodando mutantes unitários em paralelo (CPU disputada), `rumo-migracao.spec.ts:106` falhou por timeout de 5 s ao esperar o título "Vamos cadastrar o mandato" em `/guia` (231 passed, 1 failed, 11.8 min). Reexecutado isolado com `--repeat-each=2`: 2/2 passa; segunda execução completa: 232/232. Classifico como intermitência por carga, não defeito; fica registrado porque o teste tem timeout curto.
+- Contagem esperada (237 unit, 232 e2e) confere. Nenhum teste removido ou enfraquecido nos 6 commits (`git diff 0c02186..HEAD`: 12 arquivos, +1132/-8; as 8 remoções são o hash antigo de `legado-m3.test.ts`, substituído por um mais forte, e 1 linha de `smart.ts`).
+
+---
+
+## Fechamento das lacunas
+
+| Gap | Teste/código novo (`file:line`) | Valor afirmado = valor da spec? | Mutante original morre? | Result |
+| --- | ------------------------------- | -------------------------------- | ----------------------- | ------ |
+| G2 (RUM-50.3) | `e2e/rumo-espacos.spec.ts:38-48` (rota `**/data/comissoes/mg.json` servida; `.rm-sug-c.dest` com "Comissão de Educação, ... da ALMG" visível, "Todas as comissões", "Obras Públicas da ALMG" anexada, `Nomes genéricos por bandeira` ausente, `pedidos > 0`); `:50-57` (mg.json 404 cai no modo genérico, aceita nome livre: RUM-50.4) | Sim: spec 50.3 diz sugerir as comissões da Assembleia quando existe `{uf}.json`; 50.4 diz genéricas por bandeira + nome livre sem catálogo | E4 (`Espacos.tsx:37`, `casa === 'estadual' && uf ? uf : ''` trocado por `''`): falha em `rumo-espacos.spec.ts:43` (`destacada` não visível); 13 outros passam | PASS |
+| G3 (RUM-31.5, 31.9) | `lib/smart.ts:29-33` (alternativa `\bdiari\w*` removida do `PRAZO`); `tests/smart.test.ts:76-83` | Ver decisão abaixo | M28 reinjetado (`'\\bdiari\\w*'` de volta no PRAZO): `smart.test.ts` 13 pass, 1 fail. Variante `'\\bdiariamente\\b'` no PRAZO: 1 fail | PASS (com G9) |
+| G4 (RUM-70) | `tests/rumo.test.ts:173-181` (três bandeiras, `educacao` repetida; `['educacao','saude']`, `argumentos === 'primeira'`, `prioridade === 1`) | Sim: a spec fala em `D.rumo` corrompido tratado sem perda; a primeira do id vence | M34 (`rumo.ts:171` removido): `rumo.test.ts` 17 testes, 1 fail | PASS |
+| G6 (RUM-31.3, 40.8) | `e2e/rumo-metas.spec.ts:85-90` (`data-ok='true'` para S, M, R, T e `'4 de 5 letras atendidas'`, todos `{timeout:300}`); `e2e/rumo-plano.spec.ts:158-169` (na aba: `[data-letra]` = `['S','M','A','R','T']`, S e T falsos antes, `fill`, S/M/R/T verdadeiros em 300 ms, A falso, `'4 de 5 letras atendidas'`) | Sim: 300 ms e S/M/A/R/T são os do AC | Atraso de 600 ms no `CartaoMeta` (`useState` + `setTimeout 600` sobre `avaliaMeta`): falha em `rumo-metas.spec.ts:88` e em `rumo-plano.spec.ts:166` (`data-ok` "false" em 300 ms). `data-letra` removido de `CartaoMeta.tsx:110`: o teste da aba falha no `toEqual` das letras | PASS |
+| G7 (RUM-12.11, 30.16) | `tests/legado-m3.test.ts:13` (`HASH_TEXTOS = '56d6bb25...10ba'`), `:24-27` (hash do `JSON.stringify` da Missão 3 inteira), `:32,38` | Sim: recomputei o hash sobre `3f64f5d^:conteudo.js` (antes da feature) e dá o mesmo `56d6bb25b6342257716152b54716fafbc840955cac761405d1399554005010ba` | Mutar `prazo:45` para `46` em `conteudo.js`: 2 falhas; trocar "Comissão pretendida" por "Comissao pretendida" (`listaExtra`): 2 falhas | PASS |
+| G5 (housekeeping) | `a153421` commita `spec.md` e `design.md` | n/a | n/a | Fechada |
+
+### G3: decisão sobre "diariamente"
+
+A decisão nova (diário/diariamente NÃO conta como prazo) é coerente com a spec: AC 31.5 (`spec.md:157`) lista "data, mês, 'até', 'dias', 'mensalmente', frequência" e AC 31.9 (`spec.md:161`) manda alertar rotina; a linha 55 de Assumptions desfaz a ambiguidade e dá o motivo (sinal contraditório). Cautela de processo: a spec foi editada no mesmo commit da correção (`a153421`), ou seja, a decisão foi tomada pelo autor depois de a rodada 1 apontar o mutante; é aceitável porque a linha está na tabela de suposições com coluna de revisão `n` e porque a mudança é a mais conservadora, mas o usuário deve ser avisado de que isso muda o que "frequência" significa.
+
+Comportamento medido por mim (`avaliaMeta`, saída real):
+
+| Texto | T | Alerta de rotina | Conforme a spec? |
+| ----- | - | ---------------- | ---------------- |
+| "Aprovar projeto diariamente" | falso | sim | Sim |
+| "Postar mensalmente nas redes" | verdadeiro | sim (`postar`) | Sim (mensalmente atende T; o alerta vem do verbo) |
+| "Fazer reunião semanal com a equipe" | verdadeiro | sim (`fazer reuni`) | Sim (AC 31.9 cita exatamente este exemplo) |
+| "Realizar audiências diárias na região" | falso | NÃO | T conforme; alerta não conforme (G9) |
+| "Realizar visita diária às escolas" | falso | NÃO | idem (G9) |
+
+G9 (Minor, spec-precision): a Assumptions diz "Diário/diariamente ... dispara o alerta", mas `ROTINA` (`smart.ts:34`) só tem `\bdiariamente\b`; "diário/diária" nem atendem T nem alertam, e `smart.test.ts:76-83` afirma só `T.ok === false` para "diárias", sem afirmar `alertas`. Fix sugerido (não aplicado): trocar `\bdiariamente\b` por `\bdiari\w*` em `ROTINA` e afirmar `alertas` na linha "diárias". Não bloqueia.
+
+---
+
+## Discrimination Sensor (rodada 2)
+
+Scratch: cópia de `plataforma/` (sem `.next` e `test-results`, com `node_modules` copiado) em `<scratchpad>/w/`, fora da árvore real, com `playwright.config.ts` apontando para `next dev -p 3100` (a 3000 há um servidor do usuário que serviria a árvore real e daria falso "sobreviveu"). Unit baseline no scratch: 237/237. `git stash` e a árvore real nunca foram usados para mutar. Ao fim, `git status --porcelain` (fora de `graphify-out/`) da árvore real é idêntico ao do início.
+
+Mutantes originais re-injetados:
+
+| Mutação | Descrição | Killed? |
+| ------- | --------- | ------- |
+| E4 | `Espacos.tsx:37` nunca busca `{uf}.json` | ✅ (`rumo-espacos.spec.ts:43`) |
+| M28 | `smart.ts:32` `\bdiari\w*` de volta no PRAZO | ✅ (1 falha) |
+| M28b | `\bdiariamente\b` no PRAZO | ✅ (1 falha) |
+| M34 | `rumo.ts:171` sem dedupe | ✅ (1 falha) |
+| G6a | atraso de 600 ms no retorno SMART do `CartaoMeta` | ✅ (2 falhas, e2e, 300 ms) |
+| G6b | `data-letra` ausente no cartão | ✅ (teste da aba) |
+| G7a | `prazo:45` vira `46` no `conteudo.js` | ✅ (2 falhas) |
+| G7b | "Comissão pretendida" alterado (`listaExtra`) | ✅ (2 falhas) |
+
+Mutantes novos (item 4; a rodada 1 não os cobria):
+
+| Mutação | Arquivo | Descrição | Killed? |
+| ------- | ------- | --------- | ------- |
+| N1 | `lib/pessoas.ts` | apoio fora da equipe não entra em `fora` ("fora da equipe") | ✅ (1) |
+| N2 | `lib/pessoas.ts` `igual` | nome vazio do responsável igual a nome vazio do apoio é recusado | ✅ (1) |
+| N3 | `lib/atingimento.ts` `pctMeta` | status inválido vira `null` (fora da conta) em vez de 0 | ✅ (1) |
+| N4 | `lib/atingimento.ts` `pctObjetivo` | meta com 0% descartada da média (`!!p`) | ✅ (1) |
+| N5 | `lib/rumo.ts` | prioridade duplicada em `D.rumo` não rebaixada | ✅ (1) |
+| N7 | `lib/plano.ts` | preditor novo entra no início da lista, não no fim | ✅ (1) |
+| N8 | `lib/atingimento.ts` `pctTotal` | objetivo `null` conta como 0 | ✅ (1) |
+| P1 | `ilhas/rumo/Plano.tsx:54` | filtro por pessoa só olha o responsável (ignora apoios) | ✅ (`rumo-plano.spec.ts:191`, `data-marca` "esmaecido") |
+| P2 | `Plano.tsx:34` | `vazio = false` (aba `#/plano` sem metas não mostra o estado vazio) | ✅ (2: `rumo-plano.spec.ts:88`, `rumo-painel.spec.ts:76`) |
+| P3 | `Plano.tsx:42` | remover meta sem `confirm` | ✅ (`rumo-plano.spec.ts:171`) |
+| P4 | `Plano.tsx:53` | lista do filtro sem nomes livres das metas | ✅ (`rumo-plano.spec.ts:202`) |
+
+Observação de método: três rodadas de mutante de tela falharam em massa só porque o `next dev` imprimiu um aviso de atualização de segurança e saiu (`ERR_CONNECTION_REFUSED`/"Process from config.webServer was not able to start"); isso é o aviso do Next 16.4 já conhecido, não resultado de mutante. Descartei essas rodadas e repeti até o servidor subir; só contei kills com falha na asserção esperada.
+
+**Result sensor**: 8/8 mutantes originais mortos, 11/11 mutantes novos mortos. Nenhum sobrevivente.
+
+---
+
+## Verificações dirigidas (rodada 2)
+
+- **Arquivos do Guia**: `git diff --stat 3f64f5d^..HEAD -- conteudo.js guia.js app.js nucleo.js resumo.js novos.js m2.js` (em `plataforma/public/legacy/`) devolve vazio; `git diff --stat 0c02186..HEAD -- plataforma/public/legacy` também. Os 6 commits tocam só `e2e/`, `tests/`, `lib/smart.ts` e `.specs/`. As modificações NÃO commitadas do usuário em `guia.js` e `novos.js` foram ignoradas (só commits avaliados).
+- **Hash da Missão 3 inteira**: ver G7; `legado-m3.test.ts:24-27` hasheia `JSON.stringify(m)`. Limite: `JSON.stringify` ignora funções no objeto `MISSOES`; o `conteudo.js` da Missão 3 não as usa nos campos de texto, e o hash bate com o de antes da feature.
+- **Só a `lib/smart.ts` mudou em código de produção**: 1 linha removida (`\bdiari\w*`).
+
+---
+
+## Saída do `validate_state.py`
+
+Comando: `python .claude/skills/tlc-spec-driven/scripts/validate_state.py missao3-rumo` (da raiz do git). Saída: `validate_state: 0 error(s) across [missao3-rumo]`; exit code 0. O script confere só que o veredito do texto é PASS e que há citações `file:line`; ele não conhece o G1. O exit 0, portanto, NÃO libera a entrega: G1 segue como bloqueio até o usuário commitar `plataforma/lib/bandeiras.ts`. Lição registrada: L-006 (candidate, `spec_precision_gap`, G9). As lições L-001 a L-005 são da rodada 1.
+
+---
+
+## Fix Plans (lacunas ranqueadas, rodada 2)
+
+1. **G1 (Blocker de entrega, decisão do usuário)**: `plataforma/lib/bandeiras.ts` (`??` não rastreado) é importado por `lib/rumo.ts:4`, `lib/espacos.ts:4`, `lib/criterios.ts`; HEAD limpo quebra 4 arquivos de teste da feature e o build. Conferir também se `Recomenda.tsx` e `recomenda.ts` (também `??`) são necessários. Fix: commitar `bandeiras.ts` antes de qualquer push/deploy. Verify: worktree limpo + `npm test`. Não conserto aqui (instrução).
+2. **G9 (Minor)**: "diário/diária" não aciona o alerta de rotina, divergindo da Assumptions. Ver acima.
+3. **G8 (Informativo, herdado)**: edge "duas abas editam a mesma meta" sem teste; comportamento herdado de `Store.salvar`.
+4. **Intermitência**: `rumo-migracao.spec.ts:106` com `expect(...).toBeVisible()` de 5 s pode falhar sob carga; sugerir timeout maior se aparecer em CI.
+
+---
+
+## Requirement Traceability Update
+
+| Requirement | Previous Status | New Status |
+| ----------- | --------------- | ---------- |
+| RUM-31, RUM-50 | ⚠️/❌ (G2, G3, G6) | ✅ Verificado (G9 menor em 31.9) |
+| RUM-01 a 03, 10 a 12, 20, 21, 30, 32, 40 a 43, 51, 52, 60, 70 | ✅ com ressalvas | ✅ Verificado (G4, G6, G7 fechadas) |
+
+(`spec.md` não foi editado pelo Verifier.)
+
+---
+
+## Summary (rodada 2)
+
+**Overall**: ✅ Ready no comportamento; 🚧 entrega bloqueada por G1 (decisão do usuário).
+**Gate**: tsc exit 0; unit 237 pass / 0 fail; e2e 232 pass / 0 fail (1 intermitência na primeira execução, ver acima).
+**Sensor**: 19/19 mutantes mortos (8 originais re-injetados + 11 novos).
+**Next steps**: o usuário decide G1 (commitar `lib/bandeiras.ts`); opcionalmente corrigir G9. Nenhuma iteração 3 necessária pelo comportamento.
+
+---
+
+# Rodada 1 (histórico)
+
+O texto abaixo é o relatório da rodada 1, preservado como estava no commit `e961198`. Único ajuste: os rótulos `**Result**:` da rodada 1 foram renomeados para `**Veredito da rodada 1**:` e o título "Validation" para "Rodada 1: veredito", para que o veredito único do arquivo, o lido pelo `validate_state.py`, seja o da rodada 2 acima. As lacunas G2 a G7 foram fechadas na rodada 2.
+
+**Date**: 2026-10-23
+**Spec**: `.specs/features/missao3-rumo/spec.md`
+**Diff range**: `3f64f5d^..HEAD` (HEAD = `0c02186`). Os 24 commits `(rumo)` vão de `3f64f5d` a `0c02186`; o intervalo também contém 2 commits de outra feature (`01bd49a fix(equipe)`, `2e0d893 docs(equipe)`), que não foram avaliados aqui. 61 arquivos, +7156/-6 no intervalo.
+**Verifier**: independent sub-agent (author ≠ verifier)
+
+## Rodada 1: veredito
+
+**Veredito da rodada 1**: FAIL
 
 Motivo: (1) o HEAD commitado não é autocontido (lacuna G1, bloqueante); (2) 3 mutantes sobreviventes (M28, M34, E4); (3) AC RUM-50.3 sem teste da fiação de tela. Nenhum AC falhou em comportamento: todos os 228 e2e e os 235 unit passam na árvore de trabalho.
 
@@ -213,7 +352,7 @@ Scratch: `git worktree` detached em `0c02186`, fora do repositório, com `lib/ba
 | E4 | `ilhas/rumo/Espacos.tsx:37` | catálogo `{uf}.json` nunca carregado | ❌ SOBREVIVEU |
 
 **Sensor depth**: ampliado (38 mutações, mais que as 8 pedidas; o escopo trata de integridade de dados).
-**Result**: 35/38 mortos. FAIL: 3 sobreviventes viram tarefas (G2, G3, G4).
+**Veredito da rodada 1**: 35/38 mortos. FAIL: 3 sobreviventes viram tarefas (G2, G3, G4).
 
 ---
 
