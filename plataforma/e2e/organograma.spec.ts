@@ -182,3 +182,38 @@ test.describe('Acrescentar e remover cadeiras no organograma (MEQ-08, MEQ-09)', 
     await expect(painel(page).getByRole('button', { name: 'Remover esta cadeira' })).toHaveCount(0);
   });
 });
+
+test.describe('Organograma só com teclado (MEQ-16)', () => {
+  const painel = (page: import('@playwright/test').Page) => page.getByRole('complementary', { name: /Painel da cadeira/ });
+
+  test('Tab chega a uma caixa, Enter abre o painel e o foco cai no primeiro campo (E-12)', async ({ page }) => {
+    await abre(page, [ILHA], base);
+    await page.getByRole('button', { name: 'Ajustar layout' }).focus();
+    let achou = false;
+    for (let k = 0; k < 40 && !achou; k++) {
+      await page.keyboard.press('Tab');
+      achou = await page.evaluate(() => document.activeElement?.classList.contains('react-flow__node') ?? false);
+    }
+    expect(achou).toBe(true);
+    await page.keyboard.press('Enter');
+    await expect(painel(page)).toBeVisible();
+    expect(await page.evaluate(() => (document.activeElement as HTMLInputElement | null)?.closest('.es-painel') !== null && document.activeElement?.tagName === 'INPUT')).toBe(true);
+  });
+
+  test('cada caixa expõe pessoa, cargo, área e estado do escopo no aria-label', async ({ page }) => {
+    await abre(page, [ILHA], { ...base, 'm2.p8.escopo': ESCOPO });
+    const no = (i: number) => page.locator(`.react-flow__node:has([data-cadeira="${i}"])`);
+    await expect(no(0)).toHaveAttribute('aria-label', /^Ana Souza, Chefia de gabinete, área Chefia de gabinete, escopo pendente/);
+    await expect(no(7)).toHaveAttribute('aria-label', /^Bia Lima, .*, área Comunicação, escopo definido/);
+  });
+
+  test('as ações da barra funcionam só com teclado', async ({ page }) => {
+    await abre(page, [ILHA], base);
+    await page.getByRole('button', { name: 'Acrescentar cadeira' }).focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('.es-no[data-cadeira="20"]')).toBeVisible();
+    await page.getByRole('button', { name: 'Legislativo' }).focus();
+    await page.keyboard.press('Space');
+    await expect(page.getByRole('button', { name: 'Legislativo' })).toHaveAttribute('aria-pressed', 'true');
+  });
+});

@@ -678,7 +678,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T23: Teclado e leitor de tela no organograma
+### T23: Teclado e leitor de tela no organograma ✅
 
 **What**: Em `Organograma.tsx`, caixas focáveis por Tab com `ariaLabel`, Enter abre o painel, foco vai ao primeiro campo, controles da barra alcançáveis por teclado.
 **Where**: `ilhas/equipe/Organograma.tsx`
@@ -693,10 +693,10 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Tab chega a uma caixa, Enter abre o painel e o foco cai no primeiro campo (E-12)
-- [ ] Cada caixa expõe `aria-label` com pessoa, cargo, área e estado do escopo
-- [ ] Todas as ações da barra funcionam só com teclado
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 2 testes e2e novos, nenhum removido
+- [x] Tab chega a uma caixa, Enter abre o painel e o foco cai no primeiro campo (E-12)
+- [x] Cada caixa expõe `aria-label` com pessoa, cargo, área e estado do escopo
+- [x] Todas as ações da barra funcionam só com teclado
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 2 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full

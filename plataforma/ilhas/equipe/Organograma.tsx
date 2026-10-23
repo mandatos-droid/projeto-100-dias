@@ -64,7 +64,8 @@ export default function Organograma() {
   const estrutura = JSON.stringify([l.nos.map((n) => n.i), l.arestas.map((a) => a.id), reajusta]);
   const { nos, arestas } = useMemo(() => ({
     nos: l.nos.map<Node<Dado>>((n) => ({
-      id: String(n.i), type: 'cadeira', position: { x: n.x, y: n.y }, draggable: false, selected: sel === n.i,
+      id: String(n.i), type: 'cadeira', position: { x: n.x, y: n.y }, draggable: false, selected: sel === n.i, focusable: true,
+      ariaLabel: `${n.vaga ? (n.aberto ? 'Processo seletivo' : 'Vaga em aberto') : n.nome}, ${cargoNome(c, n.i)}, área ${n.coord === 'Chefia de área' ? 'Chefia de gabinete' : n.coord}, escopo ${temEscopo(c, n.i) ? 'definido' : 'pendente'}. Enter abre o painel.`,
       data: { i: n.i, cargo: cargoNome(c, n.i), nome: n.nome, coord: n.coord, vaga: n.vaga, aberto: n.aberto, feitos: preenchidos(c, n.i), escopo: temEscopo(c, n.i) },
       style: { width: n.w, opacity: filtro && coordDe(c, n.i) !== filtro ? 0.25 : 1 },
     })),
@@ -102,7 +103,11 @@ export default function Organograma() {
         </div>
       </div>
       <div className={'es-org-corpo' + (aberto ? ' com-painel' : '')}>
-      <div className="eq-canvas">
+      <div className="eq-canvas" onKeyDown={(e) => {
+        /* Enter ou Espaço numa caixa focada abre o painel (o React Flow só a seleciona) */
+        const no = (e.target as HTMLElement).closest<HTMLElement>('.react-flow__node');
+        if ((e.key === 'Enter' || e.key === ' ') && no && e.target === no) { e.preventDefault(); setSel(Number(no.dataset.id)); }
+      }}>
         <ReactFlow key={estrutura} nodes={nos} edges={arestas} nodeTypes={tipos} fitView fitViewOptions={{ padding: 0.12 }} minZoom={0.2} maxZoom={1.5}
           nodesConnectable={false} proOptions={{ hideAttribution: true }}
           onNodeClick={(_, n) => setSel(Number(n.id))} onPaneClick={() => setSel(null)}>
