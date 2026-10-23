@@ -909,7 +909,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T32: Ganchos da Missão 2, escalação e textos
+### T32: Ganchos da Missão 2, escalação e textos ✅
 
 **What**: Criar `public/legacy/m2.js`: substituir `Comp.funcoes` por um contêiner de `equipe-escalacao`, reescrever em `MISSOES` os textos das duas tarefas (intro da escalação sem lista de nomes; intro de `m2.gestao` com organograma, rotinas e entrega).
 **Where**: `public/legacy/m2.js`
@@ -924,10 +924,10 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] `Comp.funcoes()` devolve só `<div class="ilha" data-ilha="equipe-escalacao">` e nenhum `<input data-k="m2.f…">` (T-27)
-- [ ] O texto da escalação não menciona bandeira nem escopo; o de `m2.gestao` inclui os contêineres `organograma`, `rotinas` e `entrega` nesta ordem (T-27)
-- [ ] O checklist `m2.c1..c3` continua em `m2.gestao.itens` (T-27)
-- [ ] Gate: `npm test`; 3 testes novos em `tests/legado-m2.test.ts`, nenhum removido
+- [x] `Comp.funcoes()` devolve só `<div class="ilha" data-ilha="equipe-escalacao">` e nenhum `<input data-k="m2.f…">` (T-27)
+- [x] O texto da escalação não menciona bandeira nem escopo; o de `m2.gestao` inclui os contêineres `organograma`, `rotinas` e `entrega` nesta ordem (T-27)
+- [x] O checklist `m2.c1..c3` continua em `m2.gestao.itens` (T-27)
+- [x] Gate: `npm test`; 3 testes novos em `tests/legado-m2.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
