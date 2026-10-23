@@ -2,7 +2,9 @@
 /* Missão 3 · árvore do planejamento (Legado → objetivos específicos → metas), HTML aninhado com role="tree".
    Usada na prévia dos preditores (T18) e na aba Planejamento (T20). Teclado: setas navegam, Espaço recolhe, Enter aciona o nó. */
 import { useState, type KeyboardEvent, type ReactNode } from 'react';
-import type { Arvore } from '@/lib/plano';
+import { STATUS, pctMeta, pctObjetivo } from '@/lib/atingimento';
+import type { Arvore, ItemMeta } from '@/lib/plano';
+import type { StatusMeta } from '@/lib/rumo';
 import './rumo.css';
 
 export interface No {
@@ -17,6 +19,8 @@ export interface No {
 }
 
 const curto = (t: string, n = 110) => (t.length > n ? `${t.slice(0, n).trimEnd()}…` : t);
+const semTags = (t?: string) => (t ?? '').replace(/<\/(p|div|li)>|<br\s*\/?>/gi, ' ').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
+export const pctTxt = (p: number | null) => (p === null ? '—' : `${p}%`);
 
 /** Nós da prévia: Legado e um objetivo por preditor escolhido, com a contagem de metas. */
 export function nosPrevia(arv: Arvore): No[] {
@@ -42,6 +46,78 @@ export function nosPrevia(arv: Arvore): No[] {
       ),
     })),
   }];
+}
+
+const SIMBOLO: Record<StatusMeta, string> = { concluida: '✓', concluida70: '◐', nao_concluida: '○', congelada: '✱' };
+const rotStatus = (id: string) => STATUS.find((x) => x.id === id)?.rot ?? 'Não concluída';
+
+export interface OpcoesPlano {
+  /** muda o status de uma meta (posição em D.metas) */
+  onStatus: (idx: number, status: StatusMeta) => void;
+  /** conteúdo extra dentro do nó da meta (a edição, na T21) */
+  extra?: (m: ItemMeta) => ReactNode;
+  marca?: (m: ItemMeta) => 'esmaecido' | 'destaque' | undefined;
+}
+
+function noMeta(m: ItemMeta, o: OpcoesPlano): No {
+  const n = String(m.idx + 1).padStart(2, '0');
+  const txt = semTags(m.texto).trim();
+  const p = pctMeta(m.status);
+  return {
+    id: `meta-${m.idx}`, tipo: 'meta', marca: o.marca?.(m),
+    rot: `Meta ${n}: ${txt || 'sem texto'}. Status: ${rotStatus(m.status)}${p === null ? ', fora da conta' : `, ${p}%`}`,
+    cabeca: (
+      <>
+        <span className="rm-no-tag">Meta {n}</span>
+        <span className="rm-no-txt">{txt ? curto(txt, 160) : <em>Meta ainda sem texto</em>}</span>
+        <span className="rm-st" data-status={m.status}><i aria-hidden="true">{SIMBOLO[m.status]}</i>{rotStatus(m.status)}<small>{pctTxt(p)}</small></span>
+        <label className="rm-st-sel"><span className="sr">Status da meta {n}</span>
+          <select value={m.status} onChange={(e) => o.onStatus(m.idx, e.target.value as StatusMeta)}>
+            {STATUS.map((s) => <option key={s.id} value={s.id}>{s.rot}</option>)}
+          </select>
+        </label>
+        {o.extra?.(m)}
+      </>
+    ),
+  };
+}
+
+/** Nós da aba: Legado → objetivos (atingimento, barra, contagem por status) → metas; metas sem objetivo em bloco próprio. */
+export function nosPlano(arv: Arvore, o: OpcoesPlano): No[] {
+  const base = nosPrevia(arv)[0];
+  const objs: No[] = arv.objetivos.map((ob) => {
+    const p = pctObjetivo(ob.metas);
+    const cont = STATUS.map((s) => ({ ...s, n: ob.metas.filter((m) => m.status === s.id).length }));
+    return {
+      id: `obj-${ob.pid}`, tipo: 'objetivo' as const,
+      rot: `Objetivo de ${ob.nome}: ${ob.texto}. Atingimento ${pctTxt(p)}. ${ob.metas.length} ${ob.metas.length === 1 ? 'meta' : 'metas'}`,
+      cabeca: (
+        <>
+          <span className="rm-no-tag obj">{ob.nome}</span>
+          <span className="rm-no-txt">{ob.texto}</span>
+          <span className="rm-no-pct" data-pct={p ?? ''}>{pctTxt(p)}</span>
+          <span className="rm-no-barra" role="progressbar" aria-label={`Atingimento do objetivo ${ob.texto}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={p ?? undefined} aria-valuetext={pctTxt(p)}>
+            <i style={{ width: `${p ?? 0}%` }} />
+          </span>
+          <ul className="rm-cont" aria-label="Metas por status">
+            {cont.map((s) => <li key={s.id} data-status={s.id} data-n={s.n}>{s.rot} <b>{s.n}</b></li>)}
+          </ul>
+        </>
+      ),
+      filhos: ob.metas.map((m) => noMeta(m, o)),
+    };
+  });
+  const sem: No[] = arv.semObjetivo.length ? [{
+    id: 'sem-objetivo', tipo: 'sem', rot: `Metas sem objetivo: ${arv.semObjetivo.length}`,
+    cabeca: (
+      <>
+        <span className="rm-no-tag">Sem objetivo</span>
+        <span className="rm-no-txt">Estas metas não estão ligadas a um objetivo específico e ficam fora do atingimento. Escolha o objetivo delas na Missão 3.</span>
+      </>
+    ),
+    filhos: arv.semObjetivo.map((m) => noMeta(m, o)),
+  }] : [];
+  return [{ ...base, filhos: objs }, ...sem];
 }
 
 export function ArvoreNos({ nos, rotulo, onAtiva, vazio }: { nos: No[]; rotulo: string; onAtiva?: (id: string) => void; vazio?: string }) {
@@ -70,7 +146,7 @@ export function ArvoreNos({ nos, rotulo, onAtiva, vazio }: { nos: No[]; rotulo: 
       case 'ArrowLeft':
         if (tem && aberto) { e.preventDefault(); alterna(id); } else vai(li.parentElement?.closest<HTMLElement>('[role="treeitem"]') ?? undefined);
         break;
-      case ' ': if (tem) { e.preventDefault(); alterna(id); } else e.preventDefault(); break;
+      case ' ': e.preventDefault(); if (tem) alterna(id); break;
       case 'Enter': if (onAtiva) { e.preventDefault(); onAtiva(id); } break;
     }
   };
@@ -94,7 +170,6 @@ export function ArvoreNos({ nos, rotulo, onAtiva, vazio }: { nos: No[]; rotulo: 
   return <ul role="tree" aria-label={rotulo} className="rm-arvore" onKeyDown={teclas}>{nos.map((n) => item(n, 1))}</ul>;
 }
 
-export default function ArvorePlano({ modo, arv, rotulo = 'Árvore do planejamento' }: { modo: 'previa' | 'plano'; arv: Arvore; rotulo?: string }) {
-  // o modo "plano" (metas, status, barras) entra na aba do planejamento
-  return <ArvoreNos nos={modo === 'previa' ? nosPrevia(arv) : nosPrevia(arv)} rotulo={rotulo} />;
+export default function ArvorePlano({ modo, arv, rotulo = 'Árvore do planejamento', opcoes, onAtiva }: { modo: 'previa' | 'plano'; arv: Arvore; rotulo?: string; opcoes?: OpcoesPlano; onAtiva?: (id: string) => void }) {
+  return <ArvoreNos nos={modo === 'plano' && opcoes ? nosPlano(arv, opcoes) : nosPrevia(arv)} rotulo={rotulo} onAtiva={onAtiva} />;
 }

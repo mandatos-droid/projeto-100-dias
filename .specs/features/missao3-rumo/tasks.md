@@ -635,7 +635,7 @@ T22 → T23 → T24
 
 ---
 
-### T20: Aba Planejamento Estratégico: árvore, status e atingimento
+### T20: Aba Planejamento Estratégico: árvore, status e atingimento ✅
 
 **What**: Implementar `ilhas/rumo/Plano.tsx` e o modo `plano` de `ArvorePlano.tsx`: anel de atingimento total, árvore Legado → objetivos → metas, seletor de status por meta, barra e contagem por status por objetivo, estado vazio com atalho à Missão 3.
 **Where**: `ilhas/rumo/Plano.tsx`, `ilhas/rumo/ArvorePlano.tsx`, `ilhas/rumo/rumo.css`, `e2e/rumo-plano.spec.ts`
@@ -650,13 +650,13 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Com 2 objetivos e 4 metas, a árvore mostra Legado, objetivos com preditor e metas, e o total no topo (RUM-40.1)
-- [ ] Mudar o status de uma meta recalcula objetivo e total em menos de 300 ms, conforme a conta: metas 100, 70, 0 e uma congelada dão objetivo 57 (RUM-41.3, RUM-41.5)
-- [ ] Objetivo só com metas congeladas mostra "—" e fica fora do total (RUM-41.7)
-- [ ] Sem preditor com meta, aparece o estado vazio com botão para a Missão 3 (RUM-40.2)
-- [ ] Metas "sem objetivo" aparecem em bloco próprio com aviso (RUM-21.4)
-- [ ] Cada objetivo mostra a barra e a contagem de metas por status (RUM-41.12)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-plano.spec.ts`, nenhum removido
+- [x] Com 2 objetivos e 4 metas, a árvore mostra Legado, objetivos com preditor e metas, e o total no topo (RUM-40.1)
+- [x] Mudar o status de uma meta recalcula objetivo e total em menos de 300 ms, conforme a conta: metas 100, 70, 0 e uma congelada dão objetivo 57 (RUM-41.3, RUM-41.5)
+- [x] Objetivo só com metas congeladas mostra "—" e fica fora do total (RUM-41.7)
+- [x] Sem preditor com meta, aparece o estado vazio com botão para a Missão 3 (RUM-40.2)
+- [x] Metas "sem objetivo" aparecem em bloco próprio com aviso (RUM-21.4)
+- [x] Cada objetivo mostra a barra e a contagem de metas por status (RUM-41.12)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-plano.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
