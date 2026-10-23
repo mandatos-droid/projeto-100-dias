@@ -275,12 +275,12 @@ T22
 
 **Done when**:
 
-- [ ] Teste: posição "n de de" calculada entre mesma `k` e `uf`, com empate de votos resolvido pela ordem de entrada (Demo AC 4)
-- [ ] Teste: cadeiras do partido contam só a mesma `k` e `uf` (Demo AC 5)
-- [ ] Teste: `m` = 'r', 'o', 'n' viram os três rótulos e '?' vira `null` (Demo AC 6)
-- [ ] Teste: senador com `a` = 2022 devolve `posicao: null` (Demo AC 12)
-- [ ] Teste: rótulo do cargo respeita `k`, DF e gênero (Demo AC 3)
-- [ ] Gate quick passa; contagem de testes registrada
+- [x] Teste: posição "n de de" calculada entre mesma `k` e `uf`, com empate de votos resolvido pela ordem de entrada (Demo AC 4)
+- [x] Teste: cadeiras do partido contam só a mesma `k` e `uf` (Demo AC 5)
+- [x] Teste: `m` = 'r', 'o', 'n' viram os três rótulos e '?' vira `null` (Demo AC 6)
+- [x] Teste: senador com `a` = 2022 devolve `posicao: null` (Demo AC 12)
+- [x] Teste: rótulo do cargo respeita `k`, DF e gênero (Demo AC 3)
+- [x] Gate quick passa; contagem de testes registrada
 
 **Tests**: unit
 **Gate**: quick
