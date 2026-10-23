@@ -961,7 +961,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T34: Contadores de cargos no Guia
+### T34: Contadores de cargos no Guia ✅
 
 **What**: Em `public/legacy/m2.js`, substituir `temConteudo` (caso `funcoes`) e `App.estadoTxt` para contar cadeiras ativas e nomes; trocar o bloco `funcoes` do Resumo por uma lista das cadeiras ativas com nome.
 **Where**: `public/legacy/m2.js`
@@ -976,10 +976,10 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Mandato antigo com 20 `m2.f` mostra "N de 20 cargos" como antes (T-28)
-- [ ] Mandato novo com `m2.on` de 12 cadeiras mostra "N de 12 cargos" (T-28)
-- [ ] O Resumo lista só as cadeiras ativas com nome e marca `*` como processo seletivo (T-28)
-- [ ] Gate: `npm test`; 3 testes novos em `tests/legado-m2.test.ts`, nenhum removido
+- [x] Mandato antigo com 20 `m2.f` mostra "N de 20 cargos" como antes (T-28)
+- [x] Mandato novo com `m2.on` de 12 cadeiras mostra "N de 12 cargos" (T-28)
+- [x] O Resumo lista só as cadeiras ativas com nome e marca `*` como processo seletivo (T-28)
+- [x] Gate: `npm test`; 3 testes novos em `tests/legado-m2.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick

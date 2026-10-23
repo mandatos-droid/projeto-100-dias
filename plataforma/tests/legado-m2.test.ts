@@ -49,3 +49,66 @@ test('o checklist m2.c1..c3 e os tipos dos exercícios continuam como no Guia or
   assert.deepEqual(ex(w, 'm2.gestao').itens, ITENS);
   assert.equal(w.MISSOES[0].exercicios[0].intro, 'm1'); // outras missões intactas
 });
+
+/* ---------- contadores do Guia e Resumo (MEQ-24, T-28) ---------- */
+const CARGOS = Array.from({ length: 20 }, (_, i) => [`Cargo ${i + 1}`, '', '']);
+function comDados(campos: Record<string, unknown>) {
+  const w = janela({
+    D: { campos },
+    CARGOS_EQUIPE: CARGOS,
+    esc: (s: string) => String(s),
+    temConteudo: () => false,
+    Telas: { estadoTxt: () => 'Em andamento · 0 de 20 cargos' },
+    Resumo: { sem: '<span class="sem">não preenchido</span>', ex: () => 'original' },
+  });
+  return w as unknown as {
+    temConteudo(ex: { tipo: string }): boolean;
+    Telas: { estadoTxt(ex: { tipo: string }, e: string): string };
+    Resumo: { ex(ex: { tipo: string }): string; sem: string };
+  };
+}
+const FUNCOES = { tipo: 'funcoes' };
+const nomes20 = () => Object.fromEntries(Array.from({ length: 20 }, (_, i) => [`m2.f${i + 1}`, `Pessoa ${i + 1}`]));
+
+test('mandato antigo com 20 nomes mostra "20 de 20 cargos", como antes (MEQ-24, T-28)', () => {
+  const w = comDados(nomes20());
+  assert.equal(w.Telas.estadoTxt(FUNCOES, 'ok'), 'Em andamento · 20 de 20 cargos');
+});
+
+test('mandato novo com m2.on de 12 cadeiras e 5 nomes mostra "5 de 12 cargos" (MEQ-24, T-28)', () => {
+  const on = [0, 1, 2, 7, 8, 9, 10, 11, 12, 17, 18, 19].join('|');
+  const w = comDados({ 'm2.on': on, 'm2.f1': 'A', 'm2.f2': 'B', 'm2.f3': 'C', 'm2.f8': 'D', 'm2.f9': '*' });
+  assert.equal(w.Telas.estadoTxt(FUNCOES, 'andamento'), 'Em andamento · 5 de 12 cargos');
+});
+
+test('sem nada escolhido nem escrito o total segue o do modelo, 20 (MEQ-24, T-28)', () => {
+  assert.equal(comDados({}).Telas.estadoTxt(FUNCOES, 'nao'), 'Em andamento · 0 de 20 cargos');
+});
+
+test('outros exercícios não são alterados pelos contadores (MEQ-24)', () => {
+  const w = comDados({ 'm2.f1': 'A' });
+  assert.equal(w.Telas.estadoTxt({ tipo: 'metas' }, 'ok'), 'Em andamento · 0 de 20 cargos');
+  assert.equal(w.Resumo.ex({ tipo: 'metas' }), 'original');
+  assert.equal(w.temConteudo({ tipo: 'metas' }), false);
+});
+
+test('temConteudo da escalação é verdadeiro com nome ou com áreas escolhidas, falso sem nada (MEQ-24)', () => {
+  assert.equal(comDados({}).temConteudo(FUNCOES), false);
+  assert.equal(comDados({ 'm2.f3': 'Ana' }).temConteudo(FUNCOES), true);
+  assert.equal(comDados({ 'm2.coords': 'Legislativo' }).temConteudo(FUNCOES), true);
+  assert.equal(comDados({ 'm2.on': '0|20', 'm2.f21': 'Extra' }).temConteudo(FUNCOES), true);
+});
+
+test('o Resumo lista só as cadeiras ativas com nome e marca o * como processo seletivo (MEQ-24, T-28)', () => {
+  const w = comDados({ 'm2.on': '0|7|20', 'm2.f1': 'Ana', 'm2.f8': '*', 'm2.f21': 'Extra', 'm2.p21.nome_cargo': 'Assessor especial', 'm2.f5': 'Fora da lista' });
+  const h = w.Resumo.ex(FUNCOES);
+  assert.ok(h.includes('Cargos preenchidos (3 de 3)'));
+  assert.ok(h.includes('Cargo 1: <strong>Ana</strong>'));
+  assert.ok(h.includes('Cargo 8: <strong>*</strong> <em>(processo seletivo a abrir)</em>'));
+  assert.ok(h.includes('Assessor especial: <strong>Extra</strong>'));
+  assert.equal(h.includes('Fora da lista'), false);
+});
+
+test('sem ninguém com nome o Resumo mostra "não preenchido" (MEQ-24)', () => {
+  assert.ok(comDados({}).Resumo.ex(FUNCOES).includes('não preenchido'));
+});
