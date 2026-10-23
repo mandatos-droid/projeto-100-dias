@@ -468,7 +468,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T15: Etapa 1, áreas do mandato
+### T15: Etapa 1, áreas do mandato ✅
 
 **What**: Criar `ilhas/equipe/EtapaAreas.tsx`: as 6 áreas desmarcadas, Chefia de gabinete fixa, contador de cadeiras, "Usar o modelo completo", confirmação ao desmarcar área com nomes; plugar na casca.
 **Where**: `ilhas/equipe/EtapaAreas.tsx`
@@ -483,11 +483,11 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] Marcar Legislativo e Comunicação mostra 11 cadeiras (E-02)
-- [ ] "Usar o modelo completo" mostra 20 cadeiras
-- [ ] Desmarcar área com nome abre confirmação listando os nomes; cancelar mantém tudo
-- [ ] Desmarcar área sem nomes remove sem perguntar
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 4 testes e2e novos, nenhum removido
+- [x] Marcar Legislativo e Comunicação mostra 11 cadeiras (E-02)
+- [x] "Usar o modelo completo" mostra 20 cadeiras
+- [x] Desmarcar área com nome abre confirmação listando os nomes; cancelar mantém tudo
+- [x] Desmarcar área sem nomes remove sem perguntar
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 4 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full

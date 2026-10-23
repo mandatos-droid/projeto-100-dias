@@ -11,3 +11,12 @@
 .es-etapa h4{margin:0.25rem 0 0.5rem;outline:none}
 .es-etapa-corpo{margin:0.5rem 0 1rem}
 .es-nav{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.75rem}
+.es-areas{list-style:none;margin:0.5rem 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0.5rem}
+.es-area{background:#fff;border:1.5px solid var(--linha);border-radius:var(--r)}
+.es-area label,.es-area.fixa{display:flex;align-items:center;gap:0.625rem;padding:0.625rem 0.75rem;cursor:pointer}
+.es-area.fixa{cursor:default;background:var(--papel)}
+.es-area.on{border-color:var(--verde)}
+.es-area i{flex:none;width:12px;height:12px;border-radius:50%}
+.es-area span{display:flex;flex-direction:column;line-height:1.3}
+.es-area small{font-size:0.75rem;color:var(--tinta-3)}
+.es-area input{width:1.125rem;height:1.125rem;accent-color:var(--verde)}
