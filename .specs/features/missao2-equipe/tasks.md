@@ -97,7 +97,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ## Task Breakdown
 
-### T1: Leitura do estado das cadeiras e migração do formato antigo
+### T1: Leitura do estado das cadeiras e migração do formato antigo ✅
 
 **What**: Criar `lib/cadeiras.ts` com tipos `Patch`, chaves `m2.*`, `aplica`, `ativas` (deriva do formato antigo sem `m2.on`), `coordDe`, `liderDe`, `nomeDe`.
 **Where**: `lib/cadeiras.ts`
@@ -112,11 +112,11 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] `ativas` sem `m2.on` devolve a cadeira 0 e toda cadeira com nome ou com qualquer campo `m2.p{n}.*` preenchido (T-21)
-- [ ] `m2.areas` e `m2.areas_aplicadas` nunca são tocadas (T-22)
-- [ ] `coordDe` e `liderDe` devolvem o padrão de `PADRAO` quando não há valor gravado, e o valor gravado quando há (T-07)
-- [ ] `lider = '-'` significa topo e devolve `null`
-- [ ] Gate: `npm test`; 3 testes novos em `tests/cadeiras.test.ts`, nenhum removido
+- [x] `ativas` sem `m2.on` devolve a cadeira 0 e toda cadeira com nome ou com qualquer campo `m2.p{n}.*` preenchido (T-21)
+- [x] `m2.areas` e `m2.areas_aplicadas` nunca são tocadas (T-22)
+- [x] `coordDe` e `liderDe` devolvem o padrão de `PADRAO` quando não há valor gravado, e o valor gravado quando há (T-07)
+- [x] `lider = '-'` significa topo e devolve `null`
+- [x] Gate: `npm test`; 3 testes novos em `tests/cadeiras.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
