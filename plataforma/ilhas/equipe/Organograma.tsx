@@ -8,6 +8,7 @@ import { ativas, coordDe, type Campos } from '@/lib/cadeiras';
 import { COR_COORD, chaveFicha, lista } from '@/lib/equipe';
 import { layoutOrg } from '@/lib/layoutOrg';
 import { cargoNome } from './cargos';
+import PainelCadeira from './PainelCadeira';
 import { useEquipe } from './useEquipe';
 import './equipe.css';
 
@@ -57,7 +58,10 @@ export default function Organograma() {
   const l = layoutOrg(c, { soPreenchidas });
   const on = ativas(c);
   const comEscopo = on.filter((i) => temEscopo(c, i)).length;
-  const chave = JSON.stringify([l.nos.map((n) => [n.i, n.x, n.y, n.nome, n.coord, cargoNome(c, n.i), preenchidos(c, n.i), temEscopo(c, n.i)]), l.arestas.map((a) => a.id), filtro, reajusta]); // a seleção fica fora da chave: clicar não remonta o canvas
+  const aberto = sel !== null && on.includes(sel);
+  const chave = JSON.stringify([l.nos.map((n) => [n.i, n.x, n.y, n.nome, n.coord, cargoNome(c, n.i), preenchidos(c, n.i), temEscopo(c, n.i)]), l.arestas.map((a) => a.id), filtro, aberto && sel]);
+  /* o canvas só é remontado (e reenquadrado) quando a estrutura muda; editar nome ou escopo só atualiza as caixas */
+  const estrutura = JSON.stringify([l.nos.map((n) => n.i), l.arestas.map((a) => a.id), reajusta]);
   const { nos, arestas } = useMemo(() => ({
     nos: l.nos.map<Node<Dado>>((n) => ({
       id: String(n.i), type: 'cadeira', position: { x: n.x, y: n.y }, draggable: false, selected: sel === n.i,
@@ -85,15 +89,17 @@ export default function Organograma() {
           ))}
         </div>
       </div>
+      <div className={'es-org-corpo' + (aberto ? ' com-painel' : '')}>
       <div className="eq-canvas">
-        <ReactFlow key={chave} nodes={nos} edges={arestas} nodeTypes={tipos} fitView fitViewOptions={{ padding: 0.12 }} minZoom={0.2} maxZoom={1.5}
+        <ReactFlow key={estrutura} nodes={nos} edges={arestas} nodeTypes={tipos} fitView fitViewOptions={{ padding: 0.12 }} minZoom={0.2} maxZoom={1.5}
           nodesConnectable={false} proOptions={{ hideAttribution: true }}
           onNodeClick={(_, n) => setSel(Number(n.id))} onPaneClick={() => setSel(null)}>
           <Background gap={22} color="#E6DCCE" />
           <Controls showInteractive={false} />
         </ReactFlow>
       </div>
-      {sel !== null && !l.nos.some((n) => n.i === sel) && <p className="es-motivo" role="status">A cadeira selecionada não aparece com este filtro.</p>}
+      {aberto && <PainelCadeira i={sel} onFechar={() => setSel(null)} />}
+      </div>
     </div>
   );
 }
