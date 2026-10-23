@@ -442,11 +442,11 @@ T22
 
 **Done when**:
 
-- [ ] Sem resultado: exibe a mensagem exata da spec (Demo AC 8)
-- [ ] Falha em `eleitos.json`: exibe "Não foi possível carregar a base do TSE agora" e o CTA continua visível (edge)
-- [ ] Falha em `pleitos`: o cartão fica e mostra "Histórico indisponível agora" (Demo AC 9)
-- [ ] `pleitos/{uf}.json` só é pedido depois da escolha do eleito
-- [ ] Gate Build passa
+- [x] Sem resultado: exibe a mensagem exata da spec (Demo AC 8)
+- [x] Falha em `eleitos.json`: exibe "Não foi possível carregar a base do TSE agora" e o CTA continua visível (edge)
+- [x] Falha em `pleitos`: o cartão fica e mostra "Histórico indisponível agora" (Demo AC 9)
+- [x] `pleitos/{uf}.json` só é pedido depois da escolha do eleito
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
