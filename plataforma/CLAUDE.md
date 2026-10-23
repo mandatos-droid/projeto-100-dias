@@ -10,7 +10,8 @@ npm run dev      # http://localhost:3000  (painel da Legisla em /painel)
 npm run build
 npm run start
 npm run dados    # python scripts/build_data.py: gera public/data e public/geo (aceita --refresh)
-npx tsc --noEmit # não há lint nem testes configurados; o tsc é a única checagem automática
+npx tsc --noEmit # sem lint; checagem de tipos
+npm test         # node --test em tests/ (só a lógica pura da landing)
 ```
 
 Scripts Python (só biblioteca padrão; brutos do TSE em `scripts/.cache`, fora do git):
@@ -31,8 +32,9 @@ Scripts Python (só biblioteca padrão; brutos do TSE em `scripts/.cache`, fora 
 
 O app **não é um app Next.js convencional**. O Guia original (HTML/JS vanilla, ver `../contexto inicial/index (6).html`) roda como está dentro de uma única página, e os módulos novos entram como "ilhas" React montadas dentro dos exercícios.
 
-- `app/page.tsx` (client): injeta o corpo do Guia via `dangerouslySetInnerHTML` (`lib/legacyBody.ts`) e carrega **em sequência** os scripts de `public/legacy/`: `conteudo, nucleo, app, guia, resumo, novos, cadastro, iniciar`. A ordem importa; os scripts compartilham globais (`D`, `Store`, `Nuvem`, `Resumo`, `App`).
-- `app/layout.tsx` carrega `legacy.css` e `ilhas.css` por `<link>`.
+- `app/page.tsx` é a **landing** (`app/_landing/*`, estilo em `app/landing.css`, tudo sob `.ld`): hero, demonstração com busca em `eleitos.json`/`pleitos/{uf}.json` (lógica pura em `lib/demo.ts`, testes em `tests/` com `npm test`), missões, FAQ. Todo CTA leva a `/guia`. Se o login Google voltar na raiz com `#access_token`, `RedirecionaAuth` repassa para `/guia`.
+- `app/guia/page.tsx` (client): injeta o corpo do Guia via `dangerouslySetInnerHTML` (`lib/legacyBody.ts`) e carrega **em sequência** os scripts de `public/legacy/`: `conteudo, nucleo, app, guia, resumo, novos, cadastro, iniciar`. A ordem importa; os scripts compartilham globais (`D`, `Store`, `Nuvem`, `Resumo`, `App`).
+- `app/guia/layout.tsx` carrega `legacy.css` e `ilhas.css` por `<link>` (só em `/guia`; o `app/layout.tsx` raiz não carrega CSS global). O retorno do login Google usa `location.pathname`, então volta em `/guia`: a URL `<domínio>/guia` precisa estar nas Redirect URLs do Supabase.
 - `next.config.mjs`: `reactStrictMode: false` de propósito (o Guia mexe no DOM direto e o modo estrito montaria tudo duas vezes); `/painel` é rewrite para `public/painel.html`.
 - `ilhas/ponte.tsx` é a ponte: expõe `window.Ilhas.ligar(raiz)`, que o legado chama a cada troca de tela. Ela procura `[data-ilha="nome"]` e monta o componente React registrado no mapa `ILHAS` (cada chamada desmonta as raízes anteriores). `ficha-N` é dinâmico (`Ficha i={N}`).
 - **Nova ilha**: criar o componente em `ilhas/`, registrá-lo em `ILHAS` na ponte e emitir `<div class="ilha" data-ilha="nome"></div>` no ponto certo de `public/legacy/conteudo.js` (ou `guia.js`/`novos.js`). Para aparecer no Resumo, usar a ilha `nome-resumo` (ver `novos.js`).
