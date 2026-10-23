@@ -49,7 +49,7 @@
 .ld-bar img { display: block; height: 34px; width: auto; }
 .ld-hero-grade { display: grid; gap: 40px; padding-top: 28px; align-items: center; }
 .ld-hero h1 { margin: 0 0 20px; font: 400 clamp(40px, 8vw, 78px)/1.02 var(--display); letter-spacing: .01em; text-transform: uppercase; }
-.ld-hero h1 em { font-style: normal; color: var(--coral); }
+.ld-hero h1 em { font-style: normal; color: var(--coral); white-space: nowrap; }
 .ld-hero-sub { margin: 0 0 28px; max-width: 46ch; font-size: 20px; color: #EBDDE3; }
 .ld-hero-nota { margin: 14px 0 0; font-size: 14px; color: #CDB5BF; }
 .ld-hemiciclo { width: 100%; height: auto; display: block; }
