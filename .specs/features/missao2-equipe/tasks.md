@@ -417,7 +417,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T13: Hook de ligação `useEquipe`
+### T13: Hook de ligação `useEquipe` ✅
 
 **What**: Criar `ilhas/equipe/useEquipe.ts`: `useLegado` + `agir(resultado)` que aplica o patch, mostra `aviso` em caso de `erro` e chama `bump`.
 **Where**: `ilhas/equipe/useEquipe.ts`
@@ -432,9 +432,9 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] `agir({patch})` grava as chaves e dispara `guia:mudou` uma vez
-- [ ] `agir({erro})` mostra o texto do erro e não grava nada
-- [ ] `npx tsc --noEmit` sem erro
+- [x] `agir({patch})` grava as chaves e dispara `guia:mudou` uma vez
+- [x] `agir({erro})` mostra o texto do erro e não grava nada
+- [x] `npx tsc --noEmit` sem erro
 
 **Tests**: none
 **Gate**: build
