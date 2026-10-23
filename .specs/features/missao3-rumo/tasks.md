@@ -490,7 +490,7 @@ T22 → T23 → T24
 
 ---
 
-### T15: Primeira página de jornal (componente visual)
+### T15: Primeira página de jornal (componente visual) ✅
 
 **What**: Implementar `ilhas/rumo/Jornal.tsx` conforme o contrato do design. Direção estética definida com a skill `frontend-design` (jornal impresso brasileiro: serif de contraste, filete duplo, papel quente, carimbo), sem imagens externas, com versão de impressão e versão compacta para celular.
 **Where**: `ilhas/rumo/Jornal.tsx`, `ilhas/rumo/rumo.css`, `e2e/rumo-jornal.spec.ts`
@@ -505,12 +505,12 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] O componente mostra nome do jornal, data de edição, manchete, linha de apoio com bandeiras e cargo, e o selo "Edição fechada" só quando `fechado` (RUM-12.10)
-- [ ] Manchete de 280 caracteres não estoura o layout em 375 px nem em 1280 px (captura de tela conferida)
-- [ ] Texto com `<script>` aparece como texto (edge case)
-- [ ] Colunas decorativas têm `aria-hidden`; a manchete é um `h2` com nome acessível
-- [ ] `@media print` mostra só a primeira página
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-jornal.spec.ts`, nenhum removido
+- [x] O componente mostra nome do jornal, data de edição, manchete, linha de apoio com bandeiras e cargo, e o selo "Edição fechada" só quando `fechado` (RUM-12.10)
+- [x] Manchete de 280 caracteres não estoura o layout em 375 px nem em 1280 px (captura de tela conferida)
+- [x] Texto com `<script>` aparece como texto (edge case)
+- [x] Colunas decorativas têm `aria-hidden`; a manchete é um `h2` com nome acessível
+- [x] `@media print` mostra só a primeira página
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; testes novos em `e2e/rumo-jornal.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full

@@ -33,3 +33,9 @@ type Janela = { D: { campos: Record<string, string> } & Record<string, unknown> 
 export const camposDe = (page: Page) => page.evaluate(() => (window as unknown as Janela).D.campos);
 /** Lê uma chave de D (metas, preditores, rumo, comissoesDesejadas). */
 export const dadoDe = (page: Page, chave: string) => page.evaluate((k) => (window as unknown as Janela).D[k], chave);
+
+/** Abre a rota de teste com um componente solto (`jornal`), e opcionalmente ilhas ao lado. */
+export async function abreComp(page: Page, comp: string, props: Record<string, unknown>, ilhas: string[] = []) {
+  await page.goto(`/teste-rumo?comp=${comp}&props=${encodeURIComponent(JSON.stringify(props))}${ilhas.length ? `&ilha=${ilhas.join(',')}` : ''}`);
+  await page.locator('#tela[data-pronto="true"]').waitFor();
+}
