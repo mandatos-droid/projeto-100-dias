@@ -497,9 +497,9 @@ T22
 
 **Done when**:
 
-- [ ] 5 itens, na ordem das missões, com os dias da spec
-- [ ] Textos batem com o Guia (sem inventar entregas)
-- [ ] Gate Build passa
+- [x] 5 itens, na ordem das missões, com os dias da spec
+- [x] Textos batem com o Guia (sem inventar entregas)
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
