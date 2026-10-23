@@ -111,3 +111,22 @@
 .es-ent-bts{display:flex;gap:0.375rem}
 .es-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.5rem 0.75rem;align-items:end;max-width:52rem}
 .es-form .eq-campo{margin:0}
+.es-bloco{background:#fff;border:1px solid var(--linha);border-radius:var(--r);padding:0.5rem 1rem 0.875rem;margin:0.875rem 0;break-inside:avoid-page}
+.es-bloco h4{margin:0.375rem 0 0.5rem}
+.es-bloco h4 span{font-size:0.8125rem;font-weight:400;color:var(--tinta-3);margin-left:0.5rem}
+.es-lista-a,.es-lista-r{margin:0;padding:0;list-style:none;display:grid;gap:0.5rem}
+.es-lista-a>li{border-left:5px solid var(--vinho);padding:0.125rem 0 0.125rem 0.625rem}
+.es-lista-a ul{margin:0.125rem 0 0;padding-left:1.125rem;list-style:disc;font-size:0.875rem;color:var(--tinta-2)}
+.es-lista-r{list-style:decimal;padding-left:1.25rem;font-size:0.9rem}
+.es-org-img{display:block;max-width:100%;height:auto;border:1px solid var(--linha-2)}
+.es-sugchk{list-style:none;margin:0.5rem 0 0;padding:0}
+.es-sugchk li{display:flex;justify-content:space-between;align-items:center;gap:0.75rem;flex-wrap:wrap;padding:0.375rem 0}
+.es-sugchk span{display:flex;flex-direction:column}
+.es-sugchk small{color:var(--tinta-3);font-size:0.8125rem}
+@media print{
+  body *{visibility:hidden}
+  .es-entrega,.es-entrega *{visibility:visible}
+  .es-entrega{position:absolute;left:0;top:0;width:100%}
+  .es-nao-imprime{display:none!important}
+  .es-bloco{border:0;padding:0}
+}

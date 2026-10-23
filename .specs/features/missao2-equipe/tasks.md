@@ -858,7 +858,7 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T30: Entrega e exportação
+### T30: Entrega e exportação ✅
 
 **What**: Criar `ilhas/equipe/Entrega.tsx`: 4 blocos (cadeiras, escopo por cargo, organograma, rotinas), sugestões de `m2.c1..c3` com "Marcar como pronto", "Exportar organograma" (SVG → PNG) e "Imprimir ou salvar em PDF" com CSS de impressão; registrar `entrega` em `ponte.tsx`.
 **Where**: `ilhas/equipe/Entrega.tsx`
@@ -873,10 +873,10 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] "Exportar organograma" baixa um `.png` não vazio (E-14)
-- [ ] Completar o escopo de todas as cadeiras com nome mostra a sugestão de `c1`; só "Marcar como pronto" grava
-- [ ] A visão de impressão mostra os 4 blocos em layout de papel
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 4 testes e2e novos, nenhum removido
+- [x] "Exportar organograma" baixa um `.png` não vazio (E-14)
+- [x] Completar o escopo de todas as cadeiras com nome mostra a sugestão de `c1`; só "Marcar como pronto" grava
+- [x] A visão de impressão mostra os 4 blocos em layout de papel
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; 4 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
