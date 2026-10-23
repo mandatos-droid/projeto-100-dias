@@ -246,12 +246,12 @@ T22
 
 **Done when**:
 
-- [ ] Teste: "joao" encontra "JOÃO" (acentos e caixa ignorados) (Demo AC 1)
-- [ ] Teste: termo de 1 caractere e termo só de espaços devolvem `[]` (Demo AC 2, edge)
-- [ ] Teste: casa por nome civil quando o nome de urna não casa (Demo AC 1)
-- [ ] Teste: com mais de 8 casamentos devolve exatamente 8, ordenados por votos decrescentes (edge)
-- [ ] Teste: nenhum casamento devolve `[]` (Demo AC 8, lógica)
-- [ ] Gate quick passa; contagem de testes registrada
+- [x] Teste: "joao" encontra "JOÃO" (acentos e caixa ignorados) (Demo AC 1)
+- [x] Teste: termo de 1 caractere e termo só de espaços devolvem `[]` (Demo AC 2, edge)
+- [x] Teste: casa por nome civil quando o nome de urna não casa (Demo AC 1)
+- [x] Teste: com mais de 8 casamentos devolve exatamente 8, ordenados por votos decrescentes (edge)
+- [x] Teste: nenhum casamento devolve `[]` (Demo AC 8, lógica)
+- [x] Gate quick passa; contagem de testes registrada
 
 **Tests**: unit
 **Gate**: quick
