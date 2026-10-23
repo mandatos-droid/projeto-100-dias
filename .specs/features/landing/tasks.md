@@ -142,10 +142,10 @@ T22
 
 **Done when**:
 
-- [ ] `app/layout.tsx` não contém `legacy.css` nem `ilhas.css`
-- [ ] `<html lang="pt-BR">` mantido
-- [ ] `/guia` continua estilizado (conferido no HTML servido: os dois `<link>` presentes)
-- [ ] Gate Build passa
+- [x] `app/layout.tsx` não contém `legacy.css` nem `ilhas.css`
+- [x] `<html lang="pt-BR">` mantido
+- [x] `/guia` continua estilizado (conferido no HTML servido: os dois `<link>` presentes)
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
