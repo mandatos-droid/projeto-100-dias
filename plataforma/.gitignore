@@ -18,3 +18,7 @@ supabase/.temp
 Thumbs.db
 *.log
 .vercel
+
+# testes de tela (Playwright)
+test-results/
+playwright-report/
