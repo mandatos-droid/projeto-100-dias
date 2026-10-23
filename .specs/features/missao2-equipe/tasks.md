@@ -935,9 +935,9 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 ---
 
-### T33: Desligar o seletor de bandeiras da Missão 2
+### T33: Desligar o seletor de bandeiras da Missão 2 ✅
 
-**What**: Em `public/legacy/novos.js`, remover o gancho de `recomenda-cargos` (linhas 387-391) e, em `ilhas/ponte.tsx`, o registro e o import de `Recomenda`; os arquivos `Recomenda.tsx`, `recomenda.ts` e `bandeiras.ts` ficam no disco.
+**What**: Em `public/legacy/novos.js`, remover o gancho de `recomenda-cargos` (linhas 387-391) e, em `ilhas/ponte.tsx`, o registro e o import de `Recomenda`; os arquivos `Recomenda.tsx`, `recomenda.ts` e `bandeiras.ts` ficam no disco. (Execução: esse gancho e o registro na ponte nunca foram commitados, então a remoção ficou só na árvore de trabalho; o registro saiu da `ponte.tsx` já na T14. Este commit só fecha o status. O resto do `novos.js` não commitado é trabalho do usuário e não foi tocado.)
 **Where**: `public/legacy/novos.js`
 **Depends on**: T32
 **Reuses**: `git diff` do arquivo antes de editar (preservar mudança do usuário)
@@ -950,10 +950,10 @@ T36 → T37 → T38 → T39 → T40 → T41
 
 **Done when**:
 
-- [ ] `grep recomenda-cargos` em `public/legacy` e `ilhas/ponte.tsx` não encontra mais nada
-- [ ] `Recomenda.tsx`, `recomenda.ts` e `bandeiras.ts` seguem intactos
-- [ ] A Missão 2 abre sem o seletor (E-01 continua passando)
-- [ ] `npx tsc --noEmit` e `npm test` sem erro novo
+- [x] `grep recomenda-cargos` em `public/legacy` e `ilhas/ponte.tsx` não encontra mais nada
+- [x] `Recomenda.tsx`, `recomenda.ts` e `bandeiras.ts` seguem intactos
+- [x] A Missão 2 abre sem o seletor (E-01 continua passando)
+- [x] `npx tsc --noEmit` e `npm test` sem erro novo
 
 **Tests**: none
 **Gate**: build
