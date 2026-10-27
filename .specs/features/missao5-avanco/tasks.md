@@ -193,7 +193,7 @@ T16 → T17 → T18
 **Registro**: Gate full: tsc ok, npm test 271/271, e2e 243 (3 testes de timing falharam uma vez sob carga na suíte inteira e passaram isolados: rumo-metas:199, rumo-migracao:206, rumo-plano:39).
 ---
 
-### T5: Verificação da fase Sucesso mensal ⬜
+### T5: Verificação da fase Sucesso mensal ✅
 
 **What**: Rodar o gate Build da fase e registrar o resultado; sem código novo além de ajustes mínimos pedidos pelo gate.
 **Where**: `.specs/features/missao5-avanco/tasks.md`
@@ -208,14 +208,16 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] `npx tsc --noEmit`, `npm test` e `npm run test:e2e` passam
-- [ ] Resultado do `npm run build` registrado (ou falha só por `SecurityFatalError`)
-- [ ] `graphify update .` executado
+- [x] `npx tsc --noEmit`, `npm test` e `npm run test:e2e` passam
+- [x] Resultado do `npm run build` registrado (ou falha só por `SecurityFatalError`)
+- [x] `graphify update .` executado
 
 **Tests**: none
 **Gate**: build
 **Commit**: `chore(m5): fecha a fase de sucesso mensal`
 
+
+**Registro**: tsc sem erros; npm test 271/271; e2e 243 (ver T4); npm run build falhou só pelo aviso de segurança do Next 16.4 (SecurityFatalError, advisory conhecido), sem erro de código. graphify update executado; graphify-out/ fora do commit.
 ---
 
 ### T6: Monitoramento com link para o Planejamento ⬜
