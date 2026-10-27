@@ -85,7 +85,7 @@ T16 → T17 → T18
 
 ## Task Breakdown
 
-### T1: Lógica dos sucessos mensais ⬜
+### T1: Lógica dos sucessos mensais ✅
 
 **What**: Criar `lib/sucessos.ts` com `lerSucessos` (normaliza sem mutar), `adicionaSucesso`, `editaSucesso`, `removeSucesso`, `porMes` e `atingidos`.
 **Where**: `lib/sucessos.ts` (+ `tests/sucessos.test.ts`)
@@ -100,12 +100,12 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] `adicionaSucesso` cria sucesso com mês 1 a 4, texto e status `nao_concluida` (M5-01.1)
-- [ ] `editaSucesso` troca texto, mês ou status e não altera os outros (M5-01.2)
-- [ ] `removeSucesso` remove só o escolhido (M5-01.3)
-- [ ] `lerSucessos` de meta sem `sucessos` devolve lista vazia, sem mutar o objeto (M5-02.7)
-- [ ] `porMes` agrupa por mês na ordem 1 a 4
-- [ ] Gate: `npm test`; testes novos em `tests/sucessos.test.ts`, nenhum removido
+- [x] `adicionaSucesso` cria sucesso com mês 1 a 4, texto e status `nao_concluida` (M5-01.1)
+- [x] `editaSucesso` troca texto, mês ou status e não altera os outros (M5-01.2)
+- [x] `removeSucesso` remove só o escolhido (M5-01.3)
+- [x] `lerSucessos` de meta sem `sucessos` devolve lista vazia, sem mutar o objeto (M5-02.7)
+- [x] `porMes` agrupa por mês na ordem 1 a 4
+- [x] Gate: `npm test`; testes novos em `tests/sucessos.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
