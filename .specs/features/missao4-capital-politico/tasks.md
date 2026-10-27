@@ -308,7 +308,7 @@ T24 → T25 → T26
 
 ---
 
-### T12: Cartões no celular
+### T12: Cartões no celular ✅
 
 **What**: Layout em cartões empilhados na tela estreita, com foco no próximo campo.
 **Where**: `ilhas/capital/capital.css`
@@ -318,7 +318,7 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] A 360 px não há rolagem lateral e cada ação é um cartão
+- [x] A 360 px não há rolagem lateral e cada ação é um cartão
 
 **Tests**: none
 **Gate**: build

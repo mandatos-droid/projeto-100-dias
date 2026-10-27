@@ -41,3 +41,18 @@
 .cp-campos{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:0.5rem 0.75rem;margin:0.625rem 0 0.25rem 1.75rem}
 .cp-campos .campo{margin:0}
 .cp-campos textarea{min-height:4rem}
+
+/* celular: cada ação é um cartão e os campos ficam empilhados; o cartão em que se escreve ganha destaque (foco no campo atual) */
+.cp-acao,.cp-campos .campo,.cp-c-resp,.cp-c-prazo{min-width:0}
+.cp-acao-topo span{overflow-wrap:anywhere}
+.cp-campos input,.cp-campos textarea{width:100%;box-sizing:border-box;max-width:100%}
+.cp-acao:focus-within{border-color:var(--vinho);box-shadow:0 0 0 2px rgba(87,23,48,.15)}
+@media(max-width:40rem){
+  .cp-acoes{gap:0.75rem}
+  .cp-acao{padding:0.75rem;box-shadow:0 1px 3px rgba(23,17,15,.08)}
+  .cp-acao-topo{align-items:flex-start}
+  .cp-acao-topo label{align-items:flex-start}
+  .cp-campos{grid-template-columns:minmax(0,1fr);margin-left:0;margin-top:0.75rem;gap:0.75rem}
+  .cp-campos textarea{min-height:5rem}
+  .cp-frentes .rm-chip{flex:1 1 auto}
+}
