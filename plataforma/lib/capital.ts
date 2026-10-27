@@ -44,6 +44,11 @@ export function progressoAcoes(acoes: unknown): { total: number; frentes: number
   return { total: validas.length, frentes, ok: validas.length >= 2 && frentes >= 2 };
 }
 
+/** Ação completa (ponto verde): os 5 campos da linha preenchidos; qualquer vazio deixa o ponto amarelo. */
+export function acaoCompleta(a: unknown): boolean {
+  return ehObj(a) && ['alcancar', 'resp', 'prazo', 'saber', 'prox'].every((k) => typeof a[k] === 'string' && (a[k] as string).trim() !== '');
+}
+
 /* ---------- escolhas rápidas ⇄ texto legível (D.comissoes: pq, papel, mov) ---------- */
 const SEPARADOR = '; ';
 

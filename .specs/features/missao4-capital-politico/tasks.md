@@ -268,7 +268,7 @@ T24 → T25 → T26
 
 ---
 
-### T10: Matriz de ações: frentes, linhas e campos
+### T10: Matriz de ações: frentes, linhas e campos ✅
 
 **What**: Criar `ilhas/capital/Matriz.tsx` e `LinhaAcao.tsx`: botões de frente com contador, linhas com caixa de marcar, 5 campos, ponto amarelo ou verde.
 **Where**: `ilhas/capital/Matriz.tsx`
@@ -278,9 +278,9 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] Escolher uma frente mostra todas as ações dela como linhas
-- [ ] Marcar ativa os campos e grava em `D.acoes` no formato antigo
-- [ ] Linha com campo vazio mostra ponto amarelo; completa mostra verde
+- [x] Escolher uma frente mostra todas as ações dela como linhas
+- [x] Marcar ativa os campos e grava em `D.acoes` no formato antigo
+- [x] Linha com campo vazio mostra ponto amarelo; completa mostra verde
 
 **Tests**: e2e
 **Gate**: full

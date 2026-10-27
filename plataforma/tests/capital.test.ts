@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { MOTIVOS, PAPEIS, MOVIMENTOS, TEXTO_SABER, progressoAcoes, textoDasEscolhas, leEscolhas } from '../lib/capital.ts';
+import { MOTIVOS, PAPEIS, MOVIMENTOS, TEXTO_SABER, progressoAcoes, acaoCompleta, textoDasEscolhas, leEscolhas } from '../lib/capital.ts';
 
 /* Missão 4 · listas e regra de progresso (CAP-03, CAP-12). Resultados esperados vêm da spec. */
 
@@ -65,4 +65,15 @@ test('leEscolhas recupera os marcados e o "Outro"; texto antigo digitado à mão
   assert.deepEqual(leEscolhas('Ex.: educação, titular', rots), { marcados: [], outro: 'Ex.: educação, titular' });
   assert.deepEqual(leEscolhas(undefined, rots), { marcados: [], outro: '' });
   assert.deepEqual(leEscolhas('', rots), { marcados: [], outro: '' });
+});
+
+test('acaoCompleta: só os 5 campos preenchidos (alcancar, resp, prazo, saber, prox) dão ponto verde (CAP-11.9)', () => {
+  const cheia = { id: 'a', bingo: 'redes', i: 0, titulo: 'x', alcancar: 'a', resp: 'Ana', prazo: '2027-03-01', saber: 's', prox: 'p' };
+  assert.equal(acaoCompleta(cheia), true);
+  for (const k of ['alcancar', 'resp', 'prazo', 'saber', 'prox']) {
+    assert.equal(acaoCompleta({ ...cheia, [k]: '' }), false, `${k} vazio`);
+    assert.equal(acaoCompleta({ ...cheia, [k]: '   ' }), false, `${k} só espaços`);
+  }
+  assert.equal(acaoCompleta({ id: 'a', bingo: 'redes', i: 0, titulo: 'x' }), false);
+  assert.equal(acaoCompleta(null), false);
 });

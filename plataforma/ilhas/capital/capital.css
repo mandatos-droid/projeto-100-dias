@@ -25,3 +25,19 @@
 .cp-perg legend small{font-weight:400;color:var(--tinta-3)}
 .cp-botoes{display:flex;flex-wrap:wrap;gap:0.375rem}
 .cp-perg .campo{margin:0.5rem 0 0}
+
+/* ---------- matriz de ações ---------- */
+.cp-frentes{display:flex;flex-wrap:wrap;gap:0.5rem}
+.cp-n{display:inline-block;min-width:1.25rem;margin-left:0.25rem;padding:0 0.375rem;border-radius:999px;background:var(--linha-2);color:var(--tinta);font-size:0.75rem;font-weight:700;text-align:center}
+.rm-chip[aria-pressed=true] .cp-n{background:#fff;color:var(--vinho)}
+.cp-acao{background:#fff;border:1px solid var(--linha);border-radius:var(--r);padding:0.5rem 0.75rem;font-size:0.9rem}
+.cp-acao.on{border-color:var(--vinho)}
+.cp-acao-topo{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem 0.75rem}
+.cp-acao-topo label{display:flex;align-items:center;gap:0.5rem;flex:1;min-width:0;cursor:pointer}
+.cp-acao-topo input[type=checkbox]{width:1.25rem;height:1.25rem;flex:none}
+.cp-ponto{display:inline-flex;align-items:center;gap:0.375rem;font-size:0.75rem;font-weight:700;color:var(--tinta-2)}
+.cp-ponto::before{content:"";width:0.75rem;height:0.75rem;border-radius:50%;background:#E0A800;flex:none}
+.cp-ponto[data-estado=completa]::before{background:var(--ok)}
+.cp-campos{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:0.5rem 0.75rem;margin:0.625rem 0 0.25rem 1.75rem}
+.cp-campos .campo{margin:0}
+.cp-campos textarea{min-height:4rem}
