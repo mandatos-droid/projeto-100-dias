@@ -364,7 +364,7 @@ T24 → T25 → T26
 
 ---
 
-### T15: Regras puras da comunicação
+### T15: Regras puras da comunicação ✅
 
 **What**: Criar `lib/comunicacao.ts` com `semanaDe`, `serie`, `aparicoesPorBandeira` e os campos de cada seção.
 **Where**: `lib/comunicacao.ts`, `tests/comunicacao.test.ts`
@@ -374,11 +374,11 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] `semanaDe('2026-12-31')` devolve a semana ISO correta na virada de ano
-- [ ] Registrar a mesma semana duas vezes edita, não duplica
-- [ ] `serie` devolve as semanas em ordem
-- [ ] Números negativos são rejeitados
-- [ ] Gate passa
+- [x] `semanaDe('2026-12-31')` devolve a semana ISO correta na virada de ano
+- [x] Registrar a mesma semana duas vezes edita, não duplica
+- [x] `serie` devolve as semanas em ordem
+- [x] Números negativos são rejeitados
+- [x] Gate passa
 
 **Tests**: unit
 **Gate**: quick
