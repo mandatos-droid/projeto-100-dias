@@ -81,6 +81,12 @@ export function validaPrazo(valor: string, hoje: string, posse: unknown): string
   return null;
 }
 
+/** Ordena as ações por prazo (data mais próxima primeiro). Prazo antigo em texto livre ou vazio fica no fim, na ordem em que estava. */
+export function ordenaPorPrazo<T extends { prazo?: unknown }>(acoes: T[]): T[] {
+  const chave = (a: T) => (ehDataISO(a.prazo) ? a.prazo : null);
+  return acoes.map((a, i) => ({ a, i, k: chave(a) })).sort((x, y) => (x.k === y.k ? x.i - y.i : x.k === null ? 1 : y.k === null ? -1 : x.k < y.k ? -1 : 1)).map((x) => x.a);
+}
+
 /* ---------- escolhas rápidas ⇄ texto legível (D.comissoes: pq, papel, mov) ---------- */
 const SEPARADOR = '; ';
 

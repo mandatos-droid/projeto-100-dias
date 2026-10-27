@@ -15,7 +15,7 @@ const ART0 ='Sustentar diálogo aberto com a Secretaria-Geral da Mesa ou estrutu
 test.describe('Frentes e linhas (CAP-10.1, CAP-10.2)', () => {
   test('mostra os botões das 4 frentes de hoje, cada um com o contador de ações escolhidas', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO, D: { acoes: [{ id: 'a', bingo: 'partido', i: 2, titulo: 'x' }, { id: 'b', bingo: 'partido', i: 3, titulo: 'y' }, { id: 'c', bingo: 'redes', i: 0, titulo: 'z' }] } });
-    await expect(page.locator('.cp-frentes button')).toHaveCount(4);
+    await expect(page.locator('.cp-frentes button[data-frente]')).toHaveCount(4); // o 5º botão é a visão "Todas as ações" (CAP-13)
     await expect(frente(page, 'articulacao')).toContainText('Articulação política');
     await expect(frente(page, 'mobilizacao')).toContainText('Mobilização de apoiadores');
     await expect(frente(page, 'partido')).toContainText('Relevância no partido');
@@ -166,7 +166,7 @@ test.describe('Prazo (CAP-11.2, CAP-40)', () => {
     await abre(page, [ILHA], { mandato: comPosse(10) });
     const l = await marca(page);
     await l.getByLabel('Prazo').fill(iso(-1));
-    await expect(page.getByRole('status')).toContainText('já passou');
+    await expect(page.locator('#avisos')).toContainText('já passou');
     expect((await acoes(page))![0].prazo ?? '').toBe('');
   });
 
@@ -175,7 +175,7 @@ test.describe('Prazo (CAP-11.2, CAP-40)', () => {
     const l = await marca(page);
     await expect(l.getByLabel('Prazo')).toHaveAttribute('max', iso(110));
     await l.getByLabel('Prazo').fill(iso(111));
-    await expect(page.getByRole('status')).toContainText('100 dias depois da posse');
+    await expect(page.locator('#avisos')).toContainText('100 dias depois da posse');
     expect((await acoes(page))![0].prazo ?? '').toBe('');
     await l.getByLabel('Prazo').fill(iso(110));
     expect((await acoes(page))![0].prazo).toBe(iso(110));
@@ -220,5 +220,94 @@ test.describe('Texto base de "Como saberemos" (CAP-11.3)', () => {
     await l.getByRole('checkbox').uncheck();
     expect(perguntou).toBe(false);
     expect(await acoes(page)).toEqual([]);
+  });
+});
+
+/* ---------- progresso e "Todas as ações" (CAP-12, CAP-13) ---------- */
+const progresso = (page: Page) => page.locator('.cp-progresso');
+const OK = '2 ações em 2 frentes ✓';
+
+test.describe('Progresso: 2 ações em 2 frentes (CAP-12)', () => {
+  test('sem ações, ou com 2 na mesma frente, mostra que faltam ações em frentes diferentes', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await expect(progresso(page)).toContainText('Faltam ações em frentes diferentes');
+    await expect(progresso(page)).toHaveAttribute('data-ok', 'false');
+    await marca(page, 'articulacao', 0);
+    await marca(page, 'articulacao', 1);
+    await expect(progresso(page)).toContainText('Faltam ações em frentes diferentes');
+    await expect(progresso(page)).not.toContainText('✓');
+    await expect(progresso(page)).toHaveAttribute('data-ok', 'false');
+  });
+
+  test('marcar uma ação em outra frente mostra "2 ações em 2 frentes ✓"; desmarcar volta ao aviso', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await marca(page, 'articulacao', 0);
+    await frente(page, 'mobilizacao').click();
+    await marca(page, 'mobilizacao', 3);
+    await expect(progresso(page)).toContainText(OK);
+    await expect(progresso(page)).toHaveAttribute('data-ok', 'true');
+    await linha(page, 'mobilizacao', 3).getByRole('checkbox').uncheck();
+    await expect(progresso(page)).toContainText('Faltam ações em frentes diferentes');
+  });
+
+  test('a barra mostra o avanço: vazia, meio cheia com 1 ação e cheia ao cumprir a regra', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    const barra = progresso(page).locator('progress');
+    await expect(barra).toHaveAttribute('value', '0');
+    await marca(page, 'articulacao', 0);
+    await expect(barra).toHaveAttribute('value', '2');
+    await frente(page, 'redes').click();
+    await marca(page, 'redes', 0);
+    await expect(barra).toHaveAttribute('value', '4');
+    await expect(barra).toHaveAttribute('max', '4');
+  });
+
+  test('ações salvas no formato antigo contam no progresso', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, D: { acoes: [{ id: 'a', bingo: 'partido', i: 2, titulo: 'x' }, { id: 'b', bingo: 'redes', i: 0, titulo: 'y' }] } });
+    await expect(progresso(page)).toContainText(OK);
+  });
+});
+
+test.describe('Visão "Todas as ações" (CAP-13)', () => {
+  const D = {
+    acoes: [
+      { id: 'a', bingo: 'redes', i: 0, titulo: 'Definir os públicos prioritários e a função de cada canal', prazo: iso(40), resp: 'Carla' },
+      { id: 'b', bingo: 'articulacao', i: 0, titulo: ART0, prazo: iso(10), resp: 'Bruno' },
+      { id: 'c', bingo: 'partido', i: 2, titulo: 'Contribuir para uma posição ou documento partidário', prazo: 'até 20/03' },
+      { id: 'd', bingo: 'mobilizacao', i: 0, titulo: 'Organizar uma base de apoiadores e voluntários', prazo: iso(25) },
+      { id: 'e', bingo: 'partido', i: 0, titulo: 'Apresentar as prioridades do mandato à liderança partidária' },
+    ],
+  };
+  const todas = (page: Page) => page.locator('.cp-todas > li');
+
+  test('lista as ações escolhidas de todas as frentes, da data mais próxima à mais distante, e sem data no fim', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, D });
+    await page.getByRole('button', { name: 'Todas as ações' }).click();
+    await expect(todas(page)).toHaveCount(5);
+    await expect(todas(page).nth(0)).toContainText(ART0);
+    await expect(todas(page).nth(1)).toContainText('Organizar uma base de apoiadores e voluntários');
+    await expect(todas(page).nth(2)).toContainText('Definir os públicos prioritários');
+    await expect(todas(page).nth(3)).toContainText('Contribuir para uma posição');
+    await expect(todas(page).nth(4)).toContainText('Apresentar as prioridades do mandato');
+  });
+
+  test('cada linha mostra a frente, o responsável e o prazo (data em dd/mm/aaaa, texto antigo como estava)', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, D });
+    await page.getByRole('button', { name: 'Todas as ações' }).click();
+    const [ano, mes, dia] = iso(10).split('-');
+    await expect(todas(page).nth(0)).toContainText('Articulação política');
+    await expect(todas(page).nth(0)).toContainText('Bruno');
+    await expect(todas(page).nth(0)).toContainText(`${dia}/${mes}/${ano}`);
+    await expect(todas(page).nth(3)).toContainText('até 20/03');
+  });
+
+  test('sem ações escolhidas mostra o aviso; voltar para uma frente mostra as linhas de novo', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await page.getByRole('button', { name: 'Todas as ações' }).click();
+    await expect(page.getByText('Nenhuma ação escolhida ainda')).toBeVisible();
+    await expect(linhas(page)).toHaveCount(0);
+    await frente(page, 'partido').click();
+    await expect(linhas(page)).toHaveCount(9);
+    await expect(page.getByText('Nenhuma ação escolhida ainda')).toHaveCount(0);
   });
 });

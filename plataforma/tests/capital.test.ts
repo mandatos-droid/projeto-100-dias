@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { MOTIVOS, PAPEIS, MOVIMENTOS, TEXTO_SABER, progressoAcoes, acaoCompleta, limitesPrazo, validaPrazo, ehDataISO, textoDasEscolhas, leEscolhas } from '../lib/capital.ts';
+import { MOTIVOS, PAPEIS, MOVIMENTOS, TEXTO_SABER, progressoAcoes, acaoCompleta, limitesPrazo, validaPrazo, ehDataISO, ordenaPorPrazo, textoDasEscolhas, leEscolhas } from '../lib/capital.ts';
 
 /* Missão 4 · listas e regra de progresso (CAP-03, CAP-12). Resultados esperados vêm da spec. */
 
@@ -107,4 +107,19 @@ test('validaPrazo: data que não é AAAA-MM-DD é recusada; ehDataISO reconhece 
   assert.equal(ehDataISO('2027-02-29'), false);
   assert.equal(ehDataISO('2028-02-29'), true);
   assert.equal(ehDataISO('até 20/03'), false);
+});
+
+test('ordenaPorPrazo: datas em ordem crescente; prazo em texto livre ou vazio vai para o fim, na ordem original (CAP-13.12)', () => {
+  const a = [
+    { id: 'texto', prazo: 'até 20/03' }, { id: 'tarde', prazo: '2027-05-01' }, { id: 'vazio', prazo: '' }, { id: 'cedo', prazo: '2027-02-10' },
+    { id: 'meio', prazo: '2027-03-15' }, { id: 'sem' }, { id: 'texto2', prazo: 'logo' },
+  ];
+  const copia = a.map((x) => x.id);
+  assert.deepEqual(ordenaPorPrazo(a).map((x) => x.id), ['cedo', 'meio', 'tarde', 'texto', 'vazio', 'sem', 'texto2']);
+  assert.deepEqual(a.map((x) => x.id), copia, 'não muda a lista original');
+});
+
+test('ordenaPorPrazo: mesma data mantém a ordem em que as ações foram escolhidas', () => {
+  const r = ordenaPorPrazo([{ id: 'b', prazo: '2027-03-01' }, { id: 'a', prazo: '2027-03-01' }]);
+  assert.deepEqual(r.map((x) => x.id), ['b', 'a']);
 });

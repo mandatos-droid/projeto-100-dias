@@ -326,7 +326,7 @@ T24 → T25 → T26
 
 ---
 
-### T13: Progresso e visão "Todas as ações"
+### T13: Progresso e visão "Todas as ações" ✅
 
 **What**: Barra de progresso (2 ações em 2 frentes) e visão "Todas as ações" ordenada por prazo.
 **Where**: `ilhas/capital/Matriz.tsx`
@@ -336,8 +336,8 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] Mostra "2 ações em 2 frentes ✓" ao cumprir a regra
-- [ ] "Todas as ações" lista as de todas as frentes ordenadas por prazo
+- [x] Mostra "2 ações em 2 frentes ✓" ao cumprir a regra
+- [x] "Todas as ações" lista as de todas as frentes ordenadas por prazo
 
 **Tests**: e2e
 **Gate**: full

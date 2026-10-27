@@ -56,3 +56,11 @@
   .cp-campos textarea{min-height:5rem}
   .cp-frentes .rm-chip{flex:1 1 auto}
 }
+
+/* progresso e visão "Todas as ações" */
+.cp-progresso{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem 0.75rem;font-size:0.875rem;font-weight:700}
+.cp-progresso progress{width:7.5rem;height:0.625rem;accent-color:var(--vinho)}
+.cp-progresso[data-ok=true]{color:var(--ok)}
+.cp-progresso[data-ok=true] progress{accent-color:var(--ok)}
+.cp-todas{counter-reset:none;padding-left:0;list-style:none}
+.cp-resumo{margin:0.25rem 0 0;font-size:0.8125rem;color:var(--tinta-2)}
