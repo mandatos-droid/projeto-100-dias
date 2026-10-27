@@ -37,12 +37,11 @@
   }
   if(typeof Telas!=='undefined'&&typeof Telas.plano==='function'){
     var _pl=Telas.plano;
+    /* a ilha entra no #tela logo antes de o original religar as ilhas (uma só ligação; religar duas vezes quebraria as raízes React) */
     Telas.plano=function(){
-      _pl.apply(this,arguments);
-      var t=document.getElementById('tela');
-      if(!t)return;
-      t.insertAdjacentHTML('beforeend',ILHA);
-      if(window.Ilhas)window.Ilhas.ligar(t);
+      var I=window.Ilhas,lig=I&&I.ligar;
+      if(lig)I.ligar=function(t){I.ligar=lig;if(t&&t.insertAdjacentHTML)t.insertAdjacentHTML('beforeend',ILHA);return lig.call(I,t)};
+      try{_pl.apply(this,arguments)}finally{if(lig)I.ligar=lig}
     };
   }
 })();

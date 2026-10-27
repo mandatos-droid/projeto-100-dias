@@ -458,7 +458,7 @@ T16 → T17 → T18
 
 ---
 
-### T15: Seletor de planejamentos e leitura dos arquivados ⬜
+### T15: Seletor de planejamentos e leitura dos arquivados ✅
 
 **What**: Acrescentar o seletor "Planejamento 1, 2, 3…" na aba Planejamento e abrir os arquivados somente para leitura.
 **Where**: `ilhas/rumo/Plano.tsx` (+ `e2e/m5-ciclos.spec.ts`)
@@ -473,10 +473,10 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] Com mais de um planejamento aparece o seletor com o atual marcado (M5-31.5)
-- [ ] O arquivado abre sem campos editáveis (M5-31.6)
-- [ ] Sem metas aparece o estado vazio sem erro
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`
+- [x] Com mais de um planejamento aparece o seletor com o atual marcado (M5-31.5)
+- [x] O arquivado abre sem campos editáveis (M5-31.6)
+- [x] Sem metas aparece o estado vazio sem erro
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`
 
 **Tests**: e2e
 **Gate**: full

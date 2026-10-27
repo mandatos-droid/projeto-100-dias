@@ -99,12 +99,14 @@ test('os campos antigos do exercício de feedback seguem em conteudo.js (M5-21.7
 const ILHA_NOVO = '<div class="ilha" data-ilha="rumo-novociclo"></div>';
 function janelaCiclo() {
   const tela = { html: '<h1>Planejamento</h1>', insertAdjacentHTML(_p: string, h: string) { this.html += h; } };
-  const ligadas: unknown[] = [];
+  const ligadas: string[] = [];
+  const janela: { Ilhas: { ligar(t: typeof tela): void } } = { Ilhas: { ligar: (t) => ligadas.push(t.html) } };
   const w = guia({
     Comp: { checklist: (ex: { id: string }) => `<checklist-original ${ex.id}>` },
-    Telas: { plano: () => { tela.html = '<h1>Planejamento</h1><div data-ilha="plano"></div>'; } },
+    /* o original do Guia monta a tela e religa as ilhas (como em m3.js) */
+    Telas: { plano: () => { tela.html = '<h1>Planejamento</h1><div data-ilha="plano"></div>'; janela.Ilhas.ligar(tela); } },
     document: { getElementById: (id: string) => (id === 'tela' ? tela : null) },
-    window: { Ilhas: { ligar: (t: unknown) => ligadas.push(t) } },
+    window: janela,
   });
   vm.runInContext(CODIGO, w as unknown as vm.Context);
   return { w: w as unknown as { Comp: { checklist(ex: unknown): string }; Telas: { plano(): void }; MISSOES: Missao[] }, tela, ligadas };
@@ -128,12 +130,13 @@ test('o exercício m5.imersao segue com os itens do checklist em conteudo.js e o
   assert.equal(hashM5(w.MISSOES), HASH_TEXTOS);
 });
 
-test('a aba Planejamento mostra o botão de novo planejamento depois da árvore e religa as ilhas (M5-31.2)', () => {
+test('a aba Planejamento mostra o botão de novo planejamento depois da árvore, com uma só ligação das ilhas (M5-31.2)', () => {
   const { w, tela, ligadas } = janelaCiclo();
   w.Telas.plano();
   assert.match(tela.html, /data-ilha="plano"/);
   assert.ok(tela.html.endsWith(ILHA_NOVO));
   assert.equal(ligadas.length, 1);
+  assert.ok(ligadas[0].endsWith(ILHA_NOVO)); // a ilha já estava no #tela quando as ilhas foram ligadas
 });
 
 test('a ilha rumo-novociclo está registrada na ponte (M5-31)', () => {

@@ -68,3 +68,54 @@ test.describe('Botão e confirmação de novo planejamento (M5-30)', () => {
     expect((await planosDe(page)).length).toBe(1);
   });
 });
+
+/* ---------- seletor e leitura dos arquivados (M5-31.5, M5-31.6) ---------- */
+const seletor = (page: Page) => page.locator('.rm-ciclo select');
+const ARQ = (n: number, metas: M[], legado = 'A Educação no centro do debate') => ({
+  n, criadoEm: '2026-05-01T10:00:00.000Z', legado, bandeiras: [],
+  objetivos: [{ pid: 'p1', nome: 'Priorizar a agenda', pergunta: '', texto: 'Priorizar a educação' }], metas,
+});
+
+test.describe('Seletor de planejamentos e leitura dos arquivados (M5-31)', () => {
+  test('com um só planejamento não aparece seletor', async ({ page }) => {
+    await abre(page, ['plano'], PLANO);
+    await expect(seletor(page)).toHaveCount(0);
+  });
+
+  test('com mais de um planejamento o seletor lista 1, 2… e marca o atual (M5-31.5)', async ({ page }) => {
+    await abre(page, ['plano'], { campos: PLANO.campos, D: { preditores: ['p1'], metas: [{ id: 'n', pred: 'p1', texto: 'Meta nova', status: 'nao_concluida' }], planos: [ARQ(1, PLANO.D.metas.slice(0, 2)), ARQ(2, [])] } });
+    await expect(seletor(page).locator('option')).toHaveText(['Planejamento 1', 'Planejamento 2', 'Planejamento 3 (atual)']);
+    await expect(seletor(page)).toHaveValue('3');
+    await expect(page.getByText('Meta nova')).toBeVisible();
+  });
+
+  test('o arquivado abre sem campos editáveis e mostra o atingimento congelado (M5-31.6)', async ({ page }) => {
+    await abre(page, ['plano'], { campos: PLANO.campos, D: { preditores: ['p1'], metas: [{ id: 'n', pred: 'p1', texto: 'Meta nova', status: 'nao_concluida' }], planos: [ARQ(1, PLANO.D.metas.slice(0, 2))] } });
+    await seletor(page).selectOption('1');
+    await expect(page.getByText('somente leitura')).toBeVisible();
+    await expect(page.getByText('Aprovar 2 projetos de lei')).toBeVisible();
+    await expect(page.getByText('Meta nova')).toHaveCount(0);
+    await expect(page.locator('.rm-plano select:not(.rm-ciclo select), .rm-st-sel')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /Editar a meta|Acrescentar meta/ })).toHaveCount(0);
+    await expect(page.locator('.rm-anel b')).toHaveText('85%'); // (100 + 70) / 2
+  });
+
+  test('ver o arquivado não altera o ativo nem o arquivado; voltar ao atual reabre a edição (M5-31.6)', async ({ page }) => {
+    const D = { preditores: ['p1'], metas: [{ id: 'n', pred: 'p1', texto: 'Meta nova', status: 'nao_concluida' }], planos: [ARQ(1, PLANO.D.metas.slice(0, 2))] };
+    await abre(page, ['plano'], { campos: PLANO.campos, D });
+    await seletor(page).selectOption('1');
+    expect(await metasDe(page)).toEqual(D.metas);
+    expect(await planosDe(page)).toEqual(D.planos);
+    await seletor(page).selectOption('2');
+    await expect(page.getByLabel('Status da meta 01')).toBeVisible();
+  });
+
+  test('arquivado sem metas mostra o estado vazio sem erro', async ({ page }) => {
+    const erros: string[] = [];
+    page.on('pageerror', (e) => erros.push(e.message));
+    await abre(page, ['plano'], { campos: PLANO.campos, D: { preditores: ['p1'], metas: [], planos: [ARQ(1, [])] } });
+    await seletor(page).selectOption('1');
+    await expect(page.getByText('Este planejamento não tinha metas')).toBeVisible();
+    expect(erros).toEqual([]);
+  });
+});

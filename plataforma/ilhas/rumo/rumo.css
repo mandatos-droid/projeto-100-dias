@@ -297,3 +297,4 @@ input.rm-jn-titulo:focus-visible{outline:3px solid var(--verde);outline-offset:2
 .rm-novociclo-painel h4{margin:0 0 0.375rem}
 .rm-novociclo-metas{border:0;padding:0;margin:0 0 1rem;display:grid;gap:0.375rem}
 .rm-novociclo-metas legend{font-weight:700;padding:0;margin-bottom:0.5rem}
+.rm-ciclo{max-width:18rem;margin:0 0 1rem}

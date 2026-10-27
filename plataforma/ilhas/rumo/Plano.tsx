@@ -3,6 +3,7 @@
    Lê e grava os mesmos dados do exercício (D.metas, D.preditores, D.rumo); a edição usa o mesmo CartaoMeta. */
 import { useState } from 'react';
 import { pctObjetivo, pctTotal } from '@/lib/atingimento';
+import { abrirCiclo, listaCiclos } from '@/lib/ciclos';
 import { podeAcrescentarMeta } from '@/lib/plano';
 import { resolve } from '@/lib/pessoas';
 import { editaSucesso, lerSucessos } from '@/lib/sucessos';
@@ -31,6 +32,7 @@ export default function Plano() {
   const [editando, setEditando] = useState<number | null>(null);
   const [filtro, setFiltro] = useState('');
   const [ordenar, setOrdenar] = useState(false);
+  const [ver, setVer] = useState<number | null>(null); // planejamento arquivado aberto para leitura; null = o atual
   const total = pctTotal(arv.objetivos.map((o) => pctObjetivo(o.metas)));
   const vazio = !arv.objetivos.some((o) => o.metas.length > 0);
   const nMetas = metas.length;
@@ -77,8 +79,39 @@ export default function Plano() {
     ),
   };
 
+  /* vários planejamentos: seletor no topo; o arquivado abre só para leitura e nunca altera o ativo (M5-31.5, M5-31.6) */
+  const ciclos = listaCiclos(d);
+  const arquivado = ver === null ? null : abrirCiclo(d, ver);
+  const seletor = ciclos.length > 1 && (
+    <label className="campo rm-ciclo rm-nao-imprime"><span className="rot">Planejamento</span>
+      <select value={arquivado ? ver! : ciclos[ciclos.length - 1].n} onChange={(e) => { const n = Number(e.target.value); setVer(ciclos.find((x) => x.n === n)?.atual ? null : n); }}>
+        {ciclos.map((x) => <option key={x.n} value={x.n}>{x.rot}</option>)}
+      </select>
+    </label>
+  );
+
+  if (arquivado) {
+    const totalArq = pctTotal(arquivado.objetivos.map((o) => pctObjetivo(o.metas)));
+    const semMetas = !arquivado.objetivos.some((o) => o.metas.length > 0) && arquivado.semObjetivo.length === 0;
+    return (
+      <div className="ilha-corpo rm-plano" data-n-metas={arquivado.objetivos.reduce((n, o) => n + o.metas.length, 0) + arquivado.semObjetivo.length} data-arquivado={ver} data-imprime="">
+        {seletor}
+        <p className="rm-dica" role="status">Planejamento {ver} guardado: somente leitura. O planejamento atual não muda por aqui.</p>
+        {semMetas ? (
+          <div className="rm-plano-vazio"><h4>Este planejamento não tinha metas</h4><p>Ele foi guardado sem metas, então não há o que mostrar na árvore.</p></div>
+        ) : (
+          <>
+            <div className="rm-plano-topo"><Anel pct={totalArq} /><div><p className="rm-plano-t">Atingimento total</p></div></div>
+            <ArvorePlano modo="plano" arv={arquivado} opcoes={{ onStatus: () => {}, leitura: true }} />
+          </>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="ilha-corpo rm-plano" data-n-metas={nMetas} data-imprime="">
+      {seletor}
       {vazio && (
         <div className="rm-plano-vazio">
           <h4>O planejamento ainda não tem metas</h4>

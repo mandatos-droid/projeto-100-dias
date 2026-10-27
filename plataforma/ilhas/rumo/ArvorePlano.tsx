@@ -62,6 +62,8 @@ export interface OpcoesPlano {
   /** botões do objetivo (acrescentar meta) */
   extraObjetivo?: (pid: string) => ReactNode;
   marca?: (m: ItemMeta) => 'esmaecido' | 'destaque' | undefined;
+  /** planejamento arquivado: só mostra o status, sem campo para editar */
+  leitura?: boolean;
 }
 
 /** Sucessos da meta, um nó por mês (só meses com sucesso), cada sucesso com status editável. */
@@ -77,11 +79,13 @@ function nosSucessos(idx: number, sucessos: ReturnType<typeof lerSucessos>, o: O
           <>
             <span className="rm-no-txt">{txt ? curto(txt, 160) : <em>Sucesso ainda sem texto</em>}</span>
             <span className="rm-st" data-status={s.status}><i aria-hidden="true">{SIMBOLO[s.status]}</i>{rotStatus(s.status)}</span>
-            <label className="rm-st-sel"><span className="sr">Status do sucesso {txt || 'sem texto'}</span>
-              <select value={s.status} onChange={(e) => o.onStatusSucesso?.(idx, s.id, e.target.value as StatusMeta)}>
-                {STATUS.map((st) => <option key={st.id} value={st.id}>{st.rot}</option>)}
-              </select>
-            </label>
+            {!o.leitura && (
+              <label className="rm-st-sel"><span className="sr">Status do sucesso {txt || 'sem texto'}</span>
+                <select value={s.status} onChange={(e) => o.onStatusSucesso?.(idx, s.id, e.target.value as StatusMeta)}>
+                  {STATUS.map((st) => <option key={st.id} value={st.id}>{st.rot}</option>)}
+                </select>
+              </label>
+            )}
           </>
         ),
       };
@@ -103,11 +107,13 @@ function noMeta(m: ItemMeta, o: OpcoesPlano): No {
         <span className="rm-no-tag">Meta {n}</span>
         <span className="rm-no-txt">{txt ? curto(txt, 160) : <em>Meta ainda sem texto</em>}</span>
         <span className="rm-st" data-status={m.status}><i aria-hidden="true">{SIMBOLO[m.status]}</i>{rotStatus(m.status)}<small>{pctTxt(p)}</small></span>
-        <label className="rm-st-sel"><span className="sr">Status da meta {n}</span>
-          <select value={m.status} onChange={(e) => o.onStatus(m.idx, e.target.value as StatusMeta)}>
-            {STATUS.map((s) => <option key={s.id} value={s.id}>{s.rot}</option>)}
-          </select>
-        </label>
+        {!o.leitura && (
+          <label className="rm-st-sel"><span className="sr">Status da meta {n}</span>
+            <select value={m.status} onChange={(e) => o.onStatus(m.idx, e.target.value as StatusMeta)}>
+              {STATUS.map((s) => <option key={s.id} value={s.id}>{s.rot}</option>)}
+            </select>
+          </label>
+        )}
         {o.extra?.(m)}
       </>
     ),
