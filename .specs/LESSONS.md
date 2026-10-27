@@ -50,6 +50,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: smart.ts:34 / spec Assumptions (diariamente) (lib)
 - last seen: 2026-10-23T13:52:14Z
 
+### L-007 - Assert that read-only accessors leave the input data deeply unchanged, comparing a before/after snapshot on a non-empty case
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `lib` · harmful: 0
+- features: missao5-avanco
+- evidence: mutant7 lib/ciclos.ts:151 (lib)
+- last seen: 2026-10-27T22:16:52Z
+
+### L-008 - Define in the spec which status values count as achieved when a criterion says a ratio of achieved items
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: missao5-avanco
+- evidence: M5-02.5 lib/sucessos.ts:48 (spec)
+- last seen: 2026-10-27T22:16:53Z
+
+### L-009 - State in the acceptance criterion which field values copied records get, not only which fields are dropped
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: missao5-avanco
+- evidence: M5-30.4 lib/ciclos.ts:133 (spec)
+- last seen: 2026-10-27T22:16:55Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

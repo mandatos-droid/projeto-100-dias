@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 7,
+  "next_id": 10,
   "lessons": [
     {
       "id": "L-001",
@@ -112,6 +112,60 @@
       ],
       "created": "2026-10-23T13:52:14Z",
       "last_seen": "2026-10-23T13:52:14Z"
+    },
+    {
+      "id": "L-007",
+      "key": "surviving_mutant::assert that read only accessors leave the input data deeply unchanged comparing a before after snapshot on a non empty case",
+      "text": "Assert that read-only accessors leave the input data deeply unchanged, comparing a before/after snapshot on a non-empty case",
+      "signal": "surviving_mutant",
+      "scope": "lib",
+      "status": "candidate",
+      "features": [
+        "missao5-avanco"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "mutant7 lib/ciclos.ts:151 (lib)"
+      ],
+      "created": "2026-10-27T22:16:52Z",
+      "last_seen": "2026-10-27T22:16:52Z"
+    },
+    {
+      "id": "L-008",
+      "key": "spec_precision_gap::define in the spec which status values count as achieved when a criterion says a ratio of achieved items",
+      "text": "Define in the spec which status values count as achieved when a criterion says a ratio of achieved items",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "missao5-avanco"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M5-02.5 lib/sucessos.ts:48 (spec)"
+      ],
+      "created": "2026-10-27T22:16:53Z",
+      "last_seen": "2026-10-27T22:16:53Z"
+    },
+    {
+      "id": "L-009",
+      "key": "spec_precision_gap::state in the acceptance criterion which field values copied records get not only which fields are dropped",
+      "text": "State in the acceptance criterion which field values copied records get, not only which fields are dropped",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "missao5-avanco"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M5-30.4 lib/ciclos.ts:133 (spec)"
+      ],
+      "created": "2026-10-27T22:16:55Z",
+      "last_seen": "2026-10-27T22:16:55Z"
     }
   ]
 }
