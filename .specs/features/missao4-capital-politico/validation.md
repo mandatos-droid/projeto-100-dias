@@ -3,13 +3,13 @@
 **Date**: 2026-10-27
 **Spec**: `.specs/features/missao4-capital-politico/spec.md`
 **Diff range**: `60ac08f..f289856` (HEAD), só os 25 commits da feature, T1 a T25: `e979db8` T1, `4b41ad2` T2, `80a8de3` T3, `acb7c9c` T4, `1b2d891` T5, `6e92d7e` T6, `e30acf2` T7, `247fd4a` T8, `4d3eeb7` T9, `6518eee` T10, `44a16c5` T11, `09c5ab4` T12, `afa3595` T13, `82dc918` T14, `6f0e744` T15, `b41bd18` T16, `23e9789` T17, `4b1cec1` T18, `69fe8f2` T19, `5352f22` T20, `52d25d1` T21, `8ac9362` T22, `e42ab1d` T23, `5d6aefa` T24, `f289856` T25. Commits da Missão 5 e mudanças não commitadas do usuário (`lib/types.ts`, `graphify-out/`, `Equipe.tsx` etc.) ficaram fora do escopo.
-**Verifier**: independent sub-agent (author ≠ verifier). Rodada 1 de no máximo 3.
+**Verifier**: independent sub-agent (author ≠ verifier). Rodada 1 (FAIL) e rodada 2 (PASS, 2026-10-27, correções F1 `84b5a69` e F2 `a449c89`, só testes e uma constante; nenhuma mudança de comportamento).
 
 ## Validation
 
-**Result**: FAIL na rodada 1, por 2 testes que não discriminam (CAP-32), sem defeito de produção encontrado
+**Result**: PASS na rodada 2. CAP-32 agora discriminado: M2, M3 e E2 morrem; os demais sobreviventes são M20 (spec não define) e a observação abaixo.
 
-Todos os critérios têm evidência `file:line` em código e em teste, e os valores asseridos batem com a spec. Os 4 gates passaram (a build só na 2ª execução, oscilação já documentada). O sensor injetou 27 falhas: 23 morreram, 4 sobreviveram. Dois sobreviventes são lacunas reais de teste no limite de 10 buscas por hora e no envio do token de login (tasks F1 e F2 abaixo); os outros dois são um equivalente em produção (M3) e um comportamento que a spec não define (M20). Ao fechar F1 e F2, a rodada 2 dá o veredito final.
+A rodada 1 achou 2 testes que não discriminavam o limite de 10 buscas e o envio do token (sem defeito de produção). F1 (`84b5a69`) exporta `LIMITE_BUSCAS_POR_HORA = 10` de `lib/clipping.ts`, usa na rota e como padrão do `Limitador`, e `tests/clipping.test.ts:52-58` assere o valor 10 e a 11ª busca recusada com `new Limitador()`. F2 (`a449c89`) semeia `Nuvem.tok` e `e2e/capital-clipping.spec.ts:38` assere `pedidos[0].auth` igual a `Bearer token-de-teste`. Gates da rodada 2: 367 unit, `tsc` exit 0, 374 e2e passando (o `build` não foi repetido: as correções não alteram código de tela nem comportamento).
 
 ---
 
@@ -97,7 +97,7 @@ Convenção: `U` = `plataforma/tests/*.test.ts`, `E` = `plataforma/e2e/*.spec.ts
 | CAP-31 AC7: número da semana | Notícias não ocultas da semana | `lib/comunicacao.ts:123`; `SecaoComunicacao.tsx:14,23` | `E capital-clipping.spec.ts:231,235,239` valor `'3'`, `{aparicoes:3}`, depois `'2'`; `U comunicacao.test.ts:157-164` | ✅ PASS |
 | CAP-30 AC8: falha amigável | "Não consegui buscar agora. Adicione manualmente" | `Clipping.tsx:16` | `E capital-clipping.spec.ts:72-77` `toHaveText('Não consegui buscar agora. Adicione manualmente')`, 5 seções seguem | ✅ PASS |
 | CAP-32 AC9: só metadados | Título, veículo, data e link | `lib/clipping.ts:131` | `U clipping.test.ts:227-231` `deepEqual(r.corpo,{itens:[{titulo:'T',veiculo:'V',data:'2026-10-24',url:'https://g/1'}]})` (a fonte falsa traz `texto`); `E capital-clipping.spec.ts:43` chaves gravadas | ✅ PASS |
-| CAP-32 AC10: 401 e 10/hora | 401 sem login; 10 buscas por hora por mandato | `lib/clipping.ts:81-97,113`; `app/api/clipping/route.ts:143` | `U clipping.test.ts:200-203` `status` 401; `:219-225` 10 vezes 200, 11ª 429, `chamadas` 10; `:177-185` | ✅ PASS na regra (`trataClipping`); ❌ GAP na ligação: o 10 de `route.ts:143` e o cabeçalho `Authorization` de `Clipping.tsx:54` não têm teste que falhe (M2 e E2) |
+| CAP-32 AC10: 401 e 10/hora | 401 sem login; 10 buscas por hora por mandato | `lib/clipping.ts:81-97,113`; `app/api/clipping/route.ts:143` | `U clipping.test.ts:200-203` `status` 401; `:219-225` 10 vezes 200, 11ª 429, `chamadas` 10; `:177-185` | ✅ PASS na regra (`trataClipping`); ✅ PASS na ligação (rodada 2): `tests/clipping.test.ts` asserta `LIMITE_BUSCAS_POR_HORA === 10` e o padrão do `Limitador`; `e2e/capital-clipping.spec.ts:38` asserta `Bearer token-de-teste` em `/api/clipping` |
 
 ### Edge cases (CAP-40)
 
@@ -108,7 +108,7 @@ Convenção: `U` = `plataforma/tests/*.test.ts`, `E` = `plataforma/e2e/*.spec.ts
 | Sem data de posse | Qualquer prazo futuro, sem máximo | `U capital.test.ts:86-88,96-98` `{min}` sem `max`, `validaPrazo('2040-01-01',...)` `null`; `E capital-acoes.spec.ts:188-190` sem atributo `max`, `iso(800)` aceito | ✅ PASS |
 | Dados antigos da Missão 4 | Abrem sem perda | `U legado-m4.test.ts:127-132` Resumo idêntico com e sem `m4.js`; `E capital-acoes.spec.ts:88,366-379`; `E capital-comissoes.spec.ts:136-141` texto antigo vira "Outro" | ✅ PASS |
 
-**Status**: ✅ 13 de 14 requisitos com evidência e valor conferido; ❌ 1 requisito (CAP-32) com a ligação não discriminada; ⚠️ 5 lacunas de precisão da spec (G1, G3, G4, G6, G7) e 1 de rastreabilidade (G2).
+**Status**: ✅ 14 de 14 requisitos com evidência e valor conferido; ⚠️ 5 lacunas de precisão da spec (G1, G3, G4, G6, G7) e 1 de rastreabilidade (G2), como observações que não bloqueiam.
 
 ---
 
@@ -121,8 +121,8 @@ Cobertura de risco: limite de 10 buscas, `ok` de `progressoAcoes`, semana ISO, f
 | # | Arquivo:linha | Falha injetada | Killed? |
 | - | ------------- | -------------- | ------- |
 | M1 | `lib/clipping.ts:92` | `>= this.max` virou `> this.max` (11 buscas) | ✅ Killed |
-| M2 | `app/api/clipping/route.ts:143` | `new Limitador(10, …)` virou `new Limitador(100, …)` | ❌ Survived → F1 |
-| M3 | `lib/clipping.ts:86` | padrão `max = 10` virou `11` | ❌ Survived, equivalente em produção (a rota passa o 10 explicitamente); fecha junto com F1 |
+| M2 | `app/api/clipping/route.ts` | limite da rota virou 100 | ✅ Killed na rodada 2 (constante `LIMITE_BUSCAS_POR_HORA = 100`: 2 falhas em `clipping.test.ts`). Observação: trocar só o argumento da rota de volta por um literal 100 ainda não é pego, porque a rota não é importada pelo runner; a constante é o ponto testável |
+| M3 | `lib/clipping.ts:86` | padrão do `Limitador` virou `11` | ✅ Killed na rodada 2 (1 falha: o teste do `Limitador()` sem argumentos) |
 | M4 | `lib/capital.ts:44` | `frentes >= 2` virou `>= 1` | ✅ Killed |
 | M5 | `lib/comunicacao.ts:50` | quinta-feira da semana ISO `+ 4` virou `+ 3` | ✅ Killed |
 | M6 | `lib/comunicacao.ts:115` | gráfico passou a contar ocultas | ✅ Killed |
@@ -141,7 +141,7 @@ Cobertura de risco: limite de 10 buscas, `ok` de `progressoAcoes`, semana ISO, f
 | M19 | `lib/clipping.ts:62` | teto da janela de dias 30 virou 60 | ✅ Killed |
 | M20 | `lib/comunicacao.ts:89` | editar a semana mescla com os valores antigos (campo apagado reaparece) | ❌ Survived, a spec não define o que acontece ao apagar um campo na edição (G5) |
 | E1 | `ilhas/capital/Comissoes.tsx:76` | sugestão por bandeira desligada (`.includes('ZZZ')`) | ✅ Killed (falhas reais em `capital-comissoes.spec.ts:16,26,48`) |
-| E2 | `ilhas/capital/Clipping.tsx:54` | cliente deixa de mandar o cabeçalho `Authorization` | ❌ Survived (27 passed) → F2 |
+| E2 | `ilhas/capital/Clipping.tsx:54` | cliente deixa de mandar o cabeçalho `Authorization` | ✅ Killed na rodada 2 (`capital-clipping.spec.ts:38` falha: esperado `Bearer token-de-teste`, recebido `undefined`; 26 verdes, 1 falha) |
 | E3 | `ilhas/capital/Matriz.tsx:44` | `prog.ok` virou `prog.total >= 2` | ✅ Killed (`capital-acoes.spec.ts:232`) |
 | E4 | `ilhas/capital/LinhaAcao.tsx:35` | prazo sem validação | ✅ Killed (2 falhas) |
 | E5 | `ilhas/capital/Clipping.tsx:41` | ocultas continuam na lista | ✅ Killed (`capital-clipping.spec.ts:112,162,329`) |
@@ -149,7 +149,7 @@ Cobertura de risco: limite de 10 buscas, `ok` de `progressoAcoes`, semana ISO, f
 | E7 | `ilhas/capital/Comunicacao.tsx:16` | "semana atual" vira a semana passada | ✅ Killed (28 falhas) |
 
 **Sensor depth**: lightweight ampliado (27 mutações, acima do mínimo de 5 de caminho crítico, porque CAP-32 mexe com autenticação e limite).
-**Result**: 23 de 27 mortas; 4 sobreviveram (2 reais: M2 e E2; 1 equivalente: M3; 1 de spec indefinida: M20) → fix tasks F1 e F2.
+**Result**: rodada 1: 23 de 27 mortas. Rodada 2: M2, M3 e E2 reexecutados e mortos (26 de 27 no total); sobrevive só M20 (spec indefinida, G5).
 
 Nota de método: algumas execuções e2e (a 1ª de E1, E3 e uma de E5) deram "killed" falso porque o servidor de desenvolvimento do worktree parou na mensagem de segurança do Next 16.4 antes de subir. Foram repetidas conferindo as falhas reais de asserção, e só essas repetições contam na tabela.
 
@@ -166,7 +166,7 @@ Isolamento: `git status --porcelain` da árvore real igual ao de antes (234 linh
 | No scope creep | ✅ O máximo "100 dias após a posse" do prazo vem do design (`design.md:64`), não é extra do autor. |
 | Matches patterns | ✅ Mesmo padrão de `useRumo`, `ponte.tsx` e do gancho `m3.js`. |
 | Spec-anchored outcome check (valores asseridos batem com a spec) | ✅ com as lacunas de precisão G1 a G7 abaixo |
-| Per-layer Coverage Expectation (lógica 1:1, rotas e e2e feliz + borda + erro) | ⚠️ Rota: regra coberta, ligação em `route.ts` e no cliente não (F1, F2) |
+| Per-layer Coverage Expectation (lógica 1:1, rotas e e2e feliz + borda + erro) | ✅ Rota: regra e constante cobertas; cabeçalho do cliente coberto (F1, F2 feitos) |
 | Todo teste mapeia para um requisito, sem testes órfãos | ✅ Os testes citam CAP-xx; a numeração `CAP-NN.k` dos testes mistura "AC da história" com "subitem do requisito" (G2) |
 | Diretrizes documentadas seguidas | ✅ `plataforma/CLAUDE.md` e `AGENTS.md` (imports relativos `.ts` em `lib/` e `tests/`, Next 16) |
 
@@ -174,13 +174,13 @@ Isolamento: `git status --porcelain` da árvore real igual ao de antes (234 linh
 
 ## Fix Plans
 
-### F1: Testar a ligação do limite de 10 buscas por hora (CAP-32, mata M2 e M3) · Major
+### F1 (✅ feito, `84b5a69`): Testar a ligação do limite de 10 buscas por hora (CAP-32, mata M2 e M3) · Major
 
 - **Causa**: o 10 vive em `app/api/clipping/route.ts:143` (`new Limitador(10, 3600000)`), que nenhum teste importa; `tests/clipping.test.ts:177,187-198` constroem o próprio `Limitador`.
 - **Task**: exportar `LIMITE_BUSCAS_POR_HORA = 10` de `lib/clipping.ts`, usar a constante em `route.ts:143` e no padrão do construtor, e assertar `assert.equal(LIMITE_BUSCAS_POR_HORA, 10)` mais um teste que cria `new Limitador()` sem argumentos e recusa a 11ª.
 - **Onde**: `lib/clipping.ts`, `app/api/clipping/route.ts`, `tests/clipping.test.ts`. **Verify**: `npm test`; M2 e M3 devem morrer.
 
-### F2: Testar que o cliente envia o token de login (CAP-32 e CAP-30 AC1, mata E2) · Major
+### F2 (✅ feito, `a449c89`): Testar que o cliente envia o token de login (CAP-32 e CAP-30 AC1, mata E2) · Major
 
 - **Causa**: `e2e/capital-clipping.spec.ts:19` captura `auth` mas nenhum teste asserta; sem `Authorization` a rota real responde 401 e a busca nunca funciona, enquanto os e2e (rota simulada) seguem verdes.
 - **Task**: semear `Nuvem.tok` no e2e (ou extrair o montador de cabeçalhos para `lib/`) e assertar `pedidos[0].auth` igual a `Bearer <token>`.
@@ -208,24 +208,24 @@ Isolamento: `git status --porcelain` da árvore real igual ao de antes (234 linh
 | CAP-10, CAP-11, CAP-12, CAP-13 | Pending | ✅ Verified |
 | CAP-20, CAP-21 | Pending | ✅ Verified |
 | CAP-30, CAP-31 | Pending | ✅ Verified |
-| CAP-32 | Pending | ❌ Needs Fix (F1, F2) |
+| CAP-32 | Pending | ✅ Verified (rodada 2) |
 | CAP-40 | Pending | ✅ Verified |
 
 ---
 
 ## Summary
 
-**Overall**: ⚠️ Issues (testes, não produção)
+**Overall**: ✅ PASS
 
-**Spec-anchored check**: 13 de 14 requisitos com evidência e valor conferido; CAP-32 com a ligação não discriminada; 5 lacunas de precisão da spec (G1, G3, G4, G6, G7) e 1 de rastreabilidade (G2)
-**Sensor**: 23 de 27 mortas
-**Gate**: 366 unit e 374 e2e passando, `tsc` exit 0, build exit 0 na 2ª execução
+**Spec-anchored check**: 14 de 14 requisitos com evidência e valor conferido; 5 lacunas de precisão da spec (G1, G3, G4, G6, G7) e 1 de rastreabilidade (G2) ficam como observações
+**Sensor**: 26 de 27 mortas (só M20, spec indefinida)
+**Gate**: 367 unit e 374 e2e passando, `tsc` exit 0 (build da rodada 1: exit 0 na 2ª execução, não repetido)
 
 **What works**: as 3 telas, o clipping e os dados antigos; textos do Guia intactos (hash); nenhum arquivo extraído do legado alterado.
 
-**Issues found**: F1 e F2 (testes que não pegam o limite de 10 nem o envio do token); lacunas de precisão da spec G1 a G7.
+**Issues found**: nenhum bloqueante. Observações: lacunas de spec G1 a G7; a fiação do literal na rota não é testável sem importar a rota.
 
-**Next steps**: implementar F1 e F2 (só testes e uma constante), rodar a rodada 2 do Verifier, e então `validate_state.py` e T26.
+**Next steps**: fechar T26 (`validate_state.py` exit 0) e atualizar a spec com as lacunas G1 a G7.
 
 ---
 

@@ -581,7 +581,7 @@ T24 → T25 → T26
 
 ---
 
-### T26: Fechamento e verificação independente
+### T26: Fechamento e verificação independente ✅
 
 **What**: Rodar o Verifier (autor diferente do verificador), gerar `validation.md` final e atualizar `.specs/STATE.md`.
 **Where**: `.specs/features/missao4-capital-politico/validation.md`
@@ -591,8 +591,8 @@ T24 → T25 → T26
 
 **Tools**: Verifier sub-agent.
 **Done when**:
-- [ ] `validation.md` tem veredito PASS com evidência `file:line`
-- [ ] `validate_state.py` sai com código 0
+- [x] `validation.md` tem veredito PASS com evidência `file:line`
+- [x] `validate_state.py` sai com código 0
 
 **Tests**: none
 **Gate**: build
