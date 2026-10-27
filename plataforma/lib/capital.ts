@@ -43,3 +43,17 @@ export function progressoAcoes(acoes: unknown): { total: number; frentes: number
   const frentes = new Set(validas.map((a) => a.bingo)).size;
   return { total: validas.length, frentes, ok: validas.length >= 2 && frentes >= 2 };
 }
+
+/* ---------- escolhas rápidas ⇄ texto legível (D.comissoes: pq, papel, mov) ---------- */
+const SEPARADOR = '; ';
+
+/** Rótulos marcados mais o texto livre ("Outro"), em um texto só: "Pauta da nossa bandeira; Dá visibilidade ao mandato". */
+export function textoDasEscolhas(rotulos: string[], outro = ''): string {
+  return [...rotulos, outro.trim()].filter((s) => s !== '').join(SEPARADOR);
+}
+
+/** Inverso de textoDasEscolhas: o que casa com um rótulo das opções vira marcado; o resto (inclusive texto antigo, digitado à mão) é o "Outro". */
+export function leEscolhas(texto: unknown, opcoes: string[]): { marcados: string[]; outro: string } {
+  const partes = (typeof texto === 'string' ? texto : '').split(SEPARADOR).map((s) => s.trim()).filter((s) => s !== '');
+  return { marcados: partes.filter((p) => opcoes.includes(p)), outro: partes.filter((p) => !opcoes.includes(p)).join(SEPARADOR) };
+}

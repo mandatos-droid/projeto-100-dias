@@ -7,6 +7,7 @@ import { bandeiraDe } from '@/lib/bandeiras';
 import { BANDEIRA_COMISSAO } from '@/lib/comissoesPorBandeira';
 import type { Catalogo, Comissao } from '@/lib/espacos';
 import { aviso } from '../ponte';
+import CartaoComissao from './CartaoComissao';
 import { casaDe } from '../rumo/Espacos';
 import { useRumo } from '../rumo/useRumo';
 import './capital.css';
@@ -93,6 +94,7 @@ export default function Comissoes() {
           )}
         </div>
         {l.motivo && <p className="cp-motivo">{l.motivo}</p>}
+        {r && <CartaoComissao reg={r} nome={r.esp || l.nome} onMuda={bump} />}
         {ajustando === chave && (
           <div className="cp-nome">
             <label className="campo"><span className="rot">Nome na sua Assembleia</span>

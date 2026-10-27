@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { MOTIVOS, PAPEIS, MOVIMENTOS, TEXTO_SABER, progressoAcoes } from '../lib/capital.ts';
+import { MOTIVOS, PAPEIS, MOVIMENTOS, TEXTO_SABER, progressoAcoes, textoDasEscolhas, leEscolhas } from '../lib/capital.ts';
 
 /* Missão 4 · listas e regra de progresso (CAP-03, CAP-12). Resultados esperados vêm da spec. */
 
@@ -49,4 +49,20 @@ test('MOTIVOS e MOVIMENTOS têm ids únicos e rótulos preenchidos, prontos para
 test('TEXTO_SABER tem um texto base para cada uma das 4 frentes do Guia (CAP-11.7)', () => {
   assert.deepEqual(Object.keys(TEXTO_SABER).sort(), ['articulacao', 'mobilizacao', 'partido', 'redes']);
   assert.ok(Object.values(TEXTO_SABER).every((t) => t.trim() !== ''));
+});
+
+test('textoDasEscolhas junta os rótulos e o "Outro" com "; " em texto legível (CAP-03.6, CAP-03.8)', () => {
+  assert.equal(textoDasEscolhas(['Pauta da nossa bandeira', 'Dá visibilidade ao mandato']), 'Pauta da nossa bandeira; Dá visibilidade ao mandato');
+  assert.equal(textoDasEscolhas(['Titular'], '  Líder da bancada  '), 'Titular; Líder da bancada');
+  assert.equal(textoDasEscolhas([], 'só o outro'), 'só o outro');
+  assert.equal(textoDasEscolhas([], '   '), '');
+});
+
+test('leEscolhas recupera os marcados e o "Outro"; texto antigo digitado à mão vira "Outro" sem perda (CAP-03.8, CAP-40)', () => {
+  const rots = MOTIVOS.map((m) => m.rot);
+  const texto = textoDasEscolhas([rots[0], rots[2]], 'Convite do presidente');
+  assert.deepEqual(leEscolhas(texto, rots), { marcados: [rots[0], rots[2]], outro: 'Convite do presidente' });
+  assert.deepEqual(leEscolhas('Ex.: educação, titular', rots), { marcados: [], outro: 'Ex.: educação, titular' });
+  assert.deepEqual(leEscolhas(undefined, rots), { marcados: [], outro: '' });
+  assert.deepEqual(leEscolhas('', rots), { marcados: [], outro: '' });
 });

@@ -191,7 +191,7 @@ T24 → T25 → T26
 
 ---
 
-### T6: Cartão da comissão com perguntas em botões
+### T6: Cartão da comissão com perguntas em botões ✅
 
 **What**: Criar `ilhas/capital/CartaoComissao.tsx`: 3 perguntas em botões mais "Outro", gravando `pq`, `papel`, `mov` em texto legível mais `sigla` em `D.comissoes`.
 **Where**: `ilhas/capital/CartaoComissao.tsx`
@@ -201,9 +201,9 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] Escolher motivo, papel e movimento grava na hora e sobrevive a recarregar
-- [ ] O Resumo mostra o texto legível de `pq`, `papel` e `mov`
-- [ ] "Outro" aceita texto livre
+- [x] Escolher motivo, papel e movimento grava na hora e sobrevive a recarregar
+- [x] O Resumo mostra o texto legível de `pq`, `papel` e `mov`
+- [x] "Outro" aceita texto livre
 
 **Tests**: e2e
 **Gate**: full
