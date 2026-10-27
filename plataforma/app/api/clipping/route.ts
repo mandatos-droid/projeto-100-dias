@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Limitador, buscaNoticias, trataClipping } from '../../../lib/clipping.ts';
+import { LIMITE_BUSCAS_POR_HORA, Limitador, buscaNoticias, trataClipping } from '../../../lib/clipping.ts';
 
 // Busca de notícias do clipping (Missão 4). Exige login do Supabase, limita a 10 buscas por hora por mandato
 // e devolve só título, veículo, data e link. O limite vive na memória do servidor (reinicia no deploy).
@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 const URL_SB = process.env.SUPABASE_URL || 'https://fldmekrexvzchynnmeuq.supabase.co';
 // a chave "anon" é pública (já vai ao navegador em nucleo.js); o acesso real é decidido pelo token do usuário
 const CHAVE_SB = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsZG1la3JleHZ6Y2h5bm5tZXVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIxODAwNDMsImV4cCI6MjEwNzc1NjA0M30.voyLYw8vq_pM-_XwSdxZmGjrqKilfB0pl1hYhvFUuL4';
-const limitador = new Limitador(10, 3600000);
+const limitador = new Limitador(LIMITE_BUSCAS_POR_HORA, 3600000);
 
 const cab = (token: string) => ({ apikey: CHAVE_SB, Authorization: `Bearer ${token}` });
 

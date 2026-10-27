@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { leRss, dataDoRss, termoBusca, urlDoRss, criaBuscador, Limitador, trataClipping, type Dependencias, type Buscador } from '../lib/clipping.ts';
+import { leRss, dataDoRss, termoBusca, urlDoRss, criaBuscador, Limitador, LIMITE_BUSCAS_POR_HORA, trataClipping, type Dependencias, type Buscador } from '../lib/clipping.ts';
 
 /* Missão 4 · busca de notícias (CAP-30, CAP-32). A fonte é sempre falsa: nenhum teste chama a internet. */
 const item = (t: string, link: string, fonte = 'VEJA', pub = 'Sat, 24 Oct 2026 20:59:38 GMT') =>
@@ -49,6 +49,13 @@ test('criaBuscador: sucesso, status ruim, formato inesperado e falha de rede vir
   assert.equal((await criaBuscador((async () => { throw new Error('rede'); }) as unknown as typeof fetch)('Ana')).ok, false);
 });
 
+test('o limite de buscas por hora é 10 (CAP-32) e é o padrão do Limitador', () => {
+  assert.equal(LIMITE_BUSCAS_POR_HORA, 10);
+  const l = new Limitador();
+  for (let i = 0; i < 10; i++) assert.equal(l.tenta('m'), true);
+  assert.equal(l.tenta('m'), false);
+});
+
 test('Limitador: 10 por hora por chave, a 11ª é recusada, chaves independentes, libera depois da janela', () => {
   let t = 0;
   const l = new Limitador(10, 3600000, () => t);
@@ -93,7 +100,7 @@ test('rota: pedido inválido responde 400; mandato de outra pessoa responde 403'
 
 test('rota: a 11ª busca na hora é recusada com 429; a recusada não chama a fonte', async () => {
   const d = deps();
-  for (let i = 0; i < 10; i++) assert.equal((await trataClipping('Bearer bom', pedido, d)).status, 200);
+  for (let i = 0; i < LIMITE_BUSCAS_POR_HORA; i++) assert.equal((await trataClipping('Bearer bom', pedido, d)).status, 200);
   const r = await trataClipping('Bearer bom', pedido, d);
   assert.equal(r.status, 429);
   assert.equal(d.chamadas, 10);

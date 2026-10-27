@@ -77,13 +77,16 @@ export function criaBuscador(buscar: typeof fetch = fetch): Buscador {
 }
 export const buscaNoticias: Buscador = (nome, opcoes) => criaBuscador()(nome, opcoes);
 
+/** Buscas por hora permitidas a cada mandato (CAP-32). A rota e o Limitador usam este valor. */
+export const LIMITE_BUSCAS_POR_HORA = 10;
+
 /** Limite de buscas por janela, por chave (aqui, o mandato). Guarda só horários, na memória do servidor. */
 export class Limitador {
   private usos = new Map<string, number[]>();
   private max: number;
   private janelaMs: number;
   private agora: () => number;
-  constructor(max = 10, janelaMs = 3600000, agora: () => number = Date.now) {
+  constructor(max = LIMITE_BUSCAS_POR_HORA, janelaMs = 3600000, agora: () => number = Date.now) {
     this.max = max; this.janelaMs = janelaMs; this.agora = agora;
   }
   /** Tenta gastar uma busca. false = limite atingido (não conta a recusada). */
