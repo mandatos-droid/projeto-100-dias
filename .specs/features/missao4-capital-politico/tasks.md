@@ -444,7 +444,7 @@ T24 → T25 → T26
 
 ---
 
-### T19: Teste e2e da comunicação
+### T19: Teste e2e da comunicação ✅
 
 **What**: Cobrir em e2e o registro de 2 semanas, a edição e a linha do tempo geral.
 **Where**: `e2e/capital-comunicacao.spec.ts`
@@ -454,7 +454,7 @@ T24 → T25 → T26
 
 **Tools**: Playwright.
 **Done when**:
-- [ ] O fluxo completo passa em 360 px e em 1280 px
+- [x] O fluxo completo passa em 360 px e em 1280 px
 
 **Tests**: e2e
 **Gate**: full

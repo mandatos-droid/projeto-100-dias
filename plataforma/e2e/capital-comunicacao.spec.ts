@@ -258,3 +258,63 @@ test.describe('Caixinhas antigas m4.k1 a m4.k5 (CAP-21.8)', () => {
     await expect(resumo).toContainText('Mensagens recebidas e encaminhadas');
   });
 });
+
+/* ---------- fluxo completo em celular e computador, com 2 semanas registradas de verdade (relógio do navegador controlado) ---------- */
+const semRolagemLateral = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+
+for (const tela of [{ nome: 'celular 360 px', width: 360, height: 740 }, { nome: 'computador 1280 px', width: 1280, height: 800 }]) {
+  test.describe(`Fluxo completo em ${tela.nome}`, () => {
+    test.use({ viewport: { width: tela.width, height: tela.height } });
+
+    test('registra 2 semanas, vê a linha, edita a semana atual sem duplicar e confere a linha do tempo geral', async ({ page }) => {
+      await page.clock.install({ time: new Date('2026-11-04T12:00:00') }); // quarta-feira da semana 2026-W45
+      await abre(page, [ILHA], { mandato: MANDATO });
+      expect(await semRolagemLateral(page)).toBe(true);
+
+      let s = await registra(page, 'k1', { 'Seguidores (total)': '1000', 'Alcance ou visualizações': '100' });
+      await expect(s.getByText('Registre mais uma semana para ver a linha')).toBeVisible();
+      await expect(geral(page).getByText('Registre mais uma semana para ver a linha do tempo geral')).toBeVisible();
+      expect(Object.keys((await comunicacao(page))!.semanas)).toEqual(['2026-W45']);
+
+      await page.clock.setSystemTime(new Date('2026-11-11T12:00:00')); // semana seguinte
+      await page.reload();
+      await page.locator('#tela[data-pronto="true"]').waitFor();
+      s = await abreSecao(page, 'k1');
+      await expect(s.getByRole('button', { name: 'Registrar esta semana' })).toBeVisible(); // a semana nova ainda não tem registro
+      s = await registra(page, 'k1', { 'Seguidores (total)': '1100', 'Alcance ou visualizações': '150' });
+      await expect(s.getByText('Registre mais uma semana para ver a linha')).toHaveCount(0);
+      await expect(s.locator('.cp-g[data-tipo="linha"] polyline')).toHaveCount(2);
+      expect(Object.keys((await comunicacao(page))!.semanas)).toEqual(['2026-W45', '2026-W46']);
+      expect(await semRolagemLateral(page)).toBe(true);
+
+      await expect(s.getByRole('button', { name: 'Editar esta semana' })).toBeVisible();
+      s = await registra(page, 'k1', { 'Alcance ou visualizações': '160' });
+      const d = (await comunicacao(page))!;
+      expect(Object.keys(d.semanas)).toEqual(['2026-W45', '2026-W46']);
+      expect(d.semanas['2026-W46'].k1).toEqual({ seguidores: 1100, alcance: 160 });
+      await expect(topo(page, 'k1')).toContainText('Último registro (2026-W46)');
+
+      await geral(page).getByText('Ver como tabela').click();
+      const linhas = geral(page).locator('.cp-g-tab tbody tr');
+      await expect(linhas).toHaveCount(2);
+      await expect(linhas.nth(0)).toContainText('100');
+      await expect(linhas.nth(1)).toContainText('160');
+      await expect(geral(page).locator('.cp-g[data-tipo="linha"] polyline')).toHaveCount(1);
+      expect(await caixinha(page, 'm4.k1')).toBe(true);
+      expect(await semRolagemLateral(page)).toBe(true);
+
+      await page.reload();
+      await page.locator('#tela[data-pronto="true"]').waitFor();
+      await expect(topo(page, 'k1')).toContainText('Último registro (2026-W46)');
+      expect((await comunicacao(page))!.semanas['2026-W46'].k1).toEqual({ seguidores: 1100, alcance: 160 });
+    });
+
+    test('registro feito em 31/12 cai na semana ISO 2026-W53 (virada de ano, CAP-40)', async ({ page }) => {
+      await page.clock.install({ time: new Date('2026-12-31T12:00:00') });
+      await abre(page, [ILHA], { mandato: MANDATO });
+      await registra(page, 'k2', { Compartilhamentos: '4' });
+      expect(Object.keys((await comunicacao(page))!.semanas)).toEqual(['2026-W53']);
+      expect(await semRolagemLateral(page)).toBe(true);
+    });
+  });
+}
