@@ -462,7 +462,7 @@ T24 → T25 → T26
 
 ---
 
-### T20: Conferir o RSS do Google Notícias
+### T20: Conferir o RSS do Google Notícias ✅
 
 **What**: Testar o RSS com o nome de um parlamentar real e registrar formato, falhas e bloqueios em `validation.md`; se falhar, parar e escolher o plano B com o usuário.
 **Where**: `.specs/features/missao4-capital-politico/validation.md`
@@ -472,8 +472,8 @@ T24 → T25 → T26
 
 **Tools**: WebFetch ou curl.
 **Done when**:
-- [ ] O resultado real está registrado
-- [ ] Se a fonte falhar, a Fase 5 para até o usuário decidir
+- [x] O resultado real está registrado
+- [x] Se a fonte falhar, a Fase 5 para até o usuário decidir
 
 **Tests**: none
 **Gate**: build
