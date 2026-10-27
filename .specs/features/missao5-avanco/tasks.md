@@ -246,7 +246,7 @@ T16 → T17 → T18
 
 ---
 
-### T7: Lógica do mapa de feedback ⬜
+### T7: Lógica do mapa de feedback ✅
 
 **What**: Criar `lib/feedback.ts` com `mapaFeedback` (liderança → liderados), `contagens`, `registra`, `edita`, `apaga` e `migraAntigo`.
 **Where**: `lib/feedback.ts` (+ `tests/feedback.test.ts`)
@@ -261,12 +261,12 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] `mapaFeedback` devolve cada liderança com seus liderados e o total N (M5-20.1)
-- [ ] `contagens` devolve feitas X de N e marca cada pessoa como feita ou pendente (M5-20.2)
-- [ ] `registra`, `edita` e `apaga` atualizam `D.feedbacks` e as contagens (M5-21.4, M5-21.5)
-- [ ] `migraAntigo` converte `pessoa/lider/data/pontos/encam` sem perder texto (M5-21.7)
-- [ ] Conversa de pessoa que saiu da Missão 2 é mantida como "pessoa removida"
-- [ ] Gate: `npm test`; testes novos em `tests/feedback.test.ts`
+- [x] `mapaFeedback` devolve cada liderança com seus liderados e o total N (M5-20.1)
+- [x] `contagens` devolve feitas X de N e marca cada pessoa como feita ou pendente (M5-20.2)
+- [x] `registra`, `edita` e `apaga` atualizam `D.feedbacks` e as contagens (M5-21.4, M5-21.5)
+- [x] `migraAntigo` converte `pessoa/lider/data/pontos/encam` sem perder texto (M5-21.7)
+- [x] Conversa de pessoa que saiu da Missão 2 é mantida como "pessoa removida"
+- [x] Gate: `npm test`; testes novos em `tests/feedback.test.ts`
 
 **Tests**: unit
 **Gate**: quick
