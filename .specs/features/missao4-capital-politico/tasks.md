@@ -150,7 +150,7 @@ T24 → T25 → T26
 
 ---
 
-### T4: Tabela bandeira → comissão
+### T4: Tabela bandeira → comissão ✅
 
 **What**: Criar `lib/comissoesPorBandeira.ts` (bandeira → siglas da Câmara) e teste que cada sigla existe em `public/data/comissoes/br.json`.
 **Where**: `lib/comissoesPorBandeira.ts`, `tests/comissoesPorBandeira.test.ts`
@@ -160,9 +160,9 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] Toda bandeira com tema óbvio tem ao menos uma sigla
-- [ ] Teste falha se uma sigla não existir no `br.json`
-- [ ] Gate passa
+- [x] Toda bandeira com tema óbvio tem ao menos uma sigla
+- [x] Teste falha se uma sigla não existir no `br.json`
+- [x] Gate passa
 
 **Tests**: unit
 **Gate**: quick
