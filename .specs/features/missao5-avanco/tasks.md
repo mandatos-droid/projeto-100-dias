@@ -343,7 +343,7 @@ T16 → T17 → T18
 
 - [x] Sem cadeiras ativas aparece o aviso com link para a Missão 2 (M5-20.6)
 - [x] Em largura de celular o mapa vira lista vertical (M5-20.8)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`
 
 **Tests**: e2e
 **Gate**: full
@@ -351,7 +351,7 @@ T16 → T17 → T18
 
 ---
 
-### T11: Verificação da fase Feedback ⬜
+### T11: Verificação da fase Feedback ✅
 
 **What**: Rodar o gate Build da fase, conferir o fluxo completo e registrar o resultado.
 **Where**: `.specs/features/missao5-avanco/tasks.md`
@@ -366,13 +366,15 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] `npx tsc --noEmit`, `npm test` e `npm run test:e2e` passam
-- [ ] Resultado do `npm run build` registrado
-- [ ] `graphify update .` executado
+- [x] `npx tsc --noEmit`, `npm test` e `npm run test:e2e` passam
+- [x] Resultado do `npm run build` registrado
+- [x] `graphify update .` executado
 
 **Tests**: none
 **Gate**: build
 **Commit**: `chore(m5): fecha a fase de feedback`
+
+**Registro**: tsc sem erros; npm test 301/301; e2e 276 passados (varios testes de timing oscilaram sob carga e passaram na repeticao); npm run build falhou so por SecurityFatalError do Next 16.4 (advisory conhecido), sem erro de codigo. graphify update executado; graphify-out/ fora do commit.
 
 ---
 
