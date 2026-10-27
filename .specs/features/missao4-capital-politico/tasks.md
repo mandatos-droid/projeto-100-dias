@@ -110,7 +110,7 @@ T24 → T25 → T26
 
 ---
 
-### T2: Gancho do legado `m4.js`
+### T2: Gancho do legado `m4.js` ✅
 
 **What**: Criar `public/legacy/m4.js` e ligá-lo no `app/guia/page.tsx`, abrindo uma ilha para cada um dos 3 exercícios da Missão 4 (tela vazia por enquanto).
 **Where**: `public/legacy/m4.js`, `app/guia/page.tsx`
@@ -120,9 +120,9 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] Os 3 exercícios da Missão 4 abrem a ilha correspondente
-- [ ] Missão 4 abre sem erro no console
-- [ ] `m3.js` e os arquivos extraídos seguem inalterados
+- [x] Os 3 exercícios da Missão 4 abrem a ilha correspondente
+- [x] Missão 4 abre sem erro no console
+- [x] `m3.js` e os arquivos extraídos seguem inalterados
 
 **Tests**: none
 **Gate**: build
