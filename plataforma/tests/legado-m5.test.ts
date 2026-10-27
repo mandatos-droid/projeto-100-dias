@@ -67,3 +67,30 @@ test('m5.js é carregado depois de m3.js na página do Guia (M5-10)', () => {
   assert.ok(lista.includes('m5'));
   assert.ok(lista.indexOf('m5') > lista.indexOf('m3'));
 });
+
+/* ---------- gancho do feedback: a lista "feedbacks" vira a ilha rumo-feedback (M5-20.1) ---------- */
+function janelaLista() {
+  const w = guia({ Comp: { lista: (ex: { chave: string }, dono?: string) => `lista-original:${ex.chave}:${dono ?? ''}` } });
+  vm.runInContext(CODIGO, w as unknown as vm.Context);
+  return w as unknown as { Comp: { lista(ex: unknown, dono?: string): string } };
+}
+
+test('o exercício m5.feedback (lista "feedbacks") passa a montar a ilha rumo-feedback (M5-20.1)', () => {
+  const ex = guia().MISSOES.find((m) => m.n === 5)!.exercicios.find((e) => e.id === 'm5.feedback') as unknown as { chave: string };
+  assert.equal(ex.chave, 'feedbacks');
+  assert.match(janelaLista().Comp.lista(ex), /<div class="ilha" data-ilha="rumo-feedback"><\/div>/);
+});
+
+test('outras listas do Guia seguem pelo corpo original, com o dono (M5-20.1)', () => {
+  assert.equal(janelaLista().Comp.lista({ chave: 'comissoes' }, 'dono'), 'lista-original:comissoes:dono');
+});
+
+test('a ilha rumo-feedback está registrada na ponte (M5-20.1)', () => {
+  const ponte = readFileSync(new URL('../ilhas/ponte.tsx', import.meta.url), 'utf8');
+  assert.match(ponte, /'rumo-feedback':\s*\(\)\s*=>\s*<Feedback\s*\/>/);
+});
+
+test('os campos antigos do exercício de feedback seguem em conteudo.js (M5-21.7)', () => {
+  const ex = guia().MISSOES.find((m) => m.n === 5)!.exercicios.find((e) => e.id === 'm5.feedback') as unknown as { campos: { k: string }[] };
+  assert.deepEqual([...ex.campos.map((c) => c.k)], ['pessoa', 'lider', 'data', 'pontos', 'encam']);
+});

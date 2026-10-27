@@ -274,7 +274,7 @@ T16 → T17 → T18
 
 ---
 
-### T8: Mapa de feedback (nível 1) ⬜
+### T8: Mapa de feedback (nível 1) ✅
 
 **What**: Criar a ilha `rumo-feedback` com o mapa do organograma: cada liderança com "dá feedback a N pessoas" e "feitas X de N".
 **Where**: `ilhas/rumo/Feedback.tsx` (+ `e2e/m5-feedback.spec.ts`)
@@ -289,9 +289,9 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] O mapa mostra cada liderança com o texto "dá feedback a N pessoas" e "feitas X de N" (M5-20.1)
-- [ ] A ilha é registrada em `ilhas/ponte.tsx` e usada na tarefa de feedback via `m5.js`
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`
+- [x] O mapa mostra cada liderança com o texto "dá feedback a N pessoas" e "feitas X de N" (M5-20.1)
+- [x] A ilha é registrada em `ilhas/ponte.tsx` e usada na tarefa de feedback via `m5.js`
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`
 
 **Tests**: e2e
 **Gate**: full

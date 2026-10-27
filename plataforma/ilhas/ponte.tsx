@@ -18,6 +18,7 @@ import Preditores from './rumo/Preditores';
 import Metas from './rumo/Metas';
 import Plano from './rumo/Plano';
 import PlanoResumo from './rumo/PlanoResumo';
+import Feedback from './rumo/Feedback';
 import Comissoes from './capital/Comissoes';
 import Organograma from './equipe/Organograma';
 import Escalacao from './equipe/Escalacao';
@@ -39,7 +40,9 @@ type Legado = {
     /* Missão 3: estado estruturado e listas do Guia (formato em lib/rumo.ts) */
     rumo?: unknown; metas?: unknown; preditores?: unknown; comissoesDesejadas?: unknown;
     /* Missão 4: comissões escolhidas e ações dos 100 dias (formato do Guia, lib/capital.ts) */
-    comissoes?: unknown; acoes?: unknown;
+    comissoes?: unknown; acoes?: unknown; comissoesM3?: unknown; // comissoesM3: nomes de comissoesDesejadas já importados para a Missão 4
+    /* Missão 5: conversas de feedback (formato em lib/feedback.ts; o antigo pessoa/lider/data/pontos/encam também vale) */
+    feedbacks?: unknown;
   };
   Store: { mandato: Record<string, string>; salvar(): void; atualizar(c: Record<string, unknown>): Promise<void> };
   aviso(t: string): void;
@@ -108,6 +111,7 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   'rumo-legado': () => <Legado />,
   'rumo-preditores': () => <Preditores />,
   'rumo-metas': () => <Metas />,
+  'rumo-feedback': () => <Feedback />,
   plano: () => <Plano />,
   'plano-resumo': () => <PlanoResumo />,
   'capital-comissoes': () => <Comissoes />,
