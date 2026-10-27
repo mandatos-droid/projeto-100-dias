@@ -249,7 +249,7 @@ T24 → T25 → T26
 
 ---
 
-### T9: Teste da chamada ao vivo à API da Câmara (opcional)
+### T9: Teste da chamada ao vivo à API da Câmara (opcional) ✅
 
 **What**: Verificar se a API da Câmara aceita chamada direto do navegador (CORS) e registrar o resultado; só adotar a chamada ao vivo se funcionar, com fallback ao arquivo.
 **Where**: `.specs/features/missao4-capital-politico/validation.md`
@@ -259,8 +259,8 @@ T24 → T25 → T26
 
 **Tools**: WebFetch ou navegador.
 **Done when**:
-- [ ] O resultado do teste de CORS está registrado
-- [ ] Se falhar, nada muda e o arquivo continua como fonte
+- [x] O resultado do teste de CORS está registrado
+- [x] Se falhar, nada muda e o arquivo continua como fonte
 
 **Tests**: none
 **Gate**: build
