@@ -139,7 +139,7 @@ T16 → T17 → T18
 
 ---
 
-### T3: Bloco de sucessos no cartão da meta ⬜
+### T3: Bloco de sucessos no cartão da meta ✅
 
 **What**: Acrescentar ao cartão da meta, na Missão 3, o bloco "Sucessos mensais" com adicionar, editar (mês, texto, status) e remover.
 **Where**: `ilhas/rumo/CartaoMeta.tsx` (+ `e2e/m5-sucessos.spec.ts`)
@@ -154,10 +154,10 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] "Adicionar sucesso" cria uma linha com mês e texto e grava na hora (M5-01.1)
-- [ ] Editar mês, texto ou status grava na hora (M5-01.2)
-- [ ] Remover tira só aquela linha (M5-01.3)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; `e2e/m5-sucessos.spec.ts` criado
+- [x] "Adicionar sucesso" cria uma linha com mês e texto e grava na hora (M5-01.1)
+- [x] Editar mês, texto ou status grava na hora (M5-01.2)
+- [x] Remover tira só aquela linha (M5-01.3)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; `e2e/m5-sucessos.spec.ts` criado
 
 **Tests**: e2e
 **Gate**: full

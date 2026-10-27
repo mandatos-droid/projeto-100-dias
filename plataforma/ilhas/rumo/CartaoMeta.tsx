@@ -7,6 +7,7 @@ import { type ItemMeta, type Objetivo } from '@/lib/plano';
 import { MAX_APOIOS, resolve, validaApoio, type Pessoa, type Ref } from '@/lib/pessoas';
 import { LETRAS, avaliaMeta, type Letra } from '@/lib/smart';
 import type { Campos, Meta, StatusMeta } from '@/lib/rumo';
+import { MESES, adicionaSucesso, editaSucesso, lerSucessos, removeSucesso, type Sucesso } from '@/lib/sucessos';
 import { aviso } from '../ponte';
 import './rumo.css';
 
@@ -41,6 +42,8 @@ export default function CartaoMeta({ meta, objetivos, pessoas, campos, comStatus
   const r = avaliaMeta({ texto: plano, pred: meta.pred && objetivos.some((o) => o.pid === meta.pred) ? meta.pred : undefined, alcancavel: meta.alcancavel });
   const res = resolve(campos, meta);
   const n = String(meta.idx + 1).padStart(2, '0');
+  const sucessos = lerSucessos(meta);
+  const gravaSucessos = (l: Sucesso[]) => onChange(meta.idx, { sucessos: l });
 
   const respRef: Ref = { cad: typeof meta.respCad === 'number' ? meta.respCad : null, nome: res.resp };
   const cads = meta.apoioCad ?? [];
@@ -157,6 +160,39 @@ export default function CartaoMeta({ meta, objetivos, pessoas, campos, comStatus
         <label className="campo"><span className="rot">{pessoas.length ? 'Outros apoios (separe com ponto e vírgula)' : 'Quem dá suporte (separe com ponto e vírgula)'}</span>
           <input type="text" defaultValue={livres.join('; ')} key={`${meta.idx}-${cads.length}`} onBlur={(e) => textoApoio(e.target.value)} />
         </label>
+      </fieldset>
+
+      <fieldset className="rm-suc" role="group" aria-label={`Sucessos mensais da meta ${n}`}>
+        <legend>Sucessos mensais <span className="rm-n">{sucessos.length}</span></legend>
+        <p className="rm-dica">Marcos de cada mês (Mês 1 a Mês 4). Com sucessos, o atingimento da meta passa a ser sucessos atingidos sobre o total.</p>
+        {sucessos.length > 0 && (
+          <ul className="rm-suc-l">
+            {sucessos.map((s, i) => {
+              const k = i + 1;
+              return (
+                <li key={s.id} data-sucesso={s.id}>
+                  <label className="campo"><span className="rot">Mês</span>
+                    <select aria-label={`Mês do sucesso ${k} da meta ${n}`} value={s.mes} onChange={(e) => gravaSucessos(editaSucesso(sucessos, s.id, { mes: Number(e.target.value) }))}>
+                      {MESES.map((mes) => <option key={mes} value={mes}>Mês {mes}</option>)}
+                    </select>
+                  </label>
+                  <label className="campo"><span className="rot">Sucesso</span>
+                    <input type="text" aria-label={`Texto do sucesso ${k} da meta ${n}`} value={s.texto} placeholder="Ex.: Protocolar o projeto de lei"
+                      onChange={(e) => gravaSucessos(editaSucesso(sucessos, s.id, { texto: e.target.value }))} />
+                  </label>
+                  <label className="campo"><span className="rot">Status</span>
+                    <select aria-label={`Status do sucesso ${k} da meta ${n}`} value={s.status} onChange={(e) => gravaSucessos(editaSucesso(sucessos, s.id, { status: e.target.value as StatusMeta }))}>
+                      {STATUS.map((st) => <option key={st.id} value={st.id}>{st.rot}</option>)}
+                    </select>
+                  </label>
+                  <button type="button" className="rm-link" aria-label={`Remover o sucesso ${k} da meta ${n}`} onClick={() => gravaSucessos(removeSucesso(sucessos, s.id))}>Remover</button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        <button type="button" className="bt sec peq" aria-label={`Adicionar sucesso à meta ${n}`}
+          onClick={() => gravaSucessos(adicionaSucesso(sucessos, { mes: 1, texto: '' }))}>Adicionar sucesso</button>
       </fieldset>
 
       {comStatus && (

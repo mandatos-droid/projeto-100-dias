@@ -2,6 +2,7 @@
    Funções puras sobre D: ler (lerRumo, lerMeta) nunca altera nada; aplicaRumo é o único ponto de escrita e
    reespelha as chaves antigas m3.* em texto legível, para o Resumo, o painel e a nuvem seguirem lendo. */
 import { BANDEIRAS, bandeiraDoRotulo } from './bandeiras.ts';
+import type { Sucesso } from './sucessos.ts';
 
 export type Campos = Record<string, string>;
 
@@ -42,6 +43,7 @@ export interface Meta {                // D.metas[i]; campos antigos (pred, text
   id?: string; pred?: string; texto?: string; resp?: string; apoio?: string;
   status: StatusMeta;
   respCad?: number | null; apoioCad?: number[]; alcancavel?: boolean;
+  sucessos?: Sucesso[];                // Missão 5: sucessos mensais; ausente em mandato antigo (ler com lerSucessos)
 }
 
 /** O que a lógica lê e grava em D (o resto do D do legado passa intocado). */
