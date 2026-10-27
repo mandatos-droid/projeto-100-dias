@@ -220,7 +220,7 @@ T16 → T17 → T18
 **Registro**: tsc sem erros; npm test 271/271; e2e 243 (ver T4); npm run build falhou só pelo aviso de segurança do Next 16.4 (SecurityFatalError, advisory conhecido), sem erro de código. graphify update executado; graphify-out/ fora do commit.
 ---
 
-### T6: Monitoramento com link para o Planejamento ⬜
+### T6: Monitoramento com link para o Planejamento ✅
 
 **What**: Criar `public/legacy/m5.js` com o gancho que acrescenta o botão "Abrir Planejamento Estratégico" na tarefa de monitoramento, sem alterar os textos.
 **Where**: `public/legacy/m5.js` (+ `tests/legado-m5.test.ts`)
@@ -235,10 +235,10 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] A tarefa mostra o botão que navega para `#/plano` (M5-10.2)
-- [ ] O hash dos textos da Missão 5 no `conteudo.js` é igual ao de antes (M5-10.1)
-- [ ] `m5.js` é carregado depois de `m3.js` na página do Guia
-- [ ] Gate: `npm test`; testes novos em `tests/legado-m5.test.ts`
+- [x] A tarefa mostra o botão que navega para `#/plano` (M5-10.2)
+- [x] O hash dos textos da Missão 5 no `conteudo.js` é igual ao de antes (M5-10.1)
+- [x] `m5.js` é carregado depois de `m3.js` na página do Guia
+- [x] Gate: `npm test`; testes novos em `tests/legado-m5.test.ts`
 
 **Tests**: unit
 **Gate**: quick
