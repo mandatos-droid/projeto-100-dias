@@ -100,3 +100,92 @@ test('carregar o m4.js sem Comp (outras janelas de teste) não falha', () => {
   const w = guia();
   assert.doesNotThrow(() => vm.runInContext(CODIGO, w as unknown as vm.Context));
 });
+
+/* ---------- Resumo e Missão 5 leem os dados novos sem quebrar os antigos (CAP-40, CAP-21) ---------- */
+const RESUMO = readFileSync(new URL('../public/legacy/resumo.js', import.meta.url), 'utf8');
+type ResumoJ = { ex(ex: unknown): string; sem: string };
+/** Janela com conteudo.js + resumo.js reais; `comM4` carrega o m4.js por cima, como na página. */
+function janelaResumo(D: Record<string, unknown>, comM4: boolean) {
+  const esc = (s: unknown) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const ctx: Record<string, unknown> = { D, esc, rich: esc, estadoEx: () => 'ok', ResumoIlhas: undefined, CAMPOS_MONIT: [], PREDITORES: [], CARGOS_EQUIPE: [] };
+  vm.createContext(ctx);
+  vm.runInContext(`${CONTEUDO};this.MISSOES=MISSOES;this.BINGOS=BINGOS;`, ctx);
+  vm.runInContext(`${RESUMO};this.Resumo=Resumo;`, ctx);
+  if (comM4) vm.runInContext(CODIGO, ctx);
+  return ctx as unknown as Janela & { Resumo: ResumoJ };
+}
+const html = (w: Janela & { Resumo: ResumoJ }, id: string) => w.Resumo.ex(ex4(w, id));
+const ANTIGO = {
+  campos: { 'm4.k1': true, 'm4.k3': true },
+  comissoes: [{ id: 'c1', prio: 'Saúde', esp: 'Comissão de Saúde', pq: 'Onde tramitam as propostas', papel: 'Titular', mov: 'Pedir a vaga' }],
+  acoes: [
+    { id: 'a1', bingo: 'articulacao', i: 0, titulo: 'Primeira ação', alcancar: 'Alcançar X', resp: 'Ana', prazo: 'até 20/03', saber: 'Ata', prox: 'Ligar' },
+    { id: 'a2', bingo: 'articulacao', i: 1, titulo: 'Segunda ação', resp: '', prazo: '' },
+  ],
+};
+
+test('dados antigos da Missão 4: o Resumo fica idêntico ao do Guia sem o m4.js (sem perda)', () => {
+  for (const id of ['m4.comissoes', 'm4.acoes', 'm4.metricas']) {
+    assert.equal(html(janelaResumo(ANTIGO, true), id), html(janelaResumo(ANTIGO, false), id), id);
+  }
+  assert.match(html(janelaResumo(ANTIGO, true), 'm4.acoes'), /Prazo: até 20\/03/);
+});
+
+test('mandato sem nenhum dado da Missão 4 abre o Resumo sem erro e com "não preenchido"', () => {
+  const w = janelaResumo({ campos: {} }, true);
+  for (const id of ['m4.comissoes', 'm4.acoes', 'm4.metricas']) assert.doesNotThrow(() => html(w, id), id);
+  assert.match(html(w, 'm4.acoes'), /não preenchido/);
+  assert.doesNotMatch(html(w, 'm4.metricas'), /Acompanhamento semanal/);
+});
+
+test('Resumo: comissões mostram o texto legível de motivo, papel e movimento', () => {
+  const D = { campos: {}, comissoes: [{ id: 'c1', sigla: 'CSAUDE', prio: 'Saúde', esp: 'Comissão de Saúde', pq: 'Combina com a bandeira', papel: 'Titular', mov: 'Pedir a vaga ao líder' }] };
+  const h = html(janelaResumo(D, true), 'm4.comissoes');
+  for (const t of ['Comissão de Saúde', 'Combina com a bandeira', 'Titular', 'Pedir a vaga ao líder']) assert.ok(h.includes(t), t);
+});
+
+test('Resumo: prazo novo AAAA-MM-DD aparece como DD/MM/AAAA, em qualquer ano e dia; data inválida fica como veio', () => {
+  const D = { campos: {}, acoes: [
+    { id: 'a1', bingo: 'articulacao', i: 0, titulo: 'T1', resp: 'Ana', prazo: '2027-03-08' },
+    { id: 'a2', bingo: 'articulacao', i: 1, titulo: 'T2', prazo: '2026-12-31' },
+    { id: 'a3', bingo: 'articulacao', i: 2, titulo: 'T3', prazo: '2026-1-5' },
+  ] };
+  const h = html(janelaResumo(D, true), 'm4.acoes');
+  assert.match(h, /Responsável: Ana · Prazo: 08\/03\/2027/);
+  assert.match(h, /Prazo: 31\/12\/2026/);
+  assert.match(h, /Prazo: 2026-1-5/);
+  assert.doesNotMatch(h, /2027-03-08/);
+});
+
+test('Resumo: mostra o último registro de cada seção da comunicação, com a semana, sem aparecer ao Resumo antigo', () => {
+  const D = { campos: {}, comunicacao: { semanas: {
+    '2026-W44': { k1: { seguidores: 900, alcance: 10 }, k2: { comentarios: 3 } },
+    '2026-W46': { k1: { seguidores: 1000, novos: 12 } },
+    '2026-W45': { k5: { aparicoes: 0 } },
+  }, clipping: [] } };
+  const h = html(janelaResumo(D, true), 'm4.metricas');
+  assert.match(h, /Acompanhamento semanal/);
+  assert.match(h, /Alcance e crescimento da comunidade<\/strong> \(2026-W46\): Seguidores \(total\) 1000 · Novos seguidores na semana 12/);
+  assert.doesNotMatch(h, /900/);
+  assert.match(h, /Compartilhamentos, comentários e respostas<\/strong> \(2026-W44\): Comentários recebidos 3/);
+  assert.match(h, /\(2026-W45\): Aparições na imprensa 0/);
+  assert.doesNotMatch(h, /Mensagens recebidas e encaminhadas<\/strong>/);
+  assert.doesNotMatch(html(janelaResumo(D, false), 'm4.metricas'), /Acompanhamento semanal/);
+});
+
+test('Resumo: D.comunicacao corrompida (texto, lista, números ruins) não quebra nada', () => {
+  for (const ruim of ['x', 5, [], { semanas: 'x' }, { semanas: { 'lixo': {}, '2026-W44': 'x', '2026-W45': { k1: 'x', k2: { comentarios: 'a', respostas: NaN } } } }]) {
+    const h = html(janelaResumo({ campos: {}, comunicacao: ruim }, true), 'm4.metricas');
+    assert.doesNotMatch(h, /Acompanhamento semanal/);
+  }
+});
+
+test('os rótulos das seções no m4.js são os mesmos de lib/comunicacao.ts (não divergem)', async () => {
+  const { SECOES } = await import('../lib/comunicacao.ts');
+  const D = { campos: {}, comunicacao: { semanas: { '2026-W44': Object.fromEntries(SECOES.map((s) => [s.id, Object.fromEntries(s.campos.map((c, i) => [c.id, i + 1]))])) }, clipping: [] } };
+  const h = html(janelaResumo(D, true), 'm4.metricas');
+  for (const s of SECOES) {
+    assert.ok(h.includes(`<strong>${s.titulo}</strong>`), s.titulo);
+    s.campos.forEach((c, i) => assert.ok(h.includes(`${c.rot} ${i + 1}`), c.rot));
+  }
+});

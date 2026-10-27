@@ -259,6 +259,17 @@ test.describe('Caixinhas antigas m4.k1 a m4.k5 (CAP-21.8)', () => {
   });
 });
 
+test('no Guia de verdade o Resumo mostra o último registro semanal de cada seção (T25)', async ({ page }) => {
+  await abreGuia(page, '#/m/4/m4.metricas/1', { dados: {} });
+  await registra(page, 'k1', { 'Seguidores (total)': '1200', 'Alcance ou visualizações': '30' });
+  await registra(page, 'k3', { 'Mensagens recebidas': '7' });
+  await page.evaluate(() => { location.hash = '#/resumo'; });
+  const resumo = page.locator('#tela');
+  await expect(resumo).toContainText('Acompanhamento semanal (último registro de cada seção)');
+  await expect(resumo).toContainText(`(${semana(0)}): Seguidores (total) 1200 · Alcance ou visualizações 30`);
+  await expect(resumo).toContainText(`(${semana(0)}): Mensagens recebidas 7`);
+});
+
 /* ---------- fluxo completo em celular e computador, com 2 semanas registradas de verdade (relógio do navegador controlado) ---------- */
 const semRolagemLateral = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
 

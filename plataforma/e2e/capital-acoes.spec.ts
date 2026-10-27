@@ -385,6 +385,6 @@ test.describe('Guia de verdade: ação salva antes da mudança continua abrindo 
     await l.getByLabel('Prazo').fill(iso(5));
     await page.evaluate(() => { location.hash = '#/resumo'; });
     await expect(page.locator('#tela')).toContainText('Responsável: Bruno');
-    await expect(page.locator('#tela')).toContainText(`Prazo: ${iso(5)}`);
+    await expect(page.locator('#tela')).toContainText(`Prazo: ${iso(5).split('-').reverse().join('/')}`); // o Resumo mostra DD/MM/AAAA (T25)
   });
 });

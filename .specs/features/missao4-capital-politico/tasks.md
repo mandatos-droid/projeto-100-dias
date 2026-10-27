@@ -561,7 +561,7 @@ T24 → T25 → T26
 
 ---
 
-### T25: Resumo e Missão 5 leem os dados novos
+### T25: Resumo e Missão 5 leem os dados novos ✅
 
 **What**: Fazer o Resumo e a Missão 5 lerem comissões, ações e a última semana de comunicação sem quebrar os dados antigos.
 **Where**: `public/legacy/m4.js`
@@ -571,9 +571,9 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] Mandato com dados antigos da Missão 4 abre sem perda
-- [ ] O Resumo mostra comissões, ações e a última semana de comunicação
-- [ ] Gate passa
+- [x] Mandato com dados antigos da Missão 4 abre sem perda
+- [x] O Resumo mostra comissões, ações e a última semana de comunicação
+- [x] Gate passa
 
 **Tests**: unit
 **Gate**: quick
