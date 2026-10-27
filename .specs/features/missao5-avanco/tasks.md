@@ -165,7 +165,7 @@ T16 → T17 → T18
 
 ---
 
-### T4: Sucessos na árvore do Planejamento ⬜
+### T4: Sucessos na árvore do Planejamento ✅
 
 **What**: Acrescentar na árvore da aba Planejamento o nível de sucessos por mês, com status editável e o novo atingimento.
 **Where**: `ilhas/rumo/ArvorePlano.tsx` (+ `e2e/m5-sucessos.spec.ts`)
@@ -180,15 +180,17 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] Os sucessos aparecem dentro da meta, agrupados por mês, com status (M5-02.4)
-- [ ] Marcar 1 de 2 sucessos como atingido mostra 50% na meta (M5-02.5)
-- [ ] Meta antiga sem sucessos continua mostrando o status dela (M5-02.6)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`
+- [x] Os sucessos aparecem dentro da meta, agrupados por mês, com status (M5-02.4)
+- [x] Marcar 1 de 2 sucessos como atingido mostra 50% na meta (M5-02.5)
+- [x] Meta antiga sem sucessos continua mostrando o status dela (M5-02.6)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`
 
 **Tests**: e2e
 **Gate**: full
 **Commit**: `feat(m5): sucessos por mês na árvore do planejamento`
 
+
+**Registro**: Gate full: tsc ok, npm test 271/271, e2e 243 (3 testes de timing falharam uma vez sob carga na suíte inteira e passaram isolados: rumo-metas:199, rumo-migracao:206, rumo-plano:39).
 ---
 
 ### T5: Verificação da fase Sucesso mensal ⬜

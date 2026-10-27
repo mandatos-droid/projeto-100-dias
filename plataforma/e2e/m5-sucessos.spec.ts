@@ -69,3 +69,45 @@ test.describe('Bloco "Sucessos mensais" no cartão da meta (M5-01)', () => {
     expect('sucessos' in (await metasDe(page))[0]).toBe(false);
   });
 });
+
+/* Missão 5 · sucessos na árvore da aba Planejamento (M5-02) */
+test.describe('Sucessos na árvore do Planejamento (M5-02)', () => {
+  const suc = (id: string, mes: number, texto: string, status = 'nao_concluida'): S => ({ id, mes, texto, status });
+  const no = (page: Page, id: string) => page.locator(`[data-no="${id}"]`);
+  const pctMetaNo = (page: Page, idx: number) => no(page, `meta-${idx}`).locator('> .rm-no-cab .rm-st small');
+  const PLANO = (metas: unknown[]) => ({ campos: { 'm3.obj.p1': 'Priorizar a educação' }, D: { preditores: ['p1'], metas } });
+
+  test('os sucessos aparecem dentro da meta, agrupados por mês na ordem 1 a 4, cada um com o status (M5-02.4)', async ({ page }) => {
+    const metas = [{ id: 'a', pred: 'p1', texto: 'Aprovar 2 projetos', status: 'nao_concluida', sucessos: [suc('s3', 3, 'Votar em plenário'), suc('s1', 1, 'Protocolar', 'concluida'), suc('s1b', 1, 'Reunir a bancada')] }];
+    await abre(page, ['plano'], PLANO(metas));
+    const meta0 = no(page, 'meta-0');
+    await expect(meta0.locator('[data-tipo="mes"]')).toHaveCount(2); // só meses com sucesso
+    const meses = await meta0.locator('[data-tipo="mes"] > .rm-no-cab').allInnerTexts();
+    expect(meses[0]).toMatch(/mês 1/i);
+    expect(meses[1]).toMatch(/mês 3/i);
+    await expect(meta0.locator('[data-tipo="sucesso"]')).toHaveCount(3);
+    await expect(no(page, 'suc-s1')).toContainText('Protocolar');
+    await expect(no(page, 'suc-s1').getByLabel('Status do sucesso Protocolar')).toHaveValue('concluida');
+    await expect(no(page, 'suc-s3').getByLabel('Status do sucesso Votar em plenário')).toHaveValue('nao_concluida');
+  });
+
+  test('marcar 1 de 2 sucessos como atingido mostra 50% na meta, no objetivo e no total, e grava (M5-02.5)', async ({ page }) => {
+    const metas = [{ id: 'a', pred: 'p1', texto: 'Aprovar 2 projetos', status: 'nao_concluida', sucessos: [suc('s1', 1, 'Protocolar'), suc('s2', 2, 'Votar')] }];
+    await abre(page, ['plano'], PLANO(metas));
+    await expect(pctMetaNo(page, 0)).toHaveText('0%');
+    await no(page, 'suc-s1').getByLabel('Status do sucesso Protocolar').selectOption('concluida');
+    await expect(pctMetaNo(page, 0)).toHaveText('50%');
+    await expect(page.locator('[data-no="obj-p1"] > .rm-no-cab .rm-no-pct')).toHaveText('50%');
+    await expect(page.locator('.rm-anel b')).toHaveText('50%');
+    expect((await metasDe(page))[0].sucessos![0].status).toBe('concluida');
+  });
+
+  test('meta antiga, sem sucessos, continua mostrando o status e a porcentagem dela (M5-02.6)', async ({ page }) => {
+    const metas = [{ id: 'a', pred: 'p1', texto: 'Visitar 10 escolas', status: 'concluida70' }];
+    await abre(page, ['plano'], PLANO(metas));
+    await expect(pctMetaNo(page, 0)).toHaveText('70%');
+    await expect(no(page, 'meta-0').locator('[data-tipo="mes"]')).toHaveCount(0);
+    await expect(page.locator('.rm-anel b')).toHaveText('70%');
+    expect('sucessos' in (await metasDe(page))[0]).toBe(false);
+  });
+});

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { pctObjetivo, pctTotal } from '@/lib/atingimento';
 import { podeAcrescentarMeta } from '@/lib/plano';
 import { resolve } from '@/lib/pessoas';
+import { editaSucesso, lerSucessos } from '@/lib/sucessos';
 import ArvorePlano, { pctTxt } from './ArvorePlano';
 import CartaoMeta from './CartaoMeta';
 import { useRumo } from './useRumo';
@@ -55,6 +56,10 @@ export default function Plano() {
 
   const opcoes = {
     onStatus: (idx: number, status: Parameters<typeof setMeta>[1]['status'] & string) => setMeta(idx, { status }),
+    onStatusSucesso: (idx: number, id: string, status: Parameters<typeof setMeta>[1]['status'] & string) => {
+      const meta = metas.find((x) => x.idx === idx);
+      if (meta) setMeta(idx, { sucessos: editaSucesso(lerSucessos(meta), id, { status }) });
+    },
     marca: (m: (typeof metas)[number]) => (filtro ? (daPessoa(m) ? ('destaque' as const) : ('esmaecido' as const)) : undefined),
     extraObjetivo: (pid: string) => (
       <button type="button" className="bt sec peq rm-nao-imprime" aria-label={`Acrescentar meta a ${objetivos.find((o) => o.pid === pid)?.texto ?? pid}`} onClick={() => acrescenta(pid)}>Acrescentar meta</button>

@@ -5,11 +5,12 @@ import { useState, type KeyboardEvent, type ReactNode } from 'react';
 import { STATUS, pctMeta, pctObjetivo } from '@/lib/atingimento';
 import type { Arvore, ItemMeta } from '@/lib/plano';
 import type { StatusMeta } from '@/lib/rumo';
+import { lerSucessos, porMes } from '@/lib/sucessos';
 import './rumo.css';
 
 export interface No {
   id: string;
-  tipo: 'legado' | 'objetivo' | 'meta' | 'sem';
+  tipo: 'legado' | 'objetivo' | 'meta' | 'sem' | 'mes' | 'sucesso';
   /** nome acessível do nó (lido pelo leitor de tela) */
   rot: string;
   cabeca: ReactNode;
@@ -54,6 +55,8 @@ const rotStatus = (id: string) => STATUS.find((x) => x.id === id)?.rot ?? 'Não 
 export interface OpcoesPlano {
   /** muda o status de uma meta (posição em D.metas) */
   onStatus: (idx: number, status: StatusMeta) => void;
+  /** muda o status de um sucesso mensal (posição da meta em D.metas e id do sucesso) */
+  onStatusSucesso?: (idx: number, id: string, status: StatusMeta) => void;
   /** conteúdo extra dentro do nó da meta (a edição, na T21) */
   extra?: (m: ItemMeta) => ReactNode;
   /** botões do objetivo (acrescentar meta) */
@@ -61,12 +64,39 @@ export interface OpcoesPlano {
   marca?: (m: ItemMeta) => 'esmaecido' | 'destaque' | undefined;
 }
 
+/** Sucessos da meta, um nó por mês (só meses com sucesso), cada sucesso com status editável. */
+function nosSucessos(idx: number, sucessos: ReturnType<typeof lerSucessos>, o: OpcoesPlano): No[] {
+  return porMes(sucessos).map((g) => ({
+    id: `mes-${idx}-${g.mes}`, tipo: 'mes' as const, rot: `Mês ${g.mes}: ${g.sucessos.length} ${g.sucessos.length === 1 ? 'sucesso' : 'sucessos'}`,
+    cabeca: <span className="rm-no-tag">Mês {g.mes}</span>,
+    filhos: g.sucessos.map((s) => {
+      const txt = s.texto.trim();
+      return {
+        id: `suc-${s.id}`, tipo: 'sucesso' as const, rot: `Sucesso do mês ${g.mes}: ${txt || 'sem texto'}. Status: ${rotStatus(s.status)}`,
+        cabeca: (
+          <>
+            <span className="rm-no-txt">{txt ? curto(txt, 160) : <em>Sucesso ainda sem texto</em>}</span>
+            <span className="rm-st" data-status={s.status}><i aria-hidden="true">{SIMBOLO[s.status]}</i>{rotStatus(s.status)}</span>
+            <label className="rm-st-sel"><span className="sr">Status do sucesso {txt || 'sem texto'}</span>
+              <select value={s.status} onChange={(e) => o.onStatusSucesso?.(idx, s.id, e.target.value as StatusMeta)}>
+                {STATUS.map((st) => <option key={st.id} value={st.id}>{st.rot}</option>)}
+              </select>
+            </label>
+          </>
+        ),
+      };
+    }),
+  }));
+}
+
 function noMeta(m: ItemMeta, o: OpcoesPlano): No {
   const n = String(m.idx + 1).padStart(2, '0');
   const txt = semTags(m.texto).trim();
-  const p = pctMeta(m.status);
+  const sucessos = lerSucessos(m);
+  const p = pctMeta(m.status, sucessos);
   return {
     id: `meta-${m.idx}`, tipo: 'meta', marca: o.marca?.(m),
+    filhos: sucessos.length ? nosSucessos(m.idx, sucessos, o) : undefined,
     rot: `Meta ${n}: ${txt || 'sem texto'}. Status: ${rotStatus(m.status)}${p === null ? ', fora da conta' : `, ${p}%`}`,
     cabeca: (
       <>
