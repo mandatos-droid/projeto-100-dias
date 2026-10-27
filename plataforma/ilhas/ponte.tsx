@@ -19,7 +19,9 @@ import Metas from './rumo/Metas';
 import Plano from './rumo/Plano';
 import PlanoResumo from './rumo/PlanoResumo';
 import Feedback from './rumo/Feedback';
+import NovoCiclo from './rumo/NovoCiclo';
 import Comissoes from './capital/Comissoes';
+import Matriz from './capital/Matriz';
 import Organograma from './equipe/Organograma';
 import Escalacao from './equipe/Escalacao';
 import { AssentosResumo, ConjunturaResumo, MunicipioResumo } from './Resumos';
@@ -112,9 +114,11 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   'rumo-preditores': () => <Preditores />,
   'rumo-metas': () => <Metas />,
   'rumo-feedback': () => <Feedback />,
+  'rumo-novociclo': () => <NovoCiclo />,
   plano: () => <Plano />,
   'plano-resumo': () => <PlanoResumo />,
   'capital-comissoes': () => <Comissoes />,
+  'capital-acoes': () => <Matriz />,
 };
 const raizes = new Set<Root>();
 

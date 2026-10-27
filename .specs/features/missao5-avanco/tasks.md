@@ -406,7 +406,7 @@ T16 → T17 → T18
 
 ---
 
-### T13: Botão e confirmação de novo planejamento ⬜
+### T13: Botão e confirmação de novo planejamento ✅
 
 **What**: Criar a ilha `NovoCiclo` com o botão "Criar novo planejamento", a confirmação e a escolha de metas a copiar.
 **Where**: `ilhas/rumo/NovoCiclo.tsx` (+ `e2e/m5-ciclos.spec.ts`)
@@ -421,10 +421,10 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] O botão pede confirmação e lista as metas para copiar (M5-30.3)
-- [ ] Confirmar cria o novo planejamento com as metas escolhidas (M5-30.4)
-- [ ] Cancelar não altera nada
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`
+- [x] O botão pede confirmação e lista as metas para copiar (M5-30.3)
+- [x] Confirmar cria o novo planejamento com as metas escolhidas (M5-30.4)
+- [x] Cancelar não altera nada
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`
 
 **Tests**: e2e
 **Gate**: full
