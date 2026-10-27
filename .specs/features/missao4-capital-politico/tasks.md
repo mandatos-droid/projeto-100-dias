@@ -130,7 +130,7 @@ T24 → T25 → T26
 
 ---
 
-### T3: Teste dos textos do Guia da Missão 4 intactos
+### T3: Teste dos textos do Guia da Missão 4 intactos ✅
 
 **What**: Criar teste que calcula o hash dos textos da Missão 4 em `conteudo.js` (`t`, `d`, `intro`, `fim`, `entrega`, bingos) e falha se qualquer um mudar.
 **Where**: `tests/legado-m4.test.ts`
@@ -140,9 +140,9 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] O teste passa com o `conteudo.js` atual
-- [ ] Alterar um caractere de um texto da Missão 4 faz o teste falhar
-- [ ] Gate passa
+- [x] O teste passa com o `conteudo.js` atual
+- [x] Alterar um caractere de um texto da Missão 4 faz o teste falhar
+- [x] Gate passa
 
 **Tests**: unit
 **Gate**: quick
