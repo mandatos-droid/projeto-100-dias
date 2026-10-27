@@ -68,6 +68,30 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: M5-30.4 lib/ciclos.ts:133 (spec)
 - last seen: 2026-10-27T22:16:55Z
 
+### L-010 - Test the limit constant that the route itself wires (export it from lib and assert its value), not only the limiter class built with its own argument.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `routes` · harmful: 0
+- features: missao4-capital-politico
+- evidence: M2 plataforma/app/api/clipping/route.ts:143 (routes)
+- last seen: 2026-10-27T23:20:07Z
+
+### L-011 - When an e2e stubs an authenticated API call, assert the auth header the client sends, not only the stubbed response.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e` · harmful: 0
+- features: missao4-capital-politico
+- evidence: E2 plataforma/ilhas/capital/Clipping.tsx:54 (e2e)
+- last seen: 2026-10-27T23:20:07Z
+
+### L-012 - Put every limit and bound the tests assert (min, max, window sizes) in the spec acceptance criteria, not only in the design.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: missao4-capital-politico
+- evidence: G1 Matriz AC6 prazo (design.md:64) (spec)
+- last seen: 2026-10-27T23:20:07Z
+
+### L-013 - Number each acceptance criterion with its own requirement id (CAP-NN.k) so test references resolve.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: missao4-capital-politico
+- evidence: G2 spec.md traceability CAP-11.x (spec)
+- last seen: 2026-10-27T23:20:07Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

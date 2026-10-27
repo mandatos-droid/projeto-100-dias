@@ -34,3 +34,5 @@
 ## Handoff
 
 Feature `missao5-avanco` concluída: T1 a T18 implementadas (sucessos mensais, monitoramento com link, feedback pelo organograma, novos planejamentos com arquivados somente leitura); 339 testes unitários e 319 e2e passando. `npm run build` falha só por `SecurityFatalError` do Next 16.4 (advisory conhecido). Pendente: validação (verifier) da feature, `git push` e deploy aguardam go-ahead. Arquivos do usuário seguem não commitados (`Equipe.tsx`, `Organograma.tsx`, `types.ts`, `novos.js`, `guia.js`, `cadastro.js`, entre outros).
+
+Feature `missao4-capital-politico`: T1 a T25 implementadas; Verifier rodada 1 em 2026-10-27 deu FAIL (sem defeito de produção): 2 mutantes sobreviventes em CAP-32, tasks F1 (testar o limite de 10 buscas ligado em `route.ts`) e F2 (testar o cabeçalho `Authorization` do cliente) em `validation.md`; lacunas de precisão G1 a G7 pendentes na spec. 366 unit e 374 e2e passando, `tsc` ok, build ok na 2ª execução (`SecurityFatalError` na 1ª). Falta: F1, F2, rodada 2 do Verifier, T26 e `validate_state.py` com exit 0. `git push` e deploy aguardam go-ahead.

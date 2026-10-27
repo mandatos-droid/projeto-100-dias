@@ -152,20 +152,20 @@ A Missão 4 tem três telas que hoje são formulários soltos. Comissões: o usu
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| CAP-01 | P1: Comissões (cargo Federal, sugeridas, todas, busca) | Tasks | Pending |
-| CAP-02 | P1: Comissões (Estadual e outros cargos, aviso, ajustar nome) | Tasks | Pending |
-| CAP-03 | P1: Comissões (cartão com 3 perguntas em botões, gravação em texto legível) | Tasks | Pending |
-| CAP-04 | P1: Comissões (sem bandeiras, pré-marcar da Missão 3) | Tasks | Pending |
-| CAP-10 | P1: Matriz (frentes, linhas, colunas, marcar e gravar) | Tasks | Pending |
-| CAP-11 | P1: Matriz (responsável, prazo, texto base, indicador de preenchimento) | Tasks | Pending |
-| CAP-12 | P1: Matriz (progresso 2 ações em 2 frentes, compatibilidade com `D.acoes`) | Tasks | Pending |
-| CAP-13 | P1: Matriz (cartões no celular, visão Todas as ações) | Tasks | Pending |
-| CAP-20 | P1: Comunicação (seções, registro semanal, edição, números) | Tasks | Pending |
-| CAP-21 | P1: Comunicação (gráficos de linha, linha do tempo geral, caixinhas antigas, textos do Guia) | Tasks | Pending |
-| CAP-30 | P2: Clipping (busca, ocultar, aparição manual, falha amigável) | Tasks | Pending |
-| CAP-31 | P2: Clipping (etiquetas de bandeira, gráfico por bandeira, número semanal) | Tasks | Pending |
-| CAP-32 | P2: Clipping (rota autenticada, limite, só metadados) | Tasks | Pending |
-| CAP-40 | Edge cases (cargo vazio, virada de ano, sem posse, dados antigos) | Tasks | Pending |
+| CAP-01 | P1: Comissões (cargo Federal, sugeridas, todas, busca) | Tasks | ✅ Verified |
+| CAP-02 | P1: Comissões (Estadual e outros cargos, aviso, ajustar nome) | Tasks | ✅ Verified |
+| CAP-03 | P1: Comissões (cartão com 3 perguntas em botões, gravação em texto legível) | Tasks | ✅ Verified |
+| CAP-04 | P1: Comissões (sem bandeiras, pré-marcar da Missão 3) | Tasks | ✅ Verified |
+| CAP-10 | P1: Matriz (frentes, linhas, colunas, marcar e gravar) | Tasks | ✅ Verified |
+| CAP-11 | P1: Matriz (responsável, prazo, texto base, indicador de preenchimento) | Tasks | ✅ Verified |
+| CAP-12 | P1: Matriz (progresso 2 ações em 2 frentes, compatibilidade com `D.acoes`) | Tasks | ✅ Verified |
+| CAP-13 | P1: Matriz (cartões no celular, visão Todas as ações) | Tasks | ✅ Verified |
+| CAP-20 | P1: Comunicação (seções, registro semanal, edição, números) | Tasks | ✅ Verified |
+| CAP-21 | P1: Comunicação (gráficos de linha, linha do tempo geral, caixinhas antigas, textos do Guia) | Tasks | ✅ Verified |
+| CAP-30 | P2: Clipping (busca, ocultar, aparição manual, falha amigável) | Tasks | ✅ Verified |
+| CAP-31 | P2: Clipping (etiquetas de bandeira, gráfico por bandeira, número semanal) | Tasks | ✅ Verified |
+| CAP-32 | P2: Clipping (rota autenticada, limite, só metadados) | Tasks | ❌ Needs Fix (F1, F2) |
+| CAP-40 | Edge cases (cargo vazio, virada de ano, sem posse, dados antigos) | Tasks | ✅ Verified |
 
 **ID format:** `CAP-NN` (comissões 01-04, matriz 10-13, comunicação 20-21, clipping 30-32, bordas 40).
 

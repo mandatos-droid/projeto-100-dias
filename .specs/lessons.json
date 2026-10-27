@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 10,
+  "next_id": 14,
   "lessons": [
     {
       "id": "L-001",
@@ -166,6 +166,78 @@
       ],
       "created": "2026-10-27T22:16:55Z",
       "last_seen": "2026-10-27T22:16:55Z"
+    },
+    {
+      "id": "L-010",
+      "key": "surviving_mutant::test the limit constant that the route itself wires export it from lib and assert its value not only the limiter class built with its own argument",
+      "text": "Test the limit constant that the route itself wires (export it from lib and assert its value), not only the limiter class built with its own argument.",
+      "signal": "surviving_mutant",
+      "scope": "routes",
+      "status": "candidate",
+      "features": [
+        "missao4-capital-politico"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M2 plataforma/app/api/clipping/route.ts:143 (routes)"
+      ],
+      "created": "2026-10-27T23:20:07Z",
+      "last_seen": "2026-10-27T23:20:07Z"
+    },
+    {
+      "id": "L-011",
+      "key": "surviving_mutant::when an e2e stubs an authenticated api call assert the auth header the client sends not only the stubbed response",
+      "text": "When an e2e stubs an authenticated API call, assert the auth header the client sends, not only the stubbed response.",
+      "signal": "surviving_mutant",
+      "scope": "e2e",
+      "status": "candidate",
+      "features": [
+        "missao4-capital-politico"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "E2 plataforma/ilhas/capital/Clipping.tsx:54 (e2e)"
+      ],
+      "created": "2026-10-27T23:20:07Z",
+      "last_seen": "2026-10-27T23:20:07Z"
+    },
+    {
+      "id": "L-012",
+      "key": "spec_precision_gap::put every limit and bound the tests assert min max window sizes in the spec acceptance criteria not only in the design",
+      "text": "Put every limit and bound the tests assert (min, max, window sizes) in the spec acceptance criteria, not only in the design.",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "missao4-capital-politico"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "G1 Matriz AC6 prazo (design.md:64) (spec)"
+      ],
+      "created": "2026-10-27T23:20:07Z",
+      "last_seen": "2026-10-27T23:20:07Z"
+    },
+    {
+      "id": "L-013",
+      "key": "spec_precision_gap::number each acceptance criterion with its own requirement id cap nn k so test references resolve",
+      "text": "Number each acceptance criterion with its own requirement id (CAP-NN.k) so test references resolve.",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "missao4-capital-politico"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "G2 spec.md traceability CAP-11.x (spec)"
+      ],
+      "created": "2026-10-27T23:20:07Z",
+      "last_seen": "2026-10-27T23:20:07Z"
     }
   ]
 }
