@@ -484,7 +484,7 @@ T16 → T17 → T18
 
 ---
 
-### T16: Fluxo de vários planejamentos de ponta a ponta ⬜
+### T16: Fluxo de vários planejamentos de ponta a ponta ✅
 
 **What**: Teste e2e que cria o 2º e o 3º planejamento e confere que o 1º não mudou.
 **Where**: `e2e/m5-ciclos.spec.ts`
@@ -499,12 +499,14 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] Criar 2 novos planejamentos deixa os anteriores idênticos e somente leitura (M5-31.7)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e && npm run build` (com a ressalva do `SecurityFatalError`)
+- [x] Criar 2 novos planejamentos deixa os anteriores idênticos e somente leitura (M5-31.7)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e && npm run build` (com a ressalva do `SecurityFatalError`)
 
 **Tests**: e2e
 **Gate**: build
 **Commit**: `test(m5): fluxo de vários planejamentos`
+
+**Registro**: tsc sem erros; npm test 339/339; e2e 319 passados; npm run build falhou só por SecurityFatalError do Next 16.4 (advisory conhecido), sem erro de código.
 
 ---
 

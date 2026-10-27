@@ -119,3 +119,38 @@ test.describe('Seletor de planejamentos e leitura dos arquivados (M5-31)', () =>
     expect(erros).toEqual([]);
   });
 });
+
+/* ---------- fluxo de ponta a ponta (M5-30, M5-31.7) ---------- */
+test('criar o 2º e o 3º planejamento deixa os anteriores idênticos e somente leitura (M5-31.7)', async ({ page }) => {
+  await abre(page, ['plano', 'rumo-novociclo'], PLANO);
+  const cria = async (copiar: RegExp[]) => {
+    await botao(page).click();
+    for (const nome of copiar) await painel(page).getByRole('checkbox', { name: nome }).check();
+    await page.getByRole('button', { name: 'Confirmar e criar novo planejamento' }).click();
+    await expect(painel(page)).toHaveCount(0);
+  };
+
+  await cria([/Aprovar 2 projetos/, /Visitar 10 escolas/]);                       // guarda o 1º, abre o 2º
+  const p1 = (await planosDe(page))[0];
+  expect(p1.metas).toEqual(PLANO.D.metas);
+  await page.getByLabel('Status da meta 02').selectOption('concluida');            // mexe no 2º (ativo)
+  await cria([/Visitar 10 escolas/]);                                              // guarda o 2º, abre o 3º
+  const planos = await planosDe(page);
+  expect(planos.map((p) => p.n)).toEqual([1, 2]);
+  expect(planos[0]).toEqual(p1);                                                   // o 1º não mudou
+  expect(planos[1].metas.map((m) => [m.id, m.status])).toEqual([['a', 'nao_concluida'], ['b', 'concluida']]);
+
+  await expect(seletor(page).locator('option')).toHaveText(['Planejamento 1', 'Planejamento 2', 'Planejamento 3 (atual)']);
+  expect((await metasDe(page)).map((m) => m.id)).toEqual(['b']);                  // o 3º tem só a meta copiada
+
+  for (const n of ['1', '2']) {                                                    // os dois anteriores abrem só para leitura
+    await seletor(page).selectOption(n);
+    await expect(page.getByText(`Planejamento ${n} guardado: somente leitura`)).toBeVisible();
+    await expect(page.locator('.rm-st-sel')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /Editar a meta|Acrescentar meta/ })).toHaveCount(0);
+  }
+  await seletor(page).selectOption('1');
+  await expect(page.locator('.rm-anel b')).toHaveText('43%');                      // atingimento congelado do 1º: p1 = (100 + 70) / 2 = 85, p2 = 0, total = 42,5
+  expect(await planosDe(page)).toEqual(planos);                                    // ver não altera nada
+  expect((await metasDe(page)).map((m) => m.id)).toEqual(['b']);
+});
