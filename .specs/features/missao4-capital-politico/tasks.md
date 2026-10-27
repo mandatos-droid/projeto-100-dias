@@ -404,7 +404,7 @@ T24 → T25 → T26
 
 ---
 
-### T17: Seções de comunicação e registro semanal
+### T17: Seções de comunicação e registro semanal ✅
 
 **What**: Criar `ilhas/capital/Comunicacao.tsx` e `SecaoComunicacao.tsx`: 5 seções expansíveis, "Registrar esta semana", editar semana, mensagem com menos de 2 semanas, gráfico por seção.
 **Where**: `ilhas/capital/Comunicacao.tsx`
@@ -414,9 +414,9 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] Registrar 2 semanas mostra a linha; com 1 semana mostra "Registre mais uma semana para ver a linha"
-- [ ] Reabrir a semana atual mostra "Editar esta semana"
-- [ ] O cabeçalho fechado mostra o último registro
+- [x] Registrar 2 semanas mostra a linha; com 1 semana mostra "Registre mais uma semana para ver a linha"
+- [x] Reabrir a semana atual mostra "Editar esta semana"
+- [x] O cabeçalho fechado mostra o último registro
 
 **Tests**: e2e
 **Gate**: full

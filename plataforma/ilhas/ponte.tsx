@@ -22,6 +22,7 @@ import Feedback from './rumo/Feedback';
 import NovoCiclo from './rumo/NovoCiclo';
 import Comissoes from './capital/Comissoes';
 import Matriz from './capital/Matriz';
+import Comunicacao from './capital/Comunicacao';
 import Organograma from './equipe/Organograma';
 import Escalacao from './equipe/Escalacao';
 import { AssentosResumo, ConjunturaResumo, MunicipioResumo } from './Resumos';
@@ -42,7 +43,7 @@ type Legado = {
     /* Missão 3: estado estruturado e listas do Guia (formato em lib/rumo.ts) */
     rumo?: unknown; metas?: unknown; preditores?: unknown; comissoesDesejadas?: unknown;
     /* Missão 4: comissões escolhidas e ações dos 100 dias (formato do Guia, lib/capital.ts) */
-    comissoes?: unknown; acoes?: unknown; comissoesM3?: unknown; // comissoesM3: nomes de comissoesDesejadas já importados para a Missão 4
+    comissoes?: unknown; acoes?: unknown; comunicacao?: unknown; comissoesM3?: unknown; // comissoesM3: nomes de comissoesDesejadas já importados para a Missão 4
     /* Missão 5: conversas de feedback (formato em lib/feedback.ts; o antigo pessoa/lider/data/pontos/encam também vale) */
     feedbacks?: unknown;
   };
@@ -119,6 +120,7 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   'plano-resumo': () => <PlanoResumo />,
   'capital-comissoes': () => <Comissoes />,
   'capital-acoes': () => <Matriz />,
+  'capital-comunicacao': () => <Comunicacao />,
 };
 const raizes = new Set<Root>();
 

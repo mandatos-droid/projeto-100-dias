@@ -90,3 +90,20 @@
 .cp-g-trilho{display:block;height:0.75rem;background:var(--g-grade);border-radius:0 4px 4px 0}
 .cp-g-barra{display:block;height:100%;background:var(--g-s1);border-radius:0 4px 4px 0}
 .cp-g-num{font-weight:700;color:var(--g-tx);min-width:1.5rem;text-align:right}
+
+/* ---------- comunicação: seções expansíveis e formulário semanal ---------- */
+.cp-sec{background:#fff;border:1px solid var(--linha);border-radius:var(--r)}
+.cp-sec[open]{border-color:var(--vinho)}
+.cp-sec summary{display:grid;gap:0.125rem;padding:0.625rem 0.75rem;cursor:pointer}
+.cp-sec-t{font-weight:700}
+.cp-sec-ult{font-size:0.8125rem;color:var(--tinta-2);overflow-wrap:anywhere}
+.cp-sec-corpo{display:grid;gap:0.75rem;padding:0 0.75rem 0.75rem;justify-items:start}
+.cp-sec-corpo>*{min-width:0;max-width:100%}
+.cp-form{display:grid;gap:0.625rem;width:100%;max-width:26rem}
+.cp-form .campo{margin:0}
+.cp-form input[type=number]{width:100%;box-sizing:border-box}
+.cp-semana{margin:0;font-size:0.8125rem;color:var(--tinta-2)}
+.cp-num{min-width:0}
+.cp-ajuda{display:block;margin-top:0.125rem;color:var(--tinta-3);font-size:0.78rem}
+.cp-erro{margin:0;border-left:4px solid var(--erro);padding:0.25rem 0.625rem;font-size:0.875rem;color:var(--erro);background:var(--papel)}
+.cp-sec-corpo .cp-g{width:100%;box-sizing:border-box}
