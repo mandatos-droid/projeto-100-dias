@@ -345,7 +345,7 @@ T24 → T25 → T26
 
 ---
 
-### T14: Teste e2e da matriz
+### T14: Teste e2e da matriz ✅
 
 **What**: Cobrir em e2e o fluxo de escolher frente, marcar, preencher, trocar de frente e conferir "Todas as ações", incluindo ação salva no formato antigo.
 **Where**: `e2e/capital-acoes.spec.ts`
@@ -355,8 +355,8 @@ T24 → T25 → T26
 
 **Tools**: Playwright.
 **Done when**:
-- [ ] O fluxo completo passa
-- [ ] Uma ação salva antes da mudança continua abrindo
+- [x] O fluxo completo passa
+- [x] Uma ação salva antes da mudança continua abrindo
 
 **Tests**: e2e
 **Gate**: full

@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { abre, dadoDe, EQUIPE, MANDATO } from './semente-rumo';
+import { abreGuia } from './guia-real';
 
 /* Missão 4 · matriz das ações dos 100 dias (CAP-10 a CAP-13, CAP-40). Ilha montada na rota de teste, com os BINGOS reais do Guia. */
 const ILHA = 'capital-acoes';
@@ -309,5 +310,81 @@ test.describe('Visão "Todas as ações" (CAP-13)', () => {
     await frente(page, 'partido').click();
     await expect(linhas(page)).toHaveCount(9);
     await expect(page.getByText('Nenhuma ação escolhida ainda')).toHaveCount(0);
+  });
+});
+
+/* ---------- fluxo completo, em celular e computador, e no Guia de verdade (CAP-10 a CAP-13, CAP-40) ---------- */
+const semRolagemLateral = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+
+for (const tela of [{ nome: 'celular 360 px', width: 360, height: 740 }, { nome: 'computador 1280 px', width: 1280, height: 800 }]) {
+  test.describe(`Fluxo completo em ${tela.nome}`, () => {
+    test.use({ viewport: { width: tela.width, height: tela.height } });
+
+    test('escolhe frente, marca e preenche, troca de frente, confere "Todas as ações", recarrega e continua salvo', async ({ page }) => {
+      await abre(page, [ILHA], { mandato: comPosse(10), campos: EQUIPE });
+      const a = await marca(page, 'articulacao', 0);
+      await a.getByLabel('O que queremos alcançar').fill('Ser ouvido nas decisões da Mesa');
+      await a.getByRole('group', { name: 'Pessoas da equipe' }).getByRole('button', { name: /Bruno Lima/ }).click();
+      await a.getByLabel('Prazo').fill(iso(30));
+      await a.getByLabel('Próximo passo').fill('Ligar para a secretaria');
+      await expect(a.locator('.cp-ponto')).toHaveAttribute('data-estado', 'completa');
+      expect(await semRolagemLateral(page)).toBe(true);
+
+      await frente(page, 'mobilizacao').click();
+      const b = await marca(page, 'mobilizacao', 0);
+      await b.getByLabel('Prazo').fill(iso(15));
+      await expect(b.locator('.cp-ponto')).toHaveAttribute('data-estado', 'pendente');
+      await expect(progresso(page)).toContainText(OK);
+      expect(await semRolagemLateral(page)).toBe(true);
+
+      await page.getByRole('button', { name: 'Todas as ações' }).click();
+      const todas = page.locator('.cp-todas > li');
+      await expect(todas).toHaveCount(2);
+      await expect(todas.nth(0)).toContainText('Mobilização de apoiadores'); // prazo mais próximo primeiro
+      await expect(todas.nth(1)).toContainText('Articulação política');
+      await expect(todas.nth(1)).toContainText('Bruno Lima');
+      expect(await semRolagemLateral(page)).toBe(true);
+
+      await page.reload();
+      await page.locator('#tela[data-pronto="true"]').waitFor();
+      await frente(page, 'articulacao').click();
+      await expect(linha(page, 'articulacao', 0).getByLabel('Próximo passo')).toHaveValue('Ligar para a secretaria');
+      await expect(progresso(page)).toContainText(OK);
+      const salvas = (await acoes(page)) as AcaoCad[];
+      expect(salvas).toHaveLength(2);
+      expect(salvas[0]).toEqual(expect.objectContaining({ bingo: 'articulacao', i: 0, resp: 'Bruno Lima', respCad: 1, prazo: iso(30), prox: 'Ligar para a secretaria' }));
+    });
+  });
+}
+
+test.describe('Guia de verdade: ação salva antes da mudança continua abrindo (CAP-12.11, CAP-40)', () => {
+  const antigas = [
+    { id: 'o1', bingo: 'articulacao', i: 1, titulo: 'Reunir-se com a presidência ou a secretaria de uma comissão prioritária', alcancar: 'Acesso à pauta', resp: 'Ana', prazo: 'até 20/03', saber: 'Ata', prox: 'Agendar' },
+    { id: 'o2', bingo: 'redes', i: 0, titulo: 'Definir os públicos prioritários e a função de cada canal' },
+  ];
+
+  test('a ilha abre as ações antigas marcadas, com prazo em texto livre visível, e o Resumo as mostra', async ({ page }) => {
+    await abreGuia(page, '#/m/4/m4.acoes/1', { dados: { acoes: antigas } });
+    await expect(linha(page, 'articulacao', 1).getByRole('checkbox')).toBeChecked();
+    await expect(linha(page, 'articulacao', 1).getByText('Prazo anterior: até 20/03')).toBeVisible();
+    await expect(progresso(page)).toContainText(OK);
+    await frente(page, 'redes').click();
+    await expect(linha(page, 'redes', 0).getByRole('checkbox')).toBeChecked();
+    await page.evaluate(() => { location.hash = '#/resumo'; });
+    const resumo = page.locator('#tela');
+    await expect(resumo).toContainText('Reunir-se com a presidência ou a secretaria de uma comissão prioritária');
+    await expect(resumo).toContainText('Responsável: Ana');
+    await expect(resumo).toContainText('Prazo: até 20/03');
+    await expect(resumo).toContainText('Verificação: Ata');
+  });
+
+  test('marcar e preencher no Guia grava no formato antigo e o Resumo mostra responsável e prazo', async ({ page }) => {
+    await abreGuia(page, '#/m/4/m4.acoes/1', { dados: {} });
+    const l = await marca(page, 'articulacao', 0);
+    await l.getByLabel('Responsável', { exact: true }).fill('Bruno');
+    await l.getByLabel('Prazo').fill(iso(5));
+    await page.evaluate(() => { location.hash = '#/resumo'; });
+    await expect(page.locator('#tela')).toContainText('Responsável: Bruno');
+    await expect(page.locator('#tela')).toContainText(`Prazo: ${iso(5)}`);
   });
 });
