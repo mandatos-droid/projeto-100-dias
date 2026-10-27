@@ -386,7 +386,7 @@ T24 → T25 → T26
 
 ---
 
-### T16: Componente de gráfico
+### T16: Componente de gráfico ✅
 
 **What**: Criar `ilhas/capital/Grafico.tsx` com linha e barras, legenda e rótulos (não só cor).
 **Where**: `ilhas/capital/Grafico.tsx`
@@ -396,7 +396,7 @@ T24 → T25 → T26
 
 **Tools**: skill `dataviz`.
 **Done when**:
-- [ ] Renderiza com 0, 1 e 10 semanas sem erro
+- [x] Renderiza com 0, 1 e 10 semanas sem erro
 
 **Tests**: none
 **Gate**: build
