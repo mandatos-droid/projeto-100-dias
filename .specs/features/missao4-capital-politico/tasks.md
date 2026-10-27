@@ -90,7 +90,7 @@ T24 → T25 → T26
 
 ## Task Breakdown
 
-### T1: Listas e regras puras da Missão 4
+### T1: Listas e regras puras da Missão 4 ✅
 
 **What**: Criar `lib/capital.ts` com `MOTIVOS`, `PAPEIS`, `MOVIMENTOS`, textos base de "Como saberemos" e `progressoAcoes(acoes)`.
 **Where**: `lib/capital.ts`, `tests/capital.test.ts`
@@ -100,9 +100,9 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] `progressoAcoes` devolve `ok:false` com 2 ações na mesma frente e `ok:true` com 2 ações em 2 frentes
-- [ ] `MOTIVOS`, `PAPEIS` e `MOVIMENTOS` têm os itens definidos na spec
-- [ ] Gate passa
+- [x] `progressoAcoes` devolve `ok:false` com 2 ações na mesma frente e `ok:true` com 2 ações em 2 frentes
+- [x] `MOTIVOS`, `PAPEIS` e `MOVIMENTOS` têm os itens definidos na spec
+- [x] Gate passa
 
 **Tests**: unit
 **Gate**: quick
