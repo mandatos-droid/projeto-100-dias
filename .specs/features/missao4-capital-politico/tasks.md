@@ -230,7 +230,7 @@ T24 → T25 → T26
 
 ---
 
-### T8: Teste e2e das comissões
+### T8: Teste e2e das comissões ✅
 
 **What**: Cobrir em e2e os caminhos Federal e Estadual, em tela de celular e de computador.
 **Where**: `e2e/capital-comissoes.spec.ts`
@@ -240,8 +240,8 @@ T24 → T25 → T26
 
 **Tools**: Playwright.
 **Done when**:
-- [ ] Federal e Estadual passam em 360 px e em 1280 px
-- [ ] Dados salvos sobrevivem a recarregar
+- [x] Federal e Estadual passam em 360 px e em 1280 px
+- [x] Dados salvos sobrevivem a recarregar
 
 **Tests**: e2e
 **Gate**: full

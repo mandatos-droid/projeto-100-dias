@@ -223,3 +223,47 @@ test.describe('Ajustar o nome na Assembleia (CAP-02.4)', () => {
     await expect(page.locator('#tela')).toContainText('Comissão de Educação e Cultura');
   });
 });
+
+/* ---------- Federal e Estadual de ponta a ponta, em celular e computador (CAP-01 a CAP-04) ---------- */
+const semRolagemLateral = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+
+for (const tela of [{ nome: 'celular 360 px', width: 360, height: 740 }, { nome: 'computador 1280 px', width: 1280, height: 800 }]) {
+  test.describe(`Fluxo completo em ${tela.nome}`, () => {
+    test.use({ viewport: { width: tela.width, height: tela.height } });
+
+    test('Federal: sugerida, escolhe, responde, recarrega e continua salvo, sem rolagem lateral', async ({ page }) => {
+      await abre(page, [ILHA], { campos: SAUDE, mandato: FEDERAL });
+      await expect(sugeridas(page).locator('li', { hasText: 'Comissão de Saúde' })).toContainText('Combina com sua bandeira Saúde');
+      await page.getByRole('checkbox', { name: 'Escolher Comissão de Saúde' }).check();
+      await botao(page, 'pq', MOTIVO1).click();
+      await botao(page, 'papel', 'Titular').click();
+      await botao(page, 'mov', MOV).click();
+      expect(await semRolagemLateral(page)).toBe(true);
+      await page.reload();
+      await page.locator('#tela[data-pronto="true"]').waitFor();
+      await expect(page.getByRole('checkbox', { name: 'Escolher Comissão de Saúde' })).toBeChecked();
+      await expect(botao(page, 'pq', MOTIVO1)).toHaveAttribute('aria-pressed', 'true');
+      await expect(botao(page, 'papel', 'Titular')).toHaveAttribute('aria-pressed', 'true');
+      await expect(botao(page, 'mov', MOV)).toHaveAttribute('aria-pressed', 'true');
+      expect(await registros(page)).toEqual([expect.objectContaining({ sigla: 'CSAUDE', pq: MOTIVO1, papel: 'Titular', mov: MOV })]);
+      expect(await semRolagemLateral(page)).toBe(true);
+    });
+
+    test('Estadual: aviso, ajuste do nome, resposta no cartão, recarrega e continua salvo, sem rolagem lateral', async ({ page }) => {
+      await abre(page, [ILHA], { campos: SAUDE, mandato: MANDATO });
+      await expect(page.getByText(AVISO)).toBeVisible();
+      const ce = page.locator('li[data-sigla="CE"]');
+      await ce.getByRole('button', { name: 'Ajustar o nome' }).click();
+      await page.getByLabel('Nome na sua Assembleia').fill('Comissão de Educação e Cultura');
+      await page.getByRole('button', { name: 'Salvar nome' }).click();
+      await botao(page, 'papel', 'Suplente').click();
+      expect(await semRolagemLateral(page)).toBe(true);
+      await page.reload();
+      await page.locator('#tela[data-pronto="true"]').waitFor();
+      await expect(ce).toContainText('Comissão de Educação e Cultura');
+      await expect(botao(page, 'papel', 'Suplente')).toHaveAttribute('aria-pressed', 'true');
+      expect(await registros(page)).toEqual([expect.objectContaining({ sigla: 'CE', esp: 'Comissão de Educação e Cultura', papel: 'Suplente' })]);
+      expect(await semRolagemLateral(page)).toBe(true);
+    });
+  });
+}
