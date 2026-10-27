@@ -534,7 +534,7 @@ T16 → T17 → T18
 
 ---
 
-### T18: Estado e handoff ⬜
+### T18: Estado e handoff ✅
 
 **What**: Registrar no `.specs/STATE.md` a decisão de dados (AD-005: planos arquivados em `D.planos`) e atualizar o Handoff.
 **Where**: `.specs/STATE.md`
@@ -549,8 +549,8 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] AD-005 escrito em `## Decisions` sem apagar os anteriores
-- [ ] Só o corpo de `## Handoff` foi substituído
+- [x] AD-005 escrito em `## Decisions` sem apagar os anteriores
+- [x] Só o corpo de `## Handoff` foi substituído
 
 **Tests**: none
 **Gate**: build

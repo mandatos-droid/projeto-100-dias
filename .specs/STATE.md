@@ -25,8 +25,12 @@
 - Testes: `node --test "tests/**/*.test.ts"` (`npm test`). Telas: Playwright (`npm run test:e2e`).
 - Imports em `lib/` e `tests/` são relativos e terminam em `.ts` (o `@/` não resolve no runner do Node).
 
+### AD-005: Planejamentos arquivados ficam em `D.planos`, o ativo continua nos campos de hoje (2026-10-27)
+
+- Criar novo planejamento guarda uma cópia congelada do atual em `D.planos[]` (`{n, criadoEm, legado, bandeiras, objetivos, metas}`) e deixa em `D.metas` só as metas escolhidas, sem sucessos e com status "não concluída". Legado, bandeiras, objetivos e preditores seguem nos campos de sempre (`D.rumo`, `D.campos`, `D.preditores`).
+- Motivo: Painel, Resumo e monitoramento leem os mesmos campos e não precisam mudar. Os arquivados são somente leitura (`lib/ciclos.ts`: `arquivarEIniciar`, `listaCiclos`, `abrirCiclo`); a tela de arquivados nunca escreve no ativo.
+- Ganchos do botão (tarefa "Calibragem e replanejamento" e aba Planejamento) ficam em `public/legacy/m5.js`. Na aba, a ilha entra antes da única chamada de `Ilhas.ligar` do original: religar duas vezes quebra as raízes React.
+
 ## Handoff
 
-Feature `landing` concluída e verificada (validation.md: PASS). Pendente fora do código: incluir `<domínio>/guia` nas Redirect URLs do Supabase; `git push` e deploy aguardam go-ahead.
-
-Feature `missao2-equipe`: fases 1 a 6 (T1 a T36) implementadas e verificadas (validation.md: PASS na iteração 2; a iteração 1 achou 1 defeito de repasse de liderança, corrigido no commit `01bd49a`). Fase 7 (P3: arrastar para ligar, mover sem equipe, recolher, desfazer, visão por área) adiada a pedido do usuário; inclui as tarefas T37 a T41 de `tasks.md`. Pendente fora do código: `npm run build` bloqueado pelo `SecurityFatalError` do Next 16.4 (404 em produção de `/teste-equipe` não verificado por isso); `tests/rumo.test.ts` do usuário falha por regex inválida em `lib/rumo.ts` (outro trabalho, não tocado). `git push` aguarda go-ahead. Arquivos do usuário não commitados nos mesmos caminhos: `Equipe.tsx` (antigo, sem uso na Missão 2), `novos.js`, `guia.js`, `Recomenda.tsx`, `recomenda.ts`, `bandeiras.ts`.
+Feature `missao5-avanco` concluída: T1 a T18 implementadas (sucessos mensais, monitoramento com link, feedback pelo organograma, novos planejamentos com arquivados somente leitura); 339 testes unitários e 319 e2e passando. `npm run build` falha só por `SecurityFatalError` do Next 16.4 (advisory conhecido). Pendente: validação (verifier) da feature, `git push` e deploy aguardam go-ahead. Arquivos do usuário seguem não commitados (`Equipe.tsx`, `Organograma.tsx`, `types.ts`, `novos.js`, `guia.js`, `cadastro.js`, entre outros).
