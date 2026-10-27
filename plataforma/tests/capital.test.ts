@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { MOTIVOS, PAPEIS, MOVIMENTOS, TEXTO_SABER, progressoAcoes, acaoCompleta, textoDasEscolhas, leEscolhas } from '../lib/capital.ts';
+import { MOTIVOS, PAPEIS, MOVIMENTOS, TEXTO_SABER, progressoAcoes, acaoCompleta, limitesPrazo, validaPrazo, ehDataISO, textoDasEscolhas, leEscolhas } from '../lib/capital.ts';
 
 /* Missão 4 · listas e regra de progresso (CAP-03, CAP-12). Resultados esperados vêm da spec. */
 
@@ -76,4 +76,35 @@ test('acaoCompleta: só os 5 campos preenchidos (alcancar, resp, prazo, saber, p
   }
   assert.equal(acaoCompleta({ id: 'a', bingo: 'redes', i: 0, titulo: 'x' }), false);
   assert.equal(acaoCompleta(null), false);
+});
+
+test('limitesPrazo: com posse o prazo vai de hoje até 100 dias depois da posse (CAP-11.6, design)', () => {
+  assert.deepEqual(limitesPrazo('2027-02-01', '2026-10-27'), { min: '2026-10-27', max: '2027-05-12' });
+  assert.deepEqual(limitesPrazo('2027-01-01', '2026-12-31'), { min: '2026-12-31', max: '2027-04-11' });
+});
+
+test('limitesPrazo: sem data da posse (ausente, vazia ou inválida) não há máximo (CAP-40)', () => {
+  for (const posse of [undefined, '', 'em breve', '2027-13-45', null]) assert.deepEqual(limitesPrazo(posse, '2026-10-27'), { min: '2026-10-27' });
+});
+
+test('validaPrazo: hoje e datas futuras valem; o passado é recusado (CAP-11.6)', () => {
+  assert.equal(validaPrazo('2026-10-27', '2026-10-27', undefined), null);
+  assert.equal(validaPrazo('2026-10-28', '2026-10-27', undefined), null);
+  assert.match(validaPrazo('2026-10-26', '2026-10-27', undefined) ?? '', /passado|já passou/i);
+});
+
+test('validaPrazo: sem posse qualquer prazo futuro é aceito, mesmo muito distante (CAP-40)', () => {
+  assert.equal(validaPrazo('2040-01-01', '2026-10-27', undefined), null);
+});
+
+test('validaPrazo: com posse recusa depois de 100 dias dela e aceita no último dia (CAP-11.6)', () => {
+  assert.equal(validaPrazo('2027-05-12', '2026-10-27', '2027-02-01'), null);
+  assert.match(validaPrazo('2027-05-13', '2026-10-27', '2027-02-01') ?? '', /100 dias/);
+});
+
+test('validaPrazo: data que não é AAAA-MM-DD é recusada; ehDataISO reconhece só datas reais', () => {
+  assert.notEqual(validaPrazo('até 20/03', '2026-10-27', undefined), null);
+  assert.equal(ehDataISO('2027-02-29'), false);
+  assert.equal(ehDataISO('2028-02-29'), true);
+  assert.equal(ehDataISO('até 20/03'), false);
 });

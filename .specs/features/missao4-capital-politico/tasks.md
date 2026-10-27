@@ -288,7 +288,7 @@ T24 → T25 → T26
 
 ---
 
-### T11: Responsável, prazo e texto base
+### T11: Responsável, prazo e texto base ✅
 
 **What**: Ligar o "Responsável" às pessoas da Missão 2 (mais texto livre), o "Prazo" a seletor de data e o texto base de "Como saberemos".
 **Where**: `ilhas/capital/LinhaAcao.tsx`
@@ -298,9 +298,9 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] Escolher uma pessoa e uma data grava `resp` e `prazo`
-- [ ] Ação antiga com prazo em texto livre continua visível
-- [ ] Sem data de posse, qualquer prazo futuro é aceito
+- [x] Escolher uma pessoa e uma data grava `resp` e `prazo`
+- [x] Ação antiga com prazo em texto livre continua visível
+- [x] Sem data de posse, qualquer prazo futuro é aceito
 
 **Tests**: e2e
 **Gate**: full

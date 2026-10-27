@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { abre, dadoDe, MANDATO } from './semente-rumo';
+import { abre, dadoDe, EQUIPE, MANDATO } from './semente-rumo';
 
 /* Missão 4 · matriz das ações dos 100 dias (CAP-10 a CAP-13, CAP-40). Ilha montada na rota de teste, com os BINGOS reais do Guia. */
 const ILHA = 'capital-acoes';
@@ -8,7 +8,9 @@ const acoes = (page: Page) => dadoDe(page, 'acoes') as Promise<Acao[] | undefine
 const frente = (page: Page, k: string) => page.locator(`.cp-frentes button[data-frente="${k}"]`);
 const linhas = (page: Page) => page.locator('.cp-acoes > li');
 const linha = (page: Page, bingo: string, i: number) => page.locator(`li[data-bingo="${bingo}"][data-i="${i}"]`);
-const ART0 = 'Sustentar diálogo aberto com a Secretaria-Geral da Mesa ou estrutura equivalente';
+/** Data AAAA-MM-DD daqui a n dias, no fuso do aparelho (os testes valem em qualquer dia). */
+const iso = (n: number) => { const d = new Date(); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const ART0 ='Sustentar diálogo aberto com a Secretaria-Geral da Mesa ou estrutura equivalente';
 
 test.describe('Frentes e linhas (CAP-10.1, CAP-10.2)', () => {
   test('mostra os botões das 4 frentes de hoje, cada um com o contador de ações escolhidas', async ({ page }) => {
@@ -53,10 +55,10 @@ test.describe('Marcar, campos e gravação no formato antigo (CAP-10.3, CAP-10.4
     await l.getByRole('checkbox').check();
     await l.getByLabel('O que queremos alcançar').fill('Ser ouvido nas decisões da Mesa');
     await l.getByLabel('Responsável').fill('Bruno');
-    await l.getByLabel('Prazo').fill('até 20/03');
+    await l.getByLabel('Prazo').fill(iso(20));
     await l.getByLabel('Como saberemos').fill('Ata da reunião');
     await l.getByLabel('Próximo passo').fill('Ligar para a secretaria');
-    expect(await acoes(page)).toEqual([expect.objectContaining({ bingo: 'articulacao', i: 0, alcancar: 'Ser ouvido nas decisões da Mesa', resp: 'Bruno', prazo: 'até 20/03', saber: 'Ata da reunião', prox: 'Ligar para a secretaria' })]);
+    expect(await acoes(page)).toEqual([expect.objectContaining({ bingo: 'articulacao', i: 0, alcancar: 'Ser ouvido nas decisões da Mesa', resp: 'Bruno', prazo: iso(20), saber: 'Ata da reunião', prox: 'Ligar para a secretaria' })]);
   });
 
   test('desmarcar remove a ação; com campos preenchidos pede confirmação e cancelar mantém tudo', async ({ page }) => {
@@ -95,12 +97,128 @@ test.describe('Ponto de preenchimento (CAP-11.9)', () => {
     await expect(l.locator('.cp-ponto')).toHaveAttribute('data-estado', 'pendente');
     await l.getByLabel('O que queremos alcançar').fill('a');
     await l.getByLabel('Responsável').fill('Bruno');
-    await l.getByLabel('Prazo').fill('até 20/03');
+    await l.getByLabel('Prazo').fill(iso(20));
     await l.getByLabel('Como saberemos').fill('s');
     await expect(l.locator('.cp-ponto')).toHaveAttribute('data-estado', 'pendente');
     await l.getByLabel('Próximo passo').fill('p');
     await expect(l.locator('.cp-ponto')).toHaveAttribute('data-estado', 'completa');
     await l.getByLabel('Próximo passo').fill('');
     await expect(l.locator('.cp-ponto')).toHaveAttribute('data-estado', 'pendente');
+  });
+});
+
+/* ---------- responsável, prazo e texto base (CAP-11, CAP-40) ---------- */
+const BASE_ARTICULACAO = 'Reunião ou contato registrado, com ata ou resumo do que foi combinado e quem dá continuidade.';
+const comPosse = (dias: number) => ({ ...MANDATO, data_posse: iso(dias) });
+type AcaoCad = Acao & { respCad?: number | null };
+async function marca(page: Page, bingo = 'articulacao', i = 0) {
+  const l = linha(page, bingo, i);
+  await l.getByRole('checkbox').check();
+  return l;
+}
+
+test.describe('Responsável (CAP-11.1)', () => {
+  test('mostra as pessoas da Missão 2; escolher uma grava resp com o nome e respCad; clicar de novo desmarca', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, campos: EQUIPE });
+    const l = await marca(page);
+    const grupo = l.getByRole('group', { name: 'Pessoas da equipe' });
+    await expect(grupo.getByRole('button')).toHaveCount(4);
+    await grupo.getByRole('button', { name: /Bruno Lima/ }).click();
+    expect(await acoes(page)).toEqual([expect.objectContaining({ resp: 'Bruno Lima', respCad: 1 })]);
+    await expect(grupo.getByRole('button', { name: /Bruno Lima/ })).toHaveAttribute('aria-pressed', 'true');
+    await grupo.getByRole('button', { name: /Bruno Lima/ }).click();
+    const [a] = (await acoes(page)) as AcaoCad[];
+    expect(a.resp).toBe('');
+    expect(a.respCad ?? null).toBeNull();
+  });
+
+  test('texto livre vale como responsável e desfaz a escolha de pessoa', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, campos: EQUIPE });
+    const l = await marca(page);
+    await l.getByRole('group', { name: 'Pessoas da equipe' }).getByRole('button', { name: /Ana Souza/ }).click();
+    await l.getByLabel('Responsável', { exact: true }).fill('Vereadora Marta');
+    const [a] = (await acoes(page)) as AcaoCad[];
+    expect(a.resp).toBe('Vereadora Marta');
+    expect(a.respCad ?? null).toBeNull();
+    await expect(l.getByRole('group', { name: 'Pessoas da equipe' }).locator('[aria-pressed="true"]')).toHaveCount(0);
+  });
+
+  test('sem pessoas na Missão 2 só o texto livre aparece, com a explicação', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    const l = await marca(page);
+    await expect(l.getByRole('group', { name: 'Pessoas da equipe' })).toHaveCount(0);
+    await expect(l.getByText('A lista de pessoas vem da Missão 2')).toBeVisible();
+    await l.getByLabel('Responsável', { exact: true }).fill('Bruno');
+    expect((await acoes(page))![0].resp).toBe('Bruno');
+  });
+});
+
+test.describe('Prazo (CAP-11.2, CAP-40)', () => {
+  test('é um seletor de data e grava AAAA-MM-DD', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: comPosse(10) });
+    const l = await marca(page);
+    await expect(l.getByLabel('Prazo')).toHaveAttribute('type', 'date');
+    await l.getByLabel('Prazo').fill(iso(20));
+    expect((await acoes(page))![0].prazo).toBe(iso(20));
+  });
+
+  test('uma data no passado é recusada com aviso e não grava', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: comPosse(10) });
+    const l = await marca(page);
+    await l.getByLabel('Prazo').fill(iso(-1));
+    await expect(page.getByRole('status')).toContainText('já passou');
+    expect((await acoes(page))![0].prazo ?? '').toBe('');
+  });
+
+  test('com data de posse, passar de 100 dias depois dela é recusado e o último dia vale', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: comPosse(10) });
+    const l = await marca(page);
+    await expect(l.getByLabel('Prazo')).toHaveAttribute('max', iso(110));
+    await l.getByLabel('Prazo').fill(iso(111));
+    await expect(page.getByRole('status')).toContainText('100 dias depois da posse');
+    expect((await acoes(page))![0].prazo ?? '').toBe('');
+    await l.getByLabel('Prazo').fill(iso(110));
+    expect((await acoes(page))![0].prazo).toBe(iso(110));
+  });
+
+  test('sem data de posse qualquer prazo futuro é aceito, sem máximo', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: { ...MANDATO, data_posse: '' } });
+    const l = await marca(page);
+    await expect(l.getByLabel('Prazo')).not.toHaveAttribute('max', /.+/);
+    await l.getByLabel('Prazo').fill(iso(800));
+    expect((await acoes(page))![0].prazo).toBe(iso(800));
+  });
+
+  test('o prazo antigo em texto livre continua visível e guardado até escolherem uma data', async ({ page }) => {
+    const antiga = { id: 'old1', bingo: 'articulacao', i: 0, titulo: ART0, alcancar: 'x', resp: 'Ana', prazo: 'até 20/03', saber: 's', prox: 'p' };
+    await abre(page, [ILHA], { mandato: comPosse(10), D: { acoes: [antiga] } });
+    const l = linha(page, 'articulacao', 0);
+    await expect(l.getByText('Prazo anterior: até 20/03')).toBeVisible();
+    await expect(l.locator('.cp-ponto')).toHaveAttribute('data-estado', 'completa');
+    expect(await acoes(page)).toEqual([antiga]);
+    await l.getByLabel('Prazo').fill(iso(30));
+    expect((await acoes(page))![0].prazo).toBe(iso(30));
+    await expect(l.getByText('Prazo anterior')).toHaveCount(0);
+  });
+});
+
+test.describe('Texto base de "Como saberemos" (CAP-11.3)', () => {
+  test('marcar a ação sugere o texto base da frente, editável', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    const l = await marca(page);
+    await expect(l.getByLabel('Como saberemos')).toHaveValue(BASE_ARTICULACAO);
+    expect((await acoes(page))![0].saber).toBe(BASE_ARTICULACAO);
+    await l.getByLabel('Como saberemos').fill('Ata assinada');
+    expect((await acoes(page))![0].saber).toBe('Ata assinada');
+  });
+
+  test('desmarcar logo em seguida, sem mexer no texto base, não pede confirmação', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    const l = await marca(page);
+    let perguntou = false;
+    page.on('dialog', (d) => { perguntou = true; void d.dismiss(); });
+    await l.getByRole('checkbox').uncheck();
+    expect(perguntou).toBe(false);
+    expect(await acoes(page)).toEqual([]);
   });
 });

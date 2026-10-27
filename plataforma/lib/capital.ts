@@ -49,6 +49,38 @@ export function acaoCompleta(a: unknown): boolean {
   return ehObj(a) && ['alcancar', 'resp', 'prazo', 'saber', 'prox'].every((k) => typeof a[k] === 'string' && (a[k] as string).trim() !== '');
 }
 
+/* ---------- prazo das ações (CAP-11.6, CAP-40) ---------- */
+/** "AAAA-MM-DD" de uma data que existe no calendário. O prazo antigo, em texto livre ("até 20/03"), não é. */
+export function ehDataISO(v: unknown): v is string {
+  const m = typeof v === 'string' ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(v) : null;
+  if (!m) return false;
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+  return d.getUTCFullYear() === +m[1] && d.getUTCMonth() === +m[2] - 1 && d.getUTCDate() === +m[3];
+}
+
+export const DIAS_APOS_POSSE = 100;
+const maisDias = (iso: string, n: number) => {
+  const [a, m, d] = iso.split('-').map(Number);
+  return new Date(Date.UTC(a, m - 1, d + n)).toISOString().slice(0, 10);
+};
+
+/** Hoje como "AAAA-MM-DD" no fuso do aparelho. */
+export const hojeISO = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+/** Menor e maior prazo aceitos: de hoje até 100 dias depois da posse. Sem data de posse válida não há máximo. */
+export function limitesPrazo(posse: unknown, hoje: string): { min: string; max?: string } {
+  return ehDataISO(posse) ? { min: hoje, max: maisDias(posse, DIAS_APOS_POSSE) } : { min: hoje };
+}
+
+/** Mensagem de recusa do prazo, ou null se vale. */
+export function validaPrazo(valor: string, hoje: string, posse: unknown): string | null {
+  if (!ehDataISO(valor)) return 'Escolha uma data válida.';
+  const { min, max } = limitesPrazo(posse, hoje);
+  if (valor < min) return 'Esse prazo já passou. Escolha uma data a partir de hoje.';
+  if (max && valor > max) return `O prazo vai até ${DIAS_APOS_POSSE} dias depois da posse.`;
+  return null;
+}
+
 /* ---------- escolhas rápidas ⇄ texto legível (D.comissoes: pq, papel, mov) ---------- */
 const SEPARADOR = '; ';
 

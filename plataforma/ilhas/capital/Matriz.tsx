@@ -2,7 +2,8 @@
 /* Missão 4 · matriz das ações dos 100 dias. As frentes e as ações recomendadas vêm de BINGOS (conteudo.js, só leitura);
    as escolhidas ficam em D.acoes no formato antigo ({id, bingo, i, titulo, alcancar, resp, prazo, saber, prox}), sem migração. */
 import { useState } from 'react';
-import { useLegado } from '../ponte';
+import { TEXTO_SABER } from '@/lib/capital';
+import { useRumo } from '../rumo/useRumo';
 import LinhaAcao, { type Acao } from './LinhaAcao';
 import '../rumo/rumo.css';
 import './capital.css';
@@ -10,10 +11,14 @@ import './capital.css';
 type Bingo = { n: string; itens: string[] };
 const bingos = () => (window as unknown as { BINGOS?: Record<string, Bingo> }).BINGOS ?? {};
 const uid = () => Math.random().toString(36).slice(2, 10);
-const temTexto = (a: Acao) => (['alcancar', 'resp', 'prazo', 'saber', 'prox'] as const).some((k) => typeof a[k] === 'string' && a[k]!.trim() !== '');
+/* o texto base de "Como saberemos" que ninguém mexeu não conta como conteúdo a proteger */
+const temTexto = (a: Acao) => (['alcancar', 'resp', 'prazo', 'saber', 'prox'] as const).some((k) => {
+  const v = typeof a[k] === 'string' ? a[k]!.trim() : '';
+  return v !== '' && !(k === 'saber' && v === (TEXTO_SABER[a.bingo ?? ''] ?? ''));
+});
 
 export default function Matriz() {
-  const { D, bump } = useLegado();
+  const { d: D, m, pessoas, bump } = useRumo();
   const frentes = Object.entries(bingos());
   const [ativa, setAtiva] = useState(frentes[0]?.[0] ?? '');
   const lista = (Array.isArray(D.acoes) ? D.acoes : []) as Acao[];
@@ -22,7 +27,7 @@ export default function Matriz() {
 
   const alterna = (k: string, i: number, titulo: string) => {
     const a = lista.find((x) => x.bingo === k && x.i === i);
-    if (!a) { D.acoes = [...lista, { id: uid(), bingo: k, i, titulo }]; bump(); return; }
+    if (!a) { D.acoes = [...lista, { id: uid(), bingo: k, i, titulo, saber: TEXTO_SABER[k] ?? '' }]; bump(); return; }
     if (temTexto(a) && !window.confirm('Remover esta ação? O que foi preenchido nela será apagado.')) return;
     D.acoes = lista.filter((x) => x !== a);
     bump();
@@ -40,7 +45,7 @@ export default function Matriz() {
       {frente && (
         <ul className="cp-acoes cp-lista" aria-label={`Ações de ${frente.n}`}>
           {frente.itens.map((titulo, i) => (
-            <LinhaAcao key={`${ativa}-${i}`} bingo={ativa} i={i} titulo={titulo} acao={lista.find((x) => x.bingo === ativa && x.i === i)}
+            <LinhaAcao key={`${ativa}-${i}`} bingo={ativa} i={i} titulo={titulo} acao={lista.find((x) => x.bingo === ativa && x.i === i)} pessoas={pessoas} posse={m.data_posse}
               onAlterna={() => alterna(ativa, i, titulo)} onMuda={bump} />
           ))}
         </ul>
