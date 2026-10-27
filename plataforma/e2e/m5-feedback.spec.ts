@@ -42,3 +42,100 @@ test.describe('Mapa do organograma no feedback (M5-20.1)', () => {
     expect(Math.abs(a.x - b.x)).toBeGreaterThan(100);
   });
 });
+
+test.describe('Lista de pessoas e registro da conversa (M5-20.2, M5-21)', () => {
+  const abreEquipe = (page: Page, feedbacks: Conv[] = []) => abre(page, ['rumo-feedback'], { campos: EQUIPE, D: { feedbacks } });
+  const pessoa = (page: Page, i: number) => page.locator(`[data-pessoa="${i}"]`);
+  const feedbacksDe = async (page: Page) => (await dadoDe(page, 'feedbacks')) as Conv[];
+
+  test('clicar na liderança lista as pessoas dela, "feita" ou "pendente" (M5-20.2)', async ({ page }) => {
+    await abreEquipe(page, [{ id: 'a', cadeira: 2, pessoa: 'Carla Dias', destaques: 'x' }]);
+    await expect(page.locator('[data-pessoa]')).toHaveCount(0);
+    await card(page, 1).getByRole('button', { name: /Bruno Lima/ }).click();
+    await expect(page.locator('[data-pessoa]')).toHaveCount(2);
+    await expect(pessoa(page, 2)).toContainText('Carla Dias');
+    await expect(pessoa(page, 2)).toContainText('feita');
+    await expect(pessoa(page, 3)).toContainText('Davi Rocha');
+    await expect(pessoa(page, 3)).toContainText('pendente');
+  });
+
+  test('clicar na pessoa abre o formulário com data, destaques, ajustes e plano de ação (M5-21.3)', async ({ page }) => {
+    await abreEquipe(page);
+    await card(page, 1).getByRole('button', { name: /Bruno Lima/ }).click();
+    await pessoa(page, 3).getByRole('button', { name: /Davi Rocha/ }).click();
+    const form = page.getByRole('form', { name: 'Conversa de feedback com Davi Rocha' });
+    await expect(form.getByLabel('Data da conversa')).toBeVisible();
+    await expect(form.getByLabel('Pontos de destaque')).toBeVisible();
+    await expect(form.getByLabel('Pontos de ajuste')).toBeVisible();
+    await expect(form.getByLabel('Plano de ação pactuado')).toBeVisible();
+  });
+
+  test('salvar grava em D.feedbacks, marca a pessoa como feita e atualiza a contagem (M5-21.4)', async ({ page }) => {
+    await abreEquipe(page);
+    await card(page, 1).getByRole('button', { name: /Bruno Lima/ }).click();
+    await pessoa(page, 3).getByRole('button', { name: /Davi Rocha/ }).click();
+    const form = page.getByRole('form', { name: 'Conversa de feedback com Davi Rocha' });
+    await form.getByLabel('Data da conversa').fill('18/03');
+    await form.getByLabel('Pontos de destaque').fill('Boa entrega');
+    await form.getByLabel('Pontos de ajuste').fill('Prazos');
+    await form.getByLabel('Plano de ação pactuado').fill('Reunião semanal');
+    await form.getByRole('button', { name: 'Salvar conversa' }).click();
+    const g = await feedbacksDe(page);
+    expect(g).toHaveLength(1);
+    expect(g[0]).toMatchObject({ cadeira: 3, pessoa: 'Davi Rocha', lider: 'Bruno Lima', data: '18/03', destaques: 'Boa entrega', ajustes: 'Prazos', acao: 'Reunião semanal' });
+    await expect(card(page, 1)).toContainText('feitas 1 de 2');
+    await expect(pessoa(page, 3)).toContainText('feita');
+    await expect(pessoa(page, 2)).toContainText('pendente');
+  });
+
+  test('a conversa gravada segue legível pelo Resumo do Guia (campos pontos e encam espelhados)', async ({ page }) => {
+    await abreEquipe(page);
+    await card(page, 1).getByRole('button', { name: /Bruno Lima/ }).click();
+    await pessoa(page, 2).getByRole('button', { name: /Carla Dias/ }).click();
+    const form = page.getByRole('form', { name: 'Conversa de feedback com Carla Dias' });
+    await form.getByLabel('Pontos de destaque').fill('Boa escuta');
+    await form.getByLabel('Pontos de ajuste').fill('Prazos');
+    await form.getByLabel('Plano de ação pactuado').fill('Agenda semanal');
+    await form.getByRole('button', { name: 'Salvar conversa' }).click();
+    const [v] = await feedbacksDe(page);
+    expect(v.pontos).toContain('Boa escuta');
+    expect(v.pontos).toContain('Prazos');
+    expect(v.encam).toBe('Agenda semanal');
+  });
+
+  test('editar a conversa grava a mudança sem criar outra e a contagem segue (M5-21.5)', async ({ page }) => {
+    await abreEquipe(page, [{ id: 'a', cadeira: 2, pessoa: 'Carla Dias', lider: 'Bruno Lima', data: '10/03', destaques: 'Antes', ajustes: '', acao: '' }]);
+    await card(page, 1).getByRole('button', { name: /Bruno Lima/ }).click();
+    await pessoa(page, 2).getByRole('button', { name: /Carla Dias/ }).click();
+    await page.getByRole('button', { name: 'Editar conversa de 10/03' }).click();
+    const form = page.getByRole('form', { name: 'Conversa de feedback com Carla Dias' });
+    await expect(form.getByLabel('Pontos de destaque')).toHaveValue('Antes');
+    await form.getByLabel('Pontos de destaque').fill('Depois');
+    await form.getByRole('button', { name: 'Salvar conversa' }).click();
+    const g = await feedbacksDe(page);
+    expect(g).toHaveLength(1);
+    expect(g[0]).toMatchObject({ id: 'a', destaques: 'Depois', cadeira: 2 });
+    await expect(card(page, 1)).toContainText('feitas 1 de 2');
+  });
+
+  test('apagar a conversa volta a pessoa para pendente e atualiza a contagem (M5-21.5)', async ({ page }) => {
+    await abreEquipe(page, [{ id: 'a', cadeira: 2, pessoa: 'Carla Dias', data: '10/03', destaques: 'x' }]);
+    await card(page, 1).getByRole('button', { name: /Bruno Lima/ }).click();
+    await pessoa(page, 2).getByRole('button', { name: /Carla Dias/ }).click();
+    page.once('dialog', (d) => d.accept());
+    await page.getByRole('button', { name: 'Apagar conversa de 10/03' }).click();
+    expect(await feedbacksDe(page)).toEqual([]);
+    await expect(card(page, 1)).toContainText('feitas 0 de 2');
+    await expect(pessoa(page, 2)).toContainText('pendente');
+  });
+
+  test('conversa de pessoa que saiu da Missão 2 continua na lista, como "pessoa removida"', async ({ page }) => {
+    const sai: Conv = { id: 'z', cadeira: 9, pessoa: 'Zé Antigo', lider: 'Bruno Lima', data: '01/02', destaques: 'texto guardado' };
+    await abreEquipe(page, [sai]);
+    const bloco = page.locator('[data-removidas]');
+    await expect(bloco).toContainText('Zé Antigo');
+    await expect(bloco).toContainText('pessoa removida');
+    await expect(bloco).toContainText('texto guardado');
+    expect(await feedbacksDe(page)).toEqual([sai]);
+  });
+});

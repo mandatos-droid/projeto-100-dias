@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { apaga, contagens, edita, mapaFeedback, migraAntigo, registra, removidas, type Conversa } from '../lib/feedback.ts';
+import { apaga, contagens, edita, mapaFeedback, migraAntigo, paraGuia, registra, removidas, type Conversa } from '../lib/feedback.ts';
 
 type C = Record<string, string>;
 /* Equipe de teste: 0 Ana (chefia) lidera 1 Bruno; Bruno lidera 2 Carla e 3 Davi (liderança padrão da Missão 2). */
@@ -120,4 +120,19 @@ test('conversa de pessoa que saiu da Missão 2 é mantida e listada como pessoa 
   assert.deepEqual(r.map((v) => v.pessoa), ['Davi Rocha', 'Zé Antigo']);
   assert.equal(r[1].destaques, 'texto');
   assert.equal(contagens(sem3, lista)[1].feitas, 1);
+});
+
+/* ---------- espelho para o Guia (Resumo e contagem seguem lendo pontos/encam) ---------- */
+test('paraGuia espelha destaques+ajustes em pontos e a ação em encam, sem perder campo nenhum (M5-21.7)', () => {
+  const v = paraGuia(conv(2, { destaques: 'Boa escuta', ajustes: 'Prazos', acao: 'Agenda' }));
+  assert.equal(v.pontos, 'Boa escuta\nPontos de ajuste: Prazos');
+  assert.equal(v.encam, 'Agenda');
+  assert.equal(v.destaques, 'Boa escuta');
+  assert.equal(v.cadeira, 2);
+});
+
+test('paraGuia sem ajustes deixa pontos igual aos destaques, e a volta por migraAntigo não duplica (M5-21.7)', () => {
+  const v = paraGuia(conv(2, { destaques: 'Só destaque' }));
+  assert.equal(v.pontos, 'Só destaque');
+  assert.equal(migraAntigo([v], EQUIPE)[0].destaques, 'Só destaque');
 });

@@ -63,3 +63,8 @@ export function migraAntigo(bruto: unknown, c: Campos): Conversa[] {
     };
   });
 }
+
+/** A conversa como o Guia antigo a lê (Resumo e telas legadas mostram `pontos` e `encam`): os campos novos ficam, e os antigos são espelhados. */
+export const paraGuia = (v: Conversa): Conversa & { pontos: string; encam: string } => ({
+  ...v, pontos: [v.destaques, v.ajustes && `Pontos de ajuste: ${v.ajustes}`].filter(Boolean).join('\n'), encam: v.acao,
+});

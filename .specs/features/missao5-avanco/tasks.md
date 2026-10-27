@@ -299,7 +299,7 @@ T16 → T17 → T18
 
 ---
 
-### T9: Lista de pessoas e registro da conversa ⬜
+### T9: Lista de pessoas e registro da conversa ✅
 
 **What**: Ao clicar na liderança, listar as pessoas (feita/pendente); ao clicar na pessoa, abrir o formulário da conversa; salvar, editar e apagar.
 **Where**: `ilhas/rumo/Feedback.tsx` (+ `e2e/m5-feedback.spec.ts`)
@@ -314,10 +314,10 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] Clicar na liderança lista as pessoas marcadas "feita" ou "pendente" (M5-20.2)
-- [ ] O formulário tem data, destaques, ajustes e plano de ação (M5-21.3)
-- [ ] Salvar marca a pessoa como feita e atualiza a contagem (M5-21.4)
-- [ ] Editar e apagar atualizam as contagens (M5-21.5)
+- [x] Clicar na liderança lista as pessoas marcadas "feita" ou "pendente" (M5-20.2)
+- [x] O formulário tem data, destaques, ajustes e plano de ação (M5-21.3)
+- [x] Salvar marca a pessoa como feita e atualiza a contagem (M5-21.4)
+- [x] Editar e apagar atualizam as contagens (M5-21.5)
 - [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`
 
 **Tests**: e2e
