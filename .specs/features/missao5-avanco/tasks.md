@@ -318,7 +318,7 @@ T16 → T17 → T18
 - [x] O formulário tem data, destaques, ajustes e plano de ação (M5-21.3)
 - [x] Salvar marca a pessoa como feita e atualiza a contagem (M5-21.4)
 - [x] Editar e apagar atualizam as contagens (M5-21.5)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`
 
 **Tests**: e2e
 **Gate**: full
@@ -326,7 +326,7 @@ T16 → T17 → T18
 
 ---
 
-### T10: Estado vazio e versão celular do feedback ⬜
+### T10: Estado vazio e versão celular do feedback ✅
 
 **What**: Mostrar o aviso com link para a Missão 2 quando não há cadeiras ativas e a lista vertical em tela estreita.
 **Where**: `ilhas/rumo/Feedback.tsx` (+ `e2e/m5-feedback.spec.ts`)
@@ -341,8 +341,8 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] Sem cadeiras ativas aparece o aviso com link para a Missão 2 (M5-20.6)
-- [ ] Em largura de celular o mapa vira lista vertical (M5-20.8)
+- [x] Sem cadeiras ativas aparece o aviso com link para a Missão 2 (M5-20.6)
+- [x] Em largura de celular o mapa vira lista vertical (M5-20.8)
 - [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`
 
 **Tests**: e2e

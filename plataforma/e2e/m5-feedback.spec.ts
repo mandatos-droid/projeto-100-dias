@@ -139,3 +139,51 @@ test.describe('Lista de pessoas e registro da conversa (M5-20.2, M5-21)', () => 
     expect(await feedbacksDe(page)).toEqual([sai]);
   });
 });
+
+test.describe('Sem equipe e versão celular (M5-20.6, M5-20.8)', () => {
+  test('sem cadeiras ativas aparece o aviso com link para a Missão 2, sem mapa (M5-20.6)', async ({ page }) => {
+    await abre(page, ['rumo-feedback'], { campos: {}, D: { feedbacks: [] } });
+    const aviso = page.locator('[data-sem-equipe]');
+    await expect(aviso).toBeVisible();
+    await expect(aviso).toContainText('equipe da Missão 2');
+    await expect(aviso.getByRole('link', { name: /Missão 2/ })).toHaveAttribute('href', '#/m/2/m2.funcoes');
+    await expect(page.locator('[data-lider]')).toHaveCount(0);
+  });
+
+  test('só a Chefia, sem ninguém para liderar, também mostra o aviso (M5-20.6)', async ({ page }) => {
+    await abre(page, ['rumo-feedback'], { campos: { 'm2.on': '0', 'm2.f1': 'Ana Souza' }, D: { feedbacks: [] } });
+    await expect(page.locator('[data-sem-equipe]')).toBeVisible();
+  });
+
+  test('sem equipe, conversas antigas continuam visíveis e nada é apagado (M5-20.6, M5-21.7)', async ({ page }) => {
+    const antiga: Conv = { id: 'o', pessoa: 'Zé Antigo', pontos: 'texto antigo' };
+    await abre(page, ['rumo-feedback'], { campos: {}, D: { feedbacks: [antiga] } });
+    await expect(page.locator('[data-sem-equipe]')).toBeVisible();
+    await expect(page.locator('[data-removidas]')).toContainText('texto antigo');
+    expect(await dadoDe(page, 'feedbacks')).toEqual([antiga]);
+  });
+
+  test('com equipe, o aviso não aparece (M5-20.6)', async ({ page }) => {
+    await abre(page, ['rumo-feedback'], { campos: EQUIPE, D: { feedbacks: [] } });
+    await expect(page.locator('[data-sem-equipe]')).toHaveCount(0);
+  });
+
+  test('em largura de celular o mapa vira lista vertical, uma liderança abaixo da outra (M5-20.8)', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await abre(page, ['rumo-feedback'], { campos: IRMAS, D: { feedbacks: [] } });
+    const caixas = await Promise.all([0, 1, 7].map(async (i) => (await card(page, i).boundingBox())!));
+    caixas.forEach((b) => expect(b.x + b.width).toBeLessThanOrEqual(375));
+    expect(caixas[1].y).toBeGreaterThan(caixas[0].y + caixas[0].height - 1);
+    expect(caixas[2].y).toBeGreaterThan(caixas[1].y + caixas[1].height - 1);
+    expect(Math.abs(caixas[1].x - caixas[2].x)).toBeLessThan(2);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+  });
+
+  test('no celular a lista de pessoas e o formulário seguem utilizáveis (M5-20.8)', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await abre(page, ['rumo-feedback'], { campos: EQUIPE, D: { feedbacks: [] } });
+    await card(page, 1).getByRole('button', { name: /Bruno Lima/ }).click();
+    await page.locator('[data-pessoa="2"]').getByRole('button', { name: /Carla Dias/ }).click();
+    await expect(page.getByRole('button', { name: 'Salvar conversa' })).toBeVisible();
+  });
+});

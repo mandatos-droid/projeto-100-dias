@@ -70,8 +70,16 @@ export default function Feedback() {
 
   return (
     <div className="ilha-corpo rm-fb">
-      <p className="rm-dica">Cada liderança dá feedback às pessoas que lidera no organograma da Missão 2. Clique em uma liderança para ver as pessoas dela.</p>
-      <ul className="fb-arvore" aria-label="Mapa de feedback pelo organograma">{filhos(null).map(no)}</ul>
+      {mapa.length === 0 ? (
+        <p className="rm-alerta" role="note" data-sem-equipe>
+          A equipe da Missão 2 ainda não tem cadeiras com nome para formar o mapa de feedback. <a href="#/m/2/m2.funcoes">Ir para a equipe da Missão 2</a>
+        </p>
+      ) : (
+        <>
+          <p className="rm-dica">Cada liderança dá feedback às pessoas que lidera no organograma da Missão 2. Clique em uma liderança para ver as pessoas dela.</p>
+          <ul className="fb-arvore" aria-label="Mapa de feedback pelo organograma">{filhos(null).map(no)}</ul>
+        </>
+      )}
 
       {lider && (
         <section className="fb-painel" aria-label={`Pessoas que ${lider.nome || 'a liderança'} lidera`}>
