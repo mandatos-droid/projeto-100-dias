@@ -503,7 +503,7 @@ T24 → T25 → T26
 
 ---
 
-### T22: Tela do clipping
+### T22: Tela do clipping ✅
 
 **What**: Criar `ilhas/capital/Clipping.tsx`: buscar, listar, ocultar, etiquetar por bandeira (uma a uma e em lote), aparição manual, erro amigável.
 **Where**: `ilhas/capital/Clipping.tsx`
@@ -513,10 +513,10 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] Etiquetar uma notícia e recarregar mantém a etiqueta
-- [ ] Notícia oculta some da lista e das contas
-- [ ] Falha da busca mostra "Não consegui buscar agora. Adicione manualmente"
-- [ ] Aparição manual entra na lista
+- [x] Etiquetar uma notícia e recarregar mantém a etiqueta
+- [x] Notícia oculta some da lista e das contas
+- [x] Falha da busca mostra "Não consegui buscar agora. Adicione manualmente"
+- [x] Aparição manual entra na lista
 
 **Tests**: e2e
 **Gate**: full

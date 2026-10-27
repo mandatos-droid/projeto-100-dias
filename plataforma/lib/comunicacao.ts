@@ -134,3 +134,49 @@ export function indicador(com: Comunicacao, secaoId: string): { semana: string; 
 export function caixinhasParaMarcar(com: Comunicacao, campos: Record<string, unknown>): string[] {
   return SECOES.filter((s) => semanasDaSecao(com, s.id).length > 0 && !campos[s.caixinha]).map((s) => s.caixinha);
 }
+
+/* ---------- clipping: operações puras sobre a lista de notícias (guardam só título, veículo, data e link) ---------- */
+const chaveTitulo = (t: string) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+const ehUrlWeb = (u: string) => /^https?:\/\/\S+$/i.test(u);
+const ehData = (d: string) => semanaDe(d) !== null;
+
+export type ItemBusca = { titulo: string; veiculo: string; data: string; url: string };
+
+/** Acrescenta os itens da busca que ainda não estão na lista (mesmo link ou mesmo título, inclusive ocultas). Entram sem bandeira e visíveis. */
+export function mesclaBusca(clipping: Noticia[], itens: ItemBusca[], novoId: () => string): { clipping: Noticia[]; novas: number } {
+  const urls = new Set(clipping.map((n) => n.url).filter(Boolean)), titulos = new Set(clipping.map((n) => chaveTitulo(n.titulo)));
+  const novasNoticias: Noticia[] = [];
+  for (const i of itens) {
+    const t = typeof i.titulo === 'string' ? i.titulo.trim() : '';
+    const url = typeof i.url === 'string' && ehUrlWeb(i.url) ? i.url : '';
+    if (!t || urls.has(url) || titulos.has(chaveTitulo(t))) continue;
+    if (url) urls.add(url);
+    titulos.add(chaveTitulo(t));
+    const data = typeof i.data === 'string' && ehData(i.data) ? i.data : '';
+    novasNoticias.push({ id: novoId(), semana: semanaDe(data || new Date()) ?? '', titulo: t, veiculo: String(i.veiculo ?? '').trim(), data, url, bandeiras: [] });
+  }
+  return { clipping: [...clipping, ...novasNoticias], novas: novasNoticias.length };
+}
+
+/** Aparição manual: título e data são obrigatórios; o link é opcional, mas precisa ser http(s) se vier. */
+export function adicionaManual(clipping: Noticia[], d: { titulo: string; veiculo: string; url: string; data: string }, novoId: () => string): { ok: true; clipping: Noticia[] } | { ok: false; erro: string } {
+  const titulo = d.titulo.trim(), url = d.url.trim();
+  if (!titulo) return { ok: false, erro: 'Escreva o título da aparição.' };
+  if (!ehData(d.data)) return { ok: false, erro: 'Informe a data da aparição.' };
+  if (url && !ehUrlWeb(url)) return { ok: false, erro: 'O link precisa começar com http:// ou https://.' };
+  return { ok: true, clipping: [...clipping, { id: novoId(), semana: semanaDe(d.data)!, titulo, veiculo: d.veiculo.trim(), data: d.data, url, bandeiras: [], manual: true }] };
+}
+
+/** Oculta ou restaura notícias. A entrada não muda. */
+export const ocultaNoticias = (clipping: Noticia[], ids: string[], oculta: boolean): Noticia[] =>
+  clipping.map((n) => (ids.includes(n.id) ? { ...n, oculta } : n));
+
+/** Etiqueta notícias com uma bandeira (`add`), tira a bandeira (`remove`) ou volta a "Sem bandeira" (`limpa`). Sem repetir etiqueta. */
+export function etiquetaNoticias(clipping: Noticia[], ids: string[], acao: 'add' | 'remove' | 'limpa', bandeira = ''): Noticia[] {
+  return clipping.map((n) => {
+    if (!ids.includes(n.id)) return n;
+    const atuais = Array.isArray(n.bandeiras) ? n.bandeiras : [];
+    const bandeiras = acao === 'limpa' ? [] : acao === 'remove' ? atuais.filter((b) => b !== bandeira) : atuais.includes(bandeira) ? atuais : [...atuais, bandeira];
+    return { ...n, bandeiras };
+  });
+}

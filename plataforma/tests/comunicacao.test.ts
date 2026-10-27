@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { SECOES, semanaDe, lerComunicacao, registra, serie, ultimoRegistro, aparicoesPorBandeira, indicador, caixinhasParaMarcar, type Comunicacao } from '../lib/comunicacao.ts';
+import { SECOES, semanaDe, lerComunicacao, registra, serie, ultimoRegistro, aparicoesPorBandeira, indicador, caixinhasParaMarcar, mesclaBusca, adicionaManual, ocultaNoticias, etiquetaNoticias, type Comunicacao } from '../lib/comunicacao.ts';
 
 /* Missão 4 · regras da comunicação (CAP-20, CAP-21, CAP-31, CAP-40). Resultados esperados vêm da spec e do calendário ISO. */
 const vazia: Comunicacao = { semanas: {}, clipping: [] };
@@ -112,4 +112,45 @@ test('caixinhasParaMarcar: só as seções com registro cujas caixinhas antigas 
   c = ok(registra(c, 'k4', '2026-W44', { convites: 2 }));
   assert.deepEqual(caixinhasParaMarcar(c, { 'm4.k4': true as unknown as string }), ['m4.k1', 'm4.k3']);
   assert.deepEqual(caixinhasParaMarcar(vazia, {}), []);
+});
+
+test('mesclaBusca: entra sem bandeira e visível, sem repetir link/título (nem de oculta), ignora item sem título (CAP-30)', () => {
+  let n = 0;
+  const id = () => `n${++n}`;
+  const base: Comunicacao['clipping'] = [{ id: 'x', semana: '2026-W44', titulo: 'Velha notícia', veiculo: 'V', data: '2026-10-27', url: 'https://g/0', bandeiras: [], oculta: true }];
+  const r = mesclaBusca(base, [
+    { titulo: 'Nova A', veiculo: 'O Globo', data: '2026-10-28', url: 'https://g/1' },
+    { titulo: 'Velha notícia!', veiculo: 'V', data: '2026-10-27', url: 'https://g/9' },
+    { titulo: 'Outra', veiculo: 'V', data: '2026-10-28', url: 'https://g/0' },
+    { titulo: '  ', veiculo: 'V', data: '2026-10-28', url: 'https://g/5' },
+    { titulo: 'Nova A', veiculo: 'O Globo', data: '2026-10-28', url: 'https://g/1' },
+    { titulo: 'Data ruim', veiculo: '', data: 'ontem', url: 'javascript:x' },
+  ], id);
+  assert.equal(r.novas, 2);
+  assert.deepEqual(r.clipping.slice(1).map((x) => [x.id, x.titulo, x.semana, x.bandeiras, x.oculta, x.url]), [['n1', 'Nova A', '2026-W44', [], undefined, 'https://g/1'], ['n2', 'Data ruim', semanaDe(new Date()), [], undefined, '']]);
+  assert.equal(base.length, 1);
+});
+
+test('adicionaManual: título e data obrigatórios; link opcional mas precisa ser http(s); semana vem da data (CAP-30.5)', () => {
+  const id = () => 'm1';
+  assert.equal(adicionaManual([], { titulo: ' ', veiculo: '', url: '', data: '2026-10-28' }, id).ok, false);
+  assert.equal(adicionaManual([], { titulo: 'T', veiculo: '', url: '', data: '' }, id).ok, false);
+  assert.equal(adicionaManual([], { titulo: 'T', veiculo: '', url: 'ftp://x', data: '2026-10-28' }, id).ok, false);
+  const r = adicionaManual([], { titulo: ' Entrevista ', veiculo: 'Rádio X ', url: '', data: '2026-12-31' }, id);
+  assert.deepEqual(r.ok && r.clipping, [{ id: 'm1', semana: '2026-W53', titulo: 'Entrevista', veiculo: 'Rádio X', data: '2026-12-31', url: '', bandeiras: [], manual: true }]);
+});
+
+test('ocultaNoticias e etiquetaNoticias: lote, sem repetir etiqueta, sem mutar; oculta não conta no gráfico (CAP-31)', () => {
+  const mk = (id: string) => ({ id, semana: '2026-W44', titulo: id, veiculo: '', data: '2026-10-28', url: '', bandeiras: [] as string[] });
+  const base = [mk('a'), mk('b'), mk('c')];
+  let c = etiquetaNoticias(base, ['a', 'b'], 'add', 'saude');
+  c = etiquetaNoticias(c, ['a'], 'add', 'saude');
+  c = etiquetaNoticias(c, ['a'], 'add', 'educacao');
+  assert.deepEqual(c.map((n) => n.bandeiras), [['saude', 'educacao'], ['saude'], []]);
+  assert.deepEqual(etiquetaNoticias(c, ['a'], 'remove', 'saude')[0].bandeiras, ['educacao']);
+  assert.deepEqual(etiquetaNoticias(c, ['a', 'b'], 'limpa').map((n) => n.bandeiras), [[], [], []]);
+  assert.deepEqual(base.map((n) => n.bandeiras), [[], [], []]);
+  const o = ocultaNoticias(c, ['b'], true);
+  assert.deepEqual(aparicoesPorBandeira(o), { saude: 1, educacao: 1, sem: 1 });
+  assert.equal(ocultaNoticias(o, ['b'], false)[1].oculta, false);
 });

@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { SECOES, caixinhasParaMarcar, indicador, lerComunicacao, registra, semanaDe } from '@/lib/comunicacao';
 import { useLegado } from '../ponte';
 import Grafico from './Grafico';
+import Clipping from './Clipping';
 import SecaoComunicacao from './SecaoComunicacao';
 import './capital.css';
 
@@ -39,6 +40,7 @@ export default function Comunicacao() {
     <div className="ilha-corpo cp-esc cp-com">
       <p className="cp-band">Semana atual: {semana}. Registre uma vez por semana os números de cada tópico; só valem números iguais ou maiores que zero.</p>
       {SECOES.map((s) => <SecaoComunicacao key={s.id} secao={s} com={com} semana={semana} onGrava={grava} />)}
+      <Clipping />
       <section className="cp-geral" aria-labelledby="cp-geral-t">
         <h4 id="cp-geral-t">Linha do tempo geral</h4>
         <p className="cp-fonte">Um indicador de cada seção: o número principal dela em cada semana (alcance, comentários, mensagens recebidas, pessoas que participaram e aparições na imprensa).</p>
