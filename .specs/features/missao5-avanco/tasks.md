@@ -378,7 +378,7 @@ T16 → T17 → T18
 
 ---
 
-### T12: Lógica dos ciclos de planejamento ⬜
+### T12: Lógica dos ciclos de planejamento ✅
 
 **What**: Criar `lib/ciclos.ts` com `arquivarEIniciar` (guarda o plano atual em `D.planos`, mantém Legado/bandeiras/objetivos/preditores, copia as metas escolhidas sem sucessos), `listaCiclos` e `abrirCiclo`.
 **Where**: `lib/ciclos.ts` (+ `tests/ciclos.test.ts`)
@@ -393,12 +393,12 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] `arquivarEIniciar` guarda uma cópia congelada do plano atual em `D.planos` (M5-30.4)
-- [ ] O novo plano mantém Legado, bandeiras, objetivos e preditores (M5-30.4)
-- [ ] Só as metas escolhidas são copiadas, sem sucessos (M5-30.4)
-- [ ] Criar o 2º e o 3º plano não altera nenhum plano anterior (M5-30, M5-31.7)
-- [ ] Cancelar não altera nada (edge case da spec)
-- [ ] Gate: `npm test`; testes novos em `tests/ciclos.test.ts`
+- [x] `arquivarEIniciar` guarda uma cópia congelada do plano atual em `D.planos` (M5-30.4)
+- [x] O novo plano mantém Legado, bandeiras, objetivos e preditores (M5-30.4)
+- [x] Só as metas escolhidas são copiadas, sem sucessos (M5-30.4)
+- [x] Criar o 2º e o 3º plano não altera nenhum plano anterior (M5-30, M5-31.7)
+- [x] Cancelar não altera nada (edge case da spec)
+- [x] Gate: `npm test`; testes novos em `tests/ciclos.test.ts`
 
 **Tests**: unit
 **Gate**: quick
