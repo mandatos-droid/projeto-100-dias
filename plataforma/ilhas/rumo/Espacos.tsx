@@ -11,7 +11,7 @@ import './rumo.css';
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const uid = () => Math.random().toString(36).slice(2, 10);
 /* o catálogo desta Casa: Câmara para Deputado(a) Federal, {uf}.json para Assembleia (se alguém curou); as outras ficam sem catálogo */
-function casaDe(cargo: string): Casa | null {
+export function casaDe(cargo: string): Casa | null {
   const n = norm(cargo);
   if (n.includes('federal')) return 'federal';
   if (n.includes('estadual') || n.includes('distrital')) return 'estadual';

@@ -170,7 +170,7 @@ T24 → T25 → T26
 
 ---
 
-### T5: Tela de comissões: sugeridas e todas
+### T5: Tela de comissões: sugeridas e todas ✅
 
 **What**: Criar `ilhas/capital/Comissoes.tsx`: detecta o cargo, mostra "Sugeridas" com motivo e "Todas" com busca, avisos para Estadual e outros cargos, atalho para a Missão 3 sem bandeiras.
 **Where**: `ilhas/capital/Comissoes.tsx`
@@ -180,10 +180,10 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] Federal + Saúde mostra a comissão de Saúde em "Sugeridas" com o motivo
-- [ ] Estadual mostra o aviso e o botão "Ajustar o nome"
-- [ ] Sem bandeiras mostra todas sem "sugeridas" e o atalho para a Missão 3
-- [ ] Cargo vazio mostra a lista da Câmara sem sugeridas
+- [x] Federal + Saúde mostra a comissão de Saúde em "Sugeridas" com o motivo
+- [x] Estadual mostra o aviso e o botão "Ajustar o nome"
+- [x] Sem bandeiras mostra todas sem "sugeridas" e o atalho para a Missão 3
+- [x] Cargo vazio mostra a lista da Câmara sem sugeridas
 
 **Tests**: e2e
 **Gate**: full

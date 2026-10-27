@@ -18,6 +18,7 @@ import Preditores from './rumo/Preditores';
 import Metas from './rumo/Metas';
 import Plano from './rumo/Plano';
 import PlanoResumo from './rumo/PlanoResumo';
+import Comissoes from './capital/Comissoes';
 import Organograma from './equipe/Organograma';
 import Escalacao from './equipe/Escalacao';
 import { AssentosResumo, ConjunturaResumo, MunicipioResumo } from './Resumos';
@@ -37,6 +38,8 @@ type Legado = {
     social?: ConjSocial;
     /* Missão 3: estado estruturado e listas do Guia (formato em lib/rumo.ts) */
     rumo?: unknown; metas?: unknown; preditores?: unknown; comissoesDesejadas?: unknown;
+    /* Missão 4: comissões escolhidas e ações dos 100 dias (formato do Guia, lib/capital.ts) */
+    comissoes?: unknown; acoes?: unknown;
   };
   Store: { mandato: Record<string, string>; salvar(): void; atualizar(c: Record<string, unknown>): Promise<void> };
   aviso(t: string): void;
@@ -107,6 +110,7 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   'rumo-metas': () => <Metas />,
   plano: () => <Plano />,
   'plano-resumo': () => <PlanoResumo />,
+  'capital-comissoes': () => <Comissoes />,
 };
 const raizes = new Set<Root>();
 
