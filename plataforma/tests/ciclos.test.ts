@@ -101,7 +101,9 @@ test('listaCiclos: sem arquivados só há o atual; depois, arquivados em ordem e
 test('abrirCiclo devolve a árvore do arquivado, com metas por objetivo e sucessos; o atual e o inexistente dão null (M5-31.6)', () => {
   const d = plano();
   arquivarEIniciar(d, { copiar: [0] });
+  const antes = foto(d);
   const arv = abrirCiclo(d, 1)!;
+  assert.equal(foto(d), antes);
   assert.equal(arv.legado, 'A Educação no centro do debate');
   assert.deepEqual(arv.objetivos.map((o) => [o.pid, o.metas.map((m) => m.idx)]), [['p1', [0, 1]], ['p2', [2]]]);
   assert.equal(arv.objetivos[0].metas[0].sucessos?.length, 1);
