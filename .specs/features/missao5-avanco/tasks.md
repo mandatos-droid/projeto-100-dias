@@ -432,7 +432,7 @@ T16 → T17 → T18
 
 ---
 
-### T14: Botão na Calibragem e na aba Planejamento ⬜
+### T14: Botão na Calibragem e na aba Planejamento ✅
 
 **What**: Colocar o botão no fim da tarefa "Calibragem e replanejamento" (via `m5.js`) e na aba Planejamento, sem remover nenhum texto ou checklist.
 **Where**: `public/legacy/m5.js` (+ `tests/legado-m5.test.ts`)
@@ -447,10 +447,10 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] A tarefa mostra os textos e o checklist atuais e, ao final, o botão (M5-31.1)
-- [ ] A aba Planejamento mostra o botão (M5-31.2)
-- [ ] O hash dos textos da Missão 5 segue igual
-- [ ] Gate: `npm test`; testes novos em `tests/legado-m5.test.ts`
+- [x] A tarefa mostra os textos e o checklist atuais e, ao final, o botão (M5-31.1)
+- [x] A aba Planejamento mostra o botão (M5-31.2)
+- [x] O hash dos textos da Missão 5 segue igual
+- [x] Gate: `npm test`; testes novos em `tests/legado-m5.test.ts`
 
 **Tests**: unit
 **Gate**: quick

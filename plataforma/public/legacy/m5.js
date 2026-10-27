@@ -23,3 +23,26 @@
     return _li.call(this,ex,dono);
   };
 })();
+
+/* ---------- novo planejamento: botão no fim da tarefa "Calibragem e replanejamento" e na aba Planejamento ----------
+   A tarefa (m5.imersao, checklist) mantém os textos e o checklist de conteudo.js; o botão (ilha rumo-novociclo) vem depois deles. */
+(function(){
+  var ILHA='<div class="ilha" data-ilha="rumo-novociclo"></div>';
+  if(typeof Comp!=='undefined'&&typeof Comp.checklist==='function'){
+    var _ck=Comp.checklist;
+    Comp.checklist=function(ex){
+      var h=_ck.apply(this,arguments);
+      return ex&&ex.id==='m5.imersao'?h+ILHA:h;
+    };
+  }
+  if(typeof Telas!=='undefined'&&typeof Telas.plano==='function'){
+    var _pl=Telas.plano;
+    Telas.plano=function(){
+      _pl.apply(this,arguments);
+      var t=document.getElementById('tela');
+      if(!t)return;
+      t.insertAdjacentHTML('beforeend',ILHA);
+      if(window.Ilhas)window.Ilhas.ligar(t);
+    };
+  }
+})();

@@ -94,3 +94,55 @@ test('os campos antigos do exercício de feedback seguem em conteudo.js (M5-21.7
   const ex = guia().MISSOES.find((m) => m.n === 5)!.exercicios.find((e) => e.id === 'm5.feedback') as unknown as { campos: { k: string }[] };
   assert.deepEqual([...ex.campos.map((c) => c.k)], ['pessoa', 'lider', 'data', 'pontos', 'encam']);
 });
+
+/* ---------- botão de novo planejamento (M5-31.1, M5-31.2) ---------- */
+const ILHA_NOVO = '<div class="ilha" data-ilha="rumo-novociclo"></div>';
+function janelaCiclo() {
+  const tela = { html: '<h1>Planejamento</h1>', insertAdjacentHTML(_p: string, h: string) { this.html += h; } };
+  const ligadas: unknown[] = [];
+  const w = guia({
+    Comp: { checklist: (ex: { id: string }) => `<checklist-original ${ex.id}>` },
+    Telas: { plano: () => { tela.html = '<h1>Planejamento</h1><div data-ilha="plano"></div>'; } },
+    document: { getElementById: (id: string) => (id === 'tela' ? tela : null) },
+    window: { Ilhas: { ligar: (t: unknown) => ligadas.push(t) } },
+  });
+  vm.runInContext(CODIGO, w as unknown as vm.Context);
+  return { w: w as unknown as { Comp: { checklist(ex: unknown): string }; Telas: { plano(): void }; MISSOES: Missao[] }, tela, ligadas };
+}
+
+test('a tarefa "Calibragem e replanejamento" mostra o checklist original e, ao final, o botão de novo planejamento (M5-31.1)', () => {
+  const h = janelaCiclo().w.Comp.checklist({ id: 'm5.imersao' });
+  assert.ok(h.startsWith('<checklist-original m5.imersao>'));
+  assert.ok(h.endsWith(ILHA_NOVO));
+});
+
+test('outros checklists do Guia ficam como estavam (M5-31.1)', () => {
+  assert.equal(janelaCiclo().w.Comp.checklist({ id: 'm1.outro' }), '<checklist-original m1.outro>');
+});
+
+test('o exercício m5.imersao segue com os itens do checklist em conteudo.js e o hash dos textos não muda (M5-31.1)', () => {
+  const { w } = janelaCiclo();
+  const ex = w.MISSOES.find((m) => m.n === 5)!.exercicios.find((e) => e.id === 'm5.imersao') as unknown as { itens: unknown[]; tipo: string };
+  assert.equal(ex.tipo, 'checklist');
+  assert.equal(ex.itens.length, 9);
+  assert.equal(hashM5(w.MISSOES), HASH_TEXTOS);
+});
+
+test('a aba Planejamento mostra o botão de novo planejamento depois da árvore e religa as ilhas (M5-31.2)', () => {
+  const { w, tela, ligadas } = janelaCiclo();
+  w.Telas.plano();
+  assert.match(tela.html, /data-ilha="plano"/);
+  assert.ok(tela.html.endsWith(ILHA_NOVO));
+  assert.equal(ligadas.length, 1);
+});
+
+test('a ilha rumo-novociclo está registrada na ponte (M5-31)', () => {
+  const ponte = readFileSync(new URL('../ilhas/ponte.tsx', import.meta.url), 'utf8');
+  assert.match(ponte, /'rumo-novociclo':\s*\(\)\s*=>\s*<NovoCiclo\s*\/>/);
+});
+
+test('a aba Planejamento sem Ilhas carregado não quebra', () => {
+  const w = guia({ Telas: { plano() {} }, document: { getElementById: () => ({ insertAdjacentHTML() {} }) }, window: {} });
+  vm.runInContext(CODIGO, w as unknown as vm.Context);
+  assert.doesNotThrow(() => (w as unknown as { Telas: { plano(): void } }).Telas.plano());
+});
