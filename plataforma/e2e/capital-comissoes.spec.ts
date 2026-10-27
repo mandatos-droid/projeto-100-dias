@@ -154,3 +154,72 @@ test.describe('Cartão da comissão (CAP-03.6, CAP-03.7, CAP-03.8)', () => {
     await expect(resumo).toContainText('Comissão de Saúde');
   });
 });
+
+/* ---------- comissões da Missão 3 e ajuste do nome (CAP-04, CAP-02.4) ---------- */
+const DA_M3 = [
+  { id: 'x1', comissao: 'Comissão de Educação', papel: 'Titular', cargo: 'Titular', bandeira: 'Educação' },
+  { id: 'x2', comissao: 'Comissão de Meio Ambiente', papel: 'Suplente', cargo: 'Suplente', bandeira: 'Clima e meio ambiente' },
+  { id: 'x3', comissao: 'Frente Parlamentar da Primeira Infância', papel: 'Outro', cargo: 'Outro', bandeira: '' },
+];
+
+test.describe('Pré-marcação da Missão 3 (CAP-04)', () => {
+  test('a comissão escolhida na Missão 3 aparece marcada, com papel e bandeira, inclusive pelo nome genérico', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: FEDERAL, D: { comissoesDesejadas: DA_M3 } });
+    await expect(page.getByRole('checkbox', { name: 'Escolher Comissão de Educação' })).toBeChecked();
+    await expect(page.getByRole('checkbox', { name: 'Escolher Comissão de Meio Ambiente e Desenvolvimento Sustentável' })).toBeChecked();
+    await expect(page.getByRole('group', { name: 'Perguntas sobre Comissão de Educação' }).getByRole('button', { name: 'Titular', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    expect(await registros(page)).toEqual([
+      expect.objectContaining({ sigla: 'CE', esp: 'Comissão de Educação', prio: 'Educação', papel: 'Titular' }),
+      expect.objectContaining({ sigla: 'CMADS', prio: 'Clima e meio ambiente', papel: 'Suplente' }),
+    ]);
+  });
+
+  test('o que não é comissão da Câmara (Frente Parlamentar) não vira comissão marcada e nada se perde na Missão 3', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: FEDERAL, D: { comissoesDesejadas: DA_M3 } });
+    await expect(page.getByRole('checkbox', { checked: true })).toHaveCount(2);
+    expect(await dadoDe(page, 'comissoesDesejadas')).toHaveLength(3);
+  });
+
+  test('desmarcar uma comissão importada e recarregar não a marca de novo', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: FEDERAL, D: { comissoesDesejadas: DA_M3 } });
+    page.once('dialog', (d) => d.accept()); // o papel vindo da Missão 3 já é uma resposta: desmarcar pede confirmação
+    await page.getByRole('checkbox', { name: 'Escolher Comissão de Educação' }).uncheck();
+    await page.reload();
+    await page.locator('#tela[data-pronto="true"]').waitFor();
+    await expect(page.getByRole('checkbox', { name: 'Escolher Comissão de Educação' })).not.toBeChecked();
+    await expect(page.getByRole('checkbox', { checked: true })).toHaveCount(1);
+  });
+});
+
+test.describe('Ajustar o nome na Assembleia (CAP-02.4)', () => {
+  const linhaCE = (page: Page) => page.locator('li[data-sigla="CE"]');
+  test('o nome digitado passa a ser o da comissão, mantém a sigla e escolhe a comissão', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await linhaCE(page).getByRole('button', { name: 'Ajustar o nome' }).click();
+    await page.getByLabel('Nome na sua Assembleia').fill('Comissão de Educação e Cultura');
+    await page.getByRole('button', { name: 'Salvar nome' }).click();
+    await expect(linhaCE(page)).toContainText('Comissão de Educação e Cultura');
+    await expect(linhaCE(page)).toContainText('na Câmara: Comissão de Educação');
+    expect(await registros(page)).toEqual([expect.objectContaining({ sigla: 'CE', esp: 'Comissão de Educação e Cultura' })]);
+  });
+
+  test('nome vazio não grava e cancelar deixa tudo como estava', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await linhaCE(page).getByRole('button', { name: 'Ajustar o nome' }).click();
+    await page.getByLabel('Nome na sua Assembleia').fill('   ');
+    await page.getByRole('button', { name: 'Salvar nome' }).click();
+    await expect(page.getByRole('status')).toContainText('Escreva o nome da comissão na sua Assembleia');
+    expect(await registros(page)).toBeUndefined();
+    await page.getByRole('button', { name: 'Cancelar' }).click();
+    await expect(page.getByLabel('Nome na sua Assembleia')).toHaveCount(0);
+  });
+
+  test('o nome ajustado aparece no Resumo do Guia de verdade', async ({ page }) => {
+    await abreGuia(page, '#/m/4/m4.comissoes/1', { dados: { campos: SAUDE } });
+    await linhaCE(page).getByRole('button', { name: 'Ajustar o nome' }).click();
+    await page.getByLabel('Nome na sua Assembleia').fill('Comissão de Educação e Cultura');
+    await page.getByRole('button', { name: 'Salvar nome' }).click();
+    await page.evaluate(() => { location.hash = '#/resumo'; });
+    await expect(page.locator('#tela')).toContainText('Comissão de Educação e Cultura');
+  });
+});

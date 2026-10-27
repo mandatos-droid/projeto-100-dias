@@ -211,7 +211,7 @@ T24 → T25 → T26
 
 ---
 
-### T7: Pré-marcar comissões da Missão 3 e ajustar nome
+### T7: Pré-marcar comissões da Missão 3 e ajustar nome ✅
 
 **What**: Marcar na Missão 4 as comissões vindas de `comissoesDesejadas` e implementar o "Ajustar o nome" das comissões estaduais.
 **Where**: `ilhas/capital/Comissoes.tsx`
@@ -221,8 +221,8 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] Comissão escolhida na Missão 3 aparece marcada na Missão 4
-- [ ] O nome ajustado passa a aparecer nos resumos
+- [x] Comissão escolhida na Missão 3 aparece marcada na Missão 4
+- [x] O nome ajustado passa a aparecer nos resumos
 
 **Tests**: e2e
 **Gate**: full

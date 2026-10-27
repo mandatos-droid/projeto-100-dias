@@ -4,6 +4,7 @@
    antigo ({prio, esp, pq, papel, mov}, texto legível) mais `sigla`, ignorada pelo legado. */
 import { useEffect, useState } from 'react';
 import { bandeiraDe } from '@/lib/bandeiras';
+import { PAPEIS } from '@/lib/capital';
 import { BANDEIRA_COMISSAO } from '@/lib/comissoesPorBandeira';
 import type { Catalogo, Comissao } from '@/lib/espacos';
 import { aviso } from '../ponte';
@@ -20,7 +21,7 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 const AVISO_NOMES = 'Nomes podem ser diferentes na sua Assembleia. Confira no Regimento Interno.';
 
 export default function Comissoes() {
-  const { d, m, rumo, bump } = useRumo();
+  const { d, m, rumo, espacos, bump } = useRumo();
   const cargo = m.cargo ?? '';
   const casa = casaDe(cargo);
   const uf = (m.uf ?? '').toLowerCase();
@@ -44,6 +45,29 @@ export default function Comissoes() {
   }, [casa, uf]);
 
   const registros = (Array.isArray(d.comissoes) ? d.comissoes : []) as Registro[];
+  /* Missão 3: as comissões de comissoesDesejadas entram já marcadas, uma única vez por nome (se a pessoa desmarcar, não voltam) */
+  useEffect(() => {
+    if (!catalogo) return;
+    const lista = catalogo.comissoes;
+    const vistos: string[] = Array.isArray(d.comissoesM3) ? (d.comissoesM3 as string[]) : [];
+    const novos = espacos.filter((e) => norm(e.comissao ?? '') !== '' && !vistos.includes(norm(e.comissao)));
+    if (!novos.length) return;
+    const atuais = (Array.isArray(d.comissoes) ? d.comissoes : []) as Registro[];
+    const entram: Registro[] = [];
+    novos.forEach((e) => {
+      const n = norm(e.comissao);
+      const iguais = lista.filter((c) => norm(c.nome) === n);
+      const casa = iguais.length === 1 ? iguais : lista.filter((c) => norm(c.nome).startsWith(n)); // nome genérico da Missão 3: "Comissão de Saúde"
+      if (casa.length !== 1) return;
+      const c = casa[0];
+      if ([...atuais, ...entram].some((r) => r.sigla === c.sigla)) return;
+      entram.push({ id: uid(), sigla: c.sigla, esp: c.nome, prio: e.bandeira ?? '', ...(PAPEIS.includes(e.papel ?? '') ? { papel: e.papel } : {}) });
+    });
+    d.comissoesM3 = [...vistos, ...novos.map((e) => norm(e.comissao))];
+    if (entram.length) d.comissoes = [...atuais, ...entram];
+    bump();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [catalogo]);
   const prior = rumo.bandeiras.filter((b) => b.prioridade !== null).sort((a, b) => a.prioridade! - b.prioridade!);
   /* sem cargo conhecido não há sugestão: a lista da Câmara serve só de referência */
   const sugere = casa !== null && prior.length > 0;
