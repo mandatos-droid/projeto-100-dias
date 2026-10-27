@@ -29,6 +29,7 @@ const linha = (page: Page, titulo: string) => page.locator('li.cp-not', { hasTex
 test.describe('Buscar notícias da semana (CAP-30.1)', () => {
   test('lista título, veículo, data e link; manda o nome parlamentar à rota e não grava nada além disso', async ({ page }) => {
     const pedidos = await simulaBusca(page);
+    await page.addInitScript(() => { (window as unknown as { Nuvem: { tok: string } }).Nuvem = { tok: 'token-de-teste' }; });
     await abre(page, [ILHA], { mandato: MANDATO, campos: BANDEIRAS });
     await busca(page).click();
     await expect(page.locator('li.cp-not')).toHaveCount(3);
@@ -37,6 +38,7 @@ test.describe('Buscar notícias da semana (CAP-30.1)', () => {
     await expect(l.getByRole('link')).toHaveAttribute('href', 'https://exemplo.test/a');
     await expect(l.getByRole('link')).toHaveAttribute('rel', /noopener/);
     expect(pedidos).toHaveLength(1);
+    expect(pedidos[0].auth).toBe('Bearer token-de-teste');
     expect(pedidos[0].corpo).toMatchObject({ nome: 'Ana Souza', dias: 7 });
     const salvo = await clipping(page);
     expect(salvo).toHaveLength(3);
