@@ -112,21 +112,21 @@ Perguntas abertas: nenhuma. As 3 do rascunho foram resolvidas acima.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
+| Requirement ID | Story | Tasks | Status |
 | -------------- | ----- | ----- | ------ |
-| M5-01 | P1: Sucesso mensal (criar, editar, remover) | Tasks | Pending |
-| M5-02 | P1: Sucesso mensal (visão no Planejamento, atingimento, migração) | Tasks | Pending |
-| M5-10 | P1: Monitoramento (textos e link) | Tasks | Pending |
-| M5-20 | P1: Feedback (mapa, lista, contagens, vazio, celular) | Tasks | Pending |
-| M5-21 | P1: Feedback (registro, edição, formato antigo) | Tasks | Pending |
-| M5-30 | P1: Novos planejamentos (arquivar, copiar metas) | Tasks | Pending |
-| M5-31 | P1: Novos planejamentos (botões, seletor, leitura) | Tasks | Pending |
+| M5-01 | P1: Sucesso mensal (criar, editar, remover) | T1, T3 | Done |
+| M5-02 | P1: Sucesso mensal (visão no Planejamento, atingimento, migração) | T2, T4 | Done |
+| M5-10 | P1: Monitoramento (textos e link) | T6 | Done |
+| M5-20 | P1: Feedback (mapa, lista, contagens, vazio, celular) | T7 a T10 | Done |
+| M5-21 | P1: Feedback (registro, edição, formato antigo) | T7, T9 | Done |
+| M5-30 | P1: Novos planejamentos (arquivar, copiar metas) | T12, T13 | Done |
+| M5-31 | P1: Novos planejamentos (botões, seletor, leitura) | T14 a T16 | Done |
 
-**Coverage:** 7 total, 0 mapped to tasks, 7 unmapped ⚠️
+**Coverage:** 7 total, 7 mapped to tasks, 0 unmapped (todos Done)
 
 ## Success Criteria
 
-- [ ] Um sucesso criado na Missão 3 aparece na aba Planejamento e altera o atingimento da meta.
-- [ ] O feedback mostra "N pessoas" por liderança a partir da equipe da Missão 2.
-- [ ] Criar um novo planejamento não altera nenhum dado do anterior.
-- [ ] Os textos da Missão 5 no `conteudo.js` ficam byte a byte iguais.
+- [x] Um sucesso criado na Missão 3 aparece na aba Planejamento e altera o atingimento da meta.
+- [x] O feedback mostra "N pessoas" por liderança a partir da equipe da Missão 2.
+- [x] Criar um novo planejamento não altera nenhum dado do anterior.
+- [x] Os textos da Missão 5 no `conteudo.js` ficam byte a byte iguais.

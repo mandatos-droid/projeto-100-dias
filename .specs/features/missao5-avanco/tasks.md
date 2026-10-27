@@ -510,7 +510,7 @@ T16 → T17 → T18
 
 ---
 
-### T17: Rastreabilidade e atualização do grafo ⬜
+### T17: Rastreabilidade e atualização do grafo ✅
 
 **What**: Atualizar a tabela de rastreabilidade da spec (7 de 7 mapeados) e rodar `graphify update .`.
 **Where**: `.specs/features/missao5-avanco/spec.md`
@@ -525,8 +525,8 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] Cada M5-xx aparece com status "Done" e a tarefa que o cobre
-- [ ] `graphify update .` executado sem erro
+- [x] Cada M5-xx aparece com status "Done" e a tarefa que o cobre
+- [x] `graphify update .` executado sem erro
 
 **Tests**: none
 **Gate**: build
