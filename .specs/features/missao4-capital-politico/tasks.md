@@ -481,7 +481,7 @@ T24 → T25 → T26
 
 ---
 
-### T21: Rota de busca de notícias
+### T21: Rota de busca de notícias ✅
 
 **What**: Criar `app/api/clipping/route.ts` e `buscaNoticias()`: login obrigatório, limite de 10 buscas por hora, só metadados, sem duplicadas.
 **Where**: `app/api/clipping/route.ts`
@@ -491,11 +491,11 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] Sem login a rota responde 401
-- [ ] A 11ª busca na hora é recusada
-- [ ] A resposta tem só título, veículo, data e link
-- [ ] Falha da fonte devolve erro tratável, não exceção
-- [ ] Gate passa (com resposta falsa da fonte)
+- [x] Sem login a rota responde 401
+- [x] A 11ª busca na hora é recusada
+- [x] A resposta tem só título, veículo, data e link
+- [x] Falha da fonte devolve erro tratável, não exceção
+- [x] Gate passa (com resposta falsa da fonte)
 
 **Tests**: unit
 **Gate**: quick
