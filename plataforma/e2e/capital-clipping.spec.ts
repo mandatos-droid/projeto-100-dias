@@ -211,3 +211,106 @@ test.describe('Aparição manual (CAP-30.5)', () => {
     expect(await clipping(page)).toMatchObject([{ titulo: 'Entrevista na Rádio Cidade', manual: true, semana: '2026-W44', bandeiras: [] }]);
   });
 });
+
+/* ---------- gráfico por bandeira e número da semana (CAP-30.6, CAP-31.6, CAP-31.7) ---------- */
+const dia = (atras = 0) => { const d = new Date(); d.setDate(d.getDate() - atras); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const DE_HOJE = ['a', 'b', 'c'].map((x, i) => ({ titulo: `Notícia ${x}`, veiculo: 'Jornal', data: dia(0), url: `https://exemplo.test/${i}` }));
+const barras = (page: Page, titulo: RegExp) => page.getByRole('list', { name: titulo });
+const valor = (page: Page, titulo: RegExp, rot: string) => barras(page, titulo).locator('li', { hasText: rot }).locator('.cp-g-num');
+const SEMANA = /Aparições por bandeira nesta semana/, PERIODO = /Aparições por bandeira no período/;
+
+test.describe('Número da semana a partir do clipping (CAP-31.7)', () => {
+  test('aceitar 3 notícias muda "Aparições na imprensa" do registro da semana para 3; ocultar uma muda para 2', async ({ page }) => {
+    await simulaBusca(page, { itens: DE_HOJE });
+    await abre(page, [ILHA], { mandato: MANDATO, campos: BANDEIRAS });
+    await busca(page).click();
+    await expect(page.locator('li.cp-not')).toHaveCount(3);
+    const imprensa = page.locator('details[data-secao="k5"]');
+    await imprensa.locator(':scope > summary').click();
+    await imprensa.getByRole('button', { name: 'Registrar esta semana' }).click();
+    await expect(imprensa.getByLabel('Aparições na imprensa', { exact: true })).toHaveValue('3');
+    await expect(imprensa.getByText('Calculado pelo clipping: 3 notícias não ocultas nesta semana')).toBeVisible();
+    await imprensa.getByRole('button', { name: 'Salvar registro' }).click();
+    const sem = ((await dadoDe(page, 'comunicacao')) as { semanas: Record<string, { k5: Record<string, number> }> }).semanas;
+    expect(Object.values(sem)[0].k5).toEqual({ aparicoes: 3 });
+
+    await linha(page, 'Notícia c').getByRole('button', { name: /^Ocultar/ }).click();
+    await imprensa.getByRole('button', { name: 'Editar esta semana' }).click();
+    await expect(imprensa.getByLabel('Aparições na imprensa', { exact: true })).toHaveValue('2');
+  });
+
+  test('sem notícias no clipping o campo começa vazio, com a explicação de sempre, e o valor digitado vale', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, campos: BANDEIRAS });
+    const imprensa = page.locator('details[data-secao="k5"]');
+    await imprensa.locator(':scope > summary').click();
+    await imprensa.getByRole('button', { name: 'Registrar esta semana' }).click();
+    await expect(imprensa.getByLabel('Aparições na imprensa', { exact: true })).toHaveValue('');
+    await expect(imprensa.getByText('Calculado pelo clipping:')).toHaveCount(0);
+    await imprensa.getByLabel('Aparições na imprensa', { exact: true }).fill('7');
+    await imprensa.getByRole('button', { name: 'Salvar registro' }).click();
+    await expect(imprensa.locator(':scope > summary')).toContainText('Aparições na imprensa 7');
+  });
+
+  test('só conta as notícias da semana atual: uma de semanas atrás não entra no número', async ({ page }) => {
+    await simulaBusca(page, { itens: [DE_HOJE[0], { titulo: 'Velha', veiculo: 'J', data: dia(21), url: 'https://exemplo.test/velha' }] });
+    await abre(page, [ILHA], { mandato: MANDATO, campos: BANDEIRAS });
+    await busca(page).click();
+    const imprensa = page.locator('details[data-secao="k5"]');
+    await imprensa.locator(':scope > summary').click();
+    await imprensa.getByRole('button', { name: 'Registrar esta semana' }).click();
+    await expect(imprensa.getByLabel('Aparições na imprensa', { exact: true })).toHaveValue('1');
+  });
+});
+
+test.describe('Gráfico de aparições por bandeira (CAP-31.6)', () => {
+  test('mostra as bandeiras do mandato e "Sem bandeira", na semana e no período, com os números escritos', async ({ page }) => {
+    await simulaBusca(page, { itens: DE_HOJE });
+    await abre(page, [ILHA], { mandato: MANDATO, campos: BANDEIRAS });
+    await busca(page).click();
+    await linha(page, 'Notícia a').getByRole('button', { name: 'Saúde', exact: true }).click();
+    await linha(page, 'Notícia b').getByRole('button', { name: 'Saúde', exact: true }).click();
+    await linha(page, 'Notícia b').getByRole('button', { name: 'Educação', exact: true }).click();
+    for (const g of [SEMANA, PERIODO]) {
+      await expect(barras(page, g).locator('li')).toHaveText([/Saúde\s*2/, /Educação\s*1/, /Sem bandeira\s*1/]);
+    }
+  });
+
+  test('bandeira do mandato sem notícia aparece com 0; sem "Sem bandeira" quando todas estão etiquetadas', async ({ page }) => {
+    await simulaBusca(page, { itens: [DE_HOJE[0]] });
+    await abre(page, [ILHA], { mandato: MANDATO, campos: BANDEIRAS });
+    await busca(page).click();
+    await linha(page, 'Notícia a').getByRole('button', { name: 'Saúde', exact: true }).click();
+    await expect(valor(page, SEMANA, 'Saúde')).toHaveText('1');
+    await expect(valor(page, SEMANA, 'Educação')).toHaveText('0');
+    await expect(barras(page, SEMANA).locator('li', { hasText: 'Sem bandeira' })).toHaveCount(0);
+  });
+
+  test('o gráfico não conta as ocultas, e restaurar volta a contar', async ({ page }) => {
+    await simulaBusca(page, { itens: DE_HOJE });
+    await abre(page, [ILHA], { mandato: MANDATO, campos: BANDEIRAS });
+    await busca(page).click();
+    await expect(valor(page, PERIODO, 'Sem bandeira')).toHaveText('3');
+    await linha(page, 'Notícia a').getByRole('button', { name: /^Ocultar/ }).click();
+    await expect(valor(page, PERIODO, 'Sem bandeira')).toHaveText('2');
+    await expect(valor(page, SEMANA, 'Sem bandeira')).toHaveText('2');
+    await page.getByText('Ocultas (1)').click();
+    await page.locator('.cp-ocultas').getByRole('button', { name: /^Restaurar/ }).click();
+    await expect(valor(page, PERIODO, 'Sem bandeira')).toHaveText('3');
+  });
+
+  test('semana x período: notícia de semanas atrás conta só no período', async ({ page }) => {
+    await simulaBusca(page, { itens: [DE_HOJE[0], { titulo: 'Velha', veiculo: 'J', data: dia(21), url: 'https://exemplo.test/velha' }] });
+    await abre(page, [ILHA], { mandato: MANDATO, campos: BANDEIRAS });
+    await busca(page).click();
+    await expect(valor(page, PERIODO, 'Sem bandeira')).toHaveText('2');
+    await expect(valor(page, SEMANA, 'Sem bandeira')).toHaveText('1');
+  });
+
+  test('sem notícias não há gráfico; com notícias e sem bandeiras da Missão 3 só aparece "Sem bandeira"', async ({ page }) => {
+    await simulaBusca(page, { itens: [DE_HOJE[0]] });
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await expect(page.locator('.cp-clip-graf')).toHaveCount(0);
+    await busca(page).click();
+    await expect(barras(page, PERIODO).locator('li')).toHaveText([/Sem bandeira\s*1/]);
+  });
+});

@@ -6,9 +6,12 @@ import { semanasDaSecao, serie, ultimoRegistro, type Comunicacao, type Secao } f
 import Grafico from './Grafico';
 import './capital.css';
 
-type Props = { secao: Secao; com: Comunicacao; semana: string; onGrava: (secaoId: string, valores: Record<string, number>) => string | null };
+type Props = { secao: Secao; com: Comunicacao; semana: string; onGrava: (secaoId: string, valores: Record<string, number>) => string | null;
+  /** Imprensa (k5): nº de notícias não ocultas do clipping na semana atual; é o valor de partida de "Aparições na imprensa". */
+  aparicoesClipping?: number };
 
-export default function SecaoComunicacao({ secao, com, semana, onGrava }: Props) {
+export default function SecaoComunicacao({ secao, com, semana, onGrava, aparicoesClipping = 0 }: Props) {
+  const doClipping = secao.id === 'k5' && aparicoesClipping > 0;
   const [editando, setEditando] = useState(false);
   const [rascunho, setRascunho] = useState<Record<string, string>>({});
   const [erro, setErro] = useState('');
@@ -17,7 +20,7 @@ export default function SecaoComunicacao({ secao, com, semana, onGrava }: Props)
   const nSemanas = semanasDaSecao(com, secao.id).length;
 
   const abre = () => {
-    setRascunho(Object.fromEntries(secao.campos.map((c) => [c.id, daSemana?.[c.id] !== undefined ? String(daSemana[c.id]) : ''])));
+    setRascunho(Object.fromEntries(secao.campos.map((c) => [c.id, doClipping && c.id === 'aparicoes' ? String(aparicoesClipping) : daSemana?.[c.id] !== undefined ? String(daSemana[c.id]) : ''])));
     setErro('');
     setEditando(true);
   };
@@ -55,7 +58,7 @@ export default function SecaoComunicacao({ secao, com, semana, onGrava }: Props)
                 <label className="campo"><span className="rot">{c.rot}</span>
                   <input type="number" inputMode="numeric" step="any" min={0} aria-describedby={`aj-${secao.id}-${c.id}`} value={rascunho[c.id] ?? ''} onChange={(e) => setRascunho({ ...rascunho, [c.id]: e.target.value })} />
                 </label>
-                <small className="cp-ajuda" id={`aj-${secao.id}-${c.id}`}>{c.ajuda}</small>
+                <small className="cp-ajuda" id={`aj-${secao.id}-${c.id}`}>{doClipping && c.id === 'aparicoes' ? `Calculado pelo clipping: ${aparicoesClipping} ${aparicoesClipping === 1 ? 'notícia não oculta' : 'notícias não ocultas'} nesta semana. Pode ajustar.` : c.ajuda}</small>
               </div>
             ))}
             {erro && <p className="cp-erro" role="alert">{erro}</p>}

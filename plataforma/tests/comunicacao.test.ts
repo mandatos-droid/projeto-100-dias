@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { SECOES, semanaDe, lerComunicacao, registra, serie, ultimoRegistro, aparicoesPorBandeira, indicador, caixinhasParaMarcar, mesclaBusca, adicionaManual, ocultaNoticias, etiquetaNoticias, type Comunicacao } from '../lib/comunicacao.ts';
+import { SECOES, semanaDe, lerComunicacao, registra, serie, ultimoRegistro, aparicoesPorBandeira, indicador, caixinhasParaMarcar, mesclaBusca, aparicoesDaSemana, adicionaManual, ocultaNoticias, etiquetaNoticias, type Comunicacao } from '../lib/comunicacao.ts';
 
 /* Missão 4 · regras da comunicação (CAP-20, CAP-21, CAP-31, CAP-40). Resultados esperados vêm da spec e do calendário ISO. */
 const vazia: Comunicacao = { semanas: {}, clipping: [] };
@@ -153,4 +153,12 @@ test('ocultaNoticias e etiquetaNoticias: lote, sem repetir etiqueta, sem mutar; 
   const o = ocultaNoticias(c, ['b'], true);
   assert.deepEqual(aparicoesPorBandeira(o), { saude: 1, educacao: 1, sem: 1 });
   assert.equal(ocultaNoticias(o, ['b'], false)[1].oculta, false);
+});
+test('aparicoesDaSemana: conta só as não ocultas da semana pedida (CAP-31.7)', () => {
+  const mk = (id: string, semana: string, oculta = false) => ({ id, semana, titulo: id, veiculo: '', data: '', url: '', bandeiras: [] as string[], oculta });
+  const c = [mk('a', '2026-W44'), mk('b', '2026-W44'), mk('c', '2026-W44', true), mk('d', '2026-W43')];
+  assert.equal(aparicoesDaSemana(c, '2026-W44'), 2);
+  assert.equal(aparicoesDaSemana(c, '2026-W43'), 1);
+  assert.equal(aparicoesDaSemana(c, '2026-W42'), 0);
+  assert.equal(aparicoesDaSemana([], '2026-W44'), 0);
 });

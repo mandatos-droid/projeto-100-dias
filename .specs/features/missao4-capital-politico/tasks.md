@@ -524,7 +524,7 @@ T24 → T25 → T26
 
 ---
 
-### T23: Gráfico por bandeira e número semanal
+### T23: Gráfico por bandeira e número semanal ✅
 
 **What**: Gráfico de barras "aparições por bandeira" e cálculo do número de aparições do registro semanal a partir do clipping.
 **Where**: `ilhas/capital/Comunicacao.tsx`
@@ -534,8 +534,8 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] Aceitar 3 notícias muda o número da semana para 3
-- [ ] O gráfico por bandeira não conta as ocultas
+- [x] Aceitar 3 notícias muda o número da semana para 3
+- [x] O gráfico por bandeira não conta as ocultas
 
 **Tests**: e2e
 **Gate**: full

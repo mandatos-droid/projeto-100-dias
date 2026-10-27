@@ -119,6 +119,9 @@ export function aparicoesPorBandeira(clipping: Noticia[], semana?: string): Reco
   return r;
 }
 
+/** Número de aparições da semana: notícias do clipping não ocultas cuja data cai nela (CAP-31.7). */
+export const aparicoesDaSemana = (clipping: Noticia[], semana: string): number => clipping.filter((n) => !n.oculta && n.semana === semana).length;
+
 /** O indicador da seção na linha do tempo geral: por semana, o número principal da seção (se faltar, o primeiro campo registrado). */
 export function indicador(com: Comunicacao, secaoId: string): { semana: string; valor: number }[] {
   const sec = secaoDe(secaoId);

@@ -4,9 +4,10 @@
    Grava só título, veículo, data e link em D.comunicacao.clipping (regras puras em lib/comunicacao.ts). */
 import { useState } from 'react';
 import { bandeiraDe } from '@/lib/bandeiras';
-import { adicionaManual, etiquetaNoticias, lerComunicacao, mesclaBusca, ocultaNoticias, type ItemBusca, type Noticia } from '@/lib/comunicacao';
+import { SEM_BANDEIRA, adicionaManual, aparicoesPorBandeira, etiquetaNoticias, lerComunicacao, mesclaBusca, ocultaNoticias, semanaDe, type ItemBusca, type Noticia } from '@/lib/comunicacao';
 import { lerRumo } from '@/lib/rumo';
 import { useLegado } from '../ponte';
+import Grafico, { type ItemBarra } from './Grafico';
 import './capital.css';
 
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -20,6 +21,13 @@ export default function Clipping() {
   const bandeiras = lerRumo(D).bandeiras.filter((b) => b.prioridade !== null).sort((a, b) => a.prioridade! - b.prioridade!)
     .map((b) => ({ id: b.id, rot: bandeiraDe(b.id)?.rot ?? b.rot }));
   const rotDe = (id: string) => bandeiras.find((b) => b.id === id)?.rot ?? bandeiraDe(id)?.rot ?? id;
+  const semana = semanaDe(new Date()) ?? '';
+  /** Barras: as bandeiras do mandato (mesmo com 0), depois as outras que aparecem, e "Sem bandeira" por último (se houver). */
+  const itensGrafico = (contagem: Record<string, number>): ItemBarra[] => {
+    const ids = [...bandeiras.map((b) => b.id), ...Object.keys(contagem).filter((id) => id !== SEM_BANDEIRA && !bandeiras.some((b) => b.id === id))];
+    const itens = ids.map((id) => ({ id, rot: rotDe(id), valor: contagem[id] ?? 0 }));
+    return contagem[SEM_BANDEIRA] ? [...itens, { id: SEM_BANDEIRA, rot: 'Sem bandeira', valor: contagem[SEM_BANDEIRA] }] : itens;
+  };
 
   const [buscando, setBuscando] = useState(false);
   const [falha, setFalha] = useState('');
@@ -145,6 +153,13 @@ export default function Clipping() {
       {visiveis.length > 0
         ? <ul className="cp-clip-lista">{visiveis.map(linha)}</ul>
         : <p className="cp-vazio">Nenhuma notícia na lista. Busque as da semana ou adicione uma aparição manual.</p>}
+
+      {visiveis.length > 0 && (
+        <div className="cp-clip-graf">
+          <Grafico tipo="barras" titulo={`Aparições por bandeira nesta semana (${semana})`} itens={itensGrafico(aparicoesPorBandeira(com.clipping, semana))} vazio="Nenhuma aparição nesta semana." />
+          <Grafico tipo="barras" titulo="Aparições por bandeira no período" itens={itensGrafico(aparicoesPorBandeira(com.clipping))} />
+        </div>
+      )}
 
       {ocultas.length > 0 && (
         <details className="cp-ocultas">

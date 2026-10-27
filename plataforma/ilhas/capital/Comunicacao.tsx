@@ -3,7 +3,7 @@
    gráfico de linha por seção e, no fim, a "Linha do tempo geral" com um indicador de cada seção.
    Grava em D.comunicacao = { semanas, clipping } (formato e regras em lib/comunicacao.ts) e marca as caixinhas antigas m4.k1 a m4.k5. */
 import { useEffect } from 'react';
-import { SECOES, caixinhasParaMarcar, indicador, lerComunicacao, registra, semanaDe } from '@/lib/comunicacao';
+import { SECOES, aparicoesDaSemana, caixinhasParaMarcar, indicador, lerComunicacao, registra, semanaDe } from '@/lib/comunicacao';
 import { useLegado } from '../ponte';
 import Grafico from './Grafico';
 import Clipping from './Clipping';
@@ -39,7 +39,7 @@ export default function Comunicacao() {
   return (
     <div className="ilha-corpo cp-esc cp-com">
       <p className="cp-band">Semana atual: {semana}. Registre uma vez por semana os números de cada tópico; só valem números iguais ou maiores que zero.</p>
-      {SECOES.map((s) => <SecaoComunicacao key={s.id} secao={s} com={com} semana={semana} onGrava={grava} />)}
+      {SECOES.map((s) => <SecaoComunicacao key={s.id} secao={s} com={com} semana={semana} onGrava={grava} aparicoesClipping={aparicoesDaSemana(com.clipping, semana)} />)}
       <Clipping />
       <section className="cp-geral" aria-labelledby="cp-geral-t">
         <h4 id="cp-geral-t">Linha do tempo geral</h4>
