@@ -543,7 +543,7 @@ T24 → T25 → T26
 
 ---
 
-### T24: Teste e2e do clipping
+### T24: Teste e2e do clipping ✅
 
 **What**: Cobrir em e2e a busca (simulada), a etiquetagem e o gráfico por bandeira.
 **Where**: `e2e/capital-clipping.spec.ts`
@@ -553,7 +553,7 @@ T24 → T25 → T26
 
 **Tools**: Playwright.
 **Done when**:
-- [ ] O fluxo completo passa com a busca simulada
+- [x] O fluxo completo passa com a busca simulada
 
 **Tests**: e2e
 **Gate**: full

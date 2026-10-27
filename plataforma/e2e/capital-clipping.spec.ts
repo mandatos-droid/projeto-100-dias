@@ -314,3 +314,67 @@ test.describe('Gráfico de aparições por bandeira (CAP-31.6)', () => {
     await expect(barras(page, PERIODO).locator('li')).toHaveText([/Sem bandeira\s*1/]);
   });
 });
+/* ---------- fluxo completo em celular e computador, com a busca simulada ---------- */
+const semRolagemLateral = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+const LONGOS = [
+  { titulo: 'Deputada defende mais verba para escolas rurais e anuncia audiência pública sobre o orçamento da educação básica no estado', veiculo: 'Jornal do Comércio de Pernambuco', data: dia(0), url: 'https://exemplo.test/a/um-endereco-muito-longo-que-nao-pode-estourar-a-tela-do-celular-em-hipotese-alguma' },
+  { titulo: 'Projeto sobre hospitais regionais avança na Casa', veiculo: 'VEJA', data: dia(1), url: 'https://exemplo.test/b' },
+  { titulo: 'Outra Ana Souza vence concurso de poesia', veiculo: 'Jornal X', data: dia(2), url: 'https://exemplo.test/c' },
+];
+
+for (const tela of [{ nome: 'celular 360 px', width: 360, height: 740 }, { nome: 'computador 1280 px', width: 1280, height: 800 }]) {
+  test.describe(`Fluxo completo do clipping em ${tela.nome}`, () => {
+    test.use({ viewport: { width: tela.width, height: tela.height } });
+
+    test('busca (simulada), oculta a que não é do mandato, etiqueta em lote e uma a uma, vê o gráfico e o número da semana, e tudo sobrevive a recarregar', async ({ page }) => {
+      await simulaBusca(page, { itens: LONGOS });
+      await abre(page, [ILHA], { mandato: MANDATO, campos: BANDEIRAS });
+      await busca(page).click();
+      await expect(page.locator('li.cp-not')).toHaveCount(3);
+      expect(await semRolagemLateral(page)).toBe(true);
+
+      await linha(page, 'Outra Ana Souza').getByRole('button', { name: /^Ocultar/ }).click();
+      await page.getByRole('button', { name: 'Marcar vários' }).click();
+      await page.getByLabel(/^Selecionar: Projeto sobre hospitais/).check();
+      await page.getByRole('button', { name: 'Etiquetar com Saúde' }).click();
+      await linha(page, 'Deputada defende').getByRole('button', { name: 'Educação', exact: true }).click();
+      expect(await semRolagemLateral(page)).toBe(true);
+
+      await expect(valor(page, PERIODO, 'Saúde')).toHaveText('1');
+      await expect(valor(page, PERIODO, 'Educação')).toHaveText('1');
+      await expect(barras(page, PERIODO).locator('li', { hasText: 'Sem bandeira' })).toHaveCount(0); // a sem etiqueta foi ocultada
+
+      const imprensa = page.locator('details[data-secao="k5"]');
+      await imprensa.locator(':scope > summary').click();
+      await imprensa.getByRole('button', { name: 'Registrar esta semana' }).click();
+      const n = await imprensa.getByLabel('Aparições na imprensa', { exact: true }).inputValue();
+      expect(Number(n)).toBeGreaterThanOrEqual(1); // as de hoje e de ontem podem cair em semanas ISO diferentes (segunda-feira)
+      await imprensa.getByRole('button', { name: 'Salvar registro' }).click();
+      expect(await semRolagemLateral(page)).toBe(true);
+
+      await page.reload();
+      await page.locator('#tela[data-pronto="true"]').waitFor();
+      expect(await clipping(page)).toHaveLength(3);
+      await expect(lista(page).locator('li.cp-not')).toHaveCount(2);
+      await expect(linha(page, 'Projeto sobre hospitais').getByRole('button', { name: 'Saúde', exact: true })).toHaveAttribute('aria-pressed', 'true');
+      await expect(page.getByText('Ocultas (1)')).toBeVisible();
+      await expect(valor(page, PERIODO, 'Saúde')).toHaveText('1');
+      expect(await semRolagemLateral(page)).toBe(true);
+    });
+
+    test('falha da busca mostra o aviso, a aparição manual entra na lista e a tela não rola para o lado', async ({ page }) => {
+      await simulaBusca(page, { status: 502, corpo: { erro: 'x' } });
+      await abre(page, [ILHA], { mandato: MANDATO, campos: BANDEIRAS });
+      await busca(page).click();
+      await expect(clip(page).getByRole('alert')).toHaveText('Não consegui buscar agora. Adicione manualmente');
+      await page.getByRole('button', { name: 'Adicionar aparição manual' }).click();
+      await page.getByLabel('Título').fill('Entrevista de longa duração na rádio sobre o orçamento da educação e da saúde');
+      await page.getByLabel('Veículo').fill('Rádio Cidade FM Metropolitana');
+      await page.getByLabel('Link (opcional)').fill('https://radio.test/uma/url/muito/longa/que/nao/pode/estourar/a/tela/do/celular');
+      await page.getByRole('button', { name: 'Adicionar à lista' }).click();
+      await expect(page.locator('li.cp-not')).toHaveCount(1);
+      expect(await semRolagemLateral(page)).toBe(true);
+      await expect(valor(page, PERIODO, 'Sem bandeira')).toHaveText('1');
+    });
+  });
+}
