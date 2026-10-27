@@ -113,7 +113,7 @@ T16 → T17 → T18
 
 ---
 
-### T2: Atingimento calculado pelos sucessos ⬜
+### T2: Atingimento calculado pelos sucessos ✅
 
 **What**: Ajustar `lib/atingimento.ts` para que meta com sucessos use atingidos/total e meta sem sucessos use o status, como antes.
 **Where**: `lib/atingimento.ts` (+ `tests/atingimento.test.ts`)
@@ -128,10 +128,10 @@ T16 → T17 → T18
 
 **Done when**:
 
-- [ ] Meta com 2 sucessos, 1 atingido, tem atingimento 50% (M5-02.5)
-- [ ] Meta sem sucessos mantém o cálculo atual pelo status (M5-02.6)
-- [ ] O atingimento do objetivo e o total usam o valor novo da meta
-- [ ] Gate: `npm test`; testes existentes de atingimento seguem passando
+- [x] Meta com 2 sucessos, 1 atingido, tem atingimento 50% (M5-02.5)
+- [x] Meta sem sucessos mantém o cálculo atual pelo status (M5-02.6)
+- [x] O atingimento do objetivo e o total usam o valor novo da meta
+- [x] Gate: `npm test`; testes existentes de atingimento seguem passando
 
 **Tests**: unit
 **Gate**: quick

@@ -47,3 +47,37 @@ test('pctTotal é null se todos os objetivos forem nulos ou não houver objetivo
   assert.equal(pctTotal([null, null]), null);
   assert.equal(pctTotal([]), null);
 });
+
+/* Missão 5 · meta com sucessos mensais usa atingidos/total; sem sucessos, o status (M5-02) */
+const suc = (...st: string[]) => st.map((status, i) => ({ id: `s${i}`, mes: 1, texto: `s${i}`, status }));
+
+test('meta com 2 sucessos, 1 atingido, tem atingimento 50%, qualquer que seja o status da meta (M5-02.5)', () => {
+  assert.equal(pctMeta('nao_concluida', suc('concluida', 'nao_concluida')), 50);
+  assert.equal(pctMeta('concluida', suc('concluida', 'nao_concluida')), 50);
+  assert.equal(pctMeta('nao_concluida', suc('concluida', 'concluida', 'nao_concluida')), 67);
+  assert.equal(pctMeta('nao_concluida', suc('concluida')), 100);
+  assert.equal(pctMeta('concluida', suc('nao_concluida')), 0);
+});
+
+test('meta sem sucessos mantém o cálculo pelo status (M5-02.6)', () => {
+  assert.equal(pctMeta('concluida70', []), 70);
+  assert.equal(pctMeta('concluida70', undefined), 70);
+  assert.equal(pctMeta('congelada', []), null);
+  assert.equal(pctMeta('concluida70', 'lixo'), 70);
+});
+
+test('meta congelada com sucessos continua fora da conta; sucesso congelado não conta no total', () => {
+  assert.equal(pctMeta('congelada', suc('concluida')), null);
+  assert.equal(pctMeta('nao_concluida', suc('concluida', 'congelada')), 100);
+  assert.equal(pctMeta('nao_concluida', suc('congelada', 'congelada')), null, 'só sucessos congelados: fora da conta');
+});
+
+test('pctObjetivo e pctTotal usam o atingimento novo das metas com sucessos (M5-02.5)', () => {
+  const metas = [
+    { status: 'nao_concluida', sucessos: suc('concluida', 'nao_concluida') }, // 50
+    { status: 'concluida' },                                                   // 100, sem sucessos
+  ];
+  assert.equal(pctObjetivo(metas), 75);
+  assert.equal(pctTotal([pctObjetivo(metas), 100]), 88);
+  assert.equal(pctObjetivo([{ status: 'concluida', sucessos: suc('congelada') }]), null);
+});

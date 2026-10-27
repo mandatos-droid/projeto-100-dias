@@ -10,8 +10,9 @@ const mesValido = (v: unknown): v is number => typeof v === 'number' && Number.i
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 /** Sucessos da meta, normalizados: mês fora de 1..4 vira 1, status inválido vale "não concluída". Não altera a meta. */
-export function lerSucessos(meta: { sucessos?: unknown } | null | undefined): Sucesso[] {
-  const bruto = meta && Array.isArray(meta.sucessos) ? meta.sucessos : [];
+export function lerSucessos(meta: object | null | undefined): Sucesso[] {
+  const s0 = (meta as { sucessos?: unknown } | null | undefined)?.sucessos;
+  const bruto = Array.isArray(s0) ? s0 : [];
   return bruto.filter(ehObj).map((s) => ({
     id: typeof s.id === 'string' && s.id ? s.id : uid(),
     mes: mesValido(s.mes) ? s.mes : 1,

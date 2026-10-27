@@ -1,5 +1,6 @@
 /* Missão 3 · status das metas e atingimento. Média simples, sem pesos; meta congelada fica fora da conta. */
 import type { StatusMeta } from './rumo.ts';
+import { atingidos, lerSucessos } from './sucessos.ts';
 
 export const STATUS: { id: StatusMeta; rot: string; pct: number | null }[] = [
   { id: 'concluida', rot: 'Concluída', pct: 100 },
@@ -8,17 +9,24 @@ export const STATUS: { id: StatusMeta; rot: string; pct: number | null }[] = [
   { id: 'congelada', rot: 'Congelada', pct: null },
 ];
 
-/** Atingimento da meta: 100, 70, 0, ou null (congelada, fora da conta). Sem status válido vale 0. */
-export function pctMeta(status?: string): number | null {
+/** Atingimento da meta. Com sucessos mensais: atingidos/total arredondado (null se todos congelados). Sem sucessos: 100, 70 ou 0
+ *  pelo status. Meta congelada fica fora da conta (null) mesmo com sucessos. Sem status válido vale 0. */
+export function pctMeta(status?: string, sucessos?: unknown): number | null {
   const s = STATUS.find((x) => x.id === status);
+  if (s && s.pct === null) return null;
+  const lista = lerSucessos({ sucessos });
+  if (lista.length) {
+    const { atingidos: a, total } = atingidos(lista);
+    return total ? Math.round((a / total) * 100) : null;
+  }
   return s ? s.pct : 0;
 }
 
 const media = (v: number[]) => Math.round(v.reduce((s, n) => s + n, 0) / v.length);
 
 /** Média das metas não congeladas, arredondada; null se não há meta ativa. */
-export function pctObjetivo(metas: { status?: string }[]): number | null {
-  const ativas = metas.map((m) => pctMeta(m.status)).filter((p): p is number => p !== null);
+export function pctObjetivo(metas: { status?: string; sucessos?: unknown }[]): number | null {
+  const ativas = metas.map((m) => pctMeta(m.status, m.sucessos)).filter((p): p is number => p !== null);
   return ativas.length ? media(ativas) : null;
 }
 
