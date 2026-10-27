@@ -424,7 +424,7 @@ T24 → T25 → T26
 
 ---
 
-### T18: Linha do tempo geral e caixinhas antigas
+### T18: Linha do tempo geral e caixinhas antigas ✅
 
 **What**: Gráfico "Linha do tempo geral" e marcação automática das caixinhas `m4.k1` a `m4.k5`.
 **Where**: `ilhas/capital/Comunicacao.tsx`
@@ -434,9 +434,9 @@ T24 → T25 → T26
 
 **Tools**: nenhuma MCP necessária.
 **Done when**:
-- [ ] O gráfico geral aparece com um indicador de cada seção
-- [ ] Seção com registro marca a caixinha antiga correspondente
-- [ ] O Resumo continua correto
+- [x] O gráfico geral aparece com um indicador de cada seção
+- [x] Seção com registro marca a caixinha antiga correspondente
+- [x] O Resumo continua correto
 
 **Tests**: e2e
 **Gate**: full

@@ -2,7 +2,7 @@
    por semana. Dados em D.comunicacao = { semanas: { "2026-W44": { k1: { seguidores: 10, ... } } }, clipping: [...] }. */
 
 export type Campo = { id: string; rot: string; ajuda: string };
-export type Secao = { id: string; caixinha: string; titulo: string; campos: Campo[] };
+export type Secao = { id: string; caixinha: string; titulo: string; curto: string; principal: string; campos: Campo[] };
 export type Valores = Record<string, number>;
 export type Semanas = Record<string, Record<string, Valores>>;
 export type Noticia = { id: string; semana: string; titulo: string; veiculo: string; data: string; url: string; bandeiras: string[]; manual?: boolean; oculta?: boolean };
@@ -10,21 +10,21 @@ export type Comunicacao = { semanas: Semanas; clipping: Noticia[] };
 
 /** As 5 seções do Guia (os títulos repetem os de m4.k1..k5) e os números de cada uma. `caixinha` é a chave antiga em D.campos. */
 export const SECOES: Secao[] = [
-  { id: 'k1', caixinha: 'm4.k1', titulo: 'Alcance e crescimento da comunidade', campos: [
+  { id: 'k1', caixinha: 'm4.k1', titulo: 'Alcance e crescimento da comunidade', curto: 'Alcance', principal: 'alcance', campos: [
     { id: 'seguidores', rot: 'Seguidores (total)', ajuda: 'Onde achar? Na página inicial das estatísticas da rede social.' },
     { id: 'novos', rot: 'Novos seguidores na semana', ajuda: 'Onde achar? Nas estatísticas de público da rede.' },
     { id: 'alcance', rot: 'Alcance ou visualizações', ajuda: 'Onde achar? Nas estatísticas de conteúdo, no período de 7 dias.' }] },
-  { id: 'k2', caixinha: 'm4.k2', titulo: 'Compartilhamentos, comentários e respostas', campos: [
+  { id: 'k2', caixinha: 'm4.k2', titulo: 'Compartilhamentos, comentários e respostas', curto: 'Interações', principal: 'comentarios', campos: [
     { id: 'compartilhamentos', rot: 'Compartilhamentos', ajuda: 'Onde achar? Nas estatísticas de interações da rede.' },
     { id: 'comentarios', rot: 'Comentários recebidos', ajuda: 'Onde achar? Nas estatísticas de interações da rede.' },
     { id: 'respostas', rot: 'Respostas dadas pelo mandato', ajuda: 'Conte à mão as respostas que o mandato deu na semana.' }] },
-  { id: 'k3', caixinha: 'm4.k3', titulo: 'Mensagens recebidas e encaminhadas', campos: [
+  { id: 'k3', caixinha: 'm4.k3', titulo: 'Mensagens recebidas e encaminhadas', curto: 'Mensagens', principal: 'recebidas', campos: [
     { id: 'recebidas', rot: 'Mensagens recebidas', ajuda: 'Onde achar? Na caixa de mensagens ou no aplicativo de atendimento.' },
     { id: 'encaminhadas', rot: 'Mensagens encaminhadas', ajuda: 'Quantas foram repassadas à equipe ou a outro órgão.' }] },
-  { id: 'k4', caixinha: 'm4.k4', titulo: 'Participação gerada por campanhas e convites', campos: [
+  { id: 'k4', caixinha: 'm4.k4', titulo: 'Participação gerada por campanhas e convites', curto: 'Campanhas', principal: 'participaram', campos: [
     { id: 'convites', rot: 'Convites enviados', ajuda: 'Conte os convites feitos na semana.' },
     { id: 'participaram', rot: 'Pessoas que participaram', ajuda: 'Conte quem compareceu ou respondeu ao convite.' }] },
-  { id: 'k5', caixinha: 'm4.k5', titulo: 'Presença das agendas do mandato na imprensa e no debate público', campos: [
+  { id: 'k5', caixinha: 'm4.k5', titulo: 'Presença das agendas do mandato na imprensa e no debate público', curto: 'Imprensa', principal: 'aparicoes', campos: [
     { id: 'aparicoes', rot: 'Aparições na imprensa', ajuda: 'Calculado pelo clipping de notícias, se você usar a busca.' },
     { id: 'notas', rot: 'Notas e entrevistas dadas', ajuda: 'Conte as notas e entrevistas do mandato na semana.' }] },
 ];
@@ -117,4 +117,20 @@ export function aparicoesPorBandeira(clipping: Noticia[], semana?: string): Reco
     for (const id of ids) r[id] = (r[id] ?? 0) + 1;
   }
   return r;
+}
+
+/** O indicador da seção na linha do tempo geral: por semana, o número principal da seção (se faltar, o primeiro campo registrado). */
+export function indicador(com: Comunicacao, secaoId: string): { semana: string; valor: number }[] {
+  const sec = secaoDe(secaoId);
+  if (!sec) return [];
+  return semanasDaSecao(com, secaoId).flatMap((semana) => {
+    const v = com.semanas[semana][secaoId];
+    const campo = v[sec.principal] !== undefined ? sec.principal : sec.campos.find((c) => v[c.id] !== undefined)?.id;
+    return campo ? [{ semana, valor: v[campo] }] : [];
+  });
+}
+
+/** Chaves das caixinhas antigas (m4.k1 a m4.k5) a marcar: seções com registro cuja caixinha ainda não está marcada. Nunca desmarca. */
+export function caixinhasParaMarcar(com: Comunicacao, campos: Record<string, unknown>): string[] {
+  return SECOES.filter((s) => semanasDaSecao(com, s.id).length > 0 && !campos[s.caixinha]).map((s) => s.caixinha);
 }

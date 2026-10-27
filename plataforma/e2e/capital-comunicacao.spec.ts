@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { abre, dadoDe, MANDATO } from './semente-rumo';
+import { abreGuia } from './guia-real';
 import { semanaDe } from '../lib/comunicacao.ts';
 
 /* Missão 4 · acompanhamento semanal da comunicação (CAP-20, CAP-21). Ilha montada na rota de teste. */
@@ -178,5 +179,82 @@ test.describe('Gráfico de linha da seção (CAP-20.5, CAP-20.6)', () => {
     const s = await abreSecao(page, 'k1');
     await s.getByText('Ver como tabela').click();
     await expect(s.locator('.cp-g-tab tbody th')).toHaveText(['2026-W44', '2026-W53', '2027-W01']);
+  });
+});
+
+/* ---------- linha do tempo geral e caixinhas antigas (CAP-21.7, CAP-21.8) ---------- */
+const geral = (page: Page) => page.locator('.cp-geral');
+const duasSemanas = (secoes: Record<string, Record<string, number>>) => ({
+  semanas: { [semana(1)]: secoes, [semana(0)]: Object.fromEntries(Object.entries(secoes).map(([k, v]) => [k, Object.fromEntries(Object.entries(v).map(([c, n]) => [c, n + 5]))])) },
+  clipping: [],
+});
+const TODAS = { k1: { alcance: 100 }, k2: { comentarios: 10 }, k3: { recebidas: 20 }, k4: { participaram: 30 }, k5: { aparicoes: 4 } };
+const caixinha = (page: Page, k: string) => page.evaluate((c) => (window as unknown as { D: { campos: Record<string, unknown> } }).D.campos[c], k);
+
+test.describe('Linha do tempo geral (CAP-21.7)', () => {
+  test('fica no fim da tela e, com 2 semanas registradas, mostra um indicador de cada seção com registro', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: duasSemanas({ k1: { alcance: 100 }, k3: { recebidas: 20 }, k5: { aparicoes: 4 } }) } });
+    await expect(page.locator('.cp-com').locator('> *').last()).toHaveClass(/cp-geral/);
+    await expect(geral(page).getByRole('heading', { name: 'Linha do tempo geral' })).toBeVisible();
+    const g = geral(page).locator('.cp-g[data-tipo="linha"]');
+    await expect(g.locator('polyline')).toHaveCount(3);
+    await expect(g.getByRole('list', { name: 'Legenda' }).locator('li')).toHaveText(['Alcance', 'Mensagens', 'Imprensa']);
+  });
+
+  test('com as 5 seções registradas há um indicador para cada uma, na ordem do Guia', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: duasSemanas(TODAS) } });
+    const g = geral(page).locator('.cp-g[data-tipo="linha"]');
+    await expect(g.locator('polyline')).toHaveCount(5);
+    await expect(g.getByRole('list', { name: 'Legenda' }).locator('li')).toHaveText(['Alcance', 'Interações', 'Mensagens', 'Campanhas', 'Imprensa']);
+  });
+
+  test('o indicador de cada seção é o número principal dela (o gráfico e a tabela trazem o mesmo valor)', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: duasSemanas({ k1: { seguidores: 5000, alcance: 100 } }) } });
+    await geral(page).getByText('Ver como tabela').click();
+    const linhas = geral(page).locator('.cp-g-tab tbody tr');
+    await expect(linhas.nth(0)).toContainText('100');
+    await expect(linhas.nth(1)).toContainText('105');
+    await expect(geral(page).locator('.cp-g-tab')).not.toContainText('5000');
+  });
+
+  test('com menos de 2 semanas no total pede mais uma semana, sem gráfico', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await expect(geral(page).getByText('Registre mais uma semana para ver a linha do tempo geral')).toBeVisible();
+    await expect(geral(page).locator('.cp-g')).toHaveCount(0);
+    await registra(page, 'k1', { 'Alcance ou visualizações': '10' });
+    await expect(geral(page).locator('.cp-g')).toHaveCount(0);
+  });
+
+  test('semanas de seções diferentes se somam no eixo: 1 semana em k1 e outra em k2 já formam a linha geral', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: { semanas: { [semana(1)]: { k1: { alcance: 10 } }, [semana(0)]: { k2: { comentarios: 3 } } }, clipping: [] } } });
+    await expect(geral(page).locator('.cp-g[data-tipo="linha"]')).toBeVisible();
+  });
+});
+
+test.describe('Caixinhas antigas m4.k1 a m4.k5 (CAP-21.8)', () => {
+  test('registrar uma seção marca só a caixinha dela', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    expect(await caixinha(page, 'm4.k1')).toBeUndefined();
+    await registra(page, 'k1', { 'Alcance ou visualizações': '10' });
+    expect(await caixinha(page, 'm4.k1')).toBe(true);
+    for (const k of ['m4.k2', 'm4.k3', 'm4.k4', 'm4.k5']) expect(await caixinha(page, k)).toBeUndefined();
+  });
+
+  test('seções que já tinham registro marcam a caixinha ao abrir a tela, e caixinha já marcada à mão não é desmarcada', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, campos: { 'm4.k5': true as unknown as string }, D: { comunicacao: duasSemanas({ k2: { comentarios: 10 }, k4: { participaram: 3 } }) } });
+    await expect.poll(() => caixinha(page, 'm4.k2')).toBe(true);
+    expect(await caixinha(page, 'm4.k4')).toBe(true);
+    expect(await caixinha(page, 'm4.k5')).toBe(true);
+    expect(await caixinha(page, 'm4.k1')).toBeUndefined();
+  });
+
+  test('no Guia de verdade o Resumo continua certo: conta e lista os itens marcados, inclusive os antigos', async ({ page }) => {
+    await abreGuia(page, '#/m/4/m4.metricas/1', { dados: { campos: { 'm4.k3': true } } });
+    await registra(page, 'k1', { 'Alcance ou visualizações': '10' });
+    await page.evaluate(() => { location.hash = '#/resumo'; });
+    const resumo = page.locator('#tela');
+    await expect(resumo).toContainText('Itens marcados (2 de 5)');
+    await expect(resumo).toContainText('Alcance e crescimento da comunidade');
+    await expect(resumo).toContainText('Mensagens recebidas e encaminhadas');
   });
 });

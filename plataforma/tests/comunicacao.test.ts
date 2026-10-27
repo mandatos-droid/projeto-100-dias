@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { SECOES, semanaDe, lerComunicacao, registra, serie, ultimoRegistro, aparicoesPorBandeira, type Comunicacao } from '../lib/comunicacao.ts';
+import { SECOES, semanaDe, lerComunicacao, registra, serie, ultimoRegistro, aparicoesPorBandeira, indicador, caixinhasParaMarcar, type Comunicacao } from '../lib/comunicacao.ts';
 
 /* Missão 4 · regras da comunicação (CAP-20, CAP-21, CAP-31, CAP-40). Resultados esperados vêm da spec e do calendário ISO. */
 const vazia: Comunicacao = { semanas: {}, clipping: [] };
@@ -96,4 +96,20 @@ test('aparicoesPorBandeira: conta por bandeira, "sem" para sem etiqueta, e ignor
   const r = aparicoesPorBandeira([n('1', ['educacao']), n('2', ['educacao', 'saude']), n('3', []), n('4', ['saude'], { oculta: true })]);
   assert.deepEqual(r, { educacao: 2, saude: 1, sem: 1 });
   assert.deepEqual(aparicoesPorBandeira([n('1', ['educacao']), n('2', ['saude'], { semana: '2026-W45' })], '2026-W45'), { saude: 1 });
+});
+
+test('indicador: um número por semana de cada seção (o principal; se faltar, o primeiro registrado), em ordem de semana (CAP-21.7)', () => {
+  let c = ok(registra(vazia, 'k1', '2026-W45', { seguidores: 1100, alcance: 300 }));
+  c = ok(registra(c, 'k1', '2026-W44', { seguidores: 1000, alcance: 200 }));
+  c = ok(registra(c, 'k1', '2026-W46', { seguidores: 1200 })); // sem o principal (alcance): vale o primeiro campo registrado
+  assert.deepEqual(indicador(c, 'k1'), [{ semana: '2026-W44', valor: 200 }, { semana: '2026-W45', valor: 300 }, { semana: '2026-W46', valor: 1200 }]);
+  assert.deepEqual(indicador(c, 'k2'), []);
+});
+
+test('caixinhasParaMarcar: só as seções com registro cujas caixinhas antigas ainda estão desmarcadas (CAP-21.8)', () => {
+  let c = ok(registra(vazia, 'k1', '2026-W44', { alcance: 1 }));
+  c = ok(registra(c, 'k3', '2026-W44', { recebidas: 0 }));
+  c = ok(registra(c, 'k4', '2026-W44', { convites: 2 }));
+  assert.deepEqual(caixinhasParaMarcar(c, { 'm4.k4': true as unknown as string }), ['m4.k1', 'm4.k3']);
+  assert.deepEqual(caixinhasParaMarcar(vazia, {}), []);
 });
