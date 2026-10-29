@@ -35,8 +35,8 @@ test.describe('Mural e card (RUM-01.1, RUM-01.2, RUM-02.10)', () => {
 
   test('outra bandeira entra no mural com o próprio card', async ({ page }) => {
     await abre(page, [ILHA]);
-    await page.getByLabel('Outra bandeira').fill('Mobilidade urbana');
-    await page.getByRole('button', { name: 'Acrescentar bandeira' }).click();
+    await page.getByLabel('Outra agenda').fill('Mobilidade urbana');
+    await page.getByRole('button', { name: 'Acrescentar agenda' }).click();
     await expect(card(page, 'Mobilidade urbana')).toBeVisible();
     expect((await camposDe(page))['m3.mural']).toBe('Mobilidade urbana');
   });
@@ -79,7 +79,7 @@ test.describe('Prioritárias (RUM-02.6, RUM-02.7, RUM-01.8)', () => {
     expect([c['m3.b1'], c['m3.b2'], c['m3.b3']]).toEqual(['Educação', 'Saúde', 'Cultura']);
 
     await estrela(page, 'Esportes').click();
-    await expect(page.locator('#avisos')).toContainText('Já são 3 bandeiras prioritárias (Educação, Saúde, Cultura)');
+    await expect(page.locator('#avisos')).toContainText('Já são 3 agendas prioritárias (Educação, Saúde, Cultura)');
     c = await camposDe(page);
     expect([c['m3.b1'], c['m3.b2'], c['m3.b3']]).toEqual(['Educação', 'Saúde', 'Cultura']);
     expect((await rumoDe(page)).bandeiras.find((b) => b.id === 'esportes')!.prioridade).toBeNull();
@@ -188,8 +188,8 @@ test('HTML digitado nos argumentos aparece como texto e não executa', async ({ 
   await abre(page, [ILHA]);
   await chip(page, 'Saúde').click();
   await page.getByLabel('Argumentos de Saúde').fill('<img src=x onerror="window.__xss=1"><script>window.__xss=1</script>');
-  await page.getByLabel('Outra bandeira').fill('<b>negrito</b>');
-  await page.getByRole('button', { name: 'Acrescentar bandeira' }).click();
+  await page.getByLabel('Outra agenda').fill('<b>negrito</b>');
+  await page.getByRole('button', { name: 'Acrescentar agenda' }).click();
   await expect(page.locator('.rm-card-nome', { hasText: '<b>negrito</b>' })).toBeVisible();
   expect(await page.evaluate(() => (window as unknown as { __xss?: number }).__xss)).toBeUndefined();
   expect(await page.locator('.rm-band b', { hasText: /^negrito$/ }).count()).toBe(0);

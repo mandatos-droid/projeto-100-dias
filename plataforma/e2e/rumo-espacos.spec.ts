@@ -27,7 +27,7 @@ test.describe('Deputado(a) Federal com catálogo da Câmara (RUM-50.2, RUM-50.5,
 
   test('sem bandeira prioritária pede para confirmá-las antes de sugerir', async ({ page }) => {
     await abre(page, [ILHA], { mandato: FEDERAL });
-    await expect(page.getByText('Confirme as bandeiras prioritárias')).toBeVisible();
+    await expect(page.getByText('Confirme as agendas prioritárias')).toBeVisible();
   });
 });
 
@@ -92,7 +92,7 @@ test.describe('Alerta e dica (RUM-51.7, RUM-51.8)', () => {
     await abre(page, [ILHA], { campos: EDUCACAO, mandato: MANDATO });
     await page.getByLabel('Comissão ou espaço').fill('Comissão de Turismo');
     await page.getByRole('button', { name: 'Registrar espaço' }).click();
-    await expect(page.locator('.rm-reg li')).toContainText('Este espaço não conversa com as bandeiras prioritárias');
+    await expect(page.locator('.rm-reg li')).toContainText('Este espaço não conversa com as agendas prioritárias');
     expect(await registros(page)).toHaveLength(1);
   });
 

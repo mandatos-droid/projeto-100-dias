@@ -87,9 +87,9 @@ export default function Espacos() {
       </div>
 
       <section aria-labelledby="rm-sugestoes-t">
-        <h4 id="rm-sugestoes-t">Sugestões para as suas bandeiras</h4>
-        {!prior.length && <p className="rm-vazio">Confirme as bandeiras prioritárias no exercício anterior para ver as comissões que conversam com elas.</p>}
-        {prior.length > 0 && !destacadas.length && <p className="rm-vazio">Nenhuma comissão do catálogo conversa com as bandeiras prioritárias. Escreva o espaço no formulário abaixo.</p>}
+        <h4 id="rm-sugestoes-t">Sugestões para as suas agendas</h4>
+        {!prior.length && <p className="rm-vazio">Confirme as agendas prioritárias no exercício anterior para ver as comissões que conversam com elas.</p>}
+        {prior.length > 0 && !destacadas.length && <p className="rm-vazio">Nenhuma comissão do catálogo conversa com as agendas prioritárias. Escreva o espaço no formulário abaixo.</p>}
         {destacadas.length > 0 && <ul className="rm-sug-l">{destacadas.map(cartao)}</ul>}
         {demais.length > 0 && (
           <details className="rm-antigo">
@@ -112,7 +112,7 @@ export default function Espacos() {
           <label className="campo"><span className="rot">Papel</span>
             <select value={papel} onChange={(e) => setPapel(e.target.value)}>{PAPEIS.map((p) => <option key={p}>{p}</option>)}</select>
           </label>
-          <label className="campo"><span className="rot">Bandeira relacionada</span>
+          <label className="campo"><span className="rot">Agenda relacionada</span>
             <select value={bandeira} onChange={(e) => setBandeira(e.target.value)}>
               <option value="">Nenhuma</option>
               {opcoesBandeira.map((b) => <option key={b.id} value={b.rot}>{b.rot}{b.prioridade !== null ? ` (prioridade ${b.prioridade})` : ''}</option>)}

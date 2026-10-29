@@ -75,7 +75,7 @@ test('bandeira que não é da taxonomia (outra) não quebra a sugestão', () => 
 });
 
 test('alerta: texto exato quando a bandeira do espaço não está entre as prioritárias, null quando está (RUM-51.7)', () => {
-  assert.equal(ALERTA_ESPACO, 'Este espaço não conversa com as bandeiras prioritárias');
+  assert.equal(ALERTA_ESPACO, 'Este espaço não conversa com as agendas prioritárias');
   assert.equal(alerta({ comissao: 'Comissão de Esportes', bandeira: 'Esportes' }, ['educacao', 'saude']), ALERTA_ESPACO);
   assert.equal(alerta({ comissao: 'Comissão de Educação', bandeira: 'Educação' }, ['educacao', 'saude']), null);
   assert.equal(alerta({ comissao: 'X', bandeira: 'educação' }, ['Educação']), null, 'aceita rótulo no lugar do id');

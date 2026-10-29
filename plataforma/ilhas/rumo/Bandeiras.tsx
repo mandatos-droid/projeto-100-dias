@@ -42,7 +42,7 @@ function Card({ b, rumo, aplica, remove, foco }: { b: BandeiraRumo; rumo: Rumo; 
       <label className="campo">
         <span className="rot">Argumentos</span>
         <textarea autoFocus={foco} aria-label={`Argumentos de ${b.rot}`} value={b.argumentos} onChange={(e) => grava(e.target.value)}
-          placeholder="O que a equipe disse a favor desta bandeira" />
+          placeholder="O que a equipe disse a favor desta agenda" />
       </label>
       <div className="rm-notas">
         {rumo.criterios.map((cr) => (
@@ -117,7 +117,7 @@ export default function Bandeiras() {
       <ResumoMissao1 />
       <div className="rm-grade">
         <section className="rm-mural" aria-labelledby="rm-mural-t">
-          <h4 id="rm-mural-t">Marque as agendas e bandeiras levantadas</h4>
+          <h4 id="rm-mural-t">Marque as agendas levantadas</h4>
           <div className="rm-chips">
             {BANDEIRAS.map((b) => {
               const on = rumo.bandeiras.some((x) => x.id === b.id);
@@ -129,11 +129,11 @@ export default function Bandeiras() {
           </div>
           <p className="rm-leg"><strong>{rumo.bandeiras.length}</strong> {rumo.bandeiras.length === 1 ? 'selecionada' : 'selecionadas'}</p>
           <div className="rm-add">
-            <label className="campo"><span className="rot">Outra bandeira</span>
-              <input type="text" value={outra} onChange={(e) => setOutra(e.target.value)} placeholder="Outra agenda ou bandeira"
+            <label className="campo"><span className="rot">Outra agenda</span>
+              <input type="text" value={outra} onChange={(e) => setOutra(e.target.value)} placeholder="Outra agenda"
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); acrescentaOutra(); } }} />
             </label>
-            <button type="button" className="bt sec peq" onClick={acrescentaOutra}>Acrescentar bandeira</button>
+            <button type="button" className="bt sec peq" onClick={acrescentaOutra}>Acrescentar agenda</button>
           </div>
         </section>
 
@@ -166,7 +166,7 @@ export default function Bandeiras() {
           )}
 
           {rumo.bandeiras.length === 0
-            ? <p className="rm-vazio">Marque ao menos uma bandeira ao lado para abrir os argumentos e as notas dela.</p>
+            ? <p className="rm-vazio">Marque ao menos uma agenda ao lado para abrir os argumentos e as notas dela.</p>
             : rumo.bandeiras.map((b) => <Card key={b.id} b={b} rumo={rumo} aplica={aplica} remove={remove} foco={foco === b.id} />)}
 
           {rumo.bandeiras.length > 0 && (

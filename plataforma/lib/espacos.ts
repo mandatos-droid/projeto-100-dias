@@ -52,7 +52,7 @@ const CHAVES: Record<string, string[]> = {
   'assistencia': ['assistencia social'], 'lgbtqiap': ['diversidade', 'lgbt'],
 };
 
-export const ALERTA_ESPACO = 'Este espaço não conversa com as bandeiras prioritárias';
+export const ALERTA_ESPACO = 'Este espaço não conversa com as agendas prioritárias';
 
 export interface Comissao { nome: string; sigla?: string }
 export interface Catalogo { gerado: string; fonte: string; comissoes: Comissao[] }

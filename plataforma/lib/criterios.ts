@@ -21,7 +21,7 @@ const troca = (r: Rumo, id: string, f: (b: BandeiraRumo) => BandeiraRumo): Rumo 
 /** Grava a nota de uma bandeira em um critério; recusa nota fora de 0 a 5 ou não inteira. */
 export function defineNota(r: Rumo, bandeira: string, criterio: string, nota: number): Resultado {
   if (!notaValida(nota)) return { rumo: r, erro: 'A nota é um número inteiro de 0 a 5.' };
-  if (!r.bandeiras.some((b) => b.id === bandeira) || !r.criterios.some((c) => c.id === criterio)) return { rumo: r, erro: 'Bandeira ou critério não encontrado.' };
+  if (!r.bandeiras.some((b) => b.id === bandeira) || !r.criterios.some((c) => c.id === criterio)) return { rumo: r, erro: 'Agenda ou critério não encontrado.' };
   return { rumo: troca(r, bandeira, (b) => ({ ...b, notas: { ...b.notas, [criterio]: nota } })) };
 }
 
@@ -41,7 +41,7 @@ export function ranking(bandeiras: BandeiraRumo[], criterios: Criterio[]): { id:
 /** Marca ou desmarca a bandeira como prioritária. A quarta é recusada; ao desmarcar, as outras sobem mantendo a ordem. */
 export function alternaPrioritaria(r: Rumo, id: string): Resultado {
   const b = r.bandeiras.find((x) => x.id === id);
-  if (!b) return { rumo: r, erro: 'Bandeira não encontrada.' };
+  if (!b) return { rumo: r, erro: 'Agenda não encontrada.' };
   const prior = r.bandeiras.filter((x) => x.prioridade !== null).sort((x, y) => x.prioridade! - y.prioridade!);
   if (b.prioridade !== null) {
     const resto = prior.filter((x) => x.id !== id).map((x) => x.id);
@@ -49,7 +49,7 @@ export function alternaPrioritaria(r: Rumo, id: string): Resultado {
   }
   if (prior.length >= MAX_PRIORITARIAS) {
     const nomes = prior.map((x) => x.rot).join(', ');
-    return { rumo: r, erro: `Já são ${MAX_PRIORITARIAS} bandeiras prioritárias (${nomes}). Desmarque uma delas para escolher ${b.rot}.` };
+    return { rumo: r, erro: `Já são ${MAX_PRIORITARIAS} agendas prioritárias (${nomes}). Desmarque uma delas para escolher ${b.rot}.` };
   }
   return { rumo: troca(r, id, (x) => ({ ...x, prioridade: prior.length + 1 })) };
 }
