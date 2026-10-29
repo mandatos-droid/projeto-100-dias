@@ -9,6 +9,7 @@ import { resolve } from '@/lib/pessoas';
 import { editaSucesso, lerSucessos } from '@/lib/sucessos';
 import ArvorePlano, { pctTxt } from './ArvorePlano';
 import CartaoMeta from './CartaoMeta';
+import EditorPlano from './EditorPlano';
 import { useRumo } from './useRumo';
 import './rumo.css';
 
@@ -112,14 +113,14 @@ export default function Plano() {
   return (
     <div className="ilha-corpo rm-plano" data-n-metas={nMetas} data-imprime="">
       {seletor}
+      <EditorPlano aberto={arv.objetivos.length === 0} />
       {vazio && (
         <div className="rm-plano-vazio">
           <h4>O planejamento ainda não tem metas</h4>
-          <p>Ele aparece aqui assim que um preditor tiver ao menos uma meta. Escolha os preditores e escreva as metas na Missão 3.</p>
-          <a className="bt pri" href="#/m/3/m3.preditores">Ir para a Missão 3</a>
+          <p>{arv.objetivos.length === 0 ? 'Escolha os preditores acima. Cada um vira um objetivo, e você acrescenta as metas e os sucessos aqui mesmo.' : 'Use "Acrescentar meta" em cada objetivo abaixo. Os sucessos mensais entram na edição da meta.'}</p>
         </div>
       )}
-      {(!vazio || arv.semObjetivo.length > 0) && (
+      {(!vazio || arv.semObjetivo.length > 0 || arv.objetivos.length > 0) && (
         <>
           <div className="rm-plano-topo">
             <Anel pct={total} />

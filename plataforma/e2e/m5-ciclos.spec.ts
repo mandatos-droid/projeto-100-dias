@@ -157,3 +157,20 @@ test('criar o 2º e o 3º planejamento deixa os anteriores idênticos e somente 
   expect(await planosDe(page)).toEqual(planos);                                    // ver não altera nada
   expect((await metasDe(page)).map((m) => m.id)).toEqual(['b']);
 });
+
+/* ---------- montar o planejamento na própria aba, sem voltar à Missão 3 ---------- */
+test('no planejamento vazio dá para escrever Legado, escolher preditor e objetivo, criar meta e sucesso sem ir à Missão 3', async ({ page }) => {
+  await abre(page, ['plano'], { campos: {}, D: { preditores: [], metas: [] } });
+  await expect(page.getByRole('link', { name: 'Ir para a Missão 3' })).toHaveCount(0);
+  await page.getByLabel('Legado (a manchete dos 4 anos)').fill('Mandato da educação');
+  await page.getByRole('checkbox', { name: /^[^ ]/ }).first().check();
+  const obj = page.getByLabel(/Objetivo específico de/).first();
+  await obj.fill('Ampliar a creche');
+  await expect.poll(async () => (await dadoDe(page, 'preditores') as string[]).length).toBe(1);
+  await page.getByRole('button', { name: /Acrescentar meta a/ }).click();
+  await page.getByRole('button', { name: /Adicionar sucesso/ }).click();
+  const metas = (await dadoDe(page, 'metas')) as M[];
+  expect(metas).toHaveLength(1);
+  expect(metas[0].sucessos).toHaveLength(1);
+  await expect(page.locator('.rm-no-legado')).toContainText('Mandato da educação');
+});

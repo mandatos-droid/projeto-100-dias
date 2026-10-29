@@ -85,11 +85,11 @@ test.describe('A árvore e o total (RUM-40.1, RUM-41)', () => {
 });
 
 test.describe('Estado vazio, metas sem objetivo e metas antigas (RUM-40.2, RUM-21.4, RUM-70)', () => {
-  test('sem preditor com meta mostra o estado vazio com atalho para a Missão 3', async ({ page }) => {
+  test('sem preditor com meta mostra o estado vazio e a edição aqui mesmo, sem atalho para a Missão 3', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1'] } });
     await expect(page.getByRole('heading', { name: 'O planejamento ainda não tem metas' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Ir para a Missão 3' })).toHaveAttribute('href', '#/m/3/m3.preditores');
-    await expect(page.getByRole('tree')).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Ir para a Missão 3' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /Acrescentar meta a/ })).toHaveCount(1);
   });
 
   test('metas sem objetivo aparecem em bloco próprio, com aviso, fora do total', async ({ page }) => {
