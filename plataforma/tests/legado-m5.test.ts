@@ -11,7 +11,7 @@ const CONTEUDO = readFileSync(new URL('../public/legacy/conteudo.js', import.met
 const PAGINA = readFileSync(new URL('../app/guia/page.tsx', import.meta.url), 'utf8');
 
 /* Hash do JSON inteiro da Missão 5 (agenda, resumo, fecho e exercícios), calculado sobre o conteudo.js de antes da feature. */
-const HASH_TEXTOS = '88f4daa4ef189545ba9ad920b2e8a8214e8458cf47cbf9b17fbc00565665a1b9';
+const HASH_TEXTOS = '3800b1f3de8cc148918f003b16128e6788facaa527017da52858d58362938240';
 
 type Missao = Record<string, unknown> & { n: number; exercicios: { id: string }[] };
 

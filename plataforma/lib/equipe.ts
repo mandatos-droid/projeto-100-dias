@@ -24,9 +24,9 @@ export const ESCOPOS = [
   'Preparar orientação de voto para comissões e plenário',
   'Atuar como especialista de pauta (Meio Ambiente, Educação, Saúde etc.), pesquisando dados e jurisprudência',
   'Gerir a aquisição de passagens aéreas e registrar o uso da cota parlamentar',
-  'Organizar o transporte do parlamentar entre compromissos institucionais',
+  'Organizar o transporte da liderança parlamentar entre compromissos institucionais',
   'Recepcionar e encaminhar demandas da população ao responsável interno adequado',
-  'Agendar compromissos do parlamentar e validar solicitações de audiência',
+  'Agendar compromissos da liderança parlamentar e validar solicitações de audiência',
   'Atuar como secretariado executivo: receber e orientar convidados e visitas ao gabinete',
   'Contratar e organizar compra de materiais de escritório e pagamento de contas',
   'Mobilizar apoiadores, voluntários e potenciais eleitores para ações de campanha e base',
@@ -36,7 +36,7 @@ export const ESCOPOS = [
   'Coordenar a equipe: distribuir tarefas, acompanhar prazos e avaliar desempenho',
   'Acompanhar a execução e o aperfeiçoamento de processos internos',
   'Promover reuniões de alinhamento entre áreas (Comunicação, Jurídico, Logística etc.)',
-  'Desenvolver relatórios periódicos de atividades e resultados para prestar contas ao parlamentar',
+  'Desenvolver relatórios periódicos de atividades e resultados para prestar contas à liderança parlamentar',
 ];
 
 /* padrões sugeridos para os 20 cargos de CARGOS_EQUIPE (mesma ordem): coordenação e liderança imediata (índice) */

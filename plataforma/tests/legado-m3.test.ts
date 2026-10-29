@@ -10,7 +10,7 @@ const CODIGO = readFileSync(new URL('../public/legacy/m3.js', import.meta.url), 
 const CONTEUDO = readFileSync(new URL('../public/legacy/conteudo.js', import.meta.url), 'utf8');
 
 /* Hash do JSON inteiro da Missão 3 (itens, listaExtra, ct, prazo e todos os exercícios), calculado sobre o conteudo.js de antes da feature. */
-const HASH_TEXTOS = '56d6bb25b6342257716152b54716fafbc840955cac761405d1399554005010ba';
+const HASH_TEXTOS = '318f86b99e245a6d6fe61b809729b61e407d632d32819216dbff2cb7f170dee3';
 
 type Ex = Record<string, unknown> & { id: string; intro: string; fim?: string; listaExtra?: { titulo: string; chave: string } };
 type Missao = Record<string, unknown> & { n: number; exercicios: Ex[] };

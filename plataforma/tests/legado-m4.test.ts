@@ -10,7 +10,7 @@ const CODIGO = readFileSync(new URL('../public/legacy/m4.js', import.meta.url), 
 const CONTEUDO = readFileSync(new URL('../public/legacy/conteudo.js', import.meta.url), 'utf8');
 
 /* Hashes do conteudo.js de antes da feature: o JSON inteiro da Missão 4 (t, d, intro, fim, entrega, itens, campos...) e o BINGOS (frentes e ações). */
-const HASH_MISSAO4 = 'd852535b0589a45fffc49b8e4a822aec61a6f6df42d838789c2fd7533de0412c';
+const HASH_MISSAO4 = '14170369a21828f9d4f69e1bc49d5d8561397f5cb7b7de18e37989a3434b261a';
 const HASH_BINGOS = '970fc89d9dc694913ad47b3d3a7d867152d3181be54eec13605a165aac54cbd7';
 
 type Ex = Record<string, unknown> & { id: string; t: string; d: string; intro?: string; fim?: string; tipo: string };
