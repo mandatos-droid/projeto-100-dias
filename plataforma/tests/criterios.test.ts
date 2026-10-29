@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CRITERIOS_GUIA, total, defineNota, ranking, alternaPrioritaria, adicionaCriterio, removeCriterio, MAX_CRITERIOS } from '../lib/criterios.ts';
+import { CRITERIOS_GUIA, total, defineNota, ranking, alternaPrioritaria, movePrioritaria, adicionaCriterio, removeCriterio, MAX_CRITERIOS } from '../lib/criterios.ts';
 import type { BandeiraRumo, Rumo } from '../lib/rumo.ts';
 
 const band = (id: string, notas: Record<string, number> = {}, prioridade: number | null = null): BandeiraRumo => ({ id, rot: id.toUpperCase(), argumentos: '', notas, prioridade });
@@ -116,4 +116,22 @@ test('removeCriterio tira o critério e as notas dele, de qualquer um dos 4 (RUM
   assert.deepEqual(x.rumo.bandeiras.map((bd) => bd.notas), [{ [b]: 2 }, {}]);
   assert.equal(r.criterios.length, 4, 'não altera o rumo recebido');
   assert.deepEqual(r.bandeiras[0].notas, { [a]: 5, [b]: 2 });
+});
+
+test('movePrioritaria troca a posição com a vizinha e mantém as outras (sugestão #7 da Alana)', () => {
+  const r = rumo([band('a', {}, 1), band('b', {}, 2), band('c', {}, 3), band('d')]);
+  const sobe = movePrioritaria(r, 'c', 'cima').rumo;
+  assert.deepEqual(sobe.bandeiras.map((b) => [b.id, b.prioridade]), [['a', 1], ['b', 3], ['c', 2], ['d', null]]);
+  const desce = movePrioritaria(r, 'a', 'baixo').rumo;
+  assert.deepEqual(desce.bandeiras.map((b) => [b.id, b.prioridade]), [['a', 2], ['b', 1], ['c', 3], ['d', null]]);
+  assert.equal(r.bandeiras[0].prioridade, 1); // não altera o recebido
+});
+
+test('movePrioritaria no limite não muda nada, e recusa quem não é prioritária', () => {
+  const r = rumo([band('a', {}, 1), band('b', {}, 2), band('d')]);
+  assert.equal(movePrioritaria(r, 'a', 'cima').rumo, r);
+  assert.equal(movePrioritaria(r, 'b', 'baixo').rumo, r);
+  const x = movePrioritaria(r, 'd', 'cima');
+  assert.equal(x.rumo, r);
+  assert.match(x.erro!, /prioritárias/);
 });

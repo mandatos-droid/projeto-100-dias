@@ -85,6 +85,24 @@ test.describe('Prioritárias (RUM-02.6, RUM-02.7, RUM-01.8)', () => {
     expect((await rumoDe(page)).bandeiras.find((b) => b.id === 'esportes')!.prioridade).toBeNull();
   });
 
+  test('subir e descer reordena as prioritárias e o espelho m3.b1..b3 acompanha (sugestão #7 da Alana)', async ({ page }) => {
+    await abre(page, [ILHA]);
+    for (const r of ['Saúde', 'Educação', 'Cultura']) await chip(page, r).click();
+    await estrela(page, 'Educação').click();
+    await estrela(page, 'Saúde').click();
+    await estrela(page, 'Cultura').click();
+    await expect(page.getByRole('button', { name: /^Subir Educação/ })).toBeDisabled();
+    await expect(page.getByRole('button', { name: /^Descer Cultura/ })).toBeDisabled();
+
+    await page.getByRole('button', { name: /^Subir Cultura/ }).click();
+    let c = await camposDe(page);
+    expect([c['m3.b1'], c['m3.b2'], c['m3.b3']]).toEqual(['Educação', 'Cultura', 'Saúde']);
+
+    await page.getByRole('button', { name: /^Descer Educação/ }).click();
+    c = await camposDe(page);
+    expect([c['m3.b1'], c['m3.b2'], c['m3.b3']]).toEqual(['Cultura', 'Educação', 'Saúde']);
+  });
+
   test('remover bandeira com notas pede confirmação; ao confirmar, sai das prioritárias e as outras sobem', async ({ page }) => {
     await abre(page, [ILHA]);
     await comNotas(page, 'Saúde', 4);

@@ -54,6 +54,17 @@ export function alternaPrioritaria(r: Rumo, id: string): Resultado {
   return { rumo: troca(r, id, (x) => ({ ...x, prioridade: prior.length + 1 })) };
 }
 
+/** Sobe ou desce uma prioritária na ordem (1º, 2º, 3º), trocando de lugar com a vizinha. No limite, não muda nada. */
+export function movePrioritaria(r: Rumo, id: string, sentido: 'cima' | 'baixo'): Resultado {
+  const prior = r.bandeiras.filter((x) => x.prioridade !== null).sort((x, y) => x.prioridade! - y.prioridade!);
+  const i = prior.findIndex((x) => x.id === id);
+  if (i < 0) return { rumo: r, erro: 'Só dá para reordenar as agendas prioritárias.' };
+  const j = sentido === 'cima' ? i - 1 : i + 1;
+  if (j < 0 || j >= prior.length) return { rumo: r };
+  const vizinha = prior[j];
+  return { rumo: { ...r, bandeiras: r.bandeiras.map((x) => (x.id === id ? { ...x, prioridade: vizinha.prioridade } : x.id === vizinha.id ? { ...x, prioridade: prior[i].prioridade } : x)) } };
+}
+
 const slug = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'criterio';
 
 /** Acrescenta um critério próprio (até 8 no total). */

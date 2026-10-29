@@ -3,7 +3,7 @@
    Estado em D.rumo (lib/rumo.ts), espelhado em m3.mural, m3.argumentos, m3.criterios e m3.b1..b3. */
 import { useEffect, useState } from 'react';
 import { BANDEIRAS } from '@/lib/bandeiras';
-import { MAX_CRITERIOS, MAX_PRIORITARIAS, adicionaCriterio, alternaPrioritaria, defineNota, ranking, removeCriterio, total, type Resultado } from '@/lib/criterios';
+import { MAX_CRITERIOS, MAX_PRIORITARIAS, adicionaCriterio, alternaPrioritaria, defineNota, movePrioritaria, ranking, removeCriterio, total, type Resultado } from '@/lib/criterios';
 import { novaBandeira, type BandeiraRumo, type Rumo } from '@/lib/rumo';
 import { aviso } from '../ponte';
 import { useRumo } from './useRumo';
@@ -184,6 +184,12 @@ export default function Bandeiras() {
                       <button type="button" className="rm-estrela" aria-pressed={b.prioridade !== null}
                         aria-label={b.prioridade !== null ? `Desmarcar ${b.rot} das prioritárias` : `Marcar ${b.rot} como prioritária`}
                         onClick={() => aplica(alternaPrioritaria(rumo, b.id))}>{b.prioridade !== null ? `★ ${b.prioridade}` : '☆'}</button>
+                      {b.prioridade !== null && (
+                        <span className="rm-mover">
+                          <button type="button" disabled={b.prioridade === 1} aria-label={`Subir ${b.rot} na ordem de prioridade`} onClick={() => aplica(movePrioritaria(rumo, b.id, 'cima'))}>↑</button>
+                          <button type="button" disabled={b.prioridade === nPrior} aria-label={`Descer ${b.rot} na ordem de prioridade`} onClick={() => aplica(movePrioritaria(rumo, b.id, 'baixo'))}>↓</button>
+                        </span>
+                      )}
                     </li>
                   );
                 })}
