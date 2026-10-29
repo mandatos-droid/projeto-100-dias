@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Anton, Commissioner } from 'next/font/google';
 import './landing.css';
+import Animacoes from './_landing/Animacoes';
 import Confianca from './_landing/Confianca';
 import Demo from './_landing/Demo';
 import Faq from './_landing/Faq';
@@ -28,6 +29,7 @@ export default function Landing() {
   return (
     <div className={`ld ${anton.variable} ${commissioner.variable}`}>
       <RedirecionaAuth />
+      <Animacoes />
       <Hero />
 
       <section className="ld-sec ld-sec--branco" id="demonstracao" aria-labelledby="ld-demo-t">

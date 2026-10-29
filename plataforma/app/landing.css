@@ -11,8 +11,9 @@
   line-height: 1.55;
   color: var(--tinta);
   background: var(--papel);
-  overflow-x: hidden;
+  overflow-x: clip; /* clip (não hidden) para o topo fixo continuar grudando */
   min-height: 100vh;
+  --arco: clamp(28px, 5vw, 56px);
 }
 .ld *, .ld *::before, .ld *::after { box-sizing: border-box; }
 .ld img, .ld svg { max-width: 100%; }
@@ -25,15 +26,17 @@
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
   padding: 15px 26px; border: 0; border-radius: 4px; cursor: pointer;
   font: 700 17px/1.2 var(--corpo); text-decoration: none;
-  background: var(--vinho); color: #fff; transition: background .15s;
+  background: var(--vinho); color: #fff; transition: background .15s, transform .15s, box-shadow .15s;
 }
-.ld .ld-bt:hover { background: var(--vinho-2); }
+.ld .ld-bt:hover { background: var(--vinho-2); transform: translateY(-2px); box-shadow: 0 8px 18px rgba(23, 17, 15, .2); }
+.ld .ld-bt:active { transform: none; box-shadow: none; }
 .ld .ld-bt--claro { background: var(--papel); color: var(--vinho); }
 .ld .ld-bt--claro:hover { background: #fff; }
 .ld .ld-bt--peq { padding: 10px 18px; font-size: 15px; }
 
 /* seções */
-.ld-sec { padding: 72px 0; }
+/* cada seção sobe sobre a anterior com o topo arredondado: o arco ecoa o hemiciclo */
+.ld-sec { position: relative; margin-top: calc(var(--arco) * -1); padding: calc(72px + var(--arco)) 0 72px; border-radius: var(--arco) var(--arco) 0 0; }
 .ld-sec--branco { background: var(--branco); }
 .ld-sec--vinho { background: var(--vinho); color: var(--papel); }
 .ld-eyebrow { margin: 0 0 12px; font: 700 13px/1 var(--corpo); letter-spacing: .12em; text-transform: uppercase; color: var(--verde); }
@@ -44,7 +47,9 @@
 .ld-sec--vinho .ld-lead { color: #E9D9DF; }
 
 /* abertura */
-.ld-hero { background: var(--vinho); color: var(--papel); padding-bottom: 56px; overflow: hidden; }
+.ld-hero { background: var(--vinho); color: var(--papel); padding-bottom: calc(56px + var(--arco)); overflow: hidden; }
+.ld-topo { position: sticky; top: 0; z-index: 30; background: var(--vinho); color: var(--papel); transition: box-shadow .25s; }
+.ld-topo.is-rolou { box-shadow: 0 8px 24px rgba(23, 17, 15, .28); }
 .ld-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 0; }
 .ld-bar img { display: block; height: 34px; width: auto; }
 .ld-hero-grade { display: grid; gap: 40px; padding-top: 28px; align-items: center; }
@@ -107,7 +112,8 @@
 
 /* funcionalidades */
 .ld-feat { display: grid; gap: 20px; }
-.ld-feat article { background: var(--papel); border: 1px solid var(--linha); border-radius: 6px; padding: 24px; }
+.ld-feat article { background: var(--papel); border: 1px solid var(--linha); border-radius: 6px; padding: 24px; transition: transform .25s, box-shadow .25s, border-color .25s; }
+.ld-feat article:hover { transform: translateY(-4px); border-color: var(--turquesa); box-shadow: 0 14px 30px rgba(87, 23, 48, .12); }
 .ld-feat svg { display: block; width: 100%; height: 120px; margin-bottom: 18px; background: var(--branco); border-radius: 4px; }
 .ld-feat h3 { margin: 0 0 8px; font-size: 21px; color: var(--vinho); }
 .ld-feat p { margin: 0; color: var(--tinta-2); }
@@ -131,7 +137,7 @@
 .ld-fecha { text-align: center; }
 .ld-fecha .ld-h2 { max-width: 20ch; margin-left: auto; margin-right: auto; }
 .ld-fecha .ld-lead { margin-left: auto; margin-right: auto; }
-.ld-foot { background: var(--vinho-2); color: #CDB5BF; padding: 28px 0; font-size: 14px; }
+.ld-foot { position: relative; margin-top: calc(var(--arco) * -1); background: var(--vinho-2); color: #CDB5BF; padding: calc(28px + var(--arco)) 0 28px; border-radius: var(--arco) var(--arco) 0 0; font-size: 14px; }
 .ld-foot .ld-wrap { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; }
 .ld-foot img { height: 30px; width: auto; display: block; }
 .ld-foot p { margin: 0; max-width: 60ch; }
@@ -145,6 +151,35 @@
   .ld-dor { grid-template-columns: repeat(3, 1fr); gap: 28px; }
 }
 
+/* movimento: abertura (CSS puro, funciona sem JS) */
+@keyframes ld-sobe { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+@keyframes ld-pop { from { opacity: 0; transform: scale(.2); } to { opacity: 1; transform: none; } }
+@keyframes ld-onda { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(3.4); } }
+@keyframes ld-sublinha { to { background-size: 100% .07em; } }
+.ld-hero h1 { animation: ld-sobe .8s cubic-bezier(.2, .7, .2, 1) backwards; }
+.ld-hero-sub { animation: ld-sobe .8s cubic-bezier(.2, .7, .2, 1) .15s backwards; }
+.ld-hero .ld-bt { animation: ld-sobe .8s cubic-bezier(.2, .7, .2, 1) .3s backwards; }
+.ld-hero-nota { animation: ld-sobe .8s cubic-bezier(.2, .7, .2, 1) .4s backwards; }
+.ld-hero h1 em { background: linear-gradient(var(--turquesa), var(--turquesa)) 0 94% / 0% .07em no-repeat; animation: ld-sublinha .9s cubic-bezier(.2, .7, .2, 1) .9s forwards; }
+.ld-cad { transform-box: fill-box; transform-origin: center; animation: ld-pop .5s cubic-bezier(.3, 1.6, .5, 1) calc(250ms + var(--d, 0ms)) backwards; }
+.ld-anel { fill: none; stroke: var(--coral); stroke-width: 2; opacity: 0; transform-box: fill-box; transform-origin: center; animation: ld-onda 2.4s ease-out 1.9s infinite; }
+.ld-aqui { animation: ld-sobe .6s ease-out 1.6s backwards; }
+
+/* movimento: ao rolar (a classe ld-anima só entra com JS e sem "reduzir movimento") */
+.ld-anima [data-ld-rev] {
+  opacity: 0; transform: translateY(26px);
+  transition: opacity .7s cubic-bezier(.2, .7, .2, 1) var(--rd, 0ms), transform .7s cubic-bezier(.2, .7, .2, 1) var(--rd, 0ms);
+}
+.ld-anima [data-ld-rev].is-in { opacity: 1; transform: none; }
+
+/* linha do tempo das missões: o fio acompanha a rolagem e cada marco acende ao ser alcançado */
+.ld-dia b { font-weight: 400; }
+.ld-anima .ld-miss::after { content: ''; position: absolute; left: 33px; top: 8px; width: 2px; height: min(var(--fio, 0px), calc(100% - 16px)); background: var(--coral); }
+.ld-anima .ld-miss li .ld-dia { transition: background .4s, color .4s, box-shadow .4s, transform .4s; }
+.ld-anima .ld-miss li:not(.is-on) .ld-dia { background: var(--vinho); color: var(--papel); box-shadow: inset 0 0 0 2px rgba(251, 246, 238, .35); }
+.ld-anima .ld-miss li.is-on .ld-dia { background: var(--coral); color: #fff; transform: scale(1.06); }
+
 @media (prefers-reduced-motion: reduce) {
   .ld * { transition: none !important; animation: none !important; }
+  .ld-hero h1 em { background-size: 100% .07em; }
 }

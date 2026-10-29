@@ -269,6 +269,17 @@ Guia.abrir=function(nm,id){
   _ga.call(this,nm,id);
   var passo=parseInt((location.hash||'').replace('#/','').split('/')[3],10);
   if(!isNaN(passo)){this.modo='guiado';this.ir(passo)}
+  else if(this.i!==0&&this.modo==='guiado')this.ir(0);
+};
+/* cada pergunta (passo) tem o seu endereço: #/m/N/exercicio/PASSO. O endereço é trocado sem recarregar a tela;
+   o botão Voltar do navegador dispara hashchange e reabre o passo anterior. */
+var _gir=Guia.ir;
+Guia.ir=function(n){
+  _gir.call(this,n);
+  if(this.modo!=='guiado'||!this.m||!this.ex)return;
+  var h='#/m/'+this.m.n+'/'+this.ex.id+(this.i>0?'/'+this.i:'');
+  if((location.hash||'')!==h)history.pushState(null,'',h);
+  App.ultima=h;App.marcar();
 };
 
 })();
@@ -405,4 +416,15 @@ Guia.abrir=function(nm,id){
       a.parentNode.insertBefore(ul,a.nextSibling);
     });
   };
+
+/* ---------- tela de entrada: link de volta para a página inicial ---------- */
+(function(){
+  var aviso=document.getElementById('avisoModo');
+  if(!aviso||document.getElementById('linkInicio'))return;
+  var a=document.createElement('a');
+  a.id='linkInicio';a.className='bt fant peq voltar-inicio';a.href='/';
+  a.textContent='← Voltar para a página inicial';
+  aviso.parentNode.insertBefore(a,aviso);
+})();
+
 })();

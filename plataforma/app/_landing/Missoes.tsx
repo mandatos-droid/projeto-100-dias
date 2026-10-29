@@ -33,7 +33,7 @@ export default function Missoes() {
             <li key={m.titulo}>
               {m.dia.length > 3
                 ? <span className="ld-dia ld-dia--texto">{m.dia}</span>
-                : <span className="ld-dia"><span>{m.dia}<small>dia</small></span></span>}
+                : <span className="ld-dia"><span><b data-conta={m.dia}>{m.dia}</b><small>dia</small></span></span>}
               <div>
                 <h3>{m.titulo}</h3>
                 <p>{m.texto}</p>
