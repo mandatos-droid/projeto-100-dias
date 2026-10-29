@@ -43,13 +43,15 @@ test('o novo plano mantém Legado, bandeiras, objetivos e preditores (M5-30.4)',
   assert.equal(foto(d.preditores), antes.preditores);
 });
 
-test('só as metas escolhidas são copiadas, sem sucessos e com status "não concluída" (M5-30.4)', () => {
+test('só as metas escolhidas são copiadas, com os mesmos campos e sucessos, e status "não concluída" (M5-30.4)', () => {
   const d = plano();
   arquivarEIniciar(d, { copiar: [2, 0] });
   const metas = d.metas as { id: string; texto: string; status: string; sucessos?: unknown }[];
   assert.deepEqual(metas.map((m) => m.id), ['a', 'c']);
-  assert.ok(metas.every((m) => m.status === 'nao_concluida' && !('sucessos' in m)));
+  assert.ok(metas.every((m) => m.status === 'nao_concluida'));
   assert.equal(metas[0].texto, 'Aprovar 2 projetos');
+  assert.deepEqual(metas[0].sucessos, [{ id: 's1', mes: 1, texto: 'Protocolar', status: 'nao_concluida' }]);
+  assert.equal('sucessos' in metas[1], false); // meta sem sucessos continua sem
   // o arquivado guarda os sucessos e o status originais
   assert.equal(lerPlanos(d)[0].metas[0].sucessos?.length, 1);
   assert.equal(lerPlanos(d)[0].metas[0].status, 'concluida');

@@ -97,7 +97,7 @@ Perguntas abertas: nenhuma. As 3 do rascunho foram resolvidas acima.
 1. WHEN a tarefa "Calibragem e replanejamento" abre THEN a plataforma SHALL mostrar todos os textos e o checklist atuais e, ao final, o botão "Criar novo planejamento".
 2. WHEN a aba Planejamento Estratégico abre THEN a plataforma SHALL mostrar o botão "Criar novo planejamento".
 3. WHEN o usuário aciona "Criar novo planejamento" THEN a plataforma SHALL pedir confirmação e permitir escolher quais metas antigas copiar.
-4. WHEN o usuário confirma THEN a plataforma SHALL guardar o planejamento atual em `D.planos`, manter Legado, bandeiras, objetivos e preditores e iniciar o novo com as metas escolhidas (sem sucessos copiados).
+4. WHEN o usuário confirma THEN a plataforma SHALL guardar o planejamento atual em `D.planos`, manter Legado, bandeiras, objetivos e preditores e iniciar o novo com as metas escolhidas, já marcadas por padrão, mantendo todos os campos e os sucessos (todos com status "Não concluída").
 5. WHEN existe mais de um planejamento THEN a plataforma SHALL mostrar um seletor "Planejamento 1, 2, 3…" com o atual marcado.
 6. WHEN o usuário abre um planejamento arquivado THEN a plataforma SHALL mostrá-lo somente para leitura.
 7. WHEN o usuário cria o 2º, 3º ou mais planejamentos THEN a plataforma SHALL preservar cada anterior sem alteração.

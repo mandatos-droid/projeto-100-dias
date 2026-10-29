@@ -35,13 +35,15 @@ test.describe('Botão e confirmação de novo planejamento (M5-30)', () => {
   test('confirmar cria o novo planejamento só com as metas escolhidas, sem sucessos, e guarda o anterior (M5-30.4)', async ({ page }) => {
     await abre(page, ['rumo-novociclo'], PLANO);
     await botao(page).click();
+    await painel(page).getByRole('button', { name: 'Desmarcar todas' }).click();
     await painel(page).getByRole('checkbox', { name: /Visitar 10 escolas/ }).check();
     await painel(page).getByRole('checkbox', { name: /Aprovar 2 projetos/ }).check();
     await page.getByRole('button', { name: 'Confirmar e criar novo planejamento' }).click();
     await expect(page.locator('.rm-novociclo [role="status"]')).toContainText('Planejamento 1 guardado');
     const novas = await metasDe(page);
     expect(novas.map((m) => m.id)).toEqual(['a', 'b']);
-    expect(novas.every((m) => m.status === 'nao_concluida' && !('sucessos' in m))).toBe(true);
+    expect(novas.every((m) => m.status === 'nao_concluida')).toBe(true);
+    expect(novas[0].sucessos).toEqual([{ id: 's1', mes: 1, texto: 'Protocolar o texto', status: 'nao_concluida' }]);
     const [p1] = await planosDe(page);
     expect(p1.n).toBe(1);
     expect(p1.legado).toBe('A Educação no centro do debate');
@@ -125,6 +127,7 @@ test('criar o 2º e o 3º planejamento deixa os anteriores idênticos e somente 
   await abre(page, ['plano', 'rumo-novociclo'], PLANO);
   const cria = async (copiar: RegExp[]) => {
     await botao(page).click();
+    await painel(page).getByRole('button', { name: 'Desmarcar todas' }).click();
     for (const nome of copiar) await painel(page).getByRole('checkbox', { name: nome }).check();
     await page.getByRole('button', { name: 'Confirmar e criar novo planejamento' }).click();
     await expect(painel(page)).toHaveCount(0);

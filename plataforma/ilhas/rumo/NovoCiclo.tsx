@@ -16,7 +16,7 @@ export default function NovoCiclo() {
   const atual = listaCiclos(d).length;
 
   const alterna = (idx: number) => setEscolhidas((s) => { const n = new Set(s); if (n.has(idx)) n.delete(idx); else n.add(idx); return n; });
-  const abre = () => { setEscolhidas(new Set()); setFeito(null); setAberto(true); };
+  const abre = () => { setEscolhidas(new Set(metas.map((m) => m.idx))); setFeito(null); setAberto(true); };
   const confirma = () => {
     const guardado = arquivarEIniciar(d, { copiar: [...escolhidas] });
     bump();
@@ -35,7 +35,7 @@ export default function NovoCiclo() {
           <h4 id="rm-nc-t">Criar novo planejamento</h4>
           <p>Isso guarda o planejamento atual (Planejamento {atual}) e abre um novo. O Legado, as bandeiras, os objetivos e os preditores continuam. O planejamento guardado fica disponível só para leitura.</p>
           <fieldset className="rm-novociclo-metas">
-            <legend>Metas a copiar para o novo planejamento (sem os sucessos, com status “não concluída”)</legend>
+            <legend>Metas a copiar para o novo planejamento (com os mesmos campos; o status volta para “não concluída”)</legend>
             {metas.length === 0 && <p className="rm-dica">O planejamento atual ainda não tem metas.</p>}
             {metas.map((m) => (
               <label key={m.idx} className="chk">

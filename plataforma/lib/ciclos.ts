@@ -33,7 +33,7 @@ export function lerPlanos(d: DadosCiclos): PlanoArquivado[] {
 
 /**
  * Guarda o plano atual em D.planos e abre o próximo: Legado, bandeiras, objetivos e preditores ficam; D.metas passa a ter só as
- * metas de `copiar` (posições em D.metas), sem sucessos e com status "não concluída". Devolve o número do plano guardado.
+ * metas de `copiar` (posições em D.metas), com os mesmos campos (texto, preditor, responsáveis, sucessos) e status "não concluída" na meta e em cada sucesso. Devolve o número do plano guardado.
  * Quem chama grava (bump). Sem chamar esta função nada muda.
  */
 export function arquivarEIniciar(d: DadosCiclos, opcoes: { copiar?: number[]; agora?: string } = {}): number {
@@ -41,7 +41,7 @@ export function arquivarEIniciar(d: DadosCiclos, opcoes: { copiar?: number[]; ag
   const n = lerPlanos(d).length + 1;
   const metas = lerMetas(d);
   const copiadas = [...new Set(opcoes.copiar ?? [])].filter((i) => Number.isInteger(i) && i >= 0 && i < metas.length).sort((a, b) => a - b)
-    .map((i) => { const { sucessos: _s, ...resto } = clona(metas[i]); return { ...resto, status: 'nao_concluida' as const }; });
+    .map((i) => { const m = clona(metas[i]); return { ...m, status: 'nao_concluida' as const, ...(m.sucessos ? { sucessos: m.sucessos.map((s) => ({ ...s, status: 'nao_concluida' as const })) } : {}) }; });
   const plano: PlanoArquivado = {
     n, criadoEm: opcoes.agora ?? new Date().toISOString(),
     legado: atual.legado, bandeiras: [...atual.bandeiras], objetivos: clona(objetivos(d)), metas: clona(metas),
