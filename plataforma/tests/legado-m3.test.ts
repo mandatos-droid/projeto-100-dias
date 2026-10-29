@@ -87,9 +87,9 @@ test('Comp.preditores e Comp.metas devolvem os contêineres das ilhas (RUM-21, R
 /* ---------- passos do modo guiado: a ilha entra em um passo só, entre a introdução e o fecho ---------- */
 const ks = (ps: { k: string }[]) => [...ps.map((p) => p.k)]; // cópia no realm do teste (o array do vm tem outro protótipo)
 
-test('m3.bandeiras no modo guiado: introdução, a ilha, a lista de comissões e o fecho "No futuro", nesta ordem (RUM-01, RUM-51.9)', () => {
+test('m3.bandeiras no modo guiado: introdução, a ilha, o fecho "No futuro" e a lista de comissões, nesta ordem (RUM-01, RUM-51.9)', () => {
   const w = janela();
-  assert.deepEqual(ks(w.Guia.montar(ex3(w, 'm3.bandeiras'))), ['intro', 'componente', 'listaExtra', 'fim']);
+  assert.deepEqual(ks(w.Guia.montar(ex3(w, 'm3.bandeiras'))), ['intro', 'componente', 'fim', 'listaExtra']);
 });
 
 test('m3.legado no modo guiado: introdução, a ilha e o fecho, sem passos de campo solto (RUM-10, RUM-12.11)', () => {
@@ -112,10 +112,10 @@ test('a lista de comissões do Guia vira a ilha de espaços; qualquer outra list
   assert.equal(w.Comp.lista({ chave: 'outraLista' }, 'x'), '<lista outraLista x>');
 });
 
-test('o texto "No futuro" segue no fecho, que é um passo próprio depois dos espaços (RUM-51.9)', () => {
+test('o texto "No futuro" segue no fecho, que é um passo próprio antes dos espaços (sugestão #11 da Alana)', () => {
   const w = janela();
   const passos = [...w.Guia.montar(ex3(w, 'm3.bandeiras'))].map((p) => p.k);
-  assert.ok(passos.indexOf('listaExtra') < passos.indexOf('fim'));
+  assert.ok(passos.indexOf('fim') < passos.indexOf('listaExtra'));
   assert.ok(ex3(w, 'm3.bandeiras').fim!.includes('No futuro'));
 });
 
@@ -207,4 +207,51 @@ test('qualquer outra rota segue para o roteador original (#/, #/resumo, #/m/3)',
 test('carregar o m3.js sem Telas ou App (outras janelas de teste) não falha (RUM-70)', () => {
   const w = guia({ Comp: { campos: () => '', lista: () => '' } });
   assert.doesNotThrow(() => vm.runInContext(CODIGO, w as unknown as vm.Context));
+});
+
+/* ---------- apresentação sobre o Guia (sugestões #3, #8 e #10 da Alana): o texto não muda, só aparece em mais lugares ---------- */
+function janelaComBloco() {
+  const ctx = {
+    Guia: {
+      m: { cor: '#123' },
+      ex: null as unknown,
+      montar: () => [],
+      bloco(p: { k: string }) {
+        const ex = this.ex as { t: string; intro: string };
+        if (p.k === 'intro') return `<div class="texto">${ex.intro}</div>`;
+        return '<h1>t</h1><div class="texto"></div><div class="ilha" data-ilha="rumo-bandeiras"></div>';
+      },
+    },
+    Comp: { campos: ORIGINAL, preditores: () => '', metas: () => '', lista: () => '' },
+    esc: (s: string) => String(s),
+  };
+  const w = guia(ctx);
+  vm.runInContext(CODIGO, w as unknown as vm.Context);
+  const Guia = (w as unknown as { Guia: { ex: unknown; bloco(p: { k: string }, n: number): string } }).Guia;
+  return { w: w as unknown as { MISSOES: Missao[] }, Guia };
+}
+
+test('os exemplos de agendas viram quadradinhos separados na introdução, sem perder nenhum item (sugestão #3)', () => {
+  const { w, Guia } = janelaComBloco();
+  Guia.ex = ex3(w, 'm3.bandeiras');
+  const html = Guia.bloco({ k: 'intro' }, 0);
+  assert.ok(html.includes('<ul class="ex-chips">'));
+  assert.equal((html.match(/<li>/g) ?? []).length, 19);
+  assert.ok(html.includes('<li>população lgbtqiap+</li>'));
+});
+
+test('o passo da ilha mostra "Como conduzir" com os três passos do Guia, antes do mural (sugestões #8 e #10)', () => {
+  const { w, Guia } = janelaComBloco();
+  const ex = ex3(w, 'm3.bandeiras');
+  Guia.ex = ex;
+  const html = Guia.bloco({ k: 'componente' }, 1);
+  assert.ok(html.indexOf('Como conduzir') < html.indexOf('data-ilha="rumo-bandeiras"'));
+  assert.ok(html.includes('Primeiro passo:') && html.includes('Segundo passo:') && html.includes('Terceiro passo:'));
+  assert.ok(html.includes((ex.passos as string[])[2]));
+});
+
+test('outros exercícios não recebem o bloco de passos nem os quadradinhos', () => {
+  const { w, Guia } = janelaComBloco();
+  Guia.ex = ex3(w, 'm3.legado');
+  assert.equal(Guia.bloco({ k: 'componente' }, 1).includes('Como conduzir'), false);
 });

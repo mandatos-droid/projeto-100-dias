@@ -23,11 +23,33 @@
         var p=[];
         if(ex.intro||ex.passos)p.push({k:'intro'});
         p.push({k:'componente'});
-        if(ex.id==='m3.bandeiras'&&ex.listaExtra)p.push({k:'listaExtra'});
+        /* "No futuro" (fim) vem antes das comissões: a lista de espaços fecha o exercício, abaixo do texto sobre o futuro */
         if(ex.fim)p.push({k:'fim'});
+        if(ex.id==='m3.bandeiras'&&ex.listaExtra)p.push({k:'listaExtra'});
         return p;
       }
       return _mt.call(this,ex);
+    };
+  }
+  /* Só a apresentação muda, o texto do Guia não: os passos "Como conduzir" também aparecem no passo da ilha, e os exemplos de agendas viram quadradinhos */
+  if(typeof Guia!=='undefined'&&typeof Guia.bloco==='function'){
+    var _bl=Guia.bloco;
+    Guia.bloco=function(p,n){
+      var h=_bl.call(this,p,n),ex=this.ex;
+      if(!ex||ex.id!=='m3.bandeiras'||typeof h!=='string')return h;
+      if(p.k==='intro'){
+        h=h.replace(/(<div class="apoio exemplo"><span class="tag">[^<]*<\/span>)([^<]+)(<\/div>)/,function(_,ini,lista,fim){
+          var itens=lista.split(';').map(function(t){return t.replace(/[.\s]+$/,'').trim()}).filter(Boolean);
+          return ini+'<ul class="ex-chips">'+itens.map(function(t){return '<li>'+t+'</li>'}).join('')+'</ul>'+fim;
+        });
+      }
+      if(p.k==='componente'&&ex.passos){
+        var cor=(this.m&&this.m.cor)||'';
+        var passos='<details class="rm-passos" open><summary>Como conduzir</summary><div class="orienta" style="--c:'+cor+'">'+
+          ex.passos.map(function(t,i){return '<p><strong>'+['Primeiro','Segundo','Terceiro','Quarto','Quinto'][i]+' passo:</strong> '+t+'</p>'}).join('')+'</div></details>';
+        h=h.replace('<div class="ilha"',passos+'<div class="ilha"');
+      }
+      return h;
     };
   }
   /* o passo "Comissões e espaços que o mandato pretende compor" troca a lista genérica pela ilha; as outras listas do Guia ficam como são */
