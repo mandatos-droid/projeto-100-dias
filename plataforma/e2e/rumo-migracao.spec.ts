@@ -33,8 +33,8 @@ test.describe('Mandato antigo percorrido de ponta a ponta (RUM-70, critério de 
       await expect(page.locator('.ilha-corpo').first()).toBeVisible();
     }
     await expect(page.getByLabel('Texto final da manchete')).toHaveCount(0);
-    await expect(page.locator('[data-preditor="p1"] input')).toHaveValue('Priorizar a educação');
-    await expect(page.locator('[data-preditor="p2"] input')).toHaveValue('Pautar o fim do trabalho infantil');
+    await expect(page.locator('[data-no="obj-p1"]')).toContainText('Priorizar a educação'); // m3.obj antigo vira a estratégia B e a frase segue na árvore
+    await expect(page.locator('[data-no="obj-p2"]')).toContainText('Pautar o fim do trabalho infantil');
     await page.evaluate(() => { location.hash = '#/m/3/m3.metas/1'; });
     const meta1 = page.locator('[data-meta="0"]');
     await expect(meta1.getByRole('textbox', { name: /no formato SMART/ })).toHaveValue(METAS_ANTIGAS[0].texto);
@@ -147,10 +147,10 @@ test.describe('Gabinete novo, pelo Guia real em modo local', () => {
     // 3) preditores
     await page.evaluate(() => { location.hash = '#/m/3/m3.preditores/1'; });
     await page.locator('[data-preditor="p1"] .rm-pred-bt').click();
-    await page.locator('[data-preditor="p1"] input').fill('Priorizar a educação');
+    await page.locator('[data-preditor="p1"]').getByRole('textbox').fill('Porque a educação é a maior demanda do começo do mandato');
     // 4) metas
     await page.evaluate(() => { location.hash = '#/m/3/m3.metas/1'; });
-    await page.getByRole('button', { name: 'Acrescentar meta a Priorizar a educação' }).click();
+    await page.getByRole('button', { name: 'Acrescentar meta a Priorizar a agenda' }).click();
     await page.getByRole('textbox', { name: /no formato SMART/ }).fill('Aprovar 2 projetos de lei sobre educação até dezembro de 2027');
     await page.getByRole('group', { name: /^Responsável direto/ }).getByRole('button', { name: /Bruno Lima/ }).click();
     await page.getByLabel('Cabe na capacidade da equipe nos 4 meses?').check();

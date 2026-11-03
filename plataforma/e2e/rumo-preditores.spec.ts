@@ -8,43 +8,41 @@ const arvore = (page: Page) => page.getByRole('tree', { name: 'Árvore do planej
 const itens = (page: Page) => arvore(page).getByRole('treeitem');
 const objetivo = (page: Page, pid: string) => card(page, pid).getByRole('textbox');
 
-test.describe('Selecionar abre o objetivo e cresce a árvore (RUM-20.1, RUM-20.2, RUM-20.6)', () => {
-  test('selecionar um preditor abre o campo com o exemplo do Guia e acrescenta o nó', async ({ page }) => {
+test.describe('Selecionar abre a justificativa e cresce a árvore (RUM-20.1, RUM-20.2, RUM-20.6)', () => {
+  test('selecionar um preditor abre a caixa de justificativa e acrescenta o nó', async ({ page }) => {
     await abre(page, [ILHA]);
     await expect(page.getByRole('textbox')).toHaveCount(0);
     await marca(page, 'p2').click();
     await expect(objetivo(page, 'p2')).toBeVisible();
-    await expect(objetivo(page, 'p2')).toHaveAttribute('placeholder', /Ser referência nacional na defesa do fim do trabalho infantil/);
+    await expect(objetivo(page, 'p2')).toHaveAccessibleName(/^Este preditor foi escolhido pois…/);
     await expect(page.locator('[data-no="obj-p2"]')).toBeVisible();
     expect(await dadoDe(page, 'preditores')).toEqual(['p2']);
     await expect(page.getByText('1 de 3 preditores escolhidos')).toBeVisible();
   });
 
-  test('o exemplo sugerido casa com o preditor (3º e 4º do Guia estão trocados na tabela)', async ({ page }) => {
+  test('cada preditor marcado ganha a sua própria caixa de justificativa', async ({ page }) => {
     await abre(page, [ILHA]);
     await marca(page, 'p3').click();
     await marca(page, 'p4').click();
-    await expect(objetivo(page, 'p3')).toHaveAttribute('placeholder', /Expandir relevância como liderança do partido/);
-    await expect(objetivo(page, 'p4')).toHaveAttribute('placeholder', /Articular a Liderança de pelo menos 2 Fóruns/);
+    await expect(objetivo(page, 'p3')).toHaveAccessibleName(/Construir o partido/);
+    await expect(objetivo(page, 'p4')).toHaveAccessibleName(/Protagonizar espaços de decisão/);
   });
 
-  test('objetivo vazio mostra o nome do preditor na árvore; escrever grava m3.obj e atualiza o nó', async ({ page }) => {
+  test('sem estratégia gravada o nó mostra o nome do preditor; a justificativa grava m3.just e apagar remove a chave', async ({ page }) => {
     await abre(page, [ILHA]);
     await marca(page, 'p1').click();
     await expect(page.locator('[data-no="obj-p1"]')).toContainText('Priorizar a agenda');
-    await objetivo(page, 'p1').fill('Ampliar a agenda de educação');
-    await expect(page.locator('[data-no="obj-p1"]')).toContainText('Ampliar a agenda de educação');
-    expect((await camposDe(page))['m3.obj.p1']).toBe('Ampliar a agenda de educação');
-    await objetivo(page, 'p1').fill('');
+    await objetivo(page, 'p1').fill('Porque o começo do mandato exige foco');
+    expect((await camposDe(page))['m3.just.p1']).toBe('Porque o começo do mandato exige foco');
     await expect(page.locator('[data-no="obj-p1"]')).toContainText('Priorizar a agenda');
-    expect((await camposDe(page))['m3.obj.p1']).toBeUndefined();
+    await objetivo(page, 'p1').fill('');
+    expect((await camposDe(page))['m3.just.p1']).toBeUndefined();
   });
 
-  test('a tabela de exemplos do Guia continua na tela', async ({ page }) => {
+  test('a antiga tabela de exemplos saiu desta tela (foi para a ilha da estratégia)', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1'] } });
-    await expect(page.getByRole('heading', { name: 'Objetivo específico de cada preditor' })).toBeVisible();
-    await expect(page.locator('table.tb tbody tr')).toHaveCount(5);
-    await expect(page.locator('table.tb')).toContainText('Destravar a entrega do Hospital da Universidade Federal de Jiripoca');
+    await expect(page.getByRole('heading', { name: /Objetivo estratégico de cada preditor/ })).toHaveCount(0);
+    await expect(page.locator('table.tb')).toHaveCount(0);
   });
 
   test('a árvore mostra o Legado no topo com a manchete resumida (RUM-20.5)', async ({ page }) => {
@@ -59,7 +57,7 @@ test.describe('Limite de três e desmarcar (RUM-20.3, RUM-21.4)', () => {
     await marca(page, 'p4').click();
     await expect(page.locator('#avisos')).toContainText('Escolha até 3 preditores. Desmarque um deles (Priorizar a agenda, Pautar os debates, Construir o partido)');
     expect(await dadoDe(page, 'preditores')).toEqual(['p1', 'p2', 'p3']);
-    await expect(objetivo(page, 'p4')).toHaveCount(0);
+    await expect(marca(page, 'p4')).toHaveAttribute('aria-pressed', 'false');
   });
 
   test('desmarcar preditor com metas pede confirmação com a contagem e deixa as metas sem objetivo', async ({ page }) => {

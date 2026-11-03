@@ -39,15 +39,16 @@ export function textoObjetivo(c: Campos | undefined, pid: string, e: Estrategia 
   return (e === 'b' ? lido(c, chaveObj(pid)) : '') || nomeDe(pid);
 }
 
-export const lerJustificativa = (c: Campos | undefined, pid: string): string => lido(c, chaveJust(pid));
+/** Texto como foi digitado (sem aparar: a caixa é controlada e perderia os espaços ao escrever). */
+export const lerJustificativa = (c: Campos | undefined, pid: string): string => c?.[chaveJust(pid)] ?? '';
 
-/** Patch que grava a justificativa de um preditor (escolhido ou não). Texto vazio apaga a chave. */
+/** Patch que grava a justificativa de um preditor (escolhido ou não). Texto vazio ou só espaços apaga a chave. */
 export function defineJustificativa(_c: Campos | undefined, pid: string, v: string): Patch {
-  return { [chaveJust(pid)]: v.trim() };
+  return { [chaveJust(pid)]: v.trim() === '' ? '' : v };
 }
 
 /** Quantas das 5 justificativas ainda estão vazias. */
-export const faltamJustificativas = (c: Campos | undefined): number => PREDITORES.filter((p) => lerJustificativa(c, p.id) === '').length;
+export const faltamJustificativas = (c: Campos | undefined): number => PREDITORES.filter((p) => lerJustificativa(c, p.id).trim() === '').length;
 
 /** Passo fechado: 3 preditores, estratégia, 3 frases se B e as 5 justificativas. Só indicador, nunca bloqueia (RM3-06). */
 export function passoPreditoresConcluido(c: Campos | undefined, escolhidos: string[]): boolean {

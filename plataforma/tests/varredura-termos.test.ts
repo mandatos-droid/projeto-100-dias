@@ -11,11 +11,10 @@ const PASTAS = ['app', 'ilhas', 'lib', 'public/legacy'];
 const EXTENSOES = /\.(ts|tsx|js|mjs)$/;
 const TERMO_ANTIGO = /objetivos?\s+espec[ií]fic/i;
 
-/** Arquivos fora da varredura. O último sai quando a tarefa citada refizer o arquivo. */
+/** Arquivos fora da varredura. Lista vazia de pendências: todos os ignorados são legados cobertos pelo override. */
 const IGNORADOS: Record<string, string> = {
   'public/legacy/conteudo.js': 'legado extraído, coberto pelo override de m3.js (AD-003)',
   'public/legacy/guia.js': 'legado extraído, coberto pelo override de m3.js (AD-003)',
-  'ilhas/rumo/Preditores.tsx': 'sai da lista na T7 (m23-missao2-3-reestruturacao), quando a ilha for refeita',
 };
 
 function arquivos(pasta: string): string[] {

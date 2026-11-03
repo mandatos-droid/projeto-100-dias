@@ -46,11 +46,12 @@ test('lerEstrategia sem m3.est: B se há m3.obj preenchido, A se há preditores 
 });
 
 test('justificativas por preditor ficam em m3.just.{pid} e sobrevivem à troca da seleção (RM3-05)', () => {
-  const patch = defineJustificativa({}, 'p4', '  porque sim ');
-  assert.deepEqual(patch, { 'm3.just.p4': 'porque sim' });
+  const patch = defineJustificativa({}, 'p4', 'porque sim ');
+  assert.deepEqual(patch, { 'm3.just.p4': 'porque sim ' }, 'espaço final fica: quem digita não pode perdê-lo');
+  assert.deepEqual(defineJustificativa({}, 'p4', '   '), { 'm3.just.p4': '' }, 'só espaços apaga a chave');
   // desmarcar e remarcar p4 só mexe em D.preditores; o campo da justificativa não depende da seleção
   const c = { ...patch };
-  assert.equal(lerJustificativa(c, 'p4'), 'porque sim');
+  assert.equal(lerJustificativa(c, 'p4'), 'porque sim ');
   assert.equal(lerJustificativa({}, 'p5'), '');
 });
 

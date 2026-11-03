@@ -248,7 +248,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T7: Preditores com justificativa
+### T7: Preditores com justificativa ✅
 
 **What**: Em `Preditores.tsx`, manter os cartões clicáveis e acrescentar a caixa "Este preditor foi escolhido pois…" (marcados) e "não foi escolhido pois…" (os 2 restantes, quando há 3), o contador "faltam N justificativas" e o aviso "Atenção! Sua escolha deve considerar o que precisa acontecer logo nos primeiros dias do mandato". Retirar o campo de frase por preditor (vai para T8) e a tabela de exemplos antiga.
 **Where**: `ilhas/rumo/Preditores.tsx` (+ `e2e/m23-preditores.spec.ts`, ajuste de `e2e/rumo-preditores.spec.ts`)
@@ -263,13 +263,13 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] Preditor marcado abre "foi escolhido pois…" (RM3-02)
-- [ ] Com 3 marcados, os 2 restantes abrem "não foi escolhido pois…" (RM3-03)
-- [ ] Quarto preditor recusado com o aviso atual (RM3-04)
-- [ ] Trocar a seleção preserva justificativas e troca o rótulo (RM3-05)
-- [ ] "faltam N justificativas" some com as 5 preenchidas e nunca bloqueia (RM3-06)
-- [ ] Texto do Guia do exercício continua (RM3-07)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido, `rumo-preditores` ajustado
+- [x] Preditor marcado abre "foi escolhido pois…" (RM3-02)
+- [x] Com 3 marcados, os 2 restantes abrem "não foi escolhido pois…" (RM3-03)
+- [x] Quarto preditor recusado com o aviso atual (RM3-04)
+- [x] Trocar a seleção preserva justificativas e troca o rótulo (RM3-05)
+- [x] "faltam N justificativas" some com as 5 preenchidas e nunca bloqueia (RM3-06)
+- [x] Texto do Guia do exercício continua (RM3-07)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido, `rumo-preditores` ajustado
 
 **Tests**: e2e
 **Gate**: full
