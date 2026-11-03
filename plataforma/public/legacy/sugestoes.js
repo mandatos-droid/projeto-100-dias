@@ -189,10 +189,25 @@ var Sug={
     if(this.previa){
       c.innerHTML='<img src="data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360"><rect width="640" height="360" fill="#EFE7DA"/><text x="320" y="185" font-family="sans-serif" font-size="22" fill="#938780" text-anchor="middle">print de exemplo</text></svg>')+'" alt="Print de exemplo">';return;
     }
+    var q='sugestoes?select=imagem&id=eq.'+id,r;
     try{
-      var r=await Nuvem.rest('sugestoes?select=imagem&id=eq.'+id);
+      try{r=await Nuvem.rest(q)}
+      catch(e){ // sessão aberta há mais de 1 h: o token expira; renova e tenta de novo
+        await Sug.renovar();r=await Nuvem.rest(q);
+      }
+      if(!r||!r.length)throw new Error('Sem acesso a este print (ou ele foi apagado).');
+      if(!/^data:image\//.test(r[0].imagem||''))throw new Error('O print salvo está vazio ou corrompido.');
       c.innerHTML='<img src="'+r[0].imagem+'" alt="Print enviado" onclick="this.classList.toggle(\'cheia\')">';
-    }catch(e){c.textContent='Não foi possível carregar o print.'}
+    }catch(e){
+      c.innerHTML='Não foi possível carregar o print ('+esc(e.message||'erro desconhecido')+'). '+
+        '<button class="bt fant peq" onclick="Sug.verImagem('+id+')">Tentar de novo</button>';
+    }
+  },
+  async renovar(){
+    var s=JSON.parse(localStorage.getItem('legisla.tok')||'null');
+    if(!s||!s.refresh_token)throw new Error('Sessão expirada: entre de novo.');
+    var nv=await Nuvem.auth('token?grant_type=refresh_token',{refresh_token:s.refresh_token});
+    Nuvem.tok=nv.access_token;localStorage.setItem('legisla.tok',JSON.stringify(nv));
   },
   async resolver(id,sim){
     try{

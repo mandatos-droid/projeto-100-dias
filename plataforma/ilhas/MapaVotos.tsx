@@ -3,7 +3,7 @@ import { useMemo, useRef, useState } from 'react';
 import { carregaGeo } from '@/lib/dados';
 import { nf, pct } from '@/lib/format';
 import type { CasaChave, GeoUF } from '@/lib/types';
-import { useCarga } from './pecas';
+import { SvgZoom, useCarga } from './pecas';
 
 type Votos = { atualizado: string; mun: Record<string, [number, number]> };
 type Modo = 'votos' | 'pct' | 'forca';
@@ -105,7 +105,7 @@ export default function MapaVotos({ uf, casa, sq, nome, totalUF }: { uf: string;
 
       <div className="mv-corpo">
         <div className="mv-mapa" ref={caixa} onMouseMove={move} onMouseLeave={() => { setFoco(null); setMouse(null); }}>
-          <svg className="mapa" viewBox={`0 0 ${g.w} ${g.h}`} role="img" aria-label={`Votos de ${nome} por município`}>
+          <SvgZoom w={g.w} h={g.h} className="mapa" rotulo={`Votos de ${nome} por município`}>
             {g.mun.map((m) => {
               const l = porId.get(m.id)!;
               return (
@@ -115,7 +115,7 @@ export default function MapaVotos({ uf, casa, sq, nome, totalUF }: { uf: string;
               );
             })}
             {L && <path d={g.mun.find((m) => m.id === L.id)!.d} fill="none" className="mv-halo" pointerEvents="none" />}
-          </svg>
+          </SvgZoom>
           {foco && L && mouse && (
             <div className="mv-tip" style={{ left: Math.min(mouse.x + 14, (caixa.current?.clientWidth ?? 400) - 190), top: mouse.y + 14 }}>
               <b>{L.nm}</b>

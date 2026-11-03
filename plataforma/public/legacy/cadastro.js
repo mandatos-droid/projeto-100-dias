@@ -73,7 +73,7 @@ var Cad={
     this.modo=modo;this.dentro=!!dentro;this.passo=1;this.sujo=false;window.onbeforeunload=null;
     this.cargo=m.cargo||'';this.uf=m.uf||'';this.cdi=(t&&t.cdi)||'';this.munNome=m.municipio||'';
     this.busca='';this.partido='';this.lista=null;this.muns=null;this.estado='';this.chave='';
-    this.f={civil:m.nome_civil||'',nome:m.nome_parlamentar||'',partido:m.partido||'',casa:m.casa||'',posse:m.data_posse||'',
+    this.f={civil:m.nome_civil||'',nome:m.nome_parlamentar||'',partido:m.partido||'',casa:m.casa||'',posse:m.data_posse||(modo==='editar'?'':'2026-02-01'),
       rNome:modo==='editar'?(m.resp_nome||''):((NUVEM&&Store.usuario&&Store.usuario.nome)||''),
       rCargo:m.resp_cargo||'',rTel:m.resp_telefone||'',proprio:false};
     this.manual=false;this.sel=null;

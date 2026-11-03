@@ -48,7 +48,8 @@
   .es-mini{order:0;position:sticky;top:0.75rem}
   .es-mini-canvas{height:min(70vh,560px)}
 }
-.es-org .eq-canvas{height:min(76vh,720px)}
+.es-org .eq-canvas{border:0;background:transparent;border-radius:0;box-shadow:none}
+.es-org .react-flow{background:transparent}
 .es-no{width:230px;background:#fff;border:1px solid var(--linha);border-top:5px solid var(--vinho);border-radius:var(--r);padding:0.4375rem 0.75rem 0.375rem;display:flex;flex-direction:column;gap:1px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.06)}
 .es-no.vaga{border-style:dashed;border-top-style:solid;background:var(--papel)}
 .es-no.sel{box-shadow:0 0 0 2px var(--verde)}
@@ -130,3 +131,6 @@
   .es-nao-imprime{display:none!important}
   .es-bloco{border:0;padding:0}
 }
+
+/* o organograma é largo: em telas grandes ele passa da coluna de texto e usa o espaço livre à direita */
+@media(min-width:1100px){.es-org-corpo:not(.com-painel) .eq-canvas{width:max(100%,min(1500px,calc(100vw - 15rem)))}}

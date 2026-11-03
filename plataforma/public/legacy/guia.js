@@ -127,7 +127,7 @@ var Guia={
         Comp.lista(ex.listaExtra,ex.id);
       return h;
     }
-    if(p.k==='fim')return '<h1 class="passo-titulo">Para fechar</h1><div class="texto">'+ex.fim+'</div>';
+    if(p.k==='fim')return '<h1 class="passo-titulo">Para fechar</h1>'+(ex.tipo==='frag'?Comp.diagFrag():'')+'<div class="texto">'+ex.fim+'</div>';
     /* componente */
     h+='<h1 class="largo" style="font-size:clamp(28px,4.2vw,42px)">'+esc(ex.t)+'</h1>';
     h+='<div class="texto">'+(this.passos.length===1?(ex.intro||''):'')+'</div>';
@@ -245,8 +245,8 @@ var Comp={
     var h='<div class="frag-l">';
     (D.frags||[]).forEach(function(f,i){
       h+='<div class="frag-i"><span class="tx">'+esc(f.t)+'</span><span class="mp">'+
-        '<button type="button" aria-pressed="'+(f.mp==='M')+'" title="Fragilidade da equipe do mandato" onclick="Comp.mp('+i+',\'M\')">M</button>'+
-        '<button type="button" class="p" aria-pressed="'+(f.mp==='P')+'" title="Fragilidade do parlamentar" onclick="Comp.mp('+i+',\'P\')">P</button></span>'+
+        '<button type="button" aria-pressed="'+(f.mp==='M')+'" title="Fragilidade da equipe do mandato (M)" onclick="Comp.mp('+i+',\'M\')">Gabinete</button>'+
+        '<button type="button" class="p" aria-pressed="'+(f.mp==='P')+'" title="Fragilidade do parlamentar (P)" onclick="Comp.mp('+i+',\'P\')">Parlamentar</button></span>'+
         (f.custom?'<button class="rm" style="position:static" onclick="Comp.rmFrag('+i+')">×</button>':'')+'</div>';
     });
     h+='</div><div class="linha-campos c2"><label class="campo"><span class="rot">Acrescentar outra fragilidade</span>'+
@@ -254,6 +254,34 @@ var Comp={
       '<div class="bts"><button class="bt sec peq" onclick="Comp.addFrag()">Acrescentar</button></div>';
     return h;
   },
+  /* diagnóstico da página "Para fechar": fragilidades classificadas, com filtro Parlamentar / Gabinete */
+  fragVista:'todas',
+  diagFrag(){
+    var fs=D.frags||[],g=fs.filter(function(f){return f.mp==='M'}),p=fs.filter(function(f){return f.mp==='P'}),
+      sem=fs.filter(function(f){return !f.mp}),tot=g.length+p.length,v=this.fragVista;
+    var h='<div class="diag-frag"><h3 class="diag-t">Diagnóstico das fragilidades</h3>';
+    if(!tot)return h+'<p class="sem">Classifique as fragilidades como Gabinete ou Parlamentar nos passos anteriores para ver o diagnóstico.</p></div>';
+    var pg=Math.round(g.length/tot*100),pp=100-pg;
+    h+='<div class="kpis"><div class="kp"><b>'+tot+'</b><span>fragilidades classificadas</span></div>'+
+      '<div class="kp"><b>'+g.length+'</b><span>do gabinete ('+pg+'%)</span></div>'+
+      '<div class="kp"><b>'+p.length+'</b><span>do parlamentar ('+pp+'%)</span></div>'+
+      '<div class="kp"><b>'+sem.length+'</b><span>sem classificação</span></div></div>'+
+      '<div class="diag-barra" role="img" aria-label="Gabinete '+pg+'%, parlamentar '+pp+'%">'+
+      (g.length?'<i class="g" style="width:'+pg+'%">Gabinete</i>':'')+(p.length?'<i class="p" style="width:'+pp+'%">Parlamentar</i>':'')+'</div>';
+    h+='<div class="cj-seg" role="tablist" aria-label="Quem precisa superar">'+
+      [['todas','Todas',tot],['M','Gabinete',g.length],['P','Parlamentar',p.length]].map(function(t){
+        return '<button type="button" role="tab" aria-selected="'+(v===t[0])+'" onclick="Comp.vistaFrag(\''+t[0]+'\')">'+t[1]+'<small>'+t[2]+'</small></button>'}).join('')+'</div>';
+    function lista(tit,l,cls){
+      if(!l.length)return '';
+      return '<h4 class="diag-sub '+cls+'">'+tit+' <span>'+l.length+'</span></h4><ul class="marcados">'+
+        l.map(function(f){return '<li>'+esc(f.t)+'</li>'}).join('')+'</ul>';
+    }
+    if(v!=='P')h+=lista('Fragilidades do gabinete',g,'g');
+    if(v!=='M')h+=lista('Fragilidades do parlamentar',p,'p');
+    if(sem.length)h+='<p class="peq-t" style="margin-top:14px">Ainda sem classificação: '+sem.map(function(f){return esc(f.t)}).join('; ')+'.</p>';
+    return h+'</div>';
+  },
+  vistaFrag(v){this.fragVista=v;Guia.render()},
   mp(i,v){var f=D.frags[i];f.mp=f.mp===v?null:v;Store.salvar();Guia.render()},
   rmFrag(i){D.frags.splice(i,1);Store.salvar();Guia.render()},
   addFrag(){var e=document.getElementById('fragNova');if(!e||!e.value.trim())return;

@@ -94,6 +94,7 @@ export type PosExec = 'governo' | 'base' | 'oposicao' | 'independente';
 export type Conj2 = {
   muns: Record<string, { tag: TagMun; nota: string }>;
   posicao?: Partial<Record<EsferaExec, PosExec>>; // escolha da equipe; sem ela vale a sugestão pela coligação
+  prefExtra?: Record<string, PosExec | ''>;       // outras prefeituras acompanhadas (código IBGE -> relação; '' = ainda sem escolha)
   relacao: string;
   relacaoPq: string;
   desafios: string[];

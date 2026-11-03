@@ -11,6 +11,8 @@ import {
   COORDENACOES, COR_COORD, HABILIDADES, RITMOS, RELACIONAL, ESCOPOS, PADRAO,
   CAMPOS_FICHA, chaveFicha, chaveNome, lista, SEP, type CampoFicha,
 } from '@/lib/equipe';
+import { bandeiraDe } from '@/lib/bandeiras';
+import { areasDe, recomenda } from '@/lib/recomenda';
 
 type Cargo = [string, string, string];
 const cargos = () => (window as unknown as { CARGOS_EQUIPE: Cargo[] }).CARGOS_EQUIPE;
@@ -212,7 +214,11 @@ export function Organograma() {
 const ORDEM = ['Semanalmente', 'Mensalmente', 'Quadrimestralmente', 'Semestralmente'];
 export function Rotinas() {
   const f = useFicha();
+  const { D } = useLegado();
   const rs = rotinas();
+  /* cargos que as bandeiras do mandato pedem (Missão 2 · recomendação), por coordenação */
+  const areas = areasDe(D.campos);
+  const rec = areas.length ? recomenda(areas).itens.filter((it) => it.area && (it.grupo === 'tematico' || it.grupo === 'ajustavel')) : [];
   const porCoord = COORDENACOES.map((c) => ({
     c,
     gente: [...Array(f.n).keys()].filter((i) => f.coord(i) === c),
@@ -233,7 +239,14 @@ export function Rotinas() {
                   <span className="eq-dur">⏱ {r[3]}</span>
                 </div>
               ))}
-              {!itens.length && <p className="sem">—</p>}
+              {freq === 'Quadrimestralmente' && areas.length > 0 && (
+                <div className="eq-rot-card eq-rot-rec">
+                  <strong>Pauta: rever as bandeiras e os cargos temáticos</strong>
+                  <span><b>Bandeiras hoje:</b> {areas.map((a) => bandeiraDe(a)?.rot).join(', ')}</span>
+                  <span className="eq-dur">se mudarem, reaplique a recomendação de cargos (Missão 2)</span>
+                </div>
+              )}
+              {!itens.length && !(freq === 'Quadrimestralmente' && areas.length) && <p className="sem">—</p>}
             </div>
           );
         })}
@@ -247,6 +260,9 @@ export function Rotinas() {
             <section key={c} className="eq-area" style={{ borderTopColor: COR_COORD[c] }}>
               <header><strong style={{ color: COR_COORD[c] }}>{c}</strong><span>{gente.length} cargo(s)</span></header>
               <p className="eq-reun">Reunião da área · coordena: <b>{f.nome(chefe) || f.cargoNome(chefe)}</b> · 45 min por semana</p>
+              {rec.filter((it) => f.coord(it.i) === c).map((it) => (
+                <p key={it.i} className="eq-rec">Pelas bandeiras: <b>{f.cargoNome(it.i)}</b> · {bandeiraDe(it.area!)?.rot}</p>
+              ))}
               <ul>
                 {gente.map((i) => (
                   <li key={i}>

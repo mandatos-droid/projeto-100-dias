@@ -4,12 +4,12 @@ gênero, cor/raça e se é reeleição.
 Fontes (dados abertos do TSE):
   - public/data/uf/*.json (resultado 2026, gerado por build_data.py)
   - consulta_cand_2026.zip: gênero e cor/raça por SQ_CANDIDATO
-  - consulta_cand_2022.zip: eleitos de 2022 (reeleição = eleito em 2022 para o mesmo cargo, mesmo nome civil e UF;
-    também traz os 27 senadores eleitos em 2022, com mandato até 2031)
+  - consulta_cand_2022.zip: eleitos de 2022 (também traz os 27 senadores eleitos em 2022, com mandato até 2031)
+  - public/data/pleitos/*.json (build_pleitos.py, cruzado pelo título eleitoral): reeleição = já eleito (2006-2022)
+    para o mesmo cargo; vale também para quem ficou fora de 2022. Sem pleitos, cai no cruzamento por nome civil + UF.
 
-Limite: a Justiça Eleitoral não divulga CPF/título em 2026, então o cruzamento é por nome civil + UF.
-Quem foi parlamentar antes de 2022 e ficou fora de 2022 aparece como primeiro mandato.
-Uso:  python scripts/build_eleitos.py   (rode build_data.py antes)
+Limite: o histórico começa em 2006 (antes o TSE muda o layout) e só vale para quem tem título nos dados abertos.
+Uso:  python scripts/build_eleitos.py   (rode build_data.py e build_pleitos.py antes)
 """
 import csv, io, json, unicodedata, urllib.request, zipfile
 from pathlib import Path
@@ -54,10 +54,13 @@ def main():
         if casa == "senado":
             sen22.append(r)
 
+    CARGO_CASA = {"Deputado Federal": "federal", "Deputado Estadual": "estadual", "Deputado Distrital": "estadual", "Senador": "senado"}
     out, sem_perfil = [], 0
     for f in sorted((RAIZ / "public" / "data" / "uf").glob("*.json")):
         d = json.loads(f.read_text(encoding="utf-8"))
         uf = d["uf"]
+        pf = RAIZ / "public" / "data" / "pleitos" / f"{uf.lower()}.json"
+        pleitos = json.loads(pf.read_text(encoding="utf-8")) if pf.exists() else {}
         for casa in ("federal", "estadual", "senado"):
             for c in d[casa]["cands"]:
                 if not c["e"]:
@@ -65,7 +68,8 @@ def main():
                 g, r = perfil.get(c["s"], ("", ""))
                 sem_perfil += not g
                 nome = norm(c["c"])
-                reel = (uf, nome, casa) in eleitos22
+                reel = (uf, nome, casa) in eleitos22 or any(
+                    CARGO_CASA.get(p[1]) == casa and p[8].startswith("Eleito") for p in pleitos.get(c["s"], []))
                 outro = not reel and any((uf, nome, k) in eleitos22 for k in ("federal", "estadual", "senado"))
                 out.append({"s": c["s"], "u": c["u"], "c": c["c"], "p": c["p"], "uf": uf, "k": casa[0] if casa != "senado" else "s",
                             "v": c["v"], "x": c["x"], "g": g, "r": r, "m": "r" if reel else "o" if outro else "n", "a": 2026})

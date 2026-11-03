@@ -1,7 +1,7 @@
 'use client';
 /* Pergunta m1.q5 da Conjuntura: onde o partido está (cadeiras, Executivo, filiados) e que relação a liderança
    quer ter com ele. Tudo o que a equipe registra vai para D.conj2; o resto é leitura de public/data. */
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import {
   carregaExecBR, carregaExecUF, carregaFiliadosBR, carregaFiliadosUF, carregaGeo, carregaHist, carregaMun,
   carregaNacional, carregaUF,
@@ -11,6 +11,7 @@ import { CARGOS_22, bloco22, variacaoPartidos, type Cargo22 } from '@/lib/eleica
 import { nf, pct } from '@/lib/format';
 import type { Conj2, EsferaExec, ExecEleito, FilAcum, Mun, PosExec, RegExec, TagMun } from '@/lib/types';
 import { CARGOS, NIVEIS } from './cargos';
+import { CasaMunicipal } from './CasaMunicipal';
 import { useLegado } from './ponte';
 import { BarrasPartido, Chip, MapaMunicipios, useCarga } from './pecas';
 
@@ -126,6 +127,7 @@ export default function Conjuntura() {
   const [sel, setSel] = useState<string | null>(null);        // município aberto no painel do mapa
   const [munFil, setMunFil] = useState<string | null>(null);   // município do perfil de filiados (fechar o painel não o muda)
   const [esc, setEsc] = useState<'mun' | 'uf' | 'br' | null>(null);
+  const [somando, setSomando] = useState(false);               // seletor do botão + das prefeituras
   const muda = (f: () => void) => { f(); bump(); };
 
   const cargo = CARGOS_MAPA.find((x) => x.id === cargoId) ?? CARGOS_MAPA[0];
@@ -238,6 +240,65 @@ export default function Conjuntura() {
   ];
   const posEfetiva = (k: EsferaExec, eleito: ExecEleito | undefined): PosExec | null =>
     c.posicao?.[k] ?? (eleito && !('pend' in eleito) ? sugere(eleito, partido) : null);
+
+
+  /* outras prefeituras que a liderança acompanha: botão + escolhe o município e depois a relação */
+  const extras = c.prefExtra ?? {};
+  const idsExtras = Object.keys(extras);
+  const disponiveis = Object.entries(mun.dados?.mun ?? {}).filter(([id]) => !(id in extras) && id !== cdi)
+    .sort((a, b) => a[1].nm.localeCompare(b[1].nm, 'pt-BR'));
+  /* prefeituras do partido (eleição de 2024) ainda fora da lista */
+  const doPartido = disponiveis.filter(([id]) => exUF.dados?.pref[id]?.p === partido);
+  const prefExtras = () => (
+    <div className="v2-extras">
+      {idsExtras.map((id) => {
+        const reg = exUF.dados?.pref[id];
+        const sug = sugere(reg, partido);
+        const salvo = extras[id] || null;
+        const efetivo = salvo ?? sug;
+        return (
+          <div className="v2-exec" key={id}>
+            <div className="quem">
+              <h5>Prefeitura de {nomeMun(id)} <span className="peq-t">· eleição de 2024</span>
+                <button type="button" className="link-bt" style={{ marginLeft: 8 }} aria-label={`Remover ${nomeMun(id)}`}
+                  onClick={() => muda(() => { delete (c.prefExtra ?? {})[id]; })}>remover</button></h5>
+              {reg ? <p><Chip p={reg.p} /> <strong>{reg.n}</strong> · coligação: {reg.c.join(', ')}.</p>
+                : <p className="sem">Sem prefeito eleito em 2024 neste município no arquivo do TSE.</p>}
+            </div>
+            <div className="v2-seg" role="radiogroup" aria-label={`Posição do partido: prefeitura de ${nomeMun(id)}`}>
+              {POSICOES.map((p) => (
+                <button key={p.k} type="button" role="radio" aria-checked={efetivo === p.k}
+                  onClick={() => muda(() => { const x = c.prefExtra ?? (c.prefExtra = {}); x[id] = salvo === p.k ? '' : p.k; })}>
+                  {p.rot}{!salvo && sug === p.k ? <small> · sugerido</small> : null}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+      {somando ? (
+        <div className="ilha-controles">
+          <label className="campo"><span className="rot">Município</span>
+            <select autoFocus value="" onChange={(e) => { const id = e.target.value; if (id) muda(() => { (c.prefExtra ?? (c.prefExtra = {}))[id] = ''; }); setSomando(false); }}>
+              <option value="">Escolha…</option>
+              {disponiveis.map(([id, x]) => <option key={id} value={id}>{x.nm}</option>)}
+            </select>
+          </label>
+          <button type="button" className="bt fant peq" onClick={() => setSomando(false)}>Cancelar</button>
+        </div>
+      ) : (
+        <button type="button" className="bt fant peq" onClick={() => setSomando(true)} disabled={!mun.dados} aria-label="Adicionar município e sua relação">
+          <span aria-hidden="true">+</span> Adicionar município
+        </button>
+      )}
+      {!somando && (
+        <button type="button" className="bt fant peq" style={{ marginLeft: 8 }} disabled={!doPartido.length}
+          onClick={() => muda(() => { const x = c.prefExtra ?? (c.prefExtra = {}); doPartido.forEach(([id]) => { x[id] = ''; }); })}>
+          <span aria-hidden="true">+</span> Adicionar todos os municípios com prefeito do {partido}{doPartido.length ? ` (${doPartido.length})` : ''}
+        </button>
+      )}
+    </div>
+  );
 
   /* ---------- sugestões de desafios e oportunidades, calculadas dos dados ---------- */
   const sugestoes = useMemo(() => {
@@ -453,15 +514,12 @@ export default function Conjuntura() {
                 <div className="topo"><h4 style={{ margin: 0 }}>{nomeMun(sel)}</h4><button type="button" className="rm" onClick={() => setSel(null)} aria-label="Fechar">×</button></div>
                 <p className="peq-t">
                   {[
-                    modo === 'ver' || modo === 'fil' ? null : detB ? `${nf.format(detB.v)} votos válidos · ${cargo.rot} ${cargo.ano}` : 'Sem votos para este cargo',
-                    res.prefDe.get(sel) ? `prefeito: ${res.prefDe.get(sel)}` : null,
-                  ].filter(Boolean).join(' · ') || 'Sem prefeito registrado'}
+                    detB ? `${nf.format(detB.v)} votos válidos · ${cargo.rot} ${cargo.ano}` : 'Sem votos para este cargo',
+                    porMun.fl.get(sel) ? `${nf.format(porMun.fl.get(sel)!.v)} filiados do ${partido} (${pct(porMun.fl.get(sel)!.p, 1)})` : null,
+                  ].filter(Boolean).join(' · ')}
                 </p>
-                <p className="peq-t">
-                  {porMun.ver.get(sel) ? `${partido}: ${porMun.ver.get(sel)!.v} de ${porMun.ver.get(sel)!.t} vereadores` : 'Sem vereadores registrados'}
-                  {porMun.fl.get(sel) ? ` · ${nf.format(porMun.fl.get(sel)!.v)} filiados (${pct(porMun.fl.get(sel)!.p, 1)})` : ''}
-                </p>
-                {detRank && (detRank.d.length > 0
+                {mun.dados.mun[sel] && <CasaMunicipal key={sel} id={sel} uf={m.uf} mun={mun.dados.mun[sel]} exec={exUF.dados?.pref[sel]} partido={partido} />}
+                {detRank && modo !== 'ver' && (detRank.d.length > 0
                   ? <><p className="peq-t" style={{ marginBottom: 2 }}><strong>{detRank.t}</strong></p><BarrasPartido destaque={partido} dados={detRank.d} /></>
                   : <p className="sem">Sem dados de {detRank.t.toLowerCase()} neste município.</p>)}
                 <div className="v2-tags" role="group" aria-label="Marcar município">
@@ -511,12 +569,14 @@ export default function Conjuntura() {
         confirme ou corrija a posição de cada esfera.
       </p>
       {esferas.map((e) => {
+        if (e.k === 'pref' && !cdi) return <Fragment key={e.k}><h5 className="v2-sub">Prefeituras que a liderança acompanha</h5>{prefExtras()}</Fragment>; // sem domicílio: só a escolha de municípios
         const ef = e.eleito;
         const sug = ef && !('pend' in ef) ? sugere(ef, partido) : null;
         const salvo = c.posicao?.[e.k];
         const efetivo = salvo ?? sug;
         return (
-          <div className="v2-exec" key={e.k}>
+          <Fragment key={e.k}>
+          <div className="v2-exec">
             <div className="quem">
               <h5>{e.titulo} <span className="peq-t">· eleição de {e.ano}</span></h5>
               {e.aviso ? <p className="sem">{e.aviso}</p>
@@ -550,6 +610,8 @@ export default function Conjuntura() {
               ))}
             </div>
           </div>
+          {e.k === 'pref' && prefExtras()}
+          </Fragment>
         );
       })}
 

@@ -5,7 +5,7 @@ import { corPartido, mistura, posEspectro } from '@/lib/partidos';
 import { nf, pct, semAcento } from '@/lib/format';
 import type { CasaChave, Eleito, Status } from '@/lib/types';
 import { salva, statusDe, useLegado } from './ponte';
-import { Chip, Foto, Hemiciclo, Marca, StatusBotoes, useCarga, type Membro } from './pecas';
+import { Chip, Foto, Hemiciclo, Marca, StatusBotoes, SvgZoom, useCarga, type Membro } from './pecas';
 
 const CASA_K: Record<Eleito['k'], CasaChave> = { f: 'federal', e: 'estadual', s: 'senado' };
 const K_CASA: Record<CasaChave, Eleito['k']> = { federal: 'f', estadual: 'e', senado: 's' };
@@ -237,7 +237,7 @@ export default function Assentos() {
               </Menu>
               <Menu id="mandato" titulo="Mandato" qtd={fl.mandato.size} aberta={menu} setAberta={setMenu}>
                 {MANDATO.map(([id, r]) => <Ck key={id} ativo={fl.mandato.has(id)} n={cMandato.get(id) ?? 0} onClick={() => alterna('mandato', id)}>{r}</Ck>)}
-                <p className="nota-f">Reeleição = já eleito em 2022 para o mesmo cargo (cruzamento por nome e UF). Quem teve mandato antes e ficou fora de 2022 aparece como primeiro mandato.</p>
+                <p className="nota-f">Reeleição = já eleito(a) antes (2006–2022) para o mesmo cargo, pelo título eleitoral. Primeiro mandato = sem eleição anterior nesse cargo nos dados do TSE.</p>
               </Menu>
               <Menu id="relacao" titulo="Relação" qtd={fl.relacao.size} aberta={menu} setAberta={setMenu}>
                 {RELACAO.map(([id, r]) => (
@@ -273,7 +273,7 @@ export default function Assentos() {
                 {escopo !== 'BR' && <button type="button" className="link-bt" onClick={() => setEscopo('BR')}>← ver o Brasil</button>}
               </div>
               {mapaBR && (
-                <svg className="mapa-br" viewBox={`0 0 ${mapaBR.w} ${mapaBR.h}`} role="group" aria-label="Mapa do Brasil por estado">
+                <SvgZoom w={mapaBR.w} h={mapaBR.h} className="mapa-br" role="group" rotulo="Mapa do Brasil por estado">
                   {mapaBR.uf.map((u) => {
                     const n = porUF[u.id] ?? 0, tot = totalUF[u.id] ?? 0;
                     const ativo = escopo === u.id;
@@ -291,7 +291,7 @@ export default function Assentos() {
                       </g>
                     );
                   })}
-                </svg>
+                </SvgZoom>
               )}
               <button type="button" className="bt fant peq br-bt" aria-pressed={escopo === 'BR'} onClick={() => setEscopo('BR')}>
                 Brasil inteiro

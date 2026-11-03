@@ -1,5 +1,5 @@
 'use client';
-import { memo, useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { corPartido, posEspectro } from '@/lib/partidos';
 import type { GeoUF, Relacao, Status } from '@/lib/types';
 import { marca, statusDe } from './ponte';
@@ -152,13 +152,52 @@ export function Hemiciclo({ membros, partidos, filtroStatus, visivel, selecionad
   );
 }
 
+/* ---------- svg com botões de zoom (+, −, ver tudo) e arrasto quando aproximado ---------- */
+export function SvgZoom({ w, h, className, rotulo, role = 'img', children }: {
+  w: number; h: number; className: string; rotulo: string; role?: 'img' | 'group'; children: ReactNode;
+}) {
+  const [v, setV] = useState({ k: 1, cx: w / 2, cy: h / 2 });
+  const arr = useRef<{ x: number; y: number; cx: number; cy: number; moveu: boolean } | null>(null);
+  const el = useRef<SVGSVGElement>(null);
+  const limita = (n: { k: number; cx: number; cy: number }) => {
+    const k = Math.min(10, Math.max(1, n.k)), vw = w / k, vh = h / k;
+    return { k, cx: Math.min(w - vw / 2, Math.max(vw / 2, n.cx)), cy: Math.min(h - vh / 2, Math.max(vh / 2, n.cy)) };
+  };
+  const zoom = (f: number) => setV((a) => limita({ ...a, k: a.k * f }));
+  const vw = w / v.k, vh = h / v.k;
+  return (
+    <div className="zm">
+      <svg ref={el} className={className} viewBox={`${v.cx - vw / 2} ${v.cy - vh / 2} ${vw} ${vh}`} role={role} aria-label={rotulo}
+        style={v.k > 1 ? { cursor: 'grab', touchAction: 'none' } : undefined}
+        onPointerDown={(e) => { arr.current = { x: e.clientX, y: e.clientY, cx: v.cx, cy: v.cy, moveu: false }; }}
+        onPointerMove={(e) => {
+          const a = arr.current, r = el.current?.getBoundingClientRect();
+          if (!a || !r || v.k === 1) return;
+          const dx = e.clientX - a.x, dy = e.clientY - a.y;
+          if (Math.abs(dx) + Math.abs(dy) > 4) a.moveu = true;
+          if (a.moveu) setV(limita({ k: v.k, cx: a.cx - (dx / r.width) * vw, cy: a.cy - (dy / r.height) * vh }));
+        }}
+        onPointerUp={() => { setTimeout(() => { arr.current = null; }, 0); }}
+        onPointerLeave={() => { arr.current = null; }}
+        onClickCapture={(e) => { if (arr.current?.moveu) { e.stopPropagation(); e.preventDefault(); } }}>
+        {children}
+      </svg>
+      <div className="cj-zoom" role="group" aria-label="Zoom do mapa">
+        <button type="button" aria-label="Aproximar" onClick={() => zoom(1.8)}>+</button>
+        <button type="button" aria-label="Afastar" onClick={() => zoom(1 / 1.8)}>−</button>
+        <button type="button" aria-label="Ver o mapa inteiro" className="rs" disabled={v.k === 1} onClick={() => setV({ k: 1, cx: w / 2, cy: h / 2 })}>⤢</button>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- mapa municipal ---------- */
 function MapaBase({ geo, fill, selecionado, onSelecionar, titulo }: {
   geo: GeoUF; fill: (id: string) => string; selecionado: string | null;
   onSelecionar: (id: string) => void; titulo: (id: string, nome: string) => string;
 }) {
   return (
-    <svg className="mapa" viewBox={`0 0 ${geo.w} ${geo.h}`} role="img" aria-label="Mapa dos municípios">
+    <SvgZoom w={geo.w} h={geo.h} className="mapa" rotulo="Mapa dos municípios">
       {geo.mun.map((m) => (
         <path key={m.id} d={m.d} fill={fill(m.id)} onClick={() => onSelecionar(m.id)}>
           <title>{titulo(m.id, m.nm)}</title>
@@ -167,7 +206,7 @@ function MapaBase({ geo, fill, selecionado, onSelecionar, titulo }: {
       {selecionado && geo.mun.filter((m) => m.id === selecionado).map((m) => (
         <path key="sel" d={m.d} fill="none" className="sel" pointerEvents="none" />
       ))}
-    </svg>
+    </SvgZoom>
   );
 }
 export const MapaMunicipios = memo(MapaBase);
