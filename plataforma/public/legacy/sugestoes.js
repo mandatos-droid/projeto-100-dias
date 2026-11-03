@@ -182,7 +182,7 @@ var Sug={
     vis.forEach(function(x){
       var d=new Date(x.criado_em);
       h+='<article class="sug-card'+(x.resolvida?' feita':'')+'" id="sug-'+x.id+'">'+
-        '<div class="sug-meta"><b>'+esc(x.autor||'Sem nome')+'</b>'+(x.email?' · '+esc(x.email):'')+
+        '<div class="sug-meta">'+(x.id>0?'<b class="sug-num" title="Número da sugestão">#'+x.id+'</b> · ':'')+'<b>'+esc(x.autor||'Sem nome')+'</b>'+(x.email?' · '+esc(x.email):'')+
         ' · '+d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+
         (x.pagina?' · tela <a href="'+esc(x.pagina)+'">'+esc(x.pagina)+'</a>':'')+'</div>'+
         '<p class="sug-texto" data-id="'+x.id+'">'+Sug.realcado(x,eq)+'</p>'+
@@ -214,12 +214,12 @@ var Sug={
   comentarios:function(id){
     var cs=this.coment.filter(function(c){return c.sugestao_id===id});
     if(!cs.length)return '';
-    return '<div class="sug-coms">'+cs.map(function(c){
+    return '<div class="sug-coms">'+cs.map(function(c,i){
       var d=new Date(c.criado_em),meu=Store.usuario&&c.user_id===Store.usuario.id;
       return '<div class="sug-com" id="sugCom-'+c.id+'">'+
         (c.trecho?'<blockquote>“'+esc(c.trecho)+'”</blockquote>':'')+
         '<p>'+esc(c.texto).replace(/\n/g,'<br>')+'</p>'+
-        '<div class="sug-com-meta"><b>'+esc(c.autor||'Equipe')+'</b> · '+d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+
+        '<div class="sug-com-meta">'+(id>0?'<b class="sug-num" title="Número do comentário">#'+id+'.'+(i+1)+'</b> · ':'')+'<b>'+esc(c.autor||'Equipe')+'</b> · '+d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+
         (meu||Sug.ehAdmin||Sug.previa?' · <button type="button" class="sug-link" onclick="Sug.apagarCom('+c.id+')">Apagar</button>':'')+'</div></div>';
     }).join('')+'</div>';
   },
