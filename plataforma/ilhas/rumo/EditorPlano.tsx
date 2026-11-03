@@ -40,7 +40,7 @@ export default function EditorPlano({ aberto }: { aberto: boolean }) {
             <div key={p.id} className={`rm-editor-p${on ? ' on' : ''}`}>
               <label className="chk"><input type="checkbox" checked={on} onChange={() => alterna(p.id)} /><span>{p.n}</span></label>
               {on && (
-                <label className="campo"><span className="rot">Objetivo específico de {p.n}</span>
+                <label className="campo"><span className="rot">Objetivo estratégico de {p.n}</span>
                   <input type="text" value={c[chave] ?? ''} onChange={(e) => setCampos({ [chave]: e.target.value })} placeholder="Se ficar vazio, vale o nome do preditor" />
                 </label>
               )}

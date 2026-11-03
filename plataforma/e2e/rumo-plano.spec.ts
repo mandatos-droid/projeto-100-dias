@@ -95,7 +95,7 @@ test.describe('Estado vazio, metas sem objetivo e metas antigas (RUM-40.2, RUM-2
   test('metas sem objetivo aparecem em bloco próprio, com aviso, fora do total', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1'], metas: [{ id: 'a', pred: 'p1', texto: 'Visitar 10 escolas', status: 'concluida' }, { id: 'b', pred: '', texto: 'Meta solta', status: 'nao_concluida' }] } });
     const bloco = no(page, 'sem-objetivo');
-    await expect(bloco).toContainText('não estão ligadas a um objetivo específico');
+    await expect(bloco).toContainText('não estão ligadas a um objetivo estratégico');
     await expect(bloco.locator('[data-tipo="meta"]')).toHaveCount(1);
     await expect(total(page)).toHaveText('100%');
   });
@@ -139,13 +139,13 @@ test.describe('Edição pela aba (RUM-40.8, RUM-40.9, RUM-40.10)', () => {
     await edita(page, 0).click();
     const c = cartao(page, 0);
     await c.getByRole('textbox', { name: /no formato SMART/ }).fill('Aprovar 2 projetos de lei até dezembro de 2027');
-    await c.getByLabel('Objetivo específico da meta 01').selectOption('p2');
+    await c.getByLabel('Objetivo estratégico da meta 01').selectOption('p2');
     await c.getByRole('group', { name: /^Responsável direto/ }).getByRole('button', { name: /Bruno Lima/ }).click();
     await c.getByRole('group', { name: /^Apoios/ }).getByRole('button', { name: 'Carla Dias' }).click();
     await c.getByLabel('Status da meta 01').selectOption('concluida70');
     // o exercício mostra o mesmo dado
     await expect(exercicio.getByRole('textbox', { name: /no formato SMART/ })).toHaveValue('Aprovar 2 projetos de lei até dezembro de 2027');
-    await expect(exercicio.getByLabel('Objetivo específico da meta 01')).toHaveValue('p2');
+    await expect(exercicio.getByLabel('Objetivo estratégico da meta 01')).toHaveValue('p2');
     await expect(exercicio.getByRole('group', { name: /^Responsável direto/ }).getByRole('button', { name: /Bruno Lima/ })).toHaveAttribute('aria-pressed', 'true');
     await expect(exercicio.getByRole('group', { name: /^Apoios/ }).getByRole('button', { name: 'Carla Dias' })).toHaveAttribute('aria-pressed', 'true');
     expect((await metasDe(page))[0]).toMatchObject({ pred: 'p2', respCad: 1, resp: 'Bruno Lima', apoioCad: [2], status: 'concluida70' });

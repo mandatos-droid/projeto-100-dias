@@ -1,5 +1,5 @@
 'use client';
-/* Missão 3 · metas agrupadas por objetivo específico, com retorno SMART, responsável e apoios (CartaoMeta).
+/* Missão 3 · metas agrupadas por objetivo estratégico, com retorno SMART, responsável e apoios (CartaoMeta).
    Estado: D.metas (campos antigos pred, texto, resp, apoio preservados). */
 import { MAX_METAS_POR_OBJETIVO, METAS_MAX, METAS_MIN, contagemMetas, podeAcrescentarMeta } from '@/lib/plano';
 import CartaoMeta from './CartaoMeta';
@@ -51,7 +51,7 @@ export default function Metas() {
       {arv.semObjetivo.length > 0 && (
         <section className="rm-obj-grupo sem" aria-labelledby="rm-og-sem" data-objetivo="sem">
           <h4 id="rm-og-sem">Metas sem objetivo <span className="rm-n">{arv.semObjetivo.length}</span></h4>
-          <p className="rm-alerta" role="note">Estas metas não estão ligadas a um objetivo específico. Escolha o objetivo em cada uma; nada foi apagado.</p>
+          <p className="rm-alerta" role="note">Estas metas não estão ligadas a um objetivo estratégico. Escolha o objetivo em cada uma; nada foi apagado.</p>
           {arv.semObjetivo.map(cartao)}
         </section>
       )}

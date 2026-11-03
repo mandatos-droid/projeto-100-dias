@@ -27,7 +27,7 @@ test.describe('Acrescentar meta e limites (RUM-30.1, RUM-30.2, RUM-30.15)', () =
     expect(l).toHaveLength(1);
     expect(l[0].pred).toBe('p2');
     expect(l[0].status).toBe('nao_concluida');
-    await expect(meta(page, 0).getByLabel('Objetivo específico da meta 01')).toHaveValue('p2');
+    await expect(meta(page, 0).getByLabel('Objetivo estratégico da meta 01')).toHaveValue('p2');
   });
 
   test('a quinta meta do mesmo objetivo é bloqueada com a mensagem do limite do Guia', async ({ page }) => {
@@ -39,7 +39,7 @@ test.describe('Acrescentar meta e limites (RUM-30.1, RUM-30.2, RUM-30.15)', () =
 
   test('mover uma meta para um objetivo que já tem 4 também é recusado', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1', 'p2'], metas: [...mkMetas(4), { id: 'x', pred: 'p2', texto: 'Outra' }] } });
-    await meta(page, 4).getByLabel('Objetivo específico da meta 05').selectOption('p1');
+    await meta(page, 4).getByLabel('Objetivo estratégico da meta 05').selectOption('p1');
     await expect(page.locator('#avisos')).toContainText('no máximo 4 metas');
     expect((await metasDe(page))[4].pred).toBe('p2');
   });
@@ -47,8 +47,8 @@ test.describe('Acrescentar meta e limites (RUM-30.1, RUM-30.2, RUM-30.15)', () =
   test('meta sem objetivo aparece em bloco próprio, com aviso, e escolher o objetivo a leva ao grupo', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1'], metas: [{ id: 'a', pred: '', texto: 'Visitar 10 escolas' }] } });
     const bloco = page.locator('[data-objetivo="sem"]');
-    await expect(bloco).toContainText('não estão ligadas a um objetivo específico');
-    await meta(page, 0).getByLabel('Objetivo específico da meta 01').selectOption('p1');
+    await expect(bloco).toContainText('não estão ligadas a um objetivo estratégico');
+    await meta(page, 0).getByLabel('Objetivo estratégico da meta 01').selectOption('p1');
     await expect(bloco).toHaveCount(0);
     expect((await metasDe(page))[0].pred).toBe('p1');
   });

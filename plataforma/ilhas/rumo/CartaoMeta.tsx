@@ -95,7 +95,7 @@ export default function CartaoMeta({ meta, objetivos, pessoas, campos, comStatus
         <button type="button" className="rm-link" aria-label={`Remover a meta ${n}`} onClick={() => onRemove(meta.idx)}>Remover</button>
       </div>
 
-      <label className="campo"><span className="rot">Objetivo específico da meta {n}</span>
+      <label className="campo"><span className="rot">Objetivo estratégico da meta {n}</span>
         <select value={semObjetivo ? '' : meta.pred} onChange={(e) => mudaObjetivo(e.target.value)}>
           <option value="">Escolha o objetivo</option>
           {objetivos.map((o) => <option key={o.pid} value={o.pid}>{o.texto}</option>)}

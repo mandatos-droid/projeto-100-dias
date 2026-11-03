@@ -1,5 +1,5 @@
 'use client';
-/* Missão 3 · árvore do planejamento (Legado → objetivos específicos → metas), HTML aninhado com role="tree".
+/* Missão 3 · árvore do planejamento (Legado → objetivos estratégicos → metas), HTML aninhado com role="tree".
    Usada na prévia dos preditores (T18) e na aba Planejamento (T20). Teclado: setas navegam, Espaço recolhe, Enter aciona o nó. */
 import { useState, type KeyboardEvent, type ReactNode } from 'react';
 import { STATUS, pctMeta, pctObjetivo } from '@/lib/atingimento';
@@ -151,7 +151,7 @@ export function nosPlano(arv: Arvore, o: OpcoesPlano): No[] {
     cabeca: (
       <>
         <span className="rm-no-tag">Sem objetivo</span>
-        <span className="rm-no-txt">Estas metas não estão ligadas a um objetivo específico e ficam fora do atingimento. Escolha o objetivo delas na Missão 3.</span>
+        <span className="rm-no-txt">Estas metas não estão ligadas a um objetivo estratégico e ficam fora do atingimento. Escolha o objetivo delas na Missão 3.</span>
       </>
     ),
     filhos: arv.semObjetivo.map((m) => noMeta(m, o)),

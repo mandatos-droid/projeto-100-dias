@@ -140,7 +140,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T3: Textos das ilhas da Missão 3
+### T3: Textos das ilhas da Missão 3 ✅
 
 **What**: Trocar "objetivo específico" por "objetivo estratégico" nos textos visíveis de `ArvorePlano`, `CartaoMeta`, `EditorPlano` e `Metas` (rótulos, avisos e comentários), sem mudar lógica. Ajustar os e2e que citam o texto antigo.
 **Where**: `ilhas/rumo/*.tsx` (varredura de texto, exceto `Preditores.tsx`, refeito em T7)
@@ -155,10 +155,10 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] Rótulos e avisos dessas ilhas dizem "objetivo estratégico" (RM3-40)
-- [ ] Diff só de strings e comentários: nenhuma linha de lógica alterada (regra 5)
-- [ ] e2e `rumo-metas`, `rumo-plano` e `m5-ciclos` ajustados ao novo texto e passando
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
+- [x] Rótulos e avisos dessas ilhas dizem "objetivo estratégico" (RM3-40)
+- [x] Diff só de strings e comentários: nenhuma linha de lógica alterada (regra 5)
+- [x] e2e `rumo-metas`, `rumo-plano` e `m5-ciclos` ajustados ao novo texto e passando
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
 
 **Tests**: e2e
 **Gate**: full
