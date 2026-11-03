@@ -113,7 +113,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T2: Textos do Guia trocados por override
+### T2: Textos do Guia trocados por override ✅
 
 **What**: Em `public/legacy/m3.js`, aplicar a troca de T1 a todas as strings de `MISSOES` (incluindo a Missão 5 e o `resumo` da Missão 3) na carga, e trocar a frase de `Telas.plano`. Atualizar `tests/legado-m3.test.ts` para o texto esperado.
 **Where**: `public/legacy/m3.js` (+ `tests/legado-m3.test.ts`)
@@ -128,11 +128,11 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] Nenhuma string de `MISSOES` contém "objetivo específico" depois da carga (RM3-42, RM3-44)
-- [ ] Todo o restante do texto da Missão 3 e da 5 permanece igual (comparação por hash do texto com a troca aplicada)
-- [ ] `Telas.plano` mostra "objetivos estratégicos"
-- [ ] `conteudo.js` não foi editado (`git diff` vazio nele)
-- [ ] Gate: `npm test`; testes de `tests/legado-m3.test.ts` ajustados, nenhum removido
+- [x] Nenhuma string de `MISSOES` contém "objetivo específico" depois da carga (RM3-42, RM3-44)
+- [x] Todo o restante do texto da Missão 3 e da 5 permanece igual (comparação por hash do texto com a troca aplicada)
+- [x] `Telas.plano` mostra "objetivos estratégicos"
+- [x] `conteudo.js` não foi editado (`git diff` vazio nele)
+- [x] Gate: `npm test`; testes de `tests/legado-m3.test.ts` ajustados, nenhum removido
 
 **Tests**: unit
 **Gate**: quick

@@ -4,6 +4,24 @@
    t, d, intro, passos, fim e os exemplos de conteudo.js ficam como estão (tests/legado-m3.test.ts confere por hash).
    ===================================================================== */
 
+/* ---------- nomenclatura: "objetivo específico" vira "objetivo estratégico" (RM3-42) ----------
+   conteudo.js não é editado (AD-003), então a troca roda sobre MISSOES na carga. Mesma regra de lib/termos.ts (paraEstrategico):
+   preserva maiúsculas e plural; só texto visível, chaves de dados não mudam. */
+(function(){
+  if(typeof MISSOES==='undefined')return;
+  function troca(s){
+    return s.replace(/(objetivos?)(\s+)(específic)([oa])(s?)/gi,function(_t,obj,esp,rad,fin,pl){
+      var p=rad+fin+pl,novo=p===p.toUpperCase()?'ESTRATÉGICO':(rad.charAt(0)===rad.charAt(0).toUpperCase()?'Estratégico':'estratégico');
+      return obj+esp+novo+pl;
+    });
+  }
+  function anda(o){
+    if(Array.isArray(o)){for(var i=0;i<o.length;i++){if(typeof o[i]==='string')o[i]=troca(o[i]);else if(o[i]&&typeof o[i]==='object')anda(o[i])}}
+    else if(o&&typeof o==='object'){for(var k in o){if(typeof o[k]==='string')o[k]=troca(o[k]);else if(o[k]&&typeof o[k]==='object')anda(o[k])}}
+  }
+  anda(MISSOES);
+})();
+
 /* ---------- exercícios da Missão 3: o corpo vira ilha, o texto do Guia fica ---------- */
 (function(){
   if(typeof Comp==='undefined')return;
@@ -100,7 +118,7 @@
     var t=document.getElementById('tela');
     t.innerHTML='<div class="etiqueta">Missão 3 · Defina o Rumo</div>'+
       '<h1 class="largo">Planejamento Estratégico</h1>'+
-      '<p class="chamada">O Legado, os objetivos específicos e as metas do mandato em uma só árvore, com o status de cada meta e o atingimento de cada objetivo.</p>'+
+      '<p class="chamada">O Legado, os objetivos estratégicos e as metas do mandato em uma só árvore, com o status de cada meta e o atingimento de cada objetivo.</p>'+
       ilha('plano');
     t.className='tela largo';
     liga(t);

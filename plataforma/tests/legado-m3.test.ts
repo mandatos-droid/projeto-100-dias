@@ -11,6 +11,9 @@ const CONTEUDO = readFileSync(new URL('../public/legacy/conteudo.js', import.met
 
 /* Hash do JSON inteiro da Missão 3 (itens, listaExtra, ct, prazo e todos os exercícios), calculado sobre o conteudo.js de antes da feature. */
 const HASH_TEXTOS = '318f86b99e245a6d6fe61b809729b61e407d632d32819216dbff2cb7f170dee3';
+/* Hashes dos mesmos JSONs depois da troca "objetivo(s) específico(s)" por "objetivo(s) estratégico(s)" (RM3-42): só o termo muda, o resto do texto fica igual. */
+const HASH_M3_ESTRATEGICO = '4139450ec44c676c09454ba0a0546aee4b8b85955e9159880eb0b0b717e8fd75';
+const HASH_M5_ESTRATEGICO = '1a032f6a51a9571199bf3341dd0c02d2d3fdf8ca89fba5bf07b0b8e191ced93b';
 
 type Ex = Record<string, unknown> & { id: string; intro: string; fim?: string; listaExtra?: { titulo: string; chave: string } };
 type Missao = Record<string, unknown> & { n: number; exercicios: Ex[] };
@@ -21,8 +24,8 @@ function guia(extra: Record<string, unknown> = {}) {
   vm.runInContext(`${CONTEUDO};this.MISSOES=MISSOES;`, ctx);
   return ctx as { MISSOES: Missao[] } & Record<string, unknown>;
 }
-function hashDosTextos(missoes: Missao[]) {
-  const m = missoes.find((x) => x.n === 3)!;
+function hashDosTextos(missoes: Missao[], n = 3) {
+  const m = missoes.find((x) => x.n === n)!;
   return createHash('sha256').update(JSON.stringify(m)).digest('hex');
 }
 const ex3 = (w: { MISSOES: Missao[] }, id: string) => w.MISSOES.find((m) => m.n === 3)!.exercicios.find((e) => e.id === id)!;
@@ -32,10 +35,24 @@ test('os textos da Missão 3 do conteudo.js batem com o hash gravado antes dos g
   assert.equal(hashDosTextos(guia().MISSOES), HASH_TEXTOS);
 });
 
-test('carregar o m3.js não muda nenhum texto da Missão 3 (RUM-12.11, RUM-70)', () => {
+/* Ajustado em m23-T2: o hash antigo (HASH_TEXTOS) passou a valer só para o conteudo.js cru, porque o m3.js agora troca a nomenclatura (RM3-42). */
+test('carregar o m3.js só troca "objetivo específico" por "objetivo estratégico" na Missão 3: o resto do texto fica igual (RM3-42, RUM-70)', () => {
   const w = guia({ Comp: { campos: () => '', lista: () => '' }, esc: (s: string) => s });
   vm.runInContext(CODIGO, w as unknown as vm.Context);
-  assert.equal(hashDosTextos(w.MISSOES), HASH_TEXTOS);
+  assert.equal(hashDosTextos(w.MISSOES), HASH_M3_ESTRATEGICO);
+});
+
+test('carregar o m3.js só troca o termo também na Missão 5 (RM3-42)', () => {
+  const w = guia({ Comp: { campos: () => '', lista: () => '' }, esc: (s: string) => s });
+  vm.runInContext(CODIGO, w as unknown as vm.Context);
+  assert.equal(hashDosTextos(w.MISSOES, 5), HASH_M5_ESTRATEGICO);
+});
+
+test('nenhuma string de MISSOES contém "objetivo específico" depois da carga (RM3-42, RM3-44)', () => {
+  const w = guia({ Comp: { campos: () => '', lista: () => '' }, esc: (s: string) => s });
+  vm.runInContext(CODIGO, w as unknown as vm.Context);
+  assert.match(JSON.stringify(guia().MISSOES), /objetivos?\s+espec/i, 'o conteudo.js cru ainda tem o termo antigo');
+  assert.doesNotMatch(JSON.stringify(w.MISSOES), /objetivos?\s+espec/i);
 });
 
 test('o bloco de referência das metas e o texto "No futuro" continuam nos textos do Guia (RUM-21, RUM-30, RUM-50)', () => {
@@ -189,6 +206,8 @@ test('#/plano renderiza a ilha "plano" com os passos finais do rotear e não cha
   ctx.App.rotear();
   assert.ok(tela.innerHTML.includes('<div class="ilha" data-ilha="plano"></div>'));
   assert.ok(tela.innerHTML.includes('Planejamento Estratégico'));
+  assert.ok(tela.innerHTML.includes('os objetivos estratégicos'));
+  assert.equal(tela.innerHTML.includes('específic'), false);
   assert.equal(tela.className, 'tela largo');
   assert.equal(chamadas.includes('original'), false);
   assert.ok(chamadas.includes('ligar'));
