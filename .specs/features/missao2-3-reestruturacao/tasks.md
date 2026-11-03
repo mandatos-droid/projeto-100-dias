@@ -86,7 +86,7 @@ T26 → T27 → T28 → T29
 
 ## Task Breakdown
 
-### T1: Função de troca de nomenclatura
+### T1: Função de troca de nomenclatura ✅
 
 **What**: Criar `lib/termos.ts` com `paraEstrategico(texto)`, que troca "objetivo(s) específico(s)" e "objetivo(s) específica(s)" por "estratégico(s)", preservando maiúsculas, plural e acentos.
 **Where**: `lib/termos.ts` (+ `tests/termos.test.ts`)
@@ -101,11 +101,11 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] "Objetivo específico" → "Objetivo estratégico"; "objetivos específicos" → "objetivos estratégicos"; "OBJETIVO ESPECÍFICO" → "OBJETIVO ESTRATÉGICO" (RM3-41)
-- [ ] Texto sem o termo volta idêntico, byte a byte (RM3-41)
-- [ ] "Objetivos Específicos" com iniciais maiúsculas vira "Objetivos Estratégicos"
-- [ ] HTML (tags e entidades) passa intacto
-- [ ] Gate: `npm test`; testes novos em `tests/termos.test.ts`, nenhum removido
+- [x] "Objetivo específico" → "Objetivo estratégico"; "objetivos específicos" → "objetivos estratégicos"; "OBJETIVO ESPECÍFICO" → "OBJETIVO ESTRATÉGICO" (RM3-41)
+- [x] Texto sem o termo volta idêntico, byte a byte (RM3-41)
+- [x] "Objetivos Específicos" com iniciais maiúsculas vira "Objetivos Estratégicos"
+- [x] HTML (tags e entidades) passa intacto
+- [x] Gate: `npm test`; testes novos em `tests/termos.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
