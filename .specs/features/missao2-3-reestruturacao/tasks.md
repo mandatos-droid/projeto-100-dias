@@ -191,7 +191,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T5: Lógica da estratégia e das justificativas
+### T5: Lógica da estratégia e das justificativas ✅
 
 **What**: Criar `lib/estrategia.ts` com `lerEstrategia`, `defineEstrategia`, `textoObjetivo`, `OBJETIVOS_LEGISLA`, `lerJustificativa`, `defineJustificativa`, `faltamJustificativas` e `passoPreditoresConcluido`.
 **Where**: `lib/estrategia.ts` (+ `tests/estrategia.test.ts`)
@@ -206,14 +206,14 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] A: `textoObjetivo` devolve o nome do preditor mesmo com `m3.obj.{pid}` preenchido (RM3-12)
-- [ ] B: devolve a frase de `m3.obj.{pid}`, ou o nome se vazia (RM3-13)
-- [ ] C: devolve o nome do preditor; `OBJETIVOS_LEGISLA` traz as 3 frases do documento (RM3-14)
-- [ ] `defineEstrategia` não apaga `m3.obj.*` ao trocar (RM3-17)
-- [ ] `lerEstrategia` sem `m3.est`: `'b'` se há `m3.obj.*` preenchido, `'a'` se há preditores e nenhum texto, `null` sem preditores; valor inválido vira `null` (RMX-01)
-- [ ] Justificativas por preditor preservadas ao desmarcar e remarcar (RM3-05)
-- [ ] `faltamJustificativas` conta as 5; `passoPreditoresConcluido` exige 3 escolhidos, estratégia, 3 frases se B e 5 justificativas (RM3-06)
-- [ ] Gate: `npm test`; testes novos em `tests/estrategia.test.ts`, nenhum removido
+- [x] A: `textoObjetivo` devolve o nome do preditor mesmo com `m3.obj.{pid}` preenchido (RM3-12)
+- [x] B: devolve a frase de `m3.obj.{pid}`, ou o nome se vazia (RM3-13)
+- [x] C: devolve o nome do preditor; `OBJETIVOS_LEGISLA` traz as 3 frases do documento (RM3-14)
+- [x] `defineEstrategia` não apaga `m3.obj.*` ao trocar (RM3-17)
+- [x] `lerEstrategia` sem `m3.est`: `'b'` se há `m3.obj.*` preenchido, `'a'` se há preditores e nenhum texto, `null` sem preditores; valor inválido vira `null` (RMX-01)
+- [x] Justificativas por preditor preservadas ao desmarcar e remarcar (RM3-05)
+- [x] `faltamJustificativas` conta as 5; `passoPreditoresConcluido` exige 3 escolhidos, estratégia, 3 frases se B e 5 justificativas (RM3-06)
+- [x] Gate: `npm test`; testes novos em `tests/estrategia.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
