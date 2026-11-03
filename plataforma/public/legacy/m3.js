@@ -4,7 +4,7 @@
    t, d, intro, passos, fim e os exemplos de conteudo.js ficam como estão (tests/legado-m3.test.ts confere por hash).
    ===================================================================== */
 
-/* ---------- nomenclatura: "objetivo específico" vira "objetivo estratégico" (RM3-42) ----------
+/* ---------- nomenclatura: o adjetivo "específico" do objetivo vira "estratégico" (RM3-42) ----------
    conteudo.js não é editado (AD-003), então a troca roda sobre MISSOES na carga. Mesma regra de lib/termos.ts (paraEstrategico):
    preserva maiúsculas e plural; só texto visível, chaves de dados não mudam. */
 (function(){

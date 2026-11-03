@@ -166,7 +166,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T4: Textos de lib e varredura final
+### T4: Textos de lib e varredura final ✅
 
 **What**: Trocar o texto de `lib/smart.ts` (letra R) e acrescentar um teste de varredura que falha se qualquer arquivo de UI ou lib, fora de `conteudo.js`/`guia.js` (legados, cobertos pelo override), contiver "objetivo específico".
 **Where**: `lib/smart.ts` (+ `tests/varredura-termos.test.ts`, `tests/smart.test.ts`)
@@ -181,9 +181,9 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] Dica do R diz "objetivo estratégico" (RM3-40)
-- [ ] A varredura lista arquivos infratores e passa (ignora `public/legacy/conteudo.js`, `public/legacy/guia.js`, `Preditores.tsx`, `lib/plano.ts` até T6/T7, listados em constante com data de saída) (RM3-44)
-- [ ] Gate: `npm test`; testes novos nos dois arquivos, nenhum removido
+- [x] Dica do R diz "objetivo estratégico" (RM3-40)
+- [x] A varredura lista arquivos infratores e passa (ignora `public/legacy/conteudo.js`, `public/legacy/guia.js`, `Preditores.tsx`, `lib/plano.ts` até T6/T7, listados em constante com data de saída) (RM3-44)
+- [x] Gate: `npm test`; testes novos nos dois arquivos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick

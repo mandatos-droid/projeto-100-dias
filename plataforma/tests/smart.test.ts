@@ -122,3 +122,10 @@ test('pontos é a contagem de letras atendidas e HTML digitado é só texto', ()
   assert.equal(r.pontos, LETRAS.filter((l) => r.letras[l].ok).length);
   assert.equal(avaliaMeta({ texto: '<b>x</b>' }).pontos, 0);
 });
+
+test('a dica da letra R fala em "objetivo estratégico", não em "específico" (RM3-40)', () => {
+  const r = avaliaMeta({ texto: 'Aprovar 2 projetos de lei sobre educação até dezembro de 2027', alcancavel: true });
+  assert.equal(r.falta, 'R');
+  assert.equal(r.dica, 'Ligue a meta a um objetivo estratégico: é o que a torna relevante para o mandato.');
+  assert.equal(r.letras.R.dica, r.dica);
+});

@@ -1,4 +1,4 @@
-/* Terminologia: "objetivo específico" passa a "objetivo estratégico" (RM3-40). Só texto visível; chaves de dados não mudam. */
+/* Terminologia: o adjetivo "específico" do objetivo passa a "estratégico" (RM3-40). Só texto visível; chaves de dados não mudam. */
 
 const ESPECIFICO = /(objetivos?)(\s+)(específic)([oa])(s?)/gi;
 

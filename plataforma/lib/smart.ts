@@ -17,7 +17,7 @@ const DICAS: Record<Letra, string> = {
   S: 'Comece com um verbo no infinitivo (aprovar, ampliar, realizar) e descreva a entrega com pelo menos 6 palavras.',
   M: 'Diga quanto: um número, um percentual ou uma quantidade (30%, 3 projetos, duas vezes).',
   A: 'Confirme que a meta cabe na capacidade da equipe nos 4 meses.',
-  R: 'Ligue a meta a um objetivo específico: é o que a torna relevante para o mandato.',
+  R: 'Ligue a meta a um objetivo estratégico: é o que a torna relevante para o mandato.',
   T: 'Defina um prazo ou uma frequência (até dezembro de 2027, mensalmente).',
 };
 
