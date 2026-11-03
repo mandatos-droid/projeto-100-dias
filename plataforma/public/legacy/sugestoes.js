@@ -9,7 +9,11 @@
 var MAX_LADO=1600;      // o print é reduzido a no máximo 1600 px de largura/altura
 var Sug={
   equipe:null,          // pode ver a aba (qualquer pessoa logada); null = ainda não checou
-  ehEquipe:false,       // é da equipe Legisla: só ela marca como resolvida e apaga
+  ehEquipe:false,       // é da equipe Legisla: só ela marca como resolvida, apaga e comenta
+  ehAdmin:false,        // admin da equipe: pode apagar comentário de qualquer pessoa
+  coment:[],            // comentários internos (sugestoes_comentarios), só a equipe lê
+  sel:null,             // trecho selecionado {id,inicio,fim,trecho} à espera do clique em "Comentar trecho"
+  rasc:null,            // comentário em preparação {id,inicio,fim,trecho,rascunho}
   abertas:0,
   imagem:null,          // data URL do print em preparação
   filtro:'abertas',
@@ -121,7 +125,8 @@ var Sug={
     try{
       var r=await Nuvem.rest('equipe_legisla?select=papel&user_id=eq.'+Store.usuario.id);
       this.ehEquipe=!!(r&&r.length);
-    }catch(e){this.ehEquipe=false}
+      this.ehAdmin=!!(r&&r.length&&r[0].papel==='admin');
+    }catch(e){this.ehEquipe=false;this.ehAdmin=false}
     this.equipe=!!(Store.usuario&&Store.usuario.id);
     if(this.equipe)await this.contar();
     if(this.equipe)App.lateral();
@@ -156,6 +161,11 @@ var Sug={
       }catch(e){this.previa=true} // tabela ainda não criada ou banco fora do ar
     }
     if(this.previa)this.lista=this.exemplos();
+    this.coment=[];
+    if(!this.previa){
+      try{this.coment=(await Nuvem.rest('sugestoes_comentarios?select=id,sugestao_id,user_id,autor,trecho,inicio,fim,texto,criado_em&order=criado_em.asc&limit=2000'))||[]}
+      catch(e){} // migration dos comentários ainda não aplicada: a tela segue sem eles
+    }
     this.abertas=this.lista.filter(function(x){return !x.resolvida}).length;
     this.desenhar();App.lateral();
   },
@@ -163,7 +173,7 @@ var Sug={
     var eq=this.ehEquipe||this.previa,f=this.filtro,ab=this.lista.filter(function(x){return !x.resolvida}).length,rs=this.lista.length-ab;
     var vis=this.lista.filter(function(x){return f==='todas'||(f==='abertas')===!x.resolvida});
     var h='<div class="etiqueta">Mandato</div><h1>Sugestões e correções</h1>'+
-      '<p class="chamada">O que as pessoas enviaram pelo botão “Sugestões para Pedrinho”.</p>'+
+      '<p class="chamada">O que as pessoas enviaram pelo botão “Sugestões para Pedrinho”.'+(eq?' Selecione um trecho do texto para comentar só ele.':'')+'</p>'+
       (this.previa?'<div class="apoio atencao"><span class="tag">Prévia</span>Estes são exemplos fictícios, só para mostrar a tela. As sugestões reais aparecem aqui quando o banco estiver ativo e você estiver logado.</div>':'')+
       '<div class="abas sug-abas" role="tablist">'+
       [['abertas','Abertas ('+ab+')'],['resolvidas','Resolvidas ('+rs+')'],['todas','Todas ('+this.lista.length+')']].map(function(a){
@@ -175,13 +185,121 @@ var Sug={
         '<div class="sug-meta"><b>'+esc(x.autor||'Sem nome')+'</b>'+(x.email?' · '+esc(x.email):'')+
         ' · '+d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+
         (x.pagina?' · tela <a href="'+esc(x.pagina)+'">'+esc(x.pagina)+'</a>':'')+'</div>'+
-        '<p class="sug-texto">'+esc(x.texto).replace(/\n/g,'<br>')+'</p>'+
+        '<p class="sug-texto" data-id="'+x.id+'">'+Sug.realcado(x,eq)+'</p>'+
         (x.tem_imagem?'<div class="sug-img" id="sugImg-'+x.id+'"><button class="bt fant peq" onclick="Sug.verImagem('+x.id+')">Ver print</button></div>':'')+
+        Sug.comentarios(x.id)+
+        (eq?'<div class="sug-form" id="sugForm-'+x.id+'"></div>':'')+
         (eq?'<div class="bts">'+
+        '<button class="bt fant peq" onclick="Sug.comentar('+x.id+')">Comentar</button>'+
         '<button class="bt sec peq" onclick="Sug.resolver('+x.id+','+(!x.resolvida)+')">'+(x.resolvida?'Reabrir':'Marcar como resolvida')+'</button>'+
         '<button class="bt fant peq" onclick="Sug.apagar('+x.id+')">Apagar</button></div>':'')+'</article>';
     });
     document.getElementById('tela').innerHTML=h;
+    this.sel=null;this.dica(false);
+    if(this.rasc)this.comentar(this.rasc.id,this.rasc.inicio,this.rasc.fim,true);
+  },
+
+  /* ---------- comentários da equipe (sobre a sugestão inteira ou sobre um trecho) ---------- */
+  /* o texto vai em white-space:pre-wrap, então os deslocamentos de uma seleção valem no texto original */
+  realcado:function(x,eq){
+    var t=x.texto,out='',pos=0;
+    var cs=this.coment.filter(function(c){return c.sugestao_id===x.id&&c.inicio!=null&&c.fim<=t.length}).sort(function(a,b){return a.inicio-b.inicio});
+    cs.forEach(function(c){
+      if(c.inicio<pos)return; // trechos sobrepostos: o primeiro leva o destaque
+      out+=esc(t.slice(pos,c.inicio))+'<mark class="sug-dest" onclick="Sug.irPara('+c.id+')">'+esc(t.slice(c.inicio,c.fim))+'</mark>';
+      pos=c.fim;
+    });
+    return out+esc(t.slice(pos));
+  },
+  comentarios:function(id){
+    var cs=this.coment.filter(function(c){return c.sugestao_id===id});
+    if(!cs.length)return '';
+    return '<div class="sug-coms">'+cs.map(function(c){
+      var d=new Date(c.criado_em),meu=Store.usuario&&c.user_id===Store.usuario.id;
+      return '<div class="sug-com" id="sugCom-'+c.id+'">'+
+        (c.trecho?'<blockquote>“'+esc(c.trecho)+'”</blockquote>':'')+
+        '<p>'+esc(c.texto).replace(/\n/g,'<br>')+'</p>'+
+        '<div class="sug-com-meta"><b>'+esc(c.autor||'Equipe')+'</b> · '+d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+
+        (meu||Sug.ehAdmin||Sug.previa?' · <button type="button" class="sug-link" onclick="Sug.apagarCom('+c.id+')">Apagar</button>':'')+'</div></div>';
+    }).join('')+'</div>';
+  },
+  irPara:function(cid){
+    var e=document.getElementById('sugCom-'+cid);if(!e)return;
+    e.scrollIntoView({block:'center',behavior:'smooth'});
+    e.classList.add('pisca');setTimeout(function(){e.classList.remove('pisca')},1600);
+  },
+  /* botão "Comentar trecho" flutuante junto à seleção */
+  dica:function(mostra){
+    var b=document.getElementById('sugDica');
+    if(!mostra){if(b)b.classList.add('oculto');return}
+    if(!b){
+      b=document.createElement('button');b.type='button';b.id='sugDica';b.className='sug-dica oculto';b.textContent='Comentar trecho';
+      b.addEventListener('mousedown',function(e){e.preventDefault()}); // não perde a seleção ao clicar
+      b.addEventListener('click',function(){var s=Sug.sel;if(s){Sug.comentar(s.id,s.inicio,s.fim);window.getSelection().removeAllRanges()}Sug.dica(false)});
+      document.body.appendChild(b);
+    }
+    return b;
+  },
+  lerSelecao:function(){
+    var s=window.getSelection();
+    if(!(this.ehEquipe||this.previa)||(location.hash||'').indexOf('#/sugestoes')!==0||!s||s.rangeCount===0||s.isCollapsed){this.sel=null;this.dica(false);return}
+    var r=s.getRangeAt(0),n=r.commonAncestorContainer;if(n.nodeType===3)n=n.parentNode;
+    var p=n.closest&&n.closest('.sug-texto');
+    var bruto=r.toString(),trecho=bruto.trim();
+    if(!p||!trecho){this.sel=null;this.dica(false);return}
+    var pre=document.createRange();pre.selectNodeContents(p);pre.setEnd(r.startContainer,r.startOffset);
+    var ini=pre.toString().length+(bruto.length-bruto.trimStart().length);
+    this.sel={id:+p.getAttribute('data-id'),inicio:ini,fim:ini+trecho.length,trecho:trecho};
+    var b=this.dica(true),q=r.getBoundingClientRect();
+    b.classList.remove('oculto');
+    b.style.top=Math.max(8,q.top-38)+'px';
+    b.style.left=Math.max(8,Math.min(q.left,window.innerWidth-b.offsetWidth-8))+'px';
+  },
+  comentar:function(id,ini,fim,refaz){
+    var t=this.lista.filter(function(x){return x.id===id})[0],f=document.getElementById('sugForm-'+id);
+    if(!t||!f)return;
+    var tr=ini==null?null:t.texto.slice(ini,fim);
+    if(!refaz)this.rasc={id:id,inicio:ini==null?null:ini,fim:ini==null?null:fim,trecho:tr,rascunho:''};
+    document.querySelectorAll('.sug-form').forEach(function(e){if(e!==f)e.innerHTML=''});
+    f.innerHTML='<div class="sug-novo">'+
+      (tr?'<blockquote>“'+esc(tr)+'”</blockquote>':'<div class="sug-novo-t">Comentário sobre a sugestão inteira</div>')+
+      '<textarea id="sugTxCom" rows="3" maxlength="2000" placeholder="Escreva o comentário…">'+esc(this.rasc.rascunho||'')+'</textarea>'+
+      '<div id="sugErroCom"></div>'+
+      '<div class="bts"><button type="button" class="bt pri peq" id="sugSalvaCom" onclick="Sug.salvarCom()">Salvar comentário</button>'+
+      '<button type="button" class="bt fant peq" onclick="Sug.cancelarCom()">Cancelar</button></div></div>';
+    var a=document.getElementById('sugTxCom');a.focus();
+    a.addEventListener('input',function(){Sug.rasc.rascunho=a.value});
+  },
+  cancelarCom:function(){this.rasc=null;this.desenhar()},
+  async salvarCom(){
+    var r=this.rasc,a=document.getElementById('sugTxCom'),tx=a&&a.value.trim(),er=document.getElementById('sugErroCom');
+    if(!r)return;
+    if(!tx){er.innerHTML='<div class="erro-cx">Escreva o comentário.</div>';return}
+    var b=document.getElementById('sugSalvaCom');b.disabled=true;b.textContent='Salvando…';
+    var reg={sugestao_id:r.id,user_id:Store.usuario.id,autor:Store.usuario.nome,trecho:r.trecho?r.trecho.slice(0,1000):null,inicio:r.inicio,fim:r.fim,texto:tx};
+    try{
+      if(this.previa){reg.id=-Date.now();reg.criado_em=new Date().toISOString();this.coment.push(reg)}
+      else{
+        var res=await Nuvem.rest('sugestoes_comentarios',{method:'POST',body:reg,headers:{Prefer:'return=representation'}});
+        if(!res||!res.length)throw new Error();
+        this.coment.push(res[0]);
+      }
+      this.rasc=null;this.desenhar();
+    }catch(e){
+      er.innerHTML='<div class="erro-cx">Não foi possível salvar agora. Tente de novo em instantes.</div>';
+      b.disabled=false;b.textContent='Salvar comentário';
+    }
+  },
+  async apagarCom(id){
+    if(!confirm('Apagar este comentário?'))return;
+    try{
+      if(!this.previa){
+        var r=await Nuvem.rest('sugestoes_comentarios?id=eq.'+id,{method:'DELETE',headers:{Prefer:'return=representation'}});
+        if(!r||!r.length)throw new Error();
+      }
+      this.coment=this.coment.filter(function(c){return c.id!==id});
+      this.desenhar();
+    }catch(e){aviso('Só quem escreveu o comentário (ou um administrador) pode apagá-lo.')}
   },
   filtrar:function(f){this.filtro=f;this.desenhar()},
   async verImagem(id){
@@ -232,6 +350,9 @@ var Sug={
   }
 };
 window.Sug=Sug;
+document.addEventListener('mouseup',function(){setTimeout(function(){Sug.lerSelecao()},0)});
+document.addEventListener('keyup',function(e){if(e.shiftKey||e.key.indexOf('Arrow')===0)Sug.lerSelecao()});
+window.addEventListener('scroll',function(){Sug.dica(false)},{passive:true});
 
 /* ---------- encaixe no menu e no roteador do Guia (app.js é gerado: não mexemos nele) ---------- */
 var lateralOrig=App.lateral,roteadorOrig=App.rotear;

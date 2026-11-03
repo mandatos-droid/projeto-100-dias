@@ -2382,9 +2382,9 @@
     "semantic_hash": "b458b4f20e6d027dddc360f8559a55c5"
   },
   "plataforma/public/legacy/sugestoes.js": {
-    "mtime": 1793716063.9642043,
-    "seen": 1793716096.8843687,
-    "ast_hash": "360ff06f33d085e0af33089c4beb729d",
+    "mtime": 1793725274.8894193,
+    "seen": 1793725323.0836926,
+    "ast_hash": "4f7a48a8c9fa591cd87af18afa51cae4",
     "semantic_hash": ""
   },
   "plataforma/scripts/build_executivo.py": {

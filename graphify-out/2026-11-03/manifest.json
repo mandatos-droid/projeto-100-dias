@@ -2382,10 +2382,10 @@
     "semantic_hash": "b458b4f20e6d027dddc360f8559a55c5"
   },
   "plataforma/public/legacy/sugestoes.js": {
-    "mtime": 1792589279.2139466,
-    "seen": 1793118102.5709217,
-    "ast_hash": "a30d32aea87143c7b94ae81f89ec75d0",
-    "semantic_hash": "a30d32aea87143c7b94ae81f89ec75d0"
+    "mtime": 1793725092.9636042,
+    "seen": 1793725139.883194,
+    "ast_hash": "f8d26ea320b5bded60f3eaad2b1d7e7f",
+    "semantic_hash": ""
   },
   "plataforma/scripts/build_executivo.py": {
     "mtime": 1792505494.4043286,
@@ -3459,6 +3459,18 @@
     "mtime": 1793240110.4212334,
     "seen": 1793240195.6904628,
     "ast_hash": "45443643135cbfc1b7b60bbedf662ddf",
+    "semantic_hash": ""
+  },
+  ".specs/features/sugestoes-alana-2/spec.md": {
+    "mtime": 1793713419.350493,
+    "seen": 1793716096.8949287,
+    "ast_hash": "f993a56be1dacbd9b156fa26201d8d22",
+    "semantic_hash": ""
+  },
+  ".specs/features/sugestoes-alana-2/sugestoes-origem.md": {
+    "mtime": 1793712465.8495545,
+    "seen": 1793716096.8949323,
+    "ast_hash": "20036324e899b0d0789c28ebf1f82f71",
     "semantic_hash": ""
   },
   "plataforma/package-lock.json": {
