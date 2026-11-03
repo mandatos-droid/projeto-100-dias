@@ -412,10 +412,45 @@ Guia.ir=function(n){
         l.href='#/m/'+mi.n+'/'+ex.id;l.style.setProperty('--c',mi.corNav||mi.cor);
         l.innerHTML='<span class="pt"></span><span class="tx">'+esc(ex.t)+'</span>';
         ul.appendChild(l);
+        if(ex.id===exAtual){ // exercício aberto: cada passo (pergunta/aba) vira um sub-item com endereço próprio
+          var ps=Guia.montar(ex);
+          if(ps.length>1){
+            var sp=document.createElement('div');sp.className='sub-passos';
+            ps.forEach(function(p,i){
+              var q=document.createElement('a');
+              q.className='sub-p';q.setAttribute('data-passo',i);
+              q.href='#/m/'+mi.n+'/'+ex.id+(i>0?'/'+i:'');q.style.setProperty('--c',mi.corNav||mi.cor);
+              q.innerHTML='<span class="pn">'+(i+1)+'</span><span class="tx">'+esc(tituloPasso(ex,p))+'</span>';
+              sp.appendChild(q);
+            });
+            ul.appendChild(sp);
+          }
+        }
       });
       a.parentNode.insertBefore(ul,a.nextSibling);
     });
+    marcaPassos();
   };
+
+  function tituloPasso(ex,p){
+    if(p.k==='intro')return 'Orientação';
+    if(p.k==='pergunta')return ex.itens[p.n].t;
+    if(p.k==='campos')return p.ns.map(function(n){return ex.itens[n].rot}).join(' · ');
+    if(p.k==='listaExtra')return ex.listaExtra.titulo;
+    if(p.k==='fim')return 'Para fechar';
+    return ex.t;
+  }
+  /* destaca o passo atual; no modo "ver tudo" nenhum fica marcado */
+  function marcaPassos(){
+    var i=Guia.modo==='guiado'?Guia.i:-1;
+    document.querySelectorAll('#ladoNav a.sub-p').forEach(function(q){
+      q.classList.toggle('on',+q.getAttribute('data-passo')===i);
+    });
+  }
+  var _ir2=Guia.ir;
+  Guia.ir=function(n){_ir2.call(this,n);marcaPassos()};
+  var _am=Guia.alternarModo;
+  Guia.alternarModo=function(){_am.call(this);marcaPassos()};
 
 /* ---------- tela de entrada: link de volta para a página inicial ---------- */
 (function(){
