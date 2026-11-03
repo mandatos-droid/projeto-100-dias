@@ -121,3 +121,47 @@ test('normalizaMeta aplica o status padrão e mantém o texto (RUM-70)', () => {
   assert.equal(m.status, 'nao_concluida');
   assert.equal(m.texto, 'Aprovar');
 });
+
+/* M2/M3 reestruturação (RM3-16): a estratégia A/B/C só troca o texto; a árvore e as metas ficam iguais. */
+const estrutura = (a: ReturnType<typeof arvore>) => ({
+  legado: a.legado,
+  bandeiras: a.bandeiras,
+  objs: a.objetivos.map((o) => [o.pid, o.nome, o.pergunta, o.metas.map((m) => [m.idx, m.texto, m.status])]),
+  sem: a.semObjetivo.map((m) => [m.idx, m.texto]),
+});
+const base = (est?: string): D => ({
+  preditores: ['p3', 'p1', 'p2'],
+  campos: { 'm3.legado': 'Marta', 'm3.obj.p3': 'Fortalecer o partido na Casa', 'm3.obj.p1': 'Foco em três temas', ...(est ? { 'm3.est': est } : {}) },
+  metas: [{ pred: 'p1', texto: 'A' }, { pred: 'p3', texto: 'B' }, { texto: 'sem' }, { pred: 'p1', texto: 'C' }],
+});
+
+test('objetivos: A usa o nome, B usa a frase (nome se vazia), C usa o nome (RM3-12, RM3-13, RM3-14)', () => {
+  assert.deepEqual(objetivos(base('a')).map((o) => o.texto), ['Construir o partido', 'Priorizar a agenda', 'Pautar os debates']);
+  assert.deepEqual(objetivos(base('b')).map((o) => o.texto), ['Fortalecer o partido na Casa', 'Foco em três temas', 'Pautar os debates']);
+  assert.deepEqual(objetivos(base('c')).map((o) => o.texto), ['Construir o partido', 'Priorizar a agenda', 'Pautar os debates']);
+});
+
+test('objetivos sem m3.est mantém o comportamento antigo: frase de m3.obj quando há (RMX-01)', () => {
+  assert.deepEqual(objetivos(base()).map((o) => o.texto), ['Fortalecer o partido na Casa', 'Foco em três temas', 'Pautar os debates']);
+});
+
+test('arvore tem os mesmos pid, ordem e metas nas estratégias A, B e C; só o texto difere (RM3-16)', () => {
+  const [a, b, c] = ['a', 'b', 'c'].map((e) => arvore(base(e)));
+  assert.deepEqual(estrutura(b), estrutura(a));
+  assert.deepEqual(estrutura(c), estrutura(a));
+  assert.deepEqual(a.objetivos.map((o) => o.pid), ['p3', 'p1', 'p2']);
+  assert.notDeepEqual(a.objetivos.map((o) => o.texto), b.objetivos.map((o) => o.texto));
+});
+
+test('ler a árvore em qualquer estratégia não altera D.metas nem D.preditores (RM3-16)', () => {
+  const d = base('a');
+  const antes = JSON.stringify([d.metas, d.preditores]);
+  for (const e of ['a', 'b', 'c', 'b', 'a']) { d.campos!['m3.est'] = e; arvore(d); objetivos(d); }
+  assert.equal(JSON.stringify([d.metas, d.preditores]), antes);
+});
+
+test('podeAcrescentarMeta recusa objetivo fora da lista dizendo "objetivo estratégico" (RM3-40)', () => {
+  const r = podeAcrescentarMeta({ preditores: ['p1'] }, 'p2');
+  assert.equal(r.ok, false);
+  assert.match(r.motivo ?? '', /objetivo estratégico/);
+});

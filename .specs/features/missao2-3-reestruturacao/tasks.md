@@ -221,7 +221,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T6: Objetivos pela estratégia, árvore intacta
+### T6: Objetivos pela estratégia, árvore intacta ✅
 
 **What**: Fazer `objetivos(d)` em `lib/plano.ts` usar `textoObjetivo` da estratégia vigente; trocar o texto da mensagem de `podeAcrescentarMeta`. Nada mais muda.
 **Where**: `lib/plano.ts` (+ `tests/plano.test.ts`)
@@ -236,11 +236,11 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] Com os mesmos preditores e metas, `arvore(d)` tem os mesmos `pid`, a mesma ordem e as mesmas metas por nó nas estratégias A, B e C; só `texto` difere (RM3-16)
-- [ ] Trocar a estratégia não altera `D.metas` nem `D.preditores` (RM3-16)
-- [ ] `podeAcrescentarMeta`, `contagemMetas`, `alternaPreditor` e `desmarcaPreditor` seguem passando sem alteração nos testes existentes
-- [ ] Mensagem diz "objetivo estratégico"
-- [ ] Gate: `npm test`; testes novos, nenhum removido nem enfraquecido
+- [x] Com os mesmos preditores e metas, `arvore(d)` tem os mesmos `pid`, a mesma ordem e as mesmas metas por nó nas estratégias A, B e C; só `texto` difere (RM3-16)
+- [x] Trocar a estratégia não altera `D.metas` nem `D.preditores` (RM3-16)
+- [x] `podeAcrescentarMeta`, `contagemMetas`, `alternaPreditor` e `desmarcaPreditor` seguem passando sem alteração nos testes existentes
+- [x] Mensagem diz "objetivo estratégico"
+- [x] Gate: `npm test`; testes novos, nenhum removido nem enfraquecido
 
 **Tests**: unit
 **Gate**: quick

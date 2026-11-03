@@ -1,8 +1,9 @@
-/* Missão 3 · hierarquia do planejamento: Legado → objetivo específico (1:1 com o preditor) → metas.
+/* Missão 3 · hierarquia do planejamento: Legado → objetivo estratégico (1:1 com o preditor) → metas.
    Funções puras sobre D. O objetivo da meta é derivado de `pred`; não existe campo `obj` gravado.
-   PREDITORES e OBJ_ESPECIFICOS são cópias tipadas de public/legacy/conteudo.js (tests/plano.test.ts confere a paridade). */
+   PREDITORES e OBJ_ESPECIFICOS (nome interno, não muda) são cópias tipadas de public/legacy/conteudo.js (tests/plano.test.ts confere a paridade). */
 import { lerMeta, lerRumo } from './rumo.ts';
 import type { DadosM3, Meta } from './rumo.ts';
+import { lerEstrategia, textoObjetivo } from './estrategia.ts';
 
 export interface Preditor { id: string; n: string; d: string; q: string }
 
@@ -14,7 +15,7 @@ export const PREDITORES: Preditor[] = [
   { id: 'p5', n: 'Articular e mobilizar para a entrega de resultados', d: 'Transformar estratégia e articulação em avanço institucional concreto', q: 'A meta visa aprovação, tramitação ou avanço institucional direto?' },
 ];
 
-/** Exemplos de objetivos específicos do Guia: [preditor, exemplo] */
+/** Exemplos de objetivos estratégicos do Guia: [preditor, exemplo] */
 export const OBJ_ESPECIFICOS: [string, string][] = [
   ['Priorização de agenda', 'Expandir iniciativas antirracistas por toda região central de Jiripoca'],
   ['Pautar os debates', 'Ser referência nacional na defesa do fim do trabalho infantil'],
@@ -51,11 +52,13 @@ function metasComIdx(d: DadosM3): ItemMeta[] {
   return (Array.isArray(d.metas) ? d.metas : []).flatMap((m, idx) => (ehObj(m) ? [{ ...lerMeta(m), idx }] : []));
 }
 
-/** Um objetivo por preditor escolhido: o texto de m3.obj.{pid}, ou o nome do preditor quando vazio (regra do Guia). */
+/** Um objetivo por preditor escolhido. O texto vem da estratégia vigente (A/B/C, lib/estrategia.ts); a estrutura não depende dela. */
 export function objetivos(d: DadosM3): Objetivo[] {
-  return escolhidos(d).map((pid) => {
+  const ids = escolhidos(d);
+  const e = lerEstrategia(d.campos, ids);
+  return ids.map((pid) => {
     const p = PREDITORES.find((x) => x.id === pid)!;
-    return { pid, nome: p.n, pergunta: p.q, texto: (d.campos?.[`m3.obj.${pid}`] ?? '').trim() || p.n };
+    return { pid, nome: p.n, pergunta: p.q, texto: textoObjetivo(d.campos, pid, e) };
   });
 }
 
@@ -76,7 +79,7 @@ export function arvore(d: DadosM3): Arvore {
 export function podeAcrescentarMeta(d: DadosM3, pid: string): { ok: boolean; motivo?: string } {
   const ids = escolhidos(d);
   if (!ids.length) return { ok: false, motivo: 'Escolha os preditores na etapa anterior antes de escrever as metas.' };
-  if (!pid || !ids.includes(pid)) return { ok: false, motivo: 'Escolha o objetivo específico a que a meta pertence.' };
+  if (!pid || !ids.includes(pid)) return { ok: false, motivo: 'Escolha o objetivo estratégico a que a meta pertence.' };
   if (metasComIdx(d).filter((m) => m.pred === pid).length >= MAX_METAS_POR_OBJETIVO)
     return { ok: false, motivo: `Cada objetivo tem no máximo ${MAX_METAS_POR_OBJETIVO} metas (limite do Guia). Use outro objetivo ou revise as metas deste.` };
   return { ok: true };
