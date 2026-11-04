@@ -137,8 +137,36 @@ var App={
   }
 };
 
+/* ===================== APOIO: sumário e missões ===================== */
+/* Em quais missões cada conteúdo de apoio é recomendado (curadoria da Legisla; o Guia só cita a Biblioteca na Missão 1). */
+var APOIO_MISSOES={
+  regimento:[1,4],lgpd:[1],ibge:[1],processo:[1],comissoes:[1,4],controle:[1],partidarias:[1,4],recursos:[1,2],sistemas:[1],
+  gip:[3,4],negros:[2],antirracista:[2],canal:[4],
+  'mod-mandatos':[3],'mod-partidos':[3],'mod-metas':[3,5],'mod-pessoas':[2]
+};
+function chipsMissoes(id){
+  var ns=APOIO_MISSOES[id]||[];
+  if(!ns.length)return '';
+  return '<span class="chips-m"><span>Recomendado na</span>'+ns.map(function(n){
+    var m=MISSOES.filter(function(x){return x.n===n})[0];
+    return '<a class="chip-m" href="#/m/'+n+'"'+(m?' style="--c:'+m.cor+'"':'')+'>Missão '+n+'</a>';
+  }).join('')+'</span>';
+}
+function ordemAlfa(a,b){return a.t.localeCompare(b.t,'pt-BR',{sensitivity:'base'})}
+/* itens: {id,t,u?,pendente?,sec?}; com u abre o conteúdo em outra aba, sem u rola até a seção da própria tela */
+function sumarioApoio(rota,itens){
+  return '<nav aria-label="Sumário"><ul class="sumario">'+itens.map(function(i){
+    var cab=i.pendente?'<span class="sem-link"><span>'+esc(i.t)+'</span><span class="pendente">link a inserir</span></span>'
+      :i.u?'<a href="'+i.u+'" target="_blank" rel="noopener">'+esc(i.t)+'</a>'
+      :'<a href="#/'+rota+'" onclick="Telas.ir(\''+i.sec+'\');return false">'+esc(i.t)+'</a>';
+    return '<li>'+cab+chipsMissoes(i.id)+'</li>';
+  }).join('')+'</ul></nav>';
+}
+
 /* ===================== TELAS ===================== */
 var Telas={
+
+ir(id){var e=document.getElementById(id);if(e)e.scrollIntoView({behavior:'smooth',block:'start'})},
 
 painel(){
   var d=diaAtual(),g=progGeral(),prox=proximoExercicio();
@@ -259,16 +287,15 @@ estadoTxt(ex,e){
 
 /* ---------- apoio ---------- */
 ferramentas(){
+  var ids={'Modelo de Planejamento Estratégico para Mandatos':'mod-mandatos','Modelo de Planejamento Estratégico para Partidos':'mod-partidos',
+    'Modelo de Planilha de Monitoramento das Metas':'mod-metas','Modelo de Planilha de Gestão de Pessoas e Organograma':'mod-pessoas'};
+  var itens=FERRAMENTAS.modelos.map(function(m){return {id:ids[m.t],t:m.t,u:m.u,pendente:!m.u}})
+    .concat(FERRAMENTAS.blocos.map(function(b){return {id:b.id,t:b.t,sec:'f-'+b.id}})).sort(ordemAlfa);
   var h='<div class="etiqueta">Apoio</div><h1>Caixa de ferramentas</h1>'+
     '<p class="chamada">'+esc(FERRAMENTAS.intro)+'</p>'+
-    '<h2 style="margin-top:20px">Modelos editáveis</h2><ul class="link-lista">';
-  FERRAMENTAS.modelos.forEach(function(m){
-    h+= m.u ? '<li><a href="'+m.u+'" target="_blank" rel="noopener">'+esc(m.t)+'</a></li>'
-            : '<li><div class="sem-link"><span>'+esc(m.t)+'</span><span class="pendente">link a inserir</span></div></li>';
-  });
-  h+='</ul>';
-  FERRAMENTAS.blocos.forEach(function(b){
-    h+='<h2>'+esc(b.t)+'</h2><div class="texto">'+b.html+'</div>';
+    '<h2 style="margin-top:20px">Sumário</h2>'+sumarioApoio('ferramentas',itens);
+  FERRAMENTAS.blocos.slice().sort(ordemAlfa).forEach(function(b){
+    h+='<h2 id="f-'+b.id+'">'+esc(b.t)+'</h2>'+chipsMissoes(b.id)+'<div class="texto">'+b.html+'</div>';
     var ls=b.links||(b.link?[b.link]:[]);
     if(ls.length){h+='<ul class="link-lista">'+ls.map(function(l){
       return '<li><a href="'+l.u+'" target="_blank" rel="noopener">'+esc(l.t)+'</a></li>'}).join('')+'</ul>'}
@@ -293,10 +320,12 @@ ferramentas(){
 },
 
 biblioteca(){
+  var lista=BIBLIOTECA.map(function(b){return {id:b.id,t:b.t,sec:'b-'+b.id}}).sort(ordemAlfa);
   var h='<div class="etiqueta">Apoio</div><h1>Biblioteca</h1>'+
-    '<p class="chamada">Materiais de aprofundamento sobre os temas que aparecem nas fragilidades do Mapa Político.</p>';
-  BIBLIOTECA.forEach(function(b){
-    h+='<h2 id="b-'+b.id+'">'+esc(b.t)+'</h2><div class="texto">'+b.html+'</div>';
+    '<p class="chamada">Materiais de aprofundamento sobre os temas que aparecem nas fragilidades do Mapa Político.</p>'+
+    '<h2 style="margin-top:20px">Sumário</h2>'+sumarioApoio('biblioteca',lista);
+  BIBLIOTECA.slice().sort(ordemAlfa).forEach(function(b){
+    h+='<h2 id="b-'+b.id+'">'+esc(b.t)+'</h2>'+chipsMissoes(b.id)+'<div class="texto">'+b.html+'</div>';
     var ls=b.links||(b.link?[b.link]:[]);
     if(ls.length)h+='<ul class="link-lista">'+ls.map(function(l){
       return '<li><a href="'+l.u+'" target="_blank" rel="noopener">'+esc(l.t)+'</a></li>'}).join('')+'</ul>';

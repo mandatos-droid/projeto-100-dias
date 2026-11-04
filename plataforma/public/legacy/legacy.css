@@ -360,6 +360,15 @@ dl.cmp dd{margin:0;padding:2px 0 2px 0.875rem;border-left:2px solid var(--linha)
   text-decoration:none;color:var(--tinta);font-size:0.9688rem}
 .link-lista a:hover{color:var(--verde)}
 .link-lista a::after{content:"↗";color:var(--tinta-3);flex:none}
+.sumario{list-style:none;padding:0;margin:0.75rem 0 1.5rem;max-width:66ch}
+.sumario li{border-bottom:1px solid var(--linha-2);padding:0.6875rem 0}
+.sumario li>a{color:var(--tinta);text-decoration:none;font-weight:600;font-size:0.9688rem}
+.sumario li>a:hover{color:var(--verde);text-decoration:underline}
+.sumario .sem-link{display:flex;justify-content:space-between;gap:1rem}
+.chips-m{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem;margin:0.3125rem 0 0.5rem;font-size:0.75rem;color:var(--tinta-3)}
+.chip-m{display:inline-block;padding:0.125rem 0.5625rem;border-radius:999px;border:1px solid var(--c,var(--linha-2));
+  color:var(--tinta);text-decoration:none;font-weight:700;font-size:0.75rem}
+.chip-m:hover{background:var(--c,var(--linha-2));color:#fff}
 .link-lista .uf{font-family:'Anton',sans-serif;font-size:0.875rem;color:var(--tinta-3);flex:none;width:30px}
 .link-lista .obs{font-size:0.7812rem;color:var(--tinta-3)}
 .sem-link{display:flex;justify-content:space-between;padding:0.8125rem 0;color:var(--tinta-3);font-size:0.9688rem}
