@@ -1,118 +1,88 @@
 'use client';
-/* Missão 2 · Tarefa 2: organograma do mandato. Cada caixa é uma cadeira; o painel (clique na caixa) edita escopo e perfil.
-   O desenho vem de lib/layoutOrg, o mesmo da prévia e da exportação. */
-import { useEffect, useMemo, useState } from 'react';
+/* Missão 2 · organograma do mandato, gerado da tabela de equipe (categoria + área). Cada caixa mostra pessoa, cargo e área;
+   clicar leva à linha da tabela. O desenho vem de lib/layoutOrg, o mesmo da exportação. */
+import { useMemo, useState } from 'react';
 import { Controls, Handle, Position, ReactFlow, type Edge, type Node, type NodeProps } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { CHEFIA, MAX_CADEIRAS, SEM_AREA, acrescenta, ativas, coordDe, type Campos } from '@/lib/cadeiras';
-import { COR_COORD, chaveFicha, lista } from '@/lib/equipe';
+import { aplica, coordDe, type Campos } from '@/lib/cadeiras';
+import { COR_COORD } from '@/lib/equipe';
+import { organogramaSvg } from '@/lib/exporta';
 import { layoutOrg } from '@/lib/layoutOrg';
-import { cargoNome } from './cargos';
-import { assinar, definirFoco, limparFoco } from './foco';
-import PainelCadeira from './PainelCadeira';
+import { avisosOrg, linhas, materializa, migrada } from '@/lib/tabelaEquipe';
+import { cargoNome, modeloNome } from './cargos';
+import { baixaPng } from './exportaPng';
 import { useEquipe } from './useEquipe';
 import './equipe.css';
 
-/* o anel conta os 6 campos do painel */
-const CAMPOS_PAINEL = ['escopo', 'espec', 'hab_dest', 'hab_dev', 'rep_dest', 'rep_dev'] as const;
-export const preenchidos = (c: Campos, i: number) => CAMPOS_PAINEL.filter((k) => (c[chaveFicha(i, k)] ?? '').trim() !== '').length;
-export const temEscopo = (c: Campos, i: number) => lista(c[chaveFicha(i, 'escopo')]).length > 0;
+type Dado = { i: number; cargo: string; nome: string; coord: string; vaga: boolean; aberto: boolean };
 
-type Dado = { i: number; cargo: string; nome: string; coord: string; vaga: boolean; aberto: boolean; feitos: number; escopo: boolean };
+const rotuloArea = (a: string) => (a === 'Chefia de área' ? 'Chefia de gabinete' : a);
 
-function Anel({ n }: { n: number }) {
-  const r = 11, perim = 2 * Math.PI * r;
-  return (
-    <svg className="es-anel" width="30" height="30" viewBox="0 0 30 30" role="img" aria-label={`${n} de 6 campos do painel preenchidos`}>
-      <circle cx="15" cy="15" r={r} fill="none" stroke="#E6DCCE" strokeWidth="4" />
-      <circle cx="15" cy="15" r={r} fill="none" stroke="#1B6B4F" strokeWidth="4" strokeDasharray={`${(perim * n) / 6} ${perim}`} transform="rotate(-90 15 15)" />
-      <text x="15" y="19" textAnchor="middle" fontSize="10" fontWeight="700" fill="#2B2420">{n}</text>
-    </svg>
-  );
+/** Leva à linha da tabela da Mão na massa 1 e põe o foco no primeiro campo editável dela (se a tabela está na página). */
+function focaLinha(i: number) {
+  const linha = document.getElementById(`es-linha-${i}`);
+  if (!linha) return;
+  linha.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  linha.querySelector<HTMLElement>('input:not(:disabled), textarea:not(:disabled), select:not(:disabled)')?.focus({ preventScroll: true });
 }
 
-function NoCadeira({ data, selected }: NodeProps<Node<Dado>>) {
+function NoCadeira({ data }: NodeProps<Node<Dado>>) {
   const cor = COR_COORD[data.coord] ?? '#5E524C';
   return (
-    <div className={'es-no' + (data.vaga ? ' vaga' : '') + (selected ? ' sel' : '')} data-cadeira={data.i} style={{ borderTopColor: cor }}>
+    <div className={'es-no' + (data.vaga ? ' vaga' : '')} data-cadeira={data.i} style={{ borderTopColor: cor }}>
       <Handle type="target" position={Position.Top} isConnectable={false} />
-      <span className="es-no-area" style={{ color: cor }}>{data.coord === 'Chefia de área' ? 'Chefia de gabinete' : data.coord}</span>
+      <span className="es-no-area" style={{ color: cor }}>{rotuloArea(data.coord)}</span>
       <strong className="es-no-nome">{data.vaga ? (data.aberto ? 'Processo seletivo' : 'Vaga em aberto') : data.nome}</strong>
       <span className="es-no-cargo">{data.cargo}</span>
-      <span className="es-no-rodape">
-        {!data.escopo && <em className="es-selo">escopo pendente</em>}
-        <Anel n={data.feitos} />
-      </span>
       <Handle type="source" position={Position.Bottom} isConnectable={false} />
-      <Handle id="l" type="target" position={Position.Left} isConnectable={false} style={{ opacity: 0 }} />
-      <Handle id="r" type="source" position={Position.Right} isConnectable={false} style={{ opacity: 0 }} />
-      <Handle id="rt" type="target" position={Position.Right} isConnectable={false} style={{ opacity: 0 }} />
-      <Handle id="ls" type="source" position={Position.Left} isConnectable={false} style={{ opacity: 0 }} />
     </div>
   );
 }
 const tipos = { cadeira: NoCadeira };
 
 export default function Organograma() {
-  const { c, agir } = useEquipe();
+  const { c } = useEquipe();
   const [filtro, setFiltro] = useState('');
   const [soPreenchidas, setSo] = useState(false);
   const [reajusta, setReajusta] = useState(0);
-  const [sel, setSel] = useState<number | null>(null);
-  const [destaque, setDestaque] = useState<number[]>([]); // cadeiras de um elo da cadeia de rotinas (vem da ilha de rotinas)
-  useEffect(() => assinar((f) => setDestaque(f.cadeiras)), []);
 
-  const l = layoutOrg(c, { soPreenchidas });
-  const on = ativas(c);
+  /* mandato do modelo antigo: desenha e avisa já com categoria, área e liderança derivadas, sem gravar nada */
+  const antigo = migrada(c);
+  const vista: Campos = { ...c };
+  if (antigo) aplica(vista, materializa(c, modeloNome));
+  const pronto = linhas(vista).some((l) => l.cat !== '' && l.area !== '' && l.cargo !== '');
+  const avisos = avisosOrg(vista);
+  const l = layoutOrg(vista, { soPreenchidas });
   /* altura pelo conteúdo: sem faixa vazia embaixo; o zoom inicial nunca fica menor que 55% (legível) */
   const baixo = l.nos.reduce((m, n) => Math.max(m, n.y + n.h), 0);
   const alturaCanvas = Math.min(720, Math.max(380, Math.round(baixo * 0.75) + 90));
-  const comEscopo = on.filter((i) => temEscopo(c, i)).length;
-  const aberto = sel !== null && on.includes(sel);
-  const chave = JSON.stringify([l.nos.map((n) => [n.i, n.x, n.y, n.nome, n.coord, cargoNome(c, n.i), preenchidos(c, n.i), temEscopo(c, n.i)]), l.arestas.map((a) => [a.id, a.rotulo]), filtro, destaque, aberto && sel]);
-  /* o canvas só é remontado (e reenquadrado) quando a estrutura muda; editar nome ou escopo só atualiza as caixas */
-  const estrutura = JSON.stringify([l.nos.map((n) => n.i), l.arestas.filter((a) => a.tipo === 'hierarquia').map((a) => a.id), reajusta]);
+  const chave = JSON.stringify([l.nos.map((n) => [n.i, n.x, n.y, n.nome, n.coord, cargoNome(vista, n.i)]), l.arestas.map((a) => a.id), filtro]);
+  /* o canvas só é remontado (e reenquadrado) quando a estrutura muda; editar nome ou cargo só atualiza as caixas */
+  const estrutura = JSON.stringify([l.nos.map((n) => n.i), l.arestas.map((a) => a.id), reajusta]);
   const { nos, arestas } = useMemo(() => ({
     nos: l.nos.map<Node<Dado>>((n) => ({
-      id: String(n.i), type: 'cadeira', position: { x: n.x, y: n.y }, draggable: false, selected: sel === n.i, focusable: true,
-      ariaLabel: `${n.vaga ? (n.aberto ? 'Processo seletivo' : 'Vaga em aberto') : n.nome}, ${cargoNome(c, n.i)}, área ${n.coord === 'Chefia de área' ? 'Chefia de gabinete' : n.coord}, escopo ${temEscopo(c, n.i) ? 'definido' : 'pendente'}. Enter abre o painel.`,
-      data: { i: n.i, cargo: cargoNome(c, n.i), nome: n.nome, coord: n.coord, vaga: n.vaga, aberto: n.aberto, feitos: preenchidos(c, n.i), escopo: temEscopo(c, n.i) },
-      style: { width: n.w, opacity: (destaque.length ? !destaque.includes(n.i) : filtro && coordDe(c, n.i) !== filtro) ? 0.25 : 1 },
+      id: String(n.i), type: 'cadeira', position: { x: n.x, y: n.y }, draggable: false, focusable: true,
+      ariaLabel: `${n.vaga ? (n.aberto ? 'Processo seletivo' : 'Vaga em aberto') : n.nome}, ${cargoNome(vista, n.i)}, área ${rotuloArea(n.coord)}. Enter leva à linha da tabela.`,
+      data: { i: n.i, cargo: cargoNome(vista, n.i), nome: n.nome, coord: n.coord, vaga: n.vaga, aberto: n.aberto },
+      style: { width: n.w, opacity: filtro && coordDe(vista, n.i) !== filtro ? 0.25 : 1 },
     })),
-    arestas: l.arestas.map<Edge>((a) => {
-      if (a.tipo === 'entre') {
-        /* linha pontilhada lateral, rotulada: não é hierarquia */
-        const aEsq = (l.nos.find((n) => n.i === a.de)?.x ?? 0) <= (l.nos.find((n) => n.i === a.para)?.x ?? 0);
-        return {
-          id: a.id, source: String(a.de), target: String(a.para), sourceHandle: aEsq ? 'r' : 'ls', targetHandle: aEsq ? 'l' : 'rt', type: 'default',
-          label: a.rotulo, labelStyle: { fontSize: 11, fill: '#5E524C' }, labelBgStyle: { fill: '#FBF8F3' }, labelBgPadding: [4, 2],
-          style: { stroke: '#5E524C', strokeWidth: 2, strokeDasharray: '6 5' }, data: { tipo: 'entre' }, interactionWidth: 20,
-        };
-      }
-      return { id: a.id, source: String(a.de), target: String(a.para), type: 'smoothstep', style: { stroke: COR_COORD[a.coord] ?? '#5E524C', strokeWidth: 2 }, data: { tipo: 'hierarquia' } };
-    }),
+    arestas: l.arestas.map<Edge>((a) => ({ id: a.id, source: String(a.de), target: String(a.para), type: 'smoothstep', style: { stroke: COR_COORD[a.coord] ?? '#5E524C', strokeWidth: 2 } })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [chave]);
 
-  /* nova cadeira: subordinada à caixa selecionada (ou à Chefia), na mesma área; abre o painel dela */
-  const acrescentaCadeira = () => {
-    const sob = sel !== null && on.includes(sel) ? sel : CHEFIA;
-    const area = coordDe(c, sob);
-    const antes = on;
-    const r = acrescenta(c, { sob, area: area === 'Chefia de área' ? SEM_AREA : area });
-    if (!agir(r)) return;
-    const nova = ativas(c).find((i) => !antes.includes(i));
-    if (nova !== undefined) setSel(nova);
-  };
+  if (!pronto) return <div className="ilha-corpo eq-org es-org"><p className="es-vazio">O organograma aparece sozinho quando ao menos uma linha da tabela tiver cargo, categoria e área.</p></div>;
 
   return (
     <div className="ilha-corpo eq-org es-org">
+      {avisos.length > 0 && (
+        <ul className="es-org-avisos" role="status" aria-label="Avisos do organograma">
+          {avisos.map((a) => <li key={a} className="es-motivo">{a}</li>)}
+        </ul>
+      )}
       <div className="eq-barra">
-        <span data-contador><strong>{comEscopo}/{on.length}</strong> cadeiras com escopo definido</span>
         <label className="eq-tg"><input type="checkbox" checked={soPreenchidas} onChange={(e) => setSo(e.target.checked)} /> só cadeiras com nome</label>
-        <button type="button" className="bt pri peq es-bt" disabled={on.length >= MAX_CADEIRAS} title={on.length >= MAX_CADEIRAS ? `Limite de ${MAX_CADEIRAS} cadeiras` : undefined} onClick={acrescentaCadeira}>Acrescentar cadeira</button>
         <button type="button" className="bt sec peq es-bt" onClick={() => setReajusta((n) => n + 1)}>Ajustar layout</button>
-        {destaque.length > 0 && <button type="button" className="bt sec peq es-bt" onClick={() => limparFoco()}>Mostrar todos</button>}
+        <button type="button" className="bt pri peq es-bt" onClick={() => baixaPng(organogramaSvg(vista, (i) => cargoNome(vista, i)), 'organograma-do-mandato.png')}>Exportar organograma (PNG)</button>
         <div className="eq-legenda" role="group" aria-label="Filtrar por área">
           <button type="button" className={!filtro ? 'on' : ''} aria-pressed={!filtro} onClick={() => setFiltro('')}>Todas</button>
           {l.areas.map((a) => (
@@ -122,21 +92,17 @@ export default function Organograma() {
           ))}
         </div>
       </div>
-      <div className={'es-org-corpo' + (aberto ? ' com-painel' : '')}>
       <div className="eq-canvas" style={{ height: alturaCanvas }} onKeyDown={(e) => {
-        /* Enter ou Espaço numa caixa focada abre o painel (o React Flow só a seleciona) */
+        /* Enter ou Espaço numa caixa focada leva à linha da tabela (o React Flow só a seleciona) */
         const no = (e.target as HTMLElement).closest<HTMLElement>('.react-flow__node');
-        if ((e.key === 'Enter' || e.key === ' ') && no && e.target === no) { e.preventDefault(); setSel(Number(no.dataset.id)); }
+        if ((e.key === 'Enter' || e.key === ' ') && no && e.target === no) { e.preventDefault(); focaLinha(Number(no.dataset.id)); }
       }}>
         <ReactFlow key={estrutura} nodes={nos} edges={arestas} nodeTypes={tipos} fitView fitViewOptions={{ padding: 0.08, minZoom: 0.55, maxZoom: 1 }} minZoom={0.2} maxZoom={1.5}
           nodesConnectable={false} proOptions={{ hideAttribution: true }}
           zoomOnScroll={false} preventScrolling={false}
-          onNodeClick={(_, n) => setSel(Number(n.id))} onPaneClick={() => setSel(null)}
-          onEdgeClick={(_, e) => { if (e.data?.tipo === 'entre') definirFoco({ cadeiras: [Number(e.source), Number(e.target)], id: e.id }); }}>
+          onNodeClick={(_, n) => focaLinha(Number(n.id))}>
           <Controls showInteractive={false} />
         </ReactFlow>
-      </div>
-      {aberto && <PainelCadeira i={sel} onFechar={() => setSel(null)} />}
       </div>
     </div>
   );

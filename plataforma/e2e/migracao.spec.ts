@@ -8,7 +8,6 @@ const legado: Record<string, string> = {
   'm2.p1.escopo': ESCOPO, 'm2.p1.coord': 'Chefia de área', 'm2.p8.escopo': ESCOPO,
   'm2.areas': 'saude|educacao', 'm2.areas_aplicadas': 'saude',
 };
-const painel = (page: Page) => page.getByRole('complementary', { name: /Painel da cadeira/ });
 
 test.describe('Mandato da versão antiga (MEQ-24)', () => {
   test('a escalação abre com as 20 cadeiras e as 6 áreas marcadas, e os nomes intactos (E-15)', async ({ page }) => {
@@ -23,13 +22,12 @@ test.describe('Mandato da versão antiga (MEQ-24)', () => {
     await expect(page.getByLabel('Pessoa, Motorista')).toHaveValue('Pessoa 20');
   });
 
-  test('o organograma mostra as 20 cadeiras e a ficha antiga aparece no painel', async ({ page }) => {
-    await abre(page, ['organograma'], legado);
+  /* T18: o painel e o contador de escopo saíram do organograma; a ficha antiga agora aparece na linha da tabela de equipe */
+  test('o organograma mostra as 20 cadeiras e o escopo antigo aparece na tabela', async ({ page }) => {
+    await abre(page, ['equipe-tabela', 'organograma'], legado);
     await expect(page.locator('.es-no')).toHaveCount(20);
     await expect(page.locator('.es-no[data-cadeira="0"]')).toContainText('Pessoa 1');
-    await expect(page.locator('[data-contador]')).toContainText('2/20 cadeiras com escopo definido');
-    await page.locator('.es-no[data-cadeira="7"]').click();
-    await expect(painel(page).getByRole('group', { name: 'Escopo de trabalho' }).getByRole('button', { name: ESCOPO })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByLabel('Escopo, linha 8')).toHaveValue(ESCOPO);
   });
 
   test('m2.areas e m2.areas_aplicadas continuam gravadas depois de editar e não aparecem na tela', async ({ page }) => {

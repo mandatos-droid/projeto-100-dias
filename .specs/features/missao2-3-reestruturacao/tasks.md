@@ -550,7 +550,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T18: Organograma gerado e reduzido
+### T18: Organograma gerado e reduzido ✅
 
 **What**: Reduzir `Organograma.tsx`: sem painel, anel e "Acrescentar cadeira"; mostrar `avisosOrg`; caixa mostra pessoa, cargo e área; clicar leva à linha da tabela.
 **Where**: `ilhas/equipe/Organograma.tsx` (+ `e2e/m23-organograma.spec.ts`)
@@ -565,12 +565,12 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] Chefia, Coordenação e Executoras formam 3 níveis (RM2-31)
-- [ ] Remover a Coordenação mostra "Área sem coordenação" e liga à Chefia (RM2-32)
-- [ ] Editar a tabela atualiza o organograma na hora (RM2-36)
-- [ ] Caixa sem painel profundo; clicar foca a linha da tabela (RM2-37)
-- [ ] Exportar PNG continua disponível (RM2-38)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido (e2e do painel removido só em T27)
+- [x] Chefia, Coordenação e Executoras formam 3 níveis (RM2-31)
+- [x] Remover a Coordenação mostra "Área sem coordenação" e liga à Chefia (RM2-32)
+- [x] Editar a tabela atualiza o organograma na hora (RM2-36)
+- [x] Caixa sem painel profundo; clicar foca a linha da tabela (RM2-37)
+- [x] Exportar PNG continua disponível (RM2-38)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido (e2e do painel removido só em T27)
 
 **Tests**: e2e
 **Gate**: full

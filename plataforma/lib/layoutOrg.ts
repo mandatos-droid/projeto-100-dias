@@ -7,7 +7,7 @@ export const LARG = 230;
 export const ALT = 96;
 
 export type No = { i: number; x: number; y: number; w: number; h: number; coord: string; nome: string; vaga: boolean; aberto: boolean };
-export type Aresta = { id: string; de: number; para: number; tipo: 'hierarquia' | 'entre'; coord: string; rotulo?: string };
+export type Aresta = { id: string; de: number; para: number; tipo: 'hierarquia'; coord: string };
 export type Layout = { nos: No[]; arestas: Aresta[]; areas: string[] };
 
 export function layoutOrg(c: Campos, o: { soPreenchidas?: boolean } = {}): Layout {

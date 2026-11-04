@@ -40,11 +40,11 @@ test.describe('Rotinas por área (MEQ-17)', () => {
     expect((await camposDe(page))['m2.rotoff']).toBeUndefined();
   });
 
-  test('mudar a coordenação de uma cadeira no painel atualiza a rotina da área na mesma tela (E-08)', async ({ page }) => {
-    await abre(page, ['organograma', 'rotinas'], base);
+  /* T18: o painel da cadeira saiu; a área da cadeira agora muda na tabela de equipe (linha completa até a área) */
+  test('mudar a área de uma cadeira na tabela atualiza a rotina da área na mesma tela (E-08)', async ({ page }) => {
+    await abre(page, ['equipe-tabela', 'rotinas'], { ...base, 'm2.p9.esc': 'Produzir conteúdo', 'm2.p9.comp': 'Criatividade' });
     await expect(secao(page, 'area:Comunicação')).toContainText('3 participantes');
-    await page.locator('.es-no[data-cadeira="8"]').click();
-    await page.getByRole('complementary', { name: /Painel da cadeira/ }).getByLabel('Coordenação').selectOption('Legislativo');
+    await page.getByLabel('Área, linha 3').selectOption('Legislativo');
     await expect(secao(page, 'area:Comunicação')).toContainText('2 participantes');
     await expect(secao(page, 'area:Comunicação')).not.toContainText('Caio Reis');
   });

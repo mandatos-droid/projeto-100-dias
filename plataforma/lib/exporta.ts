@@ -23,11 +23,6 @@ export function organogramaSvg(c: Campos, cargoNome: (i: number) => string): str
   const linhas = l.arestas.map((a) => {
     const p = no(a.de), f = no(a.para);
     const x1 = p.x + p.w / 2 + dx, y1 = p.y + p.h + dy, x2 = f.x + f.w / 2 + dx, y2 = f.y + dy;
-    if (a.tipo === 'entre') {
-      const ya = p.y + p.h / 2 + dy, yb = f.y + f.h / 2 + dy;
-      return `<g><line x1="${p.x + p.w / 2 + dx}" y1="${ya}" x2="${f.x + f.w / 2 + dx}" y2="${yb}" stroke="#5E524C" stroke-width="2" stroke-dasharray="6 5"/>` +
-        `<text x="${(p.x + f.x + p.w) / 2 + dx}" y="${(ya + yb) / 2 - 4}" font-size="11" text-anchor="middle" fill="#5E524C">${esc(corte(a.rotulo ?? '', 40))}</text></g>`;
-    }
     const m = (y1 + y2) / 2;
     return `<path d="M${x1} ${y1} V${m} H${x2} V${y2}" fill="none" stroke="${cor(a.coord)}" stroke-width="2"/>`;
   }).join('');
