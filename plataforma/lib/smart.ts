@@ -1,5 +1,5 @@
 /* Missão 3 · retorno SMART de uma meta, por regras (sem IA). É heurística sobre o texto: orienta, nunca bloqueia.
-   S, M e T saem do texto; R vem do vínculo com o objetivo; A só vale depois da confirmação da equipe. */
+   S, M e T saem do texto; R vem do vínculo com o objetivo; A e, se o texto não trouxer prazo, T só valem depois da confirmação da equipe. */
 
 export const LETRAS = ['S', 'M', 'A', 'R', 'T'] as const;
 export type Letra = (typeof LETRAS)[number];
@@ -16,9 +16,9 @@ export interface Retorno {
 const DICAS: Record<Letra, string> = {
   S: 'Comece com um verbo no infinitivo (aprovar, ampliar, realizar) e descreva a entrega com pelo menos 6 palavras.',
   M: 'Diga quanto: um número, um percentual ou uma quantidade (30%, 3 projetos, duas vezes).',
-  A: 'Confirme que a meta cabe na capacidade da equipe nos 4 meses.',
+  A: 'Confirme que o mandato dispõe de meios realistas para alcançar a meta.',
   R: 'Ligue a meta a um objetivo estratégico: é o que a torna relevante para o mandato.',
-  T: 'Defina um prazo ou uma frequência (até dezembro de 2027, mensalmente).',
+  T: 'Defina um prazo ou uma frequência (até dezembro de 2027, mensalmente) ou confirme que a meta cabe na temporalidade dos 100 Primeiros dias.',
 };
 
 const sem = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -33,7 +33,7 @@ const PRAZO = new RegExp([
 ].join('|'));
 const ROTINA = /\benviar e-?mails?\b|\bfazer reuni|\bresponder\b|\batender\b|\bpostar\b|\bpublicar diariamente|\btodo dia\b|\bdiariamente\b/;
 
-export function avaliaMeta(m: { texto: string; pred?: string; alcancavel?: boolean }): Retorno {
+export function avaliaMeta(m: { texto: string; pred?: string; alcancavel?: boolean; temporal?: boolean }): Retorno {
   const texto = typeof m.texto === 'string' ? m.texto.trim() : '';
   const t = sem(texto);
   const palavras = t.split(/\s+/).filter(Boolean);
@@ -43,7 +43,7 @@ export function avaliaMeta(m: { texto: string; pred?: string; alcancavel?: boole
     M: /\d|%/.test(t) || QUANTIDADE.test(t),
     A: m.alcancavel === true,
     R: !!m.pred,
-    T: PRAZO.test(t),
+    T: PRAZO.test(t) || m.temporal === true,
   };
   const letras = Object.fromEntries(LETRAS.map((l) => [l, { ok: atende[l], dica: DICAS[l] }])) as Retorno['letras'];
   const falta = LETRAS.find((l) => !atende[l]) ?? null;

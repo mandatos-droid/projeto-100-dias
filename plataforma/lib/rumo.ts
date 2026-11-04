@@ -43,7 +43,7 @@ export const STATUS_IDS: StatusMeta[] = ['concluida', 'concluida90', 'concluida8
 export interface Meta {                // D.metas[i]; campos antigos (pred, texto, resp, apoio) preservados
   id?: string; pred?: string; texto?: string; resp?: string; apoio?: string;
   status: StatusMeta;
-  respCad?: number | null; apoioCad?: number[]; alcancavel?: boolean;
+  respCad?: number | null; apoioCad?: number[]; alcancavel?: boolean; temporal?: boolean;
   sucessos?: Sucesso[];                // Missão 5: sucessos mensais; ausente em mandato antigo (ler com lerSucessos)
 }
 
@@ -196,6 +196,7 @@ export function lerMeta(v: unknown): Meta {
     else delete o.apoioCad;
   }
   if ('alcancavel' in o && typeof o.alcancavel !== 'boolean') delete o.alcancavel;
+  if ('temporal' in o && typeof o.temporal !== 'boolean') delete o.temporal;
   o.status = STATUS_IDS.includes(o.status as StatusMeta) ? o.status : 'nao_concluida';
   return o as unknown as Meta;
 }

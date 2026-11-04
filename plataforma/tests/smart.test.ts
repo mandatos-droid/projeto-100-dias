@@ -93,6 +93,15 @@ test('Relevante só atende com objetivo vinculado; Alcançável só com confirma
   assert.equal(avaliaMeta({ texto, alcancavel: true }).letras.R.ok, false);
 });
 
+test('o check "cabe na temporalidade" resolve o T mesmo sem prazo no texto; o de meios realistas resolve o A (sugestão 38)', () => {
+  const texto = 'Aprovar projetos de lei sobre educação na Casa';
+  assert.equal(avaliaMeta({ texto }).letras.T.ok, false);
+  assert.equal(avaliaMeta({ texto, temporal: true }).letras.T.ok, true);
+  assert.equal(avaliaMeta({ texto, temporal: true }).letras.A.ok, false);
+  assert.equal(avaliaMeta({ texto, alcancavel: true }).letras.A.ok, true);
+  assert.equal(avaliaMeta({ texto: '', temporal: true }).letras.T.ok, false);
+});
+
 test('"Enviar e-mail semanal aos assessores" dispara "Meta não é tarefa diária" (RUM-31.9)', () => {
   const r = avaliaMeta({ texto: 'Enviar e-mail semanal aos assessores' });
   assert.deepEqual(r.alertas, ['Meta não é tarefa diária']);

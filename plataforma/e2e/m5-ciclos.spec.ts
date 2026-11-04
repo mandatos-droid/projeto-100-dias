@@ -168,6 +168,7 @@ test('no planejamento vazio dá para escrever Legado, escolher preditor e objeti
   await obj.fill('Ampliar a creche');
   await expect.poll(async () => (await dadoDe(page, 'preditores') as string[]).length).toBe(1);
   await page.getByRole('button', { name: /Acrescentar meta a/ }).click();
+  await page.locator('summary', { hasText: 'Para ir além' }).first().click();
   await page.getByRole('button', { name: /Adicionar sucesso/ }).click();
   const metas = (await dadoDe(page, 'metas')) as M[];
   expect(metas).toHaveLength(1);

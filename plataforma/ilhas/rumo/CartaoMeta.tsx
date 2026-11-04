@@ -39,7 +39,7 @@ export interface CartaoMetaProps {
 export default function CartaoMeta({ meta, objetivos, pessoas, campos, comStatus, marca, podeMover, onChange, onRemove }: CartaoMetaProps) {
   const [ignora, setIgnora] = useState(false);
   const plano = semHtml(meta.texto);
-  const r = avaliaMeta({ texto: plano, pred: meta.pred && objetivos.some((o) => o.pid === meta.pred) ? meta.pred : undefined, alcancavel: meta.alcancavel });
+  const r = avaliaMeta({ texto: plano, pred: meta.pred && objetivos.some((o) => o.pid === meta.pred) ? meta.pred : undefined, alcancavel: meta.alcancavel, temporal: meta.temporal });
   const res = resolve(campos, meta);
   const n = String(meta.idx + 1).padStart(2, '0');
   const sucessos = lerSucessos(meta);
@@ -128,8 +128,10 @@ export default function CartaoMeta({ meta, objetivos, pessoas, campos, comStatus
         <p className="rm-dica">Retorno automático por regras; a decisão é da equipe.</p>
       </div>
 
+      <label className="chk rm-alc"><input type="checkbox" checked={meta.temporal === true} onChange={(e) => onChange(meta.idx, { temporal: e.target.checked })} />
+        <span>Cabe na temporalidade dos 100 Primeiros dias?</span></label>
       <label className="chk rm-alc"><input type="checkbox" checked={meta.alcancavel === true} onChange={(e) => onChange(meta.idx, { alcancavel: e.target.checked })} />
-        <span>Cabe na capacidade da equipe nos 4 meses?</span></label>
+        <span>O mandato dispõe de meios realistas para alcançá-la?</span></label>
 
       <fieldset className="rm-quem">
         <legend>Responsável direto</legend>
@@ -164,6 +166,8 @@ export default function CartaoMeta({ meta, objetivos, pessoas, campos, comStatus
         </label>
       </fieldset>
 
+      <details className="rm-ir-alem" open={sucessos.length > 0}>
+      <summary>Para ir além! Caso já tenha resolvido à Missão 2 ou caso queira destrinchar esta meta em tarefas menores.</summary>
       <fieldset className="rm-suc" role="group" aria-label={`Sucessos mensais da meta ${n}`}>
         <legend>Sucessos mensais <span className="rm-n">{sucessos.length}</span></legend>
         <p className="rm-dica">Marcos de cada mês (Mês 1 a Mês 4). O atingimento da meta é calculado pelos sucessos concluídos sobre o total, e o status da meta muda junto (meta congelada não muda).</p>
@@ -197,6 +201,7 @@ export default function CartaoMeta({ meta, objetivos, pessoas, campos, comStatus
         <button type="button" className="bt sec peq" aria-label={`Adicionar sucesso à meta ${n}`}
           onClick={() => gravaSucessos(adicionaSucesso(sucessos, { mes: 1, texto: '' }))}>Adicionar sucesso</button>
       </fieldset>
+      </details>
 
       {comStatus && (
         <label className="campo rm-status"><span className="rot">Status da meta {n}</span>

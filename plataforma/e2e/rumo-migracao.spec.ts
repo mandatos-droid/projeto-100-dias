@@ -153,7 +153,7 @@ test.describe('Gabinete novo, pelo Guia real em modo local', () => {
     await page.getByRole('button', { name: 'Acrescentar meta a Priorizar a agenda' }).click();
     await page.getByRole('textbox', { name: /no formato SMART/ }).fill('Aprovar 2 projetos de lei sobre educação até dezembro de 2027');
     await page.getByRole('group', { name: /^Responsável direto/ }).getByRole('button', { name: /Bruno Lima/ }).click();
-    await page.getByLabel('Cabe na capacidade da equipe nos 4 meses?').check();
+    await page.getByLabel('O mandato dispõe de meios realistas para alcançá-la?').check();
     await expect(page.locator('[data-letra][data-ok="true"]')).toHaveCount(5);
     // a aba e o Painel
     await page.locator('#ladoNav a.it[href="#/plano"]').click();

@@ -12,6 +12,7 @@ const COM_META = (sucessos?: S[]) => ({ D: { preditores: ['p1'], metas: [{ id: '
 test.describe('Bloco "Sucessos mensais" no cartão da meta (M5-01)', () => {
   test('meta sem sucessos mostra o bloco vazio e o botão Adicionar sucesso', async ({ page }) => {
     await abre(page, ['rumo-metas'], COM_META());
+    await page.locator('summary', { hasText: 'Para ir além' }).first().click();
     await expect(meta(page, 0).getByRole('group', { name: 'Sucessos mensais da meta 01' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Adicionar sucesso à meta 01' })).toBeVisible();
     await expect(linhas(page, 0)).toHaveCount(0);
@@ -19,6 +20,7 @@ test.describe('Bloco "Sucessos mensais" no cartão da meta (M5-01)', () => {
 
   test('"Adicionar sucesso" cria uma linha com mês e texto e grava na hora, como não concluída (M5-01.1)', async ({ page }) => {
     await abre(page, ['rumo-metas'], COM_META());
+    await page.locator('summary', { hasText: 'Para ir além' }).first().click();
     await page.getByRole('button', { name: 'Adicionar sucesso à meta 01' }).click();
     await expect(linhas(page, 0)).toHaveCount(1);
     const gravado = (await metasDe(page))[0].sucessos!;
@@ -56,6 +58,7 @@ test.describe('Bloco "Sucessos mensais" no cartão da meta (M5-01)', () => {
 
   test('o que foi gravado sobrevive ao recarregar a tela', async ({ page }) => {
     await abre(page, ['rumo-metas'], COM_META());
+    await page.locator('summary', { hasText: 'Para ir além' }).first().click();
     await page.getByRole('button', { name: 'Adicionar sucesso à meta 01' }).click();
     await linhas(page, 0).getByLabel('Texto do sucesso 1 da meta 01').fill('Guardado');
     await page.reload();
