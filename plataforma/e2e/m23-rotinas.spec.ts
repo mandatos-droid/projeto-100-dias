@@ -12,7 +12,6 @@ const R = [
 ];
 const agenda = async (page: Page, r: (typeof R)[number], data: string, hora: string) => {
   await page.getByLabel(`Data de início: ${r.titulo}`).fill(data);
-  await page.getByLabel(`Horário de início: ${r.titulo}`).fill(hora);
 };
 
 test('o quadro mostra as 5 rotinas do documento, com frequência, participantes e duração (RM2-51)', async ({ page }) => {

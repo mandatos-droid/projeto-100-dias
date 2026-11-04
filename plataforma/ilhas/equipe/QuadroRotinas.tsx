@@ -1,6 +1,6 @@
 'use client';
 /* Missão 2 · Mão na massa 2: o quadro-modelo das 5 rotinas do mandato. A Legisla sugere o modelo; o mandato concorda e marca
-   data e horário de início, ou altera frequência, participantes e duração e liga/desliga cada rotina. Tudo grava na hora em m2.rq. */
+   data de início, ou altera frequência, participantes e duração e liga/desliga cada rotina. Tudo grava na hora em m2.rq. */
 import { useEffect, useState } from 'react';
 import { MODELO, agendadas, areasDoMandato, concluida, dataPassada, editaRotina, lerQuadro, type RotinaQ } from '@/lib/quadroRotinas';
 import { useEquipe } from './useEquipe';
@@ -32,7 +32,6 @@ function Linha({ r, areas, edita }: { r: RotinaQ; areas: string[]; edita: Edita 
       <td data-label="Quando o mandato iniciará a rotina?">
         <div className="es-rq-quando">
           <input type="date" aria-label={`Data de início: ${r.titulo}`} value={r.data ?? ''} disabled={!r.on} onChange={(e) => edita(r.id, { data: e.target.value })} />
-          <input type="time" aria-label={`Horário de início: ${r.titulo}`} value={r.hora ?? ''} disabled={!r.on} onChange={(e) => edita(r.id, { hora: e.target.value })} />
         </div>
         {!r.on && <small className="es-tab-leg">Rotina desligada: não precisa de data.</small>}
         {passada && <small className="es-tab-leg ps" role="note">Essa data já passou. Você pode mantê-la, é só um aviso.</small>}
@@ -51,7 +50,7 @@ export default function QuadroRotinas() {
   return (
     <div className="ilha-corpo es-rq-ilha">
       <p className="es-tab-contador" data-contador><strong>{n} de {total}</strong> agendadas</p>
-      {concluida(c) && <p className="apoio" role="status" data-concluida>Todas as rotinas ligadas têm data e horário. Você já pode marcar o exercício como concluído.</p>}
+      {concluida(c) && <p className="apoio" role="status" data-concluida>Todas as rotinas ligadas têm data de início. Você já pode marcar o exercício como concluído.</p>}
       <div className="es-tab-rolagem">
         <table className="es-tab es-rq">
           <thead>

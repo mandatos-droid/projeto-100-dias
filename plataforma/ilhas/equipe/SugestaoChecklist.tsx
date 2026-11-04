@@ -7,7 +7,7 @@ import './equipe.css';
 const ITENS = [
   { k: 'm2.c1', t: 'Escopo de trabalho de cada cargo definido', dica: 'Todas as linhas da tabela de equipe têm escopo.' },
   { k: 'm2.c2', t: 'Organograma do mandato projetado visualmente', dica: 'O organograma gerado tem a Chefia definida.' },
-  { k: 'm2.c3', t: 'Fluxos de trabalho e rotinas de comunicação estabelecidos', dica: 'Todas as rotinas ligadas têm data e horário de início.' },
+  { k: 'm2.c3', t: 'Fluxos de trabalho e rotinas de comunicação estabelecidos', dica: 'Todas as rotinas ligadas têm data de início.' },
 ] as const;
 
 export default function SugestaoChecklist() {

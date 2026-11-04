@@ -73,13 +73,13 @@ export function editaRotina(c: Campos, id: string, parcial: Edicao): Patch {
 
 const ligadas = (c: Campos) => lerQuadro(c).filter((r) => r.on);
 
-/** "X de N agendadas": N = rotinas ligadas; X = as que têm data e hora válidas. */
+/** "X de N agendadas": N = rotinas ligadas; X = as que têm data válida. */
 export function agendadas(c: Campos): { n: number; total: number } {
   const l = ligadas(c);
-  return { n: l.filter((r) => dataOk(r.data) && horaOk(r.hora)).length, total: l.length };
+  return { n: l.filter((r) => dataOk(r.data)).length, total: l.length };
 }
 
-/** Todas as rotinas ligadas têm data e hora (e há ao menos uma ligada). */
+/** Todas as rotinas ligadas têm data (e há ao menos uma ligada). */
 export function concluida(c: Campos): boolean {
   const { n, total } = agendadas(c);
   return total > 0 && n === total;

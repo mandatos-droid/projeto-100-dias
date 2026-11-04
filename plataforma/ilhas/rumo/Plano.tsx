@@ -8,7 +8,7 @@ import { OBJETIVOS_LEGISLA, lerEstrategia, lerJustificativa } from '@/lib/estrat
 import { PREDITORES, podeAcrescentarMeta } from '@/lib/plano';
 import { resolve } from '@/lib/pessoas';
 import { quadroRotinasHtml } from '@/lib/exporta';
-import { dataOk, horaOk, lerQuadro } from '@/lib/quadroRotinas';
+import { dataOk, lerQuadro } from '@/lib/quadroRotinas';
 import { editaSucesso, lerSucessos } from '@/lib/sucessos';
 import PdfOrgRotinas from '../equipe/PdfOrgRotinas';
 import ArvorePlano, { pctTxt } from './ArvorePlano';
@@ -76,7 +76,7 @@ function EstrategiaPlano({ campos, escolhidos }: { campos: Record<string, string
 function RotinasPlano({ campos }: { campos: Record<string, string> }) {
   const rotinas = lerQuadro(campos);
   const ligadas = rotinas.filter((r) => r.on);
-  const semInicio = !ligadas.some((r) => dataOk(r.data) && horaOk(r.hora));
+  const semInicio = !ligadas.some((r) => dataOk(r.data));
   return (
     <section className="rm-rotinas" aria-label="Rotinas do mandato" data-rotinas-plano>
       <h4>Rotinas do mandato</h4>

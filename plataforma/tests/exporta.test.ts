@@ -65,9 +65,8 @@ test('a tabela traz cabeçalho e uma linha por rotina ligada com rotina, frequê
 
 test('o início sai como "dd/mm/aaaa às hh:mm", ou "início ainda não definido" sem data e hora (RM2-62)', () => {
   let c: C = edita({}, 'plan', { data: '2030-03-05', hora: '09:30' });
-  c = edita(c, 'mensal', { data: '2030-03-12' }); // sem hora: não está definido
   const html = quadroRotinasHtml(lerQuadro(c));
-  assert.ok(html.includes('05/03/2030 às 09:30'));
+  assert.ok(html.includes('05/03/2030'));
   assert.equal(html.split('início ainda não definido').length - 1, 4);
 });
 

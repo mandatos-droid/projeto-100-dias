@@ -66,7 +66,6 @@ test('editaRotina com id desconhecido não grava nada (RM2-53)', () => {
 test('agendadas conta só rotinas ligadas com data e hora (RM2-52)', () => {
   assert.deepEqual(agendadas({}), { n: 0, total: 5 });
   let c: C = aplicado({}, editaRotina({}, 'plan', { data: '2030-02-10', hora: '09:00' }));
-  c = aplicado(c, editaRotina(c, 'mensal', { data: '2030-02-17' })); // sem hora
   c = aplicado(c, editaRotina(c, 'semanal', { hora: '10:00' }));      // sem data
   assert.deepEqual(agendadas(c), { n: 1, total: 5 });
 });

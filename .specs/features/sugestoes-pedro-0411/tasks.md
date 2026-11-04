@@ -18,6 +18,6 @@ Frentes em arquivos disjuntos (rodam em paralelo). Cada task = 1 commit atômico
 ## Frente C — M4 + Plano
 - [x] T11 R19 M4 comissões sem data
 - [x] T12 R20 M4 ações editáveis
-- [ ] T13 R21 M4 métricas: tag em manchetes
+- [x] T13 R21 M4 métricas: tag em manchetes
 - [ ] T14 R22 atingimento pelos sucessos mensais
 - [ ] T15 R23 planejamentos em cards

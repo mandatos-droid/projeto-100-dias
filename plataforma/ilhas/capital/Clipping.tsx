@@ -3,7 +3,7 @@
    etiquetar com as bandeiras da Missão 3 (uma a uma ou em lote) e acrescentar aparições à mão.
    Grava só título, veículo, data e link em D.comunicacao.clipping (regras puras em lib/comunicacao.ts). */
 import { useState } from 'react';
-import { bandeiraDe } from '@/lib/bandeiras';
+import { BANDEIRAS, bandeiraDe } from '@/lib/bandeiras';
 import { SEM_BANDEIRA, adicionaManual, aparicoesPorBandeira, etiquetaNoticias, lerComunicacao, mesclaBusca, ocultaNoticias, semanaDe, type ItemBusca, type Noticia } from '@/lib/comunicacao';
 import { lerRumo } from '@/lib/rumo';
 import { useLegado } from '../ponte';
@@ -18,8 +18,10 @@ const FALHA = 'Não consegui buscar agora. Adicione manualmente';
 export default function Clipping() {
   const { D, m, bump } = useLegado();
   const com = lerComunicacao(D.comunicacao);
-  const bandeiras = lerRumo(D).bandeiras.filter((b) => b.prioridade !== null).sort((a, b) => a.prioridade! - b.prioridade!)
+  const prior = lerRumo(D).bandeiras.filter((b) => b.prioridade !== null).sort((a, b) => a.prioridade! - b.prioridade!)
     .map((b) => ({ id: b.id, rot: bandeiraDe(b.id)?.rot ?? b.rot }));
+  /* SUG-84: sem bandeiras prioritárias, o seletor oferece todas as do Guia, para a etiqueta nunca sumir */
+  const bandeiras = prior.length ? prior : BANDEIRAS.map((b) => ({ id: b.id, rot: b.rot }));
   const rotDe = (id: string) => bandeiras.find((b) => b.id === id)?.rot ?? bandeiraDe(id)?.rot ?? id;
   const semana = semanaDe(new Date()) ?? '';
   /** Barras: as bandeiras do mandato (mesmo com 0), depois as outras que aparecem, e "Sem bandeira" por último (se houver). */
@@ -94,6 +96,14 @@ export default function Clipping() {
         </p>
         <p className="cp-not-m">{[n.veiculo || 'veículo não informado', dataBr(n.data)].join(' · ')}</p>
         {!n.oculta && (
+          <label className="campo cp-tag"><span className="rot">Etiquetar manchete</span>
+            <select value="" onChange={(e) => { if (e.target.value) alternaEtiqueta(n, e.target.value); }}>
+              <option value="">Escolher bandeira…</option>
+              {bandeiras.map((b) => <option key={b.id} value={b.id}>{n.bandeiras.includes(b.id) ? `✓ ${b.rot} (tirar)` : b.rot}</option>)}
+            </select>
+          </label>
+        )}
+        {!n.oculta && (
           <div className="cp-chips" role="group" aria-label={`Bandeiras de: ${n.titulo}`}>
             {n.bandeiras.length === 0 && <span className="cp-chip-sem">Sem bandeira</span>}
             {bandeiras.map((b) => (
@@ -148,7 +158,7 @@ export default function Clipping() {
           </div>
         </div>
       )}
-      {bandeiras.length === 0 && visiveis.length > 0 && <p className="cp-vazio">Para etiquetar, escolha antes as bandeiras prioritárias na Missão 3.</p>}
+      {prior.length === 0 && visiveis.length > 0 && <p className="cp-vazio">Você ainda não escolheu bandeiras prioritárias na Missão 3; mostro todas as bandeiras para etiquetar.</p>}
 
       {visiveis.length > 0
         ? <ul className="cp-clip-lista">{visiveis.map(linha)}</ul>

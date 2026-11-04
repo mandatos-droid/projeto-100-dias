@@ -48,13 +48,13 @@
 
   /* ---------- Mão na massa 2: o quadro-modelo de rotinas da Legisla e o PDF do organograma e das rotinas ---------- */
   if(g){
-    g.d='Estabelecer as rotinas de alinhamento do mandato: o quadro sugerido pela Legisla, com data e horário de início.';
+    g.d='Estabelecer as rotinas de alinhamento do mandato: o quadro sugerido pela Legisla, com data de início.';
     g.intro='<h4>Estabelecimento dos fluxos de trabalho e rotinas de comunicação entre as equipes</h4>'+
       '<p><strong>Objetivo:</strong> definir quais são os momentos de encontro coletivo e dentro de áreas, apresentar como as demandas devem circular pelo mandato, quem deve ser acionado em cada situação, quais informações precisam ser compartilhadas e quais são as principais rotinas de alinhamento.</p>'+
       '<p><strong>Importância:</strong> criar previsibilidade e integração no trabalho, reduzir ruídos de comunicação e atrasos, melhorar a coordenação entre as áreas e permitir que o mandato funcione de forma menos dependente de orientações individuais da liderança parlamentar.</p>'+
       '<h4>Exercício</h4>'+
       '<p>A Legisla sugere que os mandatos cumpram as rotinas de alinhamento propostas no quadro abaixo.</p>'+
-      '<ul><li>Caso esteja de acordo com o modelo, adicione, na última linha, a data e o horário para a realização de cada uma das rotinas propostas.</li>'+
+      '<ul><li>Caso esteja de acordo com o modelo, adicione, na última linha, a data para a realização de cada uma das rotinas propostas.</li>'+
       '<li>Caso não esteja de acordo, altere o que desejar.</li></ul>'+
       '<div class="ilha" data-ilha="quadro-rotinas"></div>'+
       '<div class="ilha" data-ilha="pdf-org-rotinas"></div>'+
