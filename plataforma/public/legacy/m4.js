@@ -61,17 +61,32 @@
         (meta?'<br>Meta do planejamento: '+esc(a.metaTexto):'')+'</dd>';
     }).join('')+'</dl>';
   }
+  /* mesmos textos de data de lib/comunicacao.ts (ultimoRegistroDatado): "em 04/11/2026", "semana de 02/11 a 08/11/2026" ou "mês de novembro de 2026" */
+  var MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  function iso(d){return d.toISOString().slice(0,10)}
+  function segunda(sem){var m=/^(\d{4})-W(\d{2})$/.exec(sem);if(!m)return null;var j=new Date(Date.UTC(+m[1],0,4));return new Date(j.getTime()-((j.getUTCDay()||7)-1)*864e5+(+m[2]-1)*7*864e5)}
   function semana(){
-    var sem=D.comunicacao&&D.comunicacao.semanas;
-    if(!sem||typeof sem!=='object')return '';
-    var chaves=Object.keys(sem).filter(function(s){return /^\d{4}-W\d{2}$/.test(s)&&sem[s]&&typeof sem[s]==='object'}).sort();
+    var c=D.comunicacao;
+    if(!c||typeof c!=='object')return '';
+    var sem=c.semanas,mes=c.meses,datas=c.datas;
+    var okSem=sem&&typeof sem==='object',okMes=mes&&typeof mes==='object';
+    if(!okSem&&!okMes)return '';
     var li=[];
     SECOES.forEach(function(s){
-      for(var i=chaves.length-1;i>=0;i--){
-        var v=sem[chaves[i]][s[0]];
-        if(!v||typeof v!=='object')continue;
+      var cand=[];
+      if(okSem)Object.keys(sem).filter(function(k){return /^\d{4}-W\d{2}$/.test(k)&&sem[k]&&typeof sem[k]==='object'&&sem[k][s[0]]&&typeof sem[k][s[0]]==='object'}).forEach(function(k){
+        var seg=segunda(k),dom=new Date(seg.getTime()+6*864e5),d=datas&&datas[k]&&datas[k][s[0]];
+        cand.push({fim:d||iso(dom),rot:d?'em '+dataBr(d):'semana de '+dataBr(iso(seg)).slice(0,5)+' a '+dataBr(iso(dom)),v:sem[k][s[0]]});
+      });
+      if(okMes)Object.keys(mes).filter(function(k){return /^\d{4}-(0[1-9]|1[0-2])$/.test(k)&&mes[k]&&typeof mes[k]==='object'&&mes[k][s[0]]&&typeof mes[k][s[0]]==='object'}).forEach(function(k){
+        var a=+k.slice(0,4),m=+k.slice(5);
+        cand.push({fim:iso(new Date(Date.UTC(a,m,0))),rot:'mês de '+MESES[m-1]+' de '+a,v:mes[k][s[0]]});
+      });
+      cand.sort(function(x,y){return x.fim<y.fim?-1:x.fim>y.fim?1:0});
+      for(var i=cand.length-1;i>=0;i--){
+        var v=cand[i].v;
         var txt=s[2].filter(function(c){return typeof v[c[0]]==='number'&&isFinite(v[c[0]])}).map(function(c){return esc(c[1])+' '+v[c[0]]});
-        if(txt.length){li.push('<li><strong>'+esc(s[1])+'</strong> ('+chaves[i]+'): '+txt.join(' · ')+'</li>');break}
+        if(txt.length){li.push('<li><strong>'+esc(s[1])+'</strong> ('+esc(cand[i].rot)+'): '+txt.join(' · ')+'</li>');break}
       }
     });
     return li.length?'<dl class="cmp"><dt>Acompanhamento semanal (último registro de cada seção)</dt><dd><ul class="marcados">'+li.join('')+'</ul></dd></dl>':'';

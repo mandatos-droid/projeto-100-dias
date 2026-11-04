@@ -6,7 +6,8 @@ export type Secao = { id: string; caixinha: string; titulo: string; curto: strin
 export type Valores = Record<string, number>;
 export type Semanas = Record<string, Record<string, Valores>>;
 export type Noticia = { id: string; semana: string; titulo: string; veiculo: string; data: string; url: string; bandeiras: string[]; manual?: boolean; oculta?: boolean };
-export type Comunicacao = { semanas: Semanas; clipping: Noticia[] };
+/** `meses`: registros mensais ("2026-11"); `datas`: dia do registro semanal (semana → seção → "AAAA-MM-DD"). Os dois só existem quando há dado (SUG-50, SUG-51). */
+export type Comunicacao = { semanas: Semanas; clipping: Noticia[]; meses?: Semanas; datas?: Record<string, Record<string, string>> };
 
 /** As 5 seções do Guia (os títulos repetem os de m4.k1..k5) e os números de cada uma. `caixinha` é a chave antiga em D.campos. */
 export const SECOES: Secao[] = [
@@ -33,6 +34,7 @@ export const secaoDe = (id: string) => SECOES.find((s) => s.id === id);
 
 const ehObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 const dois = (n: number) => String(n).padStart(2, '0');
+const ehMes = (m: string) => /^\d{4}-(0[1-9]|1[0-2])$/.test(m);
 
 /** Semana ISO de uma data ("AAAA-MM-DD" ou Date): "2026-12-31" → "2026-W53"; "2027-01-01" → "2026-W53". Data inválida → null. */
 export function semanaDe(data: string | Date): string | null {
@@ -69,15 +71,30 @@ export function lerComunicacao(bruto: unknown): Comunicacao {
     }
   }
   const clipping = (Array.isArray(b.clipping) ? b.clipping : []).filter((n): n is Noticia => ehObj(n) && typeof n.id === 'string') as Noticia[];
-  return { semanas, clipping };
+  const meses: Semanas = {};
+  if (ehObj(b.meses)) {
+    for (const [mes, secoes] of Object.entries(b.meses)) {
+      if (!ehMes(mes) || !ehObj(secoes)) continue;
+      for (const [sec, vals] of Object.entries(secoes)) {
+        if (!secaoDe(sec) || !ehObj(vals)) continue;
+        const v: Valores = {};
+        for (const [c, n] of Object.entries(vals)) if (typeof n === 'number' && Number.isFinite(n) && n >= 0) v[c] = n;
+        (meses[mes] ??= {})[sec] = v;
+      }
+    }
+  }
+  const datas: Record<string, Record<string, string>> = {};
+  if (ehObj(b.datas)) {
+    for (const [sem, secoes] of Object.entries(b.datas)) {
+      if (!/^\d{4}-W\d{2}$/.test(sem) || !ehObj(secoes)) continue;
+      for (const [sec, d] of Object.entries(secoes)) if (secaoDe(sec) && typeof d === 'string' && semanaDe(d) !== null) (datas[sem] ??= {})[sec] = d;
+    }
+  }
+  return { semanas, clipping, ...(Object.keys(meses).length ? { meses } : {}), ...(Object.keys(datas).length ? { datas } : {}) };
 }
 
-/** Registra (ou edita) os números de uma seção numa semana. A mesma semana duas vezes edita o mesmo registro, não duplica.
- *  Recusa número negativo, não numérico ou de campo que a seção não tem. Devolve a nova comunicação; a entrada não muda. */
-export function registra(com: Comunicacao, secaoId: string, semana: string, valores: Record<string, unknown>): { ok: true; com: Comunicacao } | { ok: false; erro: string } {
-  const sec = secaoDe(secaoId);
-  if (!sec) return { ok: false, erro: 'Seção desconhecida.' };
-  if (!/^\d{4}-W\d{2}$/.test(semana)) return { ok: false, erro: 'Semana inválida.' };
+type Validado = { ok: true; novos: Valores } | { ok: false; erro: string };
+function validaValores(sec: Secao, valores: Record<string, unknown>): Validado {
   const novos: Valores = {};
   for (const [c, n] of Object.entries(valores)) {
     const campo = sec.campos.find((x) => x.id === c);
@@ -86,8 +103,49 @@ export function registra(com: Comunicacao, secaoId: string, semana: string, valo
     if (n < 0) return { ok: false, erro: `${campo.rot}: o número não pode ser negativo.` };
     novos[c] = n;
   }
-  const semanas: Semanas = { ...com.semanas, [semana]: { ...com.semanas[semana], [secaoId]: novos } };
-  return { ok: true, com: { ...com, semanas } };
+  return { ok: true, novos };
+}
+
+/** Registra (ou edita) os números de uma seção numa semana. A mesma semana duas vezes edita o mesmo registro, não duplica.
+ *  Recusa número negativo, não numérico ou de campo que a seção não tem. Com `data` ("AAAA-MM-DD" do dia do registro), guarda a data para o cabeçalho.
+ *  Devolve a nova comunicação; a entrada não muda. */
+export function registra(com: Comunicacao, secaoId: string, semana: string, valores: Record<string, unknown>, data?: string): { ok: true; com: Comunicacao } | { ok: false; erro: string } {
+  const sec = secaoDe(secaoId);
+  if (!sec) return { ok: false, erro: 'Seção desconhecida.' };
+  if (!/^\d{4}-W\d{2}$/.test(semana)) return { ok: false, erro: 'Semana inválida.' };
+  const v = validaValores(sec, valores);
+  if (!v.ok) return v;
+  const semanas: Semanas = { ...com.semanas, [semana]: { ...com.semanas[semana], [secaoId]: v.novos } };
+  const datas = data && semanaDe(data) === semana ? { ...com.datas, [semana]: { ...com.datas?.[semana], [secaoId]: data } } : com.datas;
+  return { ok: true, com: { ...com, semanas, ...(datas ? { datas } : {}) } };
+}
+
+/** Registro do mês ("2026-11"): um por seção por mês; o mesmo mês duas vezes edita o mesmo registro (SUG-50). */
+export function registraMes(com: Comunicacao, secaoId: string, mes: string, valores: Record<string, unknown>): { ok: true; com: Comunicacao } | { ok: false; erro: string } {
+  const sec = secaoDe(secaoId);
+  if (!sec) return { ok: false, erro: 'Seção desconhecida.' };
+  if (!ehMes(mes)) return { ok: false, erro: 'Mês inválido.' };
+  const v = validaValores(sec, valores);
+  if (!v.ok) return v;
+  return { ok: true, com: { ...com, meses: { ...com.meses, [mes]: { ...com.meses?.[mes], [secaoId]: v.novos } } } };
+}
+
+/** Dias que o registro semanal pode recuar: "esta semana ou nos últimos 15 dias" (hoje e os 14 anteriores). */
+export const DIAS_RECUO = 14;
+const somaDias = (iso: string, n: number) => { const [a, m, d] = iso.split('-').map(Number); return new Date(Date.UTC(a, m - 1, d + n)).toISOString().slice(0, 10); };
+
+/** Recusa da data do registro semanal (de 14 dias atrás até hoje), ou null se vale. */
+export function validaDataRegistro(data: string, hoje: string): string | null {
+  if (semanaDe(data) === null) return 'Escolha uma data válida.';
+  if (data > hoje) return 'A data do registro não pode ser no futuro.';
+  if (data < somaDias(hoje, -DIAS_RECUO)) return 'O registro semanal vai até 15 dias atrás. Para um período maior, use o registro do mês.';
+  return null;
+}
+
+/** Recusa do mês do registro mensal (mês futuro não vale), ou null se vale. */
+export function validaMesRegistro(mes: string, hoje: string): string | null {
+  if (!ehMes(mes)) return 'Escolha um mês válido.';
+  return mes > hoje.slice(0, 7) ? 'O mês do registro não pode ser no futuro.' : null;
 }
 
 /** Os valores de um campo por semana, em ordem de semana (só as semanas em que o campo foi registrado). */
@@ -105,6 +163,53 @@ export function ultimoRegistro(com: Comunicacao, secaoId: string): { semana: str
   const s = semanasDaSecao(com, secaoId);
   return s.length ? { semana: s[s.length - 1], valores: com.semanas[s[s.length - 1]][secaoId] } : null;
 }
+
+const dataBR = (iso: string) => iso.split('-').reverse().join('/');
+const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+/** Segunda-feira ("AAAA-MM-DD") da semana ISO "2026-W45". */
+export function inicioDaSemana(semana: string): string {
+  const m = /^(\d{4})-W(\d{2})$/.exec(semana);
+  if (!m) return '';
+  const jan4 = new Date(Date.UTC(+m[1], 0, 4));
+  const seg = new Date(jan4.getTime() - ((jan4.getUTCDay() || 7) - 1) * 86400000 + (+m[2] - 1) * 7 * 86400000);
+  return seg.toISOString().slice(0, 10);
+}
+
+/** "mês de novembro de 2026" para "2026-11". */
+export const rotuloMes = (mes: string) => (ehMes(mes) ? `mês de ${MESES[+mes.slice(5) - 1]} de ${mes.slice(0, 4)}` : mes);
+
+/** Último registro da seção entre semanas e meses, com o texto da data certa para o cabeçalho (SUG-51):
+ *  "em 04/11/2026" (semanal com data), "semana de 02/11 a 08/11/2026" (semanal antigo, sem data) ou "mês de novembro de 2026". */
+export function ultimoRegistroDatado(com: Comunicacao, secaoId: string): { rotulo: string; valores: Valores } | null {
+  const cand: { fim: string; rotulo: string; valores: Valores }[] = [];
+  for (const sem of semanasDaSecao(com, secaoId)) {
+    const data = com.datas?.[sem]?.[secaoId];
+    const seg = inicioDaSemana(sem);
+    const dom = somaDias(seg, 6);
+    cand.push({ fim: data ?? dom, rotulo: data ? `em ${dataBR(data)}` : `semana de ${dataBR(seg).slice(0, 5)} a ${dataBR(dom)}`, valores: com.semanas[sem][secaoId] });
+  }
+  for (const mes of mesesDaSecao(com, secaoId)) {
+    const [a, m] = mes.split('-').map(Number);
+    cand.push({ fim: new Date(Date.UTC(a, m, 0)).toISOString().slice(0, 10), rotulo: rotuloMes(mes), valores: com.meses![mes][secaoId] });
+  }
+  cand.sort((x, y) => (x.fim < y.fim ? -1 : x.fim > y.fim ? 1 : 0));
+  const u = cand[cand.length - 1];
+  return u ? { rotulo: u.rotulo, valores: u.valores } : null;
+}
+
+/** Meses em que a seção tem registro, em ordem. */
+export const mesesDaSecao = (com: Comunicacao, secaoId: string) => Object.keys(com.meses ?? {}).sort().filter((m) => com.meses![m][secaoId]);
+
+/** Os valores de um campo por mês (só os meses em que o campo foi registrado). */
+export function serieMes(com: Comunicacao, secaoId: string, campo: string): { mes: string; valor: number }[] {
+  return mesesDaSecao(com, secaoId)
+    .map((mes) => ({ mes, valor: com.meses![mes][secaoId][campo] }))
+    .filter((p): p is { mes: string; valor: number } => typeof p.valor === 'number');
+}
+
+/** Aparições do mês: notícias do clipping não ocultas com data nesse mês. */
+export const aparicoesDoMes = (clipping: Noticia[], mes: string): number => clipping.filter((n) => !n.oculta && typeof n.data === 'string' && n.data.startsWith(`${mes}-`)).length;
 
 export const SEM_BANDEIRA = 'sem';
 
@@ -135,7 +240,7 @@ export function indicador(com: Comunicacao, secaoId: string): { semana: string; 
 
 /** Chaves das caixinhas antigas (m4.k1 a m4.k5) a marcar: seções com registro cuja caixinha ainda não está marcada. Nunca desmarca. */
 export function caixinhasParaMarcar(com: Comunicacao, campos: Record<string, unknown>): string[] {
-  return SECOES.filter((s) => semanasDaSecao(com, s.id).length > 0 && !campos[s.caixinha]).map((s) => s.caixinha);
+  return SECOES.filter((s) => (semanasDaSecao(com, s.id).length > 0 || mesesDaSecao(com, s.id).length > 0) && !campos[s.caixinha]).map((s) => s.caixinha);
 }
 
 /* ---------- clipping: operações puras sobre a lista de notícias (guardam só título, veículo, data e link) ---------- */

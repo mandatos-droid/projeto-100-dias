@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { SECOES, semanaDe, lerComunicacao, registra, serie, ultimoRegistro, aparicoesPorBandeira, indicador, caixinhasParaMarcar, mesclaBusca, aparicoesDaSemana, adicionaManual, ocultaNoticias, etiquetaNoticias, type Comunicacao } from '../lib/comunicacao.ts';
+import { SECOES, semanaDe, lerComunicacao, registra, serie, ultimoRegistro, aparicoesPorBandeira, indicador, caixinhasParaMarcar, mesclaBusca, aparicoesDaSemana, adicionaManual, ocultaNoticias, etiquetaNoticias, registraMes, validaDataRegistro, validaMesRegistro, ultimoRegistroDatado, inicioDaSemana, serieMes, aparicoesDoMes, type Comunicacao } from '../lib/comunicacao.ts';
 
 /* Missão 4 · regras da comunicação (CAP-20, CAP-21, CAP-31, CAP-40). Resultados esperados vêm da spec e do calendário ISO. */
 const vazia: Comunicacao = { semanas: {}, clipping: [] };
@@ -161,4 +161,67 @@ test('aparicoesDaSemana: conta só as não ocultas da semana pedida (CAP-31.7)',
   assert.equal(aparicoesDaSemana(c, '2026-W43'), 1);
   assert.equal(aparicoesDaSemana(c, '2026-W42'), 0);
   assert.equal(aparicoesDaSemana([], '2026-W44'), 0);
+});
+/* ---------- sugestões da Missão 4 (SUG-50, SUG-51) ---------- */
+test('SUG-50: registra com data guarda o dia em datas; a mesma semana edita o mesmo registro', () => {
+  const a = ok(registra(vazia, 'k1', '2026-W45', { alcance: 5 }, '2026-11-02'));
+  assert.deepEqual(a.datas, { '2026-W45': { k1: '2026-11-02' } });
+  const b = ok(registra(a, 'k1', '2026-W45', { alcance: 9 }, '2026-11-04'));
+  assert.deepEqual(Object.keys(b.semanas), ['2026-W45']);
+  assert.deepEqual(b.datas, { '2026-W45': { k1: '2026-11-04' } });
+  assert.equal(b.semanas['2026-W45'].k1.alcance, 9);
+  assert.equal(registra(vazia, 'k1', '2026-W45', { alcance: 5 }).ok && 'datas' in ok(registra(vazia, 'k1', '2026-W45', { alcance: 5 })), false);
+});
+
+test('SUG-50: a data do registro vale de 14 dias atrás até hoje; futuro e mais antigo são recusados', () => {
+  assert.equal(validaDataRegistro('2026-11-04', '2026-11-04'), null);
+  assert.equal(validaDataRegistro('2026-10-21', '2026-11-04'), null);
+  assert.match(validaDataRegistro('2026-10-20', '2026-11-04')!, /15 dias/);
+  assert.match(validaDataRegistro('2026-11-05', '2026-11-04')!, /futuro/);
+  assert.match(validaDataRegistro('2026-02-30', '2026-11-04')!, /válida/);
+});
+
+test('SUG-50: registraMes guarda por mês, edita o mesmo mês e recusa mês futuro, número negativo e mês inválido', () => {
+  const a = ok(registraMes(vazia, 'k2', '2026-11', { comentarios: 4 }));
+  assert.deepEqual(a.meses, { '2026-11': { k2: { comentarios: 4 } } });
+  const b = ok(registraMes(a, 'k2', '2026-11', { comentarios: 6 }));
+  assert.deepEqual(b.meses, { '2026-11': { k2: { comentarios: 6 } } });
+  assert.equal(registraMes(vazia, 'k2', '2026-13', { comentarios: 1 }).ok, false);
+  assert.equal(registraMes(vazia, 'k2', '2026-11', { comentarios: -1 }).ok, false);
+  assert.equal(validaMesRegistro('2026-12', '2026-11-04') !== null, true);
+  assert.equal(validaMesRegistro('2026-11', '2026-11-04'), null);
+  assert.deepEqual(serieMes(b, 'k2', 'comentarios'), [{ mes: '2026-11', valor: 6 }]);
+});
+
+test('SUG-50: lerComunicacao aceita meses e datas e descarta o que é inválido, sem criar chaves vazias', () => {
+  const c = lerComunicacao({ semanas: {}, meses: { '2026-11': { k1: { alcance: 1 } }, 'x': { k1: {} }, '2026-13': { k1: { alcance: 2 } } }, datas: { '2026-W45': { k1: '2026-11-04', k2: 'lixo' } } });
+  assert.deepEqual(c.meses, { '2026-11': { k1: { alcance: 1 } } });
+  assert.deepEqual(c.datas, { '2026-W45': { k1: '2026-11-04' } });
+  assert.equal('meses' in lerComunicacao({}), false);
+  assert.equal('datas' in lerComunicacao({}), false);
+});
+
+test('SUG-51: inicioDaSemana dá a segunda-feira da semana ISO', () => {
+  assert.equal(inicioDaSemana('2026-W45'), '2026-11-02');
+  assert.equal(inicioDaSemana('2026-W53'), '2026-12-28');
+  assert.equal(inicioDaSemana('2027-W01'), '2027-01-04');
+});
+
+test('SUG-51: o último registro mostra a data certa (com data, sem data, mês) e vence o mais recente por data', () => {
+  const sem = ok(registra(vazia, 'k1', '2026-W45', { alcance: 1 }, '2026-11-04'));
+  assert.equal(ultimoRegistroDatado(sem, 'k1')!.rotulo, 'em 04/11/2026');
+  const antigo: Comunicacao = { semanas: { '2026-W44': { k1: { alcance: 1 } } }, clipping: [] };
+  assert.equal(ultimoRegistroDatado(antigo, 'k1')!.rotulo, 'semana de 26/10 a 01/11/2026');
+  const mes = ok(registraMes(sem, 'k1', '2026-11', { alcance: 9 }));
+  assert.equal(ultimoRegistroDatado(mes, 'k1')!.rotulo, 'mês de novembro de 2026');
+  assert.equal(ultimoRegistroDatado(mes, 'k1')!.valores.alcance, 9);
+  const mesAntigo = ok(registraMes(sem, 'k1', '2026-09', { alcance: 9 }));
+  assert.equal(ultimoRegistroDatado(mesAntigo, 'k1')!.rotulo, 'em 04/11/2026');
+  assert.equal(ultimoRegistroDatado(vazia, 'k1'), null);
+});
+
+test('SUG-50: aparicoesDoMes conta só as não ocultas com data no mês; registro mensal marca a caixinha antiga', () => {
+  const n = (data: string, oculta = false) => ({ id: data + oculta, semana: '', titulo: 't', veiculo: '', data, url: '', bandeiras: [], oculta });
+  assert.equal(aparicoesDoMes([n('2026-11-02'), n('2026-11-30'), n('2026-10-31'), n('2026-11-05', true)], '2026-11'), 2);
+  assert.deepEqual(caixinhasParaMarcar(ok(registraMes(vazia, 'k3', '2026-11', { recebidas: 1 })), {}), ['m4.k3']);
 });

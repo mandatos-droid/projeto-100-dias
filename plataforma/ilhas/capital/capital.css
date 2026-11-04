@@ -139,3 +139,4 @@
 .cp-c-meta select{max-width:100%}
 .cp-livre{display:flex;flex-wrap:wrap;align-items:flex-end;gap:0.5rem 0.75rem;margin-top:1rem}
 .cp-livre .campo{flex:1 1 18rem;margin:0}
+.cp-data{display:block;margin:0 0 0.75rem}

@@ -3,16 +3,18 @@
    gráfico de linha por seção e, no fim, a "Linha do tempo geral" com um indicador de cada seção.
    Grava em D.comunicacao = { semanas, clipping } (formato e regras em lib/comunicacao.ts) e marca as caixinhas antigas m4.k1 a m4.k5. */
 import { useEffect } from 'react';
-import { SECOES, aparicoesDaSemana, caixinhasParaMarcar, indicador, lerComunicacao, registra, semanaDe } from '@/lib/comunicacao';
+import { SECOES, caixinhasParaMarcar, indicador, lerComunicacao, registra, registraMes, semanaDe } from '@/lib/comunicacao';
+import { hojeISO } from '@/lib/capital';
 import { useLegado } from '../ponte';
 import Grafico from './Grafico';
 import Clipping from './Clipping';
-import SecaoComunicacao from './SecaoComunicacao';
+import SecaoComunicacao, { type RefRegistro } from './SecaoComunicacao';
 import './capital.css';
 
 export default function Comunicacao() {
   const { D, bump } = useLegado();
   const com = lerComunicacao(D.comunicacao);
+  const hoje = hojeISO();
   const semana = semanaDe(new Date()) ?? '';
 
   /* seção com registro marca a caixinha antiga: o Resumo e o contador do Guia leem D.campos['m4.kN'] (nunca desmarca) */
@@ -24,8 +26,8 @@ export default function Comunicacao() {
   };
   useEffect(marcaCaixinhas, []); // registros que já existiam antes de abrir a tela // eslint-disable-line react-hooks/exhaustive-deps
 
-  const grava = (secaoId: string, valores: Record<string, number>): string | null => {
-    const r = registra(com, secaoId, semana, valores);
+  const grava = (secaoId: string, valores: Record<string, number>, ref: RefRegistro): string | null => {
+    const r = ref.tipo === 'semana' ? registra(com, secaoId, semanaDe(ref.data) ?? '', valores, ref.data) : registraMes(com, secaoId, ref.mes, valores);
     if (!r.ok) return r.erro;
     D.comunicacao = r.com;
     marcaCaixinhas();
@@ -39,7 +41,7 @@ export default function Comunicacao() {
   return (
     <div className="ilha-corpo cp-esc cp-com">
       <p className="cp-band">Semana atual: {semana}. Registre uma vez por semana os números de cada tópico; só valem números iguais ou maiores que zero.</p>
-      {SECOES.map((s) => <SecaoComunicacao key={s.id} secao={s} com={com} semana={semana} onGrava={grava} aparicoesClipping={aparicoesDaSemana(com.clipping, semana)} />)}
+      {SECOES.map((s) => <SecaoComunicacao key={s.id} secao={s} com={com} hoje={hoje} onGrava={grava} clipping={com.clipping} />)}
       <Clipping />
       <section className="cp-geral" aria-labelledby="cp-geral-t">
         <h4 id="cp-geral-t">Linha do tempo geral</h4>

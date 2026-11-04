@@ -157,6 +157,15 @@ test('Resumo: prazo novo AAAA-MM-DD aparece como DD/MM/AAAA, em qualquer ano e d
   assert.doesNotMatch(h, /2027-03-08/);
 });
 
+test('Resumo (SUG-51): mostra a data do registro semanal e o mês do registro mensal, o mais recente por data', () => {
+  const D = { campos: {}, comunicacao: { semanas: { '2026-W45': { k1: { seguidores: 10 } } }, datas: { '2026-W45': { k1: '2026-11-04' } }, meses: { '2026-11': { k1: { seguidores: 20 }, k2: { comentarios: 2 } } }, clipping: [] } };
+  const h = html(janelaResumo(D, true), 'm4.metricas');
+  assert.match(h, /Alcance e crescimento da comunidade<\/strong> \(mês de novembro de 2026\): Seguidores \(total\) 20/);
+  assert.match(h, /Compartilhamentos, comentários e respostas<\/strong> \(mês de novembro de 2026\): Comentários recebidos 2/);
+  const so = html(janelaResumo({ campos: {}, comunicacao: { semanas: { '2026-W45': { k1: { seguidores: 10 } } }, datas: { '2026-W45': { k1: '2026-11-04' } }, clipping: [] } }, true), 'm4.metricas');
+  assert.match(so, /\(em 04\/11\/2026\): Seguidores \(total\) 10/);
+});
+
 test('Resumo: mostra o último registro de cada seção da comunicação, com a semana, sem aparecer ao Resumo antigo', () => {
   const D = { campos: {}, comunicacao: { semanas: {
     '2026-W44': { k1: { seguidores: 900, alcance: 10 }, k2: { comentarios: 3 } },
@@ -165,10 +174,10 @@ test('Resumo: mostra o último registro de cada seção da comunicação, com a 
   }, clipping: [] } };
   const h = html(janelaResumo(D, true), 'm4.metricas');
   assert.match(h, /Acompanhamento semanal/);
-  assert.match(h, /Alcance e crescimento da comunidade<\/strong> \(2026-W46\): Seguidores \(total\) 1000 · Novos seguidores na semana 12/);
+  assert.match(h, /Alcance e crescimento da comunidade<\/strong> \(semana de 09\/11 a 15\/11\/2026\): Seguidores \(total\) 1000 · Novos seguidores na semana 12/);
   assert.doesNotMatch(h, /900/);
-  assert.match(h, /Compartilhamentos, comentários e respostas<\/strong> \(2026-W44\): Comentários recebidos 3/);
-  assert.match(h, /\(2026-W45\): Aparições na imprensa 0/);
+  assert.match(h, /Compartilhamentos, comentários e respostas<\/strong> \(semana de 26\/10 a 01\/11\/2026\): Comentários recebidos 3/);
+  assert.match(h, /\(semana de 02\/11 a 08\/11\/2026\): Aparições na imprensa 0/);
   assert.doesNotMatch(h, /Mensagens recebidas e encaminhadas<\/strong>/);
   assert.doesNotMatch(html(janelaResumo(D, false), 'm4.metricas'), /Acompanhamento semanal/);
 });

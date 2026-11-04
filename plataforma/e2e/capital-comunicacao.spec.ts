@@ -24,7 +24,7 @@ const TITULOS = [
 ];
 async function registra(page: Page, k: string, valores: Record<string, string>) {
   const s = await abreSecao(page, k);
-  await s.getByRole('button', { name: /^(Registrar|Editar) esta semana$/ }).click();
+  await s.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' }).click();
   for (const [rot, v] of Object.entries(valores)) await s.getByLabel(rot, { exact: true }).fill(v);
   await s.getByRole('button', { name: 'Salvar registro' }).click();
   return s;
@@ -44,7 +44,8 @@ test.describe('Cinco seções expansíveis (CAP-20.1)', () => {
 
   test('o cabeçalho fechado mostra o último registro da seção', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: { semanas: { [semana(1)]: { k1: { seguidores: 900, alcance: 10 } }, [semana(0)]: { k1: { seguidores: 1000, novos: 12, alcance: 20 } } }, clipping: [] } } });
-    await expect(topo(page, 'k1')).toContainText(semana(0));
+    await expect(topo(page, 'k1')).toContainText(/Último registro \(semana de \d{2}\/\d{2} a \d{2}\/\d{2}\/\d{4}\)/); // registro antigo, sem data: mostra o período, não "2026-W45"
+    await expect(topo(page, 'k1')).not.toContainText('-W');
     await expect(topo(page, 'k1')).toContainText('Seguidores (total) 1000');
     await expect(topo(page, 'k1')).toContainText('Novos seguidores na semana 12');
     await expect(topo(page, 'k2')).toContainText('Sem registro ainda');
@@ -55,7 +56,7 @@ test.describe('Registrar esta semana (CAP-20.2)', () => {
   test('abre o formulário com os números da seção, cada um com a explicação, e grava na semana ISO atual', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO });
     const s = await abreSecao(page, 'k1');
-    await s.getByRole('button', { name: 'Registrar esta semana' }).click();
+    await s.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' }).click();
     for (const rot of ['Seguidores (total)', 'Novos seguidores na semana', 'Alcance ou visualizações']) await expect(s.getByLabel(rot, { exact: true })).toBeVisible();
     await expect(s.getByText('Onde achar? Na página inicial das estatísticas da rede social.')).toBeVisible();
     await s.getByLabel('Seguidores (total)', { exact: true }).fill('1200');
@@ -101,8 +102,7 @@ test.describe('Editar esta semana (CAP-20.3)', () => {
     await abre(page, [ILHA], { mandato: MANDATO });
     await registra(page, 'k1', { 'Seguidores (total)': '100', 'Novos seguidores na semana': '5' });
     const s = secao(page, 'k1');
-    await expect(s.getByRole('button', { name: 'Registrar esta semana' })).toHaveCount(0);
-    await s.getByRole('button', { name: 'Editar esta semana' }).click();
+    await s.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' }).click();
     await expect(s.getByLabel('Seguidores (total)', { exact: true })).toHaveValue('100');
     await s.getByLabel('Seguidores (total)', { exact: true }).fill('140');
     await s.getByRole('button', { name: 'Salvar registro' }).click();
@@ -117,14 +117,14 @@ test.describe('Editar esta semana (CAP-20.3)', () => {
     await page.reload();
     await page.locator('#tela[data-pronto="true"]').waitFor();
     const s = await abreSecao(page, 'k4');
-    await expect(s.getByRole('button', { name: 'Editar esta semana' })).toBeVisible();
+    await expect(s.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' })).toBeVisible();
   });
 
   test('cancelar descarta o que foi digitado', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO });
     await registra(page, 'k1', { 'Seguidores (total)': '100' });
     const s = secao(page, 'k1');
-    await s.getByRole('button', { name: 'Editar esta semana' }).click();
+    await s.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' }).click();
     await s.getByLabel('Seguidores (total)', { exact: true }).fill('999');
     await s.getByRole('button', { name: 'Cancelar' }).click();
     expect((await comunicacao(page))!.semanas[semana(0)].k1).toEqual({ seguidores: 100 });
@@ -266,8 +266,8 @@ test('no Guia de verdade o Resumo mostra o último registro semanal de cada seç
   await page.evaluate(() => { location.hash = '#/resumo'; });
   const resumo = page.locator('#tela');
   await expect(resumo).toContainText('Acompanhamento semanal (último registro de cada seção)');
-  await expect(resumo).toContainText(`(${semana(0)}): Seguidores (total) 1200 · Alcance ou visualizações 30`);
-  await expect(resumo).toContainText(`(${semana(0)}): Mensagens recebidas 7`);
+  await expect(resumo).toContainText(/\(em \d{2}\/\d{2}\/\d{4}\): Seguidores \(total\) 1200 · Alcance ou visualizações 30/);
+  await expect(resumo).toContainText(/\(em \d{2}\/\d{2}\/\d{4}\): Mensagens recebidas 7/);
 });
 
 /* ---------- fluxo completo em celular e computador, com 2 semanas registradas de verdade (relógio do navegador controlado) ---------- */
@@ -291,19 +291,19 @@ for (const tela of [{ nome: 'celular 360 px', width: 360, height: 740 }, { nome:
       await page.reload();
       await page.locator('#tela[data-pronto="true"]').waitFor();
       s = await abreSecao(page, 'k1');
-      await expect(s.getByRole('button', { name: 'Registrar esta semana' })).toBeVisible(); // a semana nova ainda não tem registro
+      await expect(s.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' })).toBeVisible(); // a semana nova ainda não tem registro
       s = await registra(page, 'k1', { 'Seguidores (total)': '1100', 'Alcance ou visualizações': '150' });
       await expect(s.getByText('Registre mais uma semana para ver a linha')).toHaveCount(0);
       await expect(s.locator('.cp-g[data-tipo="linha"] polyline')).toHaveCount(2);
       expect(Object.keys((await comunicacao(page))!.semanas)).toEqual(['2026-W45', '2026-W46']);
       expect(await semRolagemLateral(page)).toBe(true);
 
-      await expect(s.getByRole('button', { name: 'Editar esta semana' })).toBeVisible();
+      await expect(s.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' })).toBeVisible();
       s = await registra(page, 'k1', { 'Alcance ou visualizações': '160' });
       const d = (await comunicacao(page))!;
       expect(Object.keys(d.semanas)).toEqual(['2026-W45', '2026-W46']);
       expect(d.semanas['2026-W46'].k1).toEqual({ seguidores: 1100, alcance: 160 });
-      await expect(topo(page, 'k1')).toContainText('Último registro (2026-W46)');
+      await expect(topo(page, 'k1')).toContainText('Último registro em 11/11/2026');
 
       await geral(page).getByText('Ver como tabela').click();
       const linhas = geral(page).locator('.cp-g-tab tbody tr');
@@ -316,7 +316,7 @@ for (const tela of [{ nome: 'celular 360 px', width: 360, height: 740 }, { nome:
 
       await page.reload();
       await page.locator('#tela[data-pronto="true"]').waitFor();
-      await expect(topo(page, 'k1')).toContainText('Último registro (2026-W46)');
+      await expect(topo(page, 'k1')).toContainText('Último registro em 11/11/2026');
       expect((await comunicacao(page))!.semanas['2026-W46'].k1).toEqual({ seguidores: 1100, alcance: 160 });
     });
 
@@ -329,3 +329,91 @@ for (const tela of [{ nome: 'celular 360 px', width: 360, height: 740 }, { nome:
     });
   });
 }
+
+/* ---------- sugestões da Missão 4: opções de registro e data certa do último registro (SUG-50, SUG-51) ---------- */
+const SEMANAL = 'Registrar o que aconteceu esta semana ou nos últimos 15 dias';
+const MENSAL = 'Registrar o que aconteceu este mês';
+
+test.describe('SUG-50 · registrar a semana (ou os últimos 15 dias) ou o mês', () => {
+  test('cada seção tem os dois botões', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    const s = await abreSecao(page, 'k1');
+    await expect(s.getByRole('button', { name: SEMANAL })).toBeVisible();
+    await expect(s.getByRole('button', { name: MENSAL })).toBeVisible();
+  });
+
+  test('semanal: a data do registro vai de 14 dias atrás até hoje; a data escolhida decide a semana e fica gravada', async ({ page }) => {
+    await page.clock.install({ time: new Date('2026-11-04T12:00:00') });
+    await abre(page, [ILHA], { mandato: MANDATO });
+    const s = await abreSecao(page, 'k1');
+    await s.getByRole('button', { name: SEMANAL }).click();
+    const data = s.getByLabel('Data do registro');
+    await expect(data).toHaveValue('2026-11-04');
+    await expect(data).toHaveAttribute('max', '2026-11-04');
+    await expect(data).toHaveAttribute('min', '2026-10-21');
+    await data.fill('2026-10-28'); // semana anterior (2026-W44)
+    await s.getByLabel('Seguidores (total)', { exact: true }).fill('900');
+    await s.getByRole('button', { name: 'Salvar registro' }).click();
+    const d = (await comunicacao(page))! as Dados & { datas?: Record<string, Record<string, string>> };
+    expect(d.semanas).toEqual({ '2026-W44': { k1: { seguidores: 900 } } });
+    expect(d.datas).toEqual({ '2026-W44': { k1: '2026-10-28' } });
+    await expect(topo(page, 'k1')).toContainText('Último registro em 28/10/2026');
+  });
+
+  test('semanal: data mais antiga que 15 dias é recusada e nada é gravado', async ({ page }) => {
+    await page.clock.install({ time: new Date('2026-11-04T12:00:00') });
+    await abre(page, [ILHA], { mandato: MANDATO });
+    const s = await abreSecao(page, 'k1');
+    await s.getByRole('button', { name: SEMANAL }).click();
+    await s.getByLabel('Data do registro').fill('2026-10-01');
+    await s.getByLabel('Seguidores (total)', { exact: true }).fill('900');
+    await s.getByRole('button', { name: 'Salvar registro' }).click();
+    await expect(s.getByRole('alert')).toContainText('15 dias');
+    expect(await comunicacao(page)).toBeFalsy();
+  });
+
+  test('mensal: grava em meses, um registro por mês; o mesmo mês edita, não duplica; o mês futuro é recusado', async ({ page }) => {
+    await page.clock.install({ time: new Date('2026-11-04T12:00:00') });
+    await abre(page, [ILHA], { mandato: MANDATO });
+    const s = await abreSecao(page, 'k2');
+    await s.getByRole('button', { name: MENSAL }).click();
+    const mes = s.getByLabel('Mês do registro');
+    await expect(mes).toHaveValue('2026-11');
+    await s.getByLabel('Comentários recebidos', { exact: true }).fill('40');
+    await s.getByRole('button', { name: 'Salvar registro' }).click();
+    const lido = async () => (await comunicacao(page))! as unknown as { semanas: object; meses: Record<string, Record<string, Record<string, number>>> };
+    expect((await lido()).meses).toEqual({ '2026-11': { k2: { comentarios: 40 } } });
+    expect((await lido()).semanas).toEqual({});
+    await s.getByRole('button', { name: MENSAL }).click();
+    await expect(s.getByLabel('Comentários recebidos', { exact: true })).toHaveValue('40'); // abre com o registro do mês
+    await s.getByLabel('Comentários recebidos', { exact: true }).fill('55');
+    await s.getByRole('button', { name: 'Salvar registro' }).click();
+    expect((await lido()).meses).toEqual({ '2026-11': { k2: { comentarios: 55 } } });
+    await expect(topo(page, 'k2')).toContainText('Último registro (mês de novembro de 2026): Comentários recebidos 55');
+  });
+
+  test('gráfico mensal só aparece com 2 meses ou mais', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: { semanas: {}, meses: { '2026-10': { k1: { alcance: 10 } } }, clipping: [] } } });
+    const s = await abreSecao(page, 'k1');
+    await expect(s.locator('.cp-g[data-tipo="linha"]')).toHaveCount(0);
+    await page.evaluate(() => { /* sem recarregar: segundo mês pela própria tela */ });
+    await s.getByRole('button', { name: MENSAL }).click();
+    await s.getByLabel('Alcance ou visualizações', { exact: true }).fill('25');
+    await s.getByRole('button', { name: 'Salvar registro' }).click();
+    await expect(s.locator('.cp-g[data-tipo="linha"]')).toHaveCount(1);
+    await expect(s.getByText('Evolução mensal: Alcance e crescimento da comunidade')).toBeVisible();
+  });
+});
+
+test.describe('SUG-51 · data certa do último registro', () => {
+  test('registro com data, sem data e mensal aparecem como data, período e mês, nunca como número da semana', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: {
+      semanas: { '2026-W45': { k1: { seguidores: 10 }, k3: { recebidas: 3 } } },
+      datas: { '2026-W45': { k1: '2026-11-04' } },
+      meses: { '2026-10': { k2: { comentarios: 4 } } }, clipping: [] } } });
+    await expect(topo(page, 'k1')).toContainText('Último registro em 04/11/2026: Seguidores (total) 10');
+    await expect(topo(page, 'k3')).toContainText('Último registro (semana de 02/11 a 08/11/2026): Mensagens recebidas 3');
+    await expect(topo(page, 'k2')).toContainText('Último registro (mês de outubro de 2026): Comentários recebidos 4');
+    for (const k of ['k1', 'k2', 'k3']) await expect(topo(page, k)).not.toContainText('-W');
+  });
+});

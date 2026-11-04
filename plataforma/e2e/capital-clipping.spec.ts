@@ -229,7 +229,7 @@ test.describe('Número da semana a partir do clipping (CAP-31.7)', () => {
     await expect(page.locator('li.cp-not')).toHaveCount(3);
     const imprensa = page.locator('details[data-secao="k5"]');
     await imprensa.locator(':scope > summary').click();
-    await imprensa.getByRole('button', { name: 'Registrar esta semana' }).click();
+    await imprensa.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' }).click();
     await expect(imprensa.getByLabel('Aparições na imprensa', { exact: true })).toHaveValue('3');
     await expect(imprensa.getByText('Calculado pelo clipping: 3 notícias não ocultas nesta semana')).toBeVisible();
     await imprensa.getByRole('button', { name: 'Salvar registro' }).click();
@@ -237,7 +237,7 @@ test.describe('Número da semana a partir do clipping (CAP-31.7)', () => {
     expect(Object.values(sem)[0].k5).toEqual({ aparicoes: 3 });
 
     await linha(page, 'Notícia c').getByRole('button', { name: /^Ocultar/ }).click();
-    await imprensa.getByRole('button', { name: 'Editar esta semana' }).click();
+    await imprensa.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' }).click();
     await expect(imprensa.getByLabel('Aparições na imprensa', { exact: true })).toHaveValue('2');
   });
 
@@ -245,7 +245,7 @@ test.describe('Número da semana a partir do clipping (CAP-31.7)', () => {
     await abre(page, [ILHA], { mandato: MANDATO, campos: BANDEIRAS });
     const imprensa = page.locator('details[data-secao="k5"]');
     await imprensa.locator(':scope > summary').click();
-    await imprensa.getByRole('button', { name: 'Registrar esta semana' }).click();
+    await imprensa.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' }).click();
     await expect(imprensa.getByLabel('Aparições na imprensa', { exact: true })).toHaveValue('');
     await expect(imprensa.getByText('Calculado pelo clipping:')).toHaveCount(0);
     await imprensa.getByLabel('Aparições na imprensa', { exact: true }).fill('7');
@@ -259,7 +259,7 @@ test.describe('Número da semana a partir do clipping (CAP-31.7)', () => {
     await busca(page).click();
     const imprensa = page.locator('details[data-secao="k5"]');
     await imprensa.locator(':scope > summary').click();
-    await imprensa.getByRole('button', { name: 'Registrar esta semana' }).click();
+    await imprensa.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' }).click();
     await expect(imprensa.getByLabel('Aparições na imprensa', { exact: true })).toHaveValue('1');
   });
 });
@@ -348,7 +348,7 @@ for (const tela of [{ nome: 'celular 360 px', width: 360, height: 740 }, { nome:
 
       const imprensa = page.locator('details[data-secao="k5"]');
       await imprensa.locator(':scope > summary').click();
-      await imprensa.getByRole('button', { name: 'Registrar esta semana' }).click();
+      await imprensa.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' }).click();
       const n = await imprensa.getByLabel('Aparições na imprensa', { exact: true }).inputValue();
       expect(Number(n)).toBeGreaterThanOrEqual(1); // as de hoje e de ontem podem cair em semanas ISO diferentes (segunda-feira)
       await imprensa.getByRole('button', { name: 'Salvar registro' }).click();
