@@ -165,7 +165,7 @@ T7 → T8
 
 ---
 
-### T6: Fragilidades e fortalezas numa página só
+### T6: Fragilidades e fortalezas numa página só ✅
 
 **What**: Em `m1.js`, `Guia.montar` do exercício `m1.frag` devolve um passo só; o bloco renderiza comando, checklist, diagnóstico e o bloco "Tornando fragilidades em fortalezas!" com link para `#/biblioteca`. O título do exercício passa a "As fragilidades e fortalezas".
 **Where**: `public/legacy/m1.js`, `tests/legado-m1.test.ts`, `e2e/m1-frag.spec.ts`
@@ -175,10 +175,10 @@ T7 → T8
 
 **Done when**:
 
-- [ ] `m1.frag` tem 1 passo e mostra comando e checklist juntos (SUG-22)
-- [ ] Depois do checklist aparece "Tornando fragilidades em fortalezas!" com o texto da Alana e o link `#/biblioteca`; não existe o passo "Para fechar" (SUG-23)
-- [ ] Marcar M/P numa fragilidade continua gravando em `D.frags`
-- [ ] Gate: `npm test && npx tsc --noEmit && npx playwright test e2e/m1-frag`
+- [x] `m1.frag` tem 1 passo e mostra comando e checklist juntos (SUG-22)
+- [x] Depois do checklist aparece "Tornando fragilidades em fortalezas!" com o texto da Alana e o link `#/biblioteca`; não existe o passo "Para fechar" (SUG-23)
+- [x] Marcar M/P numa fragilidade continua gravando em `D.frags`
+- [x] Gate: `npm test && npx tsc --noEmit && npx playwright test e2e/m1-frag`
 
 **Tests**: unit + e2e
 **Gate**: full

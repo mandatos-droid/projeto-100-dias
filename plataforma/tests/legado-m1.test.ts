@@ -124,3 +124,34 @@ test('m1.q6 e m1.q8 mostram a caixa de análise depois dos dados, com o mesmo co
 test('m1.q7 não ganha caixa nova: é preenchida pela pessoa, sem dado pronto (SUG-19)', () => {
   assert.deepEqual(chaves(pergunta(janela(), 'm1.oportunidades', 0)), ['m1.q7']);
 });
+
+/* ---------- SUG-22 e SUG-23: fragilidades numa página só ---------- */
+function paginaFrag() {
+  const w = janela() as Janela & { Comp: { frag(ex: Ex): string; diagFrag(): string } };
+  const ex = ex1(w, 'm1.frag');
+  w.Guia.m = w.MISSOES[0];
+  w.Guia.ex = ex;
+  w.Guia.passos = w.Guia.montar(ex);
+  return { w, ex, passos: w.Guia.passos, html: w.Guia.passos.map((p, n) => w.Guia.bloco(p, n)).join('') };
+}
+
+test('m1.frag tem um passo só e traz comando e checklist na mesma página (SUG-22)', () => {
+  const { passos, html } = paginaFrag();
+  assert.equal(passos.length, 1);
+  assert.ok(html.indexOf('Quais são os conhecimentos e/ou práticas') >= 0);
+  assert.ok(html.indexOf('Quais são os conhecimentos e/ou práticas') < html.indexOf('frag-l'));
+});
+
+test('depois do checklist vem "Tornando fragilidades em fortalezas!" com o link da Biblioteca, e não há "Para fechar" (SUG-23)', () => {
+  const { html } = paginaFrag();
+  assert.ok(html.indexOf('frag-l') < html.indexOf('Tornando fragilidades em fortalezas!'));
+  assert.ok(html.includes('href="#/biblioteca"'));
+  assert.ok(html.includes('Escola do Legislativo da Casa'));
+  assert.ok(html.includes('o que o mandato e a liderança ainda não dominam'));
+  assert.equal(html.includes('Para fechar'), false);
+});
+
+test('o diagnóstico das fragilidades fica entre o checklist e o plano de estudo (SUG-23)', () => {
+  const { html } = paginaFrag();
+  assert.ok(html.indexOf('frag-l') < html.indexOf('diag-frag') && html.indexOf('diag-frag') < html.indexOf('Tornando fragilidades'));
+});
