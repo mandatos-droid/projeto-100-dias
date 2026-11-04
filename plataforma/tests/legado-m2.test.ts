@@ -76,9 +76,9 @@ test('m2.gestao mostra objetivo, importância e exercício do documento, o quadr
   assert.ok(g.intro.includes('criar previsibilidade e integração no trabalho'));
 });
 
-test('m2.gestao traz as duas instruções do documento: concordar (data e horário) e discordar (alterar) (RM2-52, RM2-53)', () => {
+test('m2.gestao traz as duas instruções do documento: concordar (data) e discordar (alterar) (RM2-52, RM2-53)', () => {
   const g = ex(janela(), 'm2.gestao');
-  assert.ok(g.intro.includes('<li>Caso esteja de acordo com o modelo, adicione, na última linha, a data e o horário para a realização de cada uma das rotinas propostas.</li>'));
+  assert.ok(g.intro.includes('<li>Caso esteja de acordo com o modelo, adicione, na última linha, a data para a realização de cada uma das rotinas propostas.</li>'));
   assert.ok(g.intro.includes('<li>Caso não esteja de acordo, altere o que desejar.</li>'));
 });
 
