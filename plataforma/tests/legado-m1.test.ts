@@ -88,3 +88,39 @@ test('m1.q4 não ganha caixa de parceiros e concorrentes: a marcação é na tab
   const h = pergunta(janela(), 'm1.conjuntura', 0);
   assert.equal(h.includes('potenciais parcerias'), false);
 });
+
+/* ---------- SUG-19: texto, dados, caixa de análise ---------- */
+const COMANDO = 'A partir dos dados apresentados acima, e de outros que você possa ter pesquisado, faça uma análise destacando o que mais te chama a atenção e como o mandato deve agir a partir desta conjuntura.';
+
+test('m1.q5 mostra título, texto novo, dados e só então a caixa com o comando da análise (SUG-19)', () => {
+  const h = pergunta(janela(), 'm1.conjuntura', 1);
+  const texto = h.indexOf('é fundamental para a compreensão da conjuntura política em que a liderança parlamentar está inserida.');
+  const ilha = h.indexOf('data-ilha="calor"');
+  const caixa = h.indexOf('data-k="m1.q5"');
+  assert.ok(h.indexOf('Qual é a conjuntura política regional e nacional de seu partido?') < texto);
+  assert.ok(texto > 0 && texto < ilha && ilha < caixa);
+  assert.ok(h.includes(COMANDO));
+  assert.equal(h.includes('Contabilize'), false);
+  assert.deepEqual(chaves(h), ['m1.q5']);
+});
+
+test('o texto novo de m1.q5 mantém os temas do original (SUG-19)', () => {
+  const h = pergunta(janela(), 'm1.conjuntura', 1);
+  for (const tema of ['Casa Legislativa', 'território nacional', 'domicílio eleitoral', 'setoriais e diretórios', 'relação que deseja ter com o partido', 'desafios e oportunidades de expansão da relevância partidária']) {
+    assert.ok(h.includes(tema), tema);
+  }
+});
+
+test('m1.q6 e m1.q8 mostram a caixa de análise depois dos dados, com o mesmo comando (SUG-19)', () => {
+  const w = janela();
+  const q6 = pergunta(w, 'm1.conjuntura', 2);
+  assert.ok(q6.indexOf('data-ilha="municipio"') < q6.indexOf('data-k="m1.q6"'));
+  assert.ok(q6.includes(COMANDO));
+  const q8 = pergunta(w, 'm1.oportunidades', 1);
+  assert.ok(q8.indexOf('data-ilha="social"') < q8.indexOf('data-k="m1.q8a"'));
+  assert.ok(q8.includes(COMANDO));
+});
+
+test('m1.q7 não ganha caixa nova: é preenchida pela pessoa, sem dado pronto (SUG-19)', () => {
+  assert.deepEqual(chaves(pergunta(janela(), 'm1.oportunidades', 0)), ['m1.q7']);
+});

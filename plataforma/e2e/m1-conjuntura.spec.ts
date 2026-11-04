@@ -25,3 +25,29 @@ test.describe('Conjuntura · legislatura (SUG-17)', () => {
     expect((await campos(page))['m1.q4']).toBe('texto antigo');
   });
 });
+
+test.describe('Conjuntura · partido, território e social (SUG-19)', () => {
+  const COMANDO = 'A partir dos dados apresentados acima, e de outros que você possa ter pesquisado, faça uma análise destacando o que mais te chama a atenção e como o mandato deve agir a partir desta conjuntura.';
+  const depoisDosDados = async (page: Page, ilha: string, k: string) => {
+    const d = await page.locator(`[data-ilha="${ilha}"]`).boundingBox();
+    const c = await editor(page, k).boundingBox();
+    expect(d && c && c.y > d.y).toBeTruthy();
+  };
+
+  test('m1.q5: texto novo, dados e a caixa com o comando depois deles; resposta antiga preservada', async ({ page }) => {
+    await abreGuia(page, '#/m/1/m1.conjuntura/1', { dados: { campos: { 'm1.q5': 'análise antiga' } } });
+    await expect(page.getByText('é fundamental para a compreensão da conjuntura política em que a liderança parlamentar está inserida.')).toBeVisible();
+    await expect(page.getByText(COMANDO)).toBeVisible();
+    await depoisDosDados(page, 'calor', 'm1.q5');
+    await expect(editor(page, 'm1.q5')).toContainText('análise antiga');
+  });
+
+  test('m1.q6 e m1.q8 trazem a caixa de análise depois dos dados', async ({ page }) => {
+    await abreGuia(page, '#/m/1/m1.conjuntura/2');
+    await expect(page.getByText(COMANDO)).toBeVisible();
+    await depoisDosDados(page, 'municipio', 'm1.q6');
+    await abreGuia(page, '#/m/1/m1.oportunidades/1');
+    await expect(page.getByText(COMANDO)).toBeVisible();
+    await depoisDosDados(page, 'social', 'm1.q8a');
+  });
+});

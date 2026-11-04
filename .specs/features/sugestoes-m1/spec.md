@@ -84,7 +84,7 @@ A Alana pediu que o Mapa Político (Missão 1) deixe de mandar a pessoa pesquisa
 | SUG-16 | P1: Mapa Político | Done (T1) | Verified |
 | SUG-17 | P1: Mapa Político | Done (T2) | Verified |
 | SUG-18 | P1: Mapa Político | Tasks | Pending |
-| SUG-19 | P1: Mapa Político | Tasks | Pending |
+| SUG-19 | P1: Mapa Político | Done (T3) | Verified |
 | SUG-20 | P1: Mapa Político | Tasks | Pending |
 | SUG-21 | P1: Mapa Político | Tasks | Pending |
 | SUG-22 | P1: Mapa Político | Tasks | Pending |

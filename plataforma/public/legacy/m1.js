@@ -29,6 +29,17 @@
     antes:'<div class="orienta"><p>Marque na tabela acima quem é <strong>Parceiro</strong> e quem é <strong>Concorrente</strong> da liderança parlamentar, considerando a região, o perfil pessoal e a disputa partidária.</p></div>',
     rot:'E quais são as pontes não óbvias que podem ser construídas, a partir da criação de espaços de convergência que se baseiem em consensos mínimos e não necessariamente alinhamento completo? Elenque agora os nomes não óbvios, e que serão necessários para que as agendas e pautas avancem.'}];
 
+  /* ---- Conjuntura (partido e território) e Oportunidades (social): texto, dados, caixa de análise (SUG-19) ----
+     A pessoa não pesquisa mais: analisa o que está na tela. A caixa vai para depois dos dados e usa o comando da Alana. */
+  var ANALISE='A partir dos dados apresentados acima, e de outros que você possa ter pesquisado, faça uma análise destacando o que mais te chama a atenção e como o mandato deve agir a partir desta conjuntura.';
+  var q5=item(exDe('m1.conjuntura'),'m1.q5');
+  q5.d='A análise da quantidade de cargos ocupados pelo partido na sua Casa Legislativa, no território nacional e em seu domicílio eleitoral, dos setoriais e diretórios de que a liderança parlamentar pode passar a fazer parte, do tipo de relação que deseja ter com o partido e dos desafios e oportunidades de expansão da relevância partidária da liderança parlamentar é fundamental para a compreensão da conjuntura política em que a liderança parlamentar está inserida.';
+  [['m1.conjuntura','m1.q5','m1.q5'],['m1.conjuntura','m1.q6','m1.q6'],['m1.oportunidades','m1.q8','m1.q8a']].forEach(function(c){
+    var it=item(exDe(c[0]),c[1]);
+    it.depois=true;
+    it.caixas=[{k:c[2],rot:ANALISE}];
+  });
+
   /* ---------- mecanismo ---------- */
   function caixa(c){
     return (c.antes||'')+'<label class="campo"><span class="rot">'+esc(c.rot)+'</span>'+

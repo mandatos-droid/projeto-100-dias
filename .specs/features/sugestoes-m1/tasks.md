@@ -104,7 +104,7 @@ T7 → T8
 
 ---
 
-### T3: Padrão "texto, dados, caixa de análise" em partido, território e social
+### T3: Padrão "texto, dados, caixa de análise" em partido, território e social ✅
 
 **What**: Em `m1.js`, reescrever o texto de `m1.q5` (frase que termina em "é fundamental para a compreensão…") e dar a `m1.q5`, `m1.q6` e `m1.q8` a caixa de análise depois da ilha, com o comando da SUG-19 (`m1.q5`, `m1.q6`, `m1.q8a`).
 **Where**: `public/legacy/m1.js`, `tests/legado-m1.test.ts`, `e2e/m1-conjuntura.spec.ts`
@@ -114,10 +114,10 @@ T7 → T8
 
 **Done when**:
 
-- [ ] `m1.q5` mostra título, texto novo, dados e a caixa nessa ordem; a caixa traz o comando da SUG-19 (SUG-19)
-- [ ] `m1.q6` e `m1.q8` mostram a caixa com o mesmo comando depois dos dados (SUG-19)
-- [ ] Resposta antiga de `m1.q5` e `m1.q6` aparece na caixa (edge case)
-- [ ] Gate: `npm test && npx tsc --noEmit && npx playwright test e2e/m1-conjuntura`
+- [x] `m1.q5` mostra título, texto novo, dados e a caixa nessa ordem; a caixa traz o comando da SUG-19 (SUG-19)
+- [x] `m1.q6` e `m1.q8` mostram a caixa com o mesmo comando depois dos dados (SUG-19)
+- [x] Resposta antiga de `m1.q5` e `m1.q6` aparece na caixa (edge case)
+- [x] Gate: `npm test && npx tsc --noEmit && npx playwright test e2e/m1-conjuntura`
 
 **Tests**: unit + e2e
 **Gate**: full
