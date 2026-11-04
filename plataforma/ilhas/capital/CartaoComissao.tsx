@@ -4,7 +4,7 @@
    SPEC_DEVIATION: o design previa guardar também `motivos[]`; os ids são recuperados do próprio texto (leEscolhas), sem segunda cópia que possa divergir.
    Reason: o Guia antigo e o Resumo editam/leem só o texto; duas fontes poderiam discordar. */
 import { useState } from 'react';
-import { MOTIVOS, MOVIMENTOS, PAPEIS, alternaMovimento, alternaOutroMovimento, defineDataMovimento, defineTextoMovimento, hojeISO, leEscolhas, limitesPrazo, lerMovimentos, ordemMovimentos, papelNorm, textoDasEscolhas, textoMovimentos, validaPrazo, type Movimento } from '@/lib/capital';
+import { MOTIVOS, MOVIMENTOS, PAPEIS, alternaMovimento, alternaOutroMovimento, defineTextoMovimento, leEscolhas, lerMovimentos, papelNorm, textoDasEscolhas, textoMovimentos, type Movimento } from '@/lib/capital';
 import { aviso } from '../ponte';
 import './capital.css';
 
@@ -16,7 +16,7 @@ const PERGUNTAS: { campo: Campo; titulo: string; opcoes: string[]; varias: boole
   { campo: 'papel', titulo: 'Papel que pretende exercer', opcoes: PAPEIS, varias: false, outro: 'Outro papel' },
 ];
 
-export default function CartaoComissao({ reg, nome, posse, onMuda }: { reg: RegistroComissao; nome: string; posse?: string; onMuda: () => void }) {
+export default function CartaoComissao({ reg, nome, onMuda }: { reg: RegistroComissao; nome: string; posse?: string; onMuda: () => void }) {
   /* "Outro" aberto: já tem texto livre gravado, ou a pessoa acabou de clicar nele */
   const [abertos, setAbertos] = useState<Record<Campo, boolean>>(() => ({
     pq: leEscolhas(reg.pq, MOTIVOS.map((m) => m.rot)).outro !== '', papel: leEscolhas(papelNorm(reg.papel), PAPEIS).outro !== '',
@@ -25,14 +25,9 @@ export default function CartaoComissao({ reg, nome, posse, onMuda }: { reg: Regi
 
   /* movimentos: lista estruturada em `movs`; `mov` é o texto legível derivado, que o Guia antigo e o Resumo leem */
   const movs = lerMovimentos(reg);
-  const ordem = ordemMovimentos(movs);
-  const grMovs = (novos: Movimento[]) => { reg.movs = novos; reg.mov = textoMovimentos(novos); onMuda(); };
+  /* sem data (SUG-82): a ordem é a da marcação; datas antigas são descartadas ao gravar */
+  const grMovs = (novos: Movimento[]) => { const sem = novos.map((m) => ({ ...m, data: '' })); reg.movs = sem; reg.mov = textoMovimentos(sem); onMuda(); };
   const aplica = (r: ReturnType<typeof alternaMovimento>) => { if (r.ok) grMovs(r.movs); else aviso(r.erro); };
-  const mudaData = (i: number, v: string) => {
-    if (v !== '') { const erro = validaPrazo(v, hojeISO(), posse); if (erro) { aviso(erro); onMuda(); return; } }
-    grMovs(defineDataMovimento(movs, i, v));
-  };
-  const lim = limitesPrazo(posse, hojeISO());
   const rotulosMov = MOVIMENTOS.map((m) => m.rot);
 
   return (
@@ -76,8 +71,8 @@ export default function CartaoComissao({ reg, nome, posse, onMuda }: { reg: Regi
           <button type="button" className="rm-chip" aria-pressed={movs.some((m) => !rotulosMov.includes(m.rot))} onClick={() => aplica(alternaOutroMovimento(movs))}>Outro (escrever)</button>
         </div>
         {movs.length > 0 && (
-          <ol className="cp-movs" aria-label="Movimentos em ordem de data">
-            {ordem.map((i) => {
+          <ol className="cp-movs" aria-label="Movimentos na ordem escolhida">
+            {movs.map((_, i) => {
               const m = movs[i];
               const livre = !rotulosMov.includes(m.rot);
               return (
@@ -85,9 +80,6 @@ export default function CartaoComissao({ reg, nome, posse, onMuda }: { reg: Regi
                   {livre
                     ? <label className="campo"><span className="rot">Outro movimento</span><input type="text" value={m.rot} onChange={(e) => grMovs(defineTextoMovimento(movs, i, e.target.value))} /></label>
                     : <span className="cp-mov-t">{m.rot}</span>}
-                  <label className="campo"><span className="rot">{livre ? 'Data do movimento' : `Data de ${m.rot}`}</span>
-                    <input type="date" value={m.data} min={lim.min} max={lim.max} onChange={(e) => mudaData(i, e.target.value)} />
-                  </label>
                 </li>
               );
             })}

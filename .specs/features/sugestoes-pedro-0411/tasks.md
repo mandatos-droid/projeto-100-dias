@@ -16,7 +16,7 @@ Frentes em arquivos disjuntos (rodam em paralelo). Cada task = 1 commit atômico
 - [ ] T10 R18 botões da Persona em todas as missões
 
 ## Frente C — M4 + Plano
-- [ ] T11 R19 M4 comissões sem data
+- [x] T11 R19 M4 comissões sem data
 - [ ] T12 R20 M4 ações editáveis
 - [ ] T13 R21 M4 métricas: tag em manchetes
 - [ ] T14 R22 atingimento pelos sucessos mensais
