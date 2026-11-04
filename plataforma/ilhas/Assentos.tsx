@@ -32,6 +32,8 @@ const NOME_UF: Record<string, string> = {
   RS: 'Rio Grande do Sul', SC: 'Santa Catarina', SE: 'Sergipe', SP: 'São Paulo', TO: 'Tocantins',
 };
 
+type Coluna = 'nome' | 'partido' | 'uf' | 'votos' | 'relacao';
+const ORD_REL: Record<Status, number> = { aliado: 0, concorrente: 1, neutro: 2 };
 type Filtros = Record<'partido' | 'genero' | 'raca' | 'mandato' | 'relacao', Set<string>>;
 type Faceta = keyof Filtros;
 const vazio = (): Filtros => ({ partido: new Set(), genero: new Set(), raca: new Set(), mandato: new Set(), relacao: new Set() });
@@ -114,6 +116,7 @@ export default function Assentos() {
   const [global, setGlobal] = useState('');
   const [menu, setMenu] = useState<string | null>(null);
   const [limite, setLimite] = useState(40);
+  const [ordem, setOrdem] = useState<{ col: Coluna; asc: boolean }>({ col: 'votos', asc: false });
   // a tabela de um estado aparece inteira, sem rolar nem paginar; só o Brasil inteiro (1,6 mil linhas) pagina
   const paginar = escopo === 'BR';
   const fichaRef = useRef<HTMLDivElement>(null);
@@ -159,7 +162,21 @@ export default function Assentos() {
 
   const q = semAcento(busca);
   const tabela = visiveis.filter((e) => !q || semAcento(e.u).includes(q) || semAcento(e.c).includes(q))
-    .sort((a, b) => b.v - a.v || a.u.localeCompare(b.u));
+    .sort((a, b) => {
+      const d = ordem.asc ? 1 : -1;
+      const cmp = ordem.col === 'nome' ? a.u.localeCompare(b.u, 'pt')
+        : ordem.col === 'partido' ? a.p.localeCompare(b.p, 'pt')
+        : ordem.col === 'uf' ? a.uf.localeCompare(b.uf, 'pt')
+        : ordem.col === 'relacao' ? ORD_REL[statusDe(a.s)] - ORD_REL[statusDe(b.s)]
+        : a.v - b.v;
+      return cmp * d || b.v - a.v || a.u.localeCompare(b.u, 'pt');
+    });
+  const ordena = (col: Coluna) => { setOrdem((o) => (o.col === col ? { col, asc: !o.asc } : { col, asc: col !== 'votos' })); setLimite(40); };
+  const th = (col: Coluna, children: ReactNode) => (
+    <th key={col} aria-sort={ordem.col === col ? (ordem.asc ? 'ascending' : 'descending') : 'none'}>
+      <button type="button" className="th-ord" onClick={() => ordena(col)}>{children}<span aria-hidden="true">{ordem.col === col ? (ordem.asc ? ' ▲' : ' ▼') : ''}</span></button>
+    </th>
+  );
   const aparecem = paginar ? limite : tabela.length;
   const atual = (todos ?? []).find((e) => e.s === sel);
   const meuSq = (D.tse as { sq?: string }).sq;
@@ -268,6 +285,24 @@ export default function Assentos() {
             )}
           </div>
 
+          <div className="ass-topo" aria-live="polite">
+        <div className="kpis">
+          <div className="kp"><b>{nf.format(visiveis.length)}</b><span>{filtrando ? `de ${nf.format(base.length)} parlamentares` : 'parlamentares eleitos'}</span></div>
+          <div className="kp"><b>{nPartidos}</b><span>partidos</span></div>
+          <div className="kp ok"><b><Marca tipo="aliado" tam={18} /> {parceiros}</b><span>parceiros</span></div>
+          <div className="kp coral"><b><Marca tipo="concorrente" tam={18} /> {concorrentes}</b><span>concorrentes</span></div>
+        </div>
+
+        {visiveis.length > 0 && (
+          <div className="perfil">
+            <Pilha titulo="Gênero" partes={GENERO.map(([id, r]) => ({ id, rot: r, n: cG[id] ?? 0, cor: COR_GEN[id] }))} />
+            <Pilha titulo="Cor ou raça" partes={RACA.map(([id, r]) => ({ id, rot: r, n: cR[id] ?? 0, cor: COR_RACA[id] }))} />
+            <Pilha titulo="Mandato" partes={[...MANDATO, ['?', 'Eleitos em 2022']].map(([id, r]) => ({ id, rot: r, n: cM[id] ?? 0, cor: COR_MAND[id] }))} />
+          </div>
+        )}
+
+          </div>
+
           <div className="ass-grid">
             <aside className="ass-lado" aria-label="Território">
             <div className="bloco">
@@ -305,14 +340,7 @@ export default function Assentos() {
             </div>
             </aside>
 
-          <section className="ass-main" aria-live="polite">
-            <div className="kpis">
-              <div className="kp"><b>{nf.format(visiveis.length)}</b><span>{filtrando ? `de ${nf.format(base.length)} parlamentares` : 'parlamentares eleitos'}</span></div>
-              <div className="kp"><b>{nPartidos}</b><span>partidos</span></div>
-              <div className="kp ok"><b><Marca tipo="aliado" tam={18} /> {parceiros}</b><span>parceiros</span></div>
-              <div className="kp coral"><b><Marca tipo="concorrente" tam={18} /> {concorrentes}</b><span>concorrentes</span></div>
-            </div>
-
+          <section className="ass-main">
             {base.length > 0 && (
               <>
                 <Hemiciclo membros={membros} partidos={new Set()} filtroStatus="todos" visivel={vis} selecionado={sel}
@@ -328,14 +356,6 @@ export default function Assentos() {
                   <p className="peq-t" style={{ textAlign: 'center' }}>Visão nacional das assembleias: passe o mouse nas cadeiras ou clique num estado no mapa para detalhar.</p>
                 )}
               </>
-            )}
-
-            {visiveis.length > 0 && (
-              <div className="perfil">
-                <Pilha titulo="Gênero" partes={GENERO.map(([id, r]) => ({ id, rot: r, n: cG[id] ?? 0, cor: COR_GEN[id] }))} />
-                <Pilha titulo="Cor ou raça" partes={RACA.map(([id, r]) => ({ id, rot: r, n: cR[id] ?? 0, cor: COR_RACA[id] }))} />
-                <Pilha titulo="Mandato" partes={[...MANDATO, ['?', 'Eleitos em 2022']].map(([id, r]) => ({ id, rot: r, n: cM[id] ?? 0, cor: COR_MAND[id] }))} />
-              </div>
             )}
 
             <div ref={fichaRef}>
@@ -359,13 +379,16 @@ export default function Assentos() {
                 </div>
               )}
             </div>
+          </section>
+          </div>
 
+          <section className="ass-main ass-tabela">
             <div className="ilha-filtros">
               <input type="search" value={busca} onChange={(e) => { setBusca(e.target.value); setLimite(40); }} placeholder={`Buscar nesta lista (${nomeEscopo})`} aria-label="Buscar nesta lista" />
             </div>
             <div className="rolar">
               <table className="tb">
-                <thead><tr><th>Parlamentar</th><th>Partido</th>{escopo === 'BR' && <th>UF</th>}<th>Perfil</th><th>Votos</th><th>Relação</th></tr></thead>
+                <thead><tr>{th('nome', 'Parlamentar')}{th('partido', 'Partido')}{escopo === 'BR' && th('uf', 'UF')}<th>Perfil</th>{th('votos', 'Votos')}{th('relacao', 'Relação')}</tr></thead>
                 <tbody>
                   {tabela.slice(0, aparecem).map((e) => {
                     const st: Status = statusDe(e.s);
@@ -392,7 +415,6 @@ export default function Assentos() {
               </button>
             )}
           </section>
-          </div>
         </>
       )}
     </div>

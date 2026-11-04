@@ -88,6 +88,7 @@ function Recorte({ titulo, rots, a, todos, cor }: { titulo: string; rots: string
   return (
     <div className="v2-rec">
       <h5>{titulo}</h5>
+      <div className="v2-rec-l cab" aria-hidden="true"><span /><span /><span className="v">Partido</span><span className="t">Todos</span></div>
       {rots.map((r, i) => (
         <div className="v2-rec-l" key={r}>
           <span className="nm">{r}</span>
@@ -99,7 +100,7 @@ function Recorte({ titulo, rots, a, todos, cor }: { titulo: string; rots: string
           <span className="t">{pct(pt[i], 1)}</span>
         </div>
       ))}
-      <p className="peq-t">Barra: o partido · traço: todos os partidos. Percentuais de quem informou este dado ({nf.format(ta)} filiados).</p>
+      <p className="peq-t">Barra e % em destaque: o partido · traço e % em cinza: todos os partidos. Percentuais de quem informou este dado ({nf.format(ta)} filiados).</p>
     </div>
   );
 }
@@ -126,7 +127,7 @@ export default function Conjuntura() {
   const [cargoVar, setCargoVar] = useState<Cargo22>('federal');
   const [sel, setSel] = useState<string | null>(null);        // município aberto no painel do mapa
   const [munFil, setMunFil] = useState<string | null>(null);   // município do perfil de filiados (fechar o painel não o muda)
-  const [esc, setEsc] = useState<'mun' | 'uf' | 'br' | null>(null);
+  const [esc, setEsc] = useState<'uf' | 'br' | null>(null);
   const [somando, setSomando] = useState(false);               // seletor do botão + das prefeituras
   const muda = (f: () => void) => { f(); bump(); };
 
@@ -378,10 +379,10 @@ export default function Conjuntura() {
   };
 
   /* ---------- filiados: escopo e vetores dos recortes ---------- */
-  const escopo = esc ?? (munAlvo && fil.dados?.mun[munAlvo] ? 'mun' : 'uf');
-  const mapaEscopo = escopo === 'mun' ? (munAlvo ? fil.dados?.mun[munAlvo] : undefined) : escopo === 'uf' ? fil.dados?.uf : filBR.dados?.br;
+  const escopo = esc ?? 'uf';
+  const mapaEscopo = escopo === 'uf' ? fil.dados?.uf : filBR.dados?.br;
   const aEsc = mapaEscopo?.[partido];
-  const rotEscopo = escopo === 'mun' ? nomeMun(munAlvo) : escopo === 'uf' ? nomeUF : 'Brasil';
+  const rotEscopo = escopo === 'uf' ? nomeUF : 'Brasil';
   const rankUF = Object.entries(fil.dados?.uf ?? {}).map(([p, v]) => [p, v[0]] as [string, number]).sort((a, b) => b[1] - a[1]);
   const rankMostra = rankUF.slice(0, 10);
   if (!rankMostra.some(([p]) => p === partido) && fil.dados?.uf[partido]) rankMostra.push([partido, fil.dados.uf[partido][0]]);
@@ -407,7 +408,6 @@ export default function Conjuntura() {
     : modo === 'ver' ? { t: 'Vereadores eleitos em 2024', d: top(Object.entries(mun.dados?.mun[sel]?.m24?.ver.el ?? {}), 6) }
     : modo === 'fil' ? { t: 'Filiados por partido', d: top(Object.entries(fil.dados?.mun[sel] ?? {}).map(([p, v]) => [p, v[0]] as [string, number]), 6) }
     : detB ? { t: `Votos · ${cargo.rot} ${cargo.ano}`, d: top(detB.p, 6) } : null;
-  const munsOrdem = mun.dados ? Object.entries(mun.dados.mun).sort((a, b) => a[1].nm.localeCompare(b[1].nm, 'pt')) : [];
   const carregando = mun.carregando || geo.carregando || uf.carregando || nac.carregando || his.carregando || fil.carregando || filBR.carregando || exUF.carregando || exBR.carregando;
   const parlBR = parl('br'), parlUF = parl('uf');
   const verBR = cad('vereadores', 'br'), verUF = cad('vereadores', 'uf');
@@ -627,17 +627,10 @@ export default function Conjuntura() {
       <h4>Perfil dos filiados do {partido}</h4>
       <div className="ilha-controles">
         <div className="abas" style={{ margin: 0 }} role="tablist" aria-label="Escopo do perfil">
-          {([['mun', 'Município'], ['uf', nomeUF], ['br', 'Brasil']] as const).map(([k, r]) => (
-            <button key={k} type="button" role="tab" aria-selected={escopo === k} disabled={k === 'mun' && !munAlvo} onClick={() => setEsc(k)}>{r}</button>
+          {([['uf', nomeUF], ['br', 'Brasil']] as const).map(([k, r]) => (
+            <button key={k} type="button" role="tab" aria-selected={escopo === k} onClick={() => setEsc(k)}>{r}</button>
           ))}
         </div>
-        {escopo === 'mun' && (
-          <label className="campo"><span className="rot">Município</span>
-            <select value={munAlvo} onChange={(e) => setMunFil(e.target.value || null)}>
-              {!munAlvo && <option value="">Escolha…</option>}
-              {munsOrdem.map(([id, x]) => <option key={id} value={id}>{x.nm}</option>)}
-            </select></label>
-        )}
       </div>
       {aEsc ? (
         <>
