@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { MOTIVOS, PAPEIS, MOVIMENTOS, TEXTO_SABER, progressoAcoes, acaoCompleta, limitesPrazo, validaPrazo, ehDataISO, ordenaPorPrazo, textoDasEscolhas, leEscolhas } from '../lib/capital.ts';
+import { MOTIVOS, PAPEIS, MOVIMENTOS, TEXTO_SABER, progressoAcoes, acaoCompleta, limitesPrazo, validaPrazo, ehDataISO, ordenaPorPrazo, textoDasEscolhas, leEscolhas, papelNorm, lerMovimentos, alternaMovimento, alternaOutroMovimento, textoMovimentos, defineDataMovimento, ordemMovimentos } from '../lib/capital.ts';
 
 /* Missão 4 · listas e regra de progresso (CAP-03, CAP-12). Resultados esperados vêm da spec. */
 
@@ -34,8 +34,8 @@ test('progressoAcoes: registro sem frente ou que não é objeto não conta (CAP-
   assert.deepEqual(progressoAcoes([null, 'x', { i: 1 }, { bingo: 'redes', i: 0 }]), { total: 1, frentes: 1, ok: false });
 });
 
-test('PAPEIS tem exatamente Titular, Suplente, Relatoria, Vice-presidência e Presidência (CAP-03.7)', () => {
-  assert.deepEqual([...PAPEIS], ['Titular', 'Suplente', 'Relatoria', 'Vice-presidência', 'Presidência']);
+test('PAPEIS tem Titular, Suplente, Conquista de Relatoria Relevante, Vice-presidência e Presidência (CAP-03.7, SUG-46)', () => {
+  assert.deepEqual([...PAPEIS], ['Titular', 'Suplente', 'Conquista de Relatoria Relevante', 'Vice-presidência', 'Presidência']);
 });
 
 test('MOTIVOS e MOVIMENTOS têm ids únicos e rótulos preenchidos, prontos para múltipla escolha (CAP-03.7)', () => {
@@ -122,4 +122,42 @@ test('ordenaPorPrazo: datas em ordem crescente; prazo em texto livre ou vazio va
 test('ordenaPorPrazo: mesma data mantém a ordem em que as ações foram escolhidas', () => {
   const r = ordenaPorPrazo([{ id: 'b', prazo: '2027-03-01' }, { id: 'a', prazo: '2027-03-01' }]);
   assert.deepEqual(r.map((x) => x.id), ['b', 'a']);
+});
+
+/* ---------- sugestões da Missão 4 (SUG-46, 47, 48) ---------- */
+test('SUG-46: papelNorm leva "Relatoria" antigo ao rótulo novo e deixa o resto como está', () => {
+  assert.equal(papelNorm('Relatoria'), 'Conquista de Relatoria Relevante');
+  assert.equal(papelNorm(' Relatoria '), 'Conquista de Relatoria Relevante');
+  assert.equal(papelNorm('Titular'), 'Titular');
+  assert.equal(papelNorm(undefined), '');
+});
+
+test('SUG-48: MOVIMENTOS inclui "Articular com a Presidência da Casa"', () => {
+  assert.ok(MOVIMENTOS.some((m) => m.rot === 'Articular com a Presidência da Casa'));
+});
+
+test('SUG-47: lerMovimentos lê o texto antigo (sem data) e o texto com data', () => {
+  assert.deepEqual(lerMovimentos({ mov: 'Pedir a vaga formalmente' }), [{ rot: 'Pedir a vaga formalmente', data: '' }]);
+  assert.deepEqual(lerMovimentos({ mov: 'A (10/12/2026); B' }), [{ rot: 'A', data: '2026-12-10' }, { rot: 'B', data: '' }]);
+  assert.deepEqual(lerMovimentos({}), []);
+  assert.deepEqual(lerMovimentos({ movs: [{ rot: 'A', data: 'lixo' }, 3], mov: 'ignorado' }), [{ rot: 'A', data: '' }]);
+});
+
+test('SUG-47: no máximo 4 movimentos; o 5º é recusado e a lista não muda', () => {
+  let movs: { rot: string; data: string }[] = [];
+  for (const r of ['a', 'b', 'c', 'd']) { const x = alternaMovimento(movs, r); assert.ok(x.ok); if (x.ok) movs = x.movs; }
+  assert.deepEqual(alternaMovimento(movs, 'e'), { ok: false, erro: 'Escolha no máximo 4 movimentos.' });
+  assert.equal(alternaOutroMovimento(movs).ok, false);
+  const sem = alternaMovimento(movs, 'a');
+  assert.ok(sem.ok && sem.movs.length === 3);
+});
+
+test('SUG-47: ordem e texto por data; sem data fica no fim na ordem de marcação', () => {
+  let movs = [{ rot: 'A', data: '' }, { rot: 'B', data: '' }, { rot: 'C', data: '' }];
+  movs = defineDataMovimento(movs, 2, '2026-12-01');
+  movs = defineDataMovimento(movs, 1, '2026-11-20');
+  assert.deepEqual(ordemMovimentos(movs), [1, 2, 0]);
+  assert.equal(textoMovimentos(movs), 'B (20/11/2026); C (01/12/2026); A');
+  assert.equal(textoMovimentos([{ rot: '', data: '2026-12-01' }, { rot: 'x;y', data: '' }]), 'x,y');
+  assert.deepEqual(lerMovimentos({ mov: textoMovimentos(movs) }).map((m) => m.rot), ['B', 'C', 'A']);
 });

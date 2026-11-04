@@ -90,7 +90,7 @@ test.describe('Cartão da comissão (CAP-03.6, CAP-03.7, CAP-03.8)', () => {
     await escolheSaude(page);
     await expect(page.locator('.cp-perg')).toHaveCount(3);
     for (const c of ['pq', 'papel', 'mov'] as const) await expect(botao(page, c, 'Outro (escrever)')).toBeVisible();
-    await expect(pergunta(page, 'papel').locator('.rm-chip')).toHaveText(['Titular', 'Suplente', 'Relatoria', 'Vice-presidência', 'Presidência', 'Outro (escrever)']);
+    await expect(pergunta(page, 'papel').locator('.rm-chip')).toHaveText(['Titular', 'Suplente', 'Conquista de Relatoria Relevante', 'Vice-presidência', 'Presidência', 'Outro (escrever)']);
   });
 
   test('motivo, papel e movimento gravam na hora em texto legível e sobrevivem a recarregar', async ({ page }) => {
@@ -111,9 +111,9 @@ test.describe('Cartão da comissão (CAP-03.6, CAP-03.7, CAP-03.8)', () => {
   test('papel e movimento aceitam uma resposta só: escolher outra troca; clicar de novo desmarca', async ({ page }) => {
     await escolheSaude(page);
     await botao(page, 'papel', 'Titular').click();
-    await botao(page, 'papel', 'Relatoria').click();
-    expect((await registros(page))[0].papel).toBe('Relatoria');
-    await botao(page, 'papel', 'Relatoria').click();
+    await botao(page, 'papel', 'Conquista de Relatoria Relevante').click();
+    expect((await registros(page))[0].papel).toBe('Conquista de Relatoria Relevante');
+    await botao(page, 'papel', 'Conquista de Relatoria Relevante').click();
     expect((await registros(page))[0].papel).toBe('');
   });
 
@@ -133,11 +133,55 @@ test.describe('Cartão da comissão (CAP-03.6, CAP-03.7, CAP-03.8)', () => {
     await expect(page.getByLabel('Outro papel')).toHaveValue('Líder da bancada na comissão');
   });
 
+  test('SUG-46: papel antigo "Relatoria" abre marcado em "Conquista de Relatoria Relevante", sem perder o dado', async ({ page }) => {
+    await abre(page, [ILHA], { campos: SAUDE, mandato: FEDERAL, D: { comissoes: [{ id: 'a', esp: 'Comissão de Saúde', sigla: 'CSAUDE', papel: 'Relatoria' }] } });
+    await expect(botao(page, 'papel', 'Conquista de Relatoria Relevante')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByLabel('Outro papel')).toHaveCount(0);
+  });
+
   test('o texto antigo, digitado à mão no Guia, abre como "Outro" sem perda', async ({ page }) => {
     await abre(page, [ILHA], { campos: SAUDE, mandato: FEDERAL, D: { comissoes: [{ id: 'a', esp: 'Comissão de Saúde', prio: 'saúde', pq: 'Porque a saúde é nossa bandeira', papel: 'titular', mov: 'Falar com o líder' }] } });
     await expect(page.getByLabel('Outro motivo')).toHaveValue('Porque a saúde é nossa bandeira');
     await expect(page.getByLabel('Outro papel')).toHaveValue('titular');
     await expect(page.getByLabel('Outro movimento')).toHaveValue('Falar com o líder');
+  });
+
+  test('SUG-48: "Articular com a Presidência da Casa" é uma das opções de movimento', async ({ page }) => {
+    await escolheSaude(page);
+    await expect(botao(page, 'mov', 'Articular com a Presidência da Casa')).toBeVisible();
+    await botao(page, 'mov', 'Articular com a Presidência da Casa').click();
+    expect((await registros(page))[0].mov).toBe('Articular com a Presidência da Casa');
+  });
+
+  test('SUG-47: pergunta "Ordem de tudo o que o mandato precisa fazer", até 4 movimentos, cada um com data, em ordem de data', async ({ page }) => {
+    await page.clock.install({ time: new Date('2026-11-04T12:00:00') });
+    await escolheSaude(page);
+    await expect(pergunta(page, 'mov').locator('legend')).toContainText('Ordem de tudo o que o mandato precisa fazer para alcançar este objetivo');
+    await expect(pergunta(page, 'mov').locator('legend')).toContainText('selecionar até 4 movimentos');
+    await botao(page, 'mov', 'Pedir a vaga formalmente').click();
+    await botao(page, 'mov', 'Conversar com a liderança partidária').click();
+    await page.getByLabel('Data de Pedir a vaga formalmente').fill('2027-01-20');
+    await page.getByLabel('Data de Conversar com a liderança partidária').fill('2026-12-10');
+    await expect(pergunta(page, 'mov').locator('.cp-mov')).toHaveText([/Conversar com a liderança partidária/, /Pedir a vaga formalmente/]);
+    expect((await registros(page))[0].mov).toBe('Conversar com a liderança partidária (10/12/2026); Pedir a vaga formalmente (20/01/2027)');
+    await botao(page, 'mov', 'Procurar a secretaria da comissão').click();
+    await botao(page, 'mov', 'Mapear a pauta e os projetos em tramitação').click();
+    await botao(page, 'mov', 'Articular com a Presidência da Casa').click(); // o 5º
+    await expect(pergunta(page, 'mov').locator('.cp-mov')).toHaveCount(4);
+    await expect(botao(page, 'mov', 'Articular com a Presidência da Casa')).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.getByText('Escolha no máximo 4 movimentos.')).toBeVisible();
+    await page.reload();
+    await page.locator('#tela[data-pronto="true"]').waitFor();
+    await expect(page.getByLabel('Data de Pedir a vaga formalmente')).toHaveValue('2027-01-20');
+  });
+
+  test('SUG-47: data que já passou é recusada e o movimento fica sem data', async ({ page }) => {
+    await page.clock.install({ time: new Date('2026-11-04T12:00:00') });
+    await escolheSaude(page);
+    await botao(page, 'mov', 'Pedir a vaga formalmente').click();
+    await page.getByLabel('Data de Pedir a vaga formalmente').fill('2026-10-01');
+    await expect(page.getByText('Esse prazo já passou.')).toBeVisible();
+    expect((await registros(page))[0].mov).toBe('Pedir a vaga formalmente');
   });
 
   test('o Resumo mostra o texto legível de pq, papel e mov no Guia de verdade', async ({ page }) => {

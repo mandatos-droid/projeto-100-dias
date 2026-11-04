@@ -4,7 +4,7 @@
    antigo ({prio, esp, pq, papel, mov}, texto legível) mais `sigla`, ignorada pelo legado. */
 import { useEffect, useState } from 'react';
 import { bandeiraDe } from '@/lib/bandeiras';
-import { PAPEIS } from '@/lib/capital';
+import { PAPEIS, papelNorm } from '@/lib/capital';
 import { BANDEIRA_COMISSAO } from '@/lib/comissoesPorBandeira';
 import type { Catalogo, Comissao } from '@/lib/espacos';
 import { aviso } from '../ponte';
@@ -61,7 +61,7 @@ export default function Comissoes() {
       if (casa.length !== 1) return;
       const c = casa[0];
       if ([...atuais, ...entram].some((r) => r.sigla === c.sigla)) return;
-      entram.push({ id: uid(), sigla: c.sigla, esp: c.nome, prio: e.bandeira ?? '', ...(PAPEIS.includes(e.papel ?? '') ? { papel: e.papel } : {}) });
+      entram.push({ id: uid(), sigla: c.sigla, esp: c.nome, prio: e.bandeira ?? '', ...(PAPEIS.includes(papelNorm(e.papel)) ? { papel: papelNorm(e.papel) } : {}) });
     });
     d.comissoesM3 = [...vistos, ...novos.map((e) => norm(e.comissao))];
     if (entram.length) d.comissoes = [...atuais, ...entram];
@@ -118,7 +118,7 @@ export default function Comissoes() {
           )}
         </div>
         {l.motivo && <p className="cp-motivo">{l.motivo}</p>}
-        {r && <CartaoComissao reg={r} nome={r.esp || l.nome} onMuda={bump} />}
+        {r && <CartaoComissao reg={r} nome={r.esp || l.nome} posse={m.data_posse} onMuda={bump} />}
         {ajustando === chave && (
           <div className="cp-nome">
             <label className="campo"><span className="rot">Nome na sua Assembleia</span>

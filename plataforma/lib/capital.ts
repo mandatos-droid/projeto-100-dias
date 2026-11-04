@@ -15,15 +15,20 @@ export const MOTIVOS: Opcao[] = [
 ];
 
 /** Papéis que o mandato pretende exercer. */
-export const PAPEIS = ['Titular', 'Suplente', 'Relatoria', 'Vice-presidência', 'Presidência'];
+export const PAPEL_RELATORIA = 'Conquista de Relatoria Relevante';
+export const PAPEIS = ['Titular', 'Suplente', PAPEL_RELATORIA, 'Vice-presidência', 'Presidência'];
 
-/** Primeiro movimento (múltipla escolha). */
+/** "Relatoria" (texto antigo, ou papel do espaço da Missão 3) é o botão "Conquista de Relatoria Relevante" (SUG-46). */
+export const papelNorm = (papel: unknown): string => (typeof papel === 'string' ? (papel.trim() === 'Relatoria' ? PAPEL_RELATORIA : papel) : '');
+
+/** Movimentos da comissão (até 4, cada um com data; ver lerMovimentos). */
 export const MOVIMENTOS: Opcao[] = [
   { id: 'lideranca', rot: 'Conversar com a liderança partidária' },
   { id: 'secretaria', rot: 'Procurar a secretaria da comissão' },
   { id: 'presidencia', rot: 'Marcar conversa com a presidência da comissão' },
   { id: 'pauta', rot: 'Mapear a pauta e os projetos em tramitação' },
   { id: 'relatoria', rot: 'Identificar uma relatoria estratégica' },
+  { id: 'casa', rot: 'Articular com a Presidência da Casa' },
   { id: 'vaga', rot: 'Pedir a vaga formalmente' },
 ];
 
@@ -100,3 +105,52 @@ export function leEscolhas(texto: unknown, opcoes: string[]): { marcados: string
   const partes = (typeof texto === 'string' ? texto : '').split(SEPARADOR).map((s) => s.trim()).filter((s) => s !== '');
   return { marcados: partes.filter((p) => opcoes.includes(p)), outro: partes.filter((p) => !opcoes.includes(p)).join(SEPARADOR) };
 }
+
+/* ---------- movimentos da comissão: até 4, cada um com data (SUG-47) ---------- */
+export type Movimento = { rot: string; data: string };
+export const MAX_MOVIMENTOS = 4;
+const dataBR = (iso: string) => iso.split('-').reverse().join('/');
+const ROTULOS_MOV = MOVIMENTOS.map((m) => m.rot);
+
+/** Lê os movimentos de um registro de D.comissoes: `movs` se existir; senão o texto antigo `mov` (sem data). */
+export function lerMovimentos(reg: { movs?: unknown; mov?: unknown }): Movimento[] {
+  if (Array.isArray(reg.movs)) {
+    return reg.movs.filter(ehObj).filter((m) => typeof m.rot === 'string').map((m) => ({ rot: m.rot as string, data: ehDataISO(m.data) ? m.data : '' })).slice(0, MAX_MOVIMENTOS);
+  }
+  return (typeof reg.mov === 'string' ? reg.mov : '').split(SEPARADOR).map((p) => p.trim()).filter((p) => p !== '').slice(0, MAX_MOVIMENTOS).map((p) => {
+    const m = /^(.*?)\s*\((\d{2})\/(\d{2})\/(\d{4})\)$/.exec(p);
+    const iso = m ? `${m[4]}-${m[3]}-${m[2]}` : '';
+    return m && ehDataISO(iso) ? { rot: m[1], data: iso } : { rot: p, data: '' };
+  });
+}
+
+/** Posições (índices de `movs`) na ordem de exibição: por data; sem data depois, na ordem em que foram marcados. */
+export function ordemMovimentos(movs: Movimento[]): number[] {
+  return movs.map((m, i) => ({ k: m.data || null, i })).sort((a, b) => (a.k === b.k ? a.i - b.i : a.k === null ? 1 : b.k === null ? -1 : a.k < b.k ? -1 : 1)).map((x) => x.i);
+}
+
+/** Texto legível de `mov` (o Guia antigo e o Resumo leem): "Rótulo (dd/mm/aaaa); Outro", na ordem de exibição. Movimento sem texto não entra. */
+export function textoMovimentos(movs: Movimento[]): string {
+  return ordemMovimentos(movs).map((i) => movs[i]).filter((m) => m.rot.trim() !== '')
+    .map((m) => `${m.rot.trim().replace(/;/g, ',')}${m.data ? ` (${dataBR(m.data)})` : ''}`).join(SEPARADOR);
+}
+
+export type ResultadoMov = { ok: true; movs: Movimento[] } | { ok: false; erro: string };
+const LIMITE_MSG = `Escolha no máximo ${MAX_MOVIMENTOS} movimentos.`;
+
+/** Marca ou desmarca um movimento da lista de opções. O 5º é recusado. */
+export function alternaMovimento(movs: Movimento[], rot: string): ResultadoMov {
+  if (movs.some((m) => m.rot === rot)) return { ok: true, movs: movs.filter((m) => m.rot !== rot) };
+  if (movs.length >= MAX_MOVIMENTOS) return { ok: false, erro: LIMITE_MSG };
+  return { ok: true, movs: [...movs, { rot, data: '' }] };
+}
+
+/** "Outro (escrever)": liga ou desliga o movimento de texto livre (o que não é uma das opções). */
+export function alternaOutroMovimento(movs: Movimento[]): ResultadoMov {
+  if (movs.some((m) => !ROTULOS_MOV.includes(m.rot))) return { ok: true, movs: movs.filter((m) => ROTULOS_MOV.includes(m.rot)) };
+  if (movs.length >= MAX_MOVIMENTOS) return { ok: false, erro: LIMITE_MSG };
+  return { ok: true, movs: [...movs, { rot: '', data: '' }] };
+}
+
+export const defineDataMovimento = (movs: Movimento[], i: number, data: string): Movimento[] => movs.map((m, j) => (j === i ? { ...m, data } : m));
+export const defineTextoMovimento = (movs: Movimento[], i: number, rot: string): Movimento[] => movs.map((m, j) => (j === i ? { ...m, rot } : m));
