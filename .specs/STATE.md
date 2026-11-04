@@ -31,7 +31,17 @@
 - Motivo: Painel, Resumo e monitoramento leem os mesmos campos e não precisam mudar. Os arquivados são somente leitura (`lib/ciclos.ts`: `arquivarEIniciar`, `listaCiclos`, `abrirCiclo`); a tela de arquivados nunca escreve no ativo.
 - Ganchos do botão (tarefa "Calibragem e replanejamento" e aba Planejamento) ficam em `public/legacy/m5.js`. Na aba, a ilha entra antes da única chamada de `Ilhas.ligar` do original: religar duas vezes quebra as raízes React.
 
+### AD-006: Tabela de equipe e organograma gerado sobre o modelo de cadeiras; liderança derivada e gravada (2026-11-03)
+
+- A Missão 2 troca as 3 etapas da escalação por uma tabela de equipe em ordem travada (escopo, competências, cargo, pessoa, categoria, área) e o organograma passa a ser gerado dela (`lib/tabelaEquipe.ts`, `lib/layoutOrg.ts`). O modelo de cadeiras (`m2.on`, `m2.f{n}`, `m2.p{n}.*`) continua sendo a fonte; a tela é nova, o dado não.
+- A liderança direta é derivada pela regra D8 (Chefia sem líder; Coordenação liderada pela Chefia; Especialista e Executora, pela Coordenação da área, ou pela Chefia se não houver) e **gravada** em `m2.p{n}.lider`. Motivo: o Feedback da Missão 5 (`lib/feedback.ts`), o Resumo e o painel da Legisla já leem `liderDe`; gravar evita mudar quem lê.
+- Todo dado novo fica em `D.campos` (`m2.n`, `m2.p{n}.esc/comp/cat`, `m2.rq`, `m3.est`, `m3.just.{pid}`); nenhuma chave nova de topo em `D`, e nada do modelo antigo é apagado (perfil, repertório, ritmo, `m2.rotoff`, `m2.x` ficam guardados sem aparecer).
+- A estratégia A/B/C só define o texto do nó do preditor; a árvore do planejamento e as metas da Missão 3 não mudam. Mandato com `m3.obj.*` abre na estratégia B.
+- As telas antigas (escalação, painel da cadeira, rotinas por cadeia, entrega) saíram de `ilhas/equipe/`; a sugestão do checklist (`m2.c1..c3`) ficou na ilha `m2-sugestao-checklist`.
+
 ## Handoff
+
+Feature `missao2-3-reestruturacao`: T1 a T29 implementadas (T27A criada no fechamento para a sugestão do checklist). 497 testes unitários; e2e completo na T27 com 391 passando (mais o spec `migracao` corrigido e relançado, 5 de 5); `m23-migracao` e `m5-feedback` 24 de 24; `npm run build` passou na T27. Pendente: Verifier da feature, artefatos de `graphify-out/` (ficam para o orquestrador), `git push` e deploy aguardam go-ahead. Arquivos do usuário seguem não commitados (`graphify-out/`, `contexto inicial/`, `.vscode/`, `Alterador/`).
 
 Feature `missao5-avanco` concluída: T1 a T18 implementadas (sucessos mensais, monitoramento com link, feedback pelo organograma, novos planejamentos com arquivados somente leitura); 339 testes unitários e 319 e2e passando. `npm run build` falha só por `SecurityFatalError` do Next 16.4 (advisory conhecido). Pendente: validação (verifier) da feature, `git push` e deploy aguardam go-ahead. Arquivos do usuário seguem não commitados (`Equipe.tsx`, `Organograma.tsx`, `types.ts`, `novos.js`, `guia.js`, `cadastro.js`, entre outros).
 

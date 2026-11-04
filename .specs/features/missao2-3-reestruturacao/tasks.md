@@ -877,7 +877,7 @@ T26 → T27A → T27 → T28 → T29
 
 ---
 
-### T29: Decisão de projeto, rastreabilidade e grafo
+### T29: Decisão de projeto, rastreabilidade e grafo ✅
 
 **What**: Registrar AD-006 em `.specs/STATE.md`, ajustar o spec (chaves de dados em `D.campos`, tabela de rastreabilidade com status) e rodar `graphify update .`.
 **Where**: `.specs/STATE.md` (+ `.specs/features/missao2-3-reestruturacao/spec.md`)
@@ -892,11 +892,11 @@ T26 → T27A → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] AD-006 descreve "tela nova sobre o modelo de cadeiras; liderança derivada e gravada"
-- [ ] A spec cita `D.campos` no lugar de `D.estrategia`/`D.justificativas`/`D.rotinasQuadro`
-- [ ] Cada ID `RM*` do spec aponta para as tarefas e para o status
-- [ ] `graphify update .` rodou sem erro
-- [ ] Gate: `npx tsc --noEmit && npm test && npm run test:e2e && npm run build` (mesma ressalva do Next)
+- [x] AD-006 descreve "tela nova sobre o modelo de cadeiras; liderança derivada e gravada"
+- [x] A spec cita `D.campos` no lugar de `D.estrategia`/`D.justificativas`/`D.rotinasQuadro`
+- [x] Cada ID `RM*` do spec aponta para as tarefas e para o status
+- [x] `graphify update .` rodou sem erro
+- [x] Gate: `npx tsc --noEmit && npm test && npm run test:e2e && npm run build` (mesma ressalva do Next)
 
 **Tests**: none
 **Gate**: build
