@@ -7,7 +7,10 @@ import { abrirCiclo, listaCiclos } from '@/lib/ciclos';
 import { OBJETIVOS_LEGISLA, lerEstrategia, lerJustificativa } from '@/lib/estrategia';
 import { PREDITORES, podeAcrescentarMeta } from '@/lib/plano';
 import { resolve } from '@/lib/pessoas';
+import { quadroRotinasHtml } from '@/lib/exporta';
+import { dataOk, horaOk, lerQuadro } from '@/lib/quadroRotinas';
 import { editaSucesso, lerSucessos } from '@/lib/sucessos';
+import PdfOrgRotinas from '../equipe/PdfOrgRotinas';
 import ArvorePlano, { pctTxt } from './ArvorePlano';
 import CartaoMeta from './CartaoMeta';
 import EditorPlano from './EditorPlano';
@@ -65,6 +68,23 @@ function EstrategiaPlano({ campos, escolhidos }: { campos: Record<string, string
           </ul>
         </details>
       )}
+    </section>
+  );
+}
+
+/** Rotinas ligadas do quadro da Missão 2, no fim da aba (e da impressão do planejamento). Sem início definido, leva à Missão 2. */
+function RotinasPlano({ campos }: { campos: Record<string, string> }) {
+  const rotinas = lerQuadro(campos);
+  const ligadas = rotinas.filter((r) => r.on);
+  const semInicio = !ligadas.some((r) => dataOk(r.data) && horaOk(r.hora));
+  return (
+    <section className="rm-rotinas" aria-label="Rotinas do mandato" data-rotinas-plano>
+      <h4>Rotinas do mandato</h4>
+      {ligadas.length === 0
+        ? <p className="rm-dica">Nenhuma rotina está ligada. Ligue as rotinas na Missão 2.</p>
+        : <div dangerouslySetInnerHTML={{ __html: quadroRotinasHtml(rotinas) }} />}
+      {semInicio && <p className="rm-dica rm-nao-imprime" data-sem-inicio>Início ainda não definido. <a href="#/m/2/m2.gestao">Defina a data e o horário na Missão 2</a>.</p>}
+      <div className="rm-nao-imprime"><PdfOrgRotinas /></div>
     </section>
   );
 }
@@ -186,6 +206,7 @@ export default function Plano() {
             onAtiva={(id) => { if (id.startsWith('meta-')) { const i = Number(id.slice(5)); setEditando(editando === i ? null : i); } }} />
         </>
       )}
+      <RotinasPlano campos={c} />
     </div>
   );
 }

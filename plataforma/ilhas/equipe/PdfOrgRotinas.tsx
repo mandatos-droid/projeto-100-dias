@@ -29,7 +29,7 @@ export default function PdfOrgRotinas() {
   };
 
   return (
-    <div className="ilha-corpo es-pdf es-nao-imprime">
+    <div className="es-pdf es-nao-imprime">
       <button type="button" className="bt pri es-bt" onClick={gera}>Gerar PDF do organograma e rotinas</button>
       <p className="es-tab-ajuda">Abre a impressão do navegador: escolha "Salvar como PDF". A página 1 traz o organograma; a seguir, o quadro de rotinas.</p>
       {typeof document !== 'undefined' && createPortal(

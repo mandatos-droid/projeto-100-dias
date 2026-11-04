@@ -74,3 +74,83 @@ test.describe('Estratégia e justificativas no Planejamento (RM3-18)', () => {
     expect(erros).toEqual([]);
   });
 });
+
+/* ---------- Rotinas do mandato no fim da aba (RM2-60 a 64) ---------- */
+const secao = (page: Page) => page.getByRole('region', { name: 'Rotinas do mandato' });
+const RQ = JSON.stringify({ plan: { data: '2030-03-04', hora: '09:00' }, mensal: { on: false }, semanal: { dur: '50 min' } });
+const linhaEq = (i: number, v: { pessoa: string; cargo: string; cat: string; coord: string; lider: string }) => ({
+  [`m2.p${i + 1}.esc`]: 'Escopo', [`m2.p${i + 1}.comp`]: 'Comp', [`m2.p${i + 1}.nome_cargo`]: v.cargo, [`m2.f${i + 1}`]: v.pessoa,
+  [`m2.p${i + 1}.cat`]: v.cat, [`m2.p${i + 1}.coord`]: v.coord, [`m2.p${i + 1}.lider`]: v.lider,
+});
+const EQ = {
+  'm2.n': '2', 'm2.on': '0|20',
+  ...linhaEq(0, { pessoa: 'Ana Souza', cargo: 'Chefe de gabinete', cat: 'Chefia', coord: 'Chefia de área', lider: '-' }),
+  ...linhaEq(20, { pessoa: 'Bia Lima', cargo: 'Coordenadora Legislativa', cat: 'Coordenação', coord: 'Legislativo', lider: '0' }),
+};
+
+test.describe('Rotinas do mandato no Planejamento (RM2-60 a RM2-64)', () => {
+  test('a seção fica no fim da aba, depois da árvore, com as rotinas ligadas, frequência, participantes, duração e início (RM2-60)', async ({ page }) => {
+    await abre(page, [ILHA], { D: { preditores: TRES, metas: METAS }, campos: { 'm2.rq': RQ } });
+    await expect(secao(page)).toBeVisible();
+    const yArvore = (await page.getByRole('tree', { name: 'Árvore do planejamento' }).boundingBox())!.y;
+    expect((await secao(page).boundingBox())!.y).toBeGreaterThan(yArvore);
+    const linhas = secao(page).locator('tbody tr');
+    await expect(linhas).toHaveCount(4); // a mensal está desligada
+    await expect(linhas.nth(0)).toContainText('Planejamento estratégico');
+    await expect(linhas.nth(0)).toContainText('Quadrimestralmente');
+    await expect(linhas.nth(0)).toContainText('Todos');
+    await expect(linhas.nth(0)).toContainText('2 períodos de 6h');
+    await expect(linhas.nth(0)).toContainText('04/03/2030 às 09:00');
+    await expect(secao(page)).not.toContainText('Monitoramento de avanços');
+    await expect(linhas.nth(1)).toContainText('50 min'); // a edição de duração do mandato vale
+    await expect(linhas.nth(1)).toContainText('início ainda não definido');
+  });
+
+  test('sem nenhum início definido mostra "início ainda não definido" e o link para a Missão 2 (RM2-62)', async ({ page }) => {
+    await abre(page, [ILHA], { D: { preditores: TRES, metas: METAS } });
+    await expect(secao(page).locator('tbody tr')).toHaveCount(5);
+    await expect(secao(page).locator('[data-sem-inicio]')).toContainText('Início ainda não definido');
+    await expect(secao(page).getByRole('link', { name: /Missão 2/ })).toHaveAttribute('href', '#/m/2/m2.gestao');
+    await expect(secao(page).locator('tbody td', { hasText: 'início ainda não definido' })).toHaveCount(5);
+  });
+
+  test('com ao menos um início definido, o aviso e o link saem (RM2-62)', async ({ page }) => {
+    await abre(page, [ILHA], { D: { preditores: TRES, metas: METAS }, campos: { 'm2.rq': RQ } });
+    await expect(secao(page).locator('[data-sem-inicio]')).toHaveCount(0);
+  });
+
+  test('o botão gera o PDF do organograma e rotinas: chama a impressão com os dois blocos (RM2-61)', async ({ page }) => {
+    await abre(page, [ILHA], { D: { preditores: TRES, metas: METAS }, campos: { ...EQ, 'm2.rq': RQ } });
+    await page.evaluate(() => {
+      const w = window as unknown as { __print: string[][] };
+      w.__print = [];
+      window.print = () => { w.__print.push([...document.querySelectorAll('.pdf-org section')].map((s) => (s as HTMLElement).dataset.pdf ?? '')); };
+    });
+    await secao(page).getByRole('button', { name: 'Gerar PDF do organograma e rotinas' }).click();
+    expect(await page.evaluate(() => (window as unknown as { __print: string[][] }).__print)).toEqual([['organograma', 'rotinas']]);
+    expect(await page.evaluate(() => document.body.classList.contains('imprimindo-org'))).toBe(false);
+  });
+
+  test('a seção entra na impressão do planejamento completo, sem os botões (RM2-64)', async ({ page }) => {
+    await abre(page, [ILHA], { D: { preditores: TRES, metas: METAS }, campos: { 'm2.rq': RQ } });
+    await page.emulateMedia({ media: 'print' });
+    const r = await page.evaluate(() => {
+      const s = document.querySelector('[data-rotinas-plano]') as HTMLElement;
+      const dentro = !!s.closest('.rm-plano[data-imprime]');
+      const visivel = (e: Element) => getComputedStyle(e).display !== 'none' && getComputedStyle(e).visibility === 'visible';
+      return { dentro, tabela: visivel(s.querySelector('table')!), botao: visivel(s.querySelector('button')!.parentElement!), aviso: s.querySelector('[data-sem-inicio]') ? 'tem' : 'nao' };
+    });
+    expect(r.dentro).toBe(true);
+    expect(r.tabela).toBe(true);
+    expect(r.botao).toBe(false);
+  });
+
+  test('planejamento arquivado segue somente leitura, sem a seção de rotinas (RM2-60)', async ({ page }) => {
+    const arq = { n: 1, criadoEm: '2026-05-01T10:00:00.000Z', legado: 'L', bandeiras: [], objetivos: [{ pid: 'p1', nome: 'Priorizar a agenda', pergunta: '', texto: 'Priorizar a agenda' }], metas: [{ id: 'z', pred: 'p1', texto: 'Meta antiga', status: 'concluida' }] };
+    await abre(page, [ILHA], { D: { preditores: TRES, metas: METAS, planos: [arq] }, campos: { 'm2.rq': RQ } });
+    await expect(secao(page)).toHaveCount(1);
+    await page.locator('.rm-ciclo select').selectOption('1');
+    await expect(page.getByText('somente leitura')).toBeVisible();
+    await expect(secao(page)).toHaveCount(0);
+  });
+});

@@ -768,7 +768,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T26: Seção "Rotinas do mandato" no Planejamento
+### T26: Seção "Rotinas do mandato" no Planejamento ✅
 
 **What**: Em `Plano.tsx`, acrescentar no fim da aba a seção "Rotinas do mandato" (rotinas ligadas, frequência, participantes, duração, início), o botão do PDF e o estado "início ainda não definido" com link para a Missão 2.
 **Where**: `ilhas/rumo/Plano.tsx` (+ `e2e/m23-plano.spec.ts`)
@@ -783,12 +783,12 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] A seção aparece no fim da aba com as rotinas ligadas (RM2-60)
-- [ ] O botão gera o PDF do organograma e rotinas (RM2-61)
-- [ ] Sem início definido mostra o estado e o link (RM2-62)
-- [ ] A seção entra também na impressão do planejamento completo (RM2-64)
-- [ ] Planejamento arquivado continua somente leitura
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
+- [x] A seção aparece no fim da aba com as rotinas ligadas (RM2-60)
+- [x] O botão gera o PDF do organograma e rotinas (RM2-61)
+- [x] Sem início definido mostra o estado e o link (RM2-62)
+- [x] A seção entra também na impressão do planejamento completo (RM2-64)
+- [x] Planejamento arquivado continua somente leitura
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
 
 **Tests**: e2e
 **Gate**: full

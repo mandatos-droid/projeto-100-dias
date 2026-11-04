@@ -333,3 +333,9 @@ input.rm-jn-titulo:focus-visible{outline:3px solid var(--verde);outline-offset:2
 .rm-est-just summary{cursor:pointer;font-weight:700}
 .rm-est-just ul{list-style:none;margin:0.5rem 0 0;padding:0;display:grid;gap:0.5rem}
 .rm-est-just li p{margin:0.125rem 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* ---------- Rotinas do mandato no fim da aba Planejamento (RM2-60) ---------- */
+.rm-rotinas{margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--linha);break-inside:avoid-page}
+.rm-rotinas h4{margin:0 0 0.5rem}
+.rm-rotinas .pdf-rotinas th,.rm-rotinas .pdf-rotinas td{border-color:var(--linha)}
+@media (max-width:720px){.rm-rotinas>div:has(>.pdf-rotinas){overflow-x:auto}}
