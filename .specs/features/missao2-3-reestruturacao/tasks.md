@@ -10,7 +10,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 
 **Spec**: `.specs/features/missao2-3-reestruturacao/spec.md`
 **Design**: `.specs/features/missao2-3-reestruturacao/design.md`
-**Status**: Draft (aguarda "PODE EXECUTAR"); execução proposta com sub-agentes em lotes de ~7 tarefas
+**Status**: Done (verificado: PASS, ver validation.md)
 
 Caminhos relativos a `plataforma/`. A árvore de trabalho tem mudanças do usuário não commitadas. Regras:
 
