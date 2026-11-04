@@ -79,7 +79,7 @@ T19 → T20 → T21 → T22 → T23 → T24 → T25 → T26
 ### Phase 5: Fechamento
 
 ```
-T26 → T27 → T28 → T29
+T26 → T27A → T27 → T28 → T29
 ```
 
 ---
@@ -796,11 +796,38 @@ T26 → T27 → T28 → T29
 
 ---
 
+### T27A: Sugestão do checklist da Missão 2 como ilha própria ✅
+
+**What**: Criar a ilha `m2-sugestao-checklist` (`ilhas/equipe/SugestaoChecklist.tsx`), com a lista de itens sugeridos (m2.c1..c3) e o botão "Marcar como pronto", como existia em `Entrega.tsx` (que saiu da Mão na massa 2 na T25). `m2.js` a emite no fim do exercício `m2.gestao`, antes do checklist do Guia; registrar na `ponte.tsx`.
+**Where**: `ilhas/equipe/SugestaoChecklist.tsx`, `ilhas/ponte.tsx`, `public/legacy/m2.js` (+ `e2e/m23-checklist.spec.ts`, `tests/legado-m2.test.ts`)
+**Depends on**: T26
+**Reuses**: `lib/entrega.ts` (`sugestaoChecklist`), `useEquipe().agir`
+**Requirement**: RM2-57
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [x] Com escopo em todas as linhas a ilha sugere c1; sem escopo em alguma linha não sugere (RM2-57)
+- [x] Só o botão "Marcar como pronto" grava `m2.cN`; a sugestão sozinha não grava (RM2-57)
+- [x] Com as rotinas ligadas todas agendadas a ilha sugere c3 (RM2-57)
+- [x] `m2.gestao` emite a ilha depois do quadro e do PDF
+- [x] Gate: `npm test && npx tsc --noEmit` e o e2e `m23-checklist`; nenhum teste removido
+
+**Tests**: e2e
+**Gate**: full
+**Commit**: `feat(m2): sugestão do checklist como ilha própria`
+
+---
+
 ### T27: Remoção das telas substituídas
 
 **What**: Remover `Escalacao`, `EtapaAreas`, `EtapaCadeiras`, `EtapaNomes`, `MiniOrg`, `PainelCadeira`, `Rotinas`, `EntreAreas`, `Entrega`, `Chips` e `foco` de `ilhas/equipe/`, as entradas deles em `ponte.tsx`, e os testes que só cobrem essas telas; manter `lib/cadeiras.ts` e `lib/rotinas.ts` só no que ainda é usado.
 **Where**: `ilhas/equipe/` (remoção de arquivos substituídos)
-**Depends on**: T26
+**Depends on**: T27A
 **Reuses**: nenhum
 **Requirement**: RM2-30
 
@@ -886,7 +913,7 @@ Phase 1:  T1 → T2 → T3 → T4
 Phase 2:  T5 → T6 → T7 → T8 → T9 → T10 → T11
 Phase 3:  T12 → T13 → T14 → T15 → T16 → T17 → T18 → T19
 Phase 4:  T20 → T21 → T22 → T23 → T24 → T25 → T26
-Phase 5:  T27 → T28 → T29
+Phase 5:  T27A → T27 → T28 → T29
 ```
 
 Execução estritamente sequencial. Com 29 tarefas, proposta de 4 lotes (fases inteiras): **Lote 1** = Fases 1 e 2 (11 tarefas, lote grande mas coeso na M3), **Lote 2** = Fase 3 (8), **Lote 3** = Fase 4 (7), **Lote 4** = Fase 5 (3) mais o Verifier.
@@ -899,7 +926,7 @@ Execução estritamente sequencial. Com 29 tarefas, proposta de 4 lotes (fases i
 | ---- | ----- | ------ |
 | T1, T5, T12 a T15, T20, T22, T24 | 1 arquivo de lib | ✅ Granular |
 | T2, T9, T11, T19, T25 | 1 arquivo legado (+ teste e registro) | ✅ Granular |
-| T7, T8, T10, T16, T18, T21, T23, T26 | 1 componente | ✅ Granular |
+| T7, T8, T10, T16, T18, T21, T23, T26, T27A | 1 componente | ✅ Granular |
 | T3 | Varredura de texto em 4 ilhas, sem lógica | ⚠️ Coeso (só strings) |
 | T27 | Remoção de arquivos substituídos | ⚠️ Coeso (uma remoção) |
 
@@ -913,6 +940,6 @@ Cada tarefa depende só da anterior na mesma fase; a primeira de cada fase depen
 | ---- | ---------- | --------------- | --------- | ------ |
 | T1, T5, T6, T12-T15, T17, T20, T22, T24 | lib pura | unit | unit | ✅ OK |
 | T2, T9, T11, T19, T25 | ganchos do legado | unit | unit | ✅ OK |
-| T3, T7, T8, T10, T16, T18, T21, T23, T26, T28 | ilhas | e2e | e2e | ✅ OK |
+| T3, T7, T8, T10, T16, T18, T21, T23, T26, T27A, T28 | ilhas | e2e | e2e | ✅ OK |
 | T4 | lib (`smart.ts`) + varredura | unit | unit | ✅ OK |
 | T27, T29 | remoção, docs | none | none | ✅ OK |

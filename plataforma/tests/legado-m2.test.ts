@@ -189,3 +189,10 @@ test('o Resumo escapa o cargo e a pessoa (segurança)', () => {
   assert.ok(h.includes('&lt;i&gt;Chefe&lt;/i&gt;: <strong>Ana &lt;b&gt;&amp;&lt;/b&gt;</strong>'));
   assert.equal(h.includes('<i>'), false);
 });
+
+test('m2.gestao emite a sugestão do checklist no fim, depois do quadro e do PDF e antes do checklist do Guia (RM2-57)', () => {
+  const g = ex(janela(), 'm2.gestao');
+  const ordem = ['data-ilha="quadro-rotinas"', 'data-ilha="pdf-org-rotinas"', 'O checklist abaixo traz o que deve ser estabelecido', 'data-ilha="m2-sugestao-checklist"'].map((t) => g.intro.indexOf(t));
+  assert.ok(ordem.every((p, k) => p >= 0 && (k === 0 || p > ordem[k - 1])), `ordem: ${ordem}`);
+  assert.ok(g.intro.endsWith('data-ilha="m2-sugestao-checklist"></div>'));
+});

@@ -29,6 +29,7 @@ import Escalacao from './equipe/Escalacao';
 import TabelaEquipe from './equipe/TabelaEquipe';
 import QuadroRotinas from './equipe/QuadroRotinas';
 import PdfOrgRotinas from './equipe/PdfOrgRotinas';
+import SugestaoChecklist from './equipe/SugestaoChecklist';
 import { AssentosResumo, ConjunturaResumo, MunicipioResumo } from './Resumos';
 
 /* ---------- acesso ao estado do Guia original (globais D e Store) ---------- */
@@ -113,6 +114,7 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   'equipe-tabela': () => <TabelaEquipe />,
   'quadro-rotinas': () => <QuadroRotinas />,
   'pdf-org-rotinas': () => <PdfOrgRotinas />,
+  'm2-sugestao-checklist': () => <SugestaoChecklist />,
   organograma: () => <Organograma />,
   rotinas: () => <Rotinas />,
   entrega: () => <Entrega />,
