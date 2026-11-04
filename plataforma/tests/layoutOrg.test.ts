@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { aplica, alternaArea } from '../lib/cadeiras.ts';
 import { criaEntreAreas } from '../lib/rotinas.ts';
 import { layoutOrg } from '../lib/layoutOrg.ts';
+import { organogramaSvg } from '../lib/exporta.ts';
 
 type C = Record<string, string>;
 const monta = (areas: string[], extra: C = {}): C => {
@@ -41,22 +42,32 @@ test('com "só preenchidas", a cadeira cujo líder some sobe até o líder visí
   assert.deepEqual(l.arestas.map((a) => `${a.de}>${a.para}`), ['0>2']);
 });
 
-test('cada rotina entre áreas ativa vira uma aresta tipo "entre" rotulada, sem mexer na hierarquia (MEQ-21, T-24)', () => {
+const ENTRE = { de: 'Legislativo', para: 'Comunicação', finalidade: 'Pauta da semana', freq: 'Semanalmente', canal: 'x' } as const;
+
+test('layoutOrg devolve só arestas de hierarquia, mesmo com rotina entre áreas gravada (RM2-37)', () => {
   const c = monta(['Legislativo', 'Comunicação']);
-  const sem = layoutOrg(c).arestas.filter((a) => a.tipo === 'hierarquia');
-  aplica(c, criaEntreAreas(c, { de: 'Legislativo', para: 'Comunicação', finalidade: 'Pauta da semana', freq: 'Semanalmente', canal: 'x' }).patch);
-  const l = layoutOrg(c);
-  const entre = l.arestas.filter((a) => a.tipo === 'entre');
-  assert.equal(entre.length, 1);
-  assert.deepEqual([entre[0].de, entre[0].para], [1, 7]);
-  assert.match(entre[0].rotulo ?? '', /Semanalmente/);
-  assert.deepEqual(l.arestas.filter((a) => a.tipo === 'hierarquia'), sem);
+  aplica(c, criaEntreAreas(c, ENTRE).patch);
+  assert.ok(layoutOrg(c).arestas.length > 0);
+  for (const o of [{}, { soPreenchidas: true }]) assert.ok(layoutOrg(c, o).arestas.every((a) => a.tipo === 'hierarquia'));
 });
 
-test('aresta entre áreas some se uma das pontas não está visível (MEQ-21)', () => {
+test('nós e posições de uma equipe de exemplo seguem iguais, com ou sem rotina entre áreas (RM2-37)', () => {
   const c = monta(['Legislativo', 'Comunicação']);
-  aplica(c, criaEntreAreas(c, { de: 'Legislativo', para: 'Comunicação', finalidade: 'x', freq: 'Mensalmente', canal: 'x' }).patch);
-  assert.equal(layoutOrg(c, { soPreenchidas: true }).arestas.filter((a) => a.tipo === 'entre').length, 0);
+  aplica(c, criaEntreAreas(c, ENTRE).patch);
+  const l = layoutOrg(c);
+  assert.deepEqual(l.nos.map((n) => [n.i, n.x, n.y]),
+    [[0, 762, 0], [1, 1270, 166], [2, 1778, 332], [3, 1524, 332], [4, 1270, 332], [5, 1016, 332], [6, 762, 332], [7, 254, 166], [8, 508, 332], [9, 254, 332], [10, 0, 332]]);
+  assert.deepEqual(l.arestas.map((a) => a.id), ['0-1', '1-2', '1-3', '1-4', '1-5', '1-6', '0-7', '7-8', '7-9', '7-10']);
+});
+
+test('o SVG exportado segue gerado e sem aresta pontilhada, mesmo com rotina entre áreas gravada (RM2-37)', () => {
+  const c = monta(['Legislativo', 'Comunicação']);
+  aplica(c, criaEntreAreas(c, ENTRE).patch);
+  const svg = organogramaSvg(c, (i) => `Cargo ${i + 1}`);
+  assert.ok(svg.startsWith('<svg') && svg.trimEnd().endsWith('</svg>'));
+  assert.ok(svg.includes('Cargo 1'));
+  assert.equal(svg.includes('stroke-dasharray="6 5"'), false);
+  assert.equal(svg.includes('Semanalmente'), false);
 });
 
 test('"só preenchidas" remove da lista as cadeiras sem nome (MEQ-11)', () => {

@@ -1,8 +1,7 @@
-/* Missão 2 · layout do organograma (puro): posições por dagre, arestas de hierarquia e arestas entre áreas.
+/* Missão 2 · layout do organograma (puro): posições por dagre e arestas de hierarquia (as arestas entre áreas saíram).
    Usado pelo mini-organograma, pelo canvas e pela exportação, para os três mostrarem o mesmo desenho. */
 import dagre from '@dagrejs/dagre';
 import { AREAS, SEM_AREA, ativas, coordDe, liderDe, nomeDe, nomeLimpo, type Campos } from './cadeiras.ts';
-import { rotinasEntreAreas } from './rotinas.ts';
 
 export const LARG = 230;
 export const ALT = 96;
@@ -28,12 +27,6 @@ export function layoutOrg(c: Campos, o: { soPreenchidas?: boolean } = {}): Layou
     arestas.push({ id: `${p}-${i}`, de: p, para: i, tipo: 'hierarquia', coord: coordDe(c, i) });
   });
   dagre.layout(g);
-
-  rotinasEntreAreas(c).forEach((r) => {
-    const [a, b] = r.participantes;
-    if (a === undefined || b === undefined || !vis.has(a) || !vis.has(b)) return;
-    arestas.push({ id: r.id, de: a, para: b, tipo: 'entre', coord: r.de ?? '', rotulo: `${r.freq}: ${r.finalidade ?? ''}`.trim() });
-  });
 
   const nos: No[] = visiveis.map((i) => {
     const p = g.node(String(i));
