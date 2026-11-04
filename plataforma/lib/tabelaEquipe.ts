@@ -1,7 +1,7 @@
 /* Missão 2 · tabela de equipe em ordem obrigatória (função pura sobre D.campos).
    Cada linha é uma cadeira ativa (m2.on); os seis valores moram nas chaves de sempre (m2.f{n}, m2.p{n}.*),
    mais `esc`, `comp` e `cat`, novas. Ler não altera nada; operar devolve um Patch. */
-import { CHAVE_ON, CHEFIA, MAX_CADEIRAS, N_BASE, SEP, aplica, ativas, chaveArq, nomeDe, nomeLimpo, remove, type Campos, type Patch } from './cadeiras.ts';
+import { CHAVE_ON, CHEFIA, MAX_CADEIRAS, N_BASE, SEM_AREA, SEP, aplica, ativas, chaveArq, nomeDe, nomeLimpo, remove, type Campos, type Patch } from './cadeiras.ts';
 import { CAMPOS_FICHA, chaveFicha } from './equipe.ts';
 
 export type ColunaId = 'esc' | 'comp' | 'cargo' | 'pessoa' | 'cat' | 'area';
@@ -55,6 +55,53 @@ export function colunaLiberada(l: Pick<Linha, ColunaId>, col: ColunaId): { ok: b
 export function contagemCompletas(c: Campos): { completas: number; total: number } {
   const ls = linhas(c);
   return { completas: ls.filter((l) => l.completa).length, total: ls.length };
+}
+
+/* ---------- liderança derivada (regra D8) ---------- */
+const cat = (c: Campos, i: number) => valor(c, i, 'cat');
+const area = (c: Campos, i: number) => valor(c, i, 'area');
+
+/** Recalcula m2.p{n}.lider de todas as linhas com categoria e área: Chefia = topo ("-"); Coordenação responde à Chefia;
+ *  Especialista e Executora respondem à Coordenação da própria área, ou à Chefia se a área não tem. Sem Chefia, fica no topo.
+ *  Com mais de uma, vale a de menor índice. Devolve só o que difere do gravado. */
+export function recalculaLideres(c: Campos): Patch {
+  const on = ativas(c);
+  const chefia = on.find((i) => cat(c, i) === 'Chefia');
+  const patch: Patch = {};
+  on.forEach((i) => {
+    if (cat(c, i) === '' || area(c, i) === '') return;
+    const coord = on.find((j) => j !== i && cat(c, j) === 'Coordenação' && area(c, j) === area(c, i));
+    const alvo = cat(c, i) === 'Chefia' ? null
+      : cat(c, i) === 'Coordenação' ? (chefia ?? null)
+        : (coord ?? chefia ?? null);
+    const v = alvo === null || alvo === i ? '-' : String(alvo);
+    if ((c[chaveFicha(i, 'lider')] ?? '') !== v) patch[chaveFicha(i, 'lider')] = v;
+  });
+  return patch;
+}
+
+/** Grava a célula; ao mudar categoria ou área, junta no mesmo patch a liderança recalculada de todas as linhas. */
+export function editaCelula(c: Campos, i: number, col: ColunaId, v: string): Patch {
+  const patch: Patch = { [chaveCelula(i, col)]: v.trim() };
+  if (col !== 'cat' && col !== 'area') return patch;
+  const copia = { ...c };
+  aplica(copia, patch);
+  return { ...patch, ...recalculaLideres(copia) };
+}
+
+/** Avisos do organograma gerado. Sem linhas com categoria, não há o que avisar. */
+export function avisosOrg(c: Campos): string[] {
+  const on = ativas(c).filter((i) => cat(c, i) !== '');
+  const avisos: string[] = [];
+  const chefias = on.filter((i) => cat(c, i) === 'Chefia');
+  if (on.length && chefias.length === 0) avisos.push('Defina a chefia');
+  if (chefias.length > 1) avisos.push('Mais de uma chefia: todas aparecem no topo do organograma');
+  const semCoord = new Set(on
+    .filter((i) => ['Especialista', 'Executora'].includes(cat(c, i)) && area(c, i) !== '' && area(c, i) !== SEM_AREA)
+    .map((i) => area(c, i))
+    .filter((a) => !on.some((j) => cat(c, j) === 'Coordenação' && area(c, j) === a)));
+  semCoord.forEach((a) => avisos.push(`Área sem coordenação: ${a}`));
+  return avisos;
 }
 
 /* ---------- quantidade de pessoas ---------- */

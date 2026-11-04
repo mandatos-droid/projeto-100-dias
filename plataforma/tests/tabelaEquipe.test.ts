@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { aplica, ativas, coordDe, liderDe } from '../lib/cadeiras.ts';
-import { COLUNAS, CATEGORIAS, linhas, colunaLiberada, completa, contagemCompletas, defineN } from '../lib/tabelaEquipe.ts';
+import { COLUNAS, CATEGORIAS, linhas, colunaLiberada, completa, contagemCompletas, defineN, editaCelula, recalculaLideres, avisosOrg } from '../lib/tabelaEquipe.ts';
 
 type C = Record<string, string>;
 /** mandato novo com a Chefia (0) e duas linhas acrescentadas (índices 20 e 21) */
@@ -212,5 +212,107 @@ test('defineN não altera os campos recebidos (RM2-04)', () => {
   const c0 = base(cheia(20));
   const antes = JSON.stringify(c0);
   defineN(c0, 1); defineN(c0, 9);
+  assert.equal(JSON.stringify(c0), antes);
+});
+
+/* ---------- T14 · edição de célula e liderança derivada ---------- */
+const pessoa = (i: number, cat: string, area: string): C => ({ [`m2.p${i + 1}.cat`]: cat, [`m2.p${i + 1}.coord`]: area });
+/** Chefia (0); Legislativo: coordenação 20, executora 21, especialista 22; Comunicação: coordenação 23, executora 24 */
+const equipe = (extra: C = {}): C => ({
+  'm2.on': '0|20|21|22|23|24',
+  ...pessoa(0, 'Chefia', 'Chefia de área'), ...pessoa(20, 'Coordenação', 'Legislativo'), ...pessoa(21, 'Executora', 'Legislativo'),
+  ...pessoa(22, 'Especialista', 'Legislativo'), ...pessoa(23, 'Coordenação', 'Comunicação'), ...pessoa(24, 'Executora', 'Comunicação'),
+  ...extra,
+});
+
+test('Chefia grava lider "-"; Coordenação aponta para a Chefia; Especialista e Executora para a Coordenação da própria área (RM2-31)', () => {
+  const c = aplicado(equipe(), { patch: recalculaLideres(equipe()) });
+  assert.equal(c['m2.p1.lider'], '-');
+  assert.equal(c['m2.p21.lider'], '0');
+  assert.equal(c['m2.p24.lider'], '0');
+  assert.equal(c['m2.p22.lider'], '20');
+  assert.equal(c['m2.p23.lider'], '20');
+  assert.equal(c['m2.p25.lider'], '23');
+});
+
+test('área sem Coordenação liga à Chefia e avisosOrg traz "Área sem coordenação" (RM2-32)', () => {
+  const c = equipe({ 'm2.p21.cat': 'Executora' }); // a coordenação de Legislativo (cadeira 20) deixa de existir
+  const c2 = aplicado(c, { patch: recalculaLideres(c) });
+  assert.equal(c2['m2.p22.lider'], '0');
+  assert.equal(c2['m2.p23.lider'], '0');
+  assert.ok(avisosOrg(c2).some((a) => a.includes('Área sem coordenação')));
+  assert.equal(liderDe(c2, 21), 0);
+});
+
+test('sem a falta, avisosOrg não traz "Área sem coordenação" (RM2-32)', () => {
+  assert.ok(!avisosOrg(equipe()).some((a) => a.includes('Área sem coordenação')));
+});
+
+test('sem Chefia avisosOrg traz "Defina a chefia" e a Coordenação fica no topo (RM2-33)', () => {
+  const c0 = equipe({ 'm2.p1.cat': '' });
+  assert.ok(avisosOrg(c0).includes('Defina a chefia'));
+  const c = aplicado(c0, { patch: recalculaLideres(c0) });
+  assert.equal(c['m2.p21.lider'], '-');
+});
+
+test('com duas ou mais Chefias avisosOrg traz o aviso de mais de uma chefia e não traz "Defina a chefia" (RM2-34)', () => {
+  const c0 = equipe(pessoa(24, 'Chefia', 'Chefia de área'));
+  const a = avisosOrg(c0);
+  assert.ok(a.some((x) => x.includes('Mais de uma chefia')));
+  assert.ok(!a.includes('Defina a chefia'));
+  assert.ok(!avisosOrg(equipe()).some((x) => x.includes('Mais de uma chefia')));
+});
+
+test('tabela vazia não gera aviso (RM2-30)', () => {
+  assert.deepEqual(avisosOrg(base()), []);
+});
+
+test('editar a categoria de uma linha recalcula a liderança das dependentes no mesmo patch (RM2-35)', () => {
+  const c0 = aplicado(equipe(), { patch: recalculaLideres(equipe()) });
+  const patch = editaCelula(c0, 20, 'cat', 'Especialista');
+  assert.equal(patch['m2.p21.cat'], 'Especialista');
+  const c = aplicado(c0, { patch });
+  assert.equal(c['m2.p22.lider'], '0');   // ficou sem coordenação, liga à Chefia
+  assert.equal(c['m2.p23.lider'], '0');
+  assert.equal(c['m2.p21.lider'], '0');
+});
+
+test('editar a área de uma linha recalcula a própria liderança e a das dependentes (RM2-35)', () => {
+  const c0 = aplicado(equipe(), { patch: recalculaLideres(equipe()) });
+  const c = aplicado(c0, { patch: editaCelula(c0, 21, 'area', 'Comunicação') });
+  assert.equal(c['m2.p22.coord'], 'Comunicação');
+  assert.equal(c['m2.p22.lider'], '23');   // a executora passa a responder à coordenação de Comunicação
+  const d = aplicado(c0, { patch: editaCelula(c0, 20, 'area', 'Comunicação') });
+  assert.equal(d['m2.p23.lider'], '0');    // a especialista de Legislativo ficou sem coordenação
+});
+
+test('editar outra coluna grava só a célula (RM2-35)', () => {
+  const c0 = aplicado(equipe(), { patch: recalculaLideres(equipe()) });
+  assert.deepEqual(editaCelula(c0, 21, 'cargo', 'Analista'), { 'm2.p22.nome_cargo': 'Analista' });
+  assert.deepEqual(editaCelula(c0, 21, 'pessoa', 'Bia'), { 'm2.f22': 'Bia' });
+  assert.deepEqual(editaCelula(c0, 21, 'esc', 'Redigir'), { 'm2.p22.esc': 'Redigir' });
+  assert.deepEqual(editaCelula(c0, 21, 'comp', 'Organização'), { 'm2.p22.comp': 'Organização' });
+});
+
+test('linha sem categoria ou sem área não ganha lider novo (RM2-35)', () => {
+  const c0 = equipe({ 'm2.p22.cat': '', 'm2.p23.coord': '' });
+  const p = recalculaLideres(c0);
+  assert.equal(p['m2.p22.lider'], undefined);
+  assert.equal(p['m2.p23.lider'], undefined);
+  assert.equal(p['m2.p21.lider'], '0');
+});
+
+test('liderDe lê o valor gravado, então o Feedback da M5 recebe a mesma liderança (RM2-38)', () => {
+  const c = aplicado(equipe(), { patch: recalculaLideres(equipe()) });
+  assert.equal(liderDe(c, 21), 20);
+  assert.equal(liderDe(c, 24), 23);
+  assert.equal(liderDe(c, 20), 0);
+  assert.equal(liderDe(c, 0), null);
+});
+
+test('recalculaLideres e avisosOrg não alteram os dados recebidos (RM2-35)', () => {
+  const c0 = equipe();
+  const antes = JSON.stringify(c0);
+  recalculaLideres(c0); avisosOrg(c0); editaCelula(c0, 20, 'cat', 'Executora');
   assert.equal(JSON.stringify(c0), antes);
 });
