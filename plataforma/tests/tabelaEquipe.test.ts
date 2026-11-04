@@ -1,11 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { aplica, ativas, coordDe, liderDe } from '../lib/cadeiras.ts';
-import { COLUNAS, CATEGORIAS, linhas, colunaLiberada, completa, contagemCompletas, defineN, editaCelula, recalculaLideres, avisosOrg } from '../lib/tabelaEquipe.ts';
+import { COLUNAS, CATEGORIAS, linhas, colunaLiberada, completa, contagemCompletas, defineN, editaCelula, recalculaLideres, avisosOrg, escopoTexto, competenciasTexto, categoriaPadrao, migrada } from '../lib/tabelaEquipe.ts';
 
 type C = Record<string, string>;
-/** mandato novo com a Chefia (0) e duas linhas acrescentadas (índices 20 e 21) */
-const base = (extra: C = {}): C => ({ 'm2.on': '0|20|21', ...extra });
+/** mandato que já usa a tabela nova (m2.n gravado), com a Chefia (0) e duas linhas acrescentadas (índices 20 e 21) */
+const base = (extra: C = {}): C => ({ 'm2.on': '0|20|21', 'm2.n': '3', ...extra });
 const cheia = (n: number, extra: C = {}): C => ({
   [`m2.p${n + 1}.esc`]: 'Coordenar a equipe', [`m2.p${n + 1}.comp`]: 'Liderança',
   [`m2.p${n + 1}.nome_cargo`]: 'Chefe de gabinete', [`m2.f${n + 1}`]: 'Ana',
@@ -315,4 +315,80 @@ test('recalculaLideres e avisosOrg não alteram os dados recebidos (RM2-35)', ()
   const antes = JSON.stringify(c0);
   recalculaLideres(c0); avisosOrg(c0); editaCelula(c0, 20, 'cat', 'Executora');
   assert.equal(JSON.stringify(c0), antes);
+});
+
+/* ---------- T15 · migração do formato antigo ---------- */
+const CHIP_A = 'Elaborar propostas legislativas: projetos de lei, emendas, requerimentos e indicações';
+const CHIP_B = 'Preparar orientação de voto para comissões e plenário';
+/** mandato do modelo de 20 cadeiras: Chefia (0), Coord. Legislativo (1, lidera 2), assessor (2); sem m2.n */
+const antigo = (extra: C = {}): C => ({
+  'm2.on': '0|1|2', 'm2.f1': 'Ana', 'm2.f2': 'Bia', 'm2.f3': 'Caio',
+  'm2.p1.nome_cargo': 'Chefe de gabinete', 'm2.p2.nome_cargo': 'Coordenadora Legislativa', 'm2.p3.nome_cargo': 'Assessor',
+  'm2.p2.escopo': `${CHIP_A}|${CHIP_B}`, 'm2.p2.espec': 'Foco em saúde',
+  'm2.p3.hab_dest': 'Organização', 'm2.p3.ritmo': 'Lento', 'm2.p3.rel': 'Bom', 'm2.p3.fb_falei': 'ok', 'm2.p3.entrega': 'semanal',
+  ...extra,
+});
+
+test('escopoTexto devolve esc quando há; senão junta os chips de escopo com espec (RMX-02)', () => {
+  assert.equal(escopoTexto(antigo({ 'm2.p2.esc': 'Texto novo' }), 1), 'Texto novo');
+  assert.equal(escopoTexto(antigo(), 1), `${CHIP_A}; ${CHIP_B}; Foco em saúde`);
+  assert.equal(escopoTexto(antigo({ 'm2.p3.espec': 'Só texto livre' }), 2), 'Só texto livre');
+  assert.equal(escopoTexto(antigo(), 2), '');
+});
+
+test('competenciasTexto devolve o valor novo; o formato antigo não tem destino para ele (RMX-02)', () => {
+  assert.equal(competenciasTexto(antigo({ 'm2.p2.comp': 'Liderança' }), 1), 'Liderança');
+  assert.equal(competenciasTexto(antigo(), 1), '');
+});
+
+test('categoriaPadrao: cadeira 0 = Chefia; quem lidera alguém = Coordenação; o resto = Executora (RMX-02)', () => {
+  const c = antigo();
+  assert.equal(categoriaPadrao(c, 0), 'Chefia');
+  assert.equal(categoriaPadrao(c, 1), 'Coordenação'); // lidera a cadeira 2 pelo padrão do modelo
+  assert.equal(categoriaPadrao(c, 2), 'Executora');
+});
+
+test('categoriaPadrao usa a liderança gravada, não só o padrão do modelo (RMX-02)', () => {
+  const c = antigo({ 'm2.on': '0|1|2|20', 'm2.p21.lider': '2', 'm2.p21.coord': 'Legislativo' });
+  assert.equal(categoriaPadrao(c, 2), 'Coordenação');
+  assert.equal(categoriaPadrao(c, 20), 'Executora');
+});
+
+test('migrada: verdadeiro com m2.n ausente e dados antigos; falso para mandato novo vazio ou com m2.n (RMX-02)', () => {
+  assert.equal(migrada(antigo()), true);
+  assert.equal(migrada({}), false);
+  assert.equal(migrada({ 'm2.on': '0|20|21' }), false);
+  assert.equal(migrada(antigo({ 'm2.n': '3' })), false);
+});
+
+test('a tabela lê o mandato antigo: pessoa, cargo, escopo, categoria derivada e área, sem reescrever dados (RMX-02, RMX-03)', () => {
+  const c = antigo();
+  const antes = JSON.stringify(c);
+  const l = linhas(c);
+  assert.deepEqual(l.map((x) => x.i), [0, 1, 2]);
+  const coord = l.find((x) => x.i === 1)!;
+  assert.deepEqual([coord.pessoa, coord.cargo, coord.esc, coord.cat, coord.area],
+    ['Bia', 'Coordenadora Legislativa', `${CHIP_A}; ${CHIP_B}; Foco em saúde`, 'Coordenação', 'Legislativo']);
+  const chefe = l.find((x) => x.i === 0)!;
+  assert.deepEqual([chefe.pessoa, chefe.cat, chefe.area], ['Ana', 'Chefia', 'Chefia de área']);
+  assert.equal(l.find((x) => x.i === 2)!.cat, 'Executora');
+  assert.equal(JSON.stringify(c), antes);
+});
+
+test('mandato antigo: valor novo gravado vence a derivação, e m2.n gravado desliga a derivação (RMX-02)', () => {
+  const c = antigo({ 'm2.p2.cat': 'Especialista', 'm2.p2.esc': 'Novo' });
+  const x = linhas(c).find((l) => l.i === 1)!;
+  assert.deepEqual([x.cat, x.esc], ['Especialista', 'Novo']);
+  const novo = linhas(antigo({ 'm2.n': '3' })).find((l) => l.i === 1)!;
+  assert.deepEqual([novo.cat, novo.esc], ['', '']);
+});
+
+test('nenhum dado do formato antigo (hab_*, rep_*, ritmo, rel, entrega, fb_*) é apagado ao ler ou editar (RMX-03)', () => {
+  const c = antigo({ 'm2.p3.rep_dest': 'x', 'm2.p3.rep_dev': 'y', 'm2.p3.hab_dev': 'z', 'm2.p3.fb_ouvi': 'a', 'm2.p3.fb_dev': 'b', 'm2.rotoff': 'plan', 'm2.x': '[]' });
+  const antes = JSON.stringify(c);
+  linhas(c); migrada(c); escopoTexto(c, 2); categoriaPadrao(c, 2);
+  const patch = editaCelula(c, 2, 'cat', 'Executora');
+  assert.equal(JSON.stringify(c), antes);
+  const apagadas = Object.entries(patch).filter(([k, v]) => v === '' && /\.(hab_|rep_|ritmo|rel|entrega|fb_)/.test(k));
+  assert.deepEqual(apagadas, []);
 });

@@ -1,8 +1,8 @@
 /* Missão 2 · tabela de equipe em ordem obrigatória (função pura sobre D.campos).
    Cada linha é uma cadeira ativa (m2.on); os seis valores moram nas chaves de sempre (m2.f{n}, m2.p{n}.*),
    mais `esc`, `comp` e `cat`, novas. Ler não altera nada; operar devolve um Patch. */
-import { CHAVE_ON, CHEFIA, MAX_CADEIRAS, N_BASE, SEM_AREA, SEP, aplica, ativas, chaveArq, nomeDe, nomeLimpo, remove, type Campos, type Patch } from './cadeiras.ts';
-import { CAMPOS_FICHA, chaveFicha } from './equipe.ts';
+import { CHAVE_ON, CHEFIA, MAX_CADEIRAS, N_BASE, SEM_AREA, SEP, aplica, ativas, chaveArq, coordDe, liderDe, nomeDe, nomeLimpo, remove, type Campos, type Patch } from './cadeiras.ts';
+import { CAMPOS_FICHA, chaveFicha, lista } from './equipe.ts';
 
 export type ColunaId = 'esc' | 'comp' | 'cargo' | 'pessoa' | 'cat' | 'area';
 export const COLUNAS: { id: ColunaId; rotulo: string; dica: string }[] = [
@@ -34,10 +34,37 @@ const valor = (c: Campos, i: number, col: ColunaId): string =>
 
 export const completa = (l: Pick<Linha, ColunaId>): boolean => COLUNAS.every((x) => l[x.id].trim() !== '');
 
-/** Uma linha por cadeira ativa, em ordem. */
+/* ---------- migração do modelo de 20 cadeiras ---------- */
+/** Escopo: o texto novo (`esc`) ou, no formato antigo, os chips de `escopo` seguidos do texto livre `espec`, separados por "; ". */
+export function escopoTexto(c: Campos, i: number): string {
+  const novo = valor(c, i, 'esc');
+  if (novo !== '') return novo;
+  return [...lista(c[chaveFicha(i, 'escopo')]), (c[chaveFicha(i, 'espec')] ?? '').trim()].filter((t) => t.trim() !== '').join('; ');
+}
+
+/** Competências comportamentais: só o valor novo; o formato antigo não tem campo equivalente (hab_* continua guardado, sem aparecer). */
+export const competenciasTexto = (c: Campos, i: number): string => valor(c, i, 'comp');
+
+/** Categoria sugerida para a cadeira do formato antigo: a 0 é Chefia; quem lidera alguém é Coordenação; o resto, Executora. */
+export function categoriaPadrao(c: Campos, i: number): Categoria {
+  if (i === CHEFIA) return 'Chefia';
+  return ativas(c).some((j) => j !== i && liderDe(c, j) === i) ? 'Coordenação' : 'Executora';
+}
+
+/** Mandato do modelo antigo: sem `m2.n` e com alguma cadeira ativa que tem nome ou ficha. */
+export const migrada = (c: Campos): boolean =>
+  c['m2.n'] === undefined && ativas(c).some((i) => nomeDe(c, i) !== '' || CAMPOS_FICHA.some((k) => (c[chaveFicha(i, k)] ?? '').trim() !== ''));
+
+/** Uma linha por cadeira ativa, em ordem. Em mandato migrado, o que falta (escopo, categoria, área) vem do formato antigo. */
 export function linhas(c: Campos): Linha[] {
+  const antigo = migrada(c);
   return ativas(c).map((i) => {
     const v = Object.fromEntries(COLUNAS.map((x) => [x.id, valor(c, i, x.id)])) as Record<ColunaId, string>;
+    if (antigo) {
+      v.esc = escopoTexto(c, i);
+      if (v.cat === '') v.cat = categoriaPadrao(c, i);
+      if (v.area === '') v.area = coordDe(c, i);
+    }
     return { i, ...v, processoSeletivo: v.pessoa.includes('*'), completa: completa(v) };
   });
 }
