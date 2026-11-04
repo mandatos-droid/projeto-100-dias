@@ -1,6 +1,6 @@
 'use client';
 /* Missão 3 · resumo do planejamento no Painel do mandato (no lugar de "Últimos registros"): manchete, atingimento total e barra por objetivo. */
-import { pctObjetivo, pctTotal } from '@/lib/atingimento';
+import { pctObjetivo, pctPlano } from '@/lib/atingimento';
 import { pctTxt } from './ArvorePlano';
 import { Anel } from './Plano';
 import { useRumo } from './useRumo';
@@ -25,7 +25,7 @@ export default function PlanoResumo() {
     <section className="ilha-corpo rm-resumo" aria-labelledby="rm-res-t">
       <h2 id="rm-res-t">Planejamento Estratégico</h2>
       <div className="rm-res-topo">
-        <Anel pct={pctTotal(pcts)} />
+        <Anel pct={pctPlano(arv.objetivos)} />
         <div className="rm-res-leg">
           <p className="rm-res-et">Legado do mandato</p>
           <p className={`rm-res-manchete${manchete ? '' : ' vazia'}`}>{manchete || 'A manchete do Legado ainda não foi escrita.'}</p>

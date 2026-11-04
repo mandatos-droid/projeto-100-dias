@@ -37,8 +37,9 @@ export interface Rumo {
   textoAntigo?: { argumentos?: string; criterios?: string };
 }
 
-export type StatusMeta = 'concluida' | 'concluida70' | 'nao_concluida' | 'congelada';
-export const STATUS_IDS: StatusMeta[] = ['concluida', 'concluida70', 'nao_concluida', 'congelada'];
+/** Atingimento em passos de 10% (SUG-43): concluida = 100, concluida90 ... concluida10, nao_concluida = 0; congelada fica fora da conta. */
+export type StatusMeta = 'concluida' | 'concluida90' | 'concluida80' | 'concluida70' | 'concluida60' | 'concluida50' | 'concluida40' | 'concluida30' | 'concluida20' | 'concluida10' | 'nao_concluida' | 'congelada';
+export const STATUS_IDS: StatusMeta[] = ['concluida', 'concluida90', 'concluida80', 'concluida70', 'concluida60', 'concluida50', 'concluida40', 'concluida30', 'concluida20', 'concluida10', 'nao_concluida', 'congelada'];
 export interface Meta {                // D.metas[i]; campos antigos (pred, texto, resp, apoio) preservados
   id?: string; pred?: string; texto?: string; resp?: string; apoio?: string;
   status: StatusMeta;
