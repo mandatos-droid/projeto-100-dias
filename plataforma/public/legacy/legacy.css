@@ -37,6 +37,9 @@ button{font-family:inherit;color:inherit}
 .lado-topo img{height:23px;display:block;margin-bottom:1.375rem}
 .mand-nome{font-family:'Anton',sans-serif;font-size:1.1875rem;line-height:1.1;margin-bottom:0.1875rem}
 .mand-sub{font-size:0.7812rem;color:rgba(255,255,255,.62);line-height:1.4}
+.lado-plano{display:flex;align-items:center;gap:0.5rem;margin-top:0.75rem;padding:0.5625rem 0.75rem;border-radius:var(--r);
+  background:var(--turquesa);color:#10312d;font-weight:700;font-size:0.8438rem;text-decoration:none}
+.lado-plano:hover{filter:brightness(1.08)}
 .contador-dia{margin-top:1.125rem;display:flex;align-items:baseline;gap:0.5625rem}
 .contador-dia b{font-family:'Anton',sans-serif;font-size:2.5rem;line-height:.9;color:var(--turquesa)}
 .contador-dia span{font-size:0.75rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6);line-height:1.3}

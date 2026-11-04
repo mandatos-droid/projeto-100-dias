@@ -87,6 +87,7 @@ var App={
     document.getElementById('ladoMandato').innerHTML=
       '<div class="mand-nome">'+esc(m.nome_parlamentar||m.nome_civil||'Mandato')+'</div>'+
       '<div class="mand-sub">'+esc([m.cargo,m.casa,m.uf].filter(Boolean).join(' · '))+'</div>'+
+      '<a class="lado-plano" href="#/plano"><span aria-hidden="true">◈</span>Planejamento Estratégico</a>'+
       (d===null?'<div class="contador-dia"><b>—</b><span>informe a<br>data de posse</span></div>'
        :d<1?'<div class="contador-dia"><b>D'+d+'</b><span>antes<br>da posse</span></div>'
        :'<div class="contador-dia"><b>'+Math.min(d,999)+'</b><span>dia de<br>100</span></div>')+
