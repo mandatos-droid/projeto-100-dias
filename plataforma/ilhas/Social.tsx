@@ -17,7 +17,7 @@ const TIPOS: { k: TipoSoc; rot: string; um: string; cor: string; ph: string }[] 
   { k: 'problema', rot: 'Problemas', um: 'problema', cor: '#C0392B', ph: 'Ex.: Fila de espera por consultas especializadas passa de seis meses' },
   { k: 'potencialidade', rot: 'Potencialidades', um: 'potencialidade', cor: '#1B6B4F', ph: 'Ex.: Rede de cooperativas de agricultura familiar já organizada' },
 ];
-const NIVEIS: { k: NivelSoc; rot: string }[] = [{ k: 'BR', rot: 'Nacional' }, { k: 'UF', rot: 'Estadual' }, { k: 'MUN', rot: 'Municipal' }];
+const NIVEIS: { k: NivelSoc; rot: string }[] = [{ k: 'UF', rot: 'Estadual' }, { k: 'MUN', rot: 'Municipal' }];
 const ROT_NIVEL: Record<NivelSoc, string> = { BR: 'Nacional', UF: 'Estadual', MUN: 'Municipal' };
 type Camada = TipoSoc | 'indicador';
 
@@ -40,9 +40,8 @@ export default function SocialIlha() {
   const [vista, setVista] = useState<string | null>(null); // null = Brasil; sigla = municípios da UF
   const [selUF, setSelUF] = useState<Set<string>>(new Set());
   const [selMun, setSelMun] = useState<Set<string>>(new Set());
-  const [nivel, setNivel] = useState<NivelSoc>('BR');
+  const [nivel, setNivel] = useState<NivelSoc>('UF');
   const [tipoForm, setTipoForm] = useState<TipoSoc>('problema');
-  const [agendaForm, setAgendaForm] = useState(AGENDAS[0].id);
   const [texto, setTexto] = useState('');
   const [ver, setVer] = useState(0); // os itens mudam no lugar; a versão avisa os cálculos do mapa
   const muda = (f: () => void) => { f(); setVer((v) => v + 1); bump(); };
@@ -59,7 +58,8 @@ export default function SocialIlha() {
 
   const agendaAtual = agenda === 'todas' ? null : agendaDe(agenda)!;
   const cat = useCarga(() => carregaCatalogo(), 'cat');
-  const inds = useMemo(() => opcoesIndicador(cat.dados ?? undefined, agendaAtual), [cat.dados, agendaAtual]);
+  /* o indicador social não segue as agendas temáticas: lista todos */
+  const inds = useMemo(() => opcoesIndicador(cat.dados ?? undefined, null), [cat.dados]);
   const indSel = inds.find((i) => i.id === indId) ?? inds[0];
   const infoInd = cat.dados?.indicadores.find((i) => i.id === indSel?.id);
   const dadosInd = useCarga(camada === 'indicador' && indSel ? () => carregaIndicador(indSel.id) : null, indSel?.id ?? '');
@@ -116,10 +116,9 @@ export default function SocialIlha() {
     if (!vista) { setSelUF((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; }); setNivel('UF'); }
     else { setSelMun((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; }); setNivel('MUN'); }
   };
-  const abre = (uf: string | null) => { setVista(uf); setSelMun(new Set()); if (!uf) setNivel('BR'); };
+  const abre = (uf: string | null) => { setVista(uf); setSelMun(new Set()); if (!uf) setNivel('UF'); };
   const escolheAgenda = (id: string) => {
-    setAgenda(id); setIndId('');
-    if (id !== 'todas') setAgendaForm(id);
+    setAgenda(id);
   };
 
   /* ---------- registro ---------- */
@@ -127,7 +126,7 @@ export default function SocialIlha() {
   const alvosMun = [...selMun];
   const alvos = nivel === 'BR' ? [] : nivel === 'UF' ? alvosUF : alvosMun;
   const nomeDe = (id: string) => (nivel === 'UF' ? nomeUF.get(id) : nomeMunGeo.get(id)) ?? id;
-  const podeAdd = texto.trim() && (nivel === 'BR' || alvos.length > 0);
+  const podeAdd = texto.trim() && agendaAtual && (nivel === 'BR' || alvos.length > 0);
   const aviso =
     nivel === 'UF' && !alvos.length ? 'Selecione um ou mais estados no mapa do Brasil.'
     : nivel === 'MUN' && !alvos.length ? (vista ? 'Selecione um ou mais municípios no mapa.' : 'Abra um estado e selecione os municípios no mapa.')
@@ -136,7 +135,7 @@ export default function SocialIlha() {
   const adiciona = () => {
     if (!podeAdd) return;
     const novo: ItemSoc = {
-      id: novoId(), nivel, tipo: tipoForm, agenda: agendaForm, texto: texto.trim(),
+      id: novoId(), nivel, tipo: tipoForm, agenda: agendaAtual!.id, texto: texto.trim(),
       uf: nivel === 'BR' ? '' : nivel === 'MUN' ? vista! : '', alvos, nomes: alvos.map(nomeDe),
     };
     if (nivel === 'UF') novo.uf = alvos.length === 1 ? alvos[0] : '';
@@ -148,7 +147,7 @@ export default function SocialIlha() {
     setCamada(i.tipo); setTipoForm(i.tipo);
     if (i.nivel === 'UF') { setVista(null); setSelMun(new Set()); setSelUF(new Set(i.alvos)); setNivel('UF'); }
     else if (i.nivel === 'MUN') { setVista(i.uf); setSelMun(new Set(i.alvos)); setNivel('MUN'); }
-    else { setVista(null); setSelUF(new Set()); setNivel('BR'); }
+    else { setVista(null); setSelUF(new Set()); setNivel('UF'); }
   };
 
   const rotuloAlvo = (i: ItemSoc) => {
@@ -167,7 +166,7 @@ export default function SocialIlha() {
   return (
     <div className="ilha-corpo so">
       {/* agendas temáticas */}
-      <p className="peq-t" style={{ margin: '6px 0 4px' }}><strong>Agenda temática</strong> — filtra os registros e muda o que o mapa mostra.</p>
+      <p className="peq-t" style={{ margin: '6px 0 4px' }}><strong>Agenda temática</strong> — filtra os registros e o mapa; também é a agenda dos novos registros. O indicador social não é filtrado por ela.</p>
       <div className="so-agendas" role="group" aria-label="Agenda temática">
         {[{ id: 'todas', rot: 'Todas as agendas', cor: '#571730' }, ...AGENDAS].map((a) => (
           <button key={a.id} type="button" aria-pressed={agenda === a.id} style={{ ['--c' as string]: a.cor }} onClick={() => escolheAgenda(a.id)}>{a.rot}</button>
@@ -266,10 +265,9 @@ export default function SocialIlha() {
                 <label key={t.k}><input type="radio" name="so-tipo" checked={tipoForm === t.k} onChange={() => { setTipoForm(t.k); setCamada(t.k); }} /><span style={{ color: t.cor, fontWeight: 700 }}>{t.um[0].toUpperCase() + t.um.slice(1)}</span></label>
               ))}
             </fieldset>
-            <label className="campo" style={{ marginBottom: 8 }}><span className="rot" style={{ fontSize: 13 }}>Agenda temática</span>
-              <select value={agendaForm} onChange={(e) => setAgendaForm(e.target.value)}>
-                {AGENDAS.map((a) => <option key={a.id} value={a.id}>{a.rot}</option>)}
-              </select></label>
+            <p className="peq-t" style={{ margin: '0 0 8px' }}>
+              {agendaAtual ? <>Agenda temática: <strong>{agendaAtual.rot}</strong> (a escolhida no topo).</> : <strong>Escolha uma agenda temática no topo para registrar.</strong>}
+            </p>
             <form onSubmit={(e) => { e.preventDefault(); adiciona(); }}>
               <label className="campo" style={{ marginBottom: 8 }}><span className="rot" style={{ fontSize: 13 }}>Descreva o {tForm.um}</span>
                 <textarea rows={3} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder={tForm.ph} /></label>
