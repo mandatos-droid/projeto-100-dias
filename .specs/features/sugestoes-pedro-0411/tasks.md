@@ -3,7 +3,7 @@ Frentes em arquivos disjuntos (rodam em paralelo). Cada task = 1 commit atômico
 
 ## Frente A — M1 (Persona, Conjuntura, Oportunidades, Frag)
 - [x] T1 R1,R2,R3 Persona/MapaVotos (feito)
-- [ ] T2 R4 seletor de cargo (m1.q3b)
+- [x] T2 R4 seletor de cargo (m1.q3b)
 - [ ] T3 R5,R6,R7 Conjuntura/MapaConjuntura
 - [ ] T4 R8,R9 Social/Oportunidades
 - [ ] T5 R10,R11 Fragilidades

@@ -13,17 +13,16 @@ test.describe('Persona · desejo para o futuro (SUG-16)', () => {
     await abreGuia(page, '#/m/1/m1.persona/3');
     await expect(page.getByText(CONQUISTAS)).toBeVisible();
     await expect(page.getByText(CARGO)).toBeVisible();
-    await expect(page.locator('textarea[data-k^="m1.q3"]')).toHaveCount(2);
-    await editor(page, 'm1.q3b').click();
-    await page.keyboard.type('Senado');
-    await expect.poll(async () => (await campos(page))['m1.q3b']).toContain('Senado');
+    await expect(page.locator('textarea[data-k="m1.q3"]')).toHaveCount(1);
+    await page.locator('select[data-k="m1.q3b"]').selectOption('Senador(a)');
+    await expect.poll(async () => (await campos(page))['m1.q3b']).toBe('Senador(a)');
     expect((await campos(page))['m1.q3']).toBeUndefined();
   });
 
   test('resposta antiga de m1.q3 aparece na primeira caixa', async ({ page }) => {
     await abreGuia(page, '#/m/1/m1.persona/3', { dados: { campos: { 'm1.q3': 'Aprovar o plano estadual' } } });
     await expect(editor(page, 'm1.q3')).toContainText('Aprovar o plano estadual');
-    await expect(editor(page, 'm1.q3b')).toHaveText('');
+    await expect(page.locator('select[data-k="m1.q3b"]')).toHaveValue('');
   });
 });
 

@@ -18,7 +18,9 @@
   var q3=item(exDe('m1.persona'),'m1.q3');
   q3.caixas=[
     {k:'m1.q3',rot:'Elenque quais são as 4 principais conquistas e entregas que o mandato deseja ter alcançado antes do fim da legislatura?'},
-    {k:'m1.q3b',resumo:'Próximo cargo que a liderança deseja ocupar',rot:'Qual é o próximo cargo que a liderança parlamentar deseja ocupar?'}];
+    {k:'m1.q3b',resumo:'Próximo cargo que a liderança deseja ocupar',rot:'Qual é o próximo cargo que a liderança parlamentar deseja ocupar?',
+      grupos:[['Legislativo',['Vereador(a)','Deputado(a) estadual/distrital','Deputado(a) federal','Senador(a)']],
+        ['Executivo',['Secretário(a) municipal','Vice-prefeito(a)','Prefeito(a)','Secretário(a) estadual','Vice-governador(a)','Governador(a)','Ministro(a) de Estado','Vice-presidente','Presidente da República']]]}];
 
   /* ---- Conjuntura · pergunta 1: os dados primeiro, depois a análise (SUG-17) ----
      Parceiros e concorrentes são marcados na tabela (seleção tabula melhor que texto livre); a caixa é só das pontes não óbvias. */
@@ -42,6 +44,8 @@
 
   /* ---------- mecanismo ---------- */
   function caixa(c){
+    if(c.grupos)return (c.antes||'')+'<label class="campo"><span class="rot">'+esc(c.rot)+'</span><select data-k="'+c.k+'"><option value="">Selecione um cargo</option>'+
+      c.grupos.map(function(g){return '<optgroup label="'+g[0]+'">'+g[1].map(function(o){return '<option value="'+esc(o)+'">'+esc(o)+'</option>'}).join('')+'</optgroup>'}).join('')+'</select></label>';
     return (c.antes||'')+'<label class="campo"><span class="rot">'+esc(c.rot)+'</span>'+
       '<textarea data-k="'+c.k+'" placeholder="Escreva aqui a resposta da equipe"></textarea></label>';
   }

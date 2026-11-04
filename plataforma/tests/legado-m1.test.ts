@@ -38,7 +38,7 @@ function pergunta(w: Janela, id: string, n: number) {
   w.Guia.ex = ex;
   return w.Guia.bloco({ k: 'pergunta', n }, 0);
 }
-const chaves = (h: string) => [...h.matchAll(/<textarea data-k="([^"]+)"/g)].map((m) => m[1]);
+const chaves = (h: string) => [...h.matchAll(/<(?:textarea|select) data-k="([^"]+)"/g)].map((m) => m[1]);
 
 /* ---------- SUG-16: pergunta 3 da Persona ---------- */
 test('m1.q3 mostra duas caixas, conquistas e próximo cargo, e não a caixa única antiga (SUG-16)', () => {
