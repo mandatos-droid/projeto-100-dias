@@ -145,10 +145,10 @@ test('SUG-47: lerMovimentos lê o texto antigo (sem data) e o texto com data', (
 
 test('SUG-47: no máximo 4 movimentos; o 5º é recusado e a lista não muda', () => {
   let movs: { rot: string; data: string }[] = [];
-  for (const r of ['a', 'b', 'c', 'd']) { const x = alternaMovimento(movs, r); assert.ok(x.ok); if (x.ok) movs = x.movs; }
-  assert.deepEqual(alternaMovimento(movs, 'e'), { ok: false, erro: 'Escolha no máximo 4 movimentos.' });
+  for (const r of MOVIMENTOS.slice(0, 4).map((m) => m.rot)) { const x = alternaMovimento(movs, r); assert.ok(x.ok); if (x.ok) movs = x.movs; }
+  assert.deepEqual(alternaMovimento(movs, MOVIMENTOS[4].rot), { ok: false, erro: 'Escolha no máximo 4 movimentos.' });
   assert.equal(alternaOutroMovimento(movs).ok, false);
-  const sem = alternaMovimento(movs, 'a');
+  const sem = alternaMovimento(movs, MOVIMENTOS[0].rot);
   assert.ok(sem.ok && sem.movs.length === 3);
 });
 
