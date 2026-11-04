@@ -2,6 +2,7 @@
 import { type Campos } from './cadeiras.ts';
 import { COR_COORD } from './equipe.ts';
 import { layoutOrg } from './layoutOrg.ts';
+import { dataOk, horaOk, type RotinaQ } from './quadroRotinas.ts';
 
 const MARGEM = 24;
 const LEGENDA_ALT = 44;
@@ -48,4 +49,12 @@ export function organogramaSvg(c: Campos, cargoNome: (i: number) => string): str
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${largura} ${altura}" width="${largura}" height="${altura}" font-family="system-ui, sans-serif">` +
     `<rect width="${largura}" height="${altura}" fill="#FBF8F3"/>${linhas}${caixas}${legenda}</svg>`;
+}
+
+/** Tabela das rotinas ligadas para impressão (PDF do organograma e rotinas). Todo texto vai escapado. */
+export function quadroRotinasHtml(rotinas: RotinaQ[]): string {
+  const inicio = (r: RotinaQ) => (dataOk(r.data) && horaOk(r.hora) ? `${r.data.slice(8, 10)}/${r.data.slice(5, 7)}/${r.data.slice(0, 4)} às ${r.hora}` : 'início ainda não definido');
+  const linhas = rotinas.filter((r) => r.on).map((r) =>
+    `<tr><td>${esc(r.titulo)}</td><td>${esc(r.freq)}</td><td>${esc(r.quem)}</td><td>${esc(r.dur)}</td><td>${esc(inicio(r))}</td></tr>`).join('');
+  return `<table class="pdf-rotinas"><thead><tr><th>Rotina</th><th>Frequência</th><th>Quem participa</th><th>Duração média</th><th>Início</th></tr></thead><tbody>${linhas}</tbody></table>`;
 }

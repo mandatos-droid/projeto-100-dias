@@ -24,13 +24,13 @@ export const MODELO: Omit<RotinaQ, 'on' | 'data' | 'hora'>[] = [
   { id: 'feedback', titulo: 'Reunião de feedback estruturado individual', freq: 'Semestralmente', quem: 'Liderança e Assessores (individualmente)', dur: '30 min por reunião' },
 ];
 
-const dataOk = (d?: string): d is string => {
+export const dataOk = (d?: string): d is string => {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d ?? '');
   if (!m) return false;
   const dt = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
   return dt.getFullYear() === Number(m[1]) && dt.getMonth() === Number(m[2]) - 1 && dt.getDate() === Number(m[3]);
 };
-const horaOk = (h?: string): h is string => /^([01]\d|2[0-3]):[0-5]\d$/.test(h ?? '');
+export const horaOk = (h?: string): h is string => /^([01]\d|2[0-3]):[0-5]\d$/.test(h ?? '');
 
 /** As edições gravadas, por id. JSON inválido ou fora do formato vale como "sem edições". */
 function lerEdicoes(c: Campos): Record<string, Record<string, unknown>> {
