@@ -56,6 +56,15 @@ test('nenhuma string de MISSOES contém "objetivo específico" depois da carga (
   assert.doesNotMatch(JSON.stringify(w.MISSOES), /objetivos?\s+espec/i);
 });
 
+test('a abertura das metas na tela troca "garantir que" por "fazer com que" e fala em até 9 metas, sem mexer no texto do Guia (sugestão 37)', () => {
+  const w = guia({ Comp: { campos: () => '', lista: () => '' }, esc: (s: string) => s });
+  w.Guia = { bloco() { return `<div class="texto">${ex3(w, 'm3.metas').intro}</div>`; }, ex: ex3(w, 'm3.metas') } as never;
+  vm.runInContext(CODIGO, w as unknown as vm.Context);
+  const h = (w.Guia as { bloco(p: { k: string }, n: number): string }).bloco.call({ ex: ex3(w, 'm3.metas') }, { k: 'intro' }, 0);
+  assert.match(h, /Serão criadas até 9 metas capazes de fazer com que, se forem alcançadas, garantam também/);
+  assert.doesNotMatch(h, /capazes de garantir que/);
+});
+
 test('o bloco de referência das metas e o texto "No futuro" continuam nos textos do Guia (RUM-21, RUM-30, RUM-50)', () => {
   const w = guia();
   assert.ok(ex3(w, 'm3.metas').intro.includes('<div id="blocoMetasRef"></div>'));
