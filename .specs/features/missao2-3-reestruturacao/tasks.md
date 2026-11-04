@@ -382,7 +382,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T12: Colunas, linhas e travamento da tabela
+### T12: Colunas, linhas e travamento da tabela ✅
 
 **What**: Criar `lib/tabelaEquipe.ts` com `COLUNAS`, `CATEGORIAS`, `linhas(c)`, `colunaLiberada` e `completa`.
 **Where**: `lib/tabelaEquipe.ts` (+ `tests/tabelaEquipe.test.ts`)
@@ -397,12 +397,12 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] Ordem: escopo → competências → cargo → pessoa → categoria → área (RM2-05)
-- [ ] `colunaLiberada` só libera a coluna N com a N-1 preenchida e devolve o nome da que falta (RM2-05)
-- [ ] Esvaziar uma coluna anterior trava as seguintes sem apagar valores (RM2-06)
-- [ ] `*` na pessoa conta como preenchida e marca processo seletivo (RM2-07)
-- [ ] `completa` só com as 6 colunas preenchidas; contagem "X de N" certa (RM2-09)
-- [ ] Gate: `npm test`; testes novos, nenhum removido
+- [x] Ordem: escopo → competências → cargo → pessoa → categoria → área (RM2-05)
+- [x] `colunaLiberada` só libera a coluna N com a N-1 preenchida e devolve o nome da que falta (RM2-05)
+- [x] Esvaziar uma coluna anterior trava as seguintes sem apagar valores (RM2-06)
+- [x] `*` na pessoa conta como preenchida e marca processo seletivo (RM2-07)
+- [x] `completa` só com as 6 colunas preenchidas; contagem "X de N" certa (RM2-09)
+- [x] Gate: `npm test`; testes novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
@@ -410,7 +410,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T13: Quantidade de pessoas
+### T13: Quantidade de pessoas ✅
 
 **What**: Em `lib/tabelaEquipe.ts`, acrescentar `defineN(c, n)`: valida 1 a 40, cria linhas vazias com índices 20+ (nunca reativa o modelo), e ao diminuir remove só linhas vazias e devolve `confirma` para as preenchidas.
 **Where**: `lib/tabelaEquipe.ts` (+ `tests/tabelaEquipe.test.ts`)
@@ -425,12 +425,12 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] N inválido (0, 41, decimal, texto) devolve erro e nenhum patch (RM2-03)
-- [ ] N conta a Chefia (cadeira 0); N=1 mantém só ela (design)
-- [ ] Aumentar cria linhas só com índices 20+ e sem `coord`/`lider` herdados de `PADRAO` (RM2-04)
-- [ ] Diminuir remove só vazias; se faltar vazias, devolve `confirma` com os nomes (RM2-04)
-- [ ] `m2.n` gravado com o valor aceito
-- [ ] Gate: `npm test`; testes novos, nenhum removido
+- [x] N inválido (0, 41, decimal, texto) devolve erro e nenhum patch (RM2-03)
+- [x] N conta a Chefia (cadeira 0); N=1 mantém só ela (design)
+- [x] Aumentar cria linhas só com índices 20+ e sem `coord`/`lider` herdados de `PADRAO` (RM2-04)
+- [x] Diminuir remove só vazias; se faltar vazias, devolve `confirma` com os nomes (RM2-04)
+- [x] `m2.n` gravado com o valor aceito
+- [x] Gate: `npm test`; testes novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
@@ -438,7 +438,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T14: Edição de célula e liderança derivada
+### T14: Edição de célula e liderança derivada ✅
 
 **What**: Em `lib/tabelaEquipe.ts`, acrescentar `editaCelula`, `recalculaLideres` (regra D8) e `avisosOrg`.
 **Where**: `lib/tabelaEquipe.ts` (+ `tests/tabelaEquipe.test.ts`)
@@ -453,13 +453,13 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] Chefia grava `lider='-'`; Coordenação aponta para a Chefia; Especialista e Executora apontam para a Coordenação da própria área (RM2-31)
-- [ ] Área sem Coordenação: liga à Chefia e `avisosOrg` traz "Área sem coordenação" (RM2-32)
-- [ ] Sem Chefia: `avisosOrg` traz "Defina a chefia"; com 2 ou mais, o aviso de mais de uma (RM2-33, RM2-34)
-- [ ] Editar a categoria ou a área de uma linha recalcula a liderança de todas as dependentes no mesmo patch (RM2-35)
-- [ ] `liderDe` lê o valor gravado, então o Feedback da M5 recebe a mesma liderança (RM2-38)
-- [ ] Linha sem categoria ou área não ganha `lider` novo
-- [ ] Gate: `npm test`; testes novos, nenhum removido
+- [x] Chefia grava `lider='-'`; Coordenação aponta para a Chefia; Especialista e Executora apontam para a Coordenação da própria área (RM2-31)
+- [x] Área sem Coordenação: liga à Chefia e `avisosOrg` traz "Área sem coordenação" (RM2-32)
+- [x] Sem Chefia: `avisosOrg` traz "Defina a chefia"; com 2 ou mais, o aviso de mais de uma (RM2-33, RM2-34)
+- [x] Editar a categoria ou a área de uma linha recalcula a liderança de todas as dependentes no mesmo patch (RM2-35)
+- [x] `liderDe` lê o valor gravado, então o Feedback da M5 recebe a mesma liderança (RM2-38)
+- [x] Linha sem categoria ou área não ganha `lider` novo
+- [x] Gate: `npm test`; testes novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
@@ -467,7 +467,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T15: Migração do formato antigo
+### T15: Migração do formato antigo ✅
 
 **What**: Em `lib/tabelaEquipe.ts`, acrescentar `escopoTexto`, `competenciasTexto`, `categoriaPadrao` e `migrada`, para ler a equipe do modelo de 20 cadeiras na tabela nova sem reescrever dados.
 **Where**: `lib/tabelaEquipe.ts` (+ `tests/tabelaEquipe.test.ts`)
@@ -482,11 +482,11 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] `escopoTexto` devolve `esc` quando há; senão junta os chips de `escopo` com `espec` (RMX-02)
-- [ ] `categoriaPadrao`: cadeira 0 = Chefia; quem lidera alguém = Coordenação; o resto = Executora (RMX-02)
-- [ ] `migrada` verdadeiro com `m2.n` ausente e dados antigos; falso para mandato novo vazio
-- [ ] Nada de `hab_*`, `rep_*`, `ritmo`, `rel`, `entrega` ou `fb_*` é apagado (RMX-03)
-- [ ] Gate: `npm test`; testes novos, nenhum removido
+- [x] `escopoTexto` devolve `esc` quando há; senão junta os chips de `escopo` com `espec` (RMX-02)
+- [x] `categoriaPadrao`: cadeira 0 = Chefia; quem lidera alguém = Coordenação; o resto = Executora (RMX-02)
+- [x] `migrada` verdadeiro com `m2.n` ausente e dados antigos; falso para mandato novo vazio
+- [x] Nada de `hab_*`, `rep_*`, `ritmo`, `rel`, `entrega` ou `fb_*` é apagado (RMX-03)
+- [x] Gate: `npm test`; testes novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
@@ -524,7 +524,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T17: Layout do organograma sem arestas entre áreas
+### T17: Layout do organograma sem arestas entre áreas ✅
 
 **What**: Em `lib/layoutOrg.ts`, remover as arestas `entre` (e a dependência de `rotinasEntreAreas`); manter nós e hierarquia.
 **Where**: `lib/layoutOrg.ts` (+ `tests/layoutOrg.test.ts`)
@@ -539,10 +539,10 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] `layoutOrg` devolve só arestas de hierarquia (RM2-37)
-- [ ] Nós e posições de uma equipe de exemplo continuam iguais
-- [ ] `exporta.ts` segue gerando o SVG sem aresta pontilhada
-- [ ] Gate: `npm test`; testes ajustados (os de aresta `entre` removidos com justificativa no commit), demais intactos
+- [x] `layoutOrg` devolve só arestas de hierarquia (RM2-37)
+- [x] Nós e posições de uma equipe de exemplo continuam iguais
+- [x] `exporta.ts` segue gerando o SVG sem aresta pontilhada
+- [x] Gate: `npm test`; testes ajustados (os de aresta `entre` removidos com justificativa no commit), demais intactos
 
 **Tests**: unit
 **Gate**: quick
@@ -605,7 +605,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T20: Lógica do quadro de rotinas
+### T20: Lógica do quadro de rotinas ✅
 
 **What**: Criar `lib/quadroRotinas.ts` com `MODELO` das 5 rotinas, `lerQuadro`, `editaRotina`, `agendadas`, `concluida`, `dataPassada` e `areasDoMandato`.
 **Where**: `lib/quadroRotinas.ts` (+ `tests/quadroRotinas.test.ts`)
@@ -620,13 +620,13 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] `MODELO` traz as 5 rotinas com frequência, participantes e duração do documento (RM2-51)
-- [ ] `editaRotina` altera frequência, quem e duração e liga/desliga cada rotina sem tocar nas outras (RM2-53)
-- [ ] `agendadas` conta só rotinas ligadas com data e hora; `concluida` exige todas (RM2-52, RM2-57)
-- [ ] `dataPassada` é só informação, nunca bloqueia (RM2-54)
-- [ ] JSON inválido em `m2.rq` cai no modelo sem erro
-- [ ] `areasDoMandato` lista as áreas das linhas (RM2-56)
-- [ ] Gate: `npm test`; testes novos, nenhum removido
+- [x] `MODELO` traz as 5 rotinas com frequência, participantes e duração do documento (RM2-51)
+- [x] `editaRotina` altera frequência, quem e duração e liga/desliga cada rotina sem tocar nas outras (RM2-53)
+- [x] `agendadas` conta só rotinas ligadas com data e hora; `concluida` exige todas (RM2-52, RM2-57)
+- [x] `dataPassada` é só informação, nunca bloqueia (RM2-54)
+- [x] JSON inválido em `m2.rq` cai no modelo sem erro
+- [x] `areasDoMandato` lista as áreas das linhas (RM2-56)
+- [x] Gate: `npm test`; testes novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
@@ -662,7 +662,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T22: HTML do quadro de rotinas para impressão
+### T22: HTML do quadro de rotinas para impressão ✅
 
 **What**: Em `lib/exporta.ts`, acrescentar `quadroRotinasHtml(rotinas)`: tabela escapada com rotina, frequência, participantes, duração e início.
 **Where**: `lib/exporta.ts` (+ `tests/exporta.test.ts`)
@@ -677,10 +677,10 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] A tabela traz as rotinas ligadas e o início "dd/mm/aaaa às hh:mm" ou "início ainda não definido" (RM2-62)
-- [ ] Texto digitado com `<`, `&` e aspas sai escapado (segurança)
-- [ ] Rotina desligada não aparece
-- [ ] Gate: `npm test`; testes novos, nenhum removido
+- [x] A tabela traz as rotinas ligadas e o início "dd/mm/aaaa às hh:mm" ou "início ainda não definido" (RM2-62)
+- [x] Texto digitado com `<`, `&` e aspas sai escapado (segurança)
+- [x] Rotina desligada não aparece
+- [x] Gate: `npm test`; testes novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
@@ -714,7 +714,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T24: Checklist da Missão 2 pelo novo desenho
+### T24: Checklist da Missão 2 pelo novo desenho ✅
 
 **What**: Em `lib/entrega.ts`, adaptar `sugestaoChecklist`: c1 = todas as linhas com escopo; c2 = organograma gerado sem aviso crítico; c3 = rotinas ligadas todas agendadas.
 **Where**: `lib/entrega.ts` (+ `tests/entrega.test.ts`)
@@ -729,11 +729,11 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] c1 verdadeiro só com `esc` ou escopo antigo em todas as linhas ativas (RM2-57)
-- [ ] c2 verdadeiro com organograma sem "Defina a chefia"
-- [ ] c3 verdadeiro com `concluida` (RM2-57)
-- [ ] A sugestão só marca; quem confirma é o usuário (comportamento atual)
-- [ ] Gate: `npm test`; testes ajustados e novos, nenhum removido
+- [x] c1 verdadeiro só com `esc` ou escopo antigo em todas as linhas ativas (RM2-57)
+- [x] c2 verdadeiro com organograma sem "Defina a chefia"
+- [x] c3 verdadeiro com `concluida` (RM2-57)
+- [x] A sugestão só marca; quem confirma é o usuário (comportamento atual)
+- [x] Gate: `npm test`; testes ajustados e novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
