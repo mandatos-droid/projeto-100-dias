@@ -2,8 +2,8 @@
 /* Missão 3 · aba Planejamento Estratégico: árvore Legado → objetivos → metas, com status por meta e atingimento por objetivo e total.
    Lê e grava os mesmos dados do exercício (D.metas, D.preditores, D.rumo); a edição usa o mesmo CartaoMeta. */
 import { useState } from 'react';
-import { pctObjetivo, pctTotal } from '@/lib/atingimento';
-import { abrirCiclo, listaCiclos } from '@/lib/ciclos';
+import { pctObjetivo, pctTotal, statusPorAtingimento } from '@/lib/atingimento';
+import { abrirCiclo, excluiPlano, lerPlanos, listaCiclos, renomeiaPlano } from '@/lib/ciclos';
 import { OBJETIVOS_LEGISLA, lerEstrategia, lerJustificativa } from '@/lib/estrategia';
 import { PREDITORES, podeAcrescentarMeta } from '@/lib/plano';
 import { resolve } from '@/lib/pessoas';
@@ -90,7 +90,7 @@ function RotinasPlano({ campos }: { campos: Record<string, string> }) {
 }
 
 export default function Plano() {
-  const { d, c, arv, objetivos, pessoas, metas, setMeta, addMeta, rmMeta } = useRumo();
+  const { d, c, arv, objetivos, pessoas, metas, setMeta, addMeta, rmMeta, bump } = useRumo();
   const [editando, setEditando] = useState<number | null>(null);
   const [filtro, setFiltro] = useState('');
   const [ordenar, setOrdenar] = useState(false);
@@ -122,7 +122,7 @@ export default function Plano() {
     onStatus: (idx: number, status: Parameters<typeof setMeta>[1]['status'] & string) => setMeta(idx, { status }),
     onStatusSucesso: (idx: number, id: string, status: Parameters<typeof setMeta>[1]['status'] & string) => {
       const meta = metas.find((x) => x.idx === idx);
-      if (meta) setMeta(idx, { sucessos: editaSucesso(lerSucessos(meta), id, { status }) });
+      if (meta) { const sucessos = editaSucesso(lerSucessos(meta), id, { status }); setMeta(idx, { sucessos, status: statusPorAtingimento(meta.status, sucessos) }); }
     },
     marca: (m: (typeof metas)[number]) => (filtro ? (daPessoa(m) ? ('destaque' as const) : ('esmaecido' as const)) : undefined),
     extraObjetivo: (pid: string) => (
@@ -144,12 +144,37 @@ export default function Plano() {
   /* vários planejamentos: seletor no topo; o arquivado abre só para leitura e nunca altera o ativo (M5-31.5, M5-31.6) */
   const ciclos = listaCiclos(d);
   const arquivado = ver === null ? null : abrirCiclo(d, ver);
+  /* SUG-86: os planejamentos em cards; o atual abre para editar, os arquivados abrem para leitura, podem ser renomeados e excluídos */
+  const planos = lerPlanos(d);
+  const pctDe = (ms: { status?: string; sucessos?: unknown }[]) => pctObjetivo(ms);
+  const renomeia = (n: number, atual: string) => {
+    const nome = window.prompt('Nome do planejamento (deixe vazio para voltar ao padrão):', atual);
+    if (nome === null) return;
+    renomeiaPlano(d, n, nome); bump();
+  };
+  const exclui = (n: number, rot: string) => {
+    if (!window.confirm(`Excluir "${rot}"? Esse planejamento guardado será apagado e não dá para desfazer.`)) return;
+    excluiPlano(d, n); setVer(null); bump();
+  };
   const seletor = ciclos.length > 1 && (
-    <label className="campo rm-ciclo rm-nao-imprime"><span className="rot">Planejamento</span>
-      <select value={arquivado ? ver! : ciclos[ciclos.length - 1].n} onChange={(e) => { const n = Number(e.target.value); setVer(ciclos.find((x) => x.n === n)?.atual ? null : n); }}>
-        {ciclos.map((x) => <option key={x.n} value={x.n}>{x.rot}</option>)}
-      </select>
-    </label>
+    <ul className="rm-ciclos rm-nao-imprime" aria-label="Planejamentos">
+      {ciclos.map((x) => {
+        const p = planos.find((y) => y.n === x.n);
+        const ms = p ? p.metas : metas;
+        const aberto = x.atual ? ver === null : ver === x.n;
+        return (
+          <li key={x.n} className="rm-ciclo-card" data-ciclo={x.n} data-atual={x.atual} aria-current={aberto || undefined}>
+            <b>{x.rot}</b>
+            <span className="rm-dica">{x.atual ? 'Em andamento' : `Guardado${x.criadoEm ? ` em ${new Date(x.criadoEm).toLocaleDateString('pt-BR')}` : ''}`} · {ms.length} {ms.length === 1 ? 'meta' : 'metas'} · atingimento {pctTxt(pctDe(ms))}</span>
+            <div className="bts">
+              <button type="button" className="bt sec peq" aria-pressed={aberto} onClick={() => setVer(x.atual ? null : x.n)}>{x.atual ? 'Editar' : 'Abrir'}<span className="sr"> {x.rot}</span></button>
+              {!x.atual && <button type="button" className="bt fant peq" onClick={() => renomeia(x.n, p?.nome ?? '')}>Renomear<span className="sr"> {x.rot}</span></button>}
+              {!x.atual && <button type="button" className="bt fant peq" onClick={() => exclui(x.n, x.rot)}>Excluir<span className="sr"> {x.rot}</span></button>}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 
   if (arquivado) {
@@ -158,7 +183,7 @@ export default function Plano() {
     return (
       <div className="ilha-corpo rm-plano" data-n-metas={arquivado.objetivos.reduce((n, o) => n + o.metas.length, 0) + arquivado.semObjetivo.length} data-arquivado={ver} data-imprime="">
         {seletor}
-        <p className="rm-dica" role="status">Planejamento {ver} guardado: somente leitura. O planejamento atual não muda por aqui.</p>
+        <p className="rm-dica" role="status">{ciclos.find((x) => x.n === ver)?.rot ?? `Planejamento ${ver}`} guardado: somente leitura. O planejamento atual não muda por aqui.</p>
         {semMetas ? (
           <div className="rm-plano-vazio"><h4>Este planejamento não tinha metas</h4><p>Ele foi guardado sem metas, então não há o que mostrar na árvore.</p></div>
         ) : (

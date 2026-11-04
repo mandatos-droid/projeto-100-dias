@@ -339,3 +339,8 @@ input.rm-jn-titulo:focus-visible{outline:3px solid var(--verde);outline-offset:2
 .rm-rotinas h4{margin:0 0 0.5rem}
 .rm-rotinas .pdf-rotinas th,.rm-rotinas .pdf-rotinas td{border-color:var(--linha)}
 @media (max-width:720px){.rm-rotinas>div:has(>.pdf-rotinas){overflow-x:auto}}
+
+/* planejamentos em cards (SUG-86) */
+.rm-ciclos{list-style:none;margin:0 0 1rem;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(15rem,1fr));gap:.75rem}
+.rm-ciclo-card{display:flex;flex-direction:column;gap:.4rem;padding:.8rem 1rem;border:1px solid var(--bd,#d9d9d9);border-radius:10px;background:var(--bg,#fff)}
+.rm-ciclo-card[aria-current]{border-color:var(--ac,#1f6f5c);box-shadow:0 0 0 1px var(--ac,#1f6f5c)}
