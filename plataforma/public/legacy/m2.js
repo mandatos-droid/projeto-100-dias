@@ -46,25 +46,19 @@
       '<p><strong>O passo a passo do exercício é o seguinte:</strong></p>';
   }
 
-  /* ---------- Organograma e rotinas: organograma interativo, rotinas geradas e a entrega ---------- */
+  /* ---------- Mão na massa 2: o quadro-modelo de rotinas da Legisla e o PDF do organograma e das rotinas ---------- */
   if(g){
-    g.d='Escopo de cada cargo no organograma, rotinas das áreas e entrega final da Missão.';
-    g.intro='<p>Com o time escalado, é hora de definir o trabalho de cada cadeira e como o mandato se encontra e se comunica. Tudo o que você preencher aqui alimenta o resultado final da Missão: cadeiras, escopo de cada cargo, organograma e rotinas.</p>'+
-      '<h4>1. Organograma e escopo de trabalho de cada cargo</h4>'+
-      '<p><strong>Objetivo:</strong> estabelecer com clareza as responsabilidades, atribuições e limites de atuação de cada cargo, evitando sobreposições e lacunas, e estruturar visualmente todas as áreas, cargos e relações de coordenação do mandato.</p>'+
-      '<p><strong>Importância:</strong> facilitar a distribuição e o cumprimento de tarefas, aumentar a autonomia da equipe, reduzir conflitos, retrabalho e dependência excessiva do parlamentar ou da chefia de gabinete, e apoiar a integração e a identificação da equipe.</p>'+
-      '<div class="apoio"><span class="tag">Como fazer</span>Clique na caixa de uma cadeira para definir o escopo de trabalho, as especificidades, o perfil e o repertório. Cada caixa mostra quanto já foi preenchido.</div>'+
-      '<div class="ilha" data-ilha="organograma"></div>'+
-      '<div class="apoio"><span class="tag">Próximo passo</span>Compartilhe o escopo de trabalho e a estrutura do mandato com toda a equipe, desde o momento da contratação: hierarquias, possibilidades de ascensão e interações entre áreas. Com o escopo conhecido, é possível cobrar e reconhecer em cima do que foi combinado.</div>'+
-      '<h4>2. Fluxos de trabalho e rotinas de comunicação entre as equipes</h4>'+
-      '<p><strong>Objetivo:</strong> definir os momentos de encontro coletivo e dentro de cada área, como as demandas circulam pelo mandato, quem é acionado em cada situação e quais são as principais rotinas de alinhamento.</p>'+
-      '<p><strong>Importância:</strong> criar previsibilidade e integração, reduzir ruídos de comunicação e atrasos, melhorar a coordenação entre as áreas e permitir que o mandato funcione de forma menos dependente de orientações individuais do parlamentar.</p>'+
-      '<div class="apoio"><span class="tag">Como fazer</span>As rotinas nascem das cadeiras que você montou. Veja as rotinas de cada área, a cadeia de rotinas com as cadeiras envolvidas e registre as conversas entre áreas.</div>'+
-      '<div class="ilha" data-ilha="rotinas"></div>'+
-      '<h4>3. A entrega da Missão 2</h4>'+
-      '<p>Aqui está o resultado: cadeiras, escopo de cada cargo, organograma e rotinas. Exporte o organograma ou imprima a página para compartilhar com a equipe.</p>'+
-      '<div class="ilha" data-ilha="entrega"></div>'+
-      '<div class="apoio atencao"><span class="tag">Atenção</span>Não é necessário chegar, imediatamente, até o que está previsto em "próximo passo". Você poderá fazê-lo até o fim dos primeiros 45 dias. O checklist abaixo traz o que deve ser estabelecido antes de partir para a próxima missão.</div>';
+    g.d='Estabelecer as rotinas de alinhamento do mandato: o quadro sugerido pela Legisla, com data e horário de início.';
+    g.intro='<h4>Estabelecimento dos fluxos de trabalho e rotinas de comunicação entre as equipes</h4>'+
+      '<p><strong>Objetivo:</strong> definir quais são os momentos de encontro coletivo e dentro de áreas, apresentar como as demandas devem circular pelo mandato, quem deve ser acionado em cada situação, quais informações precisam ser compartilhadas e quais são as principais rotinas de alinhamento.</p>'+
+      '<p><strong>Importância:</strong> criar previsibilidade e integração no trabalho, reduzir ruídos de comunicação e atrasos, melhorar a coordenação entre as áreas e permitir que o mandato funcione de forma menos dependente de orientações individuais da liderança parlamentar.</p>'+
+      '<h4>Exercício</h4>'+
+      '<p>A Legisla sugere que os mandatos cumpram as rotinas de alinhamento propostas no quadro abaixo.</p>'+
+      '<ul><li>Caso esteja de acordo com o modelo, adicione, na última linha, a data e o horário para a realização de cada uma das rotinas propostas.</li>'+
+      '<li>Caso não esteja de acordo, altere o que desejar.</li></ul>'+
+      '<div class="ilha" data-ilha="quadro-rotinas"></div>'+
+      '<div class="ilha" data-ilha="pdf-org-rotinas"></div>'+
+      '<div class="apoio atencao"><span class="tag">Atenção</span>O checklist abaixo traz o que deve ser estabelecido antes de partir para a próxima missão.</div>';
   }
 })();
 

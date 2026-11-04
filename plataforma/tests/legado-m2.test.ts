@@ -68,12 +68,24 @@ test('o passo "clareza sobre as entregas e agendas" aparece marcado com a Missã
   assert.equal(janela().Comp.funcoes().includes('passo-feito'), false); // sem estadoEx no legado, não marca
 });
 
-test('o texto de m2.gestao traz organograma, rotinas e entrega nesta ordem (MEQ-01, MEQ-06)', () => {
-  const w = janela();
-  const g = ex(w, 'm2.gestao');
-  const a = g.intro.indexOf('data-ilha="organograma"'), b = g.intro.indexOf('data-ilha="rotinas"'), c = g.intro.indexOf('data-ilha="entrega"');
-  assert.ok(a > 0 && b > a && c > b, `ordem das ilhas: ${a}, ${b}, ${c}`);
-  assert.equal(g.intro.includes('data-ilha="recomenda-cargos"'), false);
+test('m2.gestao mostra objetivo, importância e exercício do documento, o quadro de rotinas e, abaixo, o botão do PDF (RM2-51, RM2-58)', () => {
+  const g = ex(janela(), 'm2.gestao');
+  const ordem = ['<strong>Objetivo:</strong>', '<strong>Importância:</strong>', 'A Legisla sugere que os mandatos cumpram as rotinas de alinhamento propostas no quadro abaixo.', 'data-ilha="quadro-rotinas"', 'data-ilha="pdf-org-rotinas"'].map((t) => g.intro.indexOf(t));
+  assert.ok(ordem.every((p, k) => p >= 0 && (k === 0 || p > ordem[k - 1])), `ordem: ${ordem}`);
+  assert.ok(g.intro.includes('definir quais são os momentos de encontro coletivo e dentro de áreas'));
+  assert.ok(g.intro.includes('criar previsibilidade e integração no trabalho'));
+});
+
+test('m2.gestao traz as duas instruções do documento: concordar (data e horário) e discordar (alterar) (RM2-52, RM2-53)', () => {
+  const g = ex(janela(), 'm2.gestao');
+  assert.ok(g.intro.includes('<li>Caso esteja de acordo com o modelo, adicione, na última linha, a data e o horário para a realização de cada uma das rotinas propostas.</li>'));
+  assert.ok(g.intro.includes('<li>Caso não esteja de acordo, altere o que desejar.</li>'));
+});
+
+test('m2.gestao não emite mais as ilhas antigas rotinas, entrega e organograma (RMX-04)', () => {
+  const g = ex(janela(), 'm2.gestao');
+  for (const velha of ['data-ilha="rotinas"', 'data-ilha="entrega"', 'data-ilha="organograma"', 'data-ilha="recomenda-cargos"']) assert.equal(g.intro.includes(velha), false, velha);
+  assert.deepEqual(g.itens, ITENS); // o checklist do Guia segue
 });
 
 test('o checklist m2.c1..c3 e os tipos dos exercícios continuam como no Guia original (MEQ-01, T-27)', () => {

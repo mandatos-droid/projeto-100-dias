@@ -37,7 +37,8 @@ test.describe('Entrega (MEQ-23)', () => {
     expect((await camposDe(page))['m2.c1']).toBeUndefined();
     await sug.getByRole('button', { name: /Marcar como pronto: Escopo de trabalho/ }).click();
     expect((await camposDe(page))['m2.c1']).toBeTruthy();
-    await expect(sug).not.toContainText('Escopo de trabalho de cada cargo definido');
+    /* T24: o c2 deixou de ser sugerido por este fixture, então a caixa inteira some depois de marcar o c1 */
+    await expect(page.getByText('Escopo de trabalho de cada cargo definido')).toHaveCount(0);
   });
 
   test('sem escopo em alguma cadeira com nome, c1 não é sugerido', async ({ page }) => {

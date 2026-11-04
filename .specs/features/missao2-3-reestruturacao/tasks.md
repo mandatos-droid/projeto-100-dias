@@ -741,7 +741,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T25: Gancho da Mão na massa 2
+### T25: Gancho da Mão na massa 2 ✅
 
 **What**: Em `m2.js`, fazer o exercício `m2.gestao` mostrar objetivo, importância e exercício do documento, o `quadro-rotinas` e o botão do PDF, sem as ilhas `rotinas` e `entrega` antigas. Registrar `quadro-rotinas` e `pdf-org-rotinas` na ponte.
 **Where**: `public/legacy/m2.js` (+ `ilhas/ponte.tsx` registro, `tests/legado-m2.test.ts`)
@@ -756,11 +756,11 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] O exercício mostra "Objetivo", "Importância", o quadro e, abaixo, o botão do PDF (RM2-51, RM2-58)
-- [ ] O texto "A Legisla sugere…" e as duas instruções (concordar/alterar) estão presentes
-- [ ] As ilhas antigas `rotinas` e `entrega` não são mais emitidas
-- [ ] Mandato antigo abre sem erro; dados de rotinas antigas ficam guardados (RMX-04)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
+- [x] O exercício mostra "Objetivo", "Importância", o quadro e, abaixo, o botão do PDF (RM2-51, RM2-58)
+- [x] O texto "A Legisla sugere…" e as duas instruções (concordar/alterar) estão presentes
+- [x] As ilhas antigas `rotinas` e `entrega` não são mais emitidas
+- [x] Mandato antigo abre sem erro; dados de rotinas antigas ficam guardados (RMX-04)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
 
 **Tests**: unit
 **Gate**: full
