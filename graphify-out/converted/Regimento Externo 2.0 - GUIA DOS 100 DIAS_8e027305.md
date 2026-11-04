@@ -28,11 +28,11 @@ Seguindo o passo a passo proposto, você desfruta de uma versão resumida da Met
 A Legisla Brasil deseja a você uma excelente legislatura!
 MISSÃO 1 - PREPARE SUA CHEGADA COM EVIDÊNCIAS E CONHECIMENTO SOBRE O PROJETO POLÍTICO  DA LIDERANÇA PARLAMENTAR
 Idealmente até 15º dia!*
-A persona do Parlamentar
+A persona da liderança parlamentar
 A conjuntura política
 As oportunidades de atuação
 As fragilidades imediatas
-MISSÃO 2 - ESTRUTURE A GESTÃO DE PESSOA, COM UMA EQUIPE QUE COMPLETE AS HABILIDADES DA LIDERANÇA PARLAMENTAR
+MISSÃO 2 - ESTRUTURE A GESTÃO DE PESSOAS, COM UMA EQUIPE QUE COMPLETE AS HABILIDADES DA LIDERANÇA PARLAMENTAR
 Idealmente até o 30º dia!*
 A escalação do time
 A elaboração do organograma
@@ -95,10 +95,10 @@ Quais são as principais expectativas do eleitorado?
 Elenque quais foram os posicionamentos públicos e as promessas mais relevantes da sua campanha. Identifique também as regiões e os grupos sociais que mais apoiaram a candidatura e eleição, e também aqueles com potencial para maior aproximação ao longo dos anos  que seguem.
 
 Qual é a conjuntura social do território?
-Consulte dados públicos oficiais e faça um profundo estudo da conjuntura social do território do parlamentar. Caso esteja atuando a nível  nacional, amplie o estudo para alcançar também esta esfera. Identifique quais são os problemas e as potencialidades do território e investigue brechas para sua atuação.
+Consulte dados públicos oficiais e faça um profundo estudo da conjuntura social do território da liderança parlamentar. Caso esteja atuando a nível  nacional, amplie o estudo para alcançar também esta esfera. Identifique quais são os problemas e as potencialidades do território e investigue brechas para sua atuação.
 
-AS FRAGILIDADES !
-Quais são os conhecimentos e/ou práticas que a liderança parlamentar ou a equipe ainda não domina(m) para um bom exercício do mandato? Coloque um M, para fragilidades da equipe do mandato e um P para as fragilidades do parlamentar.
+AS FRAGILIDADES E FORTALEZAS !
+Quais são os conhecimentos e/ou práticas que a liderança parlamentar ou a equipe ainda não domina(m) para um bom exercício do mandato? Coloque um M, para fragilidades da equipe do mandato e um P para as fragilidades da liderança parlamentar.
 
 Mapeie todas as fragilidades a serem superadas, como por exemplo:
 Domínio do Regimento Interno da Casa
@@ -158,7 +158,7 @@ O exercício proposto é que a terceira coluna seja preenchida com o nome das pe
 | 17 | Assessor(a) de Mobilização territorial | Mobilizador/a Territorial | Conhecimento do território; relacionamento com lideranças e organizações; mobilização de apoiadores; organização de eventos e reuniões; levantamento de demandas; registro de informações; acompanhamento de agendas; comunicação interpessoal; capacidade de criar e manter redes locais. |  |
 | 18 | Coordenação Administrativa | Secretariado Executivo Político | Organização de agenda; gestão de compromissos; organização documental; logística de reuniões e viagens; compra de passagens e marcação de hospedagens; controle de prazos de pagamentos; relação com assessores; proteção de informações sensíveis; recepção inicial de públicos internos e externos no gabinete; coordenação do trabalho do/a assessor de demandas e do/a motorista |  |
 | 19 | Assessor(a) de Demandas | Gestor/a de Demandas e Relacionamento com a Sociedade | Atendimento e triagem de demandas vindas da população; distribuição de demandas e acompanhamento de prazos de respostas; organização de informações; gestão de relacionamento com públicos externos. |  |
-| 20 | Motorista | Responsável por Deslocamentos e Logística Parlamentar | Direção segura e defensiva; conhecimento básico da cidade e rotas; pontualidade; manutenção e conservação do veículo; planejamento de deslocamentos; discrição; postura profissional; flexibilidade de horários; capacidade de lidar com mudanças de agenda; zelo pela segurança e privacidade do parlamentar e da equipe. |  |
+| 20 | Motorista | Responsável por Deslocamentos e Logística Parlamentar | Direção segura e defensiva; conhecimento básico da cidade e rotas; pontualidade; manutenção e conservação do veículo; planejamento de deslocamentos; discrição; postura profissional; flexibilidade de horários; capacidade de lidar com mudanças de agenda; zelo pela segurança e privacidade da liderança parlamentar e da equipe. |  |
 | 21 |  |  |  |  |
 | 22 |  |  |  |  |
 | 23 |  |  |  |  |
@@ -166,7 +166,7 @@ O exercício proposto é que a terceira coluna seja preenchida com o nome das pe
 | 25 |  |  |  |  |
 
 
-| Resumo CHEFIAS Chefia de Gabinete: Lidera a estratégia política e as pessoas Coordenador/a Legislativo: Define a estratégia legislativa Coordenador/a de Comunicação: Define a estratégia de comunicação Coordenador/a de Articulação: Define a estratégia de articulação Líder de Mobilização: Define a estratégia territorial Coordenação Administrativa : Garante a organização e o funcionamento do gabinete ESPECIALISTAS Especialista Temático: Produz inteligência e posicionamento técnico Assessor de Políticas Públicas: Analisa políticas e fiscaliza o Executivo Assessor de Emenda : Identifica oportunidades e acompanha recursos Assessor/a Legislativo/a : Analisa e operacionaliza a atividade legislativa Assessor/a de Articulação : Constrói e mantém relações políticas EXECUTORES Social-media: Executa a comunicação digital Vídeo-maker: Produz conteúdo audiovisual Comunicação em Tempo Real: Registra e traduz a atuação do parlamentar em tempo real Mobilizador/a Territorial: Executa a mobilização no território Assessor de Demandas: Recebe, organiza e encaminha demandas da sociedade Motorista : Garante deslocamento seguro e eficiente |
+| Resumo CHEFIAS Chefia de Gabinete: Lidera a estratégia política e as pessoas Coordenador/a Legislativo: Define a estratégia legislativa Coordenador/a de Comunicação: Define a estratégia de comunicação Coordenador/a de Articulação: Define a estratégia de articulação Líder de Mobilização: Define a estratégia territorial Coordenação Administrativa : Garante a organização e o funcionamento do gabinete ESPECIALISTAS Especialista Temático: Produz inteligência e posicionamento técnico Assessor de Políticas Públicas: Analisa políticas e fiscaliza o Executivo Assessor de Emenda : Identifica oportunidades e acompanha recursos Assessor/a Legislativo/a : Analisa e operacionaliza a atividade legislativa Assessor/a de Articulação : Constrói e mantém relações políticas EXECUTORES Social-media: Executa a comunicação digital Vídeo-maker: Produz conteúdo audiovisual Comunicação em Tempo Real: Registra e traduz a atuação da liderança parlamentar em tempo real Mobilizador/a Territorial: Executa a mobilização no território Assessor de Demandas: Recebe, organiza e encaminha demandas da sociedade Motorista : Garante deslocamento seguro e eficiente |
 | --- |
 
 Com base neste exercício de leitura de competências com encaixe coerente com pessoas, antes de atrelar precocemente pessoas a cargos, o gabinete passará a ser composto por pessoas capazes de, de fato, desempenhar funções com segurança e qualidade. Um organograma elaborado a partir de competência e não apenas de relacionamentos, não os exclui, apenas joga luz ao que as pessoas conseguem entregar com qualidade. A insistência em colocar relações à frente das competências é danosa para o mandato, para o projeto político, e para a saúde dos próprios compromissos e relacionamentos.
@@ -176,7 +176,7 @@ Vamos para o segundo exercício da Missão 2!
 	Uma vez tendo selecionado o time é preciso, desde o princípio, estabelecer as estratégias de gestão de pessoas. O checklist a seguir servirá de base para o desafio de começar a gerir assessores políticos.
 ### 1. Definição do escopo de trabalho de cada cargo
 Objetivo: estabelecer com clareza as responsabilidades, atribuições e limites de atuação de cada cargo, evitando sobreposições e lacunas na execução das atividades do mandato.
-Importância: facilitar a distribuição e o cumprimento de tarefas, aumentar a autonomia da equipe e reduzir conflitos, retrabalho e dependência excessiva do parlamentar ou da chefia de gabinete.
+Importância: facilitar a distribuição e o cumprimento de tarefas, aumentar a autonomia da equipe e reduzir conflitos, retrabalho e dependência excessiva da liderança parlamentar ou da chefia de gabinete.
 Próximo passo: depois da definição de escopo é preciso compartilhar as expectativas com os assessores, por meio do escopo de trabalho, desde o momento da contratação. Uma vez tendo conhecimento sobre o escopo de trabalho, é possível fazer cobranças e reconhecimento, em cima do que foi combinado previamente.
 ### 2. Elaboração do  organograma do mandato
 Objetivo: estruturar visualmente todas as áreas, cargos, níveis de responsabilidade e relações de coordenação do mandato.
@@ -184,7 +184,7 @@ Importância: garantir clareza sobre a estrutura organizacional, facilitar o con
 Próximo passo: compartilhar a estrutura do mandato dando conhecimento sobre as hierarquias, as possibilidades de ascensão e as interações entre áreas com toda a equipe. Este passo é fundamental para o senso de pertencimento e de responsabilidade de cada assessor/a.
 ### 3. Estabelecimento dos fluxos de trabalho e rotinas de comunicação entre as equipes
 Objetivo: definir quais são os momentos de encontro coletivo e dentro de áreas, apresentar como as demandas devem circular pelo mandato, quem deve ser acionado em cada situação, quais informações precisam ser compartilhadas e quais são as principais rotinas de alinhamento.
-Importância: criar previsibilidade e integração no trabalho, reduzir ruídos de comunicação e atrasos, melhorar a coordenação entre as áreas e permitir que o mandato funcione de forma menos dependente de orientações individuais do parlamentar.
+Importância: criar previsibilidade e integração no trabalho, reduzir ruídos de comunicação e atrasos, melhorar a coordenação entre as áreas e permitir que o mandato funcione de forma menos dependente de orientações individuais da liderança parlamentar.
 Próximo passo: iniciar as rotinas de integração da equipe. As rotinas expostas na tabela a seguir têm sido recomendadas e frequentemente implementadas pelos mandatos parceiros da Legisla.
 | FREQUÊNCIA | QUADRIMESTRALMENTE | MENSALMENTE | SEMANALMENTE | SEMANALMENTE | SEMESTRALMENTE |
 | --- | --- | --- | --- | --- | --- |
@@ -215,7 +215,7 @@ Estabelecimento dos fluxos de trabalho e rotinas de comunicação entre as equip
 MISSÃO 3 - DEFINA O RUMO DO MANDATO COM UM PLANEJAMENTO ESTRATÉGICO
 até o 45º dia!
 Para alguns, a ideia de elaboração de um planejamento estratégico para um mandato parlamentar pode causar estranhamento, para outros pode soar como uma ferramenta milagrosa, capaz de resolver todos os problemas Nossa experiência demonstra que, ainda que não haja milagre, a implementação e monitoramento de planejamentos estratégicos contribuem, e muito, tanto para a alavancagem do mandato em exercício quanto para a viabilidade do projeto político da liderança parlamentar!
-Ao longo nos especializamos em oportunizar os meios de implementação de estratégias políticas por meio da orientação de bons planejamentos, feitos sob medida para cada liderança parlamentar. Temos evidências de que a organização do trabalho político dos mandatos em torno de objetivos e metas comuns tornam a transformação de promessas em entregas muito mais consistentes e que ajudam a valorizar o bom e árduo trabalho dos assessores e da  própria liderança parlamentar. Mas faz ainda mais do que isto, quando olhamos para as rotinas do gabinete! Os planejamentos alimentam o senso de construção coletiva do grupo e evitam a dispersão de recursos e esforços para longe do que realmente importa e se deseja construir. 	Começamos pela definição das bandeiras prioritárias do mandato. Depois, seguimos para o desenho do Legado Político. Passamos, então, para a definição do objetivo do ano, e dos seus objetivos específicos. Por fim, chegamos às metas. E é neste caminho que vamos guiar a elaboração do Planejamento Estratégico de vocês!
+Ao longo dos anos nos especializamos em oportunizar os meios de implementação de estratégias políticas por meio da orientação de bons planejamentos, feitos sob medida para cada liderança parlamentar. Temos evidências de que a organização do trabalho político dos mandatos em torno de objetivos e metas comuns tornam a transformação de promessas em entregas muito mais consistentes e que ajudam a valorizar o bom e árduo trabalho dos assessores e da  própria liderança parlamentar. Mas faz ainda mais do que isto, quando olhamos para as rotinas do gabinete! Os planejamentos alimentam o senso de construção coletiva do grupo e evitam a dispersão de recursos e esforços para longe do que realmente importa e se deseja construir. Começamos pela definição das bandeiras prioritárias do mandato. Depois, seguimos para o desenho do Legado Político. Passamos, então, para a definição do objetivo do ano, e dos seus objetivos específicos. Por fim, chegamos às metas. E é neste caminho que vamos guiar a elaboração do Planejamento Estratégico de vocês!
 Todos os exercícios propostos para o cumprimento da Missão 3 podem ser feitos coletivamente. Recomendamos que o mandato se reúna e tire um tempo de qualidade para elaboração do planejamento. Na Legisla o realizamos ao longo de dois períodos de 6 horas em que a equipe fica imersa e focada na elaboração conjunta da Estratégia.
 | Ao terminar de cumprir a Missão 3 você terá: Definido o que vão ter alcançado, ao fim de 4 anos Estabelecido qual é o Objetivo do primeiro ano da legislatura Identificado quais são os Preditores de Sucesso Parlamentar prioritários para o primeiro ano da legislatura Estabelecido Metas claras para serem seguidas nos primeiros 100 dias. Momento ideal para colocá-la em prática: Nos primeiros 45 dias do exercício do mandato parlamentar, OU Entre o fim do último ciclo de planejamento e início do outro Pessoas ideias para liderar a implementação da Missão 3: Chefia de Gabinete Pessoas ideais para participar da implementação da Missão 3: Parlamentar e Todos os assessores |
 | --- |
@@ -291,7 +291,7 @@ A seguir, confira alguns exemplos de metas bem escritas, por preditor, para insp
 
 
 Para facilitar o processo de escrita, considere a utilização da seguinte fórmula:
-VERBO + NÚMERO/PERCENTUAL + ENTREGA CONCRETA+ PRAZO/FREQUÊNCIA + PÚBLICO-ALVO/LOCAL + EVIDÊNCIA DE SUCESSO
+VERBO + NÚMERO/PERCENTUAL + ENTREGA CONCRETA + PRAZO/FREQUÊNCIA + PÚBLICO-ALVO/LOCAL + EVIDÊNCIA DE SUCESSO
 | Elemento | Pergunta que responde | Exemplo |
 | --- | --- | --- |
 | Verbo no infinitivo | O que o mandato fará? | Realizar, aprovar, ampliar, articular |

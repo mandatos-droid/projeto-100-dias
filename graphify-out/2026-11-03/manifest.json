@@ -1728,9 +1728,9 @@
     "semantic_hash": "1d4b789739020e634ad7e85710c75b7c"
   },
   "plataforma/public/legacy/novos.js": {
-    "mtime": 1793255004.3369744,
-    "seen": 1793712367.0754955,
-    "ast_hash": "22ddbad7173cf27482c8ef7ced1d6d15",
+    "mtime": 1793727592.9527543,
+    "seen": 1793727616.02982,
+    "ast_hash": "0615d2d3a859893aa2c668f56562aaaa",
     "semantic_hash": ""
   },
   "plataforma/public/legacy/nucleo.js": {
@@ -2382,9 +2382,9 @@
     "semantic_hash": "b458b4f20e6d027dddc360f8559a55c5"
   },
   "plataforma/public/legacy/sugestoes.js": {
-    "mtime": 1793725092.9636042,
-    "seen": 1793725139.883194,
-    "ast_hash": "f8d26ea320b5bded60f3eaad2b1d7e7f",
+    "mtime": 1793727057.433056,
+    "seen": 1793727301.42433,
+    "ast_hash": "eab3c2fb80565ef5bbf1d82811940cdc",
     "semantic_hash": ""
   },
   "plataforma/scripts/build_executivo.py": {
