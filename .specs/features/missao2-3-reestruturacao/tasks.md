@@ -277,7 +277,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T8: Ilha da estratégia A/B/C
+### T8: Ilha da estratégia A/B/C ✅
 
 **What**: Criar `Estrategia.tsx`: explicação de Objetivo Estratégico, 5 exemplos do documento, as 3 opções (uma só), campo de frase por preditor na B, nota de referência com as 3 frases da Legisla na C, confirmação ao trocar e prévia da árvore ao lado.
 **Where**: `ilhas/rumo/Estrategia.tsx` (+ `e2e/m23-estrategia.spec.ts`)
@@ -292,12 +292,12 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] As 3 opções com o texto do documento e uma única ativa (RM3-11)
-- [ ] A fecha o passo sem campo; C mostra as 3 frases da Legisla como referência (RM3-12, RM3-14)
-- [ ] B abre uma frase por preditor escolhido com o nome visível e a árvore mostra as frases (RM3-13)
-- [ ] Trocar pede confirmação e guarda o texto anterior (RM3-17)
-- [ ] A árvore tem os mesmos nós nas três opções e nenhuma meta se move (RM3-16)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
+- [x] As 3 opções com o texto do documento e uma única ativa (RM3-11)
+- [x] A fecha o passo sem campo; C mostra as 3 frases da Legisla como referência (RM3-12, RM3-14)
+- [x] B abre uma frase por preditor escolhido com o nome visível e a árvore mostra as frases (RM3-13)
+- [x] Trocar pede confirmação e guarda o texto anterior (RM3-17)
+- [x] A árvore tem os mesmos nós nas três opções e nenhuma meta se move (RM3-16)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
 
 **Tests**: e2e
 **Gate**: full

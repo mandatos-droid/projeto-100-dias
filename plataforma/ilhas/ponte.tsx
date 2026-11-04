@@ -15,6 +15,7 @@ import Bandeiras from './rumo/Bandeiras';
 import Espacos from './rumo/Espacos';
 import Legado from './rumo/Legado';
 import Preditores from './rumo/Preditores';
+import Estrategia from './rumo/Estrategia';
 import Metas from './rumo/Metas';
 import Plano from './rumo/Plano';
 import PlanoResumo from './rumo/PlanoResumo';
@@ -113,6 +114,7 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   'rumo-espacos': () => <Espacos />,
   'rumo-legado': () => <Legado />,
   'rumo-preditores': () => <Preditores />,
+  'rumo-estrategia': () => <Estrategia />,
   'rumo-metas': () => <Metas />,
   'rumo-feedback': () => <Feedback />,
   'rumo-novociclo': () => <NovoCiclo />,
