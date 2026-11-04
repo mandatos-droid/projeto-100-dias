@@ -9,11 +9,11 @@ Frentes em arquivos disjuntos (rodam em paralelo). Cada task = 1 commit atômico
 - [x] T5 R10,R11 Fragilidades
 
 ## Frente B — M2/M3 + botões globais
-- [ ] T6 R12,R13 Gestão (Equipe)
-- [ ] T7 R14 Bandeiras/comissões
-- [ ] T8 R15,R16 Legado
-- [ ] T9 R17 Metas em árvore
-- [ ] T10 R18 botões da Persona em todas as missões
+- [x] T6 R12,R13 Gestão (Equipe)
+- [x] T7 R14 Bandeiras/comissões
+- [x] T8 R15,R16 Legado
+- [x] T9 R17 Metas em árvore
+- [x] T10 R18 botões da Persona em todas as missões
 
 ## Frente C — M4 + Plano
 - [x] T11 R19 M4 comissões sem data
