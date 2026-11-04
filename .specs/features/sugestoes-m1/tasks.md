@@ -10,7 +10,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 
 **Spec**: `.specs/features/sugestoes-m1/spec.md`
 **Design**: nenhum (mudança de texto e de ordem sobre mecanismos que já existem; o desenho está nas Assumptions da spec)
-**Status**: In progress
+**Status**: Implementado (T1 a T8); verificação pendente
 
 Caminhos relativos a `plataforma/`. A árvore de trabalho tem mudanças do usuário não commitadas (`public/legacy/sugestoes.js`, `public/legacy/ilhas.css`, `graphify-out/`, `contexto inicial/`, `.vscode/`, `Alterador/`). Regras:
 
@@ -206,18 +206,18 @@ T7 → T8
 
 ---
 
-### T8: Resumo com as respostas novas
+### T8: Resumo com as respostas novas ✅
 
-**What**: Fazer o Resumo da Missão 1 mostrar `m1.q3b` e `m1.q4b`.
-**Where**: `public/legacy/novos.js` (lista `RECAP`), `tests/legado-m1.test.ts`
+**What**: Em `m1.js`, fazer o Resumo da Missão 1 mostrar `m1.q3b`, `m1.q4b` e `m1.q8a` (o `novos.js` não é editado).
+**Where**: `public/legacy/m1.js`, `tests/legado-m1.test.ts`
 **Depends on**: T7
-**Reuses**: `RECAP` de `novos.js`
+**Reuses**: `Resumo.ex` (`resumo.js`)
 **Requirement**: SUG-16, SUG-17
 
 **Done when**:
 
-- [ ] O Resumo mostra "Próximo cargo desejado" (`m1.q3b`) e "Pontes não óbvias" (`m1.q4b`) quando preenchidas (edge case)
-- [ ] Gate: `npm test`
+- [x] O Resumo mostra "Próximo cargo desejado" (`m1.q3b`) e "Pontes não óbvias" (`m1.q4b`) quando preenchidas (edge case)
+- [x] Gate: `npm test`
 
 **Tests**: unit
 **Gate**: quick

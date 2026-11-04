@@ -18,14 +18,14 @@
   var q3=item(exDe('m1.persona'),'m1.q3');
   q3.caixas=[
     {k:'m1.q3',rot:'Elenque quais são as 4 principais conquistas e entregas que o mandato deseja ter alcançado antes do fim da legislatura?'},
-    {k:'m1.q3b',rot:'Qual é o próximo cargo que a liderança parlamentar deseja ocupar?'}];
+    {k:'m1.q3b',resumo:'Próximo cargo que a liderança deseja ocupar',rot:'Qual é o próximo cargo que a liderança parlamentar deseja ocupar?'}];
 
   /* ---- Conjuntura · pergunta 1: os dados primeiro, depois a análise (SUG-17) ----
      Parceiros e concorrentes são marcados na tabela (seleção tabula melhor que texto livre); a caixa é só das pontes não óbvias. */
   var q4=item(exDe('m1.conjuntura'),'m1.q4');
   q4.d='<em>Identifique</em> quem são os/as parlamentares eleitos(as) nesta legislatura, a partir dos dados expostos abaixo. Em seguida, faça uma análise sobre o que esperar dos colegas e das possíveis alianças.';
   q4.depois=true;
-  q4.caixas=[{k:'m1.q4b',
+  q4.caixas=[{k:'m1.q4b',resumo:'Pontes não óbvias',
     antes:'<div class="orienta"><p>Marque na tabela acima quem é <strong>Parceiro</strong> e quem é <strong>Concorrente</strong> da liderança parlamentar, considerando a região, o perfil pessoal e a disputa partidária.</p></div>',
     rot:'E quais são as pontes não óbvias que podem ser construídas, a partir da criação de espaços de convergência que se baseiem em consensos mínimos e não necessariamente alinhamento completo? Elenque agora os nomes não óbvios, e que serão necessários para que as agendas e pautas avancem.'}];
 
@@ -37,7 +37,7 @@
   [['m1.conjuntura','m1.q5','m1.q5'],['m1.conjuntura','m1.q6','m1.q6'],['m1.oportunidades','m1.q8','m1.q8a']].forEach(function(c){
     var it=item(exDe(c[0]),c[1]);
     it.depois=true;
-    it.caixas=[{k:c[2],rot:ANALISE}];
+    it.caixas=[{k:c[2],rot:ANALISE,resumo:c[2]==='m1.q8a'?'Análise da conjuntura social':undefined}];
   });
 
   /* ---------- mecanismo ---------- */
@@ -120,5 +120,23 @@
     if(!this.m||this.m.n!==1||!this.ex)return;
     var tl=document.getElementById('tela'),et=tl&&tl.querySelector('.etiqueta');
     if(et)et.insertAdjacentHTML('beforebegin',this.faixaEtapas(this.ex.id));
+  };
+})();
+
+/* ---------- Resumo: as respostas das caixas novas (m1.q3b, m1.q4b, m1.q8a) aparecem junto das da Missão 1 ---------- */
+(function(){
+  if(typeof Resumo==='undefined'||typeof MISSOES==='undefined')return;
+  var _ex=Resumo.ex;
+  Resumo.ex=function(ex){
+    var h=_ex.apply(this,arguments);
+    if(!ex||ex.tipo!=='perguntas'||!ex.itens)return h;
+    var extra='';
+    ex.itens.forEach(function(it){
+      (it.caixas||[]).forEach(function(c){
+        if(c.resumo)extra+='<dt>'+esc(c.resumo)+'</dt><dd>'+Resumo.v(c.k)+'</dd>';
+      });
+    });
+    var i=h.lastIndexOf('</dl>');
+    return extra&&i>=0?h.slice(0,i)+extra+h.slice(i):h;
   };
 })();

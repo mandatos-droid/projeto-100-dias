@@ -169,3 +169,31 @@ test('a faixa traz as 4 etapas na ordem e marca só a atual (SUG-21)', () => {
 test('o exercício de fragilidades passa a se chamar "As fragilidades e fortalezas" (SUG-21)', () => {
   assert.equal(ex1(janela(), 'm1.frag').t, 'As fragilidades e fortalezas');
 });
+
+/* ---------- Resumo: respostas das caixas novas ---------- */
+function janelaResumo(campos: Record<string, string>) {
+  const w = janela() as Janela & { Resumo: { ex(ex: Ex): string } };
+  const ctx = w as unknown as Record<string, unknown>;
+  ctx.D = { campos, frags: [] };
+  ctx.rich = (s: string) => s;
+  ctx.window = {};
+  vm.runInContext(`${ler('resumo.js')};this.Resumo=Resumo;`, ctx as vm.Context);
+  vm.runInContext(CODIGO, ctx as vm.Context);
+  return w;
+}
+
+test('o Resumo da Persona mostra o próximo cargo (m1.q3b) e o da Conjuntura mostra as pontes (m1.q4b)', () => {
+  const w = janelaResumo({ 'm1.q3b': 'Senado', 'm1.q4b': 'Vereadora do interior' });
+  const persona = w.Resumo.ex(ex1(w, 'm1.persona'));
+  assert.ok(persona.includes('<dt>Próximo cargo que a liderança deseja ocupar</dt><dd>Senado</dd>'));
+  const conj = w.Resumo.ex(ex1(w, 'm1.conjuntura'));
+  assert.ok(conj.includes('<dt>Pontes não óbvias</dt><dd>Vereadora do interior</dd>'));
+  assert.equal(persona.includes('Pontes não óbvias'), false);
+});
+
+test('o Resumo continua com um só </dl> final e sem repetir o texto de m1.q5 (mesma chave de antes)', () => {
+  const w = janelaResumo({ 'm1.q5': 'análise do partido' });
+  const conj = w.Resumo.ex(ex1(w, 'm1.conjuntura'));
+  assert.equal(conj.split('análise do partido').length - 1, 1);
+  assert.ok(conj.endsWith('</dl>'));
+});

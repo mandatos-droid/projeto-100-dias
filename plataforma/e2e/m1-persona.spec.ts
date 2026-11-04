@@ -26,3 +26,9 @@ test.describe('Persona · desejo para o futuro (SUG-16)', () => {
     await expect(editor(page, 'm1.q3b')).toHaveText('');
   });
 });
+
+test('o Resumo mostra o próximo cargo (m1.q3b)', async ({ page }) => {
+  await abreGuia(page, '#/resumo', { dados: { campos: { 'm1.q3b': 'Senado da República' } } });
+  await expect(page.getByText('Próximo cargo que a liderança deseja ocupar')).toBeVisible();
+  await expect(page.locator('#tela')).toContainText('Senado da República');
+});
