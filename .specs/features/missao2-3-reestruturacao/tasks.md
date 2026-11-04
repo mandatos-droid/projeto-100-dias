@@ -634,7 +634,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T21: Ilha do quadro de rotinas
+### T21: Ilha do quadro de rotinas ✅
 
 **What**: Criar `QuadroRotinas.tsx`: tabela das 5 rotinas com a linha "Quando o mandato iniciará a rotina?", edição de frequência, participantes e duração, liga/desliga e data e hora; "X de N agendadas".
 **Where**: `ilhas/equipe/QuadroRotinas.tsx` (+ `e2e/m23-rotinas.spec.ts`)
@@ -649,12 +649,12 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] O quadro mostra as 5 rotinas do documento (RM2-51)
-- [ ] Preencher data e hora das 5 mostra "5 de 5 agendadas" (RM2-52)
-- [ ] Editar a duração da 1ª e reabrir mantém a edição (RM2-53)
-- [ ] Data anterior a hoje avisa sem bloquear (RM2-54)
-- [ ] Desligar uma rotina tira a exigência de data dela (RM2-57)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
+- [x] O quadro mostra as 5 rotinas do documento (RM2-51)
+- [x] Preencher data e hora das 5 mostra "5 de 5 agendadas" (RM2-52)
+- [x] Editar a duração da 1ª e reabrir mantém a edição (RM2-53)
+- [x] Data anterior a hoje avisa sem bloquear (RM2-54)
+- [x] Desligar uma rotina tira a exigência de data dela (RM2-57)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
 
 **Tests**: e2e
 **Gate**: full

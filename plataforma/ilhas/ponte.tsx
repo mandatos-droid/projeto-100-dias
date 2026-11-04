@@ -27,6 +27,7 @@ import Comunicacao from './capital/Comunicacao';
 import Organograma from './equipe/Organograma';
 import Escalacao from './equipe/Escalacao';
 import TabelaEquipe from './equipe/TabelaEquipe';
+import QuadroRotinas from './equipe/QuadroRotinas';
 import { AssentosResumo, ConjunturaResumo, MunicipioResumo } from './Resumos';
 
 /* ---------- acesso ao estado do Guia original (globais D e Store) ---------- */
@@ -109,6 +110,7 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   'municipio-resumo': () => <MunicipioResumo />,
   'equipe-escalacao': () => <Escalacao />,
   'equipe-tabela': () => <TabelaEquipe />,
+  'quadro-rotinas': () => <QuadroRotinas />,
   organograma: () => <Organograma />,
   rotinas: () => <Rotinas />,
   entrega: () => <Entrega />,
