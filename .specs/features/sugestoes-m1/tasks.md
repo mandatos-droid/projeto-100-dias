@@ -186,7 +186,7 @@ T7 → T8
 
 ---
 
-### T7: Faixa das 4 etapas do Mapa Político
+### T7: Faixa das 4 etapas do Mapa Político ✅
 
 **What**: Em `m1.js`, envolver `Guia.render` para, na Missão 1, inserir antes da etiqueta a faixa com as 4 etapas e a atual com `aria-current="step"`; estilo em `public/legacy/ilhas.css`.
 **Where**: `public/legacy/m1.js`, `public/legacy/ilhas.css`, `tests/legado-m1.test.ts`, `e2e/m1-etapas.spec.ts`
@@ -196,9 +196,9 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Em cada exercício da Missão 1 a faixa mostra "A Persona", "A Conjuntura", "As Oportunidades e Ameaças" e "As Fragilidades e Fortalezas", com a etapa atual marcada (SUG-21)
-- [ ] Nas Missões 2 a 5 a faixa não aparece
-- [ ] Gate: `npm test && npx tsc --noEmit && npx playwright test e2e/m1-etapas`
+- [x] Em cada exercício da Missão 1 a faixa mostra "A Persona", "A Conjuntura", "As Oportunidades e Ameaças" e "As Fragilidades e Fortalezas", com a etapa atual marcada (SUG-21)
+- [x] Nas Missões 2 a 5 a faixa não aparece
+- [x] Gate: `npm test && npx tsc --noEmit && npx playwright test e2e/m1-etapas`
 
 **Tests**: unit + e2e
 **Gate**: full

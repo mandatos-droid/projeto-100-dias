@@ -98,3 +98,27 @@
     return h;
   };
 })();
+
+/* ---------- Faixa das 4 etapas do Mapa Político (SUG-21) ----------
+   Cada exercício da Missão 1 é uma etapa; a faixa deixa claro que são 4 e qual é a atual. */
+(function(){
+  if(typeof MISSOES==='undefined'||typeof Guia==='undefined')return;
+  var M1=MISSOES.filter(function(m){return m.n===1})[0];
+  var frag=M1&&M1.exercicios.filter(function(e){return e.id==='m1.frag'})[0];
+  if(!frag)return;
+  frag.t='As fragilidades e fortalezas';
+  var ETAPAS=[['m1.persona','A Persona'],['m1.conjuntura','A Conjuntura'],['m1.oportunidades','As Oportunidades e Ameaças'],['m1.frag','As Fragilidades e Fortalezas']];
+  Guia.faixaEtapas=function(id){
+    return '<nav class="m1-etapas" aria-label="As 4 etapas do Mapa Político"><ol>'+ETAPAS.map(function(e,i){
+      var atual=e[0]===id;
+      return '<li'+(atual?' aria-current="step"':'')+'><a href="#/m/1/'+e[0]+'"><b>'+(i+1)+'</b><span>'+e[1]+'</span></a></li>';
+    }).join('')+'</ol></nav>';
+  };
+  var _r=Guia.render;
+  Guia.render=function(){
+    _r.apply(this,arguments);
+    if(!this.m||this.m.n!==1||!this.ex)return;
+    var tl=document.getElementById('tela'),et=tl&&tl.querySelector('.etiqueta');
+    if(et)et.insertAdjacentHTML('beforebegin',this.faixaEtapas(this.ex.id));
+  };
+})();

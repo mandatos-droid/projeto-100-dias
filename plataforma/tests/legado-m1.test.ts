@@ -155,3 +155,17 @@ test('o diagnóstico das fragilidades fica entre o checklist e o plano de estudo
   const { html } = paginaFrag();
   assert.ok(html.indexOf('frag-l') < html.indexOf('diag-frag') && html.indexOf('diag-frag') < html.indexOf('Tornando fragilidades'));
 });
+
+/* ---------- SUG-21: faixa das 4 etapas ---------- */
+test('a faixa traz as 4 etapas na ordem e marca só a atual (SUG-21)', () => {
+  const w = janela() as Janela & { Guia: { faixaEtapas(id: string): string } };
+  const h = w.Guia.faixaEtapas('m1.conjuntura');
+  const nomes = [...h.matchAll(/<span>([^<]+)<\/span>/g)].map((m) => m[1]);
+  assert.deepEqual(nomes, ['A Persona', 'A Conjuntura', 'As Oportunidades e Ameaças', 'As Fragilidades e Fortalezas']);
+  assert.equal((h.match(/aria-current="step"/g) ?? []).length, 1);
+  assert.ok(h.includes('<li aria-current="step"><a href="#/m/1/m1.conjuntura">'));
+});
+
+test('o exercício de fragilidades passa a se chamar "As fragilidades e fortalezas" (SUG-21)', () => {
+  assert.equal(ex1(janela(), 'm1.frag').t, 'As fragilidades e fortalezas');
+});
