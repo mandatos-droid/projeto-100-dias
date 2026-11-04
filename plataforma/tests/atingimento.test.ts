@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { STATUS, pctMeta, pctObjetivo, pctTotal } from '../lib/atingimento.ts';
+import { STATUS, pctMeta, pctObjetivo, pctTotal, statusPorAtingimento } from '../lib/atingimento.ts';
 
 test('STATUS tem os 4 status pedidos, com rótulo e porcentagem', () => {
   assert.deepEqual(STATUS.map((s) => s.id), ['concluida', 'concluida70', 'nao_concluida', 'congelada']);
@@ -80,4 +80,13 @@ test('pctObjetivo e pctTotal usam o atingimento novo das metas com sucessos (M5-
   assert.equal(pctObjetivo(metas), 75);
   assert.equal(pctTotal([pctObjetivo(metas), 100]), 88);
   assert.equal(pctObjetivo([{ status: 'concluida', sucessos: suc('congelada') }]), null);
+});
+
+test('statusPorAtingimento acompanha os sucessos; congelada e sem sucessos ficam', () => {
+  const suc = (...st: string[]) => st.map((status, i) => ({ id: String(i), mes: 1, texto: 'x', status }));
+  assert.equal(statusPorAtingimento('nao_concluida', suc('concluida', 'concluida')), 'concluida');
+  assert.equal(statusPorAtingimento('nao_concluida', suc('concluida', 'concluida', 'concluida', 'nao_concluida')), 'concluida70');
+  assert.equal(statusPorAtingimento('concluida', suc('concluida', 'nao_concluida')), 'nao_concluida');
+  assert.equal(statusPorAtingimento('congelada', suc('concluida')), 'congelada');
+  assert.equal(statusPorAtingimento('concluida70', []), 'concluida70');
 });

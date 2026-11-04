@@ -2,7 +2,7 @@
 /* Missão 3 · cartão de uma meta: texto, retorno SMART ao vivo, "alcançável" por confirmação, responsável e apoios
    (chips das pessoas da Missão 2 ou texto livre) e, na aba Planejamento, o status. É o mesmo cartão no exercício e na aba. */
 import { useState } from 'react';
-import { STATUS } from '@/lib/atingimento';
+import { STATUS, pctMeta, statusPorAtingimento } from '@/lib/atingimento';
 import { type ItemMeta, type Objetivo } from '@/lib/plano';
 import { MAX_APOIOS, resolve, validaApoio, type Pessoa, type Ref } from '@/lib/pessoas';
 import { LETRAS, avaliaMeta, type Letra } from '@/lib/smart';
@@ -43,7 +43,9 @@ export default function CartaoMeta({ meta, objetivos, pessoas, campos, comStatus
   const res = resolve(campos, meta);
   const n = String(meta.idx + 1).padStart(2, '0');
   const sucessos = lerSucessos(meta);
-  const gravaSucessos = (l: Sucesso[]) => onChange(meta.idx, { sucessos: l });
+  /* SUG-85: o status acompanha o atingimento dos sucessos (congelada fica como está) */
+  const gravaSucessos = (l: Sucesso[]) => onChange(meta.idx, { sucessos: l, status: statusPorAtingimento(meta.status, l) });
+  const pct = pctMeta(meta.status, sucessos);
 
   const respRef: Ref = { cad: typeof meta.respCad === 'number' ? meta.respCad : null, nome: res.resp };
   const cads = meta.apoioCad ?? [];
@@ -164,7 +166,8 @@ export default function CartaoMeta({ meta, objetivos, pessoas, campos, comStatus
 
       <fieldset className="rm-suc" role="group" aria-label={`Sucessos mensais da meta ${n}`}>
         <legend>Sucessos mensais <span className="rm-n">{sucessos.length}</span></legend>
-        <p className="rm-dica">Marcos de cada mês (Mês 1 a Mês 4). Com sucessos, o atingimento da meta passa a ser sucessos atingidos sobre o total.</p>
+        <p className="rm-dica">Marcos de cada mês (Mês 1 a Mês 4). O atingimento da meta é calculado pelos sucessos concluídos sobre o total, e o status da meta muda junto (meta congelada não muda).</p>
+        {sucessos.length > 0 && <p className="rm-dica" role="status" data-pct={pct ?? ''}>Atingimento: {pct === null ? 'fora da conta (congelada)' : `${pct}%`}</p>}
         {sucessos.length > 0 && (
           <ul className="rm-suc-l">
             {sucessos.map((s, i) => {

@@ -22,6 +22,15 @@ export function pctMeta(status?: string, sucessos?: unknown): number | null {
   return s ? s.pct : 0;
 }
 
+/** Status que o atingimento (0 a 100) pede: 100 concluída, 70 ou mais "concluída 70%", abaixo disso não concluída. Meta congelada não muda; sem sucessos ativos mantém o atual. */
+export function statusPorAtingimento(atual: StatusMeta | undefined, sucessos: unknown): StatusMeta {
+  const base = atual ?? 'nao_concluida';
+  if (base === 'congelada') return base;
+  const pct = pctMeta(base, sucessos);
+  if (pct === null || !lerSucessos({ sucessos }).length) return base;
+  return pct >= 100 ? 'concluida' : pct >= 70 ? 'concluida70' : 'nao_concluida';
+}
+
 const media = (v: number[]) => Math.round(v.reduce((s, n) => s + n, 0) / v.length);
 
 /** Média das metas não congeladas, arredondada; null se não há meta ativa. */
