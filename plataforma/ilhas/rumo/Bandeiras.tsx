@@ -178,7 +178,7 @@ export default function Bandeiras() {
                   return (
                     <li key={l.id} data-ranking={b.id}>
                       <span className="rm-pos">{i + 1}</span>
-                      <span className="rm-rank-nome">{b.rot}{l.sugerida && <em className="rm-sug">sugerida</em>}</span>
+                      <span className="rm-rank-nome">{b.rot}</span>
                       <span className="rm-barra" aria-hidden="true"><i style={{ width: `${maximo ? (l.total / maximo) * 100 : 0}%` }} /></span>
                       <span className="rm-rank-pts">{l.total}</span>
                       <button type="button" className="rm-estrela" aria-pressed={b.prioridade !== null}
