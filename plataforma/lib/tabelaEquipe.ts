@@ -201,3 +201,15 @@ export function defineN(c: Campos, n: number | string): { patch: Patch; remove?:
   const nomes = preenchidas.map((i) => nomeLimpo(c, i) || valor(c, i, 'cargo') || `Linha ${on.indexOf(i) + 1}`);
   return preenchidas.length ? { patch, remove: saem, confirma: nomes } : { patch, remove: saem };
 }
+
+/** O mandato já como a tabela o mostra: em mandato migrado, uma cópia com os valores derivados gravados (materializa); senão, o próprio `c`.
+ *  Não altera `c`. Serve para desenhar organograma e PDF sem gravar nada. */
+export function vistaDaTabela(c: Campos, cargoModelo?: (i: number) => string): Campos {
+  if (!migrada(c)) return c;
+  const v = { ...c };
+  aplica(v, materializa(c, cargoModelo));
+  return v;
+}
+
+/** Há organograma a desenhar: ao menos uma linha com cargo, categoria e área. */
+export const organogramaGerado = (c: Campos): boolean => linhas(c).some((l) => l.cat !== '' && l.area !== '' && l.cargo !== '');

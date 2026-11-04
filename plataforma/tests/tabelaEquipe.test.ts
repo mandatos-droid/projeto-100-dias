@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { aplica, ativas, coordDe, liderDe } from '../lib/cadeiras.ts';
-import { COLUNAS, CATEGORIAS, linhas, colunaLiberada, completa, contagemCompletas, defineN, editaCelula, recalculaLideres, avisosOrg, escopoTexto, competenciasTexto, categoriaPadrao, migrada, materializa } from '../lib/tabelaEquipe.ts';
+import { COLUNAS, CATEGORIAS, linhas, colunaLiberada, completa, contagemCompletas, defineN, editaCelula, recalculaLideres, avisosOrg, escopoTexto, competenciasTexto, categoriaPadrao, migrada, materializa, vistaDaTabela, organogramaGerado } from '../lib/tabelaEquipe.ts';
 
 type C = Record<string, string>;
 /** mandato que já usa a tabela nova (m2.n gravado), com a Chefia (0) e duas linhas acrescentadas (índices 20 e 21) */
@@ -433,4 +433,27 @@ test('materializa não sobrescreve valor novo já gravado e usa o cargo do model
   assert.equal(p['m2.p2.cat'], undefined);
   assert.equal(p['m2.p2.nome_cargo'], 'Cargo do modelo');
   assert.equal(p['m2.p1.nome_cargo'], undefined); // já tinha nome_cargo
+});
+
+/* ---------- T23 · vista da tabela e organograma gerado ---------- */
+test('organogramaGerado: só com ao menos uma linha com cargo, categoria e área (RM2-30, RM2-63)', () => {
+  assert.equal(organogramaGerado({}), false);
+  assert.equal(organogramaGerado(base()), false);
+  assert.equal(organogramaGerado(base({ 'm2.p21.nome_cargo': 'Assessor', 'm2.p21.cat': 'Executora' })), false); // falta a área
+  assert.equal(organogramaGerado(base({ 'm2.p21.nome_cargo': 'Assessor', 'm2.p21.cat': 'Executora', 'm2.p21.coord': 'Legislativo' })), true);
+});
+
+test('vistaDaTabela devolve o mandato novo como está e o antigo com os derivados, sem alterar o original (RMX-02)', () => {
+  const novo = base({ 'm2.p21.nome_cargo': 'Assessor' });
+  assert.equal(vistaDaTabela(novo), novo);
+  const c = antigo({ 'm2.p2.nome_cargo': '' });
+  const antes = JSON.stringify(c);
+  const v = vistaDaTabela(c, (i) => `Modelo ${i}`);
+  assert.equal(JSON.stringify(c), antes);
+  assert.equal(v['m2.n'], '3');
+  assert.equal(v['m2.p2.nome_cargo'], 'Modelo 1');
+  assert.equal(v['m2.p2.cat'], 'Coordenação');
+  assert.equal(organogramaGerado(c), true); // há cargo (nome_cargo) nas outras linhas
+  assert.equal(organogramaGerado(antigo({ 'm2.p1.nome_cargo': '', 'm2.p2.nome_cargo': '', 'm2.p3.nome_cargo': '' })), false);
+  assert.equal(organogramaGerado(vistaDaTabela(antigo({ 'm2.p1.nome_cargo': '', 'm2.p2.nome_cargo': '', 'm2.p3.nome_cargo': '' }), (i) => `Modelo ${i}`)), true);
 });

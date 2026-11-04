@@ -688,7 +688,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T23: Botão "Gerar PDF do organograma e rotinas"
+### T23: Botão "Gerar PDF do organograma e rotinas" ✅
 
 **What**: Criar `PdfOrgRotinas.tsx`: monta o bloco imprimível (SVG do organograma + tabela de rotinas), marca `body.imprimindo-org`, chama `window.print()`; CSS `@media print` esconde o resto. Sem organograma, imprime só as rotinas e avisa.
 **Where**: `ilhas/equipe/PdfOrgRotinas.tsx` (+ `e2e/m23-pdf.spec.ts`)
@@ -703,10 +703,10 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] Em mídia `print`, só o organograma (página 1) e o quadro de rotinas ficam visíveis (RM2-61)
-- [ ] Sem linhas na tabela, só as rotinas aparecem e o aviso é mostrado (RM2-63)
-- [ ] O botão chama `window.print` (espionado no teste) e limpa `imprimindo-org` depois
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
+- [x] Em mídia `print`, só o organograma (página 1) e o quadro de rotinas ficam visíveis (RM2-61)
+- [x] Sem linhas na tabela, só as rotinas aparecem e o aviso é mostrado (RM2-63)
+- [x] O botão chama `window.print` (espionado no teste) e limpa `imprimindo-org` depois
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
 
 **Tests**: e2e
 **Gate**: full

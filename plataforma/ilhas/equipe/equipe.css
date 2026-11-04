@@ -176,3 +176,18 @@
 .es-rq-quando input{flex:1 1 7rem;width:auto;min-width:0}
 .es-rq tr.desligada th,.es-rq tr.desligada td{opacity:.7}
 @media (max-width:720px){.es-rq{min-width:0}.es-rq tbody th{min-width:0}}
+
+/* ---------- PDF do organograma e rotinas: bloco no <body>, oculto na tela, único visível ao imprimir com body.imprimindo-org ---------- */
+.pdf-org{display:none}
+.pdf-org h2{font-size:1.125rem;margin:0 0 0.5rem}
+.pdf-org svg{display:block;max-width:100%;height:auto}
+.pdf-rotinas{width:100%;border-collapse:collapse;font-size:0.8125rem}
+.pdf-rotinas th,.pdf-rotinas td{border:1px solid #999;padding:0.3125rem 0.5rem;text-align:left;vertical-align:top}
+.pdf-rotinas th{background:#eee}
+@media print{
+  body.imprimindo-org>*:not(.pdf-org){display:none!important}
+  body.imprimindo-org .pdf-org{display:block}
+  body.imprimindo-org .pdf-org,body.imprimindo-org .pdf-org *{visibility:visible!important}
+  body.imprimindo-org .pdf-org-pag{break-after:page}
+  body.imprimindo-org .pdf-rotinas tr{break-inside:avoid}
+}

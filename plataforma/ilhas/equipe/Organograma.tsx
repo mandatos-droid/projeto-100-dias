@@ -4,11 +4,11 @@
 import { useMemo, useState } from 'react';
 import { Controls, Handle, Position, ReactFlow, type Edge, type Node, type NodeProps } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { aplica, coordDe, type Campos } from '@/lib/cadeiras';
+import { coordDe } from '@/lib/cadeiras';
 import { COR_COORD } from '@/lib/equipe';
 import { organogramaSvg } from '@/lib/exporta';
 import { layoutOrg } from '@/lib/layoutOrg';
-import { avisosOrg, linhas, materializa, migrada } from '@/lib/tabelaEquipe';
+import { avisosOrg, organogramaGerado, vistaDaTabela } from '@/lib/tabelaEquipe';
 import { cargoNome, modeloNome } from './cargos';
 import { baixaPng } from './exportaPng';
 import { useEquipe } from './useEquipe';
@@ -47,10 +47,8 @@ export default function Organograma() {
   const [reajusta, setReajusta] = useState(0);
 
   /* mandato do modelo antigo: desenha e avisa já com categoria, área e liderança derivadas, sem gravar nada */
-  const antigo = migrada(c);
-  const vista: Campos = { ...c };
-  if (antigo) aplica(vista, materializa(c, modeloNome));
-  const pronto = linhas(vista).some((l) => l.cat !== '' && l.area !== '' && l.cargo !== '');
+  const vista = vistaDaTabela(c, modeloNome);
+  const pronto = organogramaGerado(vista);
   const avisos = avisosOrg(vista);
   const l = layoutOrg(vista, { soPreenchidas });
   /* altura pelo conteúdo: sem faixa vazia embaixo; o zoom inicial nunca fica menor que 55% (legível) */
