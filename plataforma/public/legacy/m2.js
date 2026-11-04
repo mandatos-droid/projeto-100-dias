@@ -137,3 +137,20 @@
     };
   }
 })();
+
+/* ---------- Faixa de etapas em todas as missões (SUG-81): a mesma navegação da Persona (Missão 1) para as Missões 2 a 5 ----------
+   A Missão 1 tem a faixa própria (m1.js); aqui cada exercício das demais missões é uma etapa, com a atual marcada. */
+(function(){
+  if(typeof Guia==='undefined'||typeof MISSOES==='undefined')return;
+  var _r=Guia.render;
+  Guia.render=function(){
+    _r.apply(this,arguments);
+    if(!this.m||this.m.n===1||!this.ex||!this.m.exercicios||this.m.exercicios.length<2)return;
+    var tl=document.getElementById('tela'),et=tl&&tl.querySelector('.etiqueta');
+    if(!et||tl.querySelector('.m1-etapas'))return;
+    var id=this.ex.id,n=this.m.n;
+    et.insertAdjacentHTML('beforebegin','<nav class="m1-etapas" aria-label="As etapas da Missão '+n+'"><ol>'+this.m.exercicios.map(function(e,i){
+      return '<li'+(e.id===id?' aria-current="step"':'')+'><a href="#/m/'+n+'/'+e.id+'"><b>'+(i+1)+'</b><span>'+esc(e.t)+'</span></a></li>';
+    }).join('')+'</ol></nav>');
+  };
+})();
