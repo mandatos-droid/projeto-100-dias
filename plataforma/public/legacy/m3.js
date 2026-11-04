@@ -102,13 +102,21 @@
   /* m3.preditores: mesma regra de passoPreditoresConcluido (lib/estrategia.ts; tests/legado-m3.test.ts confere a paridade).
      Fluxo novo = há m3.est ou alguma m3.just; sem isso é mandato antigo e vale a checagem do Guia (algum D.preditores), RMX-01. */
   var PIDS=['p1','p2','p3','p4','p5'];
+  function escolhidos(){return (Array.isArray(D.preditores)?D.preditores:[]).filter(function(p,i,a){return PIDS.indexOf(p)>=0&&a.indexOf(p)===i})}
+  /* lerEstrategia de lib/estrategia.ts: m3.est válido; sem ele, B se há frase em m3.obj.*, A se há preditores, senão nada; inválido = nada */
+  function estrategia(ids){
+    var raw=String(campos()['m3.est']==null?'':campos()['m3.est']).trim();
+    if(raw!=='')return raw==='a'||raw==='b'||raw==='c'?raw:null;
+    if(PIDS.some(function(p){return preenchido('m3.obj.'+p)}))return 'b';
+    return ids.length?'a':null;
+  }
   function preditoresFeito(_tc,ex){
-    var c=campos(),raw=String(c['m3.est']==null?'':c['m3.est']).trim();
+    var raw=String(campos()['m3.est']==null?'':campos()['m3.est']).trim();
     var novo=raw!==''||PIDS.some(function(p){return preenchido('m3.just.'+p)});
     if(!novo)return _tc(ex);
-    var ids=(Array.isArray(D.preditores)?D.preditores:[]).filter(function(p,i,a){return PIDS.indexOf(p)>=0&&a.indexOf(p)===i});
+    var ids=escolhidos();
     if(ids.length!==3)return false;
-    var est=raw!==''?(raw==='a'||raw==='b'||raw==='c'?raw:null):(PIDS.some(function(p){return preenchido('m3.obj.'+p)})?'b':'a');
+    var est=estrategia(ids);
     if(!est)return false;
     if(est==='b'&&!ids.every(function(p){return preenchido('m3.obj.'+p)}))return false;
     return PIDS.every(function(p){return preenchido('m3.just.'+p)});
@@ -121,6 +129,33 @@
     if(ex&&ex.id==='m3.preditores')return preditoresFeito(_tc,ex);
     return _tc(ex);
   };
+
+  /* Resumo do exercício dos preditores (RM3-18): estratégia, texto de cada objetivo estratégico e justificativas.
+     Sem estratégia (nem preditores) o Resumo segue o do Guia. */
+  if(typeof Resumo!=='undefined'&&Resumo.ex){
+    var _rx=Resumo.ex;
+    var NOME_EST={a:'os preditores escolhidos são os Objetivos Estratégicos.',b:'os preditores foram traduzidos em outra frase, que são os Objetivos Estratégicos.',c:'os preditores norteiam as metas; os Objetivos Estratégicos de referência são os 3 sugeridos pela Legisla.'};
+    var LEGISLA=['Avanço Legislativo','Expansão de Capital Político e Influência','Governança Estratégica'];
+    function txt(s){return esc(String(s)).replace(/\n/g,'<br>')}
+    function nomeDe(pid){var p=PREDITORES.filter(function(x){return x.id===pid})[0];return p?p.n:pid}
+    Resumo.ex=function(ex){
+      if(!ex||ex.tipo!=='preditores')return _rx.call(this,ex);
+      var ids=escolhidos(),est=estrategia(ids);
+      if(!est)return _rx.call(this,ex);
+      var c=campos(),h='<dl class="cmp"><dt>Estratégia</dt><dd>Estratégia: <strong>'+est.toUpperCase()+'</strong> — '+esc(NOME_EST[est])+'</dd>';
+      ids.forEach(function(pid){
+        var frase=est==='b'&&preenchido('m3.obj.'+pid)?String(c['m3.obj.'+pid]).trim():nomeDe(pid);
+        h+='<dt>'+esc(nomeDe(pid))+'</dt><dd>'+txt(frase)+'</dd>';
+      });
+      if(est==='c')h+='<dt>Objetivos Estratégicos sugeridos pela Legisla (referência)</dt><dd><ol>'+LEGISLA.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ol></dd>';
+      h+='<dt>Justificativas dos preditores</dt><dd>';
+      var itens=PIDS.map(function(pid){
+        var j=preenchido('m3.just.'+pid)?String(c['m3.just.'+pid]).trim():'';
+        return '<li><strong>'+esc(nomeDe(pid))+'</strong> ('+(ids.indexOf(pid)>=0?'escolhido':'não escolhido')+'): '+(j?txt(j):Resumo.sem)+'</li>';
+      });
+      return h+'<ul class="marcados">'+itens.join('')+'</ul></dd></dl>';
+    };
+  }
 })();
 
 /* ---------- aba Planejamento Estratégico (#/plano), item no menu e resumo no Painel ----------

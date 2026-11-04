@@ -357,7 +357,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T11: Resumo com estratégia e justificativas
+### T11: Resumo com estratégia e justificativas ✅
 
 **What**: Em `m3.js`, sobrescrever `Resumo.ex` do exercício `m3.preditores` para listar a estratégia, o texto de cada objetivo e as justificativas.
 **Where**: `public/legacy/m3.js` (+ `tests/legado-m3.test.ts`)
@@ -372,9 +372,9 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] O Resumo mostra "Estratégia: A/B/C", os objetivos estratégicos e as justificativas (RM3-18)
-- [ ] Sem estratégia, mostra o estado antigo sem erro
-- [ ] Gate: `npm test`; testes novos, nenhum removido
+- [x] O Resumo mostra "Estratégia: A/B/C", os objetivos estratégicos e as justificativas (RM3-18)
+- [x] Sem estratégia, mostra o estado antigo sem erro
+- [x] Gate: `npm test`; testes novos, nenhum removido
 
 **Tests**: unit
 **Gate**: quick

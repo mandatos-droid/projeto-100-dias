@@ -322,3 +322,66 @@ test('a regra de m3.js para o fluxo novo é a mesma de passoPreditoresConcluido 
   ];
   for (const p of ids) for (const c of campos) assert.equal(comPreditores(p, c), passoPreditoresConcluido(c, p), JSON.stringify([p, c]));
 });
+
+/* ---------- Resumo do exercício dos preditores (RM3-18) ---------- */
+function resumoDe(preditores: unknown, campos: Record<string, string>, tipo = 'preditores') {
+  const ctx = {
+    D: { campos, preditores },
+    Guia: { montar: () => [] },
+    Comp: { campos: ORIGINAL, preditores: () => '', metas: () => '', lista: () => '' },
+    esc: (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'),
+    temConteudo: () => false,
+    Resumo: { sem: '<span class="sem">não preenchido</span>', ex: () => 'original' },
+  };
+  const w = guia(ctx);
+  vm.runInContext(CODIGO, w as unknown as vm.Context);
+  return (w as unknown as { Resumo: { ex(ex: unknown): string } }).Resumo.ex({ id: 'm3.preditores', tipo });
+}
+
+test('Resumo com a estratégia A: "Estratégia: A", o nome de cada preditor como objetivo estratégico e as 5 justificativas (RM3-18)', () => {
+  const h = resumoDe(['p1', 'p2', 'p3'], { 'm3.est': 'a', ...CINCO, 'm3.obj.p1': 'frase que a A ignora' });
+  assert.ok(h.includes('Estratégia: <strong>A</strong>'));
+  assert.ok(h.includes('<dt>Priorizar a agenda</dt><dd>Priorizar a agenda</dd>'));
+  assert.equal(h.includes('frase que a A ignora'), false);
+  assert.ok(h.includes('<strong>Construir o partido</strong> (escolhido): c'));
+  assert.ok(h.includes('<strong>Protagonizar espaços de decisão</strong> (não escolhido): d'));
+  assert.equal(h.match(/<li><strong>/g)!.length, 5);
+});
+
+test('Resumo com a B mostra a frase de cada preditor, ou o nome se a frase estiver vazia (RM3-13, RM3-18)', () => {
+  const h = resumoDe(['p1', 'p2', 'p3'], { 'm3.est': 'b', ...CINCO, 'm3.obj.p1': 'Foco em três temas', 'm3.obj.p2': '  ' });
+  assert.ok(h.includes('Estratégia: <strong>B</strong>'));
+  assert.ok(h.includes('<dt>Priorizar a agenda</dt><dd>Foco em três temas</dd>'));
+  assert.ok(h.includes('<dt>Pautar os debates</dt><dd>Pautar os debates</dd>'));
+});
+
+test('Resumo com a C lista as 3 frases da Legisla como referência e mantém o nome de cada preditor (RM3-14, RM3-18)', () => {
+  const h = resumoDe(['p1', 'p2', 'p3'], { 'm3.est': 'c' });
+  assert.ok(h.includes('Estratégia: <strong>C</strong>'));
+  assert.ok(h.includes('<li>Avanço Legislativo</li><li>Expansão de Capital Político e Influência</li><li>Governança Estratégica</li>'));
+  assert.ok(h.includes('<dt>Construir o partido</dt><dd>Construir o partido</dd>'));
+  assert.ok(h.includes('(não escolhido): <span class="sem">não preenchido</span>'), 'justificativa vazia aparece como não preenchida');
+});
+
+test('Resumo escapa o texto digitado nas justificativas e nas frases (segurança)', () => {
+  const h = resumoDe(['p1', 'p2', 'p3'], { 'm3.est': 'b', 'm3.obj.p1': '<img src=x>', 'm3.just.p1': '<script>1</script>\nsegunda linha' });
+  assert.equal(h.includes('<img'), false);
+  assert.equal(h.includes('<script>'), false);
+  assert.ok(h.includes('&lt;script&gt;1&lt;/script&gt;<br>segunda linha'));
+});
+
+test('Resumo sem estratégia nem preditores mostra o estado antigo, sem erro (RMX-01)', () => {
+  assert.equal(resumoDe([], {}), 'original');
+  assert.equal(resumoDe([], { 'm3.est': 'zzz' }), 'original');
+  assert.equal(resumoDe('lixo', {}), 'original');
+});
+
+test('Resumo de mandato antigo (D.preditores e m3.obj, sem m3.est) assume a B e mostra a frase gravada (RMX-01)', () => {
+  const h = resumoDe(['p1'], { 'm3.obj.p1': 'Priorizar a educação' });
+  assert.ok(h.includes('Estratégia: <strong>B</strong>'));
+  assert.ok(h.includes('<dt>Priorizar a agenda</dt><dd>Priorizar a educação</dd>'));
+});
+
+test('Resumo de outro tipo de exercício passa para o do Guia', () => {
+  assert.equal(resumoDe(['p1'], { 'm3.est': 'a' }, 'metas'), 'original');
+});

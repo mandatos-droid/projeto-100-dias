@@ -204,8 +204,8 @@ Fonte: `contexto inicial/AJUSTES Missão 3  E Missão 2.docx` (texto, notas entr
 | RM2-30 | Organograma gerado da tabela (RM2-30 a 38) | T14, T17, T18, T27 | Pending |
 | RM2-50 | Rotinas pelo quadro-modelo (RM2-50 a 58) | T20, T21, T24, T25 | Pending |
 | RM2-60 | Rotinas no planejamento e PDF (RM2-60 a 64) | T22, T23, T26 | Pending |
-| RM3-01 | Preditores com justificativa (RM3-01 a 07) | T5, T7 | Pending |
-| RM3-10 | Estratégia A/B/C, árvore inalterada (RM3-10 a 18) | T5, T6, T8, T9, T10, T11 | Pending |
+| RM3-01 | Preditores com justificativa (RM3-01 a 07) | T5, T7 | Done |
+| RM3-10 | Estratégia A/B/C, árvore inalterada (RM3-10 a 18) | T5, T6, T8, T9, T10, T11 | Done |
 | RM3-40 | Terminologia "Objetivo Estratégico" (RM3-40 a 44) | T1, T2, T3, T4 | Done |
 | RMX-01 | Migração (RMX-01 a 04) | T5, T9, T15, T28 | Pending |
 
