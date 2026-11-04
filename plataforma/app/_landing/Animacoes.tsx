@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 
 /** O que entra com fade-and-rise ao rolar. Os seletores ficam aqui para os componentes de servidor não precisarem de atributos. */
 const REVELAR = [
-  '.ld-sec .ld-eyebrow', '.ld-sec .ld-h2', '.ld-sec .ld-lead', '.ld-demo-box', '.ld-pos-demo',
-  '.ld-dor li', '.ld-miss li', '.ld-feat article', '.ld-conf > div', '.ld-faq details', '.ld-fecha .ld-bt',
+  '.ld-sec .ld-eyebrow', '.ld-sec .ld-h2', '.ld-sec .ld-lead',
+  '.ld-miss > li', '.ld-trio > div', '.ld-faq details', '.ld-fecha .ld-bt',
 ].join(',');
 
 const CURVA = (t: number) => 1 - Math.pow(1 - t, 3);
@@ -41,7 +41,7 @@ export default function Animacoes() {
       const linha = window.innerHeight * 0.65;
       const r = ol.getBoundingClientRect();
       ol.style.setProperty('--fio', `${Math.max(0, Math.min(linha - r.top, r.height))}px`);
-      ol.querySelectorAll<HTMLElement>('li').forEach((li) => {
+      ol.querySelectorAll<HTMLElement>(':scope > li').forEach((li) => {
         const b = li.getBoundingClientRect();
         if (b.top + 34 > linha || li.classList.contains('is-on')) return;
         li.classList.add('is-on');

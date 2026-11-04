@@ -17,6 +17,7 @@ var Sug={
   abertas:0,
   imagem:null,          // data URL do print em preparação
   filtro:'abertas',
+  f:{q:'',missao:'',autor:'',de:'',ate:'',print:'',coment:''}, // filtros além da aba de status
   lista:[],
   previa:false,         // true = banco indisponível ou fora da equipe em ambiente de teste: mostra exemplos fictícios
 
@@ -169,22 +170,86 @@ var Sug={
     this.abertas=this.lista.filter(function(x){return !x.resolvida}).length;
     this.desenhar();App.lateral();
   },
-  desenhar:function(){
-    var eq=this.ehEquipe||this.previa,f=this.filtro,ab=this.lista.filter(function(x){return !x.resolvida}).length,rs=this.lista.length-ab;
-    var vis=this.lista.filter(function(x){return f==='todas'||(f==='abertas')===!x.resolvida});
-    var h='<div class="etiqueta">Mandato</div><h1>Sugestões e correções</h1>'+
-      '<p class="chamada">O que as pessoas enviaram pelo botão “Sugestões para Pedrinho”.'+(eq?' Selecione um trecho do texto para comentar só ele.':'')+'</p>'+
-      (this.previa?'<div class="apoio atencao"><span class="tag">Prévia</span>Estes são exemplos fictícios, só para mostrar a tela. As sugestões reais aparecem aqui quando o banco estiver ativo e você estiver logado.</div>':'')+
-      '<div class="abas sug-abas" role="tablist">'+
-      [['abertas','Abertas ('+ab+')'],['resolvidas','Resolvidas ('+rs+')'],['todas','Todas ('+this.lista.length+')']].map(function(a){
+  /* ---------- filtros (além das abas Abertas/Resolvidas/Todas) ---------- */
+  /* a "missão" vem da tela de onde a pessoa enviou: #/m/3/... = Missão 3; as demais telas têm nome próprio */
+  origem:function(x){
+    var h=x.pagina||'',m=h.match(/^#\/m\/(\d+)/);
+    if(m)return 'Missão '+m[1];
+    if(h.indexOf('#/resumo')===0)return 'Resumo';
+    if(h.indexOf('#/equipe')===0)return 'Equipe';
+    if(h.indexOf('#/config')===0)return 'Configurações';
+    if(h.indexOf('#/ferramentas')===0||h.indexOf('#/biblioteca')===0)return 'Ferramentas e biblioteca';
+    if(!h||h==='#/'||h==='#')return 'Início';
+    return 'Outras telas';
+  },
+  passa:function(x){
+    var f=this.f,t;
+    if(f.missao&&this.origem(x)!==f.missao)return false;
+    if(f.autor&&(x.autor||'Sem nome')!==f.autor)return false;
+    if(f.print==='sim'&&!x.tem_imagem)return false;
+    if(f.print==='nao'&&x.tem_imagem)return false;
+    var nc=this.coment.filter(function(c){return c.sugestao_id===x.id}).length;
+    if(f.coment==='sim'&&!nc)return false;
+    if(f.coment==='nao'&&nc)return false;
+    if(f.de||f.ate){
+      t=new Date(x.criado_em);
+      var dia=t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); // dia local, não UTC
+      if(f.de&&dia<f.de)return false;
+      if(f.ate&&dia>f.ate)return false;
+    }
+    if(f.q){
+      var q=this.norm(f.q);
+      if(this.norm((x.texto||'')+' '+(x.autor||'')+' '+(x.email||'')+' '+(x.pagina||'')).indexOf(q)<0)return false;
+    }
+    return true;
+  },
+  norm:function(s){return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')},
+  temFiltro:function(){var f=this.f;return !!(f.q||f.missao||f.autor||f.de||f.ate||f.print||f.coment)},
+  limpar:function(){this.f={q:'',missao:'',autor:'',de:'',ate:'',print:'',coment:''};this.desenhar()},
+  setar:function(k,v){this.f[k]=v;this.atualizar()},
+  barra:function(){
+    var f=this.f,self=this,mis={},aut={};
+    this.lista.forEach(function(x){mis[self.origem(x)]=1;aut[x.autor||'Sem nome']=1});
+    var ordMis=Object.keys(mis).sort(function(a,b){
+      var na=a.match(/^Missão (\d+)/),nb=b.match(/^Missão (\d+)/);
+      if(na&&nb)return na[1]-nb[1];if(na)return -1;if(nb)return 1;return a.localeCompare(b,'pt-BR');
+    });
+    var opt=function(v,r,at){return '<option value="'+esc(v)+'"'+(at===v?' selected':'')+'>'+esc(r)+'</option>'};
+    var sel=function(k,rot,ops){return '<label class="sug-fl"><span>'+rot+'</span><select onchange="Sug.setar(\''+k+'\',this.value)">'+ops+'</select></label>'};
+    return '<div class="sug-filtros" role="search">'+
+      '<label class="sug-fl sug-fl-q"><span>Buscar</span><input type="search" value="'+esc(f.q)+'" placeholder="Texto, autor, e-mail ou tela…" oninput="Sug.setar(\'q\',this.value)"></label>'+
+      sel('missao','Missão / tela',opt('','Todas',f.missao)+ordMis.map(function(m){return opt(m,m,f.missao)}).join(''))+
+      sel('autor','Autor',opt('','Todos',f.autor)+Object.keys(aut).sort(function(a,b){return a.localeCompare(b,'pt-BR')}).map(function(a){return opt(a,a,f.autor)}).join(''))+
+      '<label class="sug-fl"><span>De</span><input type="date" value="'+esc(f.de)+'" onchange="Sug.setar(\'de\',this.value)"></label>'+
+      '<label class="sug-fl"><span>Até</span><input type="date" value="'+esc(f.ate)+'" onchange="Sug.setar(\'ate\',this.value)"></label>'+
+      sel('print','Print',opt('','Tanto faz',f.print)+opt('sim','Com print',f.print)+opt('nao','Sem print',f.print))+
+      sel('coment','Comentários',opt('','Tanto faz',f.coment)+opt('sim','Com comentário da equipe',f.coment)+opt('nao','Sem comentário',f.coment))+
+      '<button type="button" id="sugLimpa" class="bt fant peq" onclick="Sug.limpar()"'+(this.temFiltro()?'':' disabled')+'>Limpar filtros</button></div>';
+  },
+  /* refaz só abas e cartões: a barra de filtros fica intacta para o campo de busca não perder o foco */
+  atualizar:function(){
+    var el=document.getElementById('sugLista');if(!el){this.desenhar();return}
+    el.innerHTML=this.corpo();
+    var l=document.getElementById('sugLimpa');if(l)l.disabled=!this.temFiltro();
+    this.sel=null;this.dica(false);
+    if(this.rasc)this.comentar(this.rasc.id,this.rasc.inicio,this.rasc.fim,true);
+  },
+  corpo:function(){
+    var eq=this.ehEquipe||this.previa,f=this.filtro,self=this;
+    var base=this.lista.filter(function(x){return self.passa(x)});
+    var ab=base.filter(function(x){return !x.resolvida}).length,rs=base.length-ab;
+    var vis=base.filter(function(x){return f==='todas'||(f==='abertas')===!x.resolvida});
+    var h='<div class="abas sug-abas" role="tablist">'+
+      [['abertas','Abertas ('+ab+')'],['resolvidas','Resolvidas ('+rs+')'],['todas','Todas ('+base.length+')']].map(function(a){
         return '<button role="tab" aria-selected="'+(f===a[0])+'" onclick="Sug.filtrar(\''+a[0]+'\')">'+a[1]+'</button>'}).join('')+'</div>';
+    if(this.temFiltro())h+='<p class="sug-cont" role="status">'+vis.length+' de '+this.lista.length+' sugestões com os filtros atuais.</p>';
     if(!vis.length)h+='<p class="texto" style="margin-top:24px">Nada por aqui.</p>';
     vis.forEach(function(x){
       var d=new Date(x.criado_em);
       h+='<article class="sug-card'+(x.resolvida?' feita':'')+'" id="sug-'+x.id+'">'+
         '<div class="sug-meta">'+(x.id>0?'<b class="sug-num" title="Número da sugestão">#'+x.id+'</b> · ':'')+'<b>'+esc(x.autor||'Sem nome')+'</b>'+(x.email?' · '+esc(x.email):'')+
         ' · '+d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+
-        (x.pagina?' · tela <a href="'+esc(x.pagina)+'">'+esc(x.pagina)+'</a>':'')+'</div>'+
+        (x.pagina?' · tela <a href="'+esc(x.pagina)+'">'+esc(x.pagina)+'</a> <span class="sug-orig">'+esc(Sug.origem(x))+'</span>':'')+'</div>'+
         '<p class="sug-texto" data-id="'+x.id+'">'+Sug.realcado(x,eq)+'</p>'+
         (x.tem_imagem?'<div class="sug-img" id="sugImg-'+x.id+'"><button class="bt fant peq" onclick="Sug.verImagem('+x.id+')">Ver print</button></div>':'')+
         Sug.comentarios(x.id)+
@@ -194,6 +259,14 @@ var Sug={
         '<button class="bt sec peq" onclick="Sug.resolver('+x.id+','+(!x.resolvida)+')">'+(x.resolvida?'Reabrir':'Marcar como resolvida')+'</button>'+
         '<button class="bt fant peq" onclick="Sug.apagar('+x.id+')">Apagar</button></div>':'')+'</article>';
     });
+    return h;
+  },
+  desenhar:function(){
+    var eq=this.ehEquipe||this.previa;
+    var h='<div class="etiqueta">Mandato</div><h1>Sugestões e correções</h1>'+
+      '<p class="chamada">O que as pessoas enviaram pelo botão “Sugestões para Pedrinho”.'+(eq?' Selecione um trecho do texto para comentar só ele.':'')+'</p>'+
+      (this.previa?'<div class="apoio atencao"><span class="tag">Prévia</span>Estes são exemplos fictícios, só para mostrar a tela. As sugestões reais aparecem aqui quando o banco estiver ativo e você estiver logado.</div>':'')+
+      this.barra()+'<div id="sugLista">'+this.corpo()+'</div>';
     document.getElementById('tela').innerHTML=h;
     this.sel=null;this.dica(false);
     if(this.rasc)this.comentar(this.rasc.id,this.rasc.inicio,this.rasc.fim,true);
@@ -301,7 +374,7 @@ var Sug={
       this.desenhar();
     }catch(e){aviso('Só quem escreveu o comentário (ou um administrador) pode apagá-lo.')}
   },
-  filtrar:function(f){this.filtro=f;this.desenhar()},
+  filtrar:function(f){this.filtro=f;this.atualizar()},
   async verImagem(id){
     var c=document.getElementById('sugImg-'+id);c.textContent='Carregando print…';
     if(this.previa){

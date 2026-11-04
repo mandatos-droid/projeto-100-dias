@@ -8,3 +8,12 @@ Rules:
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 - A committed graphify-out/graph.json is rewritten whole on every build, so a large diff to it in a pull request is expected. Do not flag it as churn or suggest skipping the graph rebuild or its hooks.
+
+## Deploy (Vercel)
+
+- Projeto `projeto-100-dias` (time `legisla`), já vinculado em `.vercel/` na **raiz** do repositório. O app Next.js fica em `plataforma/`; o diretório do app vem da configuração do projeto na Vercel.
+- Para publicar em produção, rode na **raiz** (nunca dentro de `plataforma/`): `vercel --prod --yes`
+- Use a CLI pelo terminal (Bash/PowerShell). Não dependa do conector MCP da Vercel, que pede autorização separada.
+- A CLI envia a pasta de trabalho, incluindo alterações sem commit. Confira `git status` antes se isso importar.
+- Se der erro de login: `vercel whoami` (esperado: `pedrobrandine-5642`) e, se preciso, `vercel login`.
+- Para conferir o resultado: `vercel inspect <url-do-deploy>` (status esperado: Ready).

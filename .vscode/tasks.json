@@ -1,0 +1,22 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Iniciar plataforma local",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"plataforma",
+				"run",
+				"dev",
+				"--",
+				"--hostname",
+				"127.0.0.1"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}

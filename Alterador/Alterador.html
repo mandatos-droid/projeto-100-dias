@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alterador do sistema</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #f4f5f7; font-family: system-ui, sans-serif; color: #1a1a1a; }
+  main { max-width: 780px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { margin: 0 0 4px; font-size: 26px; }
+  h2 { margin: 36px 0 12px; font-size: 18px; }
+  .sub { margin: 0 0 20px; color: #666; }
+  .pasta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 16px; margin-bottom: 20px; border-radius: 10px; background: #fff; border: 1px solid #ddd; font-size: 14px; }
+  .pasta.ok { border-color: #0a6; }
+  .pasta.alerta { border-color: #e0a000; background: #fff8e6; }
+  form { display: flex; flex-direction: column; gap: 16px; padding: 20px; border: 1px solid #ddd; border-radius: 12px; background: #fff; }
+  label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px; }
+  input[type=text], textarea { font: inherit; font-weight: 400; padding: 10px 12px; border: 1px solid #ccc; border-radius: 8px; }
+  textarea { resize: vertical; }
+  .zona { padding: 28px 16px; text-align: center; border: 2px dashed #bbb; border-radius: 10px; color: #555; cursor: pointer; }
+  .zona:hover, .zona.sobre { border-color: #0a6; background: #f0fbf6; }
+  .fotos { display: flex; flex-wrap: wrap; gap: 10px; }
+  .fotos img { display: block; height: 110px; border-radius: 8px; border: 1px solid #ddd; }
+  .mini { position: relative; }
+  .mini button { position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: #c00; color: #fff; font-size: 16px; cursor: pointer; }
+  button.enviar, button.pri { padding: 11px 22px; border: 0; border-radius: 8px; background: #0a6; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; }
+  button.enviar { align-self: flex-start; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .msg { margin: 0; font-weight: 600; color: #0a6; }
+  .msg.erro { color: #c00; }
+  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .cartao { padding: 14px 16px; border: 1px solid #ddd; border-radius: 10px; background: #fff; }
+  .cartao.feito { opacity: .6; }
+  .topo { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+  .topo span { color: #888; white-space: nowrap; }
+  .cartao p { margin: 10px 0; white-space: pre-wrap; }
+  .acoes { display: flex; gap: 8px; margin-top: 12px; }
+  .acoes button { padding: 6px 12px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; }
+  .acoes .perigo { color: #c00; border-color: #e5b5b5; }
+  .vazio { color: #888; }
+  summary { cursor: pointer; font-weight: 600; margin: 28px 0 12px; }
+  .oculto { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Alterador do sistema</h1>
+  <p class="sub">Conte o que precisa mudar em cada tela. Depois é só me dizer: <b>"aplica as alterações"</b>.</p>
+
+  <div id="pasta" class="pasta alerta"></div>
+
+  <form id="form" class="oculto">
+    <label>Página (endereço ou nome da tela)
+      <input type="text" id="url" placeholder="Ex.: http://localhost:3111/guia · Missão 1, pergunta 2">
+    </label>
+    <label>O que precisa mudar?
+      <textarea id="comentario" rows="5" placeholder="Descreva o ajuste com as suas palavras."></textarea>
+    </label>
+    <div id="zona" class="zona" tabindex="0" role="button">Cole um print (Ctrl+V), arraste imagens aqui ou clique para escolher</div>
+    <input type="file" id="arq" accept="image/*" multiple hidden>
+    <div id="previas" class="fotos"></div>
+    <button class="enviar" id="salvar" disabled>Salvar pedido</button>
+    <p id="msg" class="msg" role="status"></p>
+  </form>
+
+  <div id="lista" class="oculto">
+    <h2 id="tituloPend"></h2>
+    <ul id="pend"></ul>
+    <details id="feitosBox" class="oculto"><summary id="tituloFeitos"></summary><ul id="feitos"></ul></details>
+  </div>
+</main>
+
+<script>
+// Tudo roda no navegador (Chrome ou Edge). Os pedidos são gravados na pasta que você escolher:
+// pedidos.json, PENDENTES.md (o que eu leio) e img/ (os prints). A pasta fica lembrada.
+const $ = (id) => document.getElementById(id);
+let pasta = null, pedidos = [], fotos = [];
+const URLS = [];
+
+// ---- lembrar a pasta escolhida (IndexedDB) ----
+const bd = () => new Promise((ok, no) => {
+  const r = indexedDB.open('alterador', 1);
+  r.onupgradeneeded = () => r.result.createObjectStore('k');
+  r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error);
+});
+async function guarda(h) { try { const d = await bd(); d.transaction('k', 'readwrite').objectStore('k').put(h, 'pasta'); } catch {} }
+async function lembra() {
+  try { const d = await bd(); return await new Promise((ok) => { const q = d.transaction('k').objectStore('k').get('pasta'); q.onsuccess = () => ok(q.result || null); q.onerror = () => ok(null); }); } catch { return null; }
+}
+
+function estado(html, cls) { const p = $('pasta'); p.className = 'pasta ' + cls; p.innerHTML = html; }
+function mostra(on) { $('form').classList.toggle('oculto', !on); $('lista').classList.toggle('oculto', !on); }
+
+async function inicio() {
+  if (!window.showDirectoryPicker) {
+    estado('Este navegador não permite gravar em pasta. Abra este arquivo no <b>Google Chrome</b> ou no <b>Microsoft Edge</b>.', 'alerta');
+    return;
+  }
+  const h = await lembra();
+  if (!h) return pedePasta();
+  if ((await h.queryPermission({ mode: 'readwrite' })) === 'granted') return conecta(h);
+  estado(`Pasta lembrada: <b>${h.name}</b> <button class="pri" id="rec">Reconectar</button>`, 'alerta');
+  $('rec').onclick = async () => { if ((await h.requestPermission({ mode: 'readwrite' })) === 'granted') conecta(h); };
+}
+function pedePasta() {
+  estado('Primeiro, escolha a pasta onde os pedidos serão guardados (esta mesma pasta "Alterador" serve). <button class="pri" id="esc">Escolher pasta</button>', 'alerta');
+  $('esc').onclick = async () => {
+    try { const h = await showDirectoryPicker({ mode: 'readwrite' }); await guarda(h); conecta(h); } catch {}
+  };
+}
+async function conecta(h) {
+  pasta = h;
+  estado(`Salvando em: <b>${h.name}</b> <button id="troca" style="padding:4px 10px;cursor:pointer">Trocar pasta</button>`, 'ok');
+  $('troca').onclick = pedePasta;
+  try { pedidos = JSON.parse(await (await (await h.getFileHandle('pedidos.json')).getFile()).text()); } catch { pedidos = []; }
+  mostra(true); desenha();
+}
+
+// ---- gravação ----
+async function escreve(dir, nome, dados) {
+  const w = await (await dir.getFileHandle(nome, { create: true })).createWritable();
+  await w.write(dados); await w.close();
+}
+async function persiste() {
+  await escreve(pasta, 'pedidos.json', JSON.stringify(pedidos, null, 2));
+  const pend = pedidos.filter((p) => !p.feito);
+  const md = ['# Alterações pendentes', '', pend.length ? `${pend.length} pedido(s) por fazer. Imagens em Alterador/img/.` : 'Nada pendente.',
+    ...pend.flatMap((p, i) => ['', `## ${i + 1}. ${p.url || '(sem página)'}`, `id: ${p.id} · enviado em ${p.criadoEm}`, '', p.comentario || '(sem comentário)', ...p.imagens.map((n) => `- imagem: Alterador/img/${n}`)]), ''].join('\n');
+  await escreve(pasta, 'PENDENTES.md', md);
+}
+
+// ---- imagens do formulário ----
+function adiciona(arqs) {
+  for (const f of Array.from(arqs).filter((f) => f.type.startsWith('image/'))) fotos.push({ f, prev: URL.createObjectURL(f) });
+  previas();
+}
+function previas() {
+  $('previas').innerHTML = '';
+  fotos.forEach((x, i) => {
+    const d = document.createElement('div'); d.className = 'mini';
+    d.innerHTML = '<img alt="Imagem a enviar"><button type="button" aria-label="Remover imagem">×</button>';
+    d.querySelector('img').src = x.prev;
+    d.querySelector('button').onclick = () => { fotos.splice(i, 1); previas(); };
+    $('previas').append(d);
+  });
+  habilita();
+}
+const habilita = () => { $('salvar').disabled = !($('comentario').value.trim() || fotos.length); };
+$('comentario').oninput = habilita;
+$('zona').onclick = () => $('arq').click();
+$('zona').onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') $('arq').click(); };
+$('arq').onchange = (e) => { adiciona(e.target.files); e.target.value = ''; };
+$('zona').ondragover = (e) => { e.preventDefault(); $('zona').classList.add('sobre'); };
+$('zona').ondragleave = () => $('zona').classList.remove('sobre');
+$('zona').ondrop = (e) => { e.preventDefault(); $('zona').classList.remove('sobre'); adiciona(e.dataTransfer.files); };
+window.addEventListener('paste', (e) => { const a = Array.from(e.clipboardData?.files || []); if (a.length) { e.preventDefault(); adiciona(a); } });
+
+const msg = (t, erro) => { $('msg').textContent = t; $('msg').className = 'msg' + (erro ? ' erro' : ''); };
+
+$('form').onsubmit = async (e) => {
+  e.preventDefault();
+  $('salvar').disabled = true; msg('');
+  try {
+    const id = Math.random().toString(36).slice(2, 10);
+    const dir = await pasta.getDirectoryHandle('img', { create: true });
+    const imagens = [];
+    for (const x of fotos) {
+      const ext = ({ 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp', 'image/gif': 'gif' })[x.f.type] || 'png';
+      const nome = `${id}-${imagens.length + 1}.${ext}`;
+      await escreve(dir, nome, x.f); imagens.push(nome);
+    }
+    pedidos.unshift({ id, url: $('url').value.trim(), comentario: $('comentario').value.trim(), imagens, feito: false, criadoEm: new Date().toLocaleString('pt-BR') });
+    await persiste();
+    $('url').value = ''; $('comentario').value = ''; fotos = []; previas();
+    msg('Pedido salvo! Quando quiser, me diga: "aplica as alterações".');
+    desenha();
+  } catch (err) { msg('Não consegui salvar: ' + err.message, true); habilita(); }
+};
+
+// ---- lista ----
+async function miniaturas(p, alvo) {
+  try {
+    const dir = await pasta.getDirectoryHandle('img');
+    for (const n of p.imagens) {
+      const u = URL.createObjectURL(await (await dir.getFileHandle(n)).getFile()); URLS.push(u);
+      const a = document.createElement('a'); a.href = u; a.target = '_blank';
+      a.innerHTML = '<img alt="Anexo do pedido">'; a.firstChild.src = u; alvo.append(a);
+    }
+  } catch {}
+}
+function cartao(p) {
+  const li = document.createElement('li'); li.className = 'cartao' + (p.feito ? ' feito' : '');
+  const t = document.createElement('div'); t.className = 'topo';
+  const s = document.createElement('strong'); s.textContent = p.url || '(sem página)';
+  const d = document.createElement('span'); d.textContent = p.criadoEm; t.append(s, d); li.append(t);
+  if (p.comentario) { const c = document.createElement('p'); c.textContent = p.comentario; li.append(c); }
+  if (p.imagens.length) { const f = document.createElement('div'); f.className = 'fotos'; li.append(f); miniaturas(p, f); }
+  const ac = document.createElement('div'); ac.className = 'acoes';
+  const b1 = document.createElement('button'); b1.textContent = p.feito ? 'Voltar para pendente' : 'Marcar como feito';
+  b1.onclick = async () => { p.feito = !p.feito; await persiste(); desenha(); };
+  const b2 = document.createElement('button'); b2.className = 'perigo'; b2.textContent = 'Apagar';
+  b2.onclick = async () => {
+    if (!confirm('Apagar este pedido e as imagens dele?')) return;
+    try { const dir = await pasta.getDirectoryHandle('img'); for (const n of p.imagens) await dir.removeEntry(n).catch(() => {}); } catch {}
+    pedidos = pedidos.filter((x) => x.id !== p.id); await persiste(); desenha();
+  };
+  ac.append(b1, b2); li.append(ac); return li;
+}
+function desenha() {
+  URLS.splice(0).forEach(URL.revokeObjectURL);
+  const pend = pedidos.filter((p) => !p.feito), fe = pedidos.filter((p) => p.feito);
+  $('tituloPend').textContent = `Pendentes (${pend.length})`;
+  $('pend').innerHTML = pend.length ? '' : '<p class="vazio">Nenhum pedido pendente.</p>';
+  pend.forEach((p) => $('pend').append(cartao(p)));
+  $('feitosBox').classList.toggle('oculto', !fe.length);
+  $('tituloFeitos').textContent = `Já feitos (${fe.length})`;
+  $('feitos').innerHTML = ''; fe.forEach((p) => $('feitos').append(cartao(p)));
+}
+
+inicio();
+</script>
+</body>
+</html>

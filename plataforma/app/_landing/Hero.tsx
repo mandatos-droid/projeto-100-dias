@@ -24,7 +24,7 @@ export default function Hero() {
       <div className="ld-wrap">
         <div className="ld-bar">
           <img src="/legacy/logo-2.png" alt="Legisla Brasil" width={114} height={34} />
-          <a className="ld-bt ld-bt--claro ld-bt--peq" href="/guia">Começar meu Mapa Político</a>
+          <a className="ld-bt ld-bt--claro ld-bt--peq" href="/guia">Acessar o Guia dos 100 Dias</a>
         </div>
       </div>
     </div>
@@ -32,15 +32,19 @@ export default function Hero() {
       <div className="ld-wrap">
         <div className="ld-hero-grade">
           <div>
-            <h1>Os primeiros <em>100 dias</em> moldam o resto do mandato</h1>
+            <p className="ld-eyebrow">Planejamento Legisla Brasil de sobrevivência e estratégia política</p>
+            <h1>Guia dos <em>100 dias</em></h1>
             <p className="ld-hero-sub">
-              O Guia dos 100 Dias é o passo a passo da Legisla Brasil para o seu mandato chegar com mapa, equipe e plano. Já vem com os dados do TSE preenchidos.
+              Material prático de sobrevivência para os 100 primeiros dias do mandato. Um presente da Legisla Brasil para você.
             </p>
-            <a className="ld-bt ld-bt--claro" href="/guia">Começar meu Mapa Político</a>
-            <p className="ld-hero-nota">Gratuito e de cadastro livre.</p>
+            <p className="ld-hero-sub">
+              Sendo você parlamentar ou parte da assessoria, o Guia vai te orientar a superar desafios que vão desde a profunda compreensão do projeto político, passam pela gestão de pessoas e chegam à articulação política.
+            </p>
+            <a className="ld-bt ld-bt--claro" href="/guia">Acessar o Guia dos 100 Dias</a>
+            <p className="ld-hero-nota">Para o primeiro mandato ou não.</p>
           </div>
 
-          <svg className="ld-hemiciclo" viewBox="0 0 660 360" role="img" aria-label="Hemiciclo com uma cadeira destacada: a do seu mandato">
+          <svg className="ld-hemiciclo" viewBox="0 0 660 360" role="img" aria-label="Hemiciclo com uma cadeira destacada">
             {cadeiras().map((s, i) => (
               <circle
                 key={i} className={s.voce ? 'ld-cad ld-voce' : 'ld-cad'} cx={s.x} cy={s.y} r={s.voce ? 13 : s.r}
@@ -54,11 +58,10 @@ export default function Hero() {
           </svg>
         </div>
 
-        <ul className="ld-dor">
-          <li>Chega sem saber quem são os parceiros e os concorrentes na Casa.</li>
-          <li>Monta a equipe no improviso, sem organograma nem rotina de trabalho.</li>
-          <li>Deixa a articulação e as comissões para depois, e o capital político escorre.</li>
-        </ul>
+        <blockquote className="ld-viagem">
+          Tomar posse em um mandato sem conhecer profundamente o contexto em que irá atuar é como iniciar uma viagem, rumo ao desconhecido, sem qualquer referencial de mapa, clima ou idioma, e esperar chegar a algum lugar.
+          <cite>Missão 1 do Guia dos 100 Dias</cite>
+        </blockquote>
       </div>
     </header>
     </>

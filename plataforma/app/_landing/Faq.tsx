@@ -1,25 +1,33 @@
 const PERGUNTAS = [
   {
-    p: 'Quanto tempo leva?',
-    r: 'O Guia acompanha os 100 primeiros dias do mandato, com um dia ideal para cada missão. Você responde no seu ritmo e pode voltar quando quiser.',
+    p: 'Em que dia faço cada missão?',
+    r: 'A Missão 1 idealmente até o 15º dia, a Missão 2 até o 30º, a Missão 3 até o 45º, a Missão 4 desde o 1º dia e a Missão 5 amadurecendo o monitoramento até o 100º. Os momentos ideais também valem entre o fim de um ciclo de planejamento e o início do outro.',
   },
   {
-    p: 'Quem pode usar?',
-    r: 'Parlamentares e quem caminha com o mandato: assessoria, chefia de gabinete, coordenação de campanha e conselheiros políticos.',
+    p: 'E se o momento ideal já passou?',
+    r: 'Oriente a implementação do Guia à realidade do mandato, pois o importante é que passem por todas as missões.',
   },
   {
-    p: 'E se os 100 dias já passaram?',
-    r: 'Adapte o Guia à realidade do mandato. O importante é passar por todas as missões, mesmo depois do dia ideal.',
+    p: 'Quem deve usar?',
+    r: 'Parlamentar ou parte da assessoria, seja este o primeiro mandato ou não.',
   },
   {
-    p: 'É gratuito?',
-    r: 'Sim. O Guia dos 100 Dias é um presente da Legisla Brasil, e o cadastro é livre.',
+    p: 'Preciso fazer tudo sozinho?',
+    r: 'Não. A Missão 3, por exemplo, pode ser feita coletivamente: na Legisla, a equipe fica imersa em dois períodos de 6 horas. O Guia também recomenda apresentar o Mapa Político a quem caminha com o mandato.',
+  },
+  {
+    p: 'O que é o Mapa Político?',
+    r: 'É o relatório da Missão 1, com as respostas a oito perguntas-chave sobre a persona, a conjuntura, as oportunidades e ameaças e as fragilidades e fortalezas. Ele fundamenta o Projeto Político da liderança parlamentar.',
+  },
+  {
+    p: 'Quanto custa?',
+    r: 'O Guia dos 100 Dias é um presente da Legisla Brasil.',
   },
 ];
 
 export default function Faq() {
   return (
-    <section className="ld-sec" aria-labelledby="ld-faq-t">
+    <section className="ld-sec ld-sec--branco" aria-labelledby="ld-faq-t">
       <div className="ld-wrap ld-faq">
         <p className="ld-eyebrow">Dúvidas comuns</p>
         <h2 className="ld-h2" id="ld-faq-t">Perguntas frequentes</h2>
