@@ -76,7 +76,7 @@
     if(ex&&ex.chave==='comissoesDesejadas')return ilha('rumo-espacos');
     return _li.call(this,ex,dono);
   };
-  Comp.preditores=function(){return ilha('rumo-preditores')};
+  Comp.preditores=function(){return ilha('rumo-preditores')+ilha('rumo-estrategia')};
   Comp.metas=function(){return ilha('rumo-metas')};
 })();
 
@@ -99,10 +99,26 @@
     return l.fechado===true||preenchido('m3.legado');
   }
 
+  /* m3.preditores: mesma regra de passoPreditoresConcluido (lib/estrategia.ts; tests/legado-m3.test.ts confere a paridade).
+     Fluxo novo = há m3.est ou alguma m3.just; sem isso é mandato antigo e vale a checagem do Guia (algum D.preditores), RMX-01. */
+  var PIDS=['p1','p2','p3','p4','p5'];
+  function preditoresFeito(_tc,ex){
+    var c=campos(),raw=String(c['m3.est']==null?'':c['m3.est']).trim();
+    var novo=raw!==''||PIDS.some(function(p){return preenchido('m3.just.'+p)});
+    if(!novo)return _tc(ex);
+    var ids=(Array.isArray(D.preditores)?D.preditores:[]).filter(function(p,i,a){return PIDS.indexOf(p)>=0&&a.indexOf(p)===i});
+    if(ids.length!==3)return false;
+    var est=raw!==''?(raw==='a'||raw==='b'||raw==='c'?raw:null):(PIDS.some(function(p){return preenchido('m3.obj.'+p)})?'b':'a');
+    if(!est)return false;
+    if(est==='b'&&!ids.every(function(p){return preenchido('m3.obj.'+p)}))return false;
+    return PIDS.every(function(p){return preenchido('m3.just.'+p)});
+  }
+
   var _tc=temConteudo;
   temConteudo=function(ex){
     if(ex&&ex.id==='m3.bandeiras')return bandeirasFeito();
     if(ex&&ex.id==='m3.legado')return legadoFeito();
+    if(ex&&ex.id==='m3.preditores')return preditoresFeito(_tc,ex);
     return _tc(ex);
   };
 })();

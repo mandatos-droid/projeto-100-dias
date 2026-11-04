@@ -33,8 +33,8 @@ test.describe('Mandato antigo percorrido de ponta a ponta (RUM-70, critério de 
       await expect(page.locator('.ilha-corpo').first()).toBeVisible();
     }
     await expect(page.getByLabel('Texto final da manchete')).toHaveCount(0);
-    await expect(page.locator('[data-no="obj-p1"]')).toContainText('Priorizar a educação'); // m3.obj antigo vira a estratégia B e a frase segue na árvore
-    await expect(page.locator('[data-no="obj-p2"]')).toContainText('Pautar o fim do trabalho infantil');
+    await expect(page.locator('[data-no="obj-p1"]').first()).toContainText('Priorizar a educação'); // (a tela agora tem duas prévias da árvore) m3.obj antigo vira a estratégia B e a frase segue na árvore
+    await expect(page.locator('[data-no="obj-p2"]').first()).toContainText('Pautar o fim do trabalho infantil');
     await page.evaluate(() => { location.hash = '#/m/3/m3.metas/1'; });
     const meta1 = page.locator('[data-meta="0"]');
     await expect(meta1.getByRole('textbox', { name: /no formato SMART/ })).toHaveValue(METAS_ANTIGAS[0].texto);

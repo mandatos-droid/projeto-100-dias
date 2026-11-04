@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
+import { passoPreditoresConcluido } from '../lib/estrategia.ts';
 
 /* m3.js é o arquivo de ganchos da Missão 3 sobre o Guia legado. Aqui ele roda numa "janela" com globais simuladas,
    e o conteudo.js real é lido para provar que os textos do Guia não mudam (RUM-12.11, RUM-70). */
@@ -95,9 +96,9 @@ test('qualquer outro exercício passa direto para o Comp.campos anterior, entrad
   assert.equal(w.Comp.campos({ id: 'm3.outro' }), 'original:m3.outro');
 });
 
-test('Comp.preditores e Comp.metas devolvem os contêineres das ilhas (RUM-21, RUM-30)', () => {
+test('Comp.preditores devolve as ilhas dos preditores e, abaixo, a da estratégia; Comp.metas devolve a das metas (RUM-21, RUM-30, RM3-10)', () => {
   const w = janela();
-  assert.equal(w.Comp.preditores(), '<div class="ilha" data-ilha="rumo-preditores"></div>');
+  assert.equal(w.Comp.preditores(), '<div class="ilha" data-ilha="rumo-preditores"></div><div class="ilha" data-ilha="rumo-estrategia"></div>');
   assert.equal(w.Comp.metas(), '<div class="ilha" data-ilha="rumo-metas"></div>');
 });
 
@@ -273,4 +274,51 @@ test('outros exercícios não recebem o bloco de passos nem os quadradinhos', ()
   const { w, Guia } = janelaComBloco();
   Guia.ex = ex3(w, 'm3.legado');
   assert.equal(Guia.bloco({ k: 'componente' }, 1).includes('Como conduzir'), false);
+});
+
+/* ---------- m3.preditores: conclusão pela estratégia (RM3-06, RMX-01) ---------- */
+const PRED = { id: 'm3.preditores', tipo: 'preditores' };
+const CINCO = { 'm3.just.p1': 'a', 'm3.just.p2': 'b', 'm3.just.p3': 'c', 'm3.just.p4': 'd', 'm3.just.p5': 'e' };
+function comPreditores(preditores: unknown, campos: Record<string, string>) {
+  const ctx = {
+    D: { campos, preditores },
+    Guia: { montar: () => [] },
+    Comp: { campos: ORIGINAL, preditores: () => '', metas: () => '', lista: () => '' },
+    esc: (s: string) => s,
+    temConteudo: (ex: { tipo: string }) => (ex.tipo === 'preditores' ? (preditores as unknown[]).length > 0 : false), // o do Guia
+  };
+  const w = guia(ctx);
+  vm.runInContext(CODIGO, w as unknown as vm.Context);
+  return (w as unknown as { temConteudo(ex: unknown): boolean }).temConteudo(PRED);
+}
+
+test('m3.preditores: sem estratégia e com justificativas começadas, não conta; com 3 preditores, estratégia e 5 justificativas, conta (RM3-06)', () => {
+  assert.equal(comPreditores(['p1', 'p2'], { 'm3.est': 'a', ...CINCO }), false, 'só 2 preditores');
+  assert.equal(comPreditores(['p1', 'p2', 'p3'], { 'm3.est': 'x', 'm3.just.p1': 'a' }), false, 'estratégia inválida');
+  assert.equal(comPreditores([], { 'm3.just.p1': 'a' }), false, 'sem preditores nem estratégia');
+  assert.equal(comPreditores(['p1', 'p2', 'p3'], { 'm3.est': 'a', ...CINCO }), true);
+  assert.equal(comPreditores(['p1', 'p2', 'p3'], { 'm3.est': 'c', ...CINCO }), true);
+  assert.equal(comPreditores(['p1', 'p2', 'p3'], { 'm3.est': 'a', ...CINCO, 'm3.just.p5': '  ' }), false, 'falta uma justificativa');
+});
+
+test('m3.preditores na opção B exige a frase dos 3 preditores escolhidos (RM3-13)', () => {
+  const b = { 'm3.est': 'b', ...CINCO, 'm3.obj.p1': 'f1', 'm3.obj.p2': 'f2' };
+  assert.equal(comPreditores(['p1', 'p2', 'p3'], b), false);
+  assert.equal(comPreditores(['p1', 'p2', 'p3'], { ...b, 'm3.obj.p3': 'f3' }), true);
+});
+
+test('mandato antigo, só com D.preditores (e m3.obj), segue contando como preenchido (RMX-01)', () => {
+  assert.equal(comPreditores(['p1'], {}), true);
+  assert.equal(comPreditores(['p1', 'p2', 'p3'], { 'm3.obj.p1': 'Priorizar a educação' }), true);
+  assert.equal(comPreditores([], {}), false);
+});
+
+test('a regra de m3.js para o fluxo novo é a mesma de passoPreditoresConcluido em lib/estrategia.ts', () => {
+  const ids = [['p1', 'p2', 'p3'], ['p1', 'p2'], ['p2', 'p4', 'p5']];
+  const campos: Record<string, string>[] = [
+    { 'm3.est': 'a', ...CINCO }, { 'm3.est': 'b', ...CINCO }, { 'm3.est': 'b', ...CINCO, 'm3.obj.p1': 'x', 'm3.obj.p2': 'y', 'm3.obj.p3': 'z' },
+    { 'm3.est': 'c', ...CINCO, 'm3.just.p4': '' }, { 'm3.est': 'q', ...CINCO }, { ...CINCO }, { ...CINCO, 'm3.obj.p2': 'y' },
+    { 'm3.est': 'b', ...CINCO, 'm3.obj.p2': 'y', 'm3.obj.p4': 'w', 'm3.obj.p5': 'v' },
+  ];
+  for (const p of ids) for (const c of campos) assert.equal(comPreditores(p, c), passoPreditoresConcluido(c, p), JSON.stringify([p, c]));
 });

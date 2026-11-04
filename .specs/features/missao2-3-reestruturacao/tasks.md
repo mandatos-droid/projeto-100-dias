@@ -305,7 +305,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T9: Gancho do exercício dos preditores
+### T9: Gancho do exercício dos preditores ✅
 
 **What**: Em `m3.js`, fazer `Comp.preditores` devolver as ilhas `rumo-preditores` e `rumo-estrategia`, e `temConteudo` de `m3.preditores` usar a conclusão da estratégia. Registrar `rumo-estrategia` na ponte.
 **Where**: `public/legacy/m3.js` (+ `ilhas/ponte.tsx` registro, `tests/legado-m3.test.ts`)
@@ -320,10 +320,10 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] O exercício mostra preditores e, abaixo, a estratégia (RM3-10)
-- [ ] `temConteudo('m3.preditores')`: falso sem estratégia, verdadeiro com 3 preditores e estratégia fechada (RM3-06)
-- [ ] Mandato antigo (só `D.preditores`) segue contando como preenchido (RMX-01)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
+- [x] O exercício mostra preditores e, abaixo, a estratégia (RM3-10)
+- [x] `temConteudo('m3.preditores')`: falso sem estratégia, verdadeiro com 3 preditores e estratégia fechada (RM3-06)
+- [x] Mandato antigo (só `D.preditores`) segue contando como preenchido (RMX-01)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
 
 **Tests**: unit
 **Gate**: full
