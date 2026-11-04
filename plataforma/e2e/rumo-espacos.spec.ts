@@ -13,7 +13,7 @@ test.describe('Deputado(a) Federal com catálogo da Câmara (RUM-50.2, RUM-50.5,
     const destacada = page.locator('.rm-sug-c.dest', { hasText: 'Comissão de Educação' });
     await expect(destacada).toBeVisible();
     await expect(destacada).toContainText('Educação');
-    await destacada.getByRole('button', { name: 'Registrar Comissão de Educação' }).click();
+    await destacada.getByRole('button', { name: /^Registrar Comissão de Educação/ }).click();
     expect(await registros(page)).toEqual([expect.objectContaining({ comissao: 'Comissão de Educação', papel: 'Titular', cargo: 'Titular', bandeira: 'Educação' })]);
     await expect(page.locator('.rm-reg li')).toContainText('Comissão de Educação');
     await expect(page.getByRole('button', { name: 'Comissão de Educação já registrada' })).toBeDisabled();
@@ -65,7 +65,8 @@ test.describe('Deputado(a) Estadual sem catálogo da UF (RUM-50.4)', () => {
     await expect(page.locator('.rm-antigo')).toHaveCount(0);
 
     await page.getByLabel('Comissão ou espaço').fill('Comissão de Finanças e Orçamento');
-    await page.getByLabel('Papel').selectOption('Relatoria');
+    await page.getByRole('button', { name: 'Titular', exact: true }).click();
+    await page.getByRole('button', { name: 'Relatoria', exact: true }).click();
     await page.getByRole('button', { name: 'Registrar espaço' }).click();
     expect(await registros(page)).toEqual([expect.objectContaining({ comissao: 'Comissão de Finanças e Orçamento', papel: 'Relatoria' })]);
   });
@@ -73,8 +74,8 @@ test.describe('Deputado(a) Estadual sem catálogo da UF (RUM-50.4)', () => {
   test('os tipos de espaço da Assembleia aparecem e preenchem o papel ou o nome', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO });
     await expect(page.getByRole('button', { name: 'CPMI (Comissão Parlamentar Mista de Inquérito)' })).toHaveCount(0); // só Câmara e Senado
-    await page.getByRole('button', { name: 'Suplente de comissão' }).click();
-    await expect(page.getByLabel('Papel')).toHaveValue('Suplente');
+    await page.getByRole('button', { name: 'Suplente', exact: true }).click();
+    await expect(page.locator('[data-papeis]')).toContainText('Titular, Suplente');
     await page.getByRole('button', { name: 'Mesa Diretora' }).click();
     await expect(page.getByLabel('Comissão ou espaço')).toHaveValue('Mesa Diretora');
   });
@@ -111,7 +112,7 @@ test.describe('Alerta e dica (RUM-51.7, RUM-51.8)', () => {
     await page.getByLabel('Comissão ou espaço').fill('Comissão de Turismo');
     await page.getByRole('button', { name: 'Registrar espaço' }).click();
     await expect(dica).toBeVisible();
-    await page.getByRole('button', { name: 'Registrar Comissão de Educação' }).click();
+    await page.getByRole('button', { name: /^Registrar Comissão de Educação/ }).click();
     await expect(dica).toHaveCount(0);
   });
 

@@ -20,8 +20,8 @@ export function casaDe(cargo: string): Casa | null {
   return null;
 }
 const ROTULO_CASA: Record<Casa, string> = { federal: 'Câmara dos Deputados', estadual: 'Assembleia Legislativa', senado: 'Senado Federal', municipal: 'Câmara Municipal' };
-/** o tipo de espaço que já é um papel preenche o papel; os demais preenchem o nome */
-const PAPEL_DO_TIPO: Record<string, string> = { titular: 'Titular', suplente: 'Suplente', presidencia: 'Presidência', relatoria: 'Relatoria' };
+/** os tipos que já são cargos em comissão ficam só na escolha de cargos; os demais (Mesa, Frente, CPI...) preenchem o nome */
+const TIPO_CARGO = new Set(['titular', 'suplente', 'presidencia', 'relatoria']);
 const DICA_GUIA = 'É importante concentrar esforços para que a vaga na comissão com titularidade contemple a principal bandeira prioritária do mandato.';
 
 export default function Espacos() {
@@ -30,7 +30,7 @@ export default function Espacos() {
   const uf = (m.uf ?? '').toLowerCase();
   const [catalogo, setCatalogo] = useState<Catalogo | null>(null);
   const [nome, setNome] = useState('');
-  const [papel, setPapel] = useState('Titular');
+  const [papeis, setPapeis] = useState<string[]>(['Titular']); // um registro por cargo escolhido
   const [bandeira, setBandeira] = useState('');
 
   useEffect(() => {
@@ -50,44 +50,54 @@ export default function Espacos() {
   const lista = sugestoes({ cargo: m.cargo ?? '', uf: m.uf ?? '', bandeiras: priorIds }, catalogo);
   const destacadas = lista.filter((s) => s.destacada);
   const demais = lista.filter((s) => !s.destacada);
-  const tipos = TIPOS_ESPACO.filter((t) => !casa || t.casas.includes(casa));
+  const tipos = TIPOS_ESPACO.filter((t) => (!casa || t.casas.includes(casa)) && !TIPO_CARGO.has(t.id));
   const opcoesBandeira = [...prior, ...rumo.bandeiras.filter((b) => b.prioridade === null)];
-  const jaTem = (n: string) => espacos.some((e) => norm(e.comissao ?? '').trim() === norm(n).trim());
+  const jaTem = (n: string, p: string) => espacos.some((e) => norm(e.comissao ?? '').trim() === norm(n).trim() && norm(e.papel ?? e.cargo ?? '') === norm(p));
+  const faltam = (n: string) => papeis.filter((p) => !jaTem(n, p));
   const nomesAntigos = [...new Set(espacos.map((e) => (e.comissao ?? '').trim()).filter(Boolean))];
 
-  const registra = (e: { comissao: string; papel: string; bandeira: string }) => {
-    setEspacos([...espacos, { id: uid(), comissao: e.comissao, papel: e.papel, cargo: e.papel, bandeira: e.bandeira }]);
+  /** um registro por cargo ainda não registrado nessa comissão: a mesma comissão pode ter titular, suplente, presidência... */
+  const registra = (e: { comissao: string; bandeira: string }) => {
+    const novos = faltam(e.comissao);
+    if (!novos.length) { aviso(`${e.comissao} já está registrada com esses cargos.`); return; }
+    setEspacos([...espacos, ...novos.map((p) => ({ id: uid(), comissao: e.comissao, papel: p, cargo: p, bandeira: e.bandeira }))]);
   };
   const envia = () => {
     if (!nome.trim()) { aviso('Escreva a comissão ou o espaço antes de registrar.'); return; }
-    registra({ comissao: nome.trim(), papel, bandeira });
+    if (!papeis.length) { aviso('Escolha ao menos um cargo antes de registrar.'); return; }
+    registra({ comissao: nome.trim(), bandeira });
     setNome('');
   };
+  const alternaPapel = (p: string) => setPapeis(papeis.includes(p) ? papeis.filter((x) => x !== p) : PAPEIS.filter((x) => x === p || papeis.includes(x)));
   const remove = (i: number) => setEspacos(espacos.filter((_, k) => k !== i));
-  const tipo = (id: string, rot: string) => {
-    if (PAPEL_DO_TIPO[id]) setPapel(PAPEL_DO_TIPO[id]);
-    else { setNome(rot); setPapel('Outro'); }
-  };
+  const tipo = (rot: string) => { setNome(rot); setPapeis(['Outro']); };
   const cartao = (s: (typeof lista)[number]) => {
     const rotBandeira = s.bandeira ? bandeiraDe(s.bandeira)?.rot ?? '' : '';
     return (
       <li key={s.nome} className={`rm-sug-c${s.destacada ? ' dest' : ''}`}>
         <span>{s.nome}{s.sigla && <small> · {s.sigla}</small>}{rotBandeira && <em className="rm-sug">{rotBandeira}</em>}</span>
-        <button type="button" className="bt sec peq" disabled={jaTem(s.nome)} aria-label={jaTem(s.nome) ? `${s.nome} já registrada` : `Registrar ${s.nome}`}
-          onClick={() => registra({ comissao: s.nome, papel: 'Titular', bandeira: rotBandeira })}>{jaTem(s.nome) ? 'Registrada' : 'Registrar como titular'}</button>
+        <button type="button" className="bt sec peq" disabled={!papeis.length || !faltam(s.nome).length} aria-label={!faltam(s.nome).length && papeis.length ? `${s.nome} já registrada` : `Registrar ${s.nome} como ${papeis.join(', ')}`}
+          onClick={() => registra({ comissao: s.nome, bandeira: rotBandeira })}>{papeis.length && !faltam(s.nome).length ? 'Registrada' : `Registrar (${papeis.length ? papeis.join(', ') : 'escolha o cargo'})`}</button>
       </li>
     );
   };
 
   return (
     <div className="ilha-corpo rm-esp">
-      <p className="peq-t">{casa ? `Tipos de espaço da ${ROTULO_CASA[casa]}.` : 'Tipos de espaço de uma Casa legislativa.'} Clique para começar o registro.</p>
-      <div className="rm-chips" role="group" aria-label="Tipos de espaço">
-        {tipos.map((t) => <button key={t.id} type="button" className="rm-chip" onClick={() => tipo(t.id, t.rot)}>{t.rot}</button>)}
-      </div>
+      <section aria-labelledby="rm-cargos-t">
+        <h4 id="rm-cargos-t">1. Quais cargos o mandato quer ocupar?</h4>
+        <p className="peq-t">Marque todos os que fizerem sentido: cada comissão pode receber vários registros (titular, suplente, presidência, vice-presidência, relatoria). Eles valem para as sugestões e para o formulário abaixo.</p>
+        <div className="rm-chips" role="group" aria-label="Cargos na comissão">
+          {PAPEIS.map((p) => <button key={p} type="button" className="rm-chip" aria-pressed={papeis.includes(p)} onClick={() => alternaPapel(p)}>{p}</button>)}
+        </div>
+        <p className="peq-t">{casa ? `Outros espaços da ${ROTULO_CASA[casa]}` : 'Outros espaços de uma Casa legislativa'}: clique para começar o registro.</p>
+        <div className="rm-chips" role="group" aria-label="Tipos de espaço">
+          {tipos.map((t) => <button key={t.id} type="button" className="rm-chip" onClick={() => tipo(t.rot)}>{t.rot}</button>)}
+        </div>
+      </section>
 
       <section aria-labelledby="rm-sugestoes-t">
-        <h4 id="rm-sugestoes-t">Sugestões para as suas agendas</h4>
+        <h4 id="rm-sugestoes-t">2. Sugestões para as suas agendas</h4>
         {!prior.length && <p className="rm-vazio">Confirme as agendas prioritárias no exercício anterior para ver as comissões que conversam com elas.</p>}
         {prior.length > 0 && !destacadas.length && <p className="rm-vazio">Nenhuma comissão do catálogo conversa com as agendas prioritárias. Escreva o espaço no formulário abaixo.</p>}
         {destacadas.length > 0 && <ul className="rm-sug-l">{destacadas.map(cartao)}</ul>}
@@ -102,16 +112,14 @@ export default function Espacos() {
       </section>
 
       <section aria-labelledby="rm-reg-t">
-        <h4 id="rm-reg-t">Registrar um espaço</h4>
+        <h4 id="rm-reg-t">3. Registrar um espaço</h4>
         <div className="rm-form">
           <label className="campo"><span className="rot">Comissão ou espaço</span>
             <input type="text" list="rm-espacos-dl" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex.: Comissão de Educação"
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); envia(); } }} />
             <datalist id="rm-espacos-dl">{[...new Set([...lista.map((s) => s.nome), ...nomesAntigos])].map((n) => <option key={n} value={n} />)}</datalist>
           </label>
-          <label className="campo"><span className="rot">Papel</span>
-            <select value={papel} onChange={(e) => setPapel(e.target.value)}>{PAPEIS.map((p) => <option key={p}>{p}</option>)}</select>
-          </label>
+          <p className="rm-dica" data-papeis>Cargos: {papeis.length ? papeis.join(', ') : 'nenhum marcado'}</p>
           <label className="campo"><span className="rot">Agenda relacionada</span>
             <select value={bandeira} onChange={(e) => setBandeira(e.target.value)}>
               <option value="">Nenhuma</option>
