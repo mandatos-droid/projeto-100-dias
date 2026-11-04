@@ -14,11 +14,10 @@ const estrutura = (page: Page) => page.locator('[role="treeitem"]').evaluateAll(
   els.map((e) => [e.getAttribute('data-no'), (e.getAttribute('aria-label') ?? '').replace(/^(Objetivo de [^:]+): .*?(\. \d+ metas?)$/, '$1$2')]));
 
 test.describe('Estratégia dos Objetivos Estratégicos (RM3-10 a RM3-17)', () => {
-  test('explica Objetivo Estratégico, mostra os 5 exemplos e as 3 opções do documento, nenhuma ativa sem escolha (RM3-11)', async ({ page }) => {
+  test('mostra as 3 opções do documento, nenhuma ativa sem escolha; sem a explicação de Objetivo Estratégico (RM3-11, sugestão 35)', async ({ page }) => {
     await abre(page, [ILHA]);
-    await expect(page.getByRole('heading', { name: 'O que é Objetivo Estratégico' })).toBeVisible();
-    await expect(page.locator('table.tb tbody tr')).toHaveCount(5);
-    await expect(page.locator('table.tb')).toContainText('Destravar a entrega do Hospital da Universidade Federal de Jiripoca');
+    await expect(page.getByRole('heading', { name: 'O que é Objetivo Estratégico' })).toHaveCount(0);
+    await expect(page.locator('table.tb')).toHaveCount(0);
     await expect(opcao(page, 'a')).toContainText('Os preditores selecionados se tornarão os Objetivos Estratégicos do mandato.');
     await expect(opcao(page, 'b')).toContainText('Os preditores serão traduzidos em outra frase, que serão os Objetivos Estratégicos.');
     await expect(opcao(page, 'c')).toContainText('Os preditores apenas nortearão as Metas; os Objetivos Estratégicos serão os 3 sugeridos pela Legisla: 1. Avanço Legislativo; 2. Expansão de Capital Político e Influência; 3. Governança Estratégica.');
