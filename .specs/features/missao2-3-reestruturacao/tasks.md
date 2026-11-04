@@ -578,7 +578,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T19: Gancho da Mão na massa 1
+### T19: Gancho da Mão na massa 1 ✅
 
 **What**: Em `m2.js`, fazer `Comp.funcoes` devolver `equipe-tabela` seguida de `organograma`, trocar o texto do exercício pelo do documento (passo a passo, checagem do mapa político, incentivo ao processo seletivo) e adaptar `situacao()`, `temConteudo` e `Resumo.ex` para contar linhas completas.
 **Where**: `public/legacy/m2.js` (+ `tests/legado-m2.test.ts`)
@@ -593,11 +593,11 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] O exercício mostra o texto do documento e a tabela com o organograma abaixo (RM2-01)
-- [ ] O passo "clareza sobre entregas e agendas" aparece marcado quando a Missão 1 está preenchida e com link quando não (RM2-02)
-- [ ] `temConteudo` e o Resumo contam "X de N linhas completas" (RM2-09)
-- [ ] Mandato antigo continua contando como preenchido (RMX-02)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
+- [x] O exercício mostra o texto do documento e a tabela com o organograma abaixo (RM2-01)
+- [x] O passo "clareza sobre entregas e agendas" aparece marcado quando a Missão 1 está preenchida e com link quando não (RM2-02)
+- [x] `temConteudo` e o Resumo contam "X de N linhas completas" (RM2-09)
+- [x] Mandato antigo continua contando como preenchido (RMX-02)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
 
 **Tests**: unit
 **Gate**: full

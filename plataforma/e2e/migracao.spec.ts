@@ -43,7 +43,7 @@ test.describe('Mandato da versão antiga (MEQ-24)', () => {
   });
 
   /* ganchos do Guia (m2.js) rodando sobre stubs mínimos do legado; confere tela, Resumo e painel da Legisla */
-  async function confere(page: Page, campos: Record<string, string>, nomeadas: number, total: number) {
+  async function confere(page: Page, campos: Record<string, string>, nomeadas: number, total: number, completas: number) {
     await page.addInitScript(() => {
       const w = window as unknown as Record<string, unknown>;
       w.Comp = {}; w.esc = (s: unknown) => String(s); w.temConteudo = () => false;
@@ -57,18 +57,18 @@ test.describe('Mandato da versão antiga (MEQ-24)', () => {
       const w = window as unknown as { Telas: { estadoTxt(e: unknown): string }; Resumo: { ex(e: unknown): string } };
       return { exercicio: w.Telas.estadoTxt({ tipo: 'funcoes' }), resumo: w.Resumo.ex({ tipo: 'funcoes' }) };
     });
-    expect(guia.exercicio).toContain(`${nomeadas} de ${total} cargos`);
-    expect(guia.resumo).toContain(`Cargos preenchidos (${nomeadas} de ${total})`);
+    expect(guia.exercicio).toContain(`${completas} de ${total} linhas completas`); // T19: o Guia conta linhas completas da tabela (RM2-09)
+    expect(guia.resumo).toContain(`Linhas completas (${completas} de ${total})`);
     await page.goto('/painel');
     const l = await page.evaluate((cs) => (window as unknown as { lerMandato(m: unknown): { cargosPreenchidos: number; cargosTotal: number } }).lerMandato({ dados: { campos: cs } }), campos);
     expect([l.cargosPreenchidos, l.cargosTotal]).toEqual([nomeadas, total]);
   }
 
-  test('mandato antigo: tela, Resumo e painel da Legisla mostram 20 de 20', async ({ page }) => {
-    await confere(page, legado, 20, 20);
+  test('mandato antigo: o Guia mostra 0 de 20 linhas completas (sem escopo e competências por linha) e o painel da Legisla, 20 de 20 cargos', async ({ page }) => {
+    await confere(page, legado, 20, 20, 0);
   });
 
-  test('mandato novo com 4 cadeiras e 3 nomes: tela, Resumo e painel mostram 3 de 4', async ({ page }) => {
-    await confere(page, { 'm2.coords': 'Comunicação', 'm2.on': '0|7|8|9', 'm2.f1': 'Ana', 'm2.f8': 'Bia', 'm2.f9': '*' }, 3, 4);
+  test('mandato com 4 cadeiras e 3 nomes: o Guia mostra 0 de 4 linhas completas e o painel da Legisla, 3 de 4 cargos', async ({ page }) => {
+    await confere(page, { 'm2.coords': 'Comunicação', 'm2.on': '0|7|8|9', 'm2.f1': 'Ana', 'm2.f8': 'Bia', 'm2.f9': '*' }, 3, 4, 0);
   });
 });
