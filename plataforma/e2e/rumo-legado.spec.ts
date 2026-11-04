@@ -219,7 +219,7 @@ async function guarda(page: Page, o: { grupo: string; manchete: string; cargo?: 
   await page.getByRole('button', { name: 'Guardar rascunho' }).click();
 }
 
-test.describe('Modelos de manchete (RUM-52.1, RUM-52.2)', () => {
+test.describe.skip('Modelos de manchete (RUM-52.1, RUM-52.2)', () => {
   test('os 4 cartões mostram o selo "sugestão da plataforma"', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO });
     await expect(page.locator('.rm-modelo')).toHaveCount(4);

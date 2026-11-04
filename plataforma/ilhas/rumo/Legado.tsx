@@ -2,7 +2,7 @@
 /* Missão 3 · Legado em 4 passos (protagonista, entrega, resultado, cargo) com a primeira página de jornal ao vivo.
    Estado em D.rumo.legado, espelhado em m3.legado e m3.cargo. O texto final pode ser escrito à mão (manual) ou recomposto. */
 import { useEffect, useRef, useState } from 'react';
-import { MODELOS, aplicaModelo, avisos, cargosPostulaveis, compoe, dataEdicao, type Modelo } from '@/lib/manchete';
+import { avisos, cargosPostulaveis, compoe, dataEdicao } from '@/lib/manchete';
 import type { ElementosLegado, RascunhoLegado } from '@/lib/rumo';
 import { aviso } from '../ponte';
 import Jornal from './Jornal';
@@ -41,15 +41,6 @@ export default function Legado() {
   const vai = (i: number) => { if (i < 0 || i > 3 || !liberado(i)) return; moveu.current = true; setPasso(i); };
 
   const volta = () => { moveu.current = false; setPasso(0); };
-
-  /* modelos da plataforma */
-  const preview = (mo: Modelo) => compoe(aplicaModelo(mo, { ...ctx, cargoAtual: m.cargo ?? '' }), ctx);
-  const usaModelo = (mo: Modelo) => {
-    if ([el.protagonista, el.entrega, el.resultado, el.cargo].some((t) => t.trim()) && !window.confirm('Substituir o que você já escreveu nos passos pelo modelo?')) return;
-    const novo = aplicaModelo(mo, { ...ctx, cargoAtual: m.cargo ?? '' });
-    set({ legado: { modelo: mo.id, el: { ...novo, cargoOutro: '' }, manchete: compoe(novo, ctx), manual: false } });
-    volta();
-  };
 
   /* rascunhos dos grupos */
   const [g, setG] = useState({ grupo: '', manchete: '', cargo: '', protagonista: '', entrega: '', resultado: '' });
@@ -105,19 +96,7 @@ export default function Legado() {
 
   return (
     <div className="ilha-corpo rm-leg">
-      <section aria-labelledby="rm-mod-t">
-        <h4 id="rm-mod-t">Comece por um modelo</h4>
-        <ul className="rm-modelos" tabIndex={0} aria-label="Modelos de manchete">
-          {MODELOS.map((mo) => (
-            <li key={mo.id} className="rm-modelo" data-modelo={mo.id}>
-              <em className="rm-sug">sugestão da plataforma</em>
-              <strong>{mo.rot}</strong>
-              <p>{preview(mo)}</p>
-              <button type="button" className="bt sec peq" aria-label={`Usar o modelo ${mo.rot}`} onClick={() => usaModelo(mo)}>Usar este modelo</button>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <div className="apoio" data-envolvimento><span className="tag">Importante</span>O envolvimento do time é essencial. O Legado não se escreve sozinho: reúna a equipe, divida-a em grupos menores e peça que cada grupo escreva a manchete ideal. Depois, cada grupo apresenta a sua, os colegas comentam e a equipe escolhe a melhor ou junta elementos de mais de uma. Registre abaixo o que a equipe decidir.</div>
       <div className="rm-leg-grade">
         <section aria-labelledby="rm-leg-t" className="rm-leg-passos">
           <ol className="rm-passos" aria-label="Elementos da manchete">
@@ -167,7 +146,7 @@ export default function Legado() {
           )}
 
           <div className="rm-nav">
-            <button type="button" className="bt sec peq" disabled={passo === 0} onClick={() => vai(passo - 1)}>Voltar</button>
+            {passo > 0 && <button type="button" className="bt sec peq" onClick={() => vai(passo - 1)}>Voltar</button>}
             {passo < 3 && <button type="button" className="bt pri peq" disabled={!completo(el, passo)} onClick={() => vai(passo + 1)}>Continuar</button>}
           </div>
 
