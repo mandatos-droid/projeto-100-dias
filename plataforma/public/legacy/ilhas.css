@@ -289,7 +289,7 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .mv-kpis b{display:block;font-family:'Anton',sans-serif;font-weight:400;font-size:2.5rem;line-height:1.05;color:var(--vinho)}
 .mv-kpis span{display:block;font-size:0.7812rem;line-height:1.35;color:var(--tinta-2)}
 .mv-reduto{font-size:0.875rem;margin:0.75rem 0}
-.mv-ficha{border-left:3px solid #ffd278;background:rgba(255,210,120,.14);padding:0.625rem 0.875rem;margin:0.375rem 0 0.25rem;min-height:84px}
+.mv-ficha{border-left:3px solid #ffd278;background:rgba(255,210,120,.14);padding:0.625rem 0.875rem;margin:0.375rem 0 0.25rem;height:8.25rem;overflow:hidden}
 .mv-ficha h5{margin:0 0 2px;font-size:0.9375rem}
 .mv-ficha-n b{font-family:'Anton',sans-serif;font-weight:400;font-size:1.75rem;color:var(--vinho);margin-right:0.5rem}
 .mv-ficha-n span{font-size:0.8125rem;color:var(--tinta-2)}

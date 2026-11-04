@@ -179,7 +179,7 @@ export default function Persona() {
   /* ---- cartão do TSE ---- */
   const t = D.tse as Partial<Vinculo> & { municipio?: string; ano?: number };
   const vereador = t.casa === ('vereador' as CasaChave);
-  const desvincula = <button type="button" className="bt fant peq" onClick={() => { D.tse = {}; bump(); }}>{vereador ? 'Desvincular' : 'Trocar candidatura'}</button>;
+  const desvincula = <button type="button" className="bt fant peq" onClick={() => { D.tse = {}; bump(); }}>Desvincular</button>;
   let cartaoTse: { ano: number; no: ReactNode };
 
   if (vereador) {
@@ -215,7 +215,7 @@ export default function Persona() {
     cartaoTse = {
       ano: 2026,
       no: (
-        <Cartao aberto={!!abertos.tse} onAlterna={() => alterna('tse')} acoes={achado ? desvincula : undefined}
+        <Cartao aberto={!!abertos.tse} onAlterna={() => alterna('tse')} 
           resumo={c && casa
             ? <Resumo ano={2026} cargo={casa.cargo} lugar={`${uf!.nome} · TSE`} partido={c.p} votos={c.v} situacao={c.t || (c.e ? 'Eleito' : 'Não eleito')} />
             : <Resumo ano={2026} cargo="Dados do TSE" lugar={m.uf ? 'vincule a candidatura' : undefined} />}>
@@ -257,7 +257,6 @@ export default function Persona() {
                 <Chip p={c.p} />
                 <strong>{c.u}</strong>
                 <span className="peq-t">nº {c.n} · {casa.cargo} · {uf.nome}</span>
-                <span className={`selo ${c.e ? 'ok' : ''}`}>{c.t || (c.e ? 'Eleito' : 'Não eleito')}</span>
               </div>
               <div className="kpis">
                 <div className="kp"><b>{nf.format(c.v)}</b><span>votos totais</span></div>
