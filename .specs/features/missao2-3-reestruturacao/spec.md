@@ -207,7 +207,7 @@ Fonte: `contexto inicial/AJUSTES Missão 3  E Missão 2.docx` (texto, notas entr
 | RM3-01 | Preditores com justificativa (RM3-01 a 07) | T5, T7 | Done |
 | RM3-10 | Estratégia A/B/C, árvore inalterada (RM3-10 a 18) | T5, T6, T8, T9, T10, T11 | Done |
 | RM3-40 | Terminologia "Objetivo Estratégico" (RM3-40 a 44) | T1, T2, T3, T4 | Done |
-| RMX-01 | Migração (RMX-01 a 04) | T5, T9, T15, T28 | Pending |
+| RMX-01 | Migração (RMX-01 a 04) | T5, T9, T15, T28 | Done |
 
 Os critérios numerados de cada história são o ID da faixa (ex.: critério 5 da tabela = RM2-05).
 

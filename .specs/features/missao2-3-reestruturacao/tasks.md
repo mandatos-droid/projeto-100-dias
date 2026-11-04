@@ -849,7 +849,7 @@ T26 → T27A → T27 → T28 → T29
 
 ---
 
-### T28: Compatibilidade de mandato antigo e da Missão 5
+### T28: Compatibilidade de mandato antigo e da Missão 5 ✅
 
 **What**: Criar e2e que abre M2 e M3 com um mandato do modelo antigo (20 cadeiras, `m3.obj.*`, metas, sucessos e feedbacks) e confirma que nada some; e que o Feedback da M5 usa a nova liderança derivada.
 **Where**: `e2e/m23-migracao.spec.ts` (+ `e2e/semente-rumo.ts` ajuste da semente)
@@ -864,12 +864,12 @@ T26 → T27A → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] Mandato antigo mostra todas as pessoas e escopos na tabela, com categoria derivada (RMX-02)
-- [ ] Nenhuma chave de `D.campos` do modelo antigo foi apagada (RMX-03)
-- [ ] M3 com `m3.obj.*` abre na estratégia B e as metas ficam idênticas (RMX-01, RMX-04)
-- [ ] No Feedback da M5 a liderança direta é a Coordenação da área (RM2-38)
-- [ ] Planejamento arquivado antigo abre somente leitura
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
+- [x] Mandato antigo mostra todas as pessoas e escopos na tabela, com categoria derivada (RMX-02)
+- [x] Nenhuma chave de `D.campos` do modelo antigo foi apagada (RMX-03)
+- [x] M3 com `m3.obj.*` abre na estratégia B e as metas ficam idênticas (RMX-01, RMX-04)
+- [x] No Feedback da M5 a liderança direta é a Coordenação da área (RM2-38)
+- [x] Planejamento arquivado antigo abre somente leitura
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
 
 **Tests**: e2e
 **Gate**: full
