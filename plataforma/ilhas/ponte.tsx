@@ -9,8 +9,6 @@ import Municipio from './Municipio';
 import EleitoradoIlha, { EleitoradoResumo } from './Eleitorado';
 import SocialIlha, { SocialResumo } from './Social';
 import { Ficha } from './Equipe';
-import Rotinas from './equipe/Rotinas';
-import Entrega from './equipe/Entrega';
 import Bandeiras from './rumo/Bandeiras';
 import Espacos from './rumo/Espacos';
 import Legado from './rumo/Legado';
@@ -25,7 +23,6 @@ import Comissoes from './capital/Comissoes';
 import Matriz from './capital/Matriz';
 import Comunicacao from './capital/Comunicacao';
 import Organograma from './equipe/Organograma';
-import Escalacao from './equipe/Escalacao';
 import TabelaEquipe from './equipe/TabelaEquipe';
 import QuadroRotinas from './equipe/QuadroRotinas';
 import PdfOrgRotinas from './equipe/PdfOrgRotinas';
@@ -110,14 +107,11 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   'assentos-resumo': () => <AssentosResumo />,
   'calor-resumo': () => <ConjunturaResumo />,
   'municipio-resumo': () => <MunicipioResumo />,
-  'equipe-escalacao': () => <Escalacao />,
   'equipe-tabela': () => <TabelaEquipe />,
   'quadro-rotinas': () => <QuadroRotinas />,
   'pdf-org-rotinas': () => <PdfOrgRotinas />,
   'm2-sugestao-checklist': () => <SugestaoChecklist />,
   organograma: () => <Organograma />,
-  rotinas: () => <Rotinas />,
-  entrega: () => <Entrega />,
   'rumo-bandeiras': () => <Bandeiras />,
   'rumo-espacos': () => <Espacos />,
   'rumo-legado': () => <Legado />,

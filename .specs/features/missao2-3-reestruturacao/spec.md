@@ -201,7 +201,7 @@ Fonte: `contexto inicial/AJUSTES Missão 3  E Missão 2.docx` (texto, notas entr
 | ID | Story | Tasks | Status |
 | -- | ----- | ----- | ------ |
 | RM2-01 | Tabela de equipe em ordem obrigatória (RM2-01 a 11) | T12, T13, T15, T16, T19 | Done |
-| RM2-30 | Organograma gerado da tabela (RM2-30 a 38) | T14, T17, T18, T27 | Pending |
+| RM2-30 | Organograma gerado da tabela (RM2-30 a 38) | T14, T17, T18, T27 | Done |
 | RM2-50 | Rotinas pelo quadro-modelo (RM2-50 a 58) | T20, T21, T24, T25, T27A | Pending |
 | RM2-60 | Rotinas no planejamento e PDF (RM2-60 a 64) | T22, T23, T26 | Pending |
 | RM3-01 | Preditores com justificativa (RM3-01 a 07) | T5, T7 | Done |

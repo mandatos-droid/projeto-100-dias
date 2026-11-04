@@ -823,7 +823,7 @@ T26 → T27A → T27 → T28 → T29
 
 ---
 
-### T27: Remoção das telas substituídas
+### T27: Remoção das telas substituídas ✅
 
 **What**: Remover `Escalacao`, `EtapaAreas`, `EtapaCadeiras`, `EtapaNomes`, `MiniOrg`, `PainelCadeira`, `Rotinas`, `EntreAreas`, `Entrega`, `Chips` e `foco` de `ilhas/equipe/`, as entradas deles em `ponte.tsx`, e os testes que só cobrem essas telas; manter `lib/cadeiras.ts` e `lib/rotinas.ts` só no que ainda é usado.
 **Where**: `ilhas/equipe/` (remoção de arquivos substituídos)
@@ -838,10 +838,10 @@ T26 → T27A → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] `grep` por cada componente removido não encontra import vivo em `ilhas/`, `app/` ou `public/legacy/m2.js`
-- [ ] Cada teste removido está listado no commit com o motivo (tela substituída por T16/T18/T21)
-- [ ] `lib/rotinas.ts` e `tests/rotinas.test.ts` reduzidos só se nada mais os importa
-- [ ] Gate: `npx tsc --noEmit && npm test && npm run test:e2e && npm run build` (falha só por `SecurityFatalError` do Next vale como passou, registrada)
+- [x] `grep` por cada componente removido não encontra import vivo em `ilhas/`, `app/` ou `public/legacy/m2.js`
+- [x] Cada teste removido está listado no commit com o motivo (tela substituída por T16/T18/T21)
+- [x] `lib/rotinas.ts` e `tests/rotinas.test.ts` reduzidos só se nada mais os importa
+- [x] Gate: `npx tsc --noEmit && npm test && npm run test:e2e && npm run build` (falha só por `SecurityFatalError` do Next vale como passou, registrada)
 
 **Tests**: none
 **Gate**: build

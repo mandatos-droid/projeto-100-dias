@@ -10,16 +10,12 @@ const legado: Record<string, string> = {
 };
 
 test.describe('Mandato da versão antiga (MEQ-24)', () => {
-  test('a escalação abre com as 20 cadeiras e as 6 áreas marcadas, e os nomes intactos (E-15)', async ({ page }) => {
-    await abre(page, ['equipe-escalacao'], legado);
-    await expect(page.getByRole('status').filter({ hasText: 'cadeiras no gabinete' })).toContainText('20 cadeiras');
-    for (const a of ['Legislativo', 'Comunicação', 'Articulação de aliados', 'Mobilização de pessoas', 'Secretariado', 'Logística']) {
-      await expect(page.getByLabel(new RegExp(`^${a}`))).toBeChecked();
-    }
-    await page.getByRole('button', { name: /Nomes e liderança/ }).click();
-    await expect(page.locator('.es-nome')).toHaveCount(20);
-    await expect(page.getByLabel('Pessoa, Social-media')).toHaveValue('Pessoa 9');
-    await expect(page.getByLabel('Pessoa, Motorista')).toHaveValue('Pessoa 20');
+  /* T27: a escalação saiu; a tabela de equipe mostra as 20 pessoas do mandato antigo, com os nomes intactos (E-15) */
+  test('a tabela abre com as 20 linhas e os nomes das pessoas intactos (E-15)', async ({ page }) => {
+    await abre(page, ['equipe-tabela'], legado);
+    await expect(page.getByLabel(/^Nome da pessoa, linha \d+$/)).toHaveCount(20);
+    await expect(page.getByLabel('Nome da pessoa, linha 9')).toHaveValue('Pessoa 9');
+    await expect(page.getByLabel('Nome da pessoa, linha 20')).toHaveValue('Pessoa 20');
   });
 
   /* T18: o painel e o contador de escopo saíram do organograma; a ficha antiga agora aparece na linha da tabela de equipe */
@@ -31,10 +27,8 @@ test.describe('Mandato da versão antiga (MEQ-24)', () => {
   });
 
   test('m2.areas e m2.areas_aplicadas continuam gravadas depois de editar e não aparecem na tela', async ({ page }) => {
-    await abre(page, ['equipe-escalacao', 'organograma'], legado);
-    page.once('dialog', (d) => d.accept()); // a Logística tem o motorista nomeado: pede confirmação
-    await page.getByLabel(/^Logística/).uncheck();
-    await page.getByLabel(/^Logística/).check();
+    await abre(page, ['equipe-tabela', 'organograma'], legado);
+    await page.getByLabel('Escopo, linha 8').fill(ESCOPO + ' e relações com a imprensa'); // T27: editar pela tabela, não mais pela escalação
     const c = await camposDe(page);
     expect(c['m2.areas']).toBe('saude|educacao');
     expect(c['m2.areas_aplicadas']).toBe('saude');
