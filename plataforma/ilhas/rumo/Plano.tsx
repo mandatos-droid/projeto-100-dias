@@ -183,6 +183,7 @@ export default function Plano() {
     return (
       <div className="ilha-corpo rm-plano" data-n-metas={arquivado.objetivos.reduce((n, o) => n + o.metas.length, 0) + arquivado.semObjetivo.length} data-arquivado={ver} data-imprime="">
         {seletor}
+        <p className="bts rm-nao-imprime"><button type="button" className="bt sec peq" data-voltar-atual onClick={() => setVer(null)}>&larr; Voltar ao planejamento em andamento</button></p>
         <p className="rm-dica" role="status">{ciclos.find((x) => x.n === ver)?.rot ?? `Planejamento ${ver}`} guardado: somente leitura. O planejamento atual não muda por aqui.</p>
         {semMetas ? (
           <div className="rm-plano-vazio"><h4>Este planejamento não tinha metas</h4><p>Ele foi guardado sem metas, então não há o que mostrar na árvore.</p></div>

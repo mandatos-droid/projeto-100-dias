@@ -21,3 +21,9 @@ Frentes em arquivos disjuntos (rodam em paralelo). Cada task = 1 commit atômico
 - [x] T13 R21 M4 métricas: tag em manchetes
 - [x] T14 R22 atingimento pelos sucessos mensais
 - [x] T15 R23 planejamentos em cards
+
+## Alana (sinergia) — M4 + Plano
+- [x] T16 sug 43: atingimento da meta em passos de 10% (feito, lib/atingimento + rumo)
+- [x] T17 sug 45: total do plano pesa cada meta (pctPlano), não cada objetivo
+- [x] T18 sug 44, 54: botão de voltar ao planejamento em andamento (arquivado) e à missão Garanta o avanço (m5.js)
+- [x] Já estavam feitos (sem mudança): 46 (PAPEL_RELATORIA), 48 (movimento "Articular com a Presidência da Casa"), 49 (ação escrita em cada aba da Matriz), 50/51 (SecaoComunicacao, commit 9484bc4), 52 e 53 (LinhaAcao: resumo/completo e meta do planejamento, commit 997fb38)
