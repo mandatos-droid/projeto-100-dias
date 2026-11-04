@@ -242,11 +242,12 @@ var Comp={
     return h;
   },
   frag(ex){
+    function tem(f,v){return (f.mp||'').indexOf(v)>=0}
     var h='<div class="frag-l">';
     (D.frags||[]).forEach(function(f,i){
       h+='<div class="frag-i"><span class="tx">'+esc(f.t)+'</span><span class="mp">'+
-        '<button type="button" aria-pressed="'+(f.mp==='M')+'" title="Fragilidade da equipe do mandato (M)" onclick="Comp.mp('+i+',\'M\')">Gabinete</button>'+
-        '<button type="button" class="p" aria-pressed="'+(f.mp==='P')+'" title="Fragilidade do parlamentar (P)" onclick="Comp.mp('+i+',\'P\')">Parlamentar</button></span>'+
+        '<button type="button" aria-pressed="'+tem(f,'M')+'" title="Fragilidade da equipe do mandato (M). Pode marcar os dois." onclick="Comp.mp('+i+',\'M\')">Gabinete</button>'+
+        '<button type="button" class="p" aria-pressed="'+tem(f,'P')+'" title="Fragilidade do parlamentar (P). Pode marcar os dois." onclick="Comp.mp('+i+',\'P\')">Parlamentar</button></span>'+
         (f.custom?'<button class="rm" style="position:static" onclick="Comp.rmFrag('+i+')">×</button>':'')+'</div>';
     });
     h+='</div><div class="linha-campos c2"><label class="campo"><span class="rot">Acrescentar outra fragilidade</span>'+
@@ -257,15 +258,16 @@ var Comp={
   /* diagnóstico da página "Para fechar": fragilidades classificadas, com filtro Parlamentar / Gabinete */
   fragVista:'todas',
   diagFrag(){
-    var fs=D.frags||[],g=fs.filter(function(f){return f.mp==='M'}),p=fs.filter(function(f){return f.mp==='P'}),
-      sem=fs.filter(function(f){return !f.mp}),tot=g.length+p.length,v=this.fragVista;
+    var fs=D.frags||[],g=fs.filter(function(f){return (f.mp||'').indexOf('M')>=0}),p=fs.filter(function(f){return (f.mp||'').indexOf('P')>=0}),
+      sem=fs.filter(function(f){return !f.mp}),tot=fs.length-sem.length,v=this.fragVista;
     var h='<div class="diag-frag"><h3 class="diag-t">Diagnóstico das fragilidades</h3>';
     if(!tot)return h+'<p class="sem">Classifique as fragilidades como Gabinete ou Parlamentar nos passos anteriores para ver o diagnóstico.</p></div>';
-    var pg=Math.round(g.length/tot*100),pp=100-pg;
+    var pg=Math.round(g.length/(g.length+p.length)*100),pp=100-pg;
+    var ambos=fs.filter(function(f){return f.mp==='MP'}).length;
     h+='<div class="kpis"><div class="kp"><b>'+tot+'</b><span>fragilidades classificadas</span></div>'+
       '<div class="kp"><b>'+g.length+'</b><span>do gabinete ('+pg+'%)</span></div>'+
-      '<div class="kp"><b>'+p.length+'</b><span>do parlamentar ('+pp+'%)</span></div>'+
-      '<div class="kp"><b>'+sem.length+'</b><span>sem classificação</span></div></div>'+
+      '<div class="kp"><b>'+p.length+'</b><span>do parlamentar ('+pp+'%)</span></div></div>'+
+      (ambos?'<p class="peq-t">'+ambos+(ambos===1?' fragilidade foi marcada':' fragilidades foram marcadas')+' para os dois, por isso as porcentagens somam as marcações.</p>':'')+
       '<div class="diag-barra" role="img" aria-label="Gabinete '+pg+'%, parlamentar '+pp+'%">'+
       (g.length?'<i class="g" style="width:'+pg+'%">Gabinete</i>':'')+(p.length?'<i class="p" style="width:'+pp+'%">Parlamentar</i>':'')+'</div>';
     h+='<div class="cj-seg" role="tablist" aria-label="Quem precisa superar">'+
@@ -282,7 +284,7 @@ var Comp={
     return h+'</div>';
   },
   vistaFrag(v){this.fragVista=v;Guia.render()},
-  mp(i,v){var f=D.frags[i];f.mp=f.mp===v?null:v;Store.salvar();Guia.render()},
+  mp(i,v){var f=D.frags[i],s=f.mp||'',t=s.indexOf(v)>=0?s.replace(v,''):s+v;f.mp=t.indexOf('M')>=0&&t.indexOf('P')>=0?'MP':t||null;Store.salvar();Guia.render()},
   rmFrag(i){D.frags.splice(i,1);Store.salvar();Guia.render()},
   addFrag(){var e=document.getElementById('fragNova');if(!e||!e.value.trim())return;
     D.frags.push({t:e.value.trim(),mp:null,custom:true});Store.salvar();Guia.render()},

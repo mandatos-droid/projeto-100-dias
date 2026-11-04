@@ -6,7 +6,7 @@ Frentes em arquivos disjuntos (rodam em paralelo). Cada task = 1 commit atômico
 - [x] T2 R4 seletor de cargo (m1.q3b)
 - [x] T3 R5,R6,R7 Conjuntura/MapaConjuntura
 - [x] T4 R8,R9 Social/Oportunidades
-- [ ] T5 R10,R11 Fragilidades
+- [x] T5 R10,R11 Fragilidades
 
 ## Frente B — M2/M3 + botões globais
 - [ ] T6 R12,R13 Gestão (Equipe)

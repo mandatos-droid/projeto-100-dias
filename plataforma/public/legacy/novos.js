@@ -337,7 +337,7 @@ Guia.ir=function(n){
       h+='<div class="bm-r"><b>'+esc(r[1])+'</b><div>'+rich(v)+'</div></div>';
     });
     if(fs.length)h+='<div class="bm-r"><b>Fragilidades apontadas</b><ul>'+fs.map(function(f){
-      return '<li><strong>'+f.mp+'</strong> — '+esc(f.t)+'</li>'}).join('')+'</ul></div>';
+      return '<li><strong>'+f.mp.split('').join(' e ')+'</strong> — '+esc(f.t)+'</li>'}).join('')+'</ul></div>';
     return '<details class="bm-recap"'+(h?' open':'')+'><summary>Relembre o que a Missão 1 apurou</summary>'+
       (h||'<p class="bm-vazio">Ainda não há respostas da Missão 1 neste mandato. Preencha-a para ver aqui o resumo.</p>')+'</details>';
   }
