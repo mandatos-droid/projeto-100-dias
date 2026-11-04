@@ -2,6 +2,8 @@
 /* Missão 3 · metas agrupadas por objetivo estratégico, com retorno SMART, responsável e apoios (CartaoMeta).
    Estado: D.metas (campos antigos pred, texto, resp, apoio preservados). */
 import { MAX_METAS_POR_OBJETIVO, METAS_MAX, METAS_MIN, contagemMetas, podeAcrescentarMeta } from '@/lib/plano';
+import { useState } from 'react';
+import ArvorePlano from './ArvorePlano';
 import CartaoMeta from './CartaoMeta';
 import { useRumo } from './useRumo';
 import './rumo.css';
@@ -14,10 +16,27 @@ export default function Metas() {
     const t = String((d.metas as { texto?: string }[])[idx]?.texto ?? '').trim();
     if (t && !window.confirm('Remover esta meta? O texto dela será apagado.')) return;
     rmMeta(idx);
+    setEditando(null);
   };
-  const cartao = (m: (typeof arv.semObjetivo)[number]) => (
-    <CartaoMeta key={m.idx} meta={m} objetivos={objetivos} pessoas={pessoas} campos={c} podeMover={podeMover} onChange={setMeta} onRemove={remove} />
-  );
+  const [editando, setEditando] = useState<number | null>(null);
+  const acrescenta = (pid: string) => { const prox = (d.metas as unknown[]).length; addMeta(pid); setEditando(prox); };
+  const opcoes = {
+    onStatus: () => {}, leitura: true,
+    extraObjetivo: (pid: string) => (
+      <button type="button" className="bt sec peq" aria-label={`Acrescentar meta a ${objetivos.find((o) => o.pid === pid)?.texto ?? pid}`} onClick={() => acrescenta(pid)}>Acrescentar meta</button>
+    ),
+    extra: (m: (typeof arv.semObjetivo)[number]) => (
+      <>
+        <button type="button" className="rm-link" aria-expanded={editando === m.idx} aria-label={`${editando === m.idx ? 'Fechar a edição da' : 'Editar a'} meta ${String(m.idx + 1).padStart(2, '0')}`}
+          onClick={() => setEditando(editando === m.idx ? null : m.idx)}>{editando === m.idx ? 'Fechar' : 'Editar'}</button>
+        {editando === m.idx && (
+          <div className="rm-no-edicao">
+            <CartaoMeta meta={m} objetivos={objetivos} pessoas={pessoas} campos={c} podeMover={podeMover} onChange={setMeta} onRemove={remove} />
+          </div>
+        )}
+      </>
+    ),
+  };
 
   return (
     <div className="ilha-corpo rm-metas" data-n-metas={n}>
@@ -35,26 +54,9 @@ export default function Metas() {
         </div>
       )}
 
-      {arv.objetivos.map((o) => (
-        <section key={o.pid} className="rm-obj-grupo" aria-labelledby={`rm-og-${o.pid}`} data-objetivo={o.pid}>
-          <h4 id={`rm-og-${o.pid}`}>
-            <span className="rm-no-tag obj">{o.nome}</span>
-            {o.texto}
-            <span className="rm-n">{o.metas.length} de {MAX_METAS_POR_OBJETIVO} metas</span>
-          </h4>
-          {!o.metas.length && <p className="rm-vazio">Nenhuma meta neste objetivo ainda.</p>}
-          {o.metas.map(cartao)}
-          <button type="button" className="bt sec peq" aria-label={`Acrescentar meta a ${o.texto}`} onClick={() => addMeta(o.pid)}>Acrescentar meta</button>
-        </section>
-      ))}
-
-      {arv.semObjetivo.length > 0 && (
-        <section className="rm-obj-grupo sem" aria-labelledby="rm-og-sem" data-objetivo="sem">
-          <h4 id="rm-og-sem">Metas sem objetivo <span className="rm-n">{arv.semObjetivo.length}</span></h4>
-          <p className="rm-alerta" role="note">Estas metas não estão ligadas a um objetivo estratégico. Escolha o objetivo em cada uma; nada foi apagado.</p>
-          {arv.semObjetivo.map(cartao)}
-        </section>
-      )}
+      <p className="rm-dica">Os objetivos definidos nos preditores já estão na árvore. Acrescente as metas dentro de cada objetivo (até {MAX_METAS_POR_OBJETIVO} por objetivo) e use Editar para escrever, definir responsável e apoios.</p>
+      <ArvorePlano modo="plano" arv={arv} rotulo="Árvore do planejamento: Legado, objetivos e metas" opcoes={opcoes}
+        onAtiva={(id) => { if (id.startsWith('meta-')) { const i = Number(id.slice(5)); setEditando(editando === i ? null : i); } }} />
     </div>
   );
 }
