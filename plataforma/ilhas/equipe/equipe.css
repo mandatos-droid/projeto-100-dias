@@ -191,3 +191,6 @@
   body.imprimindo-org .pdf-org-pag{break-after:page}
   body.imprimindo-org .pdf-rotinas tr{break-inside:avoid}
 }
+
+/* M2 Gestão (sugestão 76): o quadro de rotinas usa toda a largura da página */
+.tela.largo:has([data-ilha="quadro-rotinas"]),body.lado-fechado .tela.largo:has([data-ilha="quadro-rotinas"]){max-width:none}
