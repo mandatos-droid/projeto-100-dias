@@ -13,7 +13,7 @@ const CONTEUDO = readFileSync(new URL('../public/legacy/conteudo.js', import.met
 /* Hash do JSON inteiro da Missão 3 (itens, listaExtra, ct, prazo e todos os exercícios), calculado sobre o conteudo.js de antes da feature. */
 const HASH_TEXTOS = '318f86b99e245a6d6fe61b809729b61e407d632d32819216dbff2cb7f170dee3';
 /* Hashes dos mesmos JSONs depois da troca "objetivo(s) específico(s)" por "objetivo(s) estratégico(s)" (RM3-42): só o termo muda, o resto do texto fica igual. */
-const HASH_M3_ESTRATEGICO = '4139450ec44c676c09454ba0a0546aee4b8b85955e9159880eb0b0b717e8fd75';
+const HASH_M3_ESTRATEGICO = 'd55cfbc009ac90590c8352226920158437bf3ae32646e0656654f0322114f988'; // atualizado: m3.js também troca "Lembre-se que" por "Lembre-se de que" (sugestão 32)
 const HASH_M5_ESTRATEGICO = '1a032f6a51a9571199bf3341dd0c02d2d3fdf8ca89fba5bf07b0b8e191ced93b';
 
 type Ex = Record<string, unknown> & { id: string; intro: string; fim?: string; listaExtra?: { titulo: string; chave: string } };
