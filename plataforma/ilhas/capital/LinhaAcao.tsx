@@ -2,14 +2,18 @@
 /* Missão 4 · uma linha da matriz de ações (estilo 5W2H): caixa de marcar, os 5 campos e o ponto de preenchimento.
    Grava direto no registro de D.acoes, no formato do Guia: { id, bingo, i, titulo, alcancar, resp, prazo, saber, prox }.
    Extras ignorados pelo legado: respCad (índice da cadeira da Missão 2; `resp` guarda a cópia do nome). */
-import { acaoCompleta, ehDataISO, hojeISO, limitesPrazo, validaPrazo } from '@/lib/capital';
+import { acaoCompleta, ehDataISO, hojeISO, limitesPrazo, modoDaAcao, validaPrazo, type MetaLigavel, type ModoAcao } from '@/lib/capital';
 import type { Pessoa } from '@/lib/pessoas';
 import { aviso } from '../ponte';
 import '../rumo/rumo.css';
 import './capital.css';
 
-export type Acao = { id?: string; bingo?: string; i?: number; titulo?: string; alcancar?: string; resp?: string; respCad?: number | null; prazo?: string; saber?: string; prox?: string } & Record<string, unknown>;
+export type Acao = { id?: string; bingo?: string; i?: number; titulo?: string; modo?: ModoAcao; resumo?: string; meta?: string; metaTexto?: string; livre?: boolean; alcancar?: string; resp?: string; respCad?: number | null; prazo?: string; saber?: string; prox?: string } & Record<string, unknown>;
 type Texto = 'alcancar' | 'saber' | 'prox';
+const MODOS: { id: ModoAcao; rot: string }[] = [
+  { id: 'resumo', rot: 'Detalhar em formato de resumo' },
+  { id: 'completo', rot: 'Detalhar em formato de registro completo' },
+];
 
 const longo: { k: Texto; rot: string }[] = [
   { k: 'alcancar', rot: 'O que queremos alcançar' },
@@ -18,10 +22,19 @@ const longo: { k: Texto; rot: string }[] = [
 ];
 const texto = (v: unknown) => (typeof v === 'string' ? v : '');
 
-export default function LinhaAcao({ bingo, i, titulo, acao, pessoas, posse, onAlterna, onMuda }: {
-  bingo: string; i: number; titulo: string; acao?: Acao; pessoas: Pessoa[]; posse?: string; onAlterna: () => void; onMuda: () => void;
+export default function LinhaAcao({ bingo, i, titulo, acao, pessoas, metas, posse, onAlterna, onMuda }: {
+  bingo: string; i: number; titulo: string; acao?: Acao; pessoas: Pessoa[]; metas: MetaLigavel[]; posse?: string; onAlterna: () => void; onMuda: () => void;
 }) {
   const completa = acao ? acaoCompleta(acao) : false;
+  const modo = modoDaAcao(acao);
+  const metaLigada = typeof acao?.meta === 'string' ? metas.find((m) => m.chave === acao.meta) ?? null : null;
+  const escolheModo = (m: ModoAcao) => { if (acao) { acao.modo = m; onMuda(); } };
+  const escolheMeta = (chave: string) => {
+    if (!acao) return;
+    const m = metas.find((x) => x.chave === chave);
+    if (m) { acao.meta = m.chave; acao.metaTexto = m.texto; } else { delete acao.meta; delete acao.metaTexto; }
+    onMuda();
+  };
   const grava = (k: Texto, v: string) => { if (acao) { acao[k] = v; onMuda(); } };
   const escolhePessoa = (p: Pessoa) => {
     if (!acao) return;
@@ -53,6 +66,18 @@ export default function LinhaAcao({ bingo, i, titulo, acao, pessoas, posse, onAl
         )}
       </div>
       {acao && (
+        <div className="cp-modo rm-chips" role="group" aria-label="Como detalhar a ação">
+          {MODOS.map((o) => (
+            <button key={o.id} type="button" className="rm-chip" data-modo={o.id} aria-pressed={modo === o.id} onClick={() => escolheModo(o.id)}>{o.rot}</button>
+          ))}
+        </div>
+      )}
+      {acao && modo === 'resumo' && (
+        <label className="campo cp-c-resumo"><span className="rot">Resumo da ação</span>
+          <textarea value={texto(acao.resumo)} onChange={(e) => { acao.resumo = e.target.value; onMuda(); }} />
+        </label>
+      )}
+      {acao && modo === 'completo' && (
         <div className="cp-campos">
           <label className="campo cp-c-alcancar"><span className="rot">{longo[0].rot}</span>
             <textarea value={texto(acao.alcancar)} onChange={(e) => grava('alcancar', e.target.value)} />
@@ -83,6 +108,14 @@ export default function LinhaAcao({ bingo, i, titulo, acao, pessoas, posse, onAl
             </label>
           ))}
         </div>
+      )}
+      {acao && (
+        <label className="campo cp-c-meta"><span className="rot">Meta do planejamento relacionada</span>
+          <select value={metaLigada?.chave ?? ''} onChange={(e) => escolheMeta(e.target.value)}>
+            <option value="">Nenhuma</option>
+            {metas.map((m) => <option key={m.chave} value={m.chave}>{m.texto}</option>)}
+          </select>
+        </label>
       )}
     </li>
   );

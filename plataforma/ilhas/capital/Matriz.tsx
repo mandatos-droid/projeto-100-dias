@@ -2,7 +2,7 @@
 /* Missão 4 · matriz das ações dos 100 dias. As frentes e as ações recomendadas vêm de BINGOS (conteudo.js, só leitura);
    as escolhidas ficam em D.acoes no formato antigo ({id, bingo, i, titulo, alcancar, resp, prazo, saber, prox}), sem migração. */
 import { useState } from 'react';
-import { TEXTO_SABER, acaoCompleta, ehDataISO, ordenaPorPrazo, progressoAcoes } from '@/lib/capital';
+import { TEXTO_SABER, acaoCompleta, acaoTemTexto, ehDataISO, metaDaAcao, metasLigaveis, ordenaPorPrazo, progressoAcoes, proximoIndiceLivre } from '@/lib/capital';
 import { useRumo } from '../rumo/useRumo';
 import LinhaAcao, { type Acao } from './LinhaAcao';
 import '../rumo/rumo.css';
@@ -12,17 +12,13 @@ type Bingo = { n: string; itens: string[] };
 const bingos = () => (window as unknown as { BINGOS?: Record<string, Bingo> }).BINGOS ?? {};
 const dataBR = (v: string) => (ehDataISO(v) ? v.split('-').reverse().join('/') : v);
 const uid = () => Math.random().toString(36).slice(2, 10);
-/* o texto base de "Como saberemos" que ninguém mexeu não conta como conteúdo a proteger */
-const temTexto = (a: Acao) => (['alcancar', 'resp', 'prazo', 'saber', 'prox'] as const).some((k) => {
-  const v = typeof a[k] === 'string' ? a[k]!.trim() : '';
-  return v !== '' && !(k === 'saber' && v === (TEXTO_SABER[a.bingo ?? ''] ?? ''));
-});
-
 export default function Matriz() {
   const { d: D, m, pessoas, bump } = useRumo();
   const frentes = Object.entries(bingos());
   const [ativa, setAtiva] = useState(frentes[0]?.[0] ?? '');
   const [todas, setTodas] = useState(false); // visão "Todas as ações" no lugar das linhas de uma frente
+  const [livre, setLivre] = useState('');
+  const metas = metasLigaveis(D.metas);
   const lista = (Array.isArray(D.acoes) ? D.acoes : []) as Acao[];
   const doBingo = (k: string) => lista.filter((a) => a.bingo === k);
   const frente = bingos()[ativa];
@@ -32,10 +28,20 @@ export default function Matriz() {
   const alterna = (k: string, i: number, titulo: string) => {
     const a = lista.find((x) => x.bingo === k && x.i === i);
     if (!a) { D.acoes = [...lista, { id: uid(), bingo: k, i, titulo, saber: TEXTO_SABER[k] ?? '' }]; bump(); return; }
-    if (temTexto(a) && !window.confirm('Remover esta ação? O que foi preenchido nela será apagado.')) return;
+    if (acaoTemTexto(a) && !window.confirm('Remover esta ação? O que foi preenchido nela será apagado.')) return;
     D.acoes = lista.filter((x) => x !== a);
     bump();
   };
+
+  /* SUG-49: ação escrita à mão em qualquer frente; entra marcada, com índice acima dos itens do Guia */
+  const adiciona = () => {
+    const titulo = livre.trim();
+    if (!titulo || !frente) return;
+    D.acoes = [...lista, { id: uid(), bingo: ativa, i: proximoIndiceLivre(lista, ativa, frente.itens.length), titulo, livre: true, saber: TEXTO_SABER[ativa] ?? '' }];
+    setLivre('');
+    bump();
+  };
+  const escritas = lista.filter((a) => a.bingo === ativa && a.livre === true && typeof a.i === 'number');
 
   return (
     <div className="ilha-corpo cp-esc cp-matriz">
@@ -60,7 +66,7 @@ export default function Matriz() {
                   <span><b>{bingos()[a.bingo!].n}</b>: {a.titulo}</span>
                   <span className="cp-ponto" data-estado={acaoCompleta(a) ? 'completa' : 'pendente'}>{acaoCompleta(a) ? 'Completa' : 'Faltam campos'}</span>
                 </div>
-                <p className="cp-resumo">Responsável: {a.resp ? a.resp : 'a definir'} · Prazo: {a.prazo ? dataBR(String(a.prazo)) : 'sem prazo'}</p>
+                <p className="cp-resumo">Responsável: {a.resp ? a.resp : 'a definir'} · Prazo: {a.prazo ? dataBR(String(a.prazo)) : 'sem prazo'}{metaDaAcao(a, D.metas) ? ` · Meta: ${metaDaAcao(a, D.metas)!.texto}` : ''}</p>
               </li>
             ))}
           </ol>
@@ -68,10 +74,22 @@ export default function Matriz() {
       ) : frente && (
         <ul className="cp-acoes cp-lista" aria-label={`Ações de ${frente.n}`}>
           {frente.itens.map((titulo, i) => (
-            <LinhaAcao key={`${ativa}-${i}`} bingo={ativa} i={i} titulo={titulo} acao={lista.find((x) => x.bingo === ativa && x.i === i)} pessoas={pessoas} posse={m.data_posse}
+            <LinhaAcao key={`${ativa}-${i}`} bingo={ativa} i={i} titulo={titulo} acao={lista.find((x) => x.bingo === ativa && x.i === i)} pessoas={pessoas} metas={metas} posse={m.data_posse}
               onAlterna={() => alterna(ativa, i, titulo)} onMuda={bump} />
           ))}
+          {escritas.map((a) => (
+            <LinhaAcao key={a.id ?? `${ativa}-${a.i}`} bingo={ativa} i={a.i!} titulo={a.titulo ?? ''} acao={a} pessoas={pessoas} metas={metas} posse={m.data_posse}
+              onAlterna={() => alterna(ativa, a.i!, a.titulo ?? '')} onMuda={bump} />
+          ))}
         </ul>
+      )}
+      {!todas && frente && (
+        <form className="cp-livre" onSubmit={(e) => { e.preventDefault(); adiciona(); }}>
+          <label className="campo"><span className="rot">Outra ação (escrever)</span>
+            <input type="text" value={livre} onChange={(e) => setLivre(e.target.value)} placeholder={`Uma ação de ${frente.n} que não está na lista`} />
+          </label>
+          <button type="submit" className="bt sec peq">Adicionar</button>
+        </form>
       )}
     </div>
   );

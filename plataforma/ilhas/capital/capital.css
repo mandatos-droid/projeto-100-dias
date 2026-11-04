@@ -134,3 +134,8 @@
 .cp-movs{list-style:decimal;margin:0.75rem 0 0;padding-left:1.25rem;display:grid;gap:0.5rem}
 .cp-mov{display:flex;flex-wrap:wrap;align-items:flex-end;gap:0.5rem 1rem}
 .cp-mov-t{font-weight:600;flex:1 1 16rem}
+.cp-modo{margin:0.5rem 0}
+.cp-c-resumo,.cp-c-meta{display:block;margin:0.75rem 0 0}
+.cp-c-meta select{max-width:100%}
+.cp-livre{display:flex;flex-wrap:wrap;align-items:flex-end;gap:0.5rem 0.75rem;margin-top:1rem}
+.cp-livre .campo{flex:1 1 18rem;margin:0}

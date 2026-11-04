@@ -161,3 +161,41 @@ test('SUG-47: ordem e texto por data; sem data fica no fim na ordem de marcaçã
   assert.equal(textoMovimentos([{ rot: '', data: '2026-12-01' }, { rot: 'x;y', data: '' }]), 'x,y');
   assert.deepEqual(lerMovimentos({ mov: textoMovimentos(movs) }).map((m) => m.rot), ['B', 'C', 'A']);
 });
+
+/* ---------- sugestões da Missão 4 (SUG-49, 52, 53) ---------- */
+import { modoDaAcao, acaoTemTexto, metasLigaveis, metaDaAcao, proximoIndiceLivre } from '../lib/capital.ts';
+
+test('SUG-52: modoDaAcao respeita o modo escolhido; ação antiga com texto é completo; sem nada, ainda não escolheu', () => {
+  assert.equal(modoDaAcao({ modo: 'resumo' }), 'resumo');
+  assert.equal(modoDaAcao({ modo: 'completo' }), 'completo');
+  assert.equal(modoDaAcao({ bingo: 'redes', resp: 'Ana' }), 'completo');
+  assert.equal(modoDaAcao({ bingo: 'redes', saber: TEXTO_SABER.redes }), null); // texto base não conta
+  assert.equal(modoDaAcao({}), null);
+  assert.equal(modoDaAcao('x'), null);
+});
+
+test('SUG-52: acaoCompleta no resumo exige só o resumo; no completo exige os 5; sem modo nunca', () => {
+  assert.equal(acaoCompleta({ modo: 'resumo', resumo: 'texto' }), true);
+  assert.equal(acaoCompleta({ modo: 'resumo', resumo: '  ' }), false);
+  assert.equal(acaoCompleta({ modo: 'resumo', resumo: '', alcancar: 'a', resp: 'b', prazo: '2026-12-01', saber: 'c', prox: 'd' }), false);
+  assert.equal(acaoCompleta({ modo: 'completo', alcancar: 'a', resp: 'b', prazo: '2026-12-01', saber: 'c', prox: 'd' }), true);
+  assert.equal(acaoCompleta({ modo: 'completo', alcancar: 'a' }), false);
+  assert.equal(acaoCompleta({ bingo: 'redes' }), false);
+  assert.equal(acaoTemTexto({ modo: 'resumo', resumo: 'x' }), true);
+});
+
+test('SUG-53: metasLigaveis usa o id (ou o texto, sem id) e ignora meta sem texto; metaDaAcao some se a meta saiu', () => {
+  const metas = [{ id: 'm1', texto: ' Meta 1 ' }, { texto: 'Sem id' }, { id: 'm3', texto: '' }, 'lixo'];
+  assert.deepEqual(metasLigaveis(metas), [{ chave: 'm1', texto: 'Meta 1' }, { chave: 'txt:Sem id', texto: 'Sem id' }]);
+  assert.deepEqual(metasLigaveis(undefined), []);
+  assert.deepEqual(metaDaAcao({ meta: 'm1' }, metas), { chave: 'm1', texto: 'Meta 1' });
+  assert.deepEqual(metaDaAcao({ meta: 'txt:Sem id' }, metas), { chave: 'txt:Sem id', texto: 'Sem id' });
+  assert.equal(metaDaAcao({ meta: 'm9' }, metas), null);
+  assert.equal(metaDaAcao({}, metas), null);
+});
+
+test('SUG-49: proximoIndiceLivre fica acima dos itens do Guia e das ações escritas da frente', () => {
+  assert.equal(proximoIndiceLivre([], 'redes', 9), 9);
+  assert.equal(proximoIndiceLivre([{ bingo: 'redes', i: 9 }, { bingo: 'redes', i: 10 }, { bingo: 'partido', i: 40 }], 'redes', 9), 11);
+  assert.equal(proximoIndiceLivre(undefined, 'redes', 0), 0);
+});

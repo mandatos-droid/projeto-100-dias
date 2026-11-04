@@ -51,11 +51,14 @@
     if(!lista.length)return '<dl class="cmp"><dt>Ações escolhidas</dt><dd>'+Resumo.sem+'</dd></dl>';
     return '<dl class="cmp">'+lista.map(function(a){
       var fr=(typeof BINGOS!=='undefined'&&BINGOS[a.bingo])||{};
+      var meta=a.meta&&a.metaTexto&&(Array.isArray(D.metas)?D.metas:[]).some(function(m){return m&&typeof m==='object'&&typeof m.texto==='string'&&m.texto.trim()&&(m.id===a.meta||('txt:'+m.texto.trim())===a.meta)});
       return '<dt>'+esc(fr.n||'Ação')+'</dt><dd><strong>'+esc(a.titulo||'')+'</strong>'+
+        (a.modo==='resumo'?(a.resumo?'<br>Resumo: '+rich(a.resumo):''):
         (a.alcancar?'<br>Objetivo: '+rich(a.alcancar):'')+
         (a.resp?'<br>Responsável: '+esc(a.resp):'')+(a.prazo?' · Prazo: '+esc(dataBr(a.prazo)):'')+
         (a.saber?'<br>Verificação: '+rich(a.saber):'')+
-        (a.prox?'<br>Próximo passo: '+rich(a.prox):'')+'</dd>';
+        (a.prox?'<br>Próximo passo: '+rich(a.prox):''))+
+        (meta?'<br>Meta do planejamento: '+esc(a.metaTexto):'')+'</dd>';
     }).join('')+'</dl>';
   }
   function semana(){

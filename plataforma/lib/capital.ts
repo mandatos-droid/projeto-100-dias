@@ -49,9 +49,52 @@ export function progressoAcoes(acoes: unknown): { total: number; frentes: number
   return { total: validas.length, frentes, ok: validas.length >= 2 && frentes >= 2 };
 }
 
-/** Ação completa (ponto verde): os 5 campos da linha preenchidos; qualquer vazio deixa o ponto amarelo. */
+const CAMPOS_ACAO = ['alcancar', 'resp', 'prazo', 'saber', 'prox'] as const;
+const texto = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
+
+export type ModoAcao = 'resumo' | 'completo';
+
+/** Alguma coisa escrita pela pessoa na ação? O texto base de "Como saberemos" que ninguém mexeu não conta. */
+export function acaoTemTexto(a: unknown): boolean {
+  if (!ehObj(a)) return false;
+  if (texto(a.resumo) !== '') return true;
+  return CAMPOS_ACAO.some((k) => texto(a[k]) !== '' && !(k === 'saber' && texto(a[k]) === (TEXTO_SABER[typeof a.bingo === 'string' ? a.bingo : ''] ?? '')));
+}
+
+/** Como a ação está detalhada (SUG-52): o modo escolhido; ação antiga com campos preenchidos é registro completo; senão ainda não escolheu (null). */
+export function modoDaAcao(a: unknown): ModoAcao | null {
+  if (!ehObj(a)) return null;
+  if (a.modo === 'resumo' || a.modo === 'completo') return a.modo;
+  return acaoTemTexto(a) ? 'completo' : null;
+}
+
+/** Ação completa (ponto verde): resumo preenchido (modo resumo) ou os 5 campos preenchidos (registro completo); sem modo escolhido, nunca. */
 export function acaoCompleta(a: unknown): boolean {
-  return ehObj(a) && ['alcancar', 'resp', 'prazo', 'saber', 'prox'].every((k) => typeof a[k] === 'string' && (a[k] as string).trim() !== '');
+  if (!ehObj(a)) return false;
+  const modo = modoDaAcao(a);
+  if (modo === 'resumo') return texto(a.resumo) !== '';
+  return modo === 'completo' && CAMPOS_ACAO.every((k) => texto(a[k]) !== '');
+}
+
+/* ---------- ação ligada a uma meta do planejamento (SUG-53) ---------- */
+export type MetaLigavel = { chave: string; texto: string };
+
+/** Metas da Missão 3 que podem ser ligadas: as que têm texto. A chave é o `id` da meta ou, sem id, o próprio texto. */
+export function metasLigaveis(metas: unknown): MetaLigavel[] {
+  return (Array.isArray(metas) ? metas : []).filter(ehObj).flatMap((m) => {
+    const t = texto(m.texto);
+    return t === '' ? [] : [{ chave: texto(m.id) !== '' ? texto(m.id) : `txt:${t}`, texto: t }];
+  });
+}
+
+/** A meta ligada à ação, se ela ainda existe (meta apagada ou reescrita some do vínculo, sem mexer na ação). */
+export const metaDaAcao = (a: unknown, metas: unknown): MetaLigavel | null =>
+  (ehObj(a) && typeof a.meta === 'string' ? metasLigaveis(metas).find((m) => m.chave === a.meta) : undefined) ?? null;
+
+/** Próximo índice livre para uma ação escrita à mão numa frente (nunca colide com os itens do Guia, de 0 a n-1). */
+export function proximoIndiceLivre(acoes: unknown, bingo: string, nItens: number): number {
+  const usados = (Array.isArray(acoes) ? acoes : []).filter(ehObj).filter((a) => a.bingo === bingo && typeof a.i === 'number').map((a) => a.i as number);
+  return Math.max(nItens - 1, ...usados) + 1;
 }
 
 /* ---------- prazo das ações (CAP-11.6, CAP-40) ---------- */

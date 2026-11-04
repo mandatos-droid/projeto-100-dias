@@ -11,6 +11,8 @@ const linhas = (page: Page) => page.locator('.cp-acoes > li');
 const linha = (page: Page, bingo: string, i: number) => page.locator(`li[data-bingo="${bingo}"][data-i="${i}"]`);
 /** Data AAAA-MM-DD daqui a n dias, no fuso do aparelho (os testes valem em qualquer dia). */
 const iso = (n: number) => { const d = new Date(); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+/** SUG-52: depois de marcar, a ação pede o formato; os testes dos 5 campos escolhem o registro completo. */
+const completo = (l: ReturnType<typeof linha>) => l.getByRole('button', { name: 'Detalhar em formato de registro completo' }).click();
 const ART0 ='Sustentar diálogo aberto com a Secretaria-Geral da Mesa ou estrutura equivalente';
 
 test.describe('Frentes e linhas (CAP-10.1, CAP-10.2)', () => {
@@ -44,6 +46,9 @@ test.describe('Marcar, campos e gravação no formato antigo (CAP-10.3, CAP-10.4
     const l = linha(page, 'articulacao', 0);
     await expect(l.locator('textarea, input[type=text], input[type=date]')).toHaveCount(0);
     await l.getByRole('checkbox').check();
+    await expect(l.getByRole('button', { name: 'Detalhar em formato de resumo' })).toBeVisible();
+    await expect(l.getByLabel('O que queremos alcançar')).toHaveCount(0); // antes de escolher o formato não há campos
+    await completo(l);
     for (const rot of ['O que queremos alcançar', 'Responsável', 'Prazo', 'Como saberemos', 'Próximo passo']) await expect(l.getByLabel(rot)).toBeVisible();
     expect(await acoes(page)).toEqual([expect.objectContaining({ bingo: 'articulacao', i: 0, titulo: ART0 })]);
     expect((await acoes(page))![0].id).toBeTruthy();
@@ -54,6 +59,7 @@ test.describe('Marcar, campos e gravação no formato antigo (CAP-10.3, CAP-10.4
     await abre(page, [ILHA], { mandato: MANDATO });
     const l = linha(page, 'articulacao', 0);
     await l.getByRole('checkbox').check();
+    await completo(l);
     await l.getByLabel('O que queremos alcançar').fill('Ser ouvido nas decisões da Mesa');
     await l.getByLabel('Responsável').fill('Bruno');
     await l.getByLabel('Prazo').fill(iso(20));
@@ -66,6 +72,7 @@ test.describe('Marcar, campos e gravação no formato antigo (CAP-10.3, CAP-10.4
     await abre(page, [ILHA], { mandato: MANDATO });
     const l = linha(page, 'articulacao', 1);
     await l.getByRole('checkbox').check();
+    await completo(l);
     await l.getByLabel('Responsável').fill('Bruno');
     page.once('dialog', (d) => d.dismiss());
     await l.getByRole('checkbox').click(); // uncheck() falharia: ele confere que a caixa mudou, e cancelar a mantém marcada
@@ -96,6 +103,7 @@ test.describe('Ponto de preenchimento (CAP-11.9)', () => {
     await expect(l.locator('.cp-ponto')).toHaveCount(0);
     await l.getByRole('checkbox').check();
     await expect(l.locator('.cp-ponto')).toHaveAttribute('data-estado', 'pendente');
+    await completo(l);
     await l.getByLabel('O que queremos alcançar').fill('a');
     await l.getByLabel('Responsável').fill('Bruno');
     await l.getByLabel('Prazo').fill(iso(20));
@@ -115,6 +123,7 @@ type AcaoCad = Acao & { respCad?: number | null };
 async function marca(page: Page, bingo = 'articulacao', i = 0) {
   const l = linha(page, bingo, i);
   await l.getByRole('checkbox').check();
+  await completo(l);
   return l;
 }
 
@@ -386,5 +395,139 @@ test.describe('Guia de verdade: ação salva antes da mudança continua abrindo 
     await page.evaluate(() => { location.hash = '#/resumo'; });
     await expect(page.locator('#tela')).toContainText('Responsável: Bruno');
     await expect(page.locator('#tela')).toContainText(`Prazo: ${iso(5).split('-').reverse().join('/')}`); // o Resumo mostra DD/MM/AAAA (T25)
+  });
+});
+
+/* ---------- sugestões da Missão 4: resumo ou registro completo, meta do planejamento, ação escrita (SUG-52, 53, 49) ---------- */
+const META = { id: 'm1', pred: 'p1', texto: 'Aprovar o projeto de lei da saúde mental', status: 'nao_concluida' };
+const modos = (l: ReturnType<typeof linha>) => l.locator('.cp-modo .rm-chip');
+
+test.describe('SUG-52 · detalhar em resumo ou em registro completo', () => {
+  test('marcar mostra as duas opções; resumo abre só uma caixa de texto e grava modo e resumo', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    const l = linha(page, 'articulacao', 0);
+    await l.getByRole('checkbox').check();
+    await expect(modos(l)).toHaveText(['Detalhar em formato de resumo', 'Detalhar em formato de registro completo']);
+    await l.getByRole('button', { name: 'Detalhar em formato de resumo' }).click();
+    await expect(l.locator('textarea')).toHaveCount(1);
+    await expect(l.getByLabel('Prazo')).toHaveCount(0);
+    await l.getByLabel('Resumo da ação').fill('Reunião com a Mesa em dezembro');
+    expect(await acoes(page)).toEqual([expect.objectContaining({ modo: 'resumo', resumo: 'Reunião com a Mesa em dezembro' })]);
+  });
+
+  test('resumo preenchido deixa o ponto verde; vazio, amarelo', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    const l = linha(page, 'articulacao', 0);
+    await l.getByRole('checkbox').check();
+    await l.getByRole('button', { name: 'Detalhar em formato de resumo' }).click();
+    await expect(l.locator('.cp-ponto')).toHaveAttribute('data-estado', 'pendente');
+    await l.getByLabel('Resumo da ação').fill('ok');
+    await expect(l.locator('.cp-ponto')).toHaveAttribute('data-estado', 'completa');
+  });
+
+  test('trocar de formato não apaga o que já foi escrito no outro', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    const l = linha(page, 'articulacao', 0);
+    await l.getByRole('checkbox').check();
+    await completo(l);
+    await l.getByLabel('Responsável').fill('Bruno');
+    await l.getByRole('button', { name: 'Detalhar em formato de resumo' }).click();
+    await l.getByLabel('Resumo da ação').fill('r');
+    await completo(l);
+    await expect(l.getByLabel('Responsável')).toHaveValue('Bruno');
+  });
+
+  test('ação antiga com campos preenchidos abre direto no registro completo', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, D: { acoes: [{ id: 'a', bingo: 'articulacao', i: 0, titulo: ART0, alcancar: 'x', resp: 'Ana' }] } });
+    const l = linha(page, 'articulacao', 0);
+    await expect(modos(l).nth(1)).toHaveAttribute('aria-pressed', 'true');
+    await expect(l.getByLabel('Responsável')).toHaveValue('Ana');
+  });
+
+  test('o Resumo do Guia mostra o texto do resumo', async ({ page }) => {
+    await abreGuia(page, '#/m/4/m4.acoes/1', { mandato: { nome_parlamentar: 'Ana Souza', cargo: 'Deputado(a) Federal', casa: 'Câmara dos Deputados', uf: 'SP', data_posse: '2027-02-01' }, dados: {} });
+    const l = linha(page, 'articulacao', 0);
+    await l.getByRole('checkbox').check();
+    await l.getByRole('button', { name: 'Detalhar em formato de resumo' }).click();
+    await l.getByLabel('Resumo da ação').fill('Conversa com a Secretaria-Geral em dezembro');
+    await page.evaluate(() => { location.hash = '#/resumo'; });
+    await expect(page.locator('#tela')).toContainText('Resumo: Conversa com a Secretaria-Geral em dezembro');
+  });
+});
+
+test.describe('SUG-53 · ação ligada a uma meta do planejamento', () => {
+  test('a lista traz as metas da Missão 3 e "Nenhuma"; escolher grava meta e metaTexto; voltar a "Nenhuma" apaga o vínculo', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, D: { metas: [META, { id: 'm2', texto: '', status: 'nao_concluida' }] } });
+    const l = linha(page, 'articulacao', 0);
+    await l.getByRole('checkbox').check();
+    const sel = l.getByLabel('Meta do planejamento relacionada');
+    await expect(sel.locator('option')).toHaveText(['Nenhuma', META.texto]);
+    await sel.selectOption({ label: META.texto });
+    expect(await acoes(page)).toEqual([expect.objectContaining({ meta: 'm1', metaTexto: META.texto })]);
+    await sel.selectOption({ label: 'Nenhuma' });
+    const a = (await acoes(page))![0] as Record<string, unknown>;
+    expect(a.meta).toBeUndefined();
+    expect(a.metaTexto).toBeUndefined();
+  });
+
+  test('meta apagada some do vínculo, sem apagar a ação, e a visão "Todas as ações" mostra a meta ligada', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, D: { metas: [META], acoes: [{ id: 'a', bingo: 'articulacao', i: 0, titulo: ART0, meta: 'm1', metaTexto: META.texto }, { id: 'b', bingo: 'redes', i: 0, titulo: 'z', meta: 'm9', metaTexto: 'Meta que não existe mais' }] } });
+    await expect(linha(page, 'articulacao', 0).getByLabel('Meta do planejamento relacionada')).toHaveValue('m1');
+    await page.getByRole('button', { name: /^Todas as ações/ }).click();
+    await expect(page.locator('.cp-todas')).toContainText(`Meta: ${META.texto}`);
+    await expect(page.locator('.cp-todas')).not.toContainText('Meta que não existe mais');
+    expect(await acoes(page)).toHaveLength(2);
+  });
+
+  test('o Resumo do Guia mostra a meta ligada', async ({ page }) => {
+    await abreGuia(page, '#/m/4/m4.acoes/1', { mandato: { nome_parlamentar: 'Ana Souza', cargo: 'Deputado(a) Federal', casa: 'Câmara dos Deputados', uf: 'SP', data_posse: '2027-02-01' }, dados: { metas: [META] } });
+    const l = linha(page, 'articulacao', 0);
+    await l.getByRole('checkbox').check();
+    await l.getByLabel('Meta do planejamento relacionada').selectOption({ label: META.texto });
+    await page.evaluate(() => { location.hash = '#/resumo'; });
+    await expect(page.locator('#tela')).toContainText(`Meta do planejamento: ${META.texto}`);
+  });
+});
+
+test.describe('SUG-49 · "Outra ação (escrever)" em todas as frentes', () => {
+  test('cada frente tem o campo; a ação escrita entra marcada na lista da frente, conta no progresso e some ao desmarcar', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    for (const k of ['articulacao', 'mobilizacao', 'partido', 'redes']) {
+      await frente(page, k).click();
+      await expect(page.getByLabel('Outra ação (escrever)')).toBeVisible();
+    }
+    await frente(page, 'articulacao').click();
+    await page.getByLabel('Outra ação (escrever)').fill('Visitar o gabinete da liderança do bloco');
+    await page.getByRole('button', { name: 'Adicionar' }).click();
+    await expect(page.getByLabel('Outra ação (escrever)')).toHaveValue('');
+    await expect(linhas(page)).toHaveCount(10);
+    await expect(linhas(page).last()).toContainText('Visitar o gabinete da liderança do bloco');
+    await expect(linhas(page).last().getByRole('checkbox')).toBeChecked();
+    expect(await acoes(page)).toEqual([expect.objectContaining({ bingo: 'articulacao', i: 9, titulo: 'Visitar o gabinete da liderança do bloco', livre: true })]);
+    await frente(page, 'redes').click();
+    await page.getByLabel('Outra ação (escrever)').fill('Série de vídeos curtos');
+    await page.getByLabel('Outra ação (escrever)').press('Enter');
+    await expect(page.locator('.cp-progresso')).toContainText('2 ações em 2 frentes');
+    await page.getByRole('button', { name: /^Todas as ações/ }).click();
+    await expect(page.locator('.cp-todas > li')).toHaveCount(2);
+    await expect(page.getByLabel('Outra ação (escrever)')).toHaveCount(0);
+    await frente(page, 'articulacao').click();
+    await linhas(page).last().getByRole('checkbox').uncheck();
+    await expect(linhas(page)).toHaveCount(9);
+    expect(await acoes(page)).toHaveLength(1);
+  });
+
+  test('texto vazio não adiciona; duas ações escritas na mesma frente ganham índices diferentes e sobrevivem a recarregar', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await page.getByRole('button', { name: 'Adicionar' }).click();
+    expect(await acoes(page)).toBeFalsy();
+    for (const t of ['Primeira', 'Segunda']) {
+      await page.getByLabel('Outra ação (escrever)').fill(t);
+      await page.getByRole('button', { name: 'Adicionar' }).click();
+    }
+    expect((await acoes(page))!.map((a) => a.i)).toEqual([9, 10]);
+    await page.reload();
+    await page.locator('#tela[data-pronto="true"]').waitFor();
+    await expect(linhas(page)).toHaveCount(11);
   });
 });
