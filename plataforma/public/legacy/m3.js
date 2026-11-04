@@ -10,6 +10,7 @@
 (function(){
   if(typeof MISSOES==='undefined')return;
   function troca(s){
+    s=s.replace(/Lembre-se que /g,'Lembre-se de que '); /* sugestão 32 (Alana): regência correta */
     return s.replace(/(objetivos?)(\s+)(específic)([oa])(s?)/gi,function(_t,obj,esp,rad,fin,pl){
       var p=rad+fin+pl,novo=p===p.toUpperCase()?'ESTRATÉGICO':(rad.charAt(0)===rad.charAt(0).toUpperCase()?'Estratégico':'estratégico');
       return obj+esp+novo+pl;
