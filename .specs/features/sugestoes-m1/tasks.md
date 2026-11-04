@@ -145,7 +145,7 @@ T7 → T8
 
 ---
 
-### T5: Tabela de eleitos completa
+### T5: Tabela de eleitos completa ✅
 
 **What**: Em `ilhas/Assentos.tsx` e `public/legacy/ilhas.css`, tirar a rolagem interna da tabela de eleitos e mostrar todas as linhas do escopo de um estado; "Brasil inteiro" mantém "Mostrar mais".
 **Where**: `ilhas/Assentos.tsx`, `public/legacy/ilhas.css`, `e2e/m1-conjuntura.spec.ts`
@@ -155,9 +155,9 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Com SP selecionado, a tabela mostra todas as linhas e o contêiner não rola (`scrollHeight <= clientHeight` e `scrollWidth <= clientWidth`) em 1280 px (SUG-18)
-- [ ] Com "Brasil inteiro" o botão "Mostrar mais" continua (edge case)
-- [ ] Gate: `npx tsc --noEmit && npx playwright test e2e/m1-conjuntura`
+- [x] Com SP selecionado, a tabela mostra todas as linhas e o contêiner não rola (`scrollHeight <= clientHeight` e `scrollWidth <= clientWidth`) em 1280 px (SUG-18)
+- [x] Com "Brasil inteiro" o botão "Mostrar mais" continua (edge case)
+- [x] Gate: `npx tsc --noEmit && npx playwright test e2e/m1-conjuntura`
 
 **Tests**: e2e
 **Gate**: full

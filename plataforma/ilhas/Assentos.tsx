@@ -114,6 +114,8 @@ export default function Assentos() {
   const [global, setGlobal] = useState('');
   const [menu, setMenu] = useState<string | null>(null);
   const [limite, setLimite] = useState(40);
+  // a tabela de um estado aparece inteira, sem rolar nem paginar; só o Brasil inteiro (1,6 mil linhas) pagina
+  const paginar = escopo === 'BR';
   const fichaRef = useRef<HTMLDivElement>(null);
   const setCasa = (c: CasaChave) => { setCasaL(c); D.casaSel = c; salva(); setSel(null); setLimite(40); };
   const setEscopo = (u: string) => { setEscopoL(u); D.escopoSel = u; salva(); setSel(null); setLimite(40); };
@@ -158,6 +160,7 @@ export default function Assentos() {
   const q = semAcento(busca);
   const tabela = visiveis.filter((e) => !q || semAcento(e.u).includes(q) || semAcento(e.c).includes(q))
     .sort((a, b) => b.v - a.v || a.u.localeCompare(b.u));
+  const aparecem = paginar ? limite : tabela.length;
   const atual = (todos ?? []).find((e) => e.s === sel);
   const meuSq = (D.tse as { sq?: string }).sq;
   const relDe = (e: Eleito) => ({ nome: e.u, partido: e.p, cargo: cargoDe(e), uf: e.uf, votos: e.v || undefined });
@@ -360,11 +363,11 @@ export default function Assentos() {
             <div className="ilha-filtros">
               <input type="search" value={busca} onChange={(e) => { setBusca(e.target.value); setLimite(40); }} placeholder={`Buscar nesta lista (${nomeEscopo})`} aria-label="Buscar nesta lista" />
             </div>
-            <div className="rolar rolagem">
+            <div className="rolar">
               <table className="tb">
                 <thead><tr><th>Parlamentar</th><th>Partido</th>{escopo === 'BR' && <th>UF</th>}<th>Perfil</th><th>Votos</th><th>Relação</th></tr></thead>
                 <tbody>
-                  {tabela.slice(0, limite).map((e) => {
+                  {tabela.slice(0, aparecem).map((e) => {
                     const st: Status = statusDe(e.s);
                     return (
                       <tr key={e.s} className={sel === e.s ? 'sel' : ''} onClick={() => setSel(e.s)}>
@@ -383,9 +386,9 @@ export default function Assentos() {
               </table>
               {tabela.length === 0 && <p className="sem">Nenhum parlamentar com esses filtros.</p>}
             </div>
-            {tabela.length > limite && (
+            {tabela.length > aparecem && (
               <button type="button" className="bt fant peq" style={{ marginTop: 10 }} onClick={() => setLimite(limite + 80)}>
-                Mostrar mais ({nf.format(tabela.length - limite)} restantes)
+                Mostrar mais ({nf.format(tabela.length - aparecem)} restantes)
               </button>
             )}
           </section>
