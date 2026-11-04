@@ -141,7 +141,7 @@ test.describe('Gabinete novo, pelo Guia real em modo local', () => {
     await page.getByRole('button', { name: 'Continuar' }).click();
     await page.getByLabel('Resultado verificável').fill('zerou a fila da educação infantil');
     await page.getByRole('button', { name: 'Continuar' }).click();
-    await page.getByLabel('Cargo em quatro anos').selectOption('Reeleição a Deputado(a) Estadual');
+    await page.getByRole('radiogroup', { name: 'Cargo em quatro anos' }).getByRole('radio', { name: 'Reeleição a Deputado(a) Estadual', exact: true }).click();
     await page.getByRole('button', { name: 'Fechar a edição' }).click();
     await expect(page.getByText('Edição fechada').first()).toBeVisible();
     // 3) preditores

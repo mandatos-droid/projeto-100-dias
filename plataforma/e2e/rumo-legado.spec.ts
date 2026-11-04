@@ -19,7 +19,7 @@ async function completa(page: Page, cargo = 'Reeleição a Deputado(a) Estadual'
   await continuar(page).click();
   await page.getByLabel('Resultado verificável').fill('zerou a fila da educação infantil');
   await continuar(page).click();
-  await page.getByLabel('Cargo em quatro anos').selectOption(cargo);
+  await page.getByRole('radiogroup', { name: 'Cargo em quatro anos' }).getByRole('radio', { name: cargo, exact: true }).click();
 }
 
 test.describe('Os 4 passos (RUM-10.1)', () => {
@@ -83,15 +83,15 @@ test.describe('Cargo e manchete composta (RUM-11.2, RUM-10.3, RUM-10.4)', () => 
   test('os cargos oferecidos vêm do cargo atual: Assembleia não oferece Presidente', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO });
     await completa(page, 'Governador(a)');
-    const opcoes = await page.getByLabel('Cargo em quatro anos').locator('option').allTextContents();
-    expect(opcoes[1]).toBe('Reeleição a Deputado(a) Estadual');
+    const opcoes = await page.getByRole('radiogroup', { name: 'Cargo em quatro anos' }).getByRole('radio').allTextContents();
+    expect(opcoes[0]).toBe('Reeleição a Deputado(a) Estadual');
     expect(opcoes).not.toContain('Presidente');
   });
 
   test('mandato sem cargo cadastrado mostra a lista completa e não bloqueia', async ({ page }) => {
     await abre(page, [ILHA], { mandato: { ...MANDATO, cargo: '' } });
     await completa(page, 'Presidente');
-    const opcoes = await page.getByLabel('Cargo em quatro anos').locator('option').allTextContents();
+    const opcoes = await page.getByRole('radiogroup', { name: 'Cargo em quatro anos' }).getByRole('radio').allTextContents();
     expect(opcoes).toEqual(expect.arrayContaining(['Presidente', 'Vereador(a)', 'Deputado(a) Estadual', 'Outro']));
     await expect(page.getByText('O cargo atual do mandato não está cadastrado')).toBeVisible();
     expect((await camposDe(page))['m3.cargo']).toBe('Presidente');
