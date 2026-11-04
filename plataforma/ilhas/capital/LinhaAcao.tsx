@@ -57,7 +57,7 @@ export default function LinhaAcao({ bingo, i, titulo, acao, pessoas, metas, poss
       <div className="cp-acao-topo">
         <label>
           <input type="checkbox" checked={!!acao} onChange={onAlterna} aria-label={`Escolher ação: ${titulo}`} />
-          <span>{titulo}</span>
+          <span>{texto(acao?.titulo) || titulo}</span>
         </label>
         {acao && (
           <span className="cp-ponto" data-estado={completa ? 'completa' : 'pendente'} role="img" aria-label={completa ? 'Ação completa' : 'Faltam campos'}>
@@ -65,6 +65,11 @@ export default function LinhaAcao({ bingo, i, titulo, acao, pessoas, metas, poss
           </span>
         )}
       </div>
+      {acao && (
+        <label className="campo cp-c-titulo"><span className="rot">Título da ação (pode editar)</span>
+          <input type="text" value={texto(acao.titulo) || titulo} onChange={(e) => { acao.titulo = e.target.value; onMuda(); }} />
+        </label>
+      )}
       {acao && (
         <div className="cp-modo rm-chips" role="group" aria-label="Como detalhar a ação">
           {MODOS.map((o) => (

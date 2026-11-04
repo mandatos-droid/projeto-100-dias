@@ -2,7 +2,7 @@
 /* Missão 4 · matriz das ações dos 100 dias. As frentes e as ações recomendadas vêm de BINGOS (conteudo.js, só leitura);
    as escolhidas ficam em D.acoes no formato antigo ({id, bingo, i, titulo, alcancar, resp, prazo, saber, prox}), sem migração. */
 import { useState } from 'react';
-import { TEXTO_SABER, acaoCompleta, acaoTemTexto, ehDataISO, metaDaAcao, metasLigaveis, ordenaPorPrazo, progressoAcoes, proximoIndiceLivre } from '@/lib/capital';
+import { TEXTO_SABER, acaoTemTexto, metasLigaveis, ordenaPorPrazo, progressoAcoes, proximoIndiceLivre } from '@/lib/capital';
 import { useRumo } from '../rumo/useRumo';
 import LinhaAcao, { type Acao } from './LinhaAcao';
 import '../rumo/rumo.css';
@@ -10,7 +10,6 @@ import './capital.css';
 
 type Bingo = { n: string; itens: string[] };
 const bingos = () => (window as unknown as { BINGOS?: Record<string, Bingo> }).BINGOS ?? {};
-const dataBR = (v: string) => (ehDataISO(v) ? v.split('-').reverse().join('/') : v);
 const uid = () => Math.random().toString(36).slice(2, 10);
 export default function Matriz() {
   const { d: D, m, pessoas, bump } = useRumo();
@@ -59,17 +58,12 @@ export default function Matriz() {
       </div>
       {todas ? (
         validas.length ? (
-          <ol className="cp-todas cp-lista" aria-label="Todas as ações, por prazo">
+          <ul className="cp-todas cp-lista" aria-label="Todas as ações, por prazo">
             {ordenaPorPrazo(validas).map((a) => (
-              <li key={a.id ?? `${a.bingo}-${a.i}`} className="cp-acao on" data-bingo={a.bingo} data-i={a.i}>
-                <div className="cp-acao-topo">
-                  <span><b>{bingos()[a.bingo!].n}</b>: {a.titulo}</span>
-                  <span className="cp-ponto" data-estado={acaoCompleta(a) ? 'completa' : 'pendente'}>{acaoCompleta(a) ? 'Completa' : 'Faltam campos'}</span>
-                </div>
-                <p className="cp-resumo">Responsável: {a.resp ? a.resp : 'a definir'} · Prazo: {a.prazo ? dataBR(String(a.prazo)) : 'sem prazo'}{metaDaAcao(a, D.metas) ? ` · Meta: ${metaDaAcao(a, D.metas)!.texto}` : ''}</p>
-              </li>
+              <LinhaAcao key={a.id ?? `${a.bingo}-${a.i}`} bingo={a.bingo!} i={a.i!} titulo={`${bingos()[a.bingo!].n}: ${a.titulo ?? ''}`} acao={a} pessoas={pessoas} metas={metas} posse={m.data_posse}
+                onAlterna={() => alterna(a.bingo!, a.i!, a.titulo ?? '')} onMuda={bump} />
             ))}
-          </ol>
+          </ul>
         ) : <p className="cp-vazio">Nenhuma ação escolhida ainda. Escolha uma frente e marque as ações.</p>
       ) : frente && (
         <ul className="cp-acoes cp-lista" aria-label={`Ações de ${frente.n}`}>
