@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { aplica, ativas, coordDe, liderDe } from '../lib/cadeiras.ts';
-import { COLUNAS, CATEGORIAS, linhas, colunaLiberada, completa, contagemCompletas, defineN, editaCelula, recalculaLideres, avisosOrg, escopoTexto, competenciasTexto, categoriaPadrao, migrada } from '../lib/tabelaEquipe.ts';
+import { COLUNAS, CATEGORIAS, linhas, colunaLiberada, completa, contagemCompletas, defineN, editaCelula, recalculaLideres, avisosOrg, escopoTexto, competenciasTexto, categoriaPadrao, migrada, materializa } from '../lib/tabelaEquipe.ts';
 
 type C = Record<string, string>;
 /** mandato que já usa a tabela nova (m2.n gravado), com a Chefia (0) e duas linhas acrescentadas (índices 20 e 21) */
@@ -391,4 +391,46 @@ test('nenhum dado do formato antigo (hab_*, rep_*, ritmo, rel, entrega, fb_*) é
   assert.equal(JSON.stringify(c), antes);
   const apagadas = Object.entries(patch).filter(([k, v]) => v === '' && /\.(hab_|rep_|ritmo|rel|entrega|fb_)/.test(k));
   assert.deepEqual(apagadas, []);
+});
+
+/* ---------- T16 · competências antigas e materialização do mandato migrado ---------- */
+test('competenciasTexto cai para as habilidades de destaque antigas (hab_dest) quando comp está vazio (RMX-02)', () => {
+  const c = antigo({ 'm2.p3.hab_dest': 'Organização|Empatia' });
+  assert.equal(competenciasTexto(c, 2), 'Organização, Empatia');
+  assert.equal(competenciasTexto(antigo({ 'm2.p3.hab_dest': 'Organização', 'm2.p3.comp': 'Texto novo' }), 2), 'Texto novo');
+  assert.equal(linhas(c).find((l) => l.i === 2)!.comp, 'Organização, Empatia');
+});
+
+test('materializa: mandato novo (com m2.n) não ganha patch (RMX-02)', () => {
+  assert.deepEqual(materializa(antigo({ 'm2.n': '3' })), {});
+  assert.deepEqual(materializa({}), {});
+});
+
+test('materializa grava m2.n, esc, comp, cargo, cat, coord e lider explícitos de cada linha antiga, sem perder dado (RMX-02, RMX-03)', () => {
+  const c = antigo({ 'm2.p3.hab_dest': 'Organização' });
+  const antes = JSON.stringify(c);
+  const p = materializa(c);
+  assert.equal(JSON.stringify(c), antes);
+  assert.equal(p['m2.n'], '3');
+  assert.equal(p['m2.p2.esc'], `${CHIP_A}; ${CHIP_B}; Foco em saúde`);
+  assert.equal(p['m2.p3.comp'], 'Organização');
+  assert.equal(p['m2.p1.cat'], 'Chefia');
+  assert.equal(p['m2.p2.cat'], 'Coordenação');
+  assert.equal(p['m2.p3.cat'], 'Executora');
+  assert.equal(p['m2.p2.coord'], 'Legislativo');
+  assert.equal(p['m2.p3.lider'], '1');
+  assert.equal(p['m2.p1.lider'], '-');
+  const depois = { ...c }; aplica(depois, p);
+  assert.deepEqual(linhas(depois), linhas(c)); // a tabela mostra a mesma coisa antes e depois
+  assert.equal(depois['m2.p3.ritmo'], 'Lento');
+  assert.equal(depois['m2.p3.fb_falei'], 'ok');
+  assert.equal(liderDe(depois, 2), 1);
+});
+
+test('materializa não sobrescreve valor novo já gravado e usa o cargo do modelo quando falta nome_cargo (RMX-02)', () => {
+  const c = antigo({ 'm2.p2.cat': 'Especialista', 'm2.p2.nome_cargo': '' });
+  const p = materializa(c, (i) => (i === 1 ? 'Cargo do modelo' : ''));
+  assert.equal(p['m2.p2.cat'], undefined);
+  assert.equal(p['m2.p2.nome_cargo'], 'Cargo do modelo');
+  assert.equal(p['m2.p1.nome_cargo'], undefined); // já tinha nome_cargo
 });

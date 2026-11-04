@@ -494,7 +494,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T16: Ilha da tabela de equipe
+### T16: Ilha da tabela de equipe ✅
 
 **What**: Criar `TabelaEquipe.tsx`: pergunta N, mostra as linhas, desabilita colunas travadas com a legenda "Preencha antes: …", aviso de processo seletivo, "X de N linhas completas", linhas como cartões no celular. Registrar a ilha na ponte.
 **Where**: `ilhas/equipe/TabelaEquipe.tsx` (+ `ilhas/ponte.tsx` registro, `e2e/m23-tabela.spec.ts`)
@@ -509,14 +509,14 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] Tabela vazia pede N antes de qualquer linha (RM2-03)
-- [ ] Informar 4 cria 4 linhas e "0 de 4 linhas completas" (RM2-04)
-- [ ] Coluna travada desabilitada com a legenda; destrava ao preencher a anterior (RM2-05)
-- [ ] `*` mostra o incentivo à diversidade do Guia (RM2-07)
-- [ ] Categoria e área só aparecem com a pessoa preenchida (RM2-08)
-- [ ] Autosave sem botão salvar (RM2-10)
-- [ ] Viewport de celular: linhas como cartões na mesma ordem (RM2-11)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
+- [x] Tabela vazia pede N antes de qualquer linha (RM2-03)
+- [x] Informar 4 cria 4 linhas e "0 de 4 linhas completas" (RM2-04)
+- [x] Coluna travada desabilitada com a legenda; destrava ao preencher a anterior (RM2-05)
+- [x] `*` mostra o incentivo à diversidade do Guia (RM2-07)
+- [x] Categoria e área só aparecem com a pessoa preenchida (RM2-08)
+- [x] Autosave sem botão salvar (RM2-10)
+- [x] Viewport de celular: linhas como cartões na mesma ordem (RM2-11)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
 
 **Tests**: e2e
 **Gate**: full

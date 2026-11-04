@@ -42,8 +42,11 @@ export function escopoTexto(c: Campos, i: number): string {
   return [...lista(c[chaveFicha(i, 'escopo')]), (c[chaveFicha(i, 'espec')] ?? '').trim()].filter((t) => t.trim() !== '').join('; ');
 }
 
-/** Competências comportamentais: só o valor novo; o formato antigo não tem campo equivalente (hab_* continua guardado, sem aparecer). */
-export const competenciasTexto = (c: Campos, i: number): string => valor(c, i, 'comp');
+/** Competências comportamentais: o valor novo ou, se vazio, as habilidades de destaque do formato antigo (hab_dest) juntadas com ", ". */
+export function competenciasTexto(c: Campos, i: number): string {
+  const novo = valor(c, i, 'comp');
+  return novo !== '' ? novo : lista(c[chaveFicha(i, 'hab_dest')]).join(', ');
+}
 
 /** Categoria sugerida para a cadeira do formato antigo: a 0 é Chefia; quem lidera alguém é Coordenação; o resto, Executora. */
 export function categoriaPadrao(c: Campos, i: number): Categoria {
@@ -55,6 +58,28 @@ export function categoriaPadrao(c: Campos, i: number): Categoria {
 export const migrada = (c: Campos): boolean =>
   c['m2.n'] === undefined && ativas(c).some((i) => nomeDe(c, i) !== '' || CAMPOS_FICHA.some((k) => (c[chaveFicha(i, k)] ?? '').trim() !== ''));
 
+/** Patch que passa o mandato migrado para o formato da tabela: grava m2.n e, em cada linha, escopo, competências, cargo (do modelo,
+ *  se `cargoModelo` o der), categoria, área e liderança explícitos, só onde ainda estão vazios. Nada do formato antigo é apagado.
+ *  Sem efeito (patch vazio) em mandato que já usa a tabela. */
+export function materializa(c: Campos, cargoModelo: (i: number) => string = () => ''): Patch {
+  if (!migrada(c)) return {};
+  const patch: Patch = { 'm2.n': String(ativas(c).length) };
+  linhas(c).forEach((l) => {
+    (['esc', 'comp', 'cat', 'area'] as const).forEach((col) => {
+      if (valor(c, l.i, col) === '' && l[col] !== '') patch[chaveCelula(l.i, col)] = l[col];
+    });
+    if (valor(c, l.i, 'cargo') === '') {
+      const m = cargoModelo(l.i).trim();
+      if (m !== '') patch[chaveCelula(l.i, 'cargo')] = m;
+    }
+    if ((c[chaveFicha(l.i, 'lider')] ?? '') === '') {
+      const p = liderDe(c, l.i);
+      patch[chaveFicha(l.i, 'lider')] = p === null ? '-' : String(p);
+    }
+  });
+  return patch;
+}
+
 /** Uma linha por cadeira ativa, em ordem. Em mandato migrado, o que falta (escopo, categoria, área) vem do formato antigo. */
 export function linhas(c: Campos): Linha[] {
   const antigo = migrada(c);
@@ -62,6 +87,7 @@ export function linhas(c: Campos): Linha[] {
     const v = Object.fromEntries(COLUNAS.map((x) => [x.id, valor(c, i, x.id)])) as Record<ColunaId, string>;
     if (antigo) {
       v.esc = escopoTexto(c, i);
+      v.comp = competenciasTexto(c, i);
       if (v.cat === '') v.cat = categoriaPadrao(c, i);
       if (v.area === '') v.area = coordDe(c, i);
     }

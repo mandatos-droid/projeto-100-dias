@@ -26,6 +26,7 @@ import Matriz from './capital/Matriz';
 import Comunicacao from './capital/Comunicacao';
 import Organograma from './equipe/Organograma';
 import Escalacao from './equipe/Escalacao';
+import TabelaEquipe from './equipe/TabelaEquipe';
 import { AssentosResumo, ConjunturaResumo, MunicipioResumo } from './Resumos';
 
 /* ---------- acesso ao estado do Guia original (globais D e Store) ---------- */
@@ -107,6 +108,7 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   'calor-resumo': () => <ConjunturaResumo />,
   'municipio-resumo': () => <MunicipioResumo />,
   'equipe-escalacao': () => <Escalacao />,
+  'equipe-tabela': () => <TabelaEquipe />,
   organograma: () => <Organograma />,
   rotinas: () => <Rotinas />,
   entrega: () => <Entrega />,
