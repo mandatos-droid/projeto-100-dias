@@ -83,7 +83,7 @@ T7 → T8
 
 ---
 
-### T2: Pergunta 1 da Conjuntura (legislatura): texto e pontes não óbvias
+### T2: Pergunta 1 da Conjuntura (legislatura): texto e pontes não óbvias ✅
 
 **What**: Em `m1.js`, trocar o texto de `m1.q4` (sem "Quando passarem-se os 100 primeiros dias" e sem "agendas similares ou concorrentes") e abrir, depois do mapa e da tabela, a orientação de marcar Parceiro/Concorrente e a caixa `m1.q4b` das pontes não óbvias.
 **Where**: `public/legacy/m1.js`, `tests/legado-m1.test.ts`, `e2e/m1-conjuntura.spec.ts`
@@ -93,10 +93,10 @@ T7 → T8
 
 **Done when**:
 
-- [ ] O texto da pergunta é o da SUG-17 e não contém "100 primeiros dias" nem "agendas similares" (SUG-17)
-- [ ] Depois da ilha aparece a orientação de marcar Parceiro/Concorrente e a caixa `m1.q4b` com a pergunta das pontes (SUG-17)
-- [ ] Digitar na caixa grava `m1.q4b`
-- [ ] Gate: `npm test && npx tsc --noEmit && npx playwright test e2e/m1-conjuntura`
+- [x] O texto da pergunta é o da SUG-17 e não contém "100 primeiros dias" nem "agendas similares" (SUG-17)
+- [x] Depois da ilha aparece a orientação de marcar Parceiro/Concorrente e a caixa `m1.q4b` com a pergunta das pontes (SUG-17)
+- [x] Digitar na caixa grava `m1.q4b`
+- [x] Gate: `npm test && npx tsc --noEmit && npx playwright test e2e/m1-conjuntura`
 
 **Tests**: unit + e2e
 **Gate**: full

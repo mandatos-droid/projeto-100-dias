@@ -20,6 +20,15 @@
     {k:'m1.q3',rot:'Elenque quais são as 4 principais conquistas e entregas que o mandato deseja ter alcançado antes do fim da legislatura?'},
     {k:'m1.q3b',rot:'Qual é o próximo cargo que a liderança parlamentar deseja ocupar?'}];
 
+  /* ---- Conjuntura · pergunta 1: os dados primeiro, depois a análise (SUG-17) ----
+     Parceiros e concorrentes são marcados na tabela (seleção tabula melhor que texto livre); a caixa é só das pontes não óbvias. */
+  var q4=item(exDe('m1.conjuntura'),'m1.q4');
+  q4.d='<em>Identifique</em> quem são os/as parlamentares eleitos(as) nesta legislatura, a partir dos dados expostos abaixo. Em seguida, faça uma análise sobre o que esperar dos colegas e das possíveis alianças.';
+  q4.depois=true;
+  q4.caixas=[{k:'m1.q4b',
+    antes:'<div class="orienta"><p>Marque na tabela acima quem é <strong>Parceiro</strong> e quem é <strong>Concorrente</strong> da liderança parlamentar, considerando a região, o perfil pessoal e a disputa partidária.</p></div>',
+    rot:'E quais são as pontes não óbvias que podem ser construídas, a partir da criação de espaços de convergência que se baseiem em consensos mínimos e não necessariamente alinhamento completo? Elenque agora os nomes não óbvios, e que serão necessários para que as agendas e pautas avancem.'}];
+
   /* ---------- mecanismo ---------- */
   function caixa(c){
     return (c.antes||'')+'<label class="campo"><span class="rot">'+esc(c.rot)+'</span>'+

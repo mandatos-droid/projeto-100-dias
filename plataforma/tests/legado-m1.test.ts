@@ -65,3 +65,26 @@ test('perguntas sem caixas novas seguem com a caixa única (SUG-16)', () => {
   const h = pergunta(janela(), 'm1.persona', 0);
   assert.deepEqual(chaves(h), ['m1.q1']);
 });
+
+/* ---------- SUG-17: pergunta 1 da Conjuntura ---------- */
+test('m1.q4 pede a análise a partir dos dados abaixo e não traz o trecho dos 100 primeiros dias (SUG-17)', () => {
+  const h = pergunta(janela(), 'm1.conjuntura', 0);
+  assert.ok(h.includes('nesta legislatura, a partir dos dados expostos abaixo. Em seguida, faça uma análise sobre o que esperar dos colegas e das possíveis alianças.'));
+  assert.equal(h.includes('100 primeiros'), false);
+  assert.equal(h.includes('agendas similares'), false);
+});
+
+test('m1.q4 abre depois do mapa a orientação de marcar Parceiro e Concorrente e a caixa das pontes não óbvias (SUG-17)', () => {
+  const h = pergunta(janela(), 'm1.conjuntura', 0);
+  const ilha = h.indexOf('data-ilha="assentos"');
+  assert.ok(ilha > 0);
+  assert.ok(h.indexOf('Marque na tabela acima') > ilha);
+  assert.ok(h.indexOf('data-k="m1.q4b"') > h.indexOf('Marque na tabela acima'));
+  assert.ok(h.includes('E quais são as pontes não óbvias que podem ser construídas'));
+  assert.deepEqual(chaves(h), ['m1.q4b']);
+});
+
+test('m1.q4 não ganha caixa de parceiros e concorrentes: a marcação é na tabela (SUG-17)', () => {
+  const h = pergunta(janela(), 'm1.conjuntura', 0);
+  assert.equal(h.includes('potenciais parcerias'), false);
+});
