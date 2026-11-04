@@ -130,14 +130,12 @@ export default function Legado() {
           )}
           {passo === 3 && (
             <>
-              <div className="campo"><span className="rot" id="rm-leg-cargo">Cargo em quatro anos</span>
-                <div ref={ref} tabIndex={-1} className="rm-chips" role="radiogroup" aria-labelledby="rm-leg-cargo">
-                  {opcoes.map((c) => (
-                    <button key={c} type="button" role="radio" aria-checked={el.cargo === c} className="rm-chip"
-                      onClick={() => mudaEl({ cargo: el.cargo === c ? '' : c })}>{c}</button>
-                  ))}
-                </div>
-              </div>
+              <label className="campo"><span className="rot">Cargo em quatro anos</span>
+                <select ref={ref} value={el.cargo} onChange={(e) => mudaEl({ cargo: e.target.value })}>
+                  <option value="">Escolha o cargo</option>
+                  {opcoes.map((c) => <option key={c}>{c}</option>)}
+                </select>
+              </label>
               {el.cargo === 'Outro' && (
                 <label className="campo"><span className="rot">Qual cargo?</span>
                   <input type="text" value={el.cargoOutro ?? ''} onChange={(e) => mudaEl({ cargoOutro: e.target.value })} placeholder="Ex.: Secretário(a) de Estado" />

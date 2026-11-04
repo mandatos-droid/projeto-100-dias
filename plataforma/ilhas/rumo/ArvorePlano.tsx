@@ -49,7 +49,7 @@ export function nosPrevia(arv: Arvore): No[] {
   }];
 }
 
-const SIMBOLO = new Proxy({ concluida: '✓', nao_concluida: '○', congelada: '✱' } as Record<string, string>, { get: (t, k: string) => t[k] ?? '◐' }) as Record<StatusMeta, string>; // passos de 10% usam ◐
+const SIMBOLO: Record<StatusMeta, string> = { concluida: '✓', concluida70: '◐', nao_concluida: '○', congelada: '✱' };
 const rotStatus = (id: string) => STATUS.find((x) => x.id === id)?.rot ?? 'Não concluída';
 
 export interface OpcoesPlano {
@@ -125,7 +125,7 @@ export function nosPlano(arv: Arvore, o: OpcoesPlano): No[] {
   const base = nosPrevia(arv)[0];
   const objs: No[] = arv.objetivos.map((ob) => {
     const p = pctObjetivo(ob.metas);
-    const cont = STATUS.map((s) => ({ ...s, n: ob.metas.filter((m) => m.status === s.id).length })).filter((s) => s.n > 0);
+    const cont = STATUS.map((s) => ({ ...s, n: ob.metas.filter((m) => m.status === s.id).length }));
     return {
       id: `obj-${ob.pid}`, tipo: 'objetivo' as const,
       rot: `Objetivo de ${ob.nome}: ${ob.texto}. Atingimento ${pctTxt(p)}. ${ob.metas.length} ${ob.metas.length === 1 ? 'meta' : 'metas'}`,

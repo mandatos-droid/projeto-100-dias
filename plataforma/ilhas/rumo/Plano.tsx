@@ -2,7 +2,7 @@
 /* Missão 3 · aba Planejamento Estratégico: árvore Legado → objetivos → metas, com status por meta e atingimento por objetivo e total.
    Lê e grava os mesmos dados do exercício (D.metas, D.preditores, D.rumo); a edição usa o mesmo CartaoMeta. */
 import { useState } from 'react';
-import { pctObjetivo, pctPlano, statusPorAtingimento } from '@/lib/atingimento';
+import { pctObjetivo, pctTotal, statusPorAtingimento } from '@/lib/atingimento';
 import { abrirCiclo, excluiPlano, lerPlanos, listaCiclos, renomeiaPlano } from '@/lib/ciclos';
 import { OBJETIVOS_LEGISLA, lerEstrategia, lerJustificativa } from '@/lib/estrategia';
 import { PREDITORES, podeAcrescentarMeta } from '@/lib/plano';
@@ -95,7 +95,7 @@ export default function Plano() {
   const [filtro, setFiltro] = useState('');
   const [ordenar, setOrdenar] = useState(false);
   const [ver, setVer] = useState<number | null>(null); // planejamento arquivado aberto para leitura; null = o atual
-  const total = pctPlano(arv.objetivos);
+  const total = pctTotal(arv.objetivos.map((o) => pctObjetivo(o.metas)));
   const vazio = !arv.objetivos.some((o) => o.metas.length > 0);
   const nMetas = metas.length;
   /* "Ordenar por atingimento": do menor para o maior; objetivo sem atingimento ("—") vai ao fim; empate mantém a ordem dos preditores */
@@ -178,12 +178,11 @@ export default function Plano() {
   );
 
   if (arquivado) {
-    const totalArq = pctPlano(arquivado.objetivos);
+    const totalArq = pctTotal(arquivado.objetivos.map((o) => pctObjetivo(o.metas)));
     const semMetas = !arquivado.objetivos.some((o) => o.metas.length > 0) && arquivado.semObjetivo.length === 0;
     return (
       <div className="ilha-corpo rm-plano" data-n-metas={arquivado.objetivos.reduce((n, o) => n + o.metas.length, 0) + arquivado.semObjetivo.length} data-arquivado={ver} data-imprime="">
         {seletor}
-        <p className="bts rm-nao-imprime"><button type="button" className="bt sec peq" data-voltar-atual onClick={() => setVer(null)}>&larr; Voltar ao planejamento em andamento</button></p>
         <p className="rm-dica" role="status">{ciclos.find((x) => x.n === ver)?.rot ?? `Planejamento ${ver}`} guardado: somente leitura. O planejamento atual não muda por aqui.</p>
         {semMetas ? (
           <div className="rm-plano-vazio"><h4>Este planejamento não tinha metas</h4><p>Ele foi guardado sem metas, então não há o que mostrar na árvore.</p></div>
@@ -214,7 +213,7 @@ export default function Plano() {
             <Anel pct={total} />
             <div>
               <p className="rm-plano-t">Atingimento total</p>
-              <p className="rm-dica">Média de todas as metas ativas: cada meta pesa o mesmo no todo, então objetivos com mais metas pesam mais. Meta congelada fica fora da conta; meta sem status vale 0.</p>
+              <p className="rm-dica">Média simples dos objetivos que têm ao menos uma meta ativa. Meta congelada fica fora da conta; meta sem status vale 0.</p>
             </div>
             <div className="rm-plano-acoes rm-nao-imprime">
               <label className="campo"><span className="rot">Filtrar por pessoa</span>

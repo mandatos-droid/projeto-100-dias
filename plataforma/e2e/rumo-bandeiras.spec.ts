@@ -48,18 +48,19 @@ async function comNotas(page: Page, rot: string, n: number) {
 }
 
 test.describe('Ranking (RUM-01.5)', () => {
-  test('com 4 bandeiras com nota, ordena por total sem rótulo de sugerida', async ({ page }) => {
+  test('com 4 bandeiras com nota, ordena por total e sugere só as 3 primeiras', async ({ page }) => {
     await abre(page, [ILHA]);
     await comNotas(page, 'Cultura', 1);
     await comNotas(page, 'Saúde', 5);
     await comNotas(page, 'Educação', 3);
     await comNotas(page, 'Esportes', 0);
     const nomes = await page.locator('.rm-ranking li .rm-rank-nome').allTextContents();
-    expect(nomes).toEqual(['Saúde', 'Educação', 'Cultura', 'Esportes']);
-    await expect(page.locator('.rm-ranking .rm-sug')).toHaveCount(0);
+    expect(nomes.map((t) => t.replace('sugerida', ''))).toEqual(['Saúde', 'Educação', 'Cultura', 'Esportes']);
+    await expect(page.locator('.rm-ranking .rm-sug')).toHaveCount(3);
+    await expect(page.locator('[data-ranking="esportes"] .rm-sug')).toHaveCount(0);
   });
 
-  test('com uma só bandeira com nota, o ranking segue sem rótulo', async ({ page }) => {
+  test('com uma só bandeira com nota, nada é sugerido', async ({ page }) => {
     await abre(page, [ILHA]);
     await comNotas(page, 'Saúde', 4);
     await chip(page, 'Educação').click();

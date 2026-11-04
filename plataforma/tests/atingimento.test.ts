@@ -1,11 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { STATUS, pctMeta, pctObjetivo, pctPlano, pctTotal, statusPorAtingimento } from '../lib/atingimento.ts';
+import { STATUS, pctMeta, pctObjetivo, pctTotal, statusPorAtingimento } from '../lib/atingimento.ts';
 
 test('STATUS tem os 4 status pedidos, com rótulo e porcentagem', () => {
-  assert.deepEqual(STATUS.map((s) => s.pct), [100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 0, null], 'passos de 10% (SUG-43)');
-  assert.equal(STATUS[0].id, 'concluida');
-  assert.equal(STATUS.at(-1)?.id, 'congelada');
+  assert.deepEqual(STATUS.map((s) => s.id), ['concluida', 'concluida70', 'nao_concluida', 'congelada']);
+  assert.deepEqual(STATUS.map((s) => s.pct), [100, 70, 0, null]);
   assert.ok(STATUS.every((s) => s.rot.length > 3));
 });
 
@@ -87,21 +86,7 @@ test('statusPorAtingimento acompanha os sucessos; congelada e sem sucessos ficam
   const suc = (...st: string[]) => st.map((status, i) => ({ id: String(i), mes: 1, texto: 'x', status }));
   assert.equal(statusPorAtingimento('nao_concluida', suc('concluida', 'concluida')), 'concluida');
   assert.equal(statusPorAtingimento('nao_concluida', suc('concluida', 'concluida', 'concluida', 'nao_concluida')), 'concluida70');
-  assert.equal(statusPorAtingimento('concluida', suc('concluida', 'nao_concluida')), 'concluida50');
+  assert.equal(statusPorAtingimento('concluida', suc('concluida', 'nao_concluida')), 'nao_concluida');
   assert.equal(statusPorAtingimento('congelada', suc('concluida')), 'congelada');
   assert.equal(statusPorAtingimento('concluida70', []), 'concluida70');
-});
-
-test('pctPlano pesa as metas, não os objetivos (SUG-45)', () => {
-  const objs = [{ metas: [{ status: 'concluida' }] }, { metas: [{ status: 'nao_concluida' }, { status: 'nao_concluida' }, { status: 'nao_concluida' }, { status: 'nao_concluida' }] }];
-  assert.equal(pctPlano(objs), 20, 'uma meta batida em cinco = 20%, e não 50%');
-  assert.equal(pctTotal(objs.map((o) => pctObjetivo(o.metas))), 50);
-  assert.equal(pctPlano([{ metas: [{ status: 'congelada' }] }]), null);
-  assert.equal(pctPlano([]), null);
-});
-
-test('statusPorAtingimento cai no passo de 10% logo abaixo (SUG-43)', () => {
-  const suc = (n: number, de: number) => Array.from({ length: de }, (_, i) => ({ id: String(i), mes: 1, texto: 'x', status: i < n ? 'concluida' : 'nao_concluida' }));
-  assert.equal(statusPorAtingimento('nao_concluida', suc(2, 3)), 'concluida60');
-  assert.equal(statusPorAtingimento('nao_concluida', suc(1, 10)), 'concluida10');
 });

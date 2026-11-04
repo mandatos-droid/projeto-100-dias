@@ -74,7 +74,7 @@ test.describe('Retorno SMART (RUM-31.3, RUM-31.7, RUM-31.8, RUM-31.9)', () => {
     await expect(letra(page, 0, 'A')).toHaveAttribute('data-ok', 'false');
     await expect(meta(page, 0).locator('[data-pontos]')).toHaveText('4 de 5 letras atendidas');
     await expect(letra(page, 0, 'A')).toHaveAttribute('aria-label', 'Alcançável: falta');
-    await page.getByLabel('O mandato dispõe de meios realistas para alcançá-la?').check();
+    await page.getByLabel('Cabe na capacidade da equipe nos 4 meses?').check();
     await expect(letra(page, 0, 'A')).toHaveAttribute('data-ok', 'true');
     await expect(meta(page, 0).locator('[data-pontos]')).toHaveText('5 de 5 letras atendidas');
     const m = (await metasDe(page))[0];

@@ -42,21 +42,6 @@
       var I=window.Ilhas,lig=I&&I.ligar;
       if(lig)I.ligar=function(t){I.ligar=lig;if(t&&t.insertAdjacentHTML)t.insertAdjacentHTML('beforeend',ILHA);return lig.call(I,t)};
       try{_pl.apply(this,arguments)}finally{if(lig)I.ligar=lig}
-      voltar();
     };
   }
-  /* SUG-54: quem abriu o planejamento pelo botão da Missão 5 (Garanta o avanço) ganha um botão para voltar à missão.
-     A origem fica na sessão; abrir o planejamento por outro caminho (menu, Painel) apaga a origem. */
-  var CH='planoOrigem';
-  function guarda(v){try{if(v)sessionStorage.setItem(CH,v);else sessionStorage.removeItem(CH)}catch(e){}}
-  function origem(){try{return sessionStorage.getItem(CH)||''}catch(e){return ''}}
-  function voltar(){
-    var o=origem(),t=document.getElementById('tela');
-    if(!/^#\/m\/5(\/|$)/.test(o)||!t||!t.insertAdjacentHTML)return;
-    t.insertAdjacentHTML('afterbegin','<p class="bts"><a class="bt sec peq" data-voltar-garanta href="'+o+'">&larr; Voltar para a missão Garanta o avanço</a></p>');
-  }
-  if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('click',function(e){
-    var a=e.target&&e.target.closest&&e.target.closest('a[href="#/plano"]');
-    if(a)guarda(/^#\/m\/5(\/|$)/.test(location.hash)?location.hash:'');
-  },true);
 })();

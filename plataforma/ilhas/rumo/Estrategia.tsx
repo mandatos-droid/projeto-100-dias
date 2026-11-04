@@ -30,7 +30,12 @@ export default function Estrategia() {
   return (
     <div className="ilha-corpo rm-pred rm-est">
       <div className="rm-grade">
-        <section>
+        <section aria-labelledby="rm-est-t">
+          <h4 id="rm-est-t">O que é Objetivo Estratégico</h4>
+          <p>O Objetivo Estratégico é o grande resultado que o mandato quer alcançar a partir de cada preditor escolhido. Ele orienta as Metas dos primeiros 100 dias. Exemplos do Guia:</p>
+          <div className="rolar"><table className="tb"><thead><tr><th style={{ width: '38%' }}>Preditor</th><th>Objetivo Estratégico (exemplo)</th></tr></thead>
+            <tbody>{OBJ_ESPECIFICOS.map((o) => <tr key={o[0]}><td>{o[0]}</td><td>{o[1]}</td></tr>)}</tbody></table></div>
+
           <h4 id="rm-est-op">Escolha uma estratégia</h4>
           <div role="radiogroup" aria-labelledby="rm-est-op" className="rm-est-ops">
             {OPCOES.map((o) => (

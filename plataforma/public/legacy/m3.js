@@ -70,15 +70,6 @@
       return h;
     };
   }
-  /* Metas (sugestão 37 da Alana): só a frase de abertura muda na tela; o texto do Guia em conteudo.js fica como está (hash em tests/legado-m3.test.ts) */
-  if(typeof Guia!=='undefined'&&typeof Guia.bloco==='function'){
-    var _bm=Guia.bloco;
-    Guia.bloco=function(p,n){
-      var h=_bm.call(this,p,n),ex=this.ex;
-      if(!ex||ex.id!=='m3.metas'||!p||p.k!=='intro'||typeof h!=='string')return h;
-      return h.replace(/Serão criadas até quatro metas capazes de garantir que, se forem alcançadas, garantem/,'Serão criadas até 9 metas capazes de fazer com que, se forem alcançadas, garantam');
-    };
-  }
   /* o passo "Comissões e espaços que o mandato pretende compor" troca a lista genérica pela ilha; as outras listas do Guia ficam como são */
   var _li=Comp.lista;
   Comp.lista=function(ex,dono){
