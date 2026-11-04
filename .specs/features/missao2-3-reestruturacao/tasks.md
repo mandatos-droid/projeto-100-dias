@@ -331,7 +331,7 @@ T26 → T27 → T28 → T29
 
 ---
 
-### T10: Planejamento mostra estratégia e justificativas
+### T10: Planejamento mostra estratégia e justificativas ✅
 
 **What**: Em `Plano.tsx`, acima da árvore, mostrar "Estratégia dos objetivos: A/B/C" (com as 3 frases da Legisla como nota na C) e as justificativas dos preditores em bloco recolhível. A árvore e as metas não mudam.
 **Where**: `ilhas/rumo/Plano.tsx` (+ `e2e/m23-plano.spec.ts`)
@@ -346,10 +346,10 @@ T26 → T27 → T28 → T29
 
 **Done when**:
 
-- [ ] A aba mostra a estratégia escolhida e as 5 justificativas (RM3-18)
-- [ ] Na C, a nota lista as 3 frases e nenhum nó novo aparece (RM3-14)
-- [ ] Planejamento arquivado (M5) segue somente leitura e sem erro (edge case)
-- [ ] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
+- [x] A aba mostra a estratégia escolhida e as 5 justificativas (RM3-18)
+- [x] Na C, a nota lista as 3 frases e nenhum nó novo aparece (RM3-14)
+- [x] Planejamento arquivado (M5) segue somente leitura e sem erro (edge case)
+- [x] Gate: `npm test && npx tsc --noEmit && npm run test:e2e`; nenhum teste removido
 
 **Tests**: e2e
 **Gate**: full

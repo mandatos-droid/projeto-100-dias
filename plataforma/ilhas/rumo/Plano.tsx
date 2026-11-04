@@ -4,7 +4,8 @@
 import { useState } from 'react';
 import { pctObjetivo, pctTotal } from '@/lib/atingimento';
 import { abrirCiclo, listaCiclos } from '@/lib/ciclos';
-import { podeAcrescentarMeta } from '@/lib/plano';
+import { OBJETIVOS_LEGISLA, lerEstrategia, lerJustificativa } from '@/lib/estrategia';
+import { PREDITORES, podeAcrescentarMeta } from '@/lib/plano';
 import { resolve } from '@/lib/pessoas';
 import { editaSucesso, lerSucessos } from '@/lib/sucessos';
 import ArvorePlano, { pctTxt } from './ArvorePlano';
@@ -25,6 +26,46 @@ export function Anel({ pct }: { pct: number | null }) {
       </svg>
       <b data-total={pct ?? ''}>{pctTxt(pct)}</b>
     </div>
+  );
+}
+
+const ESTRATEGIA_TXT = {
+  a: 'os preditores escolhidos são os Objetivos Estratégicos.',
+  b: 'os preditores foram traduzidos em outra frase, que são os Objetivos Estratégicos.',
+  c: 'os preditores norteiam as metas; os Objetivos Estratégicos de referência são os 3 sugeridos pela Legisla.',
+} as const;
+
+/** Estratégia escolhida na Missão 3 e as justificativas dos preditores. Só mostra; a árvore abaixo não depende dela. */
+function EstrategiaPlano({ campos, escolhidos }: { campos: Record<string, string>; escolhidos: string[] }) {
+  const e = lerEstrategia(campos, escolhidos);
+  const justificadas = PREDITORES.filter((p) => lerJustificativa(campos, p.id).trim() !== '');
+  if (!e && justificadas.length === 0) return null;
+  return (
+    <section className="rm-est-plano" aria-label="Estratégia dos objetivos" data-estrategia-plano={e ?? ''}>
+      {e && <p className="rm-est-linha"><b>Estratégia dos objetivos: {e.toUpperCase()}</b>. {ESTRATEGIA_TXT[e][0].toUpperCase() + ESTRATEGIA_TXT[e].slice(1)}</p>}
+      {e === 'c' && (
+        <div className="rm-est-ref" role="note">
+          <p className="rm-dica">Objetivos Estratégicos sugeridos pela Legisla, como referência do mandato:</p>
+          <ol>{OBJETIVOS_LEGISLA.map((x) => <li key={x}>{x}</li>)}</ol>
+        </div>
+      )}
+      {justificadas.length > 0 && (
+        <details className="rm-est-just">
+          <summary>Justificativas dos preditores ({justificadas.length} de {PREDITORES.length})</summary>
+          <ul>
+            {PREDITORES.map((p) => {
+              const txt = lerJustificativa(campos, p.id).trim();
+              return (
+                <li key={p.id} data-just={p.id}>
+                  <b>{p.n}</b> <span className="rm-dica">({escolhidos.includes(p.id) ? 'escolhido' : 'não escolhido'})</span>
+                  <p>{txt || 'Sem justificativa escrita.'}</p>
+                </li>
+              );
+            })}
+          </ul>
+        </details>
+      )}
+    </section>
   );
 }
 
@@ -114,6 +155,7 @@ export default function Plano() {
     <div className="ilha-corpo rm-plano" data-n-metas={nMetas} data-imprime="">
       {seletor}
       <EditorPlano aberto={arv.objetivos.length === 0} />
+      <EstrategiaPlano campos={c} escolhidos={arv.objetivos.map((o) => o.pid)} />
       {vazio && (
         <div className="rm-plano-vazio">
           <h4>O planejamento ainda não tem metas</h4>

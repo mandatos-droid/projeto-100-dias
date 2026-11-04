@@ -326,3 +326,10 @@ input.rm-jn-titulo:focus-visible{outline:3px solid var(--verde);outline-offset:2
 .rm-est-ref{background:var(--papel);border:1px solid var(--linha);border-radius:var(--r);padding:0.75rem 1rem}
 .rm-est-ref h4{margin-top:0}
 .rm-est-ref ol{margin:0 0 0.5rem;padding-left:1.25rem}
+
+/* estratégia e justificativas na aba Planejamento */
+.rm-est-plano{margin:0 0 1rem}
+.rm-est-linha{margin:0 0 0.5rem}
+.rm-est-just summary{cursor:pointer;font-weight:700}
+.rm-est-just ul{list-style:none;margin:0.5rem 0 0;padding:0;display:grid;gap:0.5rem}
+.rm-est-just li p{margin:0.125rem 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
