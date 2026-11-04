@@ -197,3 +197,15 @@ test('o Resumo continua com um só </dl> final e sem repetir o texto de m1.q5 (m
   assert.equal(conj.split('análise do partido').length - 1, 1);
   assert.ok(conj.endsWith('</dl>'));
 });
+
+/* ---------- lacunas apontadas pelo Verifier ---------- */
+test('a orientação de m1.q4 manda marcar Parceiro e Concorrente considerando região, perfil pessoal e disputa partidária (SUG-17)', () => {
+  const h = pergunta(janela(), 'm1.conjuntura', 0);
+  assert.ok(h.includes('Marque na tabela acima quem é <strong>Parceiro</strong> e quem é <strong>Concorrente</strong> da liderança parlamentar, considerando a região, o perfil pessoal e a disputa partidária.'));
+});
+
+test('a caixa de m1.q6 usa a mesma chave de antes, então a resposta antiga continua nela (edge case)', () => {
+  const h = pergunta(janela(), 'm1.conjuntura', 2);
+  assert.deepEqual(chaves(h), ['m1.q6']);
+  assert.equal(h.split('data-k="m1.q6"').length - 1, 1);
+});

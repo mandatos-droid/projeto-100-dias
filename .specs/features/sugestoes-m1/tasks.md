@@ -10,7 +10,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 
 **Spec**: `.specs/features/sugestoes-m1/spec.md`
 **Design**: nenhum (mudança de texto e de ordem sobre mecanismos que já existem; o desenho está nas Assumptions da spec)
-**Status**: Implementado (T1 a T8); verificação pendente
+**Status**: Done (verificado: PASS, ver validation.md)
 
 Caminhos relativos a `plataforma/`. A árvore de trabalho tem mudanças do usuário não commitadas (`public/legacy/sugestoes.js`, `public/legacy/ilhas.css`, `graphify-out/`, `contexto inicial/`, `.vscode/`, `Alterador/`). Regras:
 
