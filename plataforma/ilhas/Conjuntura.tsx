@@ -652,24 +652,8 @@ export default function Conjuntura() {
         !carregando && <p className="sem">O {partido} não tem filiados registrados em {rotEscopo}.</p>
       )}
 
-      {/* 5 · relação desejada */}
-      <h4><span className="v2-n">5</span> Que relação a liderança quer ter com o partido?</h4>
-      <div className="v2-rels" role="radiogroup" aria-label="Relação desejada com o partido">
-        {RELACOES.map((r) => (
-          <button key={r.k} type="button" role="radio" aria-checked={c.relacao === r.k} onClick={() => muda(() => { c.relacao = c.relacao === r.k ? '' : r.k; })}>
-            <strong>{r.t}</strong><span>{r.d}</span>
-          </button>
-        ))}
-      </div>
-      <label className="campo"><span className="rot">Por que essa escolha? O que o partido precisa oferecer?</span>
-        <textarea rows={3} value={c.relacaoPq} onChange={(e) => muda(() => { c.relacaoPq = e.target.value; })} /></label>
-
-      {/* 6 · desafios e oportunidades */}
-      <h4><span className="v2-n">6</span> Desafios e oportunidades de expansão da relevância partidária</h4>
-      <div className="v2-duas">
-        {lista('desafios', 'Desafios', 'des')}
-        {lista('oportunidades', 'Oportunidades', 'opo')}
-      </div>
+      {/* As seções 5 (relação desejada com o partido) e 6 (desafios e oportunidades) saíram da tela por decisão sobre a sugestão #20:
+          fica só a pergunta abrangente, no Guia. Os valores já salvos (c.relacao, c.relacaoPq, c.desafios, c.oportunidades) seguem gravados. */}
     </div>
   );
 }

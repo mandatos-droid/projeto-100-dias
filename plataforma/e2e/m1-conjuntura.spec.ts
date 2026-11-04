@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
-import { abreGuia, salvoDe } from './guia-real';
+import { abreGuia, salvoDe, MANDATO_REAL } from './guia-real';
+const MANDATO = { ...MANDATO_REAL, partido: 'PSOL' };
 
 /* Missão 1 · Conjuntura (sugestões #17 a #20). O Guia troca cada textarea por um editor rico (.rico-area). */
 const editor = (page: Page, k: string) => page.locator(`.campo:has(textarea[data-k="${k}"]) .rico-area`);
@@ -49,5 +50,26 @@ test.describe('Conjuntura · partido, território e social (SUG-19)', () => {
     await abreGuia(page, '#/m/1/m1.oportunidades/1');
     await expect(page.getByText(COMANDO)).toBeVisible();
     await depoisDosDados(page, 'social', 'm1.q8a');
+  });
+});
+
+test.describe('Conjuntura do partido · só a pergunta abrangente (SUG-20)', () => {
+  const CONJ2 = { muns: {}, posicao: {}, relacao: 'lideranca', relacaoPq: 'quer disputar a executiva', desafios: ['Poucos filiados'], oportunidades: ['Eleição municipal'] };
+
+  test('as seções de relação e de desafios e oportunidades não aparecem', async ({ page }) => {
+    await abreGuia(page, '#/m/1/m1.conjuntura/1', { mandato: MANDATO });
+    await expect(page.locator('[data-ilha="calor"]')).toContainText('Placar do partido', { timeout: 30_000 });
+    await expect(page.locator('#tela')).not.toContainText('Que relação a liderança quer ter com o partido?');
+    await expect(page.locator('#tela')).not.toContainText('Desafios e oportunidades de expansão da relevância partidária');
+    await expect(page.locator('#tela')).not.toContainText('Por que essa escolha?');
+  });
+
+  test('os valores já salvos de relação e desafios seguem gravados depois de abrir e editar a tela', async ({ page }) => {
+    await abreGuia(page, '#/m/1/m1.conjuntura/1', { mandato: MANDATO, dados: { conj2: CONJ2 } });
+    await expect(page.locator('[data-ilha="calor"]')).toContainText('Placar do partido', { timeout: 30_000 });
+    await editor(page, 'm1.q5').click();
+    await page.keyboard.type('análise nova');
+    await expect.poll(async () => (await campos(page))['m1.q5']).toContain('análise nova');
+    expect(((await salvoDe(page)).dados as { conj2?: unknown }).conj2).toEqual(CONJ2);
   });
 });

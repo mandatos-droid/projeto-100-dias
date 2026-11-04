@@ -125,7 +125,7 @@ T7 → T8
 
 ---
 
-### T4: Tirar relação e desafios da tela do partido
+### T4: Tirar relação e desafios da tela do partido ✅
 
 **What**: Em `ilhas/Conjuntura.tsx`, remover do JSX as seções 5 (relação com o partido) e 6 (desafios e oportunidades). `D.conj2` e seus campos ficam como estão.
 **Where**: `ilhas/Conjuntura.tsx`, `e2e/m1-conjuntura.spec.ts`
@@ -135,9 +135,9 @@ T7 → T8
 
 **Done when**:
 
-- [ ] A tela de `m1.q5` não mostra "Que relação a liderança quer ter com o partido?" nem "Desafios e oportunidades de expansão da relevância partidária" (SUG-20)
-- [ ] Mandato com `conj2.relacao`, `relacaoPq` e `desafios` salvos continua com os valores iguais depois de abrir e editar a tela (edge case)
-- [ ] Gate: `npx tsc --noEmit && npx playwright test e2e/m1-conjuntura`
+- [x] A tela de `m1.q5` não mostra "Que relação a liderança quer ter com o partido?" nem "Desafios e oportunidades de expansão da relevância partidária" (SUG-20)
+- [x] Mandato com `conj2.relacao`, `relacaoPq` e `desafios` salvos continua com os valores iguais depois de abrir e editar a tela (edge case)
+- [x] Gate: `npx tsc --noEmit && npx playwright test e2e/m1-conjuntura`
 
 **Tests**: e2e
 **Gate**: full
