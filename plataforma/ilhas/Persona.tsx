@@ -5,7 +5,7 @@ import { corPartido } from '@/lib/partidos';
 import { nf, pct, semAcento } from '@/lib/format';
 import type { Cand, CasaChave, Pleito, UFData } from '@/lib/types';
 import { atualizaMandato, useLegado } from './ponte';
-import { Chip, Foto, useCarga } from './pecas';
+import { Chip, Foto, Info, useCarga } from './pecas';
 import MapaVotos from './MapaVotos';
 
 const CASAS: CasaChave[] = ['federal', 'estadual', 'senado'];
@@ -132,7 +132,8 @@ export default function Persona() {
   const [abertos, setAbertos] = useState<Record<string, boolean>>({ tse: true });
   const [form, setForm] = useState<string | null>(null); // 'novo' | id do pleito em edição
   const sq = (D.tse as { sq?: string }).sq;
-  const alterna = (k: string) => setAbertos((a) => ({ ...a, [k]: !a[k] }));
+  /* acordeão: abrir um pleito fecha o anterior (menos rolagem) */
+  const alterna = (k: string) => setAbertos((a) => (a[k] ? {} : { [k]: true }));
   const pleitos = D.pleitos ?? [];
 
   const achado = useMemo(() => {
@@ -167,7 +168,7 @@ export default function Persona() {
     const lista = pleitos.some((x) => x.id === p.id) ? pleitos.map((x) => (x.id === p.id ? p : x)) : [...pleitos, p];
     D.pleitos = lista;
     setForm(null);
-    setAbertos((a) => ({ ...a, [p.id]: true }));
+    setAbertos({ [p.id]: true });
     bump();
   }
   function removePleito(p: Pleito) {
@@ -260,9 +261,9 @@ export default function Persona() {
               </div>
               <div className="kpis">
                 <div className="kp"><b>{nf.format(c.v)}</b><span>votos totais</span></div>
-                <div className="kp"><b>{pct(c.x)}</b><span>dos votos válidos do cargo em {m.uf}</span></div>
-                <div className="kp"><b>{ranking.length ? casa.cands.indexOf(c) + 1 : '—'}º</b><span>mais votado(a) entre {nf.format(casa.cands.length)} candidaturas</span></div>
-                <div className="kp"><b>{nf.format(media)}</b><span>média de votos dos {eleitos.length} eleitos</span></div>
+                <div className="kp"><b>{pct(c.x)}</b><span>dos votos válidos do cargo em {m.uf} <Info texto="Votos válidos são os votos dados a candidaturas (sem brancos e nulos). Este é o peso da liderança no total do cargo, no estado." rotulo="O que são votos válidos?" /></span></div>
+                <div className="kp"><b>{ranking.length ? casa.cands.indexOf(c) + 1 : '—'}º</b><span>mais votado(a) entre {nf.format(casa.cands.length)} candidaturas <Info texto="Posição da liderança no ranking de votos de todas as candidaturas ao cargo no estado, eleitas ou não." rotulo="O que é esta posição?" /></span></div>
+                <div className="kp"><b>{nf.format(media)}</b><span>média de votos dos {eleitos.length} eleitos <Info texto="Média dos votos de quem foi eleito para o mesmo cargo no estado: uma régua para comparar a votação da liderança com a de quem entrou." rotulo="O que é a média dos eleitos?" /></span></div>
               </div>
               {c.f && <p className="peq-t">Federação: {c.f}</p>}
               {menor > 0 && (
@@ -334,7 +335,7 @@ export default function Persona() {
         <Cartao key={key} aberto={!!abertos[key]} onAlterna={() => alterna(key)}
           resumo={<Resumo ano={ano} cargo={cargo} lugar={[mun, puf.toUpperCase()].filter(Boolean).join(' · ') + ' · TSE'} partido={partido} votos={votos} situacao={situacao.replace(/ qp$/i, ' QP') || undefined} />}>
           <div className="kpis">
-            <div className="kp"><b>{nf.format(votos)}</b><span>votos nominais (1º turno)</span></div>
+            <div className="kp"><b>{nf.format(votos)}</b><span>votos nominais (1º turno) <Info texto="Votos dados diretamente ao nome da candidatura no 1º turno, sem os votos de legenda." rotulo="O que são votos nominais?" /></span></div>
             {pc > 0 && <div className="kp"><b>{pct(pc)}</b><span>dos votos nominais do cargo{mun ? ' no município' : ''}</span></div>}
             <div className="kp"><b>{numero}</b><span>número de urna</span></div>
           </div>

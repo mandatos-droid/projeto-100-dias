@@ -209,3 +209,11 @@ test('a caixa de m1.q6 usa a mesma chave de antes, então a resposta antiga cont
   assert.deepEqual(chaves(h), ['m1.q6']);
   assert.equal(h.split('data-k="m1.q6"').length - 1, 1);
 });
+
+/* ---------- SUG-87: pergunta 2 da Persona é de análise, não de levantamento ---------- */
+test('m1.q2 pede análise dos pleitos já preenchidos, sem o comando "Levante" (SUG-87)', () => {
+  const h = pergunta(janela(), 'm1.persona', 1);
+  assert.ok(h.includes('<em>Analise</em>'));
+  assert.ok(h.includes('já preenchidos com os dados do TSE'));
+  assert.ok(!h.includes('Levante'));
+});

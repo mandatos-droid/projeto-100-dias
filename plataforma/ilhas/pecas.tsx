@@ -4,6 +4,18 @@ import { corPartido, posEspectro } from '@/lib/partidos';
 import type { GeoUF, Relacao, Status } from '@/lib/types';
 import { marca, statusDe } from './ponte';
 
+/** Ícone “i” que abre uma explicação curta ao lado de um número ou visualização (clique, toque ou foco). */
+export function Info({ texto, rotulo = 'O que é isto?' }: { texto: string; rotulo?: string }) {
+  const [aberto, setAberto] = useState(false);
+  return (
+    <span className={`info ${aberto ? 'aberto' : ''}`}>
+      <button type="button" className="info-bt" aria-label={rotulo} aria-expanded={aberto}
+        onClick={() => setAberto((a) => !a)} onBlur={() => setAberto(false)} onKeyDown={(e) => e.key === 'Escape' && setAberto(false)}>i</button>
+      <span className="info-tx" role="note">{texto}</span>
+    </span>
+  );
+}
+
 /** Carrega um recurso assíncrono; refaz a carga quando a chave muda. */
 export function useCarga<T>(fn: (() => Promise<T>) | null, chave: string) {
   const [estado, setEstado] = useState<{ chave: string; dados?: T; erro?: string }>({ chave: '' });

@@ -3,10 +3,15 @@ import { useMemo, useRef, useState } from 'react';
 import { carregaGeo } from '@/lib/dados';
 import { nf, pct } from '@/lib/format';
 import type { CasaChave, GeoUF } from '@/lib/types';
-import { SvgZoom, useCarga } from './pecas';
+import { Info, SvgZoom, useCarga } from './pecas';
 
 type Votos = { atualizado: string; mun: Record<string, [number, number]> };
 type Modo = 'votos' | 'pct' | 'forca';
+const AJUDA: Record<Modo, string> = {
+  votos: 'Pinta cada município pelo número de votos que a candidatura recebeu nele: quanto mais escuro, mais votos.',
+  pct: 'Pinta cada município pela parcela dos votos válidos locais que foi para a candidatura. Mostra onde a liderança é mais lembrada proporcionalmente, mesmo em cidades pequenas.',
+  forca: 'Compara o desempenho da liderança em cada município com o desempenho médio dela no estado todo. 1× é a média; 2× quer dizer que, ali, a liderança foi duas vezes mais votada que no estado. Vinho = acima da média, azul = abaixo. Serve para achar redutos e regiões a conquistar, sem que as cidades grandes ofusquem as pequenas.',
+};
 type Linha = { id: string; nm: string; v: number; vv: number; p: number; forca: number; rank: number };
 
 const CLARO: [number, number, number] = [243, 234, 217];
@@ -98,7 +103,10 @@ export default function MapaVotos({ uf, casa, sq, nome, totalUF }: { uf: string;
         <h4 style={{ margin: 0 }}>Onde estão os votos · {g.mun.length} municípios</h4>
         <div className="abas mv-modos" role="tablist">
           {([['votos', 'Total de votos'], ['pct', '% dos votos válidos'], ['forca', 'Força relativa']] as [Modo, string][]).map(([k, t]) => (
-            <button key={k} type="button" role="tab" aria-selected={modo === k} onClick={() => setModo(k)}>{t}</button>
+            <span key={k} className="mv-modo" role="presentation">
+              <button type="button" role="tab" aria-selected={modo === k} onClick={() => setModo(k)}>{t}</button>
+              <Info texto={AJUDA[k]} rotulo={`O que é “${t}”?`} />
+            </span>
           ))}
         </div>
       </div>
@@ -129,8 +137,8 @@ export default function MapaVotos({ uf, casa, sq, nome, totalUF }: { uf: string;
 
         <aside className="mv-lado">
           <div className="mv-kpis">
-            <div><b>{n50}</b><span>município{n50 > 1 ? 's' : ''} somam metade dos votos</span></div>
-            <div><b>{dados.comVoto}</b><span>de {g.mun.length} com votos</span></div>
+            <div><b>{n50}</b><span>município{n50 > 1 ? 's' : ''} somam metade dos votos <Info texto="Quantos municípios, dos mais votados para os menos, são necessários para juntar metade de todos os votos da candidatura. Quanto menor, mais concentrada é a votação." rotulo="O que significa somar metade dos votos?" /></span></div>
+            <div><b>{dados.comVoto}</b><span>de {g.mun.length} com votos <Info texto="Em quantos municípios do estado a candidatura teve ao menos um voto: indica a capilaridade (o alcance territorial) da votação." rotulo="O que significa ter votos em municípios?" /></span></div>
           </div>
           {dados.reduto && (
             <p className="mv-reduto">Maior proporção: <strong>{dados.reduto.nm}</strong>, com {pct(dados.reduto.p)} dos votos válidos locais.</p>

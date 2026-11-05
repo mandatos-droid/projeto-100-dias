@@ -387,12 +387,15 @@ Guia.ir=function(n){
 /* ---------- menu lateral: exercícios de cada missão como sub-itens ---------- */
 (function(){
   var abertas={};   // missões abertas à mão (a missão da tela atual abre sozinha)
+  var ultima=0;     // missão da tela na última montagem do menu
   var _lat=App.lateral;
   App.lateral=function(){
     _lat.call(this);
     var nav=document.getElementById('ladoNav');if(!nav)return;
     var p=(location.hash||'#/').replace('#/','').split('/');
     var atual=p[0]==='m'?+p[1]:0, exAtual=p[2]||'';
+    /* acordeão: ao entrar em outra missão, a escolha manual anterior cai e só a missão atual fica aberta */
+    if(atual!==ultima){abertas={};ultima=atual}
     MISSOES.forEach(function(mi){
       var a=nav.querySelector('a.it[href="#/m/'+mi.n+'"]');if(!a)return;
       var aberta=abertas[mi.n]!=null?abertas[mi.n]:mi.n===atual;
@@ -401,7 +404,7 @@ Guia.ir=function(n){
       seta.setAttribute('aria-expanded',aberta);
       seta.setAttribute('aria-label',(aberta?'Recolher':'Mostrar')+' exercícios da missão '+mi.n);
       seta.textContent='▸';
-      seta.onclick=function(e){e.preventDefault();e.stopPropagation();abertas[mi.n]=!aberta;App.lateral()};
+      seta.onclick=function(e){e.preventDefault();e.stopPropagation();MISSOES.forEach(function(o){abertas[o.n]=false});abertas[mi.n]=!aberta;App.lateral()};
       a.insertBefore(seta,a.firstChild);
       if(!aberta)return;
       var ul=document.createElement('div');ul.className='sub-lista';
@@ -462,4 +465,30 @@ Guia.ir=function(n){
   aviso.parentNode.insertBefore(a,aviso);
 })();
 
+})();
+
+/* ---------- Painel: o que foi preenchido, em seções expansíveis por missão (sugestão 90) ----------
+   Cada missão ganha, abaixo da linha de progresso, um bloco recolhível com o mesmo fragmento do Resumo do preenchimento.
+   Montado só ao abrir; abrir uma missão fecha a anterior. */
+(function(){
+  if(typeof Telas==='undefined'||typeof Resumo==='undefined')return;
+  var _pn=Telas.painel;
+  Telas.painel=function(){
+    _pn.call(this);
+    var t=document.getElementById('tela');if(!t)return;
+    var linhas=t.querySelectorAll('a.missao-linha');
+    MISSOES.forEach(function(m,i){
+      var l=linhas[i];if(!l)return;
+      var p=progMissao(m);
+      var d=document.createElement('details');d.className='ml-resp';d.style.setProperty('--c',m.cor);
+      d.innerHTML='<summary>Ver o que foi preenchido <span>'+p.feitos+' de '+p.total+' exercícios</span></summary><div class="ml-corpo"></div>';
+      d.addEventListener('toggle',function(){
+        if(!d.open)return;
+        var corpo=d.querySelector('.ml-corpo');
+        if(!corpo.firstChild)corpo.innerHTML=Resumo.missao(m);
+        t.querySelectorAll('details.ml-resp[open]').forEach(function(o){if(o!==d)o.open=false});
+      });
+      l.parentNode.insertBefore(d,l.nextSibling);
+    });
+  };
 })();
