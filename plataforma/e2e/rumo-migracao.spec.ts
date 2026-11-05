@@ -36,9 +36,12 @@ test.describe('Mandato antigo percorrido de ponta a ponta (RUM-70, critério de 
     await expect(page.locator('[data-no="obj-p1"]').first()).toContainText('Priorizar a educação'); // (a tela agora tem duas prévias da árvore) m3.obj antigo vira a estratégia B e a frase segue na árvore
     await expect(page.locator('[data-no="obj-p2"]').first()).toContainText('Pautar o fim do trabalho infantil');
     await page.evaluate(() => { location.hash = '#/m/3/m3.metas/1'; });
+    /* a tela de metas abre uma meta por vez, pelo botão Editar do nó da árvore */
+    await page.getByRole('button', { name: 'Editar a meta 02' }).click();
+    await expect(page.locator('[data-meta="1"]').getByRole('textbox', { name: /no formato SMART/ })).toHaveValue('Visitar 10 escolas da rede estadual');
+    await page.getByRole('button', { name: 'Editar a meta 01' }).click();
     const meta1 = page.locator('[data-meta="0"]');
     await expect(meta1.getByRole('textbox', { name: /no formato SMART/ })).toHaveValue(METAS_ANTIGAS[0].texto);
-    await expect(page.locator('[data-meta="1"]').getByRole('textbox', { name: /no formato SMART/ })).toHaveValue('Visitar 10 escolas da rede estadual');
     await meta1.getByRole('textbox', { name: /no formato SMART/ }).fill(`${METAS_ANTIGAS[0].texto} e mais um`);
     await esperaSalvo(page);
 
@@ -81,7 +84,7 @@ test.describe('Mandato antigo percorrido de ponta a ponta (RUM-70, critério de 
     await expect(page.locator('[data-tipo="meta"]').first()).toContainText('Não concluída');
     await expect(page.locator('[data-no="legado"]')).toContainText('Joaquim José: a educação no centro do debate');
     await page.getByLabel('Status da meta 01').selectOption('concluida');
-    await expect(page.locator('.rm-anel b')).toHaveText('25%'); // p1 = (100 + 0) / 2 = 50; p2 = 0; total = (50 + 0) / 2 = 25
+    await expect(page.locator('.rm-anel b')).toHaveText('33%'); // o total pesa cada meta (sugestão 45): 1 concluída de 3 metas = 33%
   });
 
   test('o Resumo continua mostrando bandeiras, legado, preditores e metas', async ({ page }) => {
@@ -199,7 +202,7 @@ const SEMENTE = {
     comissoesDesejadas: [{ id: 'x', comissao: 'Comissão de Educação', papel: 'Titular', cargo: 'Titular', bandeira: 'Educação' }],
   },
 };
-const ILHAS = ['rumo-bandeiras', 'rumo-espacos', 'rumo-legado', 'rumo-preditores', 'rumo-metas', 'plano', 'plano-resumo'];
+const ILHAS = ['rumo-bandeiras', 'rumo-legado', 'rumo-preditores', 'rumo-metas', 'plano', 'plano-resumo'];
 
 for (const largura of [375, 1280]) {
   for (const ilha of ILHAS) {

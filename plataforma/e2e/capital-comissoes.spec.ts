@@ -153,17 +153,14 @@ test.describe('Cartão da comissão (CAP-03.6, CAP-03.7, CAP-03.8)', () => {
     expect((await registros(page))[0].mov).toBe('Articular com a Presidência da Casa');
   });
 
-  test('SUG-47: pergunta "Ordem de tudo o que o mandato precisa fazer", até 4 movimentos, cada um com data, em ordem de data', async ({ page }) => {
-    await page.clock.install({ time: new Date('2026-11-04T12:00:00') });
+  test('SUG-47: pergunta "Ordem de tudo o que o mandato precisa fazer", até 4 movimentos, na ordem em que foram marcados (sem data: sugestão 82 do Pedro)', async ({ page }) => {
     await escolheSaude(page);
     await expect(pergunta(page, 'mov').locator('legend')).toContainText('Ordem de tudo o que o mandato precisa fazer para alcançar este objetivo');
     await expect(pergunta(page, 'mov').locator('legend')).toContainText('selecionar até 4 movimentos');
     await botao(page, 'mov', 'Pedir a vaga formalmente').click();
     await botao(page, 'mov', 'Conversar com a liderança partidária').click();
-    await page.getByLabel('Data de Pedir a vaga formalmente').fill('2027-01-20');
-    await page.getByLabel('Data de Conversar com a liderança partidária').fill('2026-12-10');
-    await expect(pergunta(page, 'mov').locator('.cp-mov')).toHaveText([/Conversar com a liderança partidária/, /Pedir a vaga formalmente/]);
-    expect((await registros(page))[0].mov).toBe('Conversar com a liderança partidária (10/12/2026); Pedir a vaga formalmente (20/01/2027)');
+    await expect(pergunta(page, 'mov').locator('.cp-mov')).toHaveText([/Pedir a vaga formalmente/, /Conversar com a liderança partidária/]);
+    expect((await registros(page))[0].mov).toBe('Pedir a vaga formalmente; Conversar com a liderança partidária');
     await botao(page, 'mov', 'Procurar a secretaria da comissão').click();
     await botao(page, 'mov', 'Mapear a pauta e os projetos em tramitação').click();
     await botao(page, 'mov', 'Articular com a Presidência da Casa').click(); // o 5º
@@ -172,16 +169,7 @@ test.describe('Cartão da comissão (CAP-03.6, CAP-03.7, CAP-03.8)', () => {
     await expect(page.getByText('Escolha no máximo 4 movimentos.')).toBeVisible();
     await page.reload();
     await page.locator('#tela[data-pronto="true"]').waitFor();
-    await expect(page.getByLabel('Data de Pedir a vaga formalmente')).toHaveValue('2027-01-20');
-  });
-
-  test('SUG-47: data que já passou é recusada e o movimento fica sem data', async ({ page }) => {
-    await page.clock.install({ time: new Date('2026-11-04T12:00:00') });
-    await escolheSaude(page);
-    await botao(page, 'mov', 'Pedir a vaga formalmente').click();
-    await page.getByLabel('Data de Pedir a vaga formalmente').fill('2026-10-01');
-    await expect(page.getByText('Esse prazo já passou.')).toBeVisible();
-    expect((await registros(page))[0].mov).toBe('Pedir a vaga formalmente');
+    await expect(botao(page, 'mov', 'Pedir a vaga formalmente')).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('o Resumo mostra o texto legível de pq, papel e mov no Guia de verdade', async ({ page }) => {
