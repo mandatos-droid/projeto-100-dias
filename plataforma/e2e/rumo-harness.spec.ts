@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { abre, camposDe, dadoDe, EQUIPE, MANDATO } from './semente-rumo';
 
-const ILHAS = ['rumo-bandeiras', 'rumo-espacos', 'rumo-legado', 'rumo-preditores', 'rumo-metas', 'plano', 'plano-resumo'];
+const ILHAS = ['rumo-bandeiras', 'rumo-legado', 'rumo-preditores', 'rumo-metas', 'plano', 'plano-resumo'];
 
 for (const ilha of ILHAS) {
   test(`a rota de teste monta a ilha ${ilha} (RUM-70)`, async ({ page }) => {

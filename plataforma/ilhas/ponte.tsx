@@ -10,7 +10,6 @@ import EleitoradoIlha, { EleitoradoResumo } from './Eleitorado';
 import SocialIlha, { SocialResumo } from './Social';
 import { Ficha } from './Equipe';
 import Bandeiras from './rumo/Bandeiras';
-import Espacos from './rumo/Espacos';
 import Legado from './rumo/Legado';
 import Preditores from './rumo/Preditores';
 import Estrategia from './rumo/Estrategia';
@@ -113,7 +112,6 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   'm2-sugestao-checklist': () => <SugestaoChecklist />,
   organograma: () => <Organograma />,
   'rumo-bandeiras': () => <Bandeiras />,
-  'rumo-espacos': () => <Espacos />,
   'rumo-legado': () => <Legado />,
   'rumo-preditores': () => <Preditores />,
   'rumo-estrategia': () => <Estrategia />,

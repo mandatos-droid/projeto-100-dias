@@ -34,7 +34,7 @@
     if(ex&&ex.id==='m3.legado')return ilha('rumo-legado');
     return _cp.call(this,ex);
   };
-  /* o modo guiado monta um passo por campo (Guia.montar); aqui a ilha ocupa um passo só. A lista de comissões segue como passo próprio. */
+  /* o modo guiado monta um passo por campo (Guia.montar); aqui a ilha ocupa um passo só. */
   if(typeof Guia!=='undefined'){
     var _mt=Guia.montar;
     Guia.montar=function(ex){
@@ -42,9 +42,7 @@
         var p=[];
         if(ex.intro||ex.passos)p.push({k:'intro'});
         p.push({k:'componente'});
-        /* "No futuro" (fim) vem antes das comissões: a lista de espaços fecha o exercício, abaixo do texto sobre o futuro */
         if(ex.fim)p.push({k:'fim'});
-        if(ex.id==='m3.bandeiras'&&ex.listaExtra)p.push({k:'listaExtra'});
         return p;
       }
       return _mt.call(this,ex);
@@ -71,12 +69,12 @@
       return h;
     };
   }
-  /* o passo "Comissões e espaços que o mandato pretende compor" troca a lista genérica pela ilha; as outras listas do Guia ficam como são */
-  var _li=Comp.lista;
-  Comp.lista=function(ex,dono){
-    if(ex&&ex.chave==='comissoesDesejadas')return ilha('rumo-espacos');
-    return _li.call(this,ex,dono);
-  };
+  /* Comissões são tratadas só na Missão 4 (sugestão 33, Alana): a lista "Comissões e espaços que o mandato pretende compor"
+     sai da Missão 3. conteudo.js não é editado (AD-003), então ela é retirada de MISSOES na carga; D.comissoesDesejadas
+     continua gravado e a Missão 4 ainda o importa. */
+  if(typeof MISSOES!=='undefined'){
+    MISSOES.forEach(function(m){if(m.n===3)m.exercicios.forEach(function(e){if(e.id==='m3.bandeiras')delete e.listaExtra})});
+  }
   Comp.preditores=function(){return ilha('rumo-preditores')+ilha('rumo-estrategia')};
   Comp.metas=function(){return ilha('rumo-metas')};
 })();

@@ -13,7 +13,7 @@ const CONTEUDO = readFileSync(new URL('../public/legacy/conteudo.js', import.met
 /* Hash do JSON inteiro da Missão 3 (itens, listaExtra, ct, prazo e todos os exercícios), calculado sobre o conteudo.js de antes da feature. */
 const HASH_TEXTOS = '318f86b99e245a6d6fe61b809729b61e407d632d32819216dbff2cb7f170dee3';
 /* Hashes dos mesmos JSONs depois da troca "objetivo(s) específico(s)" por "objetivo(s) estratégico(s)" (RM3-42): só o termo muda, o resto do texto fica igual. */
-const HASH_M3_ESTRATEGICO = 'd55cfbc009ac90590c8352226920158437bf3ae32646e0656654f0322114f988'; // atualizado: m3.js também troca "Lembre-se que" por "Lembre-se de que" (sugestão 32)
+const HASH_M3_ESTRATEGICO = '927e9459b18cb4587add1e5d8b127d976ebfa280459957e770d2a16d5a5a2c0c'; // atualizado: m3.js também troca "Lembre-se que" por "Lembre-se de que" (sugestão 32) e retira a lista de comissões de m3.bandeiras (sugestão 33)
 const HASH_M5_ESTRATEGICO = '1a032f6a51a9571199bf3341dd0c02d2d3fdf8ca89fba5bf07b0b8e191ced93b';
 
 type Ex = Record<string, unknown> & { id: string; intro: string; fim?: string; listaExtra?: { titulo: string; chave: string } };
@@ -81,7 +81,7 @@ test('Comp.campos devolve a ilha de bandeiras para m3.bandeiras, sem os campos m
   const html = w.Comp.campos(ex3(w, 'm3.bandeiras'));
   assert.ok(html.startsWith('<div class="ilha" data-ilha="rumo-bandeiras"></div>'));
   assert.equal(html.includes('data-k="m3.'), false);
-  assert.equal(html.includes('<lista'), false); // a lista de comissões é um passo próprio (Guia.montar)
+  assert.equal(html.includes('<lista'), false);
 });
 
 test('Comp.campos devolve só a ilha do Legado para m3.legado (RUM-10)', () => {
@@ -105,9 +105,9 @@ test('Comp.preditores devolve as ilhas dos preditores e, abaixo, a da estratégi
 /* ---------- passos do modo guiado: a ilha entra em um passo só, entre a introdução e o fecho ---------- */
 const ks = (ps: { k: string }[]) => [...ps.map((p) => p.k)]; // cópia no realm do teste (o array do vm tem outro protótipo)
 
-test('m3.bandeiras no modo guiado: introdução, a ilha, o fecho "No futuro" e a lista de comissões, nesta ordem (RUM-01, RUM-51.9)', () => {
+test('m3.bandeiras no modo guiado: introdução, a ilha e o fecho "No futuro", sem passo de comissões (RUM-01, sugestão 33)', () => {
   const w = janela();
-  assert.deepEqual(ks(w.Guia.montar(ex3(w, 'm3.bandeiras'))), ['intro', 'componente', 'fim', 'listaExtra']);
+  assert.deepEqual(ks(w.Guia.montar(ex3(w, 'm3.bandeiras'))), ['intro', 'componente', 'fim']);
 });
 
 test('m3.legado no modo guiado: introdução, a ilha e o fecho, sem passos de campo solto (RUM-10, RUM-12.11)', () => {
@@ -121,19 +121,16 @@ test('os passos de qualquer outro exercício vêm do Guia.montar anterior', () =
   assert.deepEqual(w.Guia.montar({ id: 'm1.q1' }), [{ k: 'original:m1.q1' }]);
 });
 
-/* ---------- espaços pretendidos (RUM-50, RUM-51.9) ---------- */
-test('a lista de comissões do Guia vira a ilha de espaços; qualquer outra lista passa direto (RUM-50)', () => {
+/* ---------- comissões só na Missão 4 (sugestão 33 da Alana) ---------- */
+test('a Missão 3 não tem mais a lista de comissões e espaços; os textos do Guia seguem no conteudo.js (sugestão 33)', () => {
+  assert.ok(ex3(guia(), 'm3.bandeiras').listaExtra, 'o conteudo.js cru mantém a lista (AD-003)');
   const w = janela();
-  const ex = ex3(w, 'm3.bandeiras').listaExtra!;
-  assert.equal(ex.chave, 'comissoesDesejadas');
-  assert.equal(w.Comp.lista(ex, 'm3.bandeiras'), '<div class="ilha" data-ilha="rumo-espacos"></div>');
-  assert.equal(w.Comp.lista({ chave: 'outraLista' }, 'x'), '<lista outraLista x>');
+  assert.equal(ex3(w, 'm3.bandeiras').listaExtra, undefined);
+  assert.equal(w.Comp.lista({ chave: 'comissoesDesejadas' }, 'm3.bandeiras'), '<lista comissoesDesejadas m3.bandeiras>');
 });
 
-test('o texto "No futuro" segue no fecho, que é um passo próprio antes dos espaços (sugestão #11 da Alana)', () => {
+test('o texto "No futuro" segue no fecho de m3.bandeiras (sugestão #11 da Alana)', () => {
   const w = janela();
-  const passos = [...w.Guia.montar(ex3(w, 'm3.bandeiras'))].map((p) => p.k);
-  assert.ok(passos.indexOf('fim') < passos.indexOf('listaExtra'));
   assert.ok(ex3(w, 'm3.bandeiras').fim!.includes('No futuro'));
 });
 

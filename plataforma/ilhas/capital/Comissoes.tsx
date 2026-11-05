@@ -9,7 +9,7 @@ import { BANDEIRA_COMISSAO } from '@/lib/comissoesPorBandeira';
 import type { Catalogo, Comissao } from '@/lib/espacos';
 import { aviso } from '../ponte';
 import CartaoComissao from './CartaoComissao';
-import { casaDe } from '../rumo/Espacos';
+import { casaDe } from '@/lib/espacos';
 import { useRumo } from '../rumo/useRumo';
 import './capital.css';
 
