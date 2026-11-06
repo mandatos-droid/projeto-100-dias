@@ -108,6 +108,7 @@ export function MunicipioResumo() {
     if (st?.has('aliado') && st.has('concorrente')) return '#8a6d3b';
     if (st?.has('aliado')) return '#1B6B4F';
     if (st?.has('concorrente')) return '#EB5454';
+    if (st?.has('potencial')) return '#2F6F82';
     return id === sel ? '#ffd278' : '#e4dccb';
   };
   const nomes = new Map(geo.dados?.mun.map((x) => [x.id, x.nm]) ?? []);
@@ -122,11 +123,12 @@ export function MunicipioResumo() {
           <MapaMunicipios geo={geo.dados} fill={(id) => fill(id, nomes.get(id) ?? '')} selecionado={sel} onSelecionar={nada}
             titulo={(_, nm) => nm} />
           <p className="peq-t">
-            <span className="ponto" style={{ background: '#1B6B4F', display: 'inline-block' }} /> município com parceiro ·{' '}
-            <span className="ponto" style={{ background: '#EB5454', display: 'inline-block' }} /> com concorrente ·{' '}
+            <span className="ponto" style={{ background: '#1B6B4F', display: 'inline-block' }} /> município com aliado ·{' '}
+            <span className="ponto" style={{ background: '#EB5454', display: 'inline-block' }} /> com opositor ·{' '}
+            <span className="ponto" style={{ background: '#2F6F82', display: 'inline-block' }} /> com potencial relacionamento ·{' '}
             <span className="ponto" style={{ background: '#8a6d3b', display: 'inline-block' }} /> com ambos ·{' '}
             <span className="ponto" style={{ background: '#ffd278', display: 'inline-block' }} /> em foco
-            {marcados === 0 && ' · nenhum parceiro ou concorrente marcado por município ainda'}
+            {marcados === 0 && ' · nenhum aliado, opositor ou potencial relacionamento marcado por município ainda'}
           </p>
         </>
       )}
@@ -153,6 +155,7 @@ export function AssentosResumo() {
 
   const parceiros = eleitos.filter((e) => statusDe(e.s) === 'aliado').length;
   const concorrentes = eleitos.filter((e) => statusDe(e.s) === 'concorrente').length;
+  const potenciais = eleitos.filter((e) => statusDe(e.s) === 'potencial').length;
 
   return (
     <div className="ilha-corpo">
@@ -165,15 +168,17 @@ export function AssentosResumo() {
             <Hemiciclo membros={membros} partidos={new Set()} filtroStatus="todos" selecionado={null}
               proprio={(D.tse as { sq?: string }).sq} onSelecionar={nada} />
             <ul className="legenda">
-              <li><Marca tipo="aliado" tam={13} /> parceiro</li>
-              <li><Marca tipo="concorrente" tam={13} /> concorrente</li>
+              <li><Marca tipo="aliado" tam={13} /> aliado</li>
+              <li><Marca tipo="concorrente" tam={13} /> opositor</li>
+              <li><Marca tipo="potencial" tam={13} /> potencial relacionamento</li>
               <li><Marca tipo="proprio" tam={13} /> esta liderança</li>
             </ul>
           </div>
           <div>
-            <div className="kpis" style={{ gridTemplateColumns: '1fr 1fr' }}>
-              <div className="kp ok"><b><Marca tipo="aliado" tam={18} /> {parceiros}</b><span>parceiros</span></div>
-              <div className="kp coral"><b><Marca tipo="concorrente" tam={18} /> {concorrentes}</b><span>concorrentes</span></div>
+            <div className="kpis" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+              <div className="kp ok"><b><Marca tipo="aliado" tam={18} /> {parceiros}</b><span>aliados</span></div>
+              <div className="kp coral"><b><Marca tipo="concorrente" tam={18} /> {concorrentes}</b><span>opositores</span></div>
+              <div className="kp"><b><Marca tipo="potencial" tam={18} /> {potenciais}</b><span>potenciais relacionamentos</span></div>
             </div>
             <BarrasPartido dados={contagem.slice(0, 10)} destaque={(m.partido || '').toUpperCase()} />
           </div>

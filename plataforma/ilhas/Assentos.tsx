@@ -5,7 +5,7 @@ import { corPartido, mistura, posEspectro } from '@/lib/partidos';
 import { nf, pct, semAcento } from '@/lib/format';
 import type { CasaChave, Eleito, Status } from '@/lib/types';
 import { salva, statusDe, useLegado } from './ponte';
-import { Chip, Foto, Hemiciclo, Marca, StatusBotoes, SvgZoom, useCarga, type Membro } from './pecas';
+import { Chip, Foto, Hemiciclo, InfoRelacao, Marca, ROT_REL_PLURAL, StatusBotoes, SvgZoom, useCarga, type Membro } from './pecas';
 
 const CASA_K: Record<Eleito['k'], CasaChave> = { f: 'federal', e: 'estadual', s: 'senado' };
 const K_CASA: Record<CasaChave, Eleito['k']> = { federal: 'f', estadual: 'e', senado: 's' };
@@ -20,7 +20,7 @@ const cargoDe = (e: Eleito) =>
 const GENERO: [string, string][] = [['F', 'Mulheres'], ['M', 'Homens']];
 const RACA: [string, string][] = [['B', 'Branca'], ['P', 'Parda'], ['N', 'Preta'], ['I', 'Indígena'], ['A', 'Amarela']];
 const MANDATO: [string, string][] = [['r', 'Reeleição'], ['n', 'Primeiro mandato']];
-const RELACAO: [string, string][] = [['aliado', 'Parceiros'], ['concorrente', 'Concorrentes'], ['neutro', 'Sem marcação']];
+const RELACAO: [string, string][] = [['aliado', ROT_REL_PLURAL.aliado], ['concorrente', ROT_REL_PLURAL.concorrente], ['potencial', ROT_REL_PLURAL.potencial], ['neutro', 'Sem marcação']];
 const COR_RACA: Record<string, string> = { B: '#d9c7a3', P: '#a8734a', N: '#3b2a26', I: '#b9473a', A: '#d6b43a', '': '#cfc8bd' };
 const COR_GEN: Record<string, string> = { F: '#8a2d5c', M: '#6f8a9a' };
 const COR_MAND: Record<string, string> = { r: '#571730', n: '#e0a526', '?': '#cfc8bd' };
@@ -33,7 +33,7 @@ const NOME_UF: Record<string, string> = {
 };
 
 type Coluna = 'nome' | 'partido' | 'uf' | 'votos' | 'relacao';
-const ORD_REL: Record<Status, number> = { aliado: 0, concorrente: 1, neutro: 2 };
+const ORD_REL: Record<Status, number> = { aliado: 0, concorrente: 1, potencial: 2, neutro: 3 };
 type Filtros = Record<'partido' | 'genero' | 'raca' | 'mandato' | 'relacao', Set<string>>;
 type Faceta = keyof Filtros;
 const POR_PAGINA = 15;
@@ -184,6 +184,7 @@ export default function Assentos() {
 
   const parceiros = visiveis.filter((e) => statusDe(e.s) === 'aliado').length;
   const concorrentes = visiveis.filter((e) => statusDe(e.s) === 'concorrente').length;
+  const potenciais = visiveis.filter((e) => statusDe(e.s) === 'potencial').length;
   const nPartidos = new Set(visiveis.map((e) => e.p)).size;
   const cont = (fn: (e: Eleito) => string) => {
     const c: Record<string, number> = {};
@@ -237,7 +238,7 @@ export default function Assentos() {
               <Menu id="relacao" titulo="Relação" qtd={fl.relacao.size} aberta={menu} setAberta={setMenu}>
                 {RELACAO.map(([id, r]) => (
                   <Ck key={id} ativo={fl.relacao.has(id)} n={cRelacao.get(id) ?? 0} onClick={() => alterna('relacao', id)}>
-                    {id !== 'neutro' && <Marca tipo={id as 'aliado' | 'concorrente'} tam={11} />} {r}
+                    {id !== 'neutro' && <Marca tipo={id as 'aliado' | 'concorrente' | 'potencial'} tam={11} />} {r}
                   </Ck>))}
               </Menu>
               <Menu id="partido" titulo="Partido" qtd={fl.partido.size} aberta={menu} setAberta={setMenu} largo>
@@ -264,8 +265,9 @@ export default function Assentos() {
         <div className="kpis">
           <div className="kp"><b>{nf.format(visiveis.length)}</b><span>{filtrando ? `de ${nf.format(base.length)} parlamentares` : 'parlamentares eleitos'}</span></div>
           <div className="kp"><b>{nPartidos}</b><span>partidos</span></div>
-          <div className="kp ok"><b><Marca tipo="aliado" tam={18} /> {parceiros}</b><span>parceiros</span></div>
-          <div className="kp coral"><b><Marca tipo="concorrente" tam={18} /> {concorrentes}</b><span>concorrentes</span></div>
+          <div className="kp ok"><b><Marca tipo="aliado" tam={18} /> {parceiros}</b><span>aliados</span></div>
+          <div className="kp coral"><b><Marca tipo="concorrente" tam={18} /> {concorrentes}</b><span>opositores</span></div>
+          <div className="kp"><b><Marca tipo="potencial" tam={18} /> {potenciais}</b><span>potenciais relacionamentos</span></div>
         </div>
 
         {visiveis.length > 0 && (
@@ -322,8 +324,9 @@ export default function Assentos() {
                   proprio={meuSq} onSelecionar={(k) => { setSel(k === sel ? null : k); }} />
                 <ul className="legenda" aria-label="Legenda das formas">
                   <li><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="#9a8f86" /></svg> sem marcação</li>
-                  <li><Marca tipo="aliado" tam={13} /> parceiro</li>
-                  <li><Marca tipo="concorrente" tam={13} /> concorrente</li>
+                  <li><Marca tipo="aliado" tam={13} /> aliado</li>
+                  <li><Marca tipo="concorrente" tam={13} /> opositor</li>
+                  <li><Marca tipo="potencial" tam={13} /> potencial relacionamento</li>
                   <li><Marca tipo="proprio" tam={13} /> esta liderança</li>
                   <li>cor = partido · esmaecido = fora do filtro</li>
                 </ul>
@@ -361,6 +364,7 @@ export default function Assentos() {
             <div className="ilha-filtros">
               <input type="search" value={busca} onChange={(e) => { setBusca(e.target.value); setPagina(0); }} placeholder={`Buscar nesta lista (${nomeEscopo})`} aria-label="Buscar nesta lista" />
             </div>
+            <p className="peq-t" style={{ margin: '0 0 6px' }}>Marque a relação de cada parlamentar com a liderança <InfoRelacao /></p>
             <div className="rolar">
               <table className="tb">
                 <thead><tr>{th('nome', 'Parlamentar')}{th('partido', 'Partido')}{escopo === 'BR' && th('uf', 'UF')}<th>Perfil</th>{th('votos', 'Votos')}{th('relacao', 'Relação')}</tr></thead>

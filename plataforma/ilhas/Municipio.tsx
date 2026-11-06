@@ -78,7 +78,7 @@ export default function Municipio() {
     return o;
   }, [camadaInfo]);
 
-  /* parceiros e concorrentes já marcados em algum município deste estado */
+  /* aliados, opositores e potenciais relacionamentos já marcados em algum município deste estado */
   const marcas = useMemo(() => {
     const out: Marcas = {};
     if (!mun.dados) return out;
@@ -87,7 +87,7 @@ export default function Municipio() {
       if (r.uf !== m.uf || !r.mun || r.status === 'neutro') continue;
       const id = idPorNome.get(semAcento(r.mun));
       if (!id) continue;
-      (out[id] ??= { aliado: 0, concorrente: 0 })[r.status]++;
+      (out[id] ??= { aliado: 0, concorrente: 0, potencial: 0 })[r.status]++;
     }
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -166,7 +166,7 @@ export default function Municipio() {
                 )}
                 <label className="cj-chk">
                   <input type="checkbox" checked={mostraMarcas} onChange={(e) => setMostraMarcas(e.target.checked)} />
-                  <Marca tipo="aliado" tam={12} /><Marca tipo="concorrente" tam={12} /> parceiros e concorrentes marcados
+                  <Marca tipo="aliado" tam={12} /><Marca tipo="concorrente" tam={12} /><Marca tipo="potencial" tam={12} /> aliados, opositores e potenciais relacionamentos marcados
                   {casaId && <><Marca tipo="proprio" tam={13} /> município de origem</>}
                 </label>
               </div>
@@ -234,7 +234,7 @@ export default function Municipio() {
           </div>
         </>
       )}
-      <p className="peq-t">Parceiros e concorrentes marcados aqui aparecem no resumo do preenchimento e no próprio mapa.</p>
+      <p className="peq-t">Aliados, opositores e potenciais relacionamentos marcados aqui aparecem no resumo do preenchimento e no próprio mapa.</p>
     </div>
   );
 }

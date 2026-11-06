@@ -27,12 +27,12 @@
   q2.d='<em>Analise</em> as campanhas eleitorais que a liderança percorreu, a partir dos pleitos apresentados abaixo, já preenchidos com os dados do TSE: os cargos disputados, a quantidade de votos e o(s) partido(s) escolhido(s). Procure compreender a história política, as estratégias de campanha, as aproximações e distanciamentos que o/a fizeram chegar ao cargo que conquistou hoje. Se faltar algum pleito, lance-o à mão pelo “+”.';
 
   /* ---- Conjuntura · pergunta 1: os dados primeiro, depois a análise (SUG-17) ----
-     Parceiros e concorrentes são marcados na tabela (seleção tabula melhor que texto livre); a caixa é só das pontes não óbvias. */
+     Aliados, opositores e potenciais relacionamentos são marcados na tabela (seleção tabula melhor que texto livre); a caixa é só das pontes não óbvias. */
   var q4=item(exDe('m1.conjuntura'),'m1.q4');
   q4.d='<em>Identifique</em> quem são os/as parlamentares eleitos(as) nesta legislatura, a partir dos dados expostos abaixo. Em seguida, faça uma análise sobre o que esperar dos colegas e das possíveis alianças.';
   q4.depois=true;
   q4.caixas=[{k:'m1.q4b',resumo:'Pontes não óbvias',
-    antes:'<div class="orienta"><p>Marque na tabela acima quem é <strong>Parceiro</strong> e quem é <strong>Concorrente</strong> da liderança parlamentar, considerando a região, o perfil pessoal e a disputa partidária.</p></div>',
+    antes:'<div class="orienta"><p>Marque na tabela acima quem é <strong>Aliado</strong>, quem é <strong>Opositor</strong> e quem é um <strong>Potencial relacionamento</strong> para a liderança parlamentar, considerando a região, o perfil pessoal e a disputa partidária. O botão “i” explica cada categoria.</p></div>',
     rot:'E quais são as pontes não óbvias que podem ser construídas, a partir da criação de espaços de convergência que se baseiem em consensos mínimos e não necessariamente alinhamento completo? Elenque agora os nomes não óbvios, e que serão necessários para que as agendas e pautas avancem.'}];
 
   /* ---- Conjuntura (partido e território) e Oportunidades (social): texto, dados, caixa de análise (SUG-19) ----

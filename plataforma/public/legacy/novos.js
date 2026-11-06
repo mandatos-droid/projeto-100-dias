@@ -161,7 +161,7 @@ window.ResumoIlhas={
       '<img src="https://resultados.tse.jus.br/oficial/'+base+'/fotos/'+String(uf||'').toLowerCase()+'/'+esc(k)+'.jpeg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>';
   },
   rel:function(grupo){
-    var r=D.relacoes||{},out={aliado:[],concorrente:[]};
+    var r=D.relacoes||{},out={aliado:[],concorrente:[],potencial:[]};
     Object.keys(r).forEach(function(k){
       var x=r[k];if(!x||!out[x.status])return;
       var local=!!x.mun;
@@ -201,11 +201,12 @@ window.ResumoIlhas={
     }
     if(ilha==='assentos'||ilha==='municipio'){
       var g=this.rel(ilha),rot=ilha==='assentos'?'na Casa Legislativa':'no município';
-      h+='<dt style="color:var(--tinta)">Parceiros e concorrentes '+rot+'</dt>';
+      h+='<dt style="color:var(--tinta)">Aliados, opositores e potenciais relacionamentos '+rot+'</dt>';
       var mapa=this.mapa(ilha,ilha==='assentos'?'Hemiciclo da Casa':'Mapa político do estado');
-      if(!g.aliado.length&&!g.concorrente.length)return h+'<dd>'+Resumo.sem+'</dd>'+mapa;
-      h+='<dd>'+(g.aliado.length?'<strong>Parceiros ('+g.aliado.length+')</strong>'+this.lista(g.aliado,ilha):'')+
-        (g.concorrente.length?'<strong>Concorrentes ('+g.concorrente.length+')</strong>'+this.lista(g.concorrente,ilha):'')+'</dd>';
+      if(!g.aliado.length&&!g.concorrente.length&&!g.potencial.length)return h+'<dd>'+Resumo.sem+'</dd>'+mapa;
+      h+='<dd>'+(g.aliado.length?'<strong>Aliados ('+g.aliado.length+')</strong>'+this.lista(g.aliado,ilha):'')+
+        (g.concorrente.length?'<strong>Opositores ('+g.concorrente.length+')</strong>'+this.lista(g.concorrente,ilha):'')+
+        (g.potencial.length?'<strong>Potenciais relacionamentos ('+g.potencial.length+')</strong>'+this.lista(g.potencial,ilha):'')+'</dd>';
       return h+mapa;
     }
     return h;

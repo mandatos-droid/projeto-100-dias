@@ -74,7 +74,7 @@ test('m1.q4 pede a análise a partir dos dados abaixo e não traz o trecho dos 1
   assert.equal(h.includes('agendas similares'), false);
 });
 
-test('m1.q4 abre depois do mapa a orientação de marcar Parceiro e Concorrente e a caixa das pontes não óbvias (SUG-17)', () => {
+test('m1.q4 abre depois do mapa a orientação de marcar Aliado, Opositor e Potencial relacionamento e a caixa das pontes não óbvias (SUG-17)', () => {
   const h = pergunta(janela(), 'm1.conjuntura', 0);
   const ilha = h.indexOf('data-ilha="assentos"');
   assert.ok(ilha > 0);
@@ -199,9 +199,9 @@ test('o Resumo continua com um só </dl> final e sem repetir o texto de m1.q5 (m
 });
 
 /* ---------- lacunas apontadas pelo Verifier ---------- */
-test('a orientação de m1.q4 manda marcar Parceiro e Concorrente considerando região, perfil pessoal e disputa partidária (SUG-17)', () => {
+test('a orientação de m1.q4 manda marcar Aliado, Opositor e Potencial relacionamento considerando região, perfil pessoal e disputa partidária (SUG-17)', () => {
   const h = pergunta(janela(), 'm1.conjuntura', 0);
-  assert.ok(h.includes('Marque na tabela acima quem é <strong>Parceiro</strong> e quem é <strong>Concorrente</strong> da liderança parlamentar, considerando a região, o perfil pessoal e a disputa partidária.'));
+  assert.ok(h.includes('Marque na tabela acima quem é <strong>Aliado</strong>, quem é <strong>Opositor</strong> e quem é um <strong>Potencial relacionamento</strong> para a liderança parlamentar, considerando a região, o perfil pessoal e a disputa partidária. O botão “i” explica cada categoria.'));
 });
 
 test('a caixa de m1.q6 usa a mesma chave de antes, então a resposta antiga continua nela (edge case)', () => {

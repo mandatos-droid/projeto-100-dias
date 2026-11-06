@@ -1034,3 +1034,9 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 #tela .res2 ul.frag b.P{background:var(--vinho)}
 /* nomes das cidades no mapa: branco com contorno escuro, legível sobre qualquer cor */
 .rot-mun text{fill:#fff;stroke:rgba(20,16,24,.85);stroke-linejoin:round;paint-order:stroke;font-weight:700;font-family:system-ui,sans-serif;vector-effect:none}
+
+/* ---------- Relação em três categorias: aliado, opositor, potencial relacionamento ---------- */
+.ilha-corpo .st button:not(:first-child){border-left-width:0}
+.ilha-corpo .st button:not(:first-child):not(:last-child){border-radius:0}
+.ilha-corpo .st button.potencial[aria-pressed=true]{background:#2F6F82;border-color:#2F6F82;color:#fff}
+.ilha-corpo .ass-main table.tb .st button:not(:first-child){border-left-width:2px}

@@ -34,7 +34,8 @@ export type GeoUF = { w: number; h: number; mun: { id: string; nm: string; d: st
 export type UFIdx = { uf: string; nome: string; cadeiras: Record<string, number>; vagas: Record<CasaChave, number> };
 export type Nacional = Record<'federal' | 'senado' | 'estadual' | 'prefeitos' | 'vereadores', Record<string, number>>;
 
-export type Status = 'aliado' | 'concorrente' | 'neutro';
+/** chaves antigas mantidas (aliado, concorrente) para não perder marcações salvas; os rótulos é que mudaram (ROT_REL) */
+export type Status = 'aliado' | 'concorrente' | 'potencial' | 'neutro';
 export type Relacao = {
   status: Status; nome: string; partido: string; cargo: string; uf: string; mun?: string; votos?: number;
 };

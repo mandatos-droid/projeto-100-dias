@@ -6,7 +6,7 @@ import { RotulosMun, useLarguraPx } from './RotulosMun';
 
 /** Valor de um município na camada ativa: cor de preenchimento e linhas do balão. */
 export type Celula = { fill: string; titulo: string; linhas: string[] };
-export type Marcas = Record<string, { aliado: number; concorrente: number }>;
+export type Marcas = Record<string, { aliado: number; concorrente: number; potencial: number }>;
 
 type Vista = { cx: number; cy: number; k: number };
 type Caixa = { x0: number; y0: number; x1: number; y1: number };
@@ -161,8 +161,9 @@ export default function MapaConjuntura({ geo, celulas, selecionado, casa = null,
           const c = centro(id);
           return (
             <g key={id} transform={`translate(${c.x} ${c.y}) scale(${s})`} pointerEvents="none" className="cj-marca">
-              {mk.aliado > 0 && <path d="M0-9 8 0 0 9-8 0Z" transform={mk.concorrente ? 'translate(-7 0)' : ''} fill={COR_REL.aliado} style={{ stroke: '#fff', strokeWidth: 1.6 }} />}
-              {mk.concorrente > 0 && <path d="M0-9 9 7H-9Z" transform={mk.aliado ? 'translate(7 0)' : ''} fill={COR_REL.concorrente} style={{ stroke: '#fff', strokeWidth: 1.6 }} />}
+              {mk.aliado > 0 && <path d="M0-9 8 0 0 9-8 0Z" transform={mk.concorrente || mk.potencial ? 'translate(-9 0)' : ''} fill={COR_REL.aliado} style={{ stroke: '#fff', strokeWidth: 1.6 }} />}
+              {mk.concorrente > 0 && <path d="M0-9 9 7H-9Z" transform={mk.aliado && mk.potencial ? '' : mk.aliado ? 'translate(7 0)' : mk.potencial ? 'translate(-7 0)' : ''} fill={COR_REL.concorrente} style={{ stroke: '#fff', strokeWidth: 1.6 }} />}
+              {mk.potencial > 0 && <circle r={6.5} transform={mk.aliado || mk.concorrente ? 'translate(11 0)' : ''} fill="#fff" stroke={COR_REL.potencial} strokeWidth={3.2} />}
             </g>
           );
         })}
