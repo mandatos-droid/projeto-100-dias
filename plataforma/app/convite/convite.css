@@ -61,5 +61,22 @@
 .cv-bt--pri { background: var(--coral); border-color: var(--coral); color: var(--tinta); }
 .cv-bt:disabled { opacity: .6; cursor: progress; }
 
+/* botão com cara de link (trocar entre criar conta e entrar, usar outra conta) */
+.cv-link {
+  align-self: flex-start; padding: 2px 0; border: 0; background: none; cursor: pointer;
+  font: inherit; font-weight: 700; color: var(--vinho); text-decoration: underline; text-underline-offset: 3px;
+}
+.cv-link:disabled { opacity: .6; cursor: progress; }
+.cv-ou { text-align: center; font-size: 13px; color: var(--tinta-2); }
+
+/* aviso de consentimento (mesmo texto do cadastro do Guia) e a caixa de concordância */
+.cv-lgpd {
+  padding: 10px 12px; border: 1px solid var(--linha); border-radius: 8px; background: var(--papel);
+  font-size: 13px; line-height: 1.5; color: var(--tinta-2); overflow-wrap: anywhere;
+}
+.cv-lgpd strong { color: var(--tinta); }
+.cv-chk { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; cursor: pointer; }
+.cv .cv-chk input { flex: none; width: 20px; height: 20px; margin: 2px 0 0; padding: 0; accent-color: var(--vinho); }
+
 .cv-aviso { padding: 10px 12px; border-left: 4px solid var(--coral); border-radius: 6px; background: #FDECEC; color: #7A1F1F; font-size: 14px; }
 .cv-aviso--ok { border-left-color: var(--verde); background: #E3F1EE; color: var(--verde); }

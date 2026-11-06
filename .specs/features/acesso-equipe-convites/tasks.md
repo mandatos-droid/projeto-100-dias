@@ -821,15 +821,15 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Sem sessão a página mostra criar conta (nome, e-mail, senha), entrar e entrar com Google (ACE-02.2)
-- [ ] Criar conta com dados válidos cria a conta, grava o consentimento, aceita o convite e abre o Guia (ACE-02.3, ACE-02.8)
-- [ ] A sessão é gravada em `legisla.tok` no formato do Guia (ACE-02.7, conferido lendo o valor gravado)
-- [ ] O aviso de consentimento aparece antes de concluir e o registro é enviado a `consentimentos` antes da chamada de aceite (ACE-02.8)
-- [ ] E-mail já usado ou senha fraca mostra o motivo e o convite não é consumido (ACE-02.15)
-- [ ] Entrar com Google guarda o token pendente em `sessionStorage` e pede `redirect_to` para `/convite`; na volta com `access_token` no hash a página grava `legisla.tok`, lê o pendente e conclui o aceite sem pedir o link (ACE-02.5)
-- [ ] Sessão vencida (401) durante o aceite pede novo login e retoma o mesmo convite (borda da spec)
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/convite-aceite.spec.ts e2e/convite-conta.spec.ts`
-- [ ] Test count: ao menos 9 testes novos em `e2e/convite-conta.spec.ts`, nenhum removido
+- [x] Sem sessão a página mostra criar conta (nome, e-mail, senha), entrar e entrar com Google (ACE-02.2)
+- [x] Criar conta com dados válidos cria a conta, grava o consentimento, aceita o convite e abre o Guia (ACE-02.3, ACE-02.8)
+- [x] A sessão é gravada em `legisla.tok` no formato do Guia (ACE-02.7, conferido lendo o valor gravado)
+- [x] O aviso de consentimento aparece antes de concluir e o registro é enviado a `consentimentos` antes da chamada de aceite (ACE-02.8)
+- [x] E-mail já usado ou senha fraca mostra o motivo e o convite não é consumido (ACE-02.15)
+- [x] Entrar com Google guarda o token pendente em `sessionStorage` e pede `redirect_to` para `/convite`; na volta com `access_token` no hash a página grava `legisla.tok`, lê o pendente e conclui o aceite sem pedir o link (ACE-02.5)
+- [x] Sessão vencida (401) durante o aceite pede novo login e retoma o mesmo convite (borda da spec)
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/convite-aceite.spec.ts e2e/convite-conta.spec.ts`
+- [x] Test count: ao menos 9 testes novos em `e2e/convite-conta.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full

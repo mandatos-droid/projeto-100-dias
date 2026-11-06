@@ -27,7 +27,19 @@ export interface RespostaRpc { status?: number; corpo?: unknown; rede?: boolean 
 export interface EstadoMoca {
   /** Respostas das funções, por nome (POST /rest/v1/rpc/<nome>). `token` é o Bearer recebido. */
   rpc?: Record<string, (args: Record<string, unknown>, token: string) => RespostaRpc>;
+  /** Resposta de POST /auth/v1/signup (padrão: conta criada já com sessão, como com a confirmação de e-mail desligada). */
+  cadastro?: (corpo: Record<string, unknown>) => RespostaRpc;
+  /** E-mail e senha aceitos em /auth/v1/token?grant_type=password (a conta é a de Carlos). */
+  senha?: { email: string; senha: string };
+  /** O que /auth/v1/token?grant_type=refresh_token responde (padrão: ok, com `tok-novo-<quem>`). */
+  renovacao?: 'ok' | 'falha';
 }
+
+/** Sessão que o GoTrue devolve no cadastro e no login de Carlos (formato do Supabase). */
+export const SESSAO_CARLOS = {
+  access_token: 'tok-carlos', refresh_token: 'ref-carlos', token_type: 'bearer', expires_in: 3600,
+  user: { id: 'uid-carlos', email: 'carlos@gabinete.test' },
+};
 
 export interface Chamada { metodo: string; caminho: string; token: string; corpo: unknown }
 
@@ -39,6 +51,12 @@ export const chamadas = (): Chamada[] => [...registro.chamadas];
 export const naoMapeadas = (): string[] => [...registro.naoMapeadas];
 /** POSTs a uma função (`rpc/<nome>`). */
 export const rpcs = (nome: string): Chamada[] => registro.chamadas.filter((c) => c.metodo === 'POST' && c.caminho === `rpc/${nome}`);
+/** Posição de uma chamada na ordem geral (−1 se não houve), para afirmar o que veio antes. */
+export const ordemDe = (filtro: (c: Chamada) => boolean): number => registro.chamadas.findIndex(filtro);
+/** POSTs à tabela consentimentos. */
+export const consentimentos = (): Chamada[] => registro.chamadas.filter((c) => c.metodo === 'POST' && c.caminho.startsWith('consentimentos'));
+/** Chamadas ao Supabase Auth cujo caminho começa com `auth/<prefixo>` (ex.: 'signup', 'authorize', 'token?grant_type=password'). */
+export const auth = (prefixo: string): Chamada[] => registro.chamadas.filter((c) => c.caminho.startsWith(`auth/${prefixo}`));
 
 /** Para afirmar AUSÊNCIA de chamada: espera a rede ficar quieta e ao menos `ms`, e só então devolve os POSTs à função. */
 export async function esperaSemRpc(page: Page, nome: string, ms = 1200): Promise<Chamada[]> {
@@ -48,8 +66,9 @@ export async function esperaSemRpc(page: Page, nome: string, ms = 1200): Promise
   return rpcs(nome);
 }
 
-/** Token de sessão que a mocação aceita: `tok-<quem>` (ou `tok-novo-<quem>`, depois de renovado). */
+/** Token de sessão que a mocação aceita: `tok-<quem>` (ou `tok-novo-<quem>`, depois de renovado). `tok-vencido-<quem>` é recusado com 401. */
 const tokenDeUsuario = (token: string) => /^tok(-novo)?-[a-z]+$/.test(token);
+const quemDoToken = (token: string) => /-([a-z]+)$/.exec(token)?.[1] ?? 'ninguem';
 
 /** Semeia `legisla.tok` (como o Guia grava) uma vez por aba; recarregar não ressemeia. */
 export async function semeiaSessao(page: Page, sessao: { access_token: string; refresh_token?: string } = { access_token: 'tok-carlos', refresh_token: 'ref-carlos' }) {
@@ -97,7 +116,40 @@ export async function moca(page: Page, estado: EstadoMoca = {}) {
     try { corpo = JSON.parse(req.postData() ?? 'null') ?? undefined; } catch { corpo = req.postData(); }
     registro.chamadas.push({ metodo: req.method(), caminho: u.pathname.startsWith('/auth') ? `auth/${caminho}` : caminho, token, corpo });
     const naoMapeada = () => { registro.naoMapeadas.push(`${req.method()} ${u.pathname}${u.search}`); return rota.abort('blockedbyclient'); };
+    const dados = (corpo ?? {}) as Record<string, unknown>;
 
+    // ---- auth ----
+    if (u.pathname === '/auth/v1/authorize') { // ida ao Google: só registra a chamada (com redirect_to) e devolve uma página vazia
+      return rota.fulfill({ status: 200, headers: { ...PERMITE, 'content-type': 'text/html' }, body: '<!doctype html><title>google</title>' });
+    }
+    if (u.pathname === '/auth/v1/user' && req.method() === 'GET') {
+      if (!tokenDeUsuario(token)) return responde(rota, 401, { code: 401, error_code: 'bad_jwt', msg: 'invalid JWT' });
+      const quem = quemDoToken(token);
+      return responde(rota, 200, { id: `uid-${quem}`, email: `${quem}@gabinete.test` });
+    }
+    if (u.pathname === '/auth/v1/signup' && req.method() === 'POST') {
+      const r = estado.cadastro?.(dados) ?? { corpo: { ...SESSAO_CARLOS, user: { ...SESSAO_CARLOS.user, email: dados.email } } };
+      return responde(rota, r.status ?? 200, r.corpo);
+    }
+    if (u.pathname === '/auth/v1/token' && req.method() === 'POST') {
+      const tipo = u.searchParams.get('grant_type');
+      if (tipo === 'password') {
+        if (estado.senha && dados.email === estado.senha.email && dados.password === estado.senha.senha) return responde(rota, 200, SESSAO_CARLOS);
+        return responde(rota, 400, { error: 'invalid_grant', error_description: 'Invalid login credentials' });
+      }
+      if (tipo === 'refresh_token') {
+        if (estado.renovacao === 'falha') return responde(rota, 400, { error: 'invalid_grant', error_description: 'Invalid Refresh Token: Refresh Token Not Found' });
+        const quem = quemDoToken(String(dados.refresh_token));
+        return responde(rota, 200, { access_token: `tok-novo-${quem}`, refresh_token: `ref-${quem}`, token_type: 'bearer', expires_in: 3600 });
+      }
+      return naoMapeada();
+    }
+
+    // ---- REST ----
+    if (u.pathname === '/rest/v1/consentimentos' && req.method() === 'POST') {
+      if (!tokenDeUsuario(token)) return responde(rota, 401, { message: 'JWT expired' });
+      return responde(rota, 201, undefined);
+    }
     if (u.pathname.startsWith('/rest/v1/rpc/') && req.method() === 'POST') {
       const nome = u.pathname.replace('/rest/v1/rpc/', '');
       const f = estado.rpc?.[nome];
