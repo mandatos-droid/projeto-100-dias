@@ -770,11 +770,11 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Antes de escrever, reler `use-params.md` e `dynamic-routes.md` do Next 16 (regra do `AGENTS.md`)
-- [ ] Cadastro, missões concluídas de 5, exercícios feitos de 16 e última atividade; nunca exibe `dados`, `eventos.texto`, `nome_civil` nem `resp_telefone`
-- [ ] Spec `e2e/admin-detalhe.spec.ts` criado nesta task
-- [ ] Cobre: nenhum texto de gabinete na tela; adicionar, editar e remover membro; última coordenação recusada; membro duplicado; arquivar e desarquivar; excluir só com o código exato; leitura sem botões; `vazou()` vazio
-- [ ] ≥ 10 testes passam
+- [x] Antes de escrever, reler `use-params.md` e `dynamic-routes.md` do Next 16 (regra do `AGENTS.md`)
+- [x] Cadastro, missões concluídas de 5, exercícios feitos de 16 e última atividade; nunca exibe `dados`, `eventos.texto`, `nome_civil` nem `resp_telefone`
+- [x] Spec `e2e/admin-detalhe.spec.ts` criado nesta task
+- [x] Cobre: nenhum texto de gabinete na tela; adicionar, editar e remover membro; última coordenação recusada; membro duplicado; arquivar e desarquivar; excluir só com o código exato; leitura sem botões; `vazou()` vazio
+- [x] ≥ 10 testes passam
 
 **Tests**: e2e
 **Gate**: full
