@@ -559,10 +559,10 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] A mensagem contém o nome parlamentar, quem convida, o link e "vale por 7 dias" (ACE-01.1)
-- [ ] `urlWhatsApp(texto)` devolve `https://wa.me/?text=` seguido do texto com `encodeURIComponent`, inclusive acentos, quebra de linha e `#`
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 4 testes em `tests/convites-mensagem.test.ts`
+- [x] A mensagem contém o nome parlamentar, quem convida, o link e "vale por 7 dias" (ACE-01.1)
+- [x] `urlWhatsApp(texto)` devolve `https://wa.me/?text=` seguido do texto com `encodeURIComponent`, inclusive acentos, quebra de linha e `#`
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 4 testes em `tests/convites-mensagem.test.ts`
 
 **Tests**: unit
 **Gate**: quick
