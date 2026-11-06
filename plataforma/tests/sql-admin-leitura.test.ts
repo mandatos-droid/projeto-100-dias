@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { criaBanco, como, comoDono, semente, IDS } from './sql-ambiente.ts';
 import type { Banco } from './sql-ambiente.ts';
 
-const VIEWS = ['v_admin_mandatos', 'v_admin_exercicios', 'v_admin_eventos_mes', 'v_admin_atividade', 'v_admin_uso_campos'];
+const VIEWS = ['v_admin_mandatos', 'v_admin_exercicios', 'v_admin_eventos_mes', 'v_admin_atividade', 'v_admin_uso_campos', 'v_admin_uso'];
 const PROIBIDAS = ['dados', 'texto', 'nome_civil', 'resp_telefone'];
 const MANDATO_C = '00000000-0000-4000-8000-0000000000b3';
 

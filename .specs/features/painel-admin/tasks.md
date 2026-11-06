@@ -907,9 +907,9 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Tabela só com `mandato_id`, `funcionalidade`, `criado_em` (sem texto, nome, e-mail nem `user_id`); insert só de membros do mandato; select só da equipe
-- [ ] `v_admin_uso(dia, mandato_id, uf, funcionalidade, qtd)` gated por `eh_legisla()`
-- [ ] Teste `tests/sql-uso-funcionalidades.test.ts` (PGlite): membro insere, não-membro e anônimo são recusados, leitura só da equipe; ≥ 6 casos passam
+- [x] Tabela só com `mandato_id`, `funcionalidade`, `criado_em` (sem texto, nome, e-mail nem `user_id`); insert só de membros do mandato; select só da equipe
+- [x] `v_admin_uso(dia, mandato_id, uf, funcionalidade, qtd)` gated por `eh_legisla()`
+- [x] Teste `tests/sql-uso-funcionalidades.test.ts` (PGlite): membro insere, não-membro e anônimo são recusados, leitura só da equipe; ≥ 6 casos passam
 
 **Tests**: integration
 **Gate**: quick
