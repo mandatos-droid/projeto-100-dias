@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
@@ -238,4 +239,35 @@ test('como assessoria, as mesmas chamadas gravam como hoje: PATCH em mandatos e 
   assert.ok(pedidos[0].corpo && 'dados' in pedidos[0].corpo);
   assert.deepEqual({ ...pedidos[1].corpo }, { partido: 'NOVO' });
   assert.equal(pedidos[2].corpo?.mandato_id, 'm-a');
+});
+
+/* ---------- T36: aviso de consentimento sem "código de convite" (ACE-07.4) ---------- */
+const CORPO_TS = readFileSync(new URL('../lib/legacyBody.ts', import.meta.url), 'utf8');
+const CORPO = JSON.parse(/const corpo: string = (".*");/s.exec(CORPO_TS)![1]) as string;
+const avisoLgpd = (corpo: string) => /<div class="lgpd oculto" id="blocoLgpd">([\s\S]*?)<\/div>/.exec(corpo)![1];
+/** O aviso de consentimento (#blocoLgpd) como estava antes da feature, copiado de lib/legacyBody.ts. */
+const AVISO_ORIGINAL = '\n      <strong>Proteção de dados pessoais (LGPD, Lei nº 13.709/2018).</strong>\n' +
+  '      Ao criar conta, a Legisla Brasil trata seu nome e e-mail para autenticação e para identificar quem preencheu\n' +
+  '      cada registro do mandato. Se você se indicar como responsável pelo preenchimento, também tratamos o cargo e,\n' +
+  '      caso informe, o telefone de contato. Os conteúdos registrados ficam vinculados ao mandato cadastrado e são\n' +
+  '      acessíveis a quem tiver o código de convite dele. A base legal é o seu consentimento, que pode ser revogado a\n' +
+  '      qualquer momento pela exclusão da conta. Você pode solicitar acesso, correção, portabilidade ou eliminação dos\n' +
+  '      seus dados pelo endereço <a href="mailto:contato@legislabrasil.org">contato@legislabrasil.org</a>.\n    ';
+/** sha256 do corpo inteiro do Guia (lib/legacyBody.ts) antes da feature. */
+const HASH_CORPO_ORIGINAL = '29526bcd82757450bcd9a6cb3bd18b3f713c0b3166dac77e3e49bec3219c63fb';
+
+test('o aviso de consentimento do Guia fala em "link de convite" (ACE-07.4)', () => {
+  assert.equal(avisoLgpd(CORPO).includes('acessíveis a quem tiver o link de convite dele.'), true);
+});
+
+test('o aviso de consentimento do Guia não fala mais em "código de convite" (ACE-07.4)', () => {
+  assert.equal(avisoLgpd(CORPO).includes('código de convite'), false);
+});
+
+test('o restante do aviso é idêntico ao texto original, palavra por palavra (ACE-07.4)', () => {
+  assert.equal(avisoLgpd(CORPO), AVISO_ORIGINAL.replace('código de convite', 'link de convite'));
+});
+
+test('fora dessa expressão, o corpo do Guia não muda: desfazer a troca devolve o corpo original (ACE-07.4)', () => {
+  assert.equal(createHash('sha256').update(CORPO.replace('link de convite', 'código de convite')).digest('hex'), HASH_CORPO_ORIGINAL);
 });

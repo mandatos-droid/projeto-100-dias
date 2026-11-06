@@ -1149,10 +1149,10 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] O aviso contém "link de convite" e não contém "código de convite" (ACE-07.4)
-- [ ] O restante do texto do aviso é idêntico ao de antes (comparação com o texto original no teste)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 3 testes novos em `tests/legado-acesso.test.ts`, nenhum removido
+- [x] O aviso contém "link de convite" e não contém "código de convite" (ACE-07.4)
+- [x] O restante do texto do aviso é idêntico ao de antes (comparação com o texto original no teste)
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 3 testes novos em `tests/legado-acesso.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick

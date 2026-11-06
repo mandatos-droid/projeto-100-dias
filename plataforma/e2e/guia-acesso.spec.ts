@@ -248,3 +248,13 @@ test.describe('Modo somente leitura no Guia (ACE-03.2, ACE-03.3)', () => {
     await expect(page.locator('input[name="cadCargo"]').first()).toBeEnabled();
   });
 });
+
+/* ---------- T36: aviso de consentimento do Guia (ACE-07.4) ---------- */
+test('na tela de entrada, a aba Criar conta mostra o aviso com "link de convite" e nenhuma menção a código (ACE-07.2, ACE-07.4)', async ({ page }) => {
+  await abre(page, '#/', { semSessao: true });
+  await page.getByRole('button', { name: 'Usar e-mail e senha' }).click();
+  await page.getByRole('tab', { name: 'Criar conta' }).click();
+  await expect(page.locator('#blocoLgpd')).toBeVisible();
+  await expect(page.locator('#blocoLgpd')).toContainText('acessíveis a quem tiver o link de convite dele.');
+  await expect(page.locator('#entrada')).not.toContainText(CODIGO_DE_CONVITE);
+});
