@@ -376,9 +376,9 @@ T36 → T37
 
 **Done when**:
 
-- [ ] `filtraMandatos` combina busca (código ou nome, sem acento e sem maiúsculas), UF, casa, situação e "Parado há"
-- [ ] `paginaDe` fatia 25 por página e não cria página extra com exatamente 25
-- [ ] `tests/admin-mandatos.test.ts` ≥ 10 casos passam (acento, UF+casa, arquivados, parado, lista vazia, 25 itens, 26 itens)
+- [x] `filtraMandatos` combina busca (código ou nome, sem acento e sem maiúsculas), UF, casa, situação e "Parado há"
+- [x] `paginaDe` fatia 25 por página e não cria página extra com exatamente 25
+- [x] `tests/admin-mandatos.test.ts` ≥ 10 casos passam (acento, UF+casa, arquivados, parado, lista vazia, 25 itens, 26 itens)
 
 **Tests**: unit
 **Gate**: quick
