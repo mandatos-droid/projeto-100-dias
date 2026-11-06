@@ -58,6 +58,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | Retenção de convites vencidos | Convites vencidos ou cancelados há mais de 30 dias são apagados quando alguém do mandato cria um novo convite | Evita guardar nome e e-mail de quem nunca entrou, sem precisar de rotina agendada | n |
 | Consentimento ao criar conta pelo convite | A página do convite mostra o mesmo aviso de consentimento do cadastro e grava em `consentimentos`, como o cadastro atual | A decisão registrada é que quem se cadastra consente o acesso da equipe Legisla | n |
 | Expressão "código de convite" no aviso | Trocada por "link de convite"; nenhuma outra palavra do aviso muda | Mantém o aviso coerente com a mudança sem tocar no texto jurídico | n |
+| Quem pode sair do mandato | Qualquer membro, em qualquer papel, desde que reste ao menos uma coordenação | A spec não restringe a saída por papel; sair é direito da própria pessoa | n |
 | Fuso das datas | `America/Sao_Paulo` | Público e equipe no Brasil | y |
 
 **Open questions:** none - all resolved or logged above (required before the spec is confirmed).

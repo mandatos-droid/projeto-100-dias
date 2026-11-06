@@ -114,8 +114,7 @@ T33 → T34 → T35 → T36 → T37
 - [x] `membros.papel` rejeita qualquer valor fora de `coordenacao`, `assessoria`, `leitura` (ACE-03.1)
 - [x] Membro `leitura` não altera `mandatos` (nenhuma linha muda) e não insere em `eventos`; `coordenacao` e `assessoria` continuam gravando (ACE-03.2)
 - [x] Membro de outro mandato continua sem escrita; `private.pode_editar` devolve falso para quem não é membro
-- [ ] Membro lê `exercicios_guia`; quem não é membro nem equipe Legisla não lê
-  - Bloqueado: contradiz o teste existente `tests/sql-admin-leitura.test.ts:32-35` (painel-admin), que exige 0 linhas de `exercicios_guia` para `IDS.membro`. Mudar esse teste pede aprovação do usuário; a política não foi criada.
+- [ ] Complemento da T1 (executado no início do lote 2): função `public.catalogo_exercicios()` devolve `id, missao, ordem, titulo` de `exercicios_guia` a qualquer membro de algum mandato e a quem é da equipe Legisla; `anon` e quem não é membro recebem erro de permissão. A tabela `exercicios_guia` continua sem leitura direta para membros, e `tests/sql-admin-leitura.test.ts` não muda (decisão: o catálogo sai por função, não por política da tabela)
 - [x] Migration roda após as migrations de `painel-admin` no ambiente PGlite sem erro
 - [x] Gate check passes: `npm test`
 - [x] Test count: ao menos 8 testes novos em `tests/sql-papeis.test.ts` e nenhum teste existente removido
@@ -759,7 +758,7 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] `criaConvite`, `previaConvite`, `aceitaConvite`, `cancelaConvite`, `convitesPendentes`, `equipeDoMandato`, `trocaPapel`, `removeMembro`, `saiDoMandato` chamam a `rpc` certa com os argumentos `p_mandato`, `p_nome`, `p_email`, `p_papel`, `p_token`, `p_id`, `p_user`
+- [ ] `criaConvite`, `previaConvite`, `aceitaConvite`, `cancelaConvite`, `convitesPendentes`, `equipeDoMandato`, `trocaPapel`, `removeMembro`, `saiDoMandato`, `catalogoExercicios` chamam a `rpc` certa com os argumentos `p_mandato`, `p_nome`, `p_email`, `p_papel`, `p_token`, `p_id`, `p_user`
 - [ ] `previaConvite` e `aceitaConvite` devolvem o objeto `{ok, ...}` sem lançar quando `ok` é falso; erros HTTP viram `ErroApi`
 - [ ] `lerEventosEquipe(mandato)` lê `eventos_equipe` ordenado do mais recente, com limite de 10 (ACE-05.5)
 - [ ] Gate check passes: `npm test`
@@ -902,7 +901,7 @@ T33 → T34 → T35 → T36 → T37
 **What**: Criar `AreaMandato.tsx` com o cartão do mandato, "Dia X de 100", as 5 missões e "Editar dados", ligado a `/mandato`.
 **Where**: `plataforma/app/mandato/AreaMandato.tsx`
 **Depends on**: T27
-**Reuses**: `diaDoMandato` (T19), `statusMissoes` (T20), `exercicios_guia`, wireframe aba 1
+**Reuses**: `diaDoMandato` (T19), `statusMissoes` (T20), `catalogo_exercicios()` (T1), wireframe aba 1
 **Requirement**: ACE-05
 
 **Tools**:

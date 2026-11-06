@@ -61,7 +61,7 @@ graph TD
 | System | Integration Method |
 | ------ | ------------------ |
 | Supabase Auth (GoTrue) | `signup`, `token?grant_type=password` e `authorize?provider=google` pelas funções de `lib/admin/sessao.ts`; resultado em `legisla.tok` |
-| PostgREST | `rpc/<função>` para convites e equipe; `select` com RLS para `membros`, `mandatos`, `eventos_equipe` e `exercicios_guia` |
+| PostgREST | `rpc/<função>` para convites e equipe; `select` com RLS para `membros`, `mandatos` e `eventos_equipe`; `rpc/catalogo_exercicios` |
 | Guia legado | Lê `legisla.mandatoAtual` e `legisla.tok`; recebe a classe `so-leitura` e o aviso no corpo |
 | `painel-admin` (mesma branch) | Compartilha `lib/admin/sessao.ts`; as migrations desta feature vêm depois de `20261105140000`; a tela de membros do `/admin` precisa aceitar o papel `leitura` (item aberto, ver Risks) |
 
@@ -98,7 +98,7 @@ Comportamentos de segurança que o SQL carrega:
 ### Banco: papéis e leitura (mesma migration)
 
 - **Purpose**: aplicar `leitura` e o limite de papéis nas tabelas existentes.
-- **Interfaces**: `membros.papel` com `check (papel in ('coordenacao','assessoria','leitura'))`; `mandatos_editar` e `eventos_criar` passam a exigir `private.pode_editar(...)`; política de leitura de `exercicios_guia` para membros; `revoke execute on function public.entrar_com_codigo(text, text) from authenticated`.
+- **Interfaces**: `membros.papel` com `check (papel in ('coordenacao','assessoria','leitura'))`; `mandatos_editar` e `eventos_criar` passam a exigir `private.pode_editar(...)`; função `public.catalogo_exercicios()` para membros (a tabela `exercicios_guia` continua fechada, pois o teste do painel-admin exige 0 linhas para membros); `revoke execute on function public.entrar_com_codigo(text, text) from authenticated`.
 - **Reuses**: políticas de `schema_inicial.sql:127-171`.
 
 ### `lib/convites/` (funções puras, `node --test`)
@@ -248,7 +248,7 @@ create table public.convite_bloqueios  (origem text primary key, ate timestamptz
 | Geração do token | `gen_random_uuid()` nativo montando 16 bytes plenos | `pgcrypto` existe em produção (`extensions`), mas não no PGlite de teste; o gerador nativo é criptográfico e testável |
 | Hash do token | `sha256()` nativo do Postgres | Sem extensão; token tem entropia alta, então hash rápido basta |
 | Lista de convites pendentes e equipe | Funções, não `select` direto | Nenhuma tabela de convite exposta; e-mail só sai para membros do mandato |
-| Catálogo de missões | Tabela `exercicios_guia` do `painel-admin`, leitura liberada a membros | Evita um terceiro catálogo duplicado |
+| Catálogo de missões | Função `catalogo_exercicios()` sobre a tabela `exercicios_guia` do `painel-admin` | Evita um terceiro catálogo duplicado sem abrir a tabela a membros (teste do painel-admin exige 0 linhas) |
 | Reuso do cliente de sessão | Importar de `lib/admin/` | Mesmo formato de `legisla.tok`; mover para `lib/supabase/` só se houver motivo |
 | Histórico de equipe | `eventos_equipe` própria | `eventos` mede atividade no `painel-admin` |
 
