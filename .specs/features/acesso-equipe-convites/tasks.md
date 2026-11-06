@@ -261,12 +261,12 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Membro recebe todas as pessoas do mandato com nome, e-mail e papel, da entrada mais antiga para a mais recente (ACE-04.6)
-- [ ] Quem não é membro recebe erro de permissão e nenhum e-mail (ACE-04.6)
-- [ ] `anon` não executa a função
-- [ ] Nenhuma coluna além das cinco do design é devolvida
-- [ ] Gate check passes (Build, última task da fase): `npx tsc --noEmit`, `npm test`
-- [ ] Test count: ao menos 4 testes novos em `tests/sql-membros.test.ts`, nenhum removido
+- [x] Membro recebe todas as pessoas do mandato com nome, e-mail e papel, da entrada mais antiga para a mais recente (ACE-04.6)
+- [x] Quem não é membro recebe erro de permissão e nenhum e-mail (ACE-04.6)
+- [x] `anon` não executa a função
+- [x] Nenhuma coluna além das cinco do design é devolvida
+- [x] Gate check passes (Build, última task da fase): `npx tsc --noEmit`, `npm test`
+- [x] Test count: ao menos 4 testes novos em `tests/sql-membros.test.ts`, nenhum removido
 
 **Tests**: integration
 **Gate**: build

@@ -192,3 +192,23 @@ grant  execute on function public.membro_sair(uuid) to authenticated;
 -- excluir_meus_dados() segue apagando por ser security definer.
 drop policy if exists membros_sair on public.membros;
 revoke delete on public.membros from authenticated;
+
+-- Pessoas do mandato com e-mail (que vem de auth.users): só para membros, em qualquer papel.
+create or replace function public.equipe_do_mandato(p_mandato uuid)
+returns table (user_id uuid, nome text, email text, papel text, criado_em timestamptz)
+language plpgsql security definer set search_path = '' stable as $$
+begin
+  if not private.eh_membro(p_mandato) then
+    raise exception 'Você não tem permissão para esta ação.' using errcode = '42501';
+  end if;
+  return query
+    select b.user_id, b.nome, u.email::text, b.papel, b.criado_em
+    from public.membros b
+    left join auth.users u on u.id = b.user_id
+    where b.mandato_id = p_mandato
+    order by b.criado_em asc, b.user_id asc;
+end;
+$$;
+
+revoke execute on function public.equipe_do_mandato(uuid) from public, anon;
+grant  execute on function public.equipe_do_mandato(uuid) to authenticated;

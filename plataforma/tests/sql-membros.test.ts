@@ -317,3 +317,41 @@ test('membro_sair trava as linhas do mandato antes de contar coordenações, e a
   await assert.rejects(sair(), /permission denied/);
   assert.deepEqual(await papeisA(), ESTADO_INICIAL);
 });
+
+// ---------- T6: equipe_do_mandato ----------
+
+const equipeDo = (mandato: string = IDS.mandatoA) => banco.query('select * from public.equipe_do_mandato($1)', [mandato]);
+
+test('membro, em qualquer papel, recebe as pessoas do mandato com nome, e-mail e papel, da entrada mais antiga para a mais recente (ACE-04.6)', async () => {
+  await comoDono(banco);
+  // a ordem de entrada não é a ordem de inserção: o leitor entrou primeiro
+  await banco.query(`update public.membros set criado_em = '2025-12-31T12:00:00Z' where user_id = $1`, [LEITOR]);
+  for (const quem of [IDS.membro, ASSESSORIA, LEITOR]) {
+    await como(banco, quem);
+    const r = (await equipeDo()).rows as { user_id: string; nome: string; email: string; papel: string; criado_em: Date }[];
+    assert.deepEqual(r.map((x) => [x.user_id, x.nome, x.email, x.papel, x.criado_em.toISOString()]), [
+      [LEITOR, 'Leo Leitor', 'leitor@gabinete.leg.br', 'leitura', '2025-12-31T12:00:00.000Z'],
+      [IDS.membro, 'Mario Membro', 'membro@gabinete.leg.br', 'coordenacao', '2026-01-01T12:00:00.000Z'],
+      [ASSESSORIA, 'Alice Assessoria', 'assessoria@gabinete.leg.br', 'assessoria', '2026-01-02T12:00:00.000Z'],
+    ], quem);
+  }
+});
+
+test('quem não é membro do mandato recebe erro de permissão e nenhum e-mail (ACE-04.6)', async () => {
+  for (const quem of [COORD_B, IDS.admin, IDS.fora]) {
+    await como(banco, quem);
+    await assert.rejects(equipeDo(), SEM_PERMISSAO, quem);
+  }
+});
+
+test('anon não executa equipe_do_mandato', async () => {
+  await como(banco, null);
+  await assert.rejects(equipeDo(), /permission denied/);
+});
+
+test('equipe_do_mandato devolve só as cinco colunas do design', async () => {
+  await como(banco, LEITOR);
+  const r = await equipeDo();
+  assert.deepEqual(r.fields.map((f) => f.name), ['user_id', 'nome', 'email', 'papel', 'criado_em']);
+  assert.deepEqual(Object.keys(r.rows[0] as object), ['user_id', 'nome', 'email', 'papel', 'criado_em']);
+});
