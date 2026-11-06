@@ -669,3 +669,183 @@ test('nenhuma outra função desta feature é liberada a anon: fora de gatilhos,
         and has_function_privilege('anon', p.oid, 'execute') order by 1`);
   assert.deepEqual(r.map((x) => x.f), ['public.convite_previa']);
 });
+
+// ---------- T12: convite_aceitar ----------
+
+// Contas novas, fora de qualquer mandato: Carlos e Dora (com consentimento, salvo pedido).
+const CARLOS = '00000000-0000-4000-8000-0000000000d1';
+const DORA = '00000000-0000-4000-8000-0000000000d2';
+async function contas(opc: { semConsentimento?: string[]; emailCarlos?: string } = {}) {
+  await comoDono(banco);
+  await banco.query(
+    `insert into auth.users (id, email, raw_user_meta_data) values
+       ($1, $3, '{"name":"Carlos Lima"}'), ($2, 'dora@exemplo.com', '{"name":"Dora Dias"}')`,
+    [CARLOS, DORA, opc.emailCarlos ?? 'carlos.lima@exemplo.com'],
+  );
+  for (const id of [CARLOS, DORA]) {
+    if (!opc.semConsentimento?.includes(id)) await banco.query(`insert into public.consentimentos (user_id, versao) values ($1, '2026-10')`, [id]);
+  }
+}
+const aceitar = async (token: string | null, nome: string | null = null) =>
+  (await q<{ r: Record<string, unknown> }>('select public.convite_aceitar($1, $2) r', [token, nome]))[0].r;
+const membrosDe = async (mandato: string = IDS.mandatoA) => {
+  await comoDono(banco);
+  return Object.fromEntries((await q<{ user_id: string; nome: string; papel: string }>(
+    'select user_id, nome, papel from public.membros where mandato_id = $1', [mandato])).map((x) => [x.user_id, `${x.nome}/${x.papel}`]));
+};
+const estadoDo = async (token: string) => {
+  await comoDono(banco);
+  return (await q<{ usado: boolean; usado_por: string | null; cancelado: boolean }>(
+    `select usado_em is not null usado, usado_por, cancelado_em is not null cancelado
+       from public.convites where token_hash = sha256(convert_to($1, 'UTF8'))`, [token]))[0];
+};
+const MEMBROS_A = {
+  [IDS.membro]: 'Mario Membro/coordenacao', [ASSESSORIA]: 'Alice Assessoria/assessoria', [LEITOR]: 'Leo Leitor/leitura',
+};
+const NAO_USADO = { usado: false, usado_por: null, cancelado: false };
+
+test('aceite válido inclui a pessoa com o papel do convite, marca usado_em e usado_por e devolve {ok:true, mandato_id, ja_membro:false} (ACE-02.3, ACE-02.4)', async () => {
+  await contas();
+  await insereConvite({ token: 'para-carlos', papel: 'leitura' });
+  await insereConvite({ token: 'para-dora', papel: 'coordenacao' });
+  await como(banco, CARLOS);
+  assert.deepEqual(await aceitar('para-carlos', 'Carlos Lima'), { ok: true, mandato_id: IDS.mandatoA, ja_membro: false });
+  // com sessão não há campo de nome: o nome vem da conta
+  await como(banco, DORA);
+  assert.deepEqual(await aceitar('para-dora', null), { ok: true, mandato_id: IDS.mandatoA, ja_membro: false });
+  assert.deepEqual(await membrosDe(), { ...MEMBROS_A, [CARLOS]: 'Carlos Lima/leitura', [DORA]: 'Dora Dias/coordenacao' });
+  assert.deepEqual(await estadoDo('para-carlos'), { usado: true, usado_por: CARLOS, cancelado: false });
+  assert.deepEqual(await estadoDo('para-dora'), { usado: true, usado_por: DORA, cancelado: false });
+  // já dentro do mandato: lê os dados dele
+  await como(banco, CARLOS);
+  assert.deepEqual(await q('select id from public.mandatos'), [{ id: IDS.mandatoA }]);
+});
+
+test('sem linha em consentimentos devolve {ok:false, erro:"consentimento"}, ninguém entra e o convite segue válido (ACE-02.8)', async () => {
+  await contas({ semConsentimento: [CARLOS] });
+  await insereConvite({ token: 'para-carlos', papel: 'leitura' });
+  await como(banco, CARLOS);
+  assert.deepEqual(await aceitar('para-carlos', 'Carlos Lima'), { ok: false, erro: 'consentimento' });
+  assert.deepEqual(await membrosDe(), MEMBROS_A);
+  assert.deepEqual(await estadoDo('para-carlos'), NAO_USADO);
+  assert.deepEqual(await historico(), []);
+  // gravado o consentimento, o mesmo convite é aceito
+  await comoDono(banco);
+  await banco.query(`insert into public.consentimentos (user_id, versao) values ($1, '2026-10')`, [CARLOS]);
+  await como(banco, CARLOS);
+  assert.deepEqual(await aceitar('para-carlos', 'Carlos Lima'), { ok: true, mandato_id: IDS.mandatoA, ja_membro: false });
+});
+
+test('convite com e-mail e conta com outro e-mail devolve {ok:false, erro:"email"} sem consumir, e não conta como token inválido (ACE-02.9, ACE-02.14)', async () => {
+  await contas();
+  await insereConvite({ token: 'para-carlos', email: 'carlos.lima@exemplo.com' });
+  await vindoDe('1.2.3.4');
+  await como(banco, DORA);
+  for (let i = 0; i < 12; i++) assert.deepEqual(await aceitar('para-carlos'), { ok: false, erro: 'email' }, `tentativa ${i + 1}`);
+  assert.deepEqual(await membrosDe(), MEMBROS_A);
+  assert.deepEqual(await estadoDo('para-carlos'), NAO_USADO);
+  assert.deepEqual(await tentativas(), []);
+  await como(banco, null);
+  assert.equal((await previa('para-carlos')).ok, true);
+});
+
+test('a comparação de e-mail ignora maiúsculas e espaços nas pontas (ACE-02.9)', async () => {
+  await contas({ emailCarlos: '  CARLOS.Lima@Exemplo.COM ' });
+  await como(banco, IDS.membro);
+  const { token } = await criar('Carlos Lima', 'assessoria', ' carlos.lima@EXEMPLO.com  ');
+  await como(banco, CARLOS);
+  assert.deepEqual(await aceitar(token), { ok: true, mandato_id: IDS.mandatoA, ja_membro: false });
+  assert.equal((await membrosDe())[CARLOS], 'Carlos Lima/assessoria');
+});
+
+test('o segundo aceite do mesmo convite devolve {ok:false, erro:"invalido"} e a segunda pessoa não entra (ACE-02.12)', async () => {
+  await contas();
+  await insereConvite({ token: 'um-convite', papel: 'assessoria' });
+  await como(banco, CARLOS);
+  assert.equal((await aceitar('um-convite')).ok, true);
+  await como(banco, DORA);
+  assert.deepEqual(await aceitar('um-convite'), INVALIDO);
+  assert.deepEqual(await membrosDe(), { ...MEMBROS_A, [CARLOS]: 'Carlos Lima/assessoria' });
+  assert.deepEqual(await estadoDo('um-convite'), { usado: true, usado_por: CARLOS, cancelado: false });
+});
+
+test('convite_aceitar trava a linha do convite com select ... for update antes de incluir a pessoa (ACE-02.12)', async () => {
+  await comoDono(banco);
+  const [{ src }] = await q<{ src: string }>(`select prosrc src from pg_proc where proname = 'convite_aceitar'`);
+  const trava = src.search(/from public\.convites c\s+where c\.token_hash = [^;]*for update;/);
+  assert.ok(trava >= 0, 'sem for update na linha do convite');
+  assert.ok(trava < src.indexOf('insert into public.membros'), 'a trava precisa vir antes de incluir a pessoa');
+  assert.ok(trava < src.indexOf('update public.convites set usado_em'), 'a trava precisa vir antes de marcar o uso');
+});
+
+test('quem já é membro recebe {ok:true, ja_membro:true}, mantém o papel atual (maior ou menor que o do convite) e não consome (ACE-02.13)', async () => {
+  await insereConvite({ token: 'convite-leitura', papel: 'leitura' });
+  await insereConvite({ token: 'convite-coordenacao', papel: 'coordenacao' });
+  await como(banco, IDS.membro);
+  assert.deepEqual(await aceitar('convite-leitura'), { ok: true, mandato_id: IDS.mandatoA, ja_membro: true });
+  await como(banco, LEITOR);
+  assert.deepEqual(await aceitar('convite-coordenacao'), { ok: true, mandato_id: IDS.mandatoA, ja_membro: true });
+  assert.deepEqual(await membrosDe(), MEMBROS_A);
+  assert.deepEqual(await estadoDo('convite-leitura'), NAO_USADO);
+  assert.deepEqual(await estadoDo('convite-coordenacao'), NAO_USADO);
+  assert.deepEqual(await historico(), []);
+});
+
+test('token inexistente, vencido, cancelado (inclusive por convite_cancelar) ou usado devolve invalido e grava a tentativa (ACE-02.11, ACE-02.14, T10)', async () => {
+  await contas();
+  await insereConvite({ token: 'token-vencido', criado: '-8 days', expira: '-1 second' });
+  await insereConvite({ token: 'token-usado', usado: '-1 minute', usadoPor: IDS.fora });
+  await como(banco, IDS.membro);
+  const { id, token } = await criar('Carlos Lima', 'leitura');
+  await como(banco, IDS.membro);
+  await cancelar(id);
+  await vindoDe('1.2.3.4');
+  await como(banco, CARLOS);
+  for (const t of ['token-que-nunca-existiu', 'token-vencido', token, 'token-usado']) assert.deepEqual(await aceitar(t), INVALIDO, t);
+  assert.deepEqual(await tentativas(), ['1.2.3.4', '1.2.3.4', '1.2.3.4', '1.2.3.4']);
+  assert.deepEqual(await membrosDe(), MEMBROS_A);
+});
+
+test('o aceite respeita o limite: a 11ª falha devolve limite e a origem bloqueada não aceita nem token válido; outra origem aceita (ACE-02.14)', async () => {
+  await contas();
+  await insereConvite({ token: 'token-bom', papel: 'leitura' });
+  await vindoDe('1.2.3.4');
+  await como(banco, CARLOS);
+  for (let i = 0; i < 10; i++) assert.deepEqual(await aceitar(`errado-${i}`), INVALIDO);
+  assert.deepEqual(await aceitar('errado-11'), LIMITE);
+  assert.deepEqual(await aceitar('token-bom'), LIMITE);
+  assert.deepEqual(await estadoDo('token-bom'), NAO_USADO);
+  await vindoDe('5.6.7.8');
+  await como(banco, CARLOS);
+  assert.deepEqual(await aceitar('token-bom'), { ok: true, mandato_id: IDS.mandatoA, ja_membro: false });
+});
+
+test('o aceite grava convite_aceito com a pessoa como ator e alvo e o papel do convite, e nenhuma linha em eventos (ACE-06.1, ACE-06.5)', async () => {
+  await contas();
+  await insereConvite({ token: 'para-carlos', papel: 'leitura' });
+  await como(banco, CARLOS);
+  await aceitar('para-carlos', 'Carlos Lima');
+  assert.deepEqual(await historico(), [{
+    mandato_id: IDS.mandatoA, ator_id: CARLOS, ator_nome: 'Carlos Lima', tipo: 'convite_aceito',
+    alvo_id: CARLOS, alvo_nome: 'Carlos Lima', papel: 'leitura',
+  }]);
+  assert.equal(await totalEventos(), 0);
+});
+
+test('se a gravação do histórico falhar, o aceite é desfeito: ninguém entra e o convite segue válido (ACE-06.1, ACE-06.3)', async () => {
+  await contas();
+  await insereConvite({ token: 'para-carlos', papel: 'leitura' });
+  await quebraHistorico();
+  await como(banco, CARLOS);
+  await assert.rejects(aceitar('para-carlos', 'Carlos Lima'), /histórico indisponível/);
+  assert.deepEqual(await membrosDe(), MEMBROS_A);
+  assert.deepEqual(await estadoDo('para-carlos'), NAO_USADO);
+});
+
+test('aceite sem sessão (anon) é recusado e nada muda', async () => {
+  await insereConvite({ token: 'token-bom', papel: 'leitura' });
+  await como(banco, null);
+  await assert.rejects(aceitar('token-bom'), NEGADO);
+  assert.deepEqual(await membrosDe(), MEMBROS_A);
+  assert.deepEqual(await estadoDo('token-bom'), NAO_USADO);
+});

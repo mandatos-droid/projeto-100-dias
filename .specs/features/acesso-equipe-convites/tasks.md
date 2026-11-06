@@ -383,7 +383,7 @@ T33 → T34 → T35 → T36 → T37
 - [x] O criador cancela o próprio convite e ele some de `convites_pendentes` (ACE-04.3, ACE-04.4)
 - [x] Um `coordenacao` cancela convite criado por outra pessoa (ACE-04.4)
 - [x] `assessoria` ou `leitura` que não criou o convite recebe erro de permissão e o convite continua pendente (ACE-04.5)
-- [ ] Um convite cancelado deixa de valer na prévia e no aceite (verificado em T11 e T12)
+- [x] Um convite cancelado deixa de valer na prévia e no aceite (verificado em T11 e T12)
 - [x] Linha `convite_cancelado` gravada na mesma transação (ACE-06.1)
 - [x] Gate check passes: `npm test`
 - [x] Test count: ao menos 6 testes novos em `tests/sql-convites.test.ts`, nenhum removido
@@ -441,16 +441,16 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Aceite válido insere a pessoa em `membros` com o papel do convite, marca `usado_em` e `usado_por`, e devolve `{ok:true, mandato_id, ja_membro:false}` (ACE-02.3, ACE-02.4)
-- [ ] Sem linha em `consentimentos` da pessoa devolve `{ok:false, erro:'consentimento'}` e o convite continua válido (ACE-02.8)
-- [ ] Convite com e-mail e conta com e-mail diferente devolve `{ok:false, erro:'email'}` sem consumir; a comparação ignora maiúsculas e espaços nas pontas (ACE-02.9)
-- [ ] Segundo aceite do mesmo convite devolve `{ok:false, erro:'invalido'}`; o código usa `select ... for update` (ACE-02.12; simultaneidade real não reproduzível no PGlite, registrar como lacuna de precisão)
-- [ ] Quem já é membro devolve `{ok:true, ja_membro:true}`, mantém o papel atual (inclusive maior que o do convite) e não consome (ACE-02.13)
-- [ ] Token inválido devolve `{ok:false, erro:'invalido'}` e grava a tentativa; respeita o bloqueio de `limite` (ACE-02.11, ACE-02.14)
-- [ ] Linha `convite_aceito` gravada na mesma transação (ACE-06.1)
-- [ ] Aceite sem sessão (`anon`) é recusado
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 12 testes novos em `tests/sql-convites.test.ts`, nenhum removido
+- [x] Aceite válido insere a pessoa em `membros` com o papel do convite, marca `usado_em` e `usado_por`, e devolve `{ok:true, mandato_id, ja_membro:false}` (ACE-02.3, ACE-02.4)
+- [x] Sem linha em `consentimentos` da pessoa devolve `{ok:false, erro:'consentimento'}` e o convite continua válido (ACE-02.8)
+- [x] Convite com e-mail e conta com e-mail diferente devolve `{ok:false, erro:'email'}` sem consumir; a comparação ignora maiúsculas e espaços nas pontas (ACE-02.9)
+- [x] Segundo aceite do mesmo convite devolve `{ok:false, erro:'invalido'}`; o código usa `select ... for update` (ACE-02.12; simultaneidade real não reproduzível no PGlite, registrar como lacuna de precisão)
+- [x] Quem já é membro devolve `{ok:true, ja_membro:true}`, mantém o papel atual (inclusive maior que o do convite) e não consome (ACE-02.13)
+- [x] Token inválido devolve `{ok:false, erro:'invalido'}` e grava a tentativa; respeita o bloqueio de `limite` (ACE-02.11, ACE-02.14)
+- [x] Linha `convite_aceito` gravada na mesma transação (ACE-06.1)
+- [x] Aceite sem sessão (`anon`) é recusado
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 12 testes novos em `tests/sql-convites.test.ts`, nenhum removido
 
 **Tests**: integration
 **Gate**: quick
