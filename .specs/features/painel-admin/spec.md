@@ -295,15 +295,15 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | ADM-02 | P1: Entrar no `/admin` e ter o papel respeitado (AC 6 a 10, papéis e permissões no banco) | Specify | Implementing |
 | ADM-03 | P1: Gerir a equipe Legisla | Specify | Implementing |
 | ADM-04 | P1: Registrar toda ação administrativa em auditoria | Specify | Implementing |
-| ADM-05 | P1: Listar e achar mandatos | Specify | Pending |
-| ADM-06 | P1: Detalhe do mandato (AC 1 e 2, cadastro e privacidade) | Specify | Pending |
+| ADM-05 | P1: Listar e achar mandatos | Specify | Implementing |
+| ADM-06 | P1: Detalhe do mandato (AC 1 e 2, cadastro e privacidade) | Specify | Implementing |
 | ADM-07 | P1: Detalhe do mandato (AC 3 a 9, CRUD de membros) | Specify | Pending |
 | ADM-08 | P1: Arquivar e excluir mandatos | Specify | Pending |
-| ADM-09 | P2: Analytics (AC 1 a 3, indicadores e filtros) | Specify | Pending |
-| ADM-10 | P2: Analytics (AC 4 a 6, status de atividade por mês) | Specify | Pending |
-| ADM-11 | P2: Analytics (AC 7 a 10, funil, travas e títulos de gráfico) | Specify | Pending |
-| ADM-12 | P2: Analytics (AC 11 e 12, uso por funcionalidade sem registro) | Specify | Pending |
-| ADM-13 | P2: Consultar os Logs | Specify | Pending |
+| ADM-09 | P2: Analytics (AC 1 a 3, indicadores e filtros) | Specify | Implementing |
+| ADM-10 | P2: Analytics (AC 4 a 6, status de atividade por mês) | Specify | Implementing |
+| ADM-11 | P2: Analytics (AC 7 a 10, funil, travas e títulos de gráfico) | Specify | Implementing |
+| ADM-12 | P2: Analytics (AC 11 e 12, uso por funcionalidade sem registro) | Specify | Implementing |
+| ADM-13 | P2: Consultar os Logs | Specify | Implementing |
 | ADM-14 | P3: Registrar o uso das funcionalidades (AC 1 a 6) | Specify | Pending |
 | ADM-15 | P3: Mostrar o uso das funcionalidades (AC 7) | Specify | Pending |
 | ADM-16 | P2: Usar o painel no celular | Specify | Pending |

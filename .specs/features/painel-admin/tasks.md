@@ -188,18 +188,20 @@ T36 → T37
 
 **Done when**:
 
-- [ ] `mandatos.arquivado_em` criada; `exercicios_guia` semeada com 16 linhas (missões 4, 2, 4, 3 e 3) e títulos em UTF-8 correto
-- [ ] `v_admin_mandatos`, `v_admin_exercicios`, `v_admin_eventos_mes`, `v_admin_atividade` e `v_admin_uso_campos` criadas com `security_invoker = true` e `where private.eh_legisla()`; `anon` sem acesso
-- [ ] Nenhuma view tem as colunas `dados`, `texto`, `nome_civil` nem `resp_telefone` (o teste consulta `information_schema.columns`)
-- [ ] `ultima_atividade` = maior entre `atualizado_em` e o último `eventos.criado_em`; `mes` no fuso `America/Sao_Paulo`
-- [ ] Mapa de campos de `v_admin_uso_campos` conferido contra o código das ilhas e registrado nesta task
-- [ ] `tests/admin-catalogo.test.ts` compara os ids do seed com os de `MISSOES` em `painel.html` (unit, ≥ 3 casos) e passa
-- [ ] Teste `tests/sql-admin-leitura.test.ts` (PGlite): gabinete fora da equipe recebe 0 linhas; admin e leitura recebem as linhas esperadas; mandato arquivado some de `v_admin_exercicios`; ≥ 8 casos passam
+- [x] `mandatos.arquivado_em` criada; `exercicios_guia` semeada com 16 linhas (missões 4, 2, 4, 3 e 3) e títulos em UTF-8 correto
+- [x] `v_admin_mandatos`, `v_admin_exercicios`, `v_admin_eventos_mes`, `v_admin_atividade` e `v_admin_uso_campos` criadas com `security_invoker = true` e `where private.eh_legisla()`; `anon` sem acesso
+- [x] Nenhuma view tem as colunas `dados`, `texto`, `nome_civil` nem `resp_telefone` (o teste consulta `information_schema.columns`)
+- [x] `ultima_atividade` = maior entre `atualizado_em` e o último `eventos.criado_em`; `mes` no fuso `America/Sao_Paulo`
+- [x] Mapa de campos de `v_admin_uso_campos` conferido contra o código das ilhas e registrado nesta task
+- [x] `tests/admin-catalogo.test.ts` compara os ids do seed com os de `MISSOES` em `painel.html` (unit, ≥ 3 casos) e passa
+- [x] Teste `tests/sql-admin-leitura.test.ts` (PGlite): gabinete fora da equipe recebe 0 linhas; admin e leitura recebem as linhas esperadas; mandato arquivado some de `v_admin_exercicios`; ≥ 8 casos passam
 
 **Tests**: integration
 **Gate**: quick
 
 **Commit**: `feat(admin): add read views and exercise catalog`
+
+**Mapa de `v_admin_uso_campos` (conferido contra `ilhas/*.tsx` e `lib/types.ts`)**: persona = `tse`, `relacoes` ou `pleitos` preenchidos; conjuntura = `conj2` com algo além do vazio inicial (muns, posicao, prefExtra, relacao, relacaoPq, desafios ou oportunidades); município = `munSel` escolhido; eleitorado = `eleitorado.itens` não vazio; social = `social.itens` não vazio; cadeiras = `campos` com `m2.on` ou `m2.f{n}` com texto. Conjuntura, Eleitorado e Social criam a estrutura vazia ao abrir a ilha, por isso a presença da chave não prova uso.
 
 ---
 
