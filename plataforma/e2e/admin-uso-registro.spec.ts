@@ -75,10 +75,19 @@ test('outra funcionalidade do mesmo mandato grava a sua própria linha (ADM-14.1
 test('sem nuvem (NUVEM=false) não grava nada (ADM-14.4)', async ({ page }) => {
   const usos = await intercepta(page);
   await abreGuia(page, HASH);
+  // só o flag NUVEM fica desligado: sessão e CONFIG existem, para a guarda `!tok` não mascarar a falta da guarda `!NUVEM`
+  await page.evaluate(() => {
+    const w = window as unknown as { Nuvem: { tok: string }; CONFIG?: { url: string; key: string } };
+    w.Nuvem.tok = 'tok-teste';
+    w.CONFIG ??= { url: 'https://teste.supabase.co', key: 'chave-teste' };
+  });
   await reabre(page);
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(1000);
   expect(usos).toHaveLength(0);
-  expect(await page.evaluate(() => (window as unknown as { NUVEM: boolean }).NUVEM)).toBe(false);
+  expect(await page.evaluate(() => {
+    const w = window as unknown as { NUVEM: boolean; Nuvem: { tok: string }; CONFIG?: unknown };
+    return [w.NUVEM, w.Nuvem.tok, !!w.CONFIG];
+  })).toEqual([false, 'tok-teste', true]);
 });
 
 for (const falha of [500, 401, 'rede'] as const) {
