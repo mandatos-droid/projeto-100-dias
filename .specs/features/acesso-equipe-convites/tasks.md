@@ -171,14 +171,14 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Coordenação troca o papel de outro membro e a mudança vale na chamada seguinte (ACE-03.4)
-- [ ] `assessoria` e `leitura` recebem erro de permissão e nada muda (ACE-03.6)
-- [ ] Rebaixar a última coordenação recusa com "O mandato precisa ter ao menos uma pessoa na coordenação." (ACE-03.7)
-- [ ] A função trava as linhas de `membros` do mandato com `for update` antes de contar coordenações (ACE-03.8; a simultaneidade real não é reproduzível no PGlite de conexão única, marcar como lacuna de precisão e cobrir a ordem das duas chamadas em sequência)
-- [ ] Linha `papel_trocado` gravada com ator, alvo e papel na mesma transação; se a gravação do evento falhar (gatilho de teste que levanta exceção) a troca é desfeita (ACE-06.2, ACE-06.3)
-- [ ] `anon` não executa a função
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 7 testes novos em `tests/sql-membros.test.ts`, nenhum removido
+- [x] Coordenação troca o papel de outro membro e a mudança vale na chamada seguinte (ACE-03.4)
+- [x] `assessoria` e `leitura` recebem erro de permissão e nada muda (ACE-03.6)
+- [x] Rebaixar a última coordenação recusa com "O mandato precisa ter ao menos uma pessoa na coordenação." (ACE-03.7)
+- [x] A função trava as linhas de `membros` do mandato com `for update` antes de contar coordenações (ACE-03.8; a simultaneidade real não é reproduzível no PGlite de conexão única, marcar como lacuna de precisão e cobrir a ordem das duas chamadas em sequência)
+- [x] Linha `papel_trocado` gravada com ator, alvo e papel na mesma transação; se a gravação do evento falhar (gatilho de teste que levanta exceção) a troca é desfeita (ACE-06.2, ACE-06.3)
+- [x] `anon` não executa a função
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 7 testes novos em `tests/sql-membros.test.ts`, nenhum removido
 
 **Tests**: integration
 **Gate**: quick

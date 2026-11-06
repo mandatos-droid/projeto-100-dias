@@ -81,3 +81,56 @@ create policy eventos_equipe_ler on public.eventos_equipe
 revoke all on public.eventos_equipe from anon, authenticated;
 grant select on public.eventos_equipe to authenticated;
 revoke all on sequence public.eventos_equipe_id_seq from anon, authenticated;
+
+-- Nome de uma pessoa no mandato: o de membros, senão o da conta, senão o e-mail.
+create or replace function private.nome_pessoa(p_mandato uuid, p_user uuid)
+returns text language sql security definer set search_path = '' stable as $$
+  select coalesce(
+    (select nullif(b.nome, '') from public.membros b where b.mandato_id = p_mandato and b.user_id = p_user),
+    (select coalesce(nullif(u.raw_user_meta_data->>'nome', ''), nullif(u.raw_user_meta_data->>'full_name', ''),
+                     nullif(u.raw_user_meta_data->>'name', ''), u.email)
+     from auth.users u where u.id = p_user))
+$$;
+
+-- Grava uma linha do histórico em nome de quem chamou, na transação da ação. Só as funções
+-- security definer a usam: sem grant a authenticated, ninguém forja linha pela API.
+create or replace function private.evento_equipe(p_mandato uuid, p_tipo text, p_alvo_id uuid, p_alvo_nome text, p_papel text)
+returns void language sql security definer set search_path = '' as $$
+  insert into public.eventos_equipe (mandato_id, ator_id, ator_nome, tipo, alvo_id, alvo_nome, papel)
+  values (p_mandato, (select auth.uid()), private.nome_pessoa(p_mandato, (select auth.uid())),
+          p_tipo, p_alvo_id, p_alvo_nome, p_papel)
+$$;
+
+revoke execute on function private.nome_pessoa(uuid, uuid), private.evento_equipe(uuid, text, uuid, text, text)
+  from public, anon, authenticated;
+
+-- ---------- FUNÇÕES DE EQUIPE ----------
+-- Padrão: security definer, search_path vazio, sem execute para anon, execute para authenticated.
+-- O papel de quem chama é lido de membros a cada chamada. Antes de ler papéis e contar
+-- coordenações, a função trava as linhas de membros do mandato (for update): chamadas
+-- simultâneas ficam em fila e a segunda já vê o resultado da primeira.
+
+create or replace function public.membro_trocar_papel(p_mandato uuid, p_user uuid, p_papel text)
+returns void language plpgsql security definer set search_path = '' as $$
+declare
+  v_antigo text;
+begin
+  perform 1 from public.membros b where b.mandato_id = p_mandato for update;
+  if private.papel_no_mandato(p_mandato) is distinct from 'coordenacao' then
+    raise exception 'Você não tem permissão para esta ação.' using errcode = '42501';
+  end if;
+  select b.papel into v_antigo from public.membros b where b.mandato_id = p_mandato and b.user_id = p_user;
+  if not found then raise exception 'Pessoa não encontrada.'; end if;
+  if v_antigo = 'coordenacao' and p_papel is distinct from 'coordenacao'
+     and not exists (select 1 from public.membros b
+                     where b.mandato_id = p_mandato and b.papel = 'coordenacao' and b.user_id <> p_user) then
+    raise exception 'O mandato precisa ter ao menos uma pessoa na coordenação.';
+  end if;
+
+  update public.membros set papel = p_papel where mandato_id = p_mandato and user_id = p_user;
+  perform private.evento_equipe(p_mandato, 'papel_trocado', p_user, private.nome_pessoa(p_mandato, p_user), p_papel);
+end;
+$$;
+
+revoke execute on function public.membro_trocar_papel(uuid, uuid, text) from public, anon;
+grant  execute on function public.membro_trocar_papel(uuid, uuid, text) to authenticated;

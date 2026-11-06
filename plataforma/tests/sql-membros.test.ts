@@ -1,0 +1,165 @@
+// Acesso, equipe e convites: funções de equipe do mandato (ACE-03, ACE-04, ACE-06), no PGlite.
+import { test, before, after, beforeEach } from 'node:test';
+import assert from 'node:assert/strict';
+import { criaBanco, como, comoDono, semente, IDS } from './sql-ambiente.ts';
+import type { Banco } from './sql-ambiente.ts';
+
+// Mandato A: IDS.membro (coordenação), ASSESSORIA e LEITOR. Mandato B: COORD_B.
+const ASSESSORIA = '00000000-0000-4000-8000-0000000000c1';
+const LEITOR = '00000000-0000-4000-8000-0000000000c2';
+const COORD_B = '00000000-0000-4000-8000-0000000000c3';
+const SEM_PERMISSAO = { code: '42501', message: /Você não tem permissão para esta ação\./ };
+const ULTIMA_COORDENACAO = { message: /^O mandato precisa ter ao menos uma pessoa na coordenação\.$/ };
+
+let banco: Banco;
+before(async () => { banco = await criaBanco(); });
+after(async () => { await banco.close(); });
+
+beforeEach(async () => {
+  await comoDono(banco);
+  await banco.exec('drop trigger if exists falha_historico on public.eventos_equipe');
+  await banco.exec('truncate public.eventos, public.membros, public.equipe_legisla, public.mandatos, auth.users cascade');
+  await semente(banco);
+  await banco.query(
+    `insert into auth.users (id, email, raw_user_meta_data) values
+       ($1, 'assessoria@gabinete.leg.br', '{"name":"Alice Assessoria"}'),
+       ($2, 'leitor@gabinete.leg.br',     '{"name":"Leo Leitor"}'),
+       ($3, 'coord@outro.leg.br',         '{"name":"Bia Coord"}')`,
+    [ASSESSORIA, LEITOR, COORD_B],
+  );
+  await banco.query(`update public.membros set criado_em = '2026-01-01T12:00:00Z' where user_id = $1`, [IDS.membro]);
+  await banco.query(
+    `insert into public.membros (mandato_id, user_id, nome, papel, criado_em) values
+       ($1, $3, 'Alice Assessoria', 'assessoria',  '2026-01-02T12:00:00Z'),
+       ($1, $4, 'Leo Leitor',       'leitura',     '2026-01-03T12:00:00Z'),
+       ($2, $5, 'Bia Coord',        'coordenacao', '2026-01-01T12:00:00Z')`,
+    [IDS.mandatoA, IDS.mandatoB, ASSESSORIA, LEITOR, COORD_B],
+  );
+});
+
+const q = async <T = Record<string, unknown>>(sql: string, args: unknown[] = []) => (await banco.query<T>(sql, args)).rows;
+// estado de membros do mandato A como o dono vê
+const papeisA = async () => {
+  await comoDono(banco);
+  return Object.fromEntries((await q<{ user_id: string; papel: string }>(
+    'select user_id, papel from public.membros where mandato_id = $1', [IDS.mandatoA])).map((x) => [x.user_id, x.papel]));
+};
+const historico = async () => {
+  await comoDono(banco);
+  return q<Record<string, unknown>>(
+    'select mandato_id, ator_id, ator_nome, tipo, alvo_id, alvo_nome, papel from public.eventos_equipe order by id');
+};
+const totais = async () => {
+  await comoDono(banco);
+  return (await q<{ eventos: number; legisla: number }>(
+    'select (select count(*)::int from public.eventos) eventos, (select count(*)::int from public.equipe_legisla) legisla'))[0];
+};
+const trocar = (user: string, papel: string, mandato: string = IDS.mandatoA) =>
+  banco.query('select public.membro_trocar_papel($1, $2, $3)', [mandato, user, papel]);
+const quebraHistorico = async () => {
+  await comoDono(banco);
+  await banco.exec(`
+    create or replace function public.quebra_historico() returns trigger language plpgsql as $$ begin raise exception 'histórico indisponível'; end; $$;
+    create trigger falha_historico before insert on public.eventos_equipe for each row execute function public.quebra_historico();
+  `);
+};
+const ESTADO_INICIAL = { [IDS.membro]: 'coordenacao', [ASSESSORIA]: 'assessoria', [LEITOR]: 'leitura' };
+
+// ---------- T3: membro_trocar_papel ----------
+
+test('coordenação troca o papel de outro membro e a mudança vale na chamada seguinte (ACE-03.4)', async () => {
+  await como(banco, IDS.membro);
+  await trocar(LEITOR, 'assessoria');
+  assert.equal((await papeisA())[LEITOR], 'assessoria');
+  // promovido de leitura para assessoria: já grava no mandato na chamada seguinte
+  await como(banco, LEITOR);
+  assert.equal((await banco.query(`update public.mandatos set nome_parlamentar = 'Editado' where id = $1`, [IDS.mandatoA])).affectedRows, 1);
+  // promovida à coordenação: já troca papéis na chamada seguinte
+  await como(banco, IDS.membro);
+  await trocar(ASSESSORIA, 'coordenacao');
+  await como(banco, ASSESSORIA);
+  await trocar(LEITOR, 'leitura');
+  assert.deepEqual(await papeisA(), { [IDS.membro]: 'coordenacao', [ASSESSORIA]: 'coordenacao', [LEITOR]: 'leitura' });
+});
+
+test('assessoria e leitura recebem erro de permissão ao trocar papel, inclusive o próprio, e nada muda (ACE-03.6)', async () => {
+  for (const quem of [ASSESSORIA, LEITOR]) {
+    await como(banco, quem);
+    await assert.rejects(trocar(quem, 'coordenacao'), SEM_PERMISSAO, quem);
+    await assert.rejects(trocar(IDS.membro, 'leitura'), SEM_PERMISSAO, quem);
+  }
+  assert.deepEqual(await papeisA(), ESTADO_INICIAL);
+  assert.deepEqual(await historico(), []);
+});
+
+test('coordenação de outro mandato, equipe Legisla e conta de fora recebem erro de permissão e nada muda (ACE-03.6, ACE-03.10)', async () => {
+  for (const quem of [COORD_B, IDS.admin, IDS.fora]) {
+    await como(banco, quem);
+    await assert.rejects(trocar(LEITOR, 'coordenacao'), SEM_PERMISSAO, quem);
+  }
+  assert.deepEqual(await papeisA(), ESTADO_INICIAL);
+  assert.deepEqual(await historico(), []);
+  assert.deepEqual(await totais(), { eventos: 0, legisla: 2 });
+});
+
+test('rebaixar a última coordenação recusa com a mensagem da spec e nada muda (ACE-03.7)', async () => {
+  await como(banco, IDS.membro);
+  for (const papel of ['assessoria', 'leitura']) {
+    await assert.rejects(trocar(IDS.membro, papel), ULTIMA_COORDENACAO, papel);
+  }
+  assert.deepEqual(await papeisA(), ESTADO_INICIAL);
+  assert.deepEqual(await historico(), []);
+});
+
+test('duas coordenações em sequência: a primeira ação passa e a segunda é recusada pela regra da coordenação (ACE-03.8)', async () => {
+  await comoDono(banco);
+  await banco.query(`update public.membros set papel = 'coordenacao' where user_id = $1`, [ASSESSORIA]);
+  // cada uma rebaixa a si mesma: a segunda seria a última coordenação
+  await como(banco, IDS.membro);
+  await trocar(IDS.membro, 'assessoria');
+  await como(banco, ASSESSORIA);
+  await assert.rejects(trocar(ASSESSORIA, 'assessoria'), ULTIMA_COORDENACAO);
+  assert.deepEqual(await papeisA(), { [IDS.membro]: 'assessoria', [ASSESSORIA]: 'coordenacao', [LEITOR]: 'leitura' });
+  // cada uma rebaixa a outra: a segunda já não é coordenação quando chega
+  await comoDono(banco);
+  await banco.query(`update public.membros set papel = 'coordenacao' where user_id = $1`, [IDS.membro]);
+  await como(banco, IDS.membro);
+  await trocar(ASSESSORIA, 'assessoria');
+  await como(banco, ASSESSORIA);
+  await assert.rejects(trocar(IDS.membro, 'assessoria'), SEM_PERMISSAO);
+  assert.deepEqual(await papeisA(), ESTADO_INICIAL);
+});
+
+test('membro_trocar_papel trava as linhas de membros do mandato com for update antes de contar coordenações (ACE-03.8)', async () => {
+  await comoDono(banco);
+  const [{ src }] = await q<{ src: string }>(`select prosrc src from pg_proc where proname = 'membro_trocar_papel'`);
+  const trava = src.search(/from public\.membros b where b\.mandato_id = p_mandato for update/);
+  assert.ok(trava >= 0, 'sem for update nas linhas do mandato');
+  assert.ok(trava < src.indexOf('papel_no_mandato'), 'a trava precisa vir antes de ler o papel');
+  assert.ok(trava < src.indexOf("b.papel = 'coordenacao'"), 'a trava precisa vir antes de contar coordenações');
+});
+
+test('a troca grava papel_trocado com ator, alvo e papel, e nenhuma linha em eventos (ACE-06.2, ACE-06.5)', async () => {
+  await como(banco, IDS.membro);
+  await trocar(LEITOR, 'assessoria');
+  await como(banco, IDS.membro);
+  await assert.rejects(trocar(IDS.fora, 'leitura'), /Pessoa não encontrada\./);
+  assert.deepEqual(await historico(), [{
+    mandato_id: IDS.mandatoA, ator_id: IDS.membro, ator_nome: 'Mario Membro', tipo: 'papel_trocado',
+    alvo_id: LEITOR, alvo_nome: 'Leo Leitor', papel: 'assessoria',
+  }]);
+  assert.equal((await totais()).eventos, 0);
+});
+
+test('se a gravação do histórico falhar, a troca de papel é desfeita (ACE-06.3)', async () => {
+  await quebraHistorico();
+  await como(banco, IDS.membro);
+  await assert.rejects(trocar(LEITOR, 'assessoria'), /histórico indisponível/);
+  assert.deepEqual(await papeisA(), ESTADO_INICIAL);
+});
+
+test('anon não executa membro_trocar_papel', async () => {
+  await como(banco, null);
+  await assert.rejects(trocar(LEITOR, 'coordenacao'), /permission denied/);
+  assert.deepEqual(await papeisA(), ESTADO_INICIAL);
+});
