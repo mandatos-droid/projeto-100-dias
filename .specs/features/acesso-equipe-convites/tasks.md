@@ -911,13 +911,13 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Mostra foto, nome parlamentar, cargo, UF, partido e data de posse (ACE-05.1)
-- [ ] Mostra "Dia 12 de 100" na data certa, "Posse em DD/MM/AAAA" antes e "100 dias concluídos" depois (ACE-05.2)
-- [ ] Mostra as 5 missões com "Concluída", "Em andamento" ou "A fazer" conforme `dados.feitos` (ACE-05.3)
-- [ ] "Editar dados" abre a edição do mandato no Guia (ACE-05.6)
-- [ ] Papel `leitura` não vê "Editar dados" (ACE-05.10)
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/mandato-area.spec.ts`
-- [ ] Test count: ao menos 8 testes em `e2e/mandato-area.spec.ts`
+- [x] Mostra foto, nome parlamentar, cargo, UF, partido e data de posse (ACE-05.1)
+- [x] Mostra "Dia 12 de 100" na data certa, "Posse em DD/MM/AAAA" antes e "100 dias concluídos" depois (ACE-05.2)
+- [x] Mostra as 5 missões com "Concluída", "Em andamento" ou "A fazer" conforme `dados.feitos` (ACE-05.3)
+- [x] "Editar dados" abre a edição do mandato no Guia (ACE-05.6)
+- [x] Papel `leitura` não vê "Editar dados" (ACE-05.10)
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/mandato-area.spec.ts`
+- [x] Test count: ao menos 8 testes em `e2e/mandato-area.spec.ts`
 
 **Tests**: e2e
 **Gate**: full

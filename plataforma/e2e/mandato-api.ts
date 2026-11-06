@@ -60,7 +60,8 @@ const PERMITE = {
 /** Intercepta o Supabase como `moca` e, além disso, as leituras de `/mandato`. Chame antes de `page.goto`. */
 export async function mocaMandato(page: Page, estado: EstadoMandato = {}) {
   leiturasFeitas = []; fotosAbortadas = [];
-  await moca(page, estado);
+  // a Área do mandato sempre lê o catálogo de exercícios: vem mapeado, e o teste troca por outra resposta quando precisar
+  await moca(page, { ...estado, rpc: { ...rpcCatalogo(), ...estado.rpc } });
 
   // fotos do TSE: abortadas aqui (rota mais nova que a de hosts externos do `moca`), sem entrar em naoMapeadas
   await page.route((u) => u.hostname === 'resultados.tse.jus.br' || (!['localhost', '127.0.0.1'].includes(u.hostname) && /\.jpe?g$/i.test(u.pathname)), (rota) => {
@@ -93,3 +94,19 @@ export async function mocaMandato(page: Page, estado: EstadoMandato = {}) {
     return responde(200, (estado.mandatos ?? []).map(({ papel, ...mandato }) => ({ papel, mandatos: mandato })));
   });
 }
+
+/** Catálogo dos 16 exercícios do Guia (o que `catalogo_exercicios()` devolve), na ordem do banco. */
+export const CATALOGO = [
+  ['m1.persona', 1, 1, 'A persona'], ['m1.conjuntura', 1, 2, 'A conjuntura'], ['m1.oportunidades', 1, 3, 'As oportunidades e ameaças'],
+  ['m1.frag', 1, 4, 'As fragilidades'],
+  ['m2.funcoes', 2, 1, 'A escalação do time'], ['m2.gestao', 2, 2, 'Organograma e rotinas'],
+  ['m3.bandeiras', 3, 1, 'As bandeiras do mandato'], ['m3.legado', 3, 2, 'O Legado do mandato'],
+  ['m3.preditores', 3, 3, 'Os preditores de sucesso'], ['m3.metas', 3, 4, 'As metas dos primeiros 100 dias'],
+  ['m4.comissoes', 4, 1, 'A escolha das Comissões Permanentes'], ['m4.acoes', 4, 2, 'As ações dos 100 dias'],
+  ['m4.metricas', 4, 3, 'O acompanhamento da comunicação'],
+  ['m5.monit', 5, 1, 'O monitoramento do avanço das metas'], ['m5.feedback', 5, 2, 'O primeiro ciclo de feedback estruturado'],
+  ['m5.imersao', 5, 3, 'Calibragem e replanejamento'],
+].map(([id, missao, ordem, titulo]) => ({ id, missao, ordem, titulo }));
+
+/** `rpc` mínima para as telas da Área do mandato: só o catálogo. */
+export const rpcCatalogo = (): NonNullable<EstadoMoca['rpc']> => ({ catalogo_exercicios: () => ({ corpo: CATALOGO }) });
