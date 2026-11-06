@@ -958,11 +958,11 @@ T36 → T37
 
 **Done when**:
 
-- [ ] O `insert` leva só `mandato_id`, `funcionalidade` e `criado_em`; com `NUVEM=false` não faz chamada; falha de rede ou 4xx/5xx é ignorada, sem aviso e sem nova tentativa
-- [ ] Gancho dentro de `try/catch`, sem estado novo; os e2e existentes do Guia continuam passando
-- [ ] Spec `e2e/admin-uso-registro.spec.ts` criado nesta task
-- [ ] Cobre: abrir funcionalidade grava 1 linha só com os 3 campos; repetir em 60 s não duplica; sem nuvem não grava; erro do banco não aparece para a pessoa
-- [ ] ≥ 4 testes passam
+- [x] O `insert` leva só `mandato_id`, `funcionalidade` e `criado_em`; com `NUVEM=false` não faz chamada; falha de rede ou 4xx/5xx é ignorada, sem aviso e sem nova tentativa
+- [x] Gancho dentro de `try/catch`, sem estado novo; os e2e existentes do Guia continuam passando
+- [x] Spec `e2e/admin-uso-registro.spec.ts` criado nesta task
+- [x] Cobre: abrir funcionalidade grava 1 linha só com os 3 campos; repetir em 60 s não duplica; sem nuvem não grava; erro do banco não aparece para a pessoa
+- [x] ≥ 4 testes passam
 
 **Tests**: e2e
 **Gate**: full

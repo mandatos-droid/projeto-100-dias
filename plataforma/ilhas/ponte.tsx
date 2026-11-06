@@ -27,6 +27,7 @@ import QuadroRotinas from './equipe/QuadroRotinas';
 import PdfOrgRotinas from './equipe/PdfOrgRotinas';
 import SugestaoChecklist from './equipe/SugestaoChecklist';
 import { AssentosResumo, ConjunturaResumo, MunicipioResumo } from './Resumos';
+import { criaRegistrador, funcionalidadeDe } from '@/lib/uso';
 
 /* ---------- acesso ao estado do Guia original (globais D e Store) ---------- */
 type Legado = {
@@ -126,6 +127,25 @@ const ILHAS: Record<string, () => React.ReactElement> = {
 };
 const raizes = new Set<Root>();
 
+/* Registro de uso (ADM-14): 1 linha por abertura de funcionalidade, só mandato, id e instante. Fica fora do caminho
+   crítico: sem nuvem ou sem sessão não faz nada, e qualquer falha (rede, 4xx, 5xx) é ignorada, sem aviso nem nova tentativa. */
+const deveGravarUso = criaRegistrador();
+function registraUso(nome: string) {
+  try {
+    const w = window as unknown as { NUVEM?: boolean; CONFIG?: { url: string; key: string }; Nuvem?: { tok: string | null } };
+    const tok = w.Nuvem?.tok;
+    if (!w.NUVEM || !w.CONFIG || !tok) return;
+    const funcionalidade = funcionalidadeDe(nome);
+    const mandatoId = (mandato() as { id?: string } | null)?.id;
+    if (!funcionalidade || !mandatoId || !deveGravarUso(mandatoId, funcionalidade)) return;
+    fetch(`${w.CONFIG.url}/rest/v1/uso_funcionalidades`, {
+      method: 'POST',
+      headers: { apikey: w.CONFIG.key, Authorization: `Bearer ${tok}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ mandato_id: mandatoId, funcionalidade, criado_em: new Date().toISOString() }),
+    }).catch(() => {});
+  } catch { /* o registro nunca atrapalha o Guia */ }
+}
+
 export function instalaIlhas() {
   (window as unknown as { Ilhas: unknown }).Ilhas = {
     ligar(raiz: HTMLElement) {
@@ -139,6 +159,7 @@ export function instalaIlhas() {
         const r = createRoot(el);
         raizes.add(r);
         r.render(f());
+        registraUso(nome);
       });
     },
   };
