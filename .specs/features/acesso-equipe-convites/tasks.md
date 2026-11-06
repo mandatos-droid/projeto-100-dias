@@ -853,10 +853,10 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] A resposta de `/convite` traz `referrer-policy: no-referrer` e `x-robots-tag: noindex`
-- [ ] A resposta de `/guia` e de `/` não recebe os dois cabeçalhos
-- [ ] Gate check passes (Build, última task da fase): `npx tsc --noEmit`, `npm test`, `npx playwright test e2e/convite-*.spec.ts`
-- [ ] Test count: ao menos 3 testes em `e2e/convite-cabecalhos.spec.ts`
+- [x] A resposta de `/convite` traz `referrer-policy: no-referrer` e `x-robots-tag: noindex`
+- [x] A resposta de `/guia` e de `/` não recebe os dois cabeçalhos
+- [x] Gate check passes (Build, última task da fase): `npx tsc --noEmit`, `npm test`, `npx playwright test e2e/convite-*.spec.ts`
+- [x] Test count: ao menos 3 testes em `e2e/convite-cabecalhos.spec.ts`
 
 **Tests**: e2e
 **Gate**: build

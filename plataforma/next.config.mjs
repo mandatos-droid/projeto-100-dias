@@ -6,5 +6,15 @@ const nextConfig = {
   async rewrites() {
     return [{ source: '/painel', destination: '/painel.html' }];
   },
+  // O token do convite vai no fragmento (/convite#<token>); a página também não manda o endereço como Referer nem é indexada.
+  async headers() {
+    return [{
+      source: '/convite',
+      headers: [
+        { key: 'Referrer-Policy', value: 'no-referrer' },
+        { key: 'X-Robots-Tag', value: 'noindex' },
+      ],
+    }];
+  },
 };
 export default nextConfig;
