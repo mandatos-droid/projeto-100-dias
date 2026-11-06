@@ -232,3 +232,59 @@ $$;
 
 revoke execute on function public.equipe_do_mandato(uuid) from public, anon;
 grant  execute on function public.equipe_do_mandato(uuid) to authenticated;
+
+-- ---------- CONVITES ----------
+-- O token nunca é gravado: só o sha256 dele. As três tabelas não têm grant para anon nem para
+-- authenticated; tudo passa pelas funções de convite (security definer).
+-- Estados derivados: pendente = não usado, não cancelado e expira_em > now(); usado e cancelado são finais.
+
+create table if not exists public.convites (
+  id               uuid primary key default gen_random_uuid(),
+  mandato_id       uuid not null references public.mandatos on delete cascade,
+  token_hash       bytea not null unique,
+  nome             text not null check (char_length(nome) between 1 and 80),
+  email            text check (email is null or char_length(email) <= 254),  -- normalizado
+  papel            text not null check (papel in ('coordenacao', 'assessoria', 'leitura')),
+  criado_por       uuid references auth.users on delete set null,
+  criado_por_nome  text,                                                      -- cópia do nome de quem convidou
+  criado_em        timestamptz not null default now(),
+  expira_em        timestamptz not null,
+  usado_em         timestamptz,
+  usado_por        uuid references auth.users on delete set null,
+  cancelado_em     timestamptz,
+  cancelado_por    uuid references auth.users on delete set null,
+  constraint convites_usado_ou_cancelado check (usado_em is null or cancelado_em is null)
+);
+
+create index if not exists convites_pendentes_idx on public.convites (mandato_id)
+  where usado_em is null and cancelado_em is null;
+
+-- Limite de tentativas por origem (primeiro IP de x-forwarded-for).
+create table if not exists public.convite_tentativas (
+  origem  text not null,
+  em      timestamptz not null default now()
+);
+create index if not exists convite_tentativas_idx on public.convite_tentativas (origem, em);
+
+create table if not exists public.convite_bloqueios (
+  origem  text primary key,
+  ate     timestamptz not null
+);
+
+alter table public.convites           enable row level security;
+alter table public.convite_tentativas enable row level security;
+alter table public.convite_bloqueios  enable row level security;
+revoke all on public.convites, public.convite_tentativas, public.convite_bloqueios from public, anon, authenticated;
+
+-- 128 bits aleatórios em 22 caracteres base64url. gen_random_uuid() usa o gerador criptográfico do
+-- Postgres; de cada UUID v4 só servem os bytes sem bits fixos (o 7º traz a versão, o 9º a variante).
+create or replace function private.token_aleatorio()
+returns text language sql volatile set search_path = '' as $$
+  select rtrim(translate(encode(
+           substring(a from 1 for 6) || substring(a from 8 for 1) || substring(a from 10 for 7) || substring(b from 1 for 2),
+           'base64'), '+/', '-_'), '=')
+  from (select decode(replace(gen_random_uuid()::text, '-', ''), 'hex') a,
+               decode(replace(gen_random_uuid()::text, '-', ''), 'hex') b) u
+$$;
+
+revoke execute on function private.token_aleatorio() from public, anon, authenticated;

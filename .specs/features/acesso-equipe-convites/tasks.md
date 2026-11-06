@@ -289,11 +289,11 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] `authenticated` e `anon` não conseguem `select`, `insert`, `update` nem `delete` em nenhuma das três tabelas
-- [ ] `private.token_aleatorio()` devolve 22 caracteres do conjunto `A-Za-z0-9_-`, e 1000 chamadas não repetem valor
-- [ ] Restrições do design valem: nome de 1 a 80, papel dentro dos três valores, `usado_em` e `cancelado_em` nunca juntos, `token_hash` único (ACE-01.7)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 6 testes novos em `tests/sql-convites.test.ts`, nenhum removido
+- [x] `authenticated` e `anon` não conseguem `select`, `insert`, `update` nem `delete` em nenhuma das três tabelas
+- [x] `private.token_aleatorio()` devolve 22 caracteres do conjunto `A-Za-z0-9_-`, e 1000 chamadas não repetem valor
+- [x] Restrições do design valem: nome de 1 a 80, papel dentro dos três valores, `usado_em` e `cancelado_em` nunca juntos, `token_hash` único (ACE-01.7)
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 6 testes novos em `tests/sql-convites.test.ts`, nenhum removido
 
 **Tests**: integration
 **Gate**: quick
