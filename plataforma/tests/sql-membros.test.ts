@@ -359,6 +359,7 @@ test('equipe_do_mandato devolve só as cinco colunas do design', async () => {
 // ---------- Correções do Verifier: mandatos.criado_por deixa de ser credencial (sondas S-1, S-2 e S-3) ----------
 
 const RLS = /row-level security/;
+const SO_COORDENACAO_EXCLUI = { code: '42501', message: /^Só a coordenação do mandato pode excluir o cadastro\.$/ };
 const criadoPor = async (mandato: string = IDS.mandatoA) => {
   await comoDono(banco);
   return (await q<{ criado_por: string | null }>('select criado_por from public.mandatos where id = $1', [mandato]))[0].criado_por;
@@ -368,6 +369,11 @@ const trocaCriador = (novo: string | null, mandato: string = IDS.mandatoA) =>
 // POST /membros direto pela API, com o próprio id
 const entraDireto = (quem: string, papel: string, mandato: string = IDS.mandatoA) =>
   banco.query('insert into public.membros (mandato_id, user_id, nome, papel) values ($1, $2, $3, $4)', [mandato, quem, 'Entrou direto', papel]);
+const excluirMandato = (mandato: string = IDS.mandatoA) => banco.query('select public.excluir_mandato($1)', [mandato]);
+const existe = async (mandato: string) => {
+  await comoDono(banco);
+  return (await q('select 1 from public.mandatos where id = $1', [mandato])).length === 1;
+};
 
 test('sonda S-1: assessoria não vira coordenação trocando criado_por, saindo e se reinserindo pela API (ACE-03.6)', async () => {
   await como(banco, ASSESSORIA);
@@ -438,4 +444,43 @@ test('cadastro novo, como o Guia faz: quem criou lê o mandato no RETURNING e en
   assert.deepEqual(await q('select id from public.mandatos'), [{ id }]);
   await comoDono(banco);
   assert.deepEqual(await q('select user_id, papel from public.membros where mandato_id = $1', [id]), [{ user_id: IDS.fora, papel: 'coordenacao' }]);
+});
+
+test('sonda S-2: quem criou o mandato, rebaixado a leitura ou removido, não exclui o mandato (ACE-03.2)', async () => {
+  await como(banco, IDS.membro);
+  await trocar(ASSESSORIA, 'coordenacao');
+  await como(banco, ASSESSORIA);
+  await trocar(IDS.membro, 'leitura');
+  await como(banco, IDS.membro);
+  await assert.rejects(excluirMandato(), SO_COORDENACAO_EXCLUI);
+  assert.equal(await existe(IDS.mandatoA), true);
+  await como(banco, ASSESSORIA);
+  await remover(IDS.membro);
+  await como(banco, IDS.membro);
+  await assert.rejects(excluirMandato(), SO_COORDENACAO_EXCLUI);
+  assert.equal(await existe(IDS.mandatoA), true);
+  assert.deepEqual(await papeisA(), { [ASSESSORIA]: 'coordenacao', [LEITOR]: 'leitura' });
+});
+
+test('assessoria, leitura, coordenação de outro mandato, equipe Legisla e conta de fora não excluem o mandato; anon não executa (ACE-03.2)', async () => {
+  for (const quem of [ASSESSORIA, LEITOR, COORD_B, IDS.admin, IDS.fora]) {
+    await como(banco, quem);
+    await assert.rejects(excluirMandato(), SO_COORDENACAO_EXCLUI, quem);
+  }
+  await como(banco, null);
+  await assert.rejects(excluirMandato(), /permission denied/);
+  assert.equal(await existe(IDS.mandatoA), true);
+  assert.deepEqual(await papeisA(), ESTADO_INICIAL);
+});
+
+test('a coordenação exclui o mandato, tenha ou não criado o cadastro; membros saem em cascata e o outro mandato fica (ACE-03.2)', async () => {
+  // IDS.membro criou o mandato A; o mandato B não tem criado_por
+  assert.equal(await criadoPor(IDS.mandatoB), null);
+  await como(banco, IDS.membro);
+  await excluirMandato();
+  assert.equal(await existe(IDS.mandatoA), false);
+  assert.deepEqual(await papeisA(), {});
+  await como(banco, COORD_B);
+  await excluirMandato(IDS.mandatoB);
+  assert.equal(await existe(IDS.mandatoB), false);
 });

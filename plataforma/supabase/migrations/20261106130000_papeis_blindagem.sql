@@ -4,7 +4,8 @@
 -- mandatos.criado_por deixa de valer como credencial (correções do Verifier, sondas S-1 a S-3):
 --   1. criado_por não muda pela API (gatilho no molde de mandatos_trava_arquivo);
 --   2. quem criou o mandato entra direto em membros só como a primeira pessoa, na coordenação;
---      depois disso, só por convite. Ler o mandato por criado_por vale só nesse intervalo.
+--      depois disso, só por convite. Ler o mandato por criado_por vale só nesse intervalo;
+--   3. excluir_mandato exige o papel coordenacao atual, lido de membros.
 --
 -- Escrita idempotente (pode ser reaplicada sem erro).
 -- =====================================================================
@@ -60,3 +61,19 @@ create policy mandatos_ler on public.mandatos
   using (private.eh_membro(id)
          or (criado_por = (select auth.uid()) and private.mandato_sem_membros(id))
          or private.eh_legisla());
+
+-- ---------- 3. Excluir o mandato: só a coordenação atual ----------
+-- Antes bastava ter criado o mandato, mesmo rebaixado a leitura ou fora dele.
+create or replace function public.excluir_mandato(p_id uuid)
+returns void language plpgsql security definer set search_path = '' as $$
+begin
+  if (select auth.uid()) is null then raise exception 'Não autenticado.'; end if;
+  if private.papel_no_mandato(p_id) is distinct from 'coordenacao' then
+    raise exception 'Só a coordenação do mandato pode excluir o cadastro.' using errcode = '42501';
+  end if;
+  delete from public.mandatos where id = p_id;
+end;
+$$;
+
+revoke execute on function public.excluir_mandato(uuid) from public, anon;
+grant  execute on function public.excluir_mandato(uuid) to authenticated;
