@@ -107,8 +107,8 @@ T36 → T37
 
 **Done when**:
 
-- [ ] `@electric-sql/pglite` instalado como devDependency com versão fixada (sem `^`), e `package-lock.json` atualizado no mesmo commit
-- [ ] `npx tsc --noEmit` e `npm test` seguem passando com a mesma contagem de testes de antes
+- [x] `@electric-sql/pglite` instalado como devDependency com versão fixada (sem `^`), e `package-lock.json` atualizado no mesmo commit
+- [x] `npx tsc --noEmit` e `npm test` seguem passando com a mesma contagem de testes de antes
 
 **Tests**: none
 **Gate**: build
