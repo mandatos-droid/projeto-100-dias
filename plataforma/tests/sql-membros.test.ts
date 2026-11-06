@@ -417,6 +417,21 @@ test('sonda S-3: quem criou o mandato e foi removido pela coordenação não se 
   assert.deepEqual(await q('select id from public.mandatos'), []);
 });
 
+test('mutante B06: quem criou o mandato e está na equipe Legisla segue vendo o mandato depois de removido, e mesmo assim não se reinsere como coordenação, porque o mandato já tem membros (ACE-03.5, ACE-03.6)', async () => {
+  await comoDono(banco);
+  await banco.query(`insert into public.equipe_legisla (user_id, nome, papel) values ($1, 'Mario Membro', 'leitura')`, [IDS.membro]);
+  await como(banco, IDS.membro);
+  await trocar(ASSESSORIA, 'coordenacao');
+  await como(banco, ASSESSORIA);
+  await remover(IDS.membro);
+  // quem barra não é a leitura do mandato: pela equipe Legisla ele continua visível
+  await como(banco, IDS.membro);
+  assert.deepEqual(await q('select id from public.mandatos where id = $1', [IDS.mandatoA]), [{ id: IDS.mandatoA }]);
+  await como(banco, IDS.membro);
+  await assert.rejects(entraDireto(IDS.membro, 'coordenacao'), RLS);
+  assert.deepEqual(await papeisA(), { [ASSESSORIA]: 'coordenacao', [LEITOR]: 'leitura' });
+});
+
 test('quem criou o mandato e saiu por conta própria também não volta direto (ACE-03.6)', async () => {
   await comoDono(banco);
   await banco.query(`update public.membros set papel = 'coordenacao' where user_id = $1`, [ASSESSORIA]);
@@ -442,6 +457,21 @@ test('cadastro novo, como o Guia faz: quem criou lê o mandato no RETURNING e en
   await como(banco, IDS.fora);
   await entraDireto(IDS.fora, 'coordenacao', id);
   assert.deepEqual(await q('select id from public.mandatos'), [{ id }]);
+  await comoDono(banco);
+  assert.deepEqual(await q('select user_id, papel from public.membros where mandato_id = $1', [id]), [{ user_id: IDS.fora, papel: 'coordenacao' }]);
+});
+
+test('mutante B08: quem cria o mandato não inclui outra conta na primeira linha, nem como coordenação; só a si mesmo (ACE-07.3)', async () => {
+  await como(banco, IDS.fora);
+  const [{ id }] = await q<{ id: string }>(
+    `insert into public.mandatos (codigo, nome_parlamentar, cargo, uf, criado_por) values ('DDD444', 'Parlamentar Quatro', 'Vereador', 'BA', $1)
+     returning id`, [IDS.fora]);
+  await como(banco, IDS.fora);
+  await assert.rejects(entraDireto(ASSESSORIA, 'coordenacao', id), RLS);
+  await comoDono(banco);
+  assert.deepEqual(await q('select user_id from public.membros where mandato_id = $1', [id]), []);
+  await como(banco, IDS.fora);
+  await entraDireto(IDS.fora, 'coordenacao', id);
   await comoDono(banco);
   assert.deepEqual(await q('select user_id, papel from public.membros where mandato_id = $1', [id]), [{ user_id: IDS.fora, papel: 'coordenacao' }]);
 });
