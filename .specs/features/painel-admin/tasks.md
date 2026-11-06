@@ -299,8 +299,8 @@ T36 → T37
 
 **Done when**:
 
-- [ ] `lerConfig` devolve `{url, key}` do bloco `prod`; erro claro se o formato faltar
-- [ ] `tests/admin-config.test.ts` roda `lerConfig` contra o `public/legacy/nucleo.js` real e contra texto sem o bloco; ≥ 3 casos passam
+- [x] `lerConfig` devolve `{url, key}` do bloco `prod`; erro claro se o formato faltar
+- [x] `tests/admin-config.test.ts` roda `lerConfig` contra o `public/legacy/nucleo.js` real e contra texto sem o bloco; ≥ 3 casos passam
 
 **Tests**: unit
 **Gate**: quick
