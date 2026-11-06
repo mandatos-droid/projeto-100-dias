@@ -137,7 +137,8 @@ test.describe('Privacidade e rotas (ADM-02, ADM-16)', () => {
   });
 
   test('leitura vê as 5 telas sem nenhum botão que altere dados', async ({ page }) => {
-    const ALTERA = /^(Incluir|Remover|Editar|Adicionar|Arquivar|Desarquivar|Excluir)/;
+    // sem âncora: os botões reais são "+ Incluir pessoa" e "+ Adicionar membro"
+    const ALTERA = /(Incluir|Remover|Editar|Adicionar|Arquivar|Desarquivar|Excluir)/i;
     for (const t of TELAS) {
       await abre(page, t.rota, t.pronto, 'leitura');
       const rotulos = await page.getByRole('button').allInnerTexts();

@@ -61,14 +61,31 @@ export function vazou(): string[] {
   return [...registro.vazamentos];
 }
 
-function varre(corpo: unknown, origem: string) {
-  if (Array.isArray(corpo)) { corpo.forEach((x) => varre(x, origem)); return; }
-  if (corpo && typeof corpo === 'object') {
-    for (const [k, v] of Object.entries(corpo)) {
-      if (CHAVES_PROIBIDAS.includes(k)) registro.vazamentos.push(`resposta ${origem}: chave ${k}`);
-      varre(v, origem);
+/** Chaves proibidas achadas em `corpo`, percorrendo objetos aninhados e arrays, sem diferenciar maiúsculas de minúsculas.
+ *  LIMITE CONHECIDO: a varredura é por NOME de chave; o mesmo conteúdo sob outro nome (ex.: `dados` renomeado para `conteudo`)
+ *  não é detectável aqui. A proteção real está em `naoMapeadas()`, na regex de pedido (`pedidoCitaChaves`) e no
+ *  `information_schema` do SQL (`sql-admin-leitura.test.ts`), que fixam quais colunas existem e quais o app pede. */
+export function chavesProibidasEm(corpo: unknown): string[] {
+  const achadas: string[] = [];
+  const varre = (c: unknown) => {
+    if (Array.isArray(c)) { c.forEach(varre); return; }
+    if (c && typeof c === 'object') {
+      for (const [k, v] of Object.entries(c)) {
+        if (CHAVES_PROIBIDAS.includes(k.toLowerCase())) achadas.push(k);
+        varre(v);
+      }
     }
-  }
+  };
+  varre(corpo);
+  return achadas;
+}
+
+/** Chaves proibidas citadas na query string de um pedido (palavra inteira, sem diferenciar maiúsculas). */
+export const pedidoCitaChaves = (search: string): string[] =>
+  CHAVES_PROIBIDAS.filter((k) => new RegExp(`\\b${k}\\b`, 'i').test(decodeURIComponent(search)));
+
+function varre(corpo: unknown, origem: string) {
+  chavesProibidasEm(corpo).forEach((k) => registro.vazamentos.push(`resposta ${origem}: chave ${k}`));
 }
 
 const ORIGEM = new URL(lerConfig(readFileSync(join(process.cwd(), 'public/legacy/nucleo.js'), 'utf8')).url).origin;
@@ -148,8 +165,7 @@ export async function moca(page: Page, estado: EstadoMoca = {}) {
 
     // pedido que cita coluna de texto de gabinete conta como vazamento, mesmo que a resposta venha limpa
     if (u.pathname.startsWith('/rest/')) {
-      const citadas = CHAVES_PROIBIDAS.filter((k) => new RegExp(`\\b${k}\\b`).test(decodeURIComponent(u.search)));
-      citadas.forEach((k) => registro.vazamentos.push(`pedido ${alvo}: coluna ${k}`));
+      pedidoCitaChaves(u.search).forEach((k) => registro.vazamentos.push(`pedido ${alvo}: coluna ${k}`));
     }
 
     // ---- auth ----
