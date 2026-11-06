@@ -729,12 +729,12 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Com `access_token` no hash e convite pendente devolve `/convite${hash}` (ACE-02.5)
-- [ ] Sem convite pendente continua devolvendo `/guia${hash}` (regressão do AD-001)
-- [ ] Sem `access_token` nem `error_description` devolve `null` nos dois casos
-- [ ] `RedirecionaAuth.tsx` lê o convite pendente com `lePendente` e passa o valor; teste do módulo prova o contrato
-- [ ] Gate check passes (Build, última task da fase): `npx tsc --noEmit`, `npm test`
-- [ ] Test count: ao menos 4 testes novos em `tests/landing.test.ts`, nenhum removido
+- [x] Com `access_token` no hash e convite pendente devolve `/convite${hash}` (ACE-02.5)
+- [x] Sem convite pendente continua devolvendo `/guia${hash}` (regressão do AD-001)
+- [x] Sem `access_token` nem `error_description` devolve `null` nos dois casos
+- [x] `RedirecionaAuth.tsx` lê o convite pendente com `lePendente` e passa o valor; teste do módulo prova o contrato
+- [x] Gate check passes (Build, última task da fase): `npx tsc --noEmit`, `npm test`
+- [x] Test count: ao menos 4 testes novos em `tests/landing.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: build
