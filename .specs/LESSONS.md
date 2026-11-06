@@ -92,6 +92,48 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: G2 spec.md traceability CAP-11.x (spec)
 - last seen: 2026-10-27T23:20:07Z
 
+### L-014 - Assert that a call did not happen only after a barrier request or a wait longer than the code could delay it, never right after a UI assertion.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e` · harmful: 0
+- features: painel-admin
+- evidence: e2e/admin-acesso.spec.ts:30 (mutantes EA2 e EB) (e2e)
+- last seen: 2026-11-06T04:46:46Z
+
+### L-015 - Wait for the loaded rows, not only the page title, before changing mocked server state in an e2e test.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `e2e` · harmful: 0
+- features: painel-admin
+- evidence: e2e/admin-equipe.spec.ts:221 (ADM-03, intermitente 4 em 57) (e2e)
+- last seen: 2026-11-06T04:46:46Z
+
+### L-016 - Test each privileged gate with every lower role that can reach the same row, not only with an outsider.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `sql` · harmful: 0
+- features: painel-admin
+- evidence: 20261105140000_admin_mandatos_gestao.sql:21 (mutante V5, ADM-02.7) (sql)
+- last seen: 2026-11-06T04:46:46Z
+
+### L-017 - Assert through the catalog that every security definer function sets an empty search_path and has execute revoked from public and anon.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `sql` · harmful: 0
+- features: painel-admin
+- evidence: 20261105120000_admin_equipe.sql:172 (mutante M13) (sql)
+- last seen: 2026-11-06T04:46:46Z
+
+### L-018 - Use the paged reader, or record the row cap, in every REST read that feeds a full list.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `routes` · harmful: 0
+- features: painel-admin
+- evidence: app/admin/page.tsx:33 (ADM-05, teto de 1.000 linhas sem registro) (routes)
+- last seen: 2026-11-06T04:46:47Z
+
+### L-019 - Isolate each guard flag in its own test by satisfying the other guards, so a redundant guard cannot mask its removal.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e` · harmful: 0
+- features: painel-admin
+- evidence: ilhas/ponte.tsx:137 (mutante E14, ADM-14.4) (e2e)
+- last seen: 2026-11-06T04:46:47Z
+
+### L-020 - Give a forbidden-field scanner in a test helper its own self-test with a polluted fixture.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e` · harmful: 0
+- features: painel-admin
+- evidence: e2e/admin-api.ts:34 (mutantes E8 e E10) (e2e)
+- last seen: 2026-11-06T04:46:47Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
