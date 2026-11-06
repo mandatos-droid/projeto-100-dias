@@ -111,3 +111,20 @@
 .md-lista li { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--linha); min-width: 0; }
 .md-lista li:first-child { border-top: 0; }
 .md-lista time { font-size: 13px; }
+
+/* formulário de convite e link pronto */
+.md input {
+  font: inherit; width: 100%; min-width: 0; padding: 10px 12px; border: 1.5px solid var(--tinta-2); border-radius: 8px;
+  background: var(--branco); color: var(--tinta);
+}
+.md-form { display: flex; flex-direction: column; gap: 14px; }
+.md-campos { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.md-campo { display: flex; flex-direction: column; gap: 5px; flex: 1 1 180px; min-width: 0; }
+.md-campo--papel { flex: 0 1 190px; }
+.md-campo span { font-size: 14px; font-weight: 600; }
+.md-pronto { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.md-link-pronto {
+  font-family: ui-monospace, Consolas, monospace; font-size: 13px; background: var(--papel); border: 1px dashed var(--tinta-2);
+  border-radius: 8px; padding: 10px 12px; overflow-wrap: anywhere; word-break: break-all; user-select: all;
+}
+.md-linha--botoes { justify-content: flex-start; gap: 8px; }

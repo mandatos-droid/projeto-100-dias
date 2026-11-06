@@ -997,13 +997,13 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Gerar com nome e papel mostra o link completo, "Vale por 7 dias e só pode ser usado uma vez." e os três botões (ACE-01.1)
-- [ ] O seletor de papel oferece só os papéis permitidos: coordenação vê os três, assessoria vê dois, leitura vê só "Somente leitura" (ACE-04.9)
-- [ ] Nome inválido, e-mail inválido, papel maior (resposta do banco) e 20 pendentes mostram a mensagem exata da spec e nenhum link (ACE-01.6, ACE-01.7, ACE-01.8, ACE-01.9)
-- [ ] "Copiar link" copia o link exato mostrado; "Abrir no WhatsApp" aponta para `https://wa.me/?text=` com a mensagem
-- [ ] O link só aparece logo após gerar e some ao recarregar a tela (ACE-01.3)
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/mandato-equipe.spec.ts`
-- [ ] Test count: ao menos 9 testes em `e2e/mandato-equipe.spec.ts`
+- [x] Gerar com nome e papel mostra o link completo, "Vale por 7 dias e só pode ser usado uma vez." e os três botões (ACE-01.1)
+- [x] O seletor de papel oferece só os papéis permitidos: coordenação vê os três, assessoria vê dois, leitura vê só "Somente leitura" (ACE-04.9)
+- [x] Nome inválido, e-mail inválido, papel maior (resposta do banco) e 20 pendentes mostram a mensagem exata da spec e nenhum link (ACE-01.6, ACE-01.7, ACE-01.8, ACE-01.9)
+- [x] "Copiar link" copia o link exato mostrado; "Abrir no WhatsApp" aponta para `https://wa.me/?text=` com a mensagem
+- [x] O link só aparece logo após gerar e some ao recarregar a tela (ACE-01.3)
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/mandato-equipe.spec.ts`
+- [x] Test count: ao menos 9 testes em `e2e/mandato-equipe.spec.ts`
 
 **Tests**: e2e
 **Gate**: full
