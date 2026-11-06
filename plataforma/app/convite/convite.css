@@ -1,0 +1,65 @@
+/* Página do convite (/convite). Tudo sob .cv para não tocar o Guia legado nem a landing.
+   Estrutura do wireframe aprovado (aba 3); cores e tipografia da Legisla (tokens de landing.css). */
+.cv {
+  --vinho: #571730; --verde: #035252;
+  --coral: #EB5454; --turquesa: #4ABFB2;
+  --papel: #FBF6EE; --branco: #fff;
+  --tinta: #17110F; --tinta-2: #5E524C; --linha: #E6DCCE;
+  --display: var(--font-anton, 'Anton', Impact, 'Arial Narrow', sans-serif);
+  --corpo: var(--font-commissioner, 'Commissioner', system-ui, -apple-system, 'Segoe UI', sans-serif);
+  font-family: var(--corpo);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--tinta);
+  background: var(--papel);
+  min-height: 100vh;
+}
+.cv *, .cv *::before, .cv *::after { box-sizing: border-box; }
+.cv :focus-visible { outline: 3px solid var(--turquesa); outline-offset: 2px; }
+.cv h1, .cv h2, .cv p { margin: 0; }
+.cv a { color: inherit; font-weight: 700; }
+
+.cv-barra {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 16px; background: var(--vinho); color: var(--branco);
+}
+.cv-barra b { font-family: var(--display); font-weight: 400; font-size: 18px; letter-spacing: .04em; text-transform: uppercase; }
+.cv-barra span { font-size: 13px; opacity: .9; }
+
+.cv-corpo { padding: 24px 16px 48px; }
+.cv-centro { max-width: 440px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+.cv h1 {
+  font-family: var(--display); font-weight: 400; font-size: clamp(26px, 7vw, 32px); line-height: 1.15;
+  letter-spacing: .02em; text-transform: uppercase; overflow-wrap: anywhere;
+}
+.cv h2 { font-size: 17px; font-weight: 700; }
+.cv-rotulo { font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--tinta-2); }
+.cv-mut { color: var(--tinta-2); font-size: 14px; }
+
+.cv-card { background: var(--branco); border: 1px solid var(--linha); border-radius: 10px; padding: 16px; min-width: 0; }
+.cv-pilha { display: flex; flex-direction: column; gap: 12px; }
+.cv-mandato { display: flex; gap: 14px; align-items: center; }
+.cv-cresce { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.cv-foto {
+  width: 56px; height: 56px; flex: none; border-radius: 50%; display: grid; place-items: center;
+  background: var(--verde); color: var(--branco); font-weight: 700;
+}
+
+.cv-campo { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.cv-campo span { font-size: 14px; font-weight: 600; }
+.cv input {
+  font: inherit; width: 100%; min-width: 0; padding: 10px 12px; border: 1.5px solid var(--tinta-2); border-radius: 8px;
+  background: var(--branco); color: var(--tinta);
+}
+
+.cv-bt {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 16px;
+  font: inherit; font-weight: 700; font-size: 15px; text-align: center; text-decoration: none;
+  border: 1.5px solid var(--tinta); border-radius: 8px; background: transparent; color: var(--tinta); cursor: pointer;
+}
+.cv-bt--pri { background: var(--coral); border-color: var(--coral); color: var(--tinta); }
+.cv-bt:disabled { opacity: .6; cursor: progress; }
+
+.cv-aviso { padding: 10px 12px; border-left: 4px solid var(--coral); border-radius: 6px; background: #FDECEC; color: #7A1F1F; font-size: 14px; }
+.cv-aviso--ok { border-left-color: var(--verde); background: #E3F1EE; color: var(--verde); }

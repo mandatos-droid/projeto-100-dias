@@ -786,18 +786,18 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Ler `node_modules/next/dist/docs/` sobre páginas cliente antes de escrever (AGENTS.md)
-- [ ] Link com token válido mostra quem convidou, nome parlamentar, cargo, UF e papel, sem chamar o aceite (ACE-02.1)
-- [ ] Com sessão, "Aceitar convite" chama o aceite, grava `legisla.mandatoAtual` e vai para `/guia` (ACE-02.4, ACE-02.6)
-- [ ] Token inexistente, vencido, cancelado ou usado mostra a mesma mensagem da spec (ACE-02.10, ACE-02.11)
-- [ ] Resposta `limite` mostra "Muitas tentativas. Tente de novo em alguns minutos." (ACE-02.14)
-- [ ] Resposta `ja_membro` mostra "Você já está neste mandato" e abre o Guia (ACE-02.13)
-- [ ] Sem token no hash mostra o campo "Cole o link do convite" e extrai o token do link colado
-- [ ] Resposta `email` mostra a mensagem da spec e o convite continua disponível (ACE-02.9)
-- [ ] Layout sem rolagem horizontal em 400 px
-- [ ] Toda requisição ao Supabase é interceptada; nenhuma sai sem mapa
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/convite-aceite.spec.ts`
-- [ ] Test count: ao menos 9 testes em `e2e/convite-aceite.spec.ts`
+- [x] Ler `node_modules/next/dist/docs/` sobre páginas cliente antes de escrever (AGENTS.md)
+- [x] Link com token válido mostra quem convidou, nome parlamentar, cargo, UF e papel, sem chamar o aceite (ACE-02.1)
+- [x] Com sessão, "Aceitar convite" chama o aceite, grava `legisla.mandatoAtual` e vai para `/guia` (ACE-02.4, ACE-02.6)
+- [x] Token inexistente, vencido, cancelado ou usado mostra a mesma mensagem da spec (ACE-02.10, ACE-02.11)
+- [x] Resposta `limite` mostra "Muitas tentativas. Tente de novo em alguns minutos." (ACE-02.14)
+- [x] Resposta `ja_membro` mostra "Você já está neste mandato" e abre o Guia (ACE-02.13)
+- [x] Sem token no hash mostra o campo "Cole o link do convite" e extrai o token do link colado
+- [x] Resposta `email` mostra a mensagem da spec e o convite continua disponível (ACE-02.9)
+- [x] Layout sem rolagem horizontal em 400 px
+- [x] Toda requisição ao Supabase é interceptada; nenhuma sai sem mapa
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/convite-aceite.spec.ts`
+- [x] Test count: ao menos 9 testes em `e2e/convite-aceite.spec.ts`
 
 **Tests**: e2e
 **Gate**: full
