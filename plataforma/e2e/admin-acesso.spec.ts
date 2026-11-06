@@ -61,9 +61,10 @@ test.describe('Entrada com sessão, retorno do Google e senha (ADM-01.3, 01.4)',
     await expect(page.getByRole('heading', { name: 'Mandatos' })).toBeVisible();
     await expect(linhas(page)).toHaveCount(2);
     const menu = page.getByRole('navigation', { name: 'Menu do painel' });
-    await expect(menu.getByRole('link')).toHaveText(['Equipe', 'Mandatos', 'Analytics', 'Logs', 'Painel de métricas']);
+    await expect(menu.getByRole('link')).toHaveText(['Equipe', 'Mandatos', 'Analytics', 'Logs', 'Painel de métricas', '← Voltar para a plataforma']);
     await expect(menu.getByRole('link', { name: 'Mandatos' })).toHaveAttribute('aria-current', 'page');
     await expect(menu.getByRole('link', { name: /Painel de métricas/ })).toHaveAttribute('href', '/painel');
+    await expect(menu.getByRole('link', { name: /Voltar para a plataforma/ })).toHaveAttribute('href', '/guia');
     await expect(page.getByRole('link', { name: 'Equipe' })).not.toHaveAttribute('aria-current', 'page');
     // nenhuma tela de login apareceu
     await expect(page.getByRole('button', { name: 'Entrar com Google' })).toHaveCount(0);
