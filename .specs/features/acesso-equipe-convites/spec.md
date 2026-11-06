@@ -59,6 +59,9 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | Consentimento ao criar conta pelo convite | A página do convite mostra o mesmo aviso de consentimento do cadastro e grava em `consentimentos`, como o cadastro atual | A decisão registrada é que quem se cadastra consente o acesso da equipe Legisla | n |
 | Expressão "código de convite" no aviso | Trocada por "link de convite"; nenhuma outra palavra do aviso muda | Mantém o aviso coerente com a mudança sem tocar no texto jurídico | n |
 | Quem pode sair do mandato | Qualquer membro, em qualquer papel, desde que reste ao menos uma coordenação | A spec não restringe a saída por papel; sair é direito da própria pessoa | n |
+| Cancelar convite que já não está pendente | Não faz nada e não grava evento | O estado final não volta e nenhuma mensagem nova é necessária | n |
+| Cancelar convite de quem já saiu do mandato | Só quem ainda é membro cancela, mesmo sendo o criador do convite | Ex-membro não deve mexer em dados do mandato | n |
+| Formato de e-mail válido | Um único `@`, sem espaço e com ponto no domínio (`x@y.z`); a mesma regra vale no banco e no navegador | Evita regra diferente nas duas pontas | n |
 | Fuso das datas | `America/Sao_Paulo` | Público e equipe no Brasil | y |
 
 **Open questions:** none - all resolved or logged above (required before the spec is confirmed).
@@ -128,7 +131,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 **Acceptance Criteria**:
 
 1. The banco SHALL aceitar só `coordenacao`, `assessoria` e `leitura` em `membros.papel`. <!-- ubiquitous -->
-2. WHILE o papel do membro é `leitura` the banco SHALL permitir consultar os dados do mandato e recusar qualquer escrita nos dados, convites e membros desse mandato. <!-- state-driven -->
+2. WHILE o papel do membro é `leitura` the banco SHALL permitir consultar os dados do mandato e recusar qualquer escrita nos dados e nos membros desse mandato. <!-- state-driven -->
 3. WHILE o papel do membro é `leitura` the Guia SHALL ocultar ou desabilitar os controles que gravam dados. <!-- state-driven -->
 4. WHEN um membro `coordenacao` troca o papel de outro membro THEN the banco SHALL gravar o novo papel, valendo na chamada seguinte, porque o papel é lido da tabela a cada chamada. <!-- event-driven -->
 5. WHEN um membro `coordenacao` remove outro membro e confirma THEN the banco SHALL tirá-lo do mandato sem apagar a conta dele na plataforma. <!-- event-driven -->
@@ -137,8 +140,9 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 8. IF duas ações simultâneas rebaixariam as duas últimas coordenações THEN the banco SHALL concluir uma e recusar a outra pela regra do critério anterior. <!-- unwanted-behavior -->
 9. WHEN uma pessoa sai do mandato por conta própria THEN the banco SHALL tirá-la dos membros, respeitando a regra de ao menos uma coordenação. <!-- event-driven -->
 10. The banco SHALL impedir que a equipe Legisla seja afetada: as linhas de `equipe_legisla` e as permissões do `/admin` não mudam por nenhuma função desta feature. <!-- ubiquitous -->
+11. WHILE o papel do membro é `leitura` the banco SHALL aceitar criar convite só com o papel `leitura` e cancelar só os convites que ela criou. <!-- state-driven -->
 
-**Independent Test**: Com membro `leitura`, tentar gravar um exercício, um convite e uma troca de papel direto pela API e ver erro de permissão nas três; tentar remover a única coordenação e ver a recusa.
+**Independent Test**: Com membro `leitura`, tentar gravar um exercício, um convite com papel Assessoria e uma troca de papel direto pela API e ver erro de permissão nas três; criar um convite com papel Somente leitura e ver que funciona; tentar remover a única coordenação e ver a recusa.
 
 ---
 
