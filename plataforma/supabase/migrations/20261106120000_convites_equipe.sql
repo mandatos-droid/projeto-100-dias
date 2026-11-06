@@ -134,3 +134,30 @@ $$;
 
 revoke execute on function public.membro_trocar_papel(uuid, uuid, text) from public, anon;
 grant  execute on function public.membro_trocar_papel(uuid, uuid, text) to authenticated;
+
+-- Só a linha de membros sai: a conta na plataforma e os eventos que a pessoa escreveu ficam.
+create or replace function public.membro_remover(p_mandato uuid, p_user uuid)
+returns void language plpgsql security definer set search_path = '' as $$
+declare
+  v_papel text;
+begin
+  perform 1 from public.membros b where b.mandato_id = p_mandato for update;
+  if private.papel_no_mandato(p_mandato) is distinct from 'coordenacao' then
+    raise exception 'Você não tem permissão para esta ação.' using errcode = '42501';
+  end if;
+  select b.papel into v_papel from public.membros b where b.mandato_id = p_mandato and b.user_id = p_user;
+  if not found then raise exception 'Pessoa não encontrada.'; end if;
+  if v_papel = 'coordenacao'
+     and not exists (select 1 from public.membros b
+                     where b.mandato_id = p_mandato and b.papel = 'coordenacao' and b.user_id <> p_user) then
+    raise exception 'O mandato precisa ter ao menos uma pessoa na coordenação.';
+  end if;
+
+  -- o histórico vem antes de apagar, enquanto os nomes ainda estão em membros
+  perform private.evento_equipe(p_mandato, 'membro_removido', p_user, private.nome_pessoa(p_mandato, p_user), v_papel);
+  delete from public.membros where mandato_id = p_mandato and user_id = p_user;
+end;
+$$;
+
+revoke execute on function public.membro_remover(uuid, uuid) from public, anon;
+grant  execute on function public.membro_remover(uuid, uuid) to authenticated;

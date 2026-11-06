@@ -163,3 +163,88 @@ test('anon não executa membro_trocar_papel', async () => {
   await assert.rejects(trocar(LEITOR, 'coordenacao'), /permission denied/);
   assert.deepEqual(await papeisA(), ESTADO_INICIAL);
 });
+
+// ---------- T4: membro_remover ----------
+
+const remover = (user: string, mandato: string = IDS.mandatoA) =>
+  banco.query('select public.membro_remover($1, $2)', [mandato, user]);
+
+test('coordenação remove outro membro: ele sai do mandato e a conta em auth.users permanece (ACE-03.5)', async () => {
+  await comoDono(banco);
+  await banco.query(`insert into public.eventos (mandato_id, user_id, autor, texto) values ($1, $2, 'Leo Leitor', 'escrito pelo Leo')`, [IDS.mandatoA, LEITOR]);
+  await como(banco, IDS.membro);
+  await remover(LEITOR);
+  assert.deepEqual(await papeisA(), { [IDS.membro]: 'coordenacao', [ASSESSORIA]: 'assessoria' });
+  await comoDono(banco);
+  assert.deepEqual(await q('select email from auth.users where id = $1', [LEITOR]), [{ email: 'leitor@gabinete.leg.br' }]);
+  assert.deepEqual(await q('select user_id, texto from public.eventos'), [{ user_id: LEITOR, texto: 'escrito pelo Leo' }]);
+  // fora do mandato, a pessoa deixa de ver o mandato
+  await como(banco, LEITOR);
+  assert.deepEqual(await q('select id from public.mandatos'), []);
+});
+
+test('assessoria e leitura recebem erro de permissão ao remover, e nada muda (ACE-03.6)', async () => {
+  await como(banco, ASSESSORIA);
+  await assert.rejects(remover(LEITOR), SEM_PERMISSAO);
+  await assert.rejects(remover(IDS.membro), SEM_PERMISSAO);
+  await como(banco, LEITOR);
+  await assert.rejects(remover(ASSESSORIA), SEM_PERMISSAO);
+  assert.deepEqual(await papeisA(), ESTADO_INICIAL);
+  assert.deepEqual(await historico(), []);
+});
+
+test('coordenação de outro mandato, equipe Legisla e conta de fora recebem erro de permissão ao remover, e nada muda (ACE-03.6, ACE-03.10)', async () => {
+  for (const quem of [COORD_B, IDS.admin, IDS.fora]) {
+    await como(banco, quem);
+    await assert.rejects(remover(LEITOR), SEM_PERMISSAO, quem);
+  }
+  assert.deepEqual(await papeisA(), ESTADO_INICIAL);
+  assert.deepEqual(await historico(), []);
+  assert.deepEqual(await totais(), { eventos: 0, legisla: 2 });
+});
+
+test('remover a última coordenação recusa com a mensagem da spec e nada muda (ACE-03.7)', async () => {
+  await como(banco, IDS.membro);
+  await assert.rejects(remover(IDS.membro), ULTIMA_COORDENACAO);
+  assert.deepEqual(await papeisA(), ESTADO_INICIAL);
+  assert.deepEqual(await historico(), []);
+});
+
+test('duas coordenações que se removem em sequência: a primeira passa, a segunda já não tem permissão (ACE-03.8)', async () => {
+  await comoDono(banco);
+  await banco.query(`update public.membros set papel = 'coordenacao' where user_id = $1`, [ASSESSORIA]);
+  await como(banco, IDS.membro);
+  await remover(ASSESSORIA);
+  await como(banco, ASSESSORIA);
+  await assert.rejects(remover(IDS.membro), SEM_PERMISSAO);
+  assert.deepEqual(await papeisA(), { [IDS.membro]: 'coordenacao', [LEITOR]: 'leitura' });
+  await comoDono(banco);
+  const [{ src }] = await q<{ src: string }>(`select prosrc src from pg_proc where proname = 'membro_remover'`);
+  const trava = src.search(/from public\.membros b where b\.mandato_id = p_mandato for update/);
+  assert.ok(trava >= 0 && trava < src.indexOf('papel_no_mandato') && trava < src.indexOf("b.papel = 'coordenacao'"), 'trava antes de ler papel e contar');
+});
+
+test('a remoção grava membro_removido com ator, alvo e papel, e nenhuma linha em eventos (ACE-06.2, ACE-06.5)', async () => {
+  await como(banco, IDS.membro);
+  await remover(ASSESSORIA);
+  await como(banco, IDS.membro);
+  await assert.rejects(remover(IDS.fora), /Pessoa não encontrada\./);
+  assert.deepEqual(await historico(), [{
+    mandato_id: IDS.mandatoA, ator_id: IDS.membro, ator_nome: 'Mario Membro', tipo: 'membro_removido',
+    alvo_id: ASSESSORIA, alvo_nome: 'Alice Assessoria', papel: 'assessoria',
+  }]);
+  assert.equal((await totais()).eventos, 0);
+});
+
+test('se a gravação do histórico falhar, a remoção é desfeita (ACE-06.3)', async () => {
+  await quebraHistorico();
+  await como(banco, IDS.membro);
+  await assert.rejects(remover(LEITOR), /histórico indisponível/);
+  assert.deepEqual(await papeisA(), ESTADO_INICIAL);
+});
+
+test('anon não executa membro_remover', async () => {
+  await como(banco, null);
+  await assert.rejects(remover(LEITOR), /permission denied/);
+  assert.deepEqual(await papeisA(), ESTADO_INICIAL);
+});

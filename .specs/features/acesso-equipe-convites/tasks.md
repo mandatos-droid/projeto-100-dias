@@ -202,12 +202,12 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Coordenação remove outro membro; a conta em `auth.users` permanece (ACE-03.5)
-- [ ] Quem não é coordenação recebe erro de permissão e nada muda (ACE-03.6)
-- [ ] Remover a última coordenação recusa com a mensagem da spec (ACE-03.7)
-- [ ] Linha `membro_removido` gravada na mesma transação; falha do evento desfaz a remoção (ACE-06.2, ACE-06.3)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 5 testes novos em `tests/sql-membros.test.ts`, nenhum removido
+- [x] Coordenação remove outro membro; a conta em `auth.users` permanece (ACE-03.5)
+- [x] Quem não é coordenação recebe erro de permissão e nada muda (ACE-03.6)
+- [x] Remover a última coordenação recusa com a mensagem da spec (ACE-03.7)
+- [x] Linha `membro_removido` gravada na mesma transação; falha do evento desfaz a remoção (ACE-06.2, ACE-06.3)
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 5 testes novos em `tests/sql-membros.test.ts`, nenhum removido
 
 **Tests**: integration
 **Gate**: quick
