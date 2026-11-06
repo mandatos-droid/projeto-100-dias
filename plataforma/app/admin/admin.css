@@ -144,6 +144,8 @@
 .adm .fr small { color: var(--tinta-2); text-align: right; font-variant-numeric: tabular-nums; }
 
 /* abas (Logs) e entrada */
+/* o painel da aba é item da grade de .main: sem min-width 0 ele cresce até a largura da tabela e a página rola de lado */
+.adm [role='tabpanel'] { min-width: 0; }
 .adm .abas { display: flex; gap: 6px; flex-wrap: wrap; }
 .adm .abas button { min-height: 40px; padding: 6px 14px; font: 600 14px var(--corpo); color: var(--tinta); background: transparent; border: 1px solid var(--linha); border-radius: 4px; cursor: pointer; }
 .adm .abas button[aria-selected='true'] { background: var(--vinho); border-color: var(--vinho); color: #fff; }

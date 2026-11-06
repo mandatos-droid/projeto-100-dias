@@ -881,9 +881,9 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Em 360 px, nenhuma das 5 telas tem rolagem horizontal da página e todo botão e campo tem pelo menos 40 px de altura
-- [ ] Em todas as telas, `vazou()` devolve vazio; `/painel` continua abrindo
-- [ ] ≥ 7 testes passam
+- [x] Em 360 px, nenhuma das 5 telas tem rolagem horizontal da página e todo botão e campo tem pelo menos 40 px de altura
+- [x] Em todas as telas, `vazou()` devolve vazio; `/painel` continua abrindo
+- [x] ≥ 7 testes passam (15 e2e). A varredura achou rolagem lateral na aba de Logs (painel da aba crescia até a largura da tabela); corrigido em `admin.css` (`.adm [role='tabpanel'] { min-width: 0 }`) neste commit
 
 **Tests**: e2e
 **Gate**: full
