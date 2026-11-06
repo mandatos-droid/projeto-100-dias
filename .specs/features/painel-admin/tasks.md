@@ -132,10 +132,10 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Exporta `criaBanco()` (aplica todas as migrations de `supabase/migrations/` em ordem), `como(banco, uuid | null)` (define `request.jwt.claim.sub` e o role `authenticated` ou `anon`) e `semente(banco)` com 2 mandatos, 1 admin, 1 leitura e 1 membro de gabinete
-- [ ] Simula `auth.users`, `auth.uid()` e os roles `anon` e `authenticated`; qualquer extensão do Supabase que alguma migration use e não rode no PGlite é simulada, ou o motivo é registrado nesta task
-- [ ] `tests/sql-ambiente.test.ts` prova que o ambiente reproduz o RLS atual: membro do gabinete vê só o próprio mandato; anônimo não lê nada; admin da equipe lê todos; ≥ 5 casos passam
-- [ ] Se o PGlite não aplicar alguma migration existente, parar e levar o problema ao usuário; as migrations antigas não são alteradas
+- [x] Exporta `criaBanco()` (aplica todas as migrations de `supabase/migrations/` em ordem), `como(banco, uuid | null)` (define `request.jwt.claim.sub` e o role `authenticated` ou `anon`) e `semente(banco)` com 2 mandatos, 1 admin, 1 leitura e 1 membro de gabinete
+- [x] Simula `auth.users`, `auth.uid()` e os roles `anon` e `authenticated`; qualquer extensão do Supabase que alguma migration use e não rode no PGlite é simulada, ou o motivo é registrado nesta task
+- [x] `tests/sql-ambiente.test.ts` prova que o ambiente reproduz o RLS atual: membro do gabinete vê só o próprio mandato; anônimo não lê nada; admin da equipe lê todos; ≥ 5 casos passam
+- [x] Se o PGlite não aplicar alguma migration existente, parar e levar o problema ao usuário; as migrations antigas não são alteradas
 
 **Tests**: integration
 **Gate**: quick
