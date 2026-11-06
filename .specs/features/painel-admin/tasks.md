@@ -248,8 +248,8 @@ T36 → T37
 
 **Done when**:
 
-- [ ] `ESCALA_DIAS` = 7, 15, 30, 45; `diasParado(ultima, agora)` devolve dias inteiros no fuso de Brasília
-- [ ] `tests/admin-escala.test.ts` cobre 0 dia, fronteira de 45 dias, data futura e virada de mês; ≥ 5 casos passam
+- [x] `ESCALA_DIAS` = 7, 15, 30, 45; `diasParado(ultima, agora)` devolve dias inteiros no fuso de Brasília
+- [x] `tests/admin-escala.test.ts` cobre 0 dia, fronteira de 45 dias, data futura e virada de mês; ≥ 5 casos passam
 
 **Tests**: unit
 **Gate**: quick
