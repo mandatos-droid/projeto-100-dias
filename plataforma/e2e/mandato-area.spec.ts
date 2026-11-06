@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { naoMapeadas, rpcs, semeiaSessao } from './convite-api';
-import { ANA, BRUNO, MANDATO_A, MANDATO_B, fotosBloqueadas, mocaMandato, pendente, pessoa, type EstadoMandato, type MandatoDaPessoa } from './mandato-api';
+import { ANA, BRUNO, MANDATO_A, MANDATO_B, fotosBloqueadas, evento, leituras, mocaMandato, pendente, pessoa, type EstadoMandato, type MandatoDaPessoa } from './mandato-api';
 
 /* Área do mandato (ACE-05): cartão, andamento, missões e "Editar dados". Supabase todo interceptado (mandato-api.ts). */
 
@@ -224,5 +224,81 @@ test.describe('Resumo da equipe (ACE-05.4)', () => {
     await abre(page, { mandatos: [ANA], rpc: { equipe_do_mandato: () => ({ rede: true }) } });
     await expect(resumo(page).getByRole('alert')).toHaveText('Não foi possível concluir. Tente de novo.');
     await expect(resumo(page).getByRole('link', { name: 'Convidar pessoa' })).toBeVisible();
+  });
+});
+
+test.describe('Atividade recente (ACE-05.5, ACE-06)', () => {
+  const bloco = (page: Page) => page.locator('.md-atividade');
+  const itens = (page: Page) => bloco(page).locator('li .md-evento-texto');
+
+  test('cada um dos 6 tipos de evento tem texto próprio', async ({ page }) => {
+    const eventos = [
+      evento(6, 'convite_criado', 'Mariana Rocha', 'Carlos Lima', 'assessoria'),
+      evento(5, 'convite_aceito', 'Carlos Lima', 'Carlos Lima', 'assessoria'),
+      evento(4, 'convite_cancelado', 'Mariana Rocha', 'Dora Alves', 'leitura'),
+      evento(3, 'papel_trocado', 'Mariana Rocha', 'João Pereira', 'coordenacao'),
+      evento(2, 'membro_removido', 'Mariana Rocha', 'Luiza Ferraz', 'leitura'),
+      evento(1, 'membro_saiu', 'João Pereira', 'João Pereira', 'coordenacao'),
+    ];
+    await abre(page, { mandatos: [ANA], ler: { eventos_equipe: () => ({ corpo: eventos }) } });
+    await expect(itens(page)).toHaveText([
+      'Mariana convidou Carlos Lima como Assessoria',
+      'Carlos Lima entrou na equipe como Assessoria',
+      'Mariana cancelou o convite de Dora Alves',
+      'Mariana mudou o papel de João Pereira para Coordenação',
+      'Mariana removeu Luiza Ferraz da equipe',
+      'João saiu da equipe',
+    ]);
+    await expect(bloco(page).locator('li .md-av')).toHaveText(['MR', 'CL', 'MR', 'MR', 'MR', 'JP']);
+  });
+
+  test('lista no máximo 10 eventos, na ordem recebida (do mais recente), pedindo ao banco os 10 mais recentes', async ({ page }) => {
+    const doze = Array.from({ length: 12 }, (_, i) => evento(12 - i, 'convite_criado', 'Mariana Rocha', `Pessoa ${12 - i}`, 'leitura'));
+    await abre(page, { mandatos: [ANA], ler: { eventos_equipe: () => ({ corpo: doze }) } });
+    await expect(itens(page)).toHaveCount(10);
+    await expect(itens(page).first()).toHaveText('Mariana convidou Pessoa 12 como Somente leitura');
+    await expect(itens(page).last()).toHaveText('Mariana convidou Pessoa 3 como Somente leitura');
+    expect(leituras('eventos_equipe')).toHaveLength(1);
+    expect(leituras('eventos_equipe')[0].consulta).toBe(
+      '?select=id,criado_em,ator_nome,tipo,alvo_nome,papel&mandato_id=eq.' + MANDATO_A + '&order=criado_em.desc,id.desc&limit=10',
+    );
+  });
+
+  test('mostra quando no fuso de Brasília: hoje, ontem e data completa', async ({ page }) => {
+    const eventos = [
+      evento(3, 'membro_saiu', 'João Pereira', null, null, '2027-02-12T13:42:00Z'), // 10:42 em Brasília, hoje
+      evento(2, 'membro_saiu', 'João Pereira', null, null, '2027-02-11T12:05:00Z'), // ontem, 09:05
+      evento(1, 'membro_saiu', 'João Pereira', null, null, '2027-02-06T00:15:00Z'), // já é dia 6 em UTC, mas 21:15 do dia 5 em Brasília
+    ];
+    await abre(page, { mandatos: [ANA], ler: { eventos_equipe: () => ({ corpo: eventos }) } }, '2027-02-12T15:00:00-03:00');
+    await expect(bloco(page).locator('time')).toHaveText(['hoje, 10:42', 'ontem, 09:05', '05/02/2027, 21:15']);
+    await expect(bloco(page).locator('time').first()).toHaveAttribute('datetime', '2027-02-12T13:42:00Z');
+  });
+
+  test('sem eventos mostra "Nenhuma atividade ainda."', async ({ page }) => {
+    await abre(page, { mandatos: [ANA] });
+    await expect(bloco(page)).toContainText('Nenhuma atividade ainda.');
+    await expect(bloco(page).locator('li')).toHaveCount(0);
+  });
+
+  test('nomes ausentes (conta apagada) não quebram o texto', async ({ page }) => {
+    await abre(page, { mandatos: [ANA], ler: { eventos_equipe: () => ({ corpo: [evento(1, 'papel_trocado', null, null, 'leitura')] }) } });
+    await expect(itens(page)).toHaveText(['Alguém mudou o papel de uma pessoa para Somente leitura']);
+    await expect(bloco(page).locator('li .md-av')).toHaveText(['?']);
+  });
+
+  test('falha ao ler o histórico mostra a mensagem e o resto da página segue', async ({ page }) => {
+    await abre(page, { mandatos: [ANA], ler: { eventos_equipe: () => ({ rede: true }) } });
+    await expect(bloco(page).getByRole('alert')).toHaveText('Não foi possível concluir. Tente de novo.');
+    await expect(page.locator('[data-missao]')).toHaveCount(5);
+  });
+
+  test('trocar de mandato lê o histórico do outro mandato', async ({ page }) => {
+    await abre(page, { mandatos: [ANA, BRUNO], ler: {
+      eventos_equipe: (u) => ({ corpo: u.search.includes(MANDATO_B) ? [evento(9, 'membro_saiu', 'Bruno Alves', null, null)] : [] }),
+    } });
+    await expect(bloco(page)).toContainText('Nenhuma atividade ainda.');
+    await page.getByRole('combobox', { name: 'Mandato' }).selectOption(MANDATO_B);
+    await expect(itens(page)).toHaveText(['Bruno saiu da equipe']);
   });
 });

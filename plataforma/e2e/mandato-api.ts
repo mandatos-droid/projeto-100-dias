@@ -62,6 +62,7 @@ export async function mocaMandato(page: Page, estado: EstadoMandato = {}) {
   leiturasFeitas = []; fotosAbortadas = [];
   // a Área do mandato sempre lê o catálogo, a equipe e os convites pendentes: vêm mapeados (vazios), e o teste troca a resposta quando precisar
   await moca(page, { ...estado, rpc: { ...rpcPadrao(), ...estado.rpc } });
+  const lerPadrao: NonNullable<EstadoMandato['ler']> = { eventos_equipe: () => ({ corpo: [] }) };
 
   // fotos do TSE: abortadas aqui (rota mais nova que a de hosts externos do `moca`), sem entrar em naoMapeadas
   await page.route((u) => u.hostname === 'resultados.tse.jus.br' || (!['localhost', '127.0.0.1'].includes(u.hostname) && /\.jpe?g$/i.test(u.pathname)), (rota) => {
@@ -75,7 +76,7 @@ export async function mocaMandato(page: Page, estado: EstadoMandato = {}) {
     const u = new URL(req.url());
     const tabela = u.pathname.replace('/rest/v1/', '');
     const token = (req.headers()['authorization'] ?? '').replace(/^Bearer /, '');
-    const mapa = estado.ler?.[tabela];
+    const mapa = { ...lerPadrao, ...estado.ler }[tabela];
     const ehMembros = tabela === 'membros';
     if (!mapa && !ehMembros) return rota.fallback();
 
@@ -125,3 +126,7 @@ export const rpcPadrao = (): NonNullable<EstadoMoca['rpc']> => ({
   equipe_do_mandato: () => ({ corpo: [] }),
   convites_pendentes: () => ({ corpo: [] }),
 });
+
+/** Evento do histórico, como `eventos_equipe` devolve (colunas pedidas por lerEventosEquipe). */
+export const evento = (id: number, tipo: string, ator_nome: string | null, alvo_nome: string | null, papel: string | null, criado_em = '2027-02-12T13:42:00Z') =>
+  ({ id, criado_em, ator_nome, tipo, alvo_nome, papel });

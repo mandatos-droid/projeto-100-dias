@@ -104,3 +104,10 @@
 .md-av--b { background: var(--coral); color: var(--tinta); }
 .md-av--c { background: var(--vinho); color: var(--papel); }
 .md-av--d { background: var(--turquesa); color: #0B2B28; }
+
+/* atividade recente */
+.md-atividade { display: flex; flex-direction: column; gap: 6px; }
+.md-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.md-lista li { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--linha); min-width: 0; }
+.md-lista li:first-child { border-top: 0; }
+.md-lista time { font-size: 13px; }

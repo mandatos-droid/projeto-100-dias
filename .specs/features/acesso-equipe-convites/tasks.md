@@ -969,11 +969,11 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Lista no máximo 10 eventos, do mais recente para o mais antigo, com quem fez, o que fez e quando no fuso de Brasília (ACE-05.5)
-- [ ] Cada um dos 6 tipos de evento tem texto próprio ("Mariana convidou Carlos Lima como Assessoria" e equivalentes)
-- [ ] Sem eventos mostra "Nenhuma atividade ainda."
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/mandato-area.spec.ts`
-- [ ] Test count: ao menos 5 testes novos em `e2e/mandato-area.spec.ts`, nenhum removido
+- [x] Lista no máximo 10 eventos, do mais recente para o mais antigo, com quem fez, o que fez e quando no fuso de Brasília (ACE-05.5)
+- [x] Cada um dos 6 tipos de evento tem texto próprio ("Mariana convidou Carlos Lima como Assessoria" e equivalentes)
+- [x] Sem eventos mostra "Nenhuma atividade ainda."
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/mandato-area.spec.ts`
+- [x] Test count: ao menos 5 testes novos em `e2e/mandato-area.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full

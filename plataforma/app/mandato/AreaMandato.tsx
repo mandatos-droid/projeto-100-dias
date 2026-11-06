@@ -7,6 +7,7 @@ import { mensagemDe } from '../../lib/convites/erros.ts';
 import { statusMissoes, type ExercicioCatalogo, type StatusMissao } from '../../lib/convites/missoes.ts';
 import { podeEditar, rotuloPapel } from '../../lib/convites/papeis.ts';
 import { iniciais, nomeDoMandato, useMandato, type MandatoDaPessoa } from './contexto.ts';
+import Atividade from './Atividade.tsx';
 import ResumoEquipe from './ResumoEquipe.tsx';
 
 // Nomes curtos das 5 missões, os mesmos do Guia (MISSOES[].curto em conteudo.js).
@@ -121,6 +122,8 @@ export default function AreaMandato() {
       </section>
 
       <ResumoEquipe />
+
+      <Atividade />
     </>
   );
 }
