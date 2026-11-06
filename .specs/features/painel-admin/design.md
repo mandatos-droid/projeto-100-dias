@@ -11,7 +11,7 @@ Caminhos abaixo relativos a `plataforma/`, salvo `.specs/` e `wireframes/`.
 
 | | Abordagem | Prós | Contras |
 | - | --------- | ---- | ------- |
-| **A (recomendada)** | Rotas Next.js em `/admin`, falando com o Supabase por `fetch` com a chave pública e a sessão do usuário. Leitura por views `v_admin_*`, escrita por funções SQL `security definer` com auditoria. Contas e agregados em TS puro, testado | Sem segredo novo, sem servidor próprio; mesma sessão do `/painel`; a regra de segurança fica no banco; lógica testável com `node --test` | Exige 3 migrations e smoke de SQL |
+| **A (recomendada)** | Rotas Next.js em `/admin`, falando com o Supabase por `fetch` com a chave pública e a sessão do usuário. Leitura por views `v_admin_*`, escrita por funções SQL `security definer` com auditoria. Contas e agregados em TS puro, testado | Sem segredo novo, sem servidor próprio; mesma sessão do `/painel`; a regra de segurança fica no banco; lógica testável com `node --test` | Exige 4 migrations e teste de SQL (PGlite) |
 | B | Rotas de servidor do Next com `service_role` | Poderia convidar quem não tem conta e ler logs da Vercel | Guarda a chave mais poderosa no ambiente; contraria o `CLAUDE.md`; cada rota vira superfície de ataque. Os dois ganhos são exatamente o que a spec deixou fora |
 | C | Estender `public/painel.html` | Nenhum app novo | 1.238 linhas de HTML à mão; sem testes; hoje já baixa `mandatos.*` inteiro para o navegador (risco 1) |
 
@@ -208,7 +208,7 @@ Mapa dos campos de `dados` que provam o uso (para `v_admin_uso_campos`; conferir
 | O RLS deixa a equipe ler a linha inteira de `mandatos` e `eventos` por API (inclusive `dados` e `eventos.texto`) | `supabase/migrations/20261016120000_schema_inicial.sql:128`, `:164` | O acesso é consentido no cadastro, mas o aviso de privacidade atual não cita a equipe, e o `/admin` não precisa do texto | As views `v_admin_*` entregam só o necessário (minimização); atualizar o aviso do cadastro fica para a Fase 2 |
 | `mandatos_editar` permite a qualquer membro gravar qualquer coluna, inclusive `arquivado_em` | `schema_inicial.sql:139` | Um gabinete poderia arquivar ou desarquivar o próprio mandato por API | Gatilho `before update` na migration 3 + teste de SQL |
 | A política `equipe_gerir` permite insert, update e delete direto em `equipe_legisla`, sem auditoria | `schema_inicial.sql:188` | Mudanças na equipe escapariam do log | Migration 1 remove a política e os grants de escrita; só as funções gravam |
-| Os testes do repo não rodam SQL: não há ambiente de banco local no fluxo | `plataforma/package.json` (`test` só roda `node --test`) | Migrations sem verificação automática chegam a produção | Tarefas T4 e T5 criam scripts de smoke em `BEGIN … ROLLBACK`, rodados num branch do Supabase ou stack local, com a escolha confirmada com você antes (não em produção) |
+| O repo não tinha teste de SQL | `plataforma/package.json` (`test` só roda `node --test`) | Migrations sem verificação chegam a produção | Ambiente PGlite em `tests/sql-ambiente.ts` (decisão do usuário em 2026-11-05) aplica as migrations sobre `auth` simulado e roda no `npm test`. A fidelidade ao Supabase real não é total; conferir cada migration com `get_advisors` depois de publicada |
 | A chave e a URL são lidas por expressão regular de `nucleo.js`; se o formato mudar, o `/admin` perde o banco | `public/legacy/nucleo.js:4` | `/admin` não conecta | Teste unitário roda `lerConfig` contra o arquivo real |
 | Token da sessão fica em `localStorage` | `public/painel.html:862` | Exposto a XSS | Mesmo padrão já aceito no app; o `/admin` não renderiza HTML de terceiros |
 | `npm run build` oscila com `SecurityFatalError` do Next 16.4 | registrado em `.specs/STATE.md` (Handoff) | O gate Build pode falhar sem relação com a feature | Mesmo tratamento das features anteriores: valer `tsc` + `npm test` + `next dev` respondendo 200 |
@@ -227,6 +227,7 @@ Mapa dos campos de `dados` que provam o uso (para `v_admin_uso_campos`; conferir
 | Migration de uso separada | `20261105150000_uso_funcionalidades.sql` isolada | A Fase 1 vai a produção sem a Fase 2 |
 | CSS escopado | `.adm` na raiz de `app/admin/` | O layout raiz não tem CSS; evita vazar para o Guia e a landing |
 | Sem `supabase-js` | `fetch` direto | Regra do `CLAUDE.md` e padrão do legado |
+| Teste de SQL | PGlite como devDependency, em `tests/sql-*.test.ts` | Sem Docker nem `psql` na máquina; sem custo; entra no `npm test` |
 | Visual | Paleta da Legisla (`--vinho:#571730`, `--papel:#FBF6EE`), estrutura do wireframe | Spec, linha "Visual do `/admin`" |
 
 > **Project-level decision:** o padrão "leitura por `v_admin_*` gated por `eh_legisla()`, escrita por funções `security definer` com auditoria, contas em TS puro" é convenção para telas futuras de equipe. Registrado como AD-007 em `.specs/STATE.md`.

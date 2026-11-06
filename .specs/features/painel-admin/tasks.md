@@ -18,11 +18,11 @@ Caminhos relativos a `plataforma/`. A árvore tem mudanças do usuário não com
 
 ## Test Coverage Matrix
 
-> Generated from codebase, project guidelines, and spec - confirm before Execute. Guidelines found: `plataforma/AGENTS.md` (ler `node_modules/next/dist/docs/` antes de escrever rota ou layout), `plataforma/CLAUDE.md` (testes em `tests/` com `node --test`, imports relativos terminando em `.ts`; e2e em Playwright), `playwright.config.ts`, `.github/workflows/migrations.yml`. Amostras de teste existentes: `tests/*.test.ts` (unit) e `e2e/*.spec.ts` (e2e); o repo não tem teste de SQL, por isso o smoke de SQL é novo.
+> Generated from codebase, project guidelines, and spec - confirm before Execute. Guidelines found: `plataforma/AGENTS.md` (ler `node_modules/next/dist/docs/` antes de escrever rota ou layout), `plataforma/CLAUDE.md` (testes em `tests/` com `node --test`, imports relativos terminando em `.ts`; e2e em Playwright), `playwright.config.ts`, `.github/workflows/migrations.yml`. Amostras de teste existentes: `tests/*.test.ts` (unit) e `e2e/*.spec.ts` (e2e); o repo não tinha teste de SQL; o ambiente PGlite (T1 e T2) é novo, por decisão do usuário em 2026-11-05. A fidelidade ao Supabase real não é total (extensões e `auth.users` são simulados).
 
 | Code Layer | Required Test Type | Coverage Expectation | Location Pattern | Run Command |
 | ---------- | ------------------ | -------------------- | ---------------- | ----------- |
-| Migration SQL | integration | Cada AC de banco tem um caso: papel certo, papel errado (leitura), anônimo, borda e falha da auditoria; scripts com `BEGIN … ROLLBACK` | `supabase/tests/*.sql` | comando definido na T1 (branch do Supabase ou stack local; nunca produção) |
+| Migration SQL | integration | Cada AC de banco tem um caso: papel certo, papel errado (leitura), anônimo, borda e falha da auditoria; roda no PGlite com `auth` simulado | `tests/sql-*.test.ts` | `npm test` |
 | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | Todos os ramos; 1:1 com as ACs; cada edge case listado tem teste | `tests/admin-*.test.ts`, `tests/uso.test.ts` | `npm test` |
 | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | Cada tela: caminho feliz, bordas listadas e erros; chamadas ao Supabase interceptadas | `e2e/admin-*.spec.ts` | `npx playwright test e2e/admin-` |
 | Componentes compartilhados, layout, CSS, docs | none | Cobertos pelos e2e das telas que os usam; gate de build | - | `npx tsc --noEmit` |
@@ -34,8 +34,8 @@ Caminhos relativos a `plataforma/`. A árvore tem mudanças do usuário não com
 
 | Gate Level | When to Use | Command |
 | ---------- | ----------- | ------- |
-| Quick | Tasks só com testes unitários | `npm test` |
-| Full | Tasks de e2e, de tela com e2e e de SQL (nas tasks de `supabase/`, soma o smoke do SQL) | `npm test && npx tsc --noEmit && npx playwright test e2e/admin-` |
+| Quick | Tasks só com testes unitários ou de SQL (PGlite) | `npm test` |
+| Full | Tasks de e2e e de tela com e2e | `npm test && npx tsc --noEmit && npx playwright test e2e/admin-` |
 | Build | Tasks de componente, layout, CSS, docs e fim de fase | `npx tsc --noEmit && npm test && npm run build` |
 
 Observação: o `npm run build` oscila com `SecurityFatalError` do Next 16.4 (advisory conhecido, registrado no Handoff do `STATE.md`). Se falhar só por isso, o gate Build vale como `npx tsc --noEmit && npm test` mais `next dev` respondendo 200 nas rotas tocadas, e a falha fica registrada na task.
@@ -49,54 +49,106 @@ Fases em ordem; cada fase termina antes da próxima; tarefas em ordem dentro da 
 ### Phase 1: Banco de dados
 
 ```
-T1 → T2 → T3
+T1 → T2 → T3 → T4 → T5
 ```
 
 ### Phase 2: Lógica pura e acesso ao banco
 
 ```
-T4 → T5 → T6 → T7 → T8 → T9 → T10 → T11 → T12
+T6 → T7 → T8 → T9 → T10 → T11 → T12 → T13 → T14
 ```
 
 ### Phase 3: Acesso, casca e lista de mandatos
 
 ```
-T13 → T14 → T15 → T16 → T17 → T18 → T19
+T15 → T16 → T17 → T18 → T19 → T20 → T21
 ```
 
 ### Phase 4: Equipe e detalhe do mandato
 
 ```
-T20 → T21 → T22 → T23 → T24
+T22 → T23 → T24 → T25 → T26
 ```
 
 ### Phase 5: Analytics e logs
 
 ```
-T25 → T26 → T27 → T28
+T27 → T28 → T29 → T30
 ```
 
 ### Phase 6: Registro de uso (P3)
 
 ```
-T29 → T30 → T31 → T32 → T33
+T31 → T32 → T33 → T34 → T35
 ```
 
 ### Phase 7: Fechamento
 
 ```
-T34 → T35
+T36 → T37
 ```
 
 ---
 
 ## Task Breakdown
 
-### T1: Migration de equipe, papéis e auditoria
+### T1: Dependência do Postgres embutido
 
-**What**: Migration 1 do design: papéis `admin`/`leitura`, `auditoria_admin`, `private.audita` e as funções de gestão da equipe, com o smoke de SQL.
-**Where**: `supabase/migrations/20261105120000_admin_equipe.sql`
+**What**: Adicionar o PGlite (Postgres em WebAssembly) como devDependency para os testes de SQL.
+**Where**: `package.json`
 **Depends on**: None
+**Reuses**: devDependencies existentes
+**Requirement**: ADM-02
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] `@electric-sql/pglite` instalado como devDependency com versão fixada (sem `^`), e `package-lock.json` atualizado no mesmo commit
+- [ ] `npx tsc --noEmit` e `npm test` seguem passando com a mesma contagem de testes de antes
+
+**Tests**: none
+**Gate**: build
+
+**Commit**: `build(admin): add pglite for sql tests`
+
+---
+
+### T2: Ambiente de teste de SQL
+
+**What**: Helper que sobe o PGlite, simula `auth` e os roles do Supabase, aplica as migrations em ordem e troca de usuário, com o teste do próprio ambiente.
+**Where**: `tests/sql-ambiente.ts`
+**Depends on**: T1
+**Reuses**: `supabase/migrations/*.sql`; `private.eh_*` do schema inicial
+**Requirement**: ADM-02
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Exporta `criaBanco()` (aplica todas as migrations de `supabase/migrations/` em ordem), `como(banco, uuid | null)` (define `request.jwt.claim.sub` e o role `authenticated` ou `anon`) e `semente(banco)` com 2 mandatos, 1 admin, 1 leitura e 1 membro de gabinete
+- [ ] Simula `auth.users`, `auth.uid()` e os roles `anon` e `authenticated`; qualquer extensão do Supabase que alguma migration use e não rode no PGlite é simulada, ou o motivo é registrado nesta task
+- [ ] `tests/sql-ambiente.test.ts` prova que o ambiente reproduz o RLS atual: membro do gabinete vê só o próprio mandato; anônimo não lê nada; admin da equipe lê todos; ≥ 5 casos passam
+- [ ] Se o PGlite não aplicar alguma migration existente, parar e levar o problema ao usuário; as migrations antigas não são alteradas
+
+**Tests**: integration
+**Gate**: quick
+
+**Commit**: `test(admin): add pglite sql test environment`
+
+---
+
+### T3: Migration de equipe, papéis e auditoria
+
+**What**: Migration 1 do design: papéis `admin`/`leitura`, `auditoria_admin`, `private.audita` e as funções de gestão da equipe, com o teste de SQL.
+**Where**: `supabase/migrations/20261105120000_admin_equipe.sql`
+**Depends on**: T2
 **Reuses**: molde de `20261020130000_excluir_mandato.sql`; `private.eh_legisla*`
 **Requirement**: ADM-02, ADM-03, ADM-04
 
@@ -107,25 +159,25 @@ T34 → T35
 
 **Done when**:
 
-- [ ] Antes de escrever, confirmar com o usuário onde roda o smoke (branch do Supabase ou stack local) e registrar o comando exato nesta task; nada roda em produção
+- [ ] Os testes usam o ambiente da T2 (PGlite); nada roda em produção
 - [ ] `papel` aceita só `admin` e `leitura`; linhas `analista` viram `leitura`
 - [ ] `equipe_ler` usa `private.eh_legisla()`; política `equipe_gerir` e grants de escrita a `authenticated` removidos
 - [ ] `auditoria_admin` só aceita inclusão (sem grant nem política de update/delete) e só `eh_legisla()` lê
 - [ ] `admin_equipe`, `admin_buscar_usuario` (e-mail exato, 1 linha, só admin), `admin_equipe_incluir`, `admin_equipe_papel`, `admin_equipe_remover` gravam a auditoria na mesma transação e recusam último admin ("A equipe precisa ter ao menos um admin."), duplicado ("Esta pessoa já está na equipe.") e alvo ausente ("Pessoa não encontrada.")
-- [ ] Smoke `supabase/tests/admin_equipe.sql` (BEGIN … ROLLBACK) cobre: admin e leitura leem a equipe; leitura recusado em cada função; anônimo sem dados; update e delete em `auditoria_admin` falham; falha na auditoria desfaz a ação; ≥ 12 casos passam
+- [ ] Teste `tests/sql-admin-equipe.test.ts` (PGlite) cobre: admin e leitura leem a equipe; leitura recusado em cada função; anônimo sem dados; update e delete em `auditoria_admin` falham; falha na auditoria desfaz a ação; ≥ 12 casos passam
 
 **Tests**: integration
-**Gate**: full
+**Gate**: quick
 
 **Commit**: `feat(admin): add equipe migration with roles and audit`
 
 ---
 
-### T2: Migration de leitura de mandatos e analytics
+### T4: Migration de leitura de mandatos e analytics
 
-**What**: Migration 2 do design: `arquivado_em`, catálogo `exercicios_guia` com os 16 exercícios e as views `v_admin_*`, com o smoke de SQL e o teste do catálogo.
+**What**: Migration 2 do design: `arquivado_em`, catálogo `exercicios_guia` com os 16 exercícios e as views `v_admin_*`, com o teste de SQL e o teste do catálogo.
 **Where**: `supabase/migrations/20261105130000_admin_leitura.sql`
-**Depends on**: T1
+**Depends on**: T3
 **Reuses**: molde de `v_panorama` (`schema_inicial.sql:256`); `MISSOES` de `public/painel.html:351`
 **Requirement**: ADM-05, ADM-06, ADM-09, ADM-10, ADM-11, ADM-12, ADM-13
 
@@ -138,25 +190,25 @@ T34 → T35
 
 - [ ] `mandatos.arquivado_em` criada; `exercicios_guia` semeada com 16 linhas (missões 4, 2, 4, 3 e 3) e títulos em UTF-8 correto
 - [ ] `v_admin_mandatos`, `v_admin_exercicios`, `v_admin_eventos_mes`, `v_admin_atividade` e `v_admin_uso_campos` criadas com `security_invoker = true` e `where private.eh_legisla()`; `anon` sem acesso
-- [ ] Nenhuma view tem as colunas `dados`, `texto`, `nome_civil` nem `resp_telefone` (smoke consulta `information_schema.columns`)
+- [ ] Nenhuma view tem as colunas `dados`, `texto`, `nome_civil` nem `resp_telefone` (o teste consulta `information_schema.columns`)
 - [ ] `ultima_atividade` = maior entre `atualizado_em` e o último `eventos.criado_em`; `mes` no fuso `America/Sao_Paulo`
 - [ ] Mapa de campos de `v_admin_uso_campos` conferido contra o código das ilhas e registrado nesta task
 - [ ] `tests/admin-catalogo.test.ts` compara os ids do seed com os de `MISSOES` em `painel.html` (unit, ≥ 3 casos) e passa
-- [ ] Smoke `supabase/tests/admin_leitura.sql`: gabinete fora da equipe recebe 0 linhas; admin e leitura recebem as linhas esperadas; mandato arquivado some de `v_admin_exercicios`; ≥ 8 casos passam
+- [ ] Teste `tests/sql-admin-leitura.test.ts` (PGlite): gabinete fora da equipe recebe 0 linhas; admin e leitura recebem as linhas esperadas; mandato arquivado some de `v_admin_exercicios`; ≥ 8 casos passam
 
 **Tests**: integration
-**Gate**: full
+**Gate**: quick
 
 **Commit**: `feat(admin): add read views and exercise catalog`
 
 ---
 
-### T3: Migration de gestão de mandatos e membros
+### T5: Migration de gestão de mandatos e membros
 
-**What**: Migration 3 do design: funções de membros, arquivar e excluir, gatilho de `arquivado_em`, com o smoke de SQL.
+**What**: Migration 3 do design: funções de membros, arquivar e excluir, gatilho de `arquivado_em`, com o teste de SQL.
 **Where**: `supabase/migrations/20261105140000_admin_mandatos_gestao.sql`
-**Depends on**: T2
-**Reuses**: molde de `excluir_mandato`; `private.audita` da T1
+**Depends on**: T4
+**Reuses**: molde de `excluir_mandato`; `private.audita` da T3
 **Requirement**: ADM-07, ADM-08
 
 **Tools**:
@@ -170,16 +222,16 @@ T34 → T35
 - [ ] `admin_mandato_arquivar(p_id, p_arquivar)` grava ou limpa `arquivado_em` e audita; os membros seguem acessando o mandato
 - [ ] `admin_mandato_excluir(p_id, p_codigo)` recusa código diferente, apaga em cascata e deixa `sugestoes.mandato_id` nulo; a auditoria guarda código e nome parlamentar
 - [ ] Gatilho em `mandatos` recusa mudança de `arquivado_em` a quem não é admin da Legisla (membro do gabinete é recusado)
-- [ ] Smoke `supabase/tests/admin_mandatos.sql`: leitura recusado em todas as funções; trava de coordenação; código errado; cascata; gatilho; ≥ 12 casos passam
+- [ ] Teste `tests/sql-admin-mandatos.test.ts` (PGlite): leitura recusado em todas as funções; trava de coordenação; código errado; cascata; gatilho; ≥ 12 casos passam
 
 **Tests**: integration
-**Gate**: full
+**Gate**: quick
 
 **Commit**: `feat(admin): add mandate management functions`
 
 ---
 
-### T4: Escala de dias
+### T6: Escala de dias
 
 **What**: Constante da escala 7/15/30/45 e cálculo de dias parado.
 **Where**: `lib/admin/escala.ts`
@@ -204,11 +256,11 @@ T34 → T35
 
 ---
 
-### T5: Mensagens e validação de e-mail
+### T7: Mensagens e validação de e-mail
 
 **What**: Mapa de erro do banco para mensagem em português e `emailValido`.
 **Where**: `lib/admin/mensagens.ts`
-**Depends on**: T4
+**Depends on**: T6
 **Reuses**: textos da spec
 **Requirement**: ADM-03, ADM-07
 
@@ -230,11 +282,11 @@ T34 → T35
 
 ---
 
-### T6: Leitura da configuração do banco
+### T8: Leitura da configuração do banco
 
 **What**: `lerConfig` extrai URL e chave de `nucleo.js` e `carregaConfig` a busca em `/legacy/nucleo.js`.
 **Where**: `lib/admin/config.ts`
-**Depends on**: T5
+**Depends on**: T7
 **Reuses**: expressão de `public/painel.html:837`
 **Requirement**: ADM-01
 
@@ -255,11 +307,11 @@ T34 → T35
 
 ---
 
-### T7: Sessão: ler, gravar e renovar
+### T9: Sessão: ler, gravar e renovar
 
 **What**: Funções de sessão sobre `legisla.tok`, retorno do Google e login por senha.
 **Where**: `lib/admin/sessao.ts`
-**Depends on**: T6
+**Depends on**: T8
 **Reuses**: fluxo de `public/painel.html:831-896`
 **Requirement**: ADM-01
 
@@ -281,11 +333,11 @@ T34 → T35
 
 ---
 
-### T8: Cliente da API
+### T10: Cliente da API
 
 **What**: `criaApi` com `ler` e `rpc` sobre `fetch`, com `ErroApi`.
 **Where**: `lib/admin/api.ts`
-**Depends on**: T7
+**Depends on**: T9
 **Reuses**: `Nuvem.rest` de `nucleo.js:46`
 **Requirement**: ADM-01, ADM-02
 
@@ -307,11 +359,11 @@ T34 → T35
 
 ---
 
-### T9: Filtros e páginas de mandatos
+### T11: Filtros e páginas de mandatos
 
 **What**: Busca sem acento, filtros combinados, parado há N e paginação.
 **Where**: `lib/admin/mandatos.ts`
-**Depends on**: T8
+**Depends on**: T10
 **Reuses**: `escala.ts`
 **Requirement**: ADM-05
 
@@ -333,11 +385,11 @@ T34 → T35
 
 ---
 
-### T10: Indicadores e status mensal
+### T12: Indicadores e status mensal
 
 **What**: Indicadores do topo e o gráfico de status por mês.
 **Where**: `lib/admin/analytics.ts`
-**Depends on**: T9
+**Depends on**: T11
 **Reuses**: `escala.ts`
 **Requirement**: ADM-09, ADM-10
 
@@ -359,11 +411,11 @@ T34 → T35
 
 ---
 
-### T11: Funil e travas
+### T13: Funil e travas
 
 **What**: Funil das 5 missões e tabela de travas por exercício.
 **Where**: `lib/admin/funil.ts`
-**Depends on**: T10
+**Depends on**: T12
 **Reuses**: regra de `public/painel.html:784-795`
 **Requirement**: ADM-11
 
@@ -385,12 +437,12 @@ T34 → T35
 
 ---
 
-### T12: Uso por funcionalidade (campos)
+### T14: Uso por funcionalidade (campos)
 
 **What**: Tabela de "mandatos que usaram" pelos campos já preenchidos.
 **Where**: `lib/admin/usoFuncionalidades.ts`
-**Depends on**: T11
-**Reuses**: `v_admin_uso_campos` da T2
+**Depends on**: T13
+**Reuses**: `v_admin_uso_campos` da T4
 **Requirement**: ADM-12
 
 **Tools**:
@@ -410,7 +462,7 @@ T34 → T35
 
 ---
 
-### T13: Estilo do painel
+### T15: Estilo do painel
 
 **What**: CSS escopado sob `.adm` com a paleta da Legisla e layout do wireframe, incluindo 360 px.
 **Where**: `app/admin/admin.css`
@@ -435,11 +487,11 @@ T34 → T35
 
 ---
 
-### T14: Layout do `/admin`
+### T16: Layout do `/admin`
 
 **What**: Layout que importa `admin.css`, define o título e envolve as telas em `.adm`.
 **Where**: `app/admin/layout.tsx`
-**Depends on**: T13
+**Depends on**: T15
 **Reuses**: `app/guia/layout.tsx`
 **Requirement**: ADM-01
 
@@ -461,11 +513,11 @@ T34 → T35
 
 ---
 
-### T15: Sessão e papel na interface
+### T17: Sessão e papel na interface
 
 **What**: Componente que entrega token, papel e estados: entrada, "Sem acesso" e volta à entrada em 401.
 **Where**: `app/admin/_componentes/Sessao.tsx`
-**Depends on**: T14
+**Depends on**: T16
 **Reuses**: `lib/admin/sessao.ts`, `config.ts`, `api.ts`
 **Requirement**: ADM-01, ADM-02
 
@@ -480,7 +532,7 @@ T34 → T35
 - [ ] Com sessão sem linha em `equipe_legisla`: "Sem acesso" e nenhuma consulta a views de mandatos
 - [ ] Aproveita `legisla.tok`; renova token vencido; qualquer 401 volta à entrada
 - [ ] Contexto expõe `{ api, papel, sair }`; lê o papel de `equipe_legisla` a cada abertura
-- [ ] Gate Build passa (cobertura nos e2e da T19)
+- [ ] Gate Build passa (cobertura nos e2e da T21)
 
 **Tests**: none
 **Gate**: build
@@ -489,11 +541,11 @@ T34 → T35
 
 ---
 
-### T16: Casca com menu
+### T18: Casca com menu
 
 **What**: Cabeçalho com nome e papel, menu Equipe, Mandatos, Analytics e Logs e link para `/painel`.
 **Where**: `app/admin/_componentes/Casca.tsx`
-**Depends on**: T15
+**Depends on**: T17
 **Reuses**: wireframe `wireframes/painel-admin.html`
 **Requirement**: ADM-01
 
@@ -506,7 +558,7 @@ T34 → T35
 
 - [ ] Menu destaca a tela atual; link "Painel de métricas (/painel)" presente
 - [ ] Mostra o papel da pessoa; botão Sair
-- [ ] Gate Build passa (cobertura nos e2e da T19)
+- [ ] Gate Build passa (cobertura nos e2e da T21)
 
 **Tests**: none
 **Gate**: build
@@ -515,11 +567,11 @@ T34 → T35
 
 ---
 
-### T17: Helper de e2e do `/admin`
+### T19: Helper de e2e do `/admin`
 
 **What**: Semear sessão, interceptar `/rest/v1`, `/auth/v1` e registrar o que trafega.
 **Where**: `e2e/admin-api.ts`
-**Depends on**: T16
+**Depends on**: T18
 **Reuses**: `e2e/semente.ts`, `e2e/guia-real.ts`
 **Requirement**: ADM-01, ADM-02
 
@@ -541,11 +593,11 @@ T34 → T35
 
 ---
 
-### T18: Tela Mandatos
+### T20: Tela Mandatos
 
 **What**: Lista de mandatos com busca, filtros (UF, casa, situação, "Parado há"), destaque de parado e paginação, com o e2e `e2e/admin-mandatos.spec.ts`.
 **Where**: `app/admin/page.tsx`
-**Depends on**: T17
+**Depends on**: T19
 **Reuses**: `lib/admin/mandatos.ts`, `escala.ts`, `Casca`
 **Requirement**: ADM-05, ADM-16
 
@@ -570,11 +622,11 @@ T34 → T35
 
 ---
 
-### T19: e2e de acesso e papéis
+### T21: e2e de acesso e papéis
 
 **What**: Testes de tela do acesso, dos papéis e da sessão.
 **Where**: `e2e/admin-acesso.spec.ts`
-**Depends on**: T18
+**Depends on**: T20
 **Reuses**: `e2e/admin-api.ts`
 **Requirement**: ADM-01, ADM-02
 
@@ -595,7 +647,7 @@ T34 → T35
 
 ---
 
-### T20: Diálogo reutilizável
+### T22: Diálogo reutilizável
 
 **What**: Diálogo modal e de confirmação com botão desabilitado durante o envio.
 **Where**: `app/admin/_componentes/Dialogo.tsx`
@@ -611,7 +663,7 @@ T34 → T35
 **Done when**:
 
 - [ ] Foco preso e fecha com Esc; `confirmar` desabilita o botão enquanto a chamada está em curso (evita duplo clique)
-- [ ] Gate Build passa (cobertura nos e2e das T21 e T24)
+- [ ] Gate Build passa (cobertura nos e2e das T23 e T26)
 
 **Tests**: none
 **Gate**: build
@@ -620,12 +672,12 @@ T34 → T35
 
 ---
 
-### T21: Tela Equipe
+### T23: Tela Equipe
 
 **What**: Lista da equipe, incluir por e-mail, trocar papel e remover, com o e2e `e2e/admin-equipe.spec.ts`.
 **Where**: `app/admin/equipe/page.tsx`
-**Depends on**: T20
-**Reuses**: `lib/admin/mensagens.ts`, `Dialogo`, funções da T1
+**Depends on**: T22
+**Reuses**: `lib/admin/mensagens.ts`, `Dialogo`, funções da T3
 **Requirement**: ADM-03, ADM-16
 
 **Tools**:
@@ -649,12 +701,12 @@ T34 → T35
 
 ---
 
-### T22: Membros do mandato
+### T24: Membros do mandato
 
 **What**: Tabela de membros com adicionar, editar papel e remover.
 **Where**: `app/admin/_componentes/Membros.tsx`
-**Depends on**: T21
-**Reuses**: `Dialogo`, funções da T3
+**Depends on**: T23
+**Reuses**: `Dialogo`, funções da T5
 **Requirement**: ADM-07
 
 **Tools**:
@@ -666,7 +718,7 @@ T34 → T35
 
 - [ ] Lista nome, e-mail, papel (`coordenacao` ou `assessoria`) e entrada
 - [ ] Admin: adicionar por e-mail, trocar papel, remover com confirmação; mensagens de sem conta, já é membro e última coordenação
-- [ ] Gate Build passa (cobertura no e2e da T24)
+- [ ] Gate Build passa (cobertura no e2e da T26)
 
 **Tests**: none
 **Gate**: build
@@ -675,12 +727,12 @@ T34 → T35
 
 ---
 
-### T23: Zona de risco
+### T25: Zona de risco
 
 **What**: Arquivar, desarquivar e excluir definitivamente com confirmação pelo código.
 **Where**: `app/admin/_componentes/ZonaRisco.tsx`
-**Depends on**: T22
-**Reuses**: `Dialogo`, funções da T3
+**Depends on**: T24
+**Reuses**: `Dialogo`, funções da T5
 **Requirement**: ADM-08
 
 **Tools**:
@@ -692,7 +744,7 @@ T34 → T35
 
 - [ ] Botão "Excluir definitivamente" desabilitado enquanto o texto difere do código do mandato
 - [ ] Arquivar e desarquivar chamam `admin_mandato_arquivar`; excluir chama `admin_mandato_excluir` e volta à lista
-- [ ] Gate Build passa (cobertura no e2e da T24)
+- [ ] Gate Build passa (cobertura no e2e da T26)
 
 **Tests**: none
 **Gate**: build
@@ -701,11 +753,11 @@ T34 → T35
 
 ---
 
-### T24: Tela Detalhe do mandato
+### T26: Tela Detalhe do mandato
 
 **What**: Cadastro, andamento, aviso de privacidade, membros e zona de risco, com o e2e `e2e/admin-detalhe.spec.ts`.
 **Where**: `app/admin/mandatos/[id]/page.tsx`
-**Depends on**: T23
+**Depends on**: T25
 **Reuses**: `useParams`, `Membros`, `ZonaRisco`, `v_admin_mandatos`
 **Requirement**: ADM-06, ADM-07, ADM-08
 
@@ -729,7 +781,7 @@ T34 → T35
 
 ---
 
-### T25: Gráficos
+### T27: Gráficos
 
 **What**: Colunas empilhadas, colunas simples e barras horizontais com título, unidade, eixo e legenda.
 **Where**: `app/admin/_componentes/Grafico.tsx`
@@ -746,7 +798,7 @@ T34 → T35
 
 - [ ] Todo gráfico recebe `titulo` e `unidade` obrigatórios e mostra legenda quando há mais de uma série
 - [ ] Eixo com valores; contagem dentro de cada segmento; estado vazio com texto próprio
-- [ ] Gate Build passa (cobertura no e2e da T26)
+- [ ] Gate Build passa (cobertura no e2e da T28)
 
 **Tests**: none
 **Gate**: build
@@ -755,11 +807,11 @@ T34 → T35
 
 ---
 
-### T26: Tela Analytics
+### T28: Tela Analytics
 
 **What**: Filtros de período e UF, indicadores, status mensal, funil, travas e uso por funcionalidade, com o e2e `e2e/admin-analytics.spec.ts`.
 **Where**: `app/admin/analytics/page.tsx`
-**Depends on**: T25
+**Depends on**: T27
 **Reuses**: `lib/admin/analytics.ts`, `funil.ts`, `usoFuncionalidades.ts`, `Grafico`
 **Requirement**: ADM-09, ADM-10, ADM-11, ADM-12, ADM-16
 
@@ -783,11 +835,11 @@ T34 → T35
 
 ---
 
-### T27: Tela Logs
+### T29: Tela Logs
 
 **What**: Três abas: atividade dos gabinetes, ações da equipe e sistema, com o e2e `e2e/admin-logs.spec.ts`.
 **Where**: `app/admin/logs/page.tsx`
-**Depends on**: T26
+**Depends on**: T28
 **Reuses**: `v_admin_atividade`, `auditoria_admin`
 **Requirement**: ADM-04, ADM-13
 
@@ -812,11 +864,11 @@ T34 → T35
 
 ---
 
-### T28: e2e transversal: celular e privacidade
+### T30: e2e transversal: celular e privacidade
 
 **What**: Todas as telas em 360 px e varredura de rede.
 **Where**: `e2e/admin-transversal.spec.ts`
-**Depends on**: T27
+**Depends on**: T29
 **Reuses**: `e2e/admin-api.ts`
 **Requirement**: ADM-16, ADM-02
 
@@ -838,9 +890,9 @@ T34 → T35
 
 ---
 
-### T29: Migration de uso das funcionalidades
+### T31: Migration de uso das funcionalidades
 
-**What**: Migration 4 do design: tabela `uso_funcionalidades` e view `v_admin_uso`, com smoke de SQL.
+**What**: Migration 4 do design: tabela `uso_funcionalidades` e view `v_admin_uso`, com teste de SQL.
 **Where**: `supabase/migrations/20261105150000_uso_funcionalidades.sql`
 **Depends on**: None
 **Reuses**: molde de `20261103120000_sugestoes_comentarios.sql`
@@ -855,20 +907,20 @@ T34 → T35
 
 - [ ] Tabela só com `mandato_id`, `funcionalidade`, `criado_em` (sem texto, nome, e-mail nem `user_id`); insert só de membros do mandato; select só da equipe
 - [ ] `v_admin_uso(dia, mandato_id, uf, funcionalidade, qtd)` gated por `eh_legisla()`
-- [ ] Smoke `supabase/tests/uso_funcionalidades.sql`: membro insere, não-membro e anônimo são recusados, leitura só da equipe; ≥ 6 casos passam
+- [ ] Teste `tests/sql-uso-funcionalidades.test.ts` (PGlite): membro insere, não-membro e anônimo são recusados, leitura só da equipe; ≥ 6 casos passam
 
 **Tests**: integration
-**Gate**: full
+**Gate**: quick
 
 **Commit**: `feat(admin): add feature usage table`
 
 ---
 
-### T30: Registrador de uso
+### T32: Registrador de uso
 
 **What**: Mapa ilha para funcionalidade e janela de 60 s.
 **Where**: `lib/uso.ts`
-**Depends on**: T29
+**Depends on**: T31
 **Reuses**: nomes de `data-ilha` em `ilhas/ponte.tsx`
 **Requirement**: ADM-14
 
@@ -889,11 +941,11 @@ T34 → T35
 
 ---
 
-### T31: Gancho de uso no Guia
+### T33: Gancho de uso no Guia
 
 **What**: Registrar a abertura de funcionalidade em `Ilhas.ligar`; sem nuvem não grava e erro é ignorado, com o e2e `e2e/admin-uso-registro.spec.ts`.
 **Where**: `ilhas/ponte.tsx`
-**Depends on**: T30
+**Depends on**: T32
 **Reuses**: `ligar` em `ilhas/ponte.tsx:131`
 **Requirement**: ADM-14
 
@@ -917,12 +969,12 @@ T34 → T35
 
 ---
 
-### T32: Aberturas e tendência
+### T34: Aberturas e tendência
 
 **What**: Calcular aberturas do período, tendência de 5 semanas e uso por dia (14 dias).
 **Where**: `lib/admin/usoFuncionalidades.ts`
-**Depends on**: T31
-**Reuses**: `usoPorFuncionalidade` da T12
+**Depends on**: T33
+**Reuses**: `usoPorFuncionalidade` da T14
 **Requirement**: ADM-15
 
 **Tools**:
@@ -932,7 +984,7 @@ T34 → T35
 
 **Done when**:
 
-- [ ] `usoPorFuncionalidade(campos, uso)` devolve aberturas e tendência; `usoPorDia(uso, agora)` devolve 14 dias; sem `uso` mantém o comportamento da T12
+- [ ] `usoPorFuncionalidade(campos, uso)` devolve aberturas e tendência; `usoPorDia(uso, agora)` devolve 14 dias; sem `uso` mantém o comportamento da T14
 - [ ] `tests/admin-uso-funcionalidades.test.ts` cresce em ≥ 5 casos e todos passam
 
 **Tests**: unit
@@ -942,11 +994,11 @@ T34 → T35
 
 ---
 
-### T33: Analytics mostra o uso
+### T35: Analytics mostra o uso
 
 **What**: Preencher Aberturas, Tendência e o gráfico "Uso das funcionalidades por dia", com o e2e `e2e/admin-analytics-uso.spec.ts`.
 **Where**: `app/admin/analytics/page.tsx`
-**Depends on**: T32
+**Depends on**: T34
 **Reuses**: `v_admin_uso`, `Grafico`
 **Requirement**: ADM-15
 
@@ -969,7 +1021,7 @@ T34 → T35
 
 ---
 
-### T34: Documentar o `/admin`
+### T36: Documentar o `/admin`
 
 **What**: Registrar no `CLAUDE.md` da plataforma a rota, o catálogo duplicado e o padrão AD-007.
 **Where**: `CLAUDE.md`
@@ -994,11 +1046,11 @@ T34 → T35
 
 ---
 
-### T35: Criar a spec da Fase 2 do painel
+### T37: Criar a spec da Fase 2 do painel
 
 **What**: Ao fim da feature, abrir a spec da Fase 2 pelo fluxo de Specify, a partir do que ficou fora: tabela "Out of Scope" da spec e riscos do design.
 **Where**: `.specs/features/painel-admin-fase2/spec.md`
-**Depends on**: T34
+**Depends on**: T36
 **Reuses**: `.specs/features/painel-admin/spec.md` (Out of Scope) e `design.md` (Risks & Concerns)
 **Requirement**: ADM-01
 
@@ -1027,16 +1079,16 @@ T34 → T35
 ```
 Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7
 
-Phase 1:  T1 ----→ T2 ----→ T3
-Phase 2:  T4 ----→ T5 ----→ T6 ----→ T7 ----→ T8 ----→ T9 ----→ T10 ----→ T11 ----→ T12
-Phase 3:  T13 ----→ T14 ----→ T15 ----→ T16 ----→ T17 ----→ T18 ----→ T19
-Phase 4:  T20 ----→ T21 ----→ T22 ----→ T23 ----→ T24
-Phase 5:  T25 ----→ T26 ----→ T27 ----→ T28
-Phase 6:  T29 ----→ T30 ----→ T31 ----→ T32 ----→ T33
-Phase 7:  T34 ----→ T35
+Phase 1:  T1 ----→ T2 ----→ T3 ----→ T4 ----→ T5
+Phase 2:  T6 ----→ T7 ----→ T8 ----→ T9 ----→ T10 ----→ T11 ----→ T12 ----→ T13 ----→ T14
+Phase 3:  T15 ----→ T16 ----→ T17 ----→ T18 ----→ T19 ----→ T20 ----→ T21
+Phase 4:  T22 ----→ T23 ----→ T24 ----→ T25 ----→ T26
+Phase 5:  T27 ----→ T28 ----→ T29 ----→ T30
+Phase 6:  T31 ----→ T32 ----→ T33 ----→ T34 ----→ T35
+Phase 7:  T36 ----→ T37
 ```
 
-Execução estritamente sequencial. São 35 tasks: ao executar, oferecer sub-agentes em lotes de cerca de 7 tasks, por fases inteiras (a fase 2 das tasks, de lógica pura, sozinha tem 9).
+Execução estritamente sequencial. São 37 tasks: ao executar, oferecer sub-agentes em lotes de cerca de 7 tasks, por fases inteiras (a fase 2 das tasks, de lógica pura, sozinha tem 9).
 
 ---
 
@@ -1047,38 +1099,40 @@ Execução estritamente sequencial. São 35 tasks: ao executar, oferecer sub-age
 | T1 | None | none (início da fase) | ✅ Match |
 | T2 | T1 | T1 | ✅ Match |
 | T3 | T2 | T2 | ✅ Match |
-| T4 | None | none (início da fase) | ✅ Match |
+| T4 | T3 | T3 | ✅ Match |
 | T5 | T4 | T4 | ✅ Match |
-| T6 | T5 | T5 | ✅ Match |
+| T6 | None | none (início da fase) | ✅ Match |
 | T7 | T6 | T6 | ✅ Match |
 | T8 | T7 | T7 | ✅ Match |
 | T9 | T8 | T8 | ✅ Match |
 | T10 | T9 | T9 | ✅ Match |
 | T11 | T10 | T10 | ✅ Match |
 | T12 | T11 | T11 | ✅ Match |
-| T13 | None | none (início da fase) | ✅ Match |
+| T13 | T12 | T12 | ✅ Match |
 | T14 | T13 | T13 | ✅ Match |
-| T15 | T14 | T14 | ✅ Match |
+| T15 | None | none (início da fase) | ✅ Match |
 | T16 | T15 | T15 | ✅ Match |
 | T17 | T16 | T16 | ✅ Match |
 | T18 | T17 | T17 | ✅ Match |
 | T19 | T18 | T18 | ✅ Match |
-| T20 | None | none (início da fase) | ✅ Match |
+| T20 | T19 | T19 | ✅ Match |
 | T21 | T20 | T20 | ✅ Match |
-| T22 | T21 | T21 | ✅ Match |
+| T22 | None | none (início da fase) | ✅ Match |
 | T23 | T22 | T22 | ✅ Match |
 | T24 | T23 | T23 | ✅ Match |
-| T25 | None | none (início da fase) | ✅ Match |
+| T25 | T24 | T24 | ✅ Match |
 | T26 | T25 | T25 | ✅ Match |
-| T27 | T26 | T26 | ✅ Match |
+| T27 | None | none (início da fase) | ✅ Match |
 | T28 | T27 | T27 | ✅ Match |
-| T29 | None | none (início da fase) | ✅ Match |
+| T29 | T28 | T28 | ✅ Match |
 | T30 | T29 | T29 | ✅ Match |
-| T31 | T30 | T30 | ✅ Match |
+| T31 | None | none (início da fase) | ✅ Match |
 | T32 | T31 | T31 | ✅ Match |
 | T33 | T32 | T32 | ✅ Match |
-| T34 | None | none (início da fase) | ✅ Match |
+| T34 | T33 | T33 | ✅ Match |
 | T35 | T34 | T34 | ✅ Match |
+| T36 | None | none (início da fase) | ✅ Match |
+| T37 | T36 | T36 | ✅ Match |
 
 ---
 
@@ -1086,38 +1140,40 @@ Execução estritamente sequencial. São 35 tasks: ao executar, oferecer sub-age
 
 | Task | Code Layer Created/Modified | Matrix Requires | Task Says | Status |
 | ---- | --------------------------- | --------------- | --------- | ------ |
-| T1: Migration de equipe, papéis e auditoria | Migration SQL | integration | integration | ✅ OK |
-| T2: Migration de leitura de mandatos e analytics | Migration SQL | integration | integration | ✅ OK |
-| T3: Migration de gestão de mandatos e membros | Migration SQL | integration | integration | ✅ OK |
-| T4: Escala de dias | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
-| T5: Mensagens e validação de e-mail | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
-| T6: Leitura da configuração do banco | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
-| T7: Sessão: ler, gravar e renovar | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
-| T8: Cliente da API | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
-| T9: Filtros e páginas de mandatos | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
-| T10: Indicadores e status mensal | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
-| T11: Funil e travas | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
-| T12: Uso por funcionalidade (campos) | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
-| T13: Estilo do painel | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
-| T14: Layout do `/admin` | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
-| T15: Sessão e papel na interface | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
-| T16: Casca com menu | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
-| T17: Helper de e2e do `/admin` | Helper de e2e | none | none | ✅ OK |
-| T18: Tela Mandatos | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
-| T19: e2e de acesso e papéis | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
-| T20: Diálogo reutilizável | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
-| T21: Tela Equipe | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
-| T22: Membros do mandato | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
-| T23: Zona de risco | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
-| T24: Tela Detalhe do mandato | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
-| T25: Gráficos | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
-| T26: Tela Analytics | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
-| T27: Tela Logs | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
-| T28: e2e transversal: celular e privacidade | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
-| T29: Migration de uso das funcionalidades | Migration SQL | integration | integration | ✅ OK |
-| T30: Registrador de uso | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
-| T31: Gancho de uso no Guia | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
-| T32: Aberturas e tendência | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
-| T33: Analytics mostra o uso | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
-| T34: Documentar o `/admin` | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
-| T35: Criar a spec da Fase 2 do painel | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
+| T1: Dependência do Postgres embutido | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
+| T2: Ambiente de teste de SQL | Migration SQL | integration | integration | ✅ OK |
+| T3: Migration de equipe, papéis e auditoria | Migration SQL | integration | integration | ✅ OK |
+| T4: Migration de leitura de mandatos e analytics | Migration SQL | integration | integration | ✅ OK |
+| T5: Migration de gestão de mandatos e membros | Migration SQL | integration | integration | ✅ OK |
+| T6: Escala de dias | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
+| T7: Mensagens e validação de e-mail | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
+| T8: Leitura da configuração do banco | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
+| T9: Sessão: ler, gravar e renovar | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
+| T10: Cliente da API | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
+| T11: Filtros e páginas de mandatos | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
+| T12: Indicadores e status mensal | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
+| T13: Funil e travas | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
+| T14: Uso por funcionalidade (campos) | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
+| T15: Estilo do painel | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
+| T16: Layout do `/admin` | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
+| T17: Sessão e papel na interface | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
+| T18: Casca com menu | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
+| T19: Helper de e2e do `/admin` | Helper de e2e | none | none | ✅ OK |
+| T20: Tela Mandatos | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
+| T21: e2e de acesso e papéis | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
+| T22: Diálogo reutilizável | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
+| T23: Tela Equipe | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
+| T24: Membros do mandato | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
+| T25: Zona de risco | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
+| T26: Tela Detalhe do mandato | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
+| T27: Gráficos | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
+| T28: Tela Analytics | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
+| T29: Tela Logs | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
+| T30: e2e transversal: celular e privacidade | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
+| T31: Migration de uso das funcionalidades | Migration SQL | integration | integration | ✅ OK |
+| T32: Registrador de uso | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
+| T33: Gancho de uso no Guia | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
+| T34: Aberturas e tendência | Lógica pura (`lib/admin/*.ts`, `lib/uso.ts`) | unit | unit | ✅ OK |
+| T35: Analytics mostra o uso | Páginas e e2e (`app/admin/**`, `ilhas/ponte.tsx`) | e2e | e2e | ✅ OK |
+| T36: Documentar o `/admin` | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
+| T37: Criar a spec da Fase 2 do painel | Componentes compartilhados, layout, CSS, docs | none | none | ✅ OK |
