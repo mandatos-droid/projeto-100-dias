@@ -402,9 +402,9 @@ T36 → T37
 
 **Done when**:
 
-- [ ] `indicadores` devolve cadastrados, ativos no período, média de exercícios concluídos (sobre 16) e parados; ignora arquivados e respeita a UF
-- [ ] `statusMensal` classifica Ativo/Parado por mês no fuso `America/Sao_Paulo`, do mês do primeiro cadastro ao atual, no máximo 12 meses; sem mandatos devolve lista vazia
-- [ ] `tests/admin-analytics.test.ts` ≥ 10 casos passam (virada de mês e de fuso, mandato criado no meio do mês, 13 meses, arquivado, UF)
+- [x] `indicadores` devolve cadastrados, ativos no período, média de exercícios concluídos (sobre 16) e parados; ignora arquivados e respeita a UF
+- [x] `statusMensal` classifica Ativo/Parado por mês no fuso `America/Sao_Paulo`, do mês do primeiro cadastro ao atual, no máximo 12 meses; sem mandatos devolve lista vazia
+- [x] `tests/admin-analytics.test.ts` ≥ 10 casos passam (virada de mês e de fuso, mandato criado no meio do mês, 13 meses, arquivado, UF)
 
 **Tests**: unit
 **Gate**: quick
