@@ -243,7 +243,7 @@ test('como assessoria, as mesmas chamadas gravam como hoje: PATCH em mandatos e 
 
 /* ---------- T36: aviso de consentimento sem "código de convite" (ACE-07.4) ---------- */
 const CORPO_TS = readFileSync(new URL('../lib/legacyBody.ts', import.meta.url), 'utf8');
-const CORPO = JSON.parse(/const corpo: string = (".*");/s.exec(CORPO_TS)![1]) as string;
+const CORPO = JSON.parse(/const corpo: string = ("[\s\S]*");/.exec(CORPO_TS)![1]) as string;
 const avisoLgpd = (corpo: string) => /<div class="lgpd oculto" id="blocoLgpd">([\s\S]*?)<\/div>/.exec(corpo)![1];
 /** O aviso de consentimento (#blocoLgpd) como estava antes da feature, copiado de lib/legacyBody.ts. */
 const AVISO_ORIGINAL = '\n      <strong>Proteção de dados pessoais (LGPD, Lei nº 13.709/2018).</strong>\n' +
