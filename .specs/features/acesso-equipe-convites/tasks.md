@@ -111,13 +111,14 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] `membros.papel` rejeita qualquer valor fora de `coordenacao`, `assessoria`, `leitura` (ACE-03.1)
-- [ ] Membro `leitura` não altera `mandatos` (nenhuma linha muda) e não insere em `eventos`; `coordenacao` e `assessoria` continuam gravando (ACE-03.2)
-- [ ] Membro de outro mandato continua sem escrita; `private.pode_editar` devolve falso para quem não é membro
+- [x] `membros.papel` rejeita qualquer valor fora de `coordenacao`, `assessoria`, `leitura` (ACE-03.1)
+- [x] Membro `leitura` não altera `mandatos` (nenhuma linha muda) e não insere em `eventos`; `coordenacao` e `assessoria` continuam gravando (ACE-03.2)
+- [x] Membro de outro mandato continua sem escrita; `private.pode_editar` devolve falso para quem não é membro
 - [ ] Membro lê `exercicios_guia`; quem não é membro nem equipe Legisla não lê
-- [ ] Migration roda após as migrations de `painel-admin` no ambiente PGlite sem erro
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 8 testes novos em `tests/sql-papeis.test.ts` e nenhum teste existente removido
+  - Bloqueado: contradiz o teste existente `tests/sql-admin-leitura.test.ts:32-35` (painel-admin), que exige 0 linhas de `exercicios_guia` para `IDS.membro`. Mudar esse teste pede aprovação do usuário; a política não foi criada.
+- [x] Migration roda após as migrations de `painel-admin` no ambiente PGlite sem erro
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 8 testes novos em `tests/sql-papeis.test.ts` e nenhum teste existente removido
 
 **Tests**: integration
 **Gate**: quick
