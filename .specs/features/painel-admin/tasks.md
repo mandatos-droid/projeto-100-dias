@@ -824,11 +824,11 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Período 7/15/30/45 (padrão 30) e "Parado há" (padrão 45); UF recalcula tudo; período só afeta "ativos" e uso; funil e travas não dependem do período
-- [ ] Mostra "Ainda não há mandatos cadastrados." sem mandatos; "—" em Aberturas e Tendência e "Sem registro de uso ainda" no gráfico de uso enquanto não há registro
-- [ ] Spec `e2e/admin-analytics.spec.ts` criado nesta task
-- [ ] Cobre: números batem com a fixture calculada à mão; troca de período e de UF; títulos e legenda de cada gráfico; estado vazio; "—" sem registro de uso; `vazou()` vazio
-- [ ] ≥ 8 testes passam
+- [x] Período 7/15/30/45 (padrão 30) e "Parado há" (padrão 45); UF recalcula tudo; período só afeta "ativos" e uso; funil e travas não dependem do período
+- [x] Mostra "Ainda não há mandatos cadastrados." sem mandatos; "—" em Aberturas e Tendência e "Sem registro de uso ainda" no gráfico de uso enquanto não há registro
+- [x] Spec `e2e/admin-analytics.spec.ts` criado nesta task
+- [x] Cobre: números batem com a fixture calculada à mão; troca de período e de UF; títulos e legenda de cada gráfico; estado vazio; "—" sem registro de uso; `vazou()` vazio
+- [x] ≥ 8 testes passam (14 e2e). Leitura paginada `lerTudo` em `lib/admin/api.ts` (blocos de 1.000) em todas as leituras; `npm run build` não rodado, valeu tsc + npm test (694) + e2e
 
 **Tests**: e2e
 **Gate**: full

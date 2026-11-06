@@ -44,3 +44,20 @@ export function criaApi(config: Config, token: string): Api {
     rpc: <T>(nome: string, args: object = {}) => pede<T>(`rpc/${nome}`, { method: 'POST', body: JSON.stringify(args) }),
   };
 }
+
+// O PostgREST do Supabase corta toda consulta em 1.000 linhas (max-rows) sem avisar. Para telas que somam
+// o banco inteiro (funil, travas, status mensal) isso falsificaria o número: lerTudo percorre em blocos.
+// `caminho` deve trazer um `order` estável (com a chave única), senão blocos vizinhos podem repetir ou pular linhas.
+export const TAMANHO_BLOCO = 1000;
+
+export async function lerTudo<T>(api: Pick<Api, 'ler'>, caminho: string, tamanho: number = TAMANHO_BLOCO): Promise<T[]> {
+  if (!(tamanho >= 1)) throw new RangeError('tamanho do bloco deve ser 1 ou mais');
+  const sep = caminho.includes('?') ? '&' : '?';
+  const todas: T[] = [];
+  for (let offset = 0; ; offset += tamanho) {
+    const bloco = (await api.ler<T[] | null>(`${caminho}${sep}limit=${tamanho}&offset=${offset}`)) ?? [];
+    todas.push(...bloco);
+    // bloco menor que o tamanho = acabou; bloco cheio pede mais um (que pode vir vazio)
+    if (bloco.length < tamanho) return todas;
+  }
+}

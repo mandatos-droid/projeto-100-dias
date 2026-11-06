@@ -167,7 +167,10 @@ export async function moca(page: Page, estado: EstadoMoca = {}) {
       if (estado.rede) return rota.abort('failed');
       if (estado.sempre401 || !tokenVale(token)) return responde(rota, 401, { message: 'JWT expired' }, alvo);
       if (estado.statusErro) return responde(rota, estado.statusErro, { message: 'erro de servidor' }, alvo);
-      return responde(rota, 200, linhas, alvo);
+      // paginação do PostgREST (lerTudo e logs): sem limit/offset devolve a lista inteira, como antes
+      const limite = u.searchParams.get('limit');
+      const inicio = Number(u.searchParams.get('offset') ?? 0);
+      return responde(rota, 200, limite === null ? linhas : linhas.slice(inicio, inicio + Number(limite)), alvo);
     }
     return naoMapeada();
   });
