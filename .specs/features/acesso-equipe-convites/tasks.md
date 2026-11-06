@@ -317,17 +317,17 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Devolve `{id, token, expira_em}` com token de 22 caracteres e validade de 7 dias a partir da criação (ACE-01.1, ACE-01.4)
-- [ ] A linha guardada contém só `sha256` do token; nenhuma coluna de nenhuma tabela contém o token em texto (ACE-01.2)
-- [ ] E-mail preenchido é guardado em minúsculas e sem espaços nas pontas; sem e-mail fica nulo (ACE-01.5)
-- [ ] Papel maior que o de quem convida recusa com "Você só pode convidar com papel igual ou menor que o seu." e não cria linha (ACE-01.6)
-- [ ] Nome vazio ou com 81 caracteres recusa com "Informe um nome de até 80 caracteres."; e-mail inválido ou com 255 caracteres recusa com "E-mail inválido." (ACE-01.7, ACE-01.8)
-- [ ] O 21º convite pendente recusa com a mensagem da spec; o 20º passa (ACE-01.9)
-- [ ] Quem não é membro recebe erro de permissão (ACE-01.10)
-- [ ] Convites vencidos ou cancelados há mais de 30 dias do mesmo mandato são apagados; os de 29 dias e os de outro mandato ficam (ACE-01.11)
-- [ ] Linha `convite_criado` gravada na mesma transação (ACE-06.1)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 12 testes novos em `tests/sql-convites.test.ts`, nenhum removido
+- [x] Devolve `{id, token, expira_em}` com token de 22 caracteres e validade de 7 dias a partir da criação (ACE-01.1, ACE-01.4)
+- [x] A linha guardada contém só `sha256` do token; nenhuma coluna de nenhuma tabela contém o token em texto (ACE-01.2)
+- [x] E-mail preenchido é guardado em minúsculas e sem espaços nas pontas; sem e-mail fica nulo (ACE-01.5)
+- [x] Papel maior que o de quem convida recusa com "Você só pode convidar com papel igual ou menor que o seu." e não cria linha (ACE-01.6)
+- [x] Nome vazio ou com 81 caracteres recusa com "Informe um nome de até 80 caracteres."; e-mail inválido ou com 255 caracteres recusa com "E-mail inválido." (ACE-01.7, ACE-01.8)
+- [x] O 21º convite pendente recusa com a mensagem da spec; o 20º passa (ACE-01.9)
+- [x] Quem não é membro recebe erro de permissão (ACE-01.10)
+- [x] Convites vencidos ou cancelados há mais de 30 dias do mesmo mandato são apagados; os de 29 dias e os de outro mandato ficam (ACE-01.11)
+- [x] Linha `convite_criado` gravada na mesma transação (ACE-06.1)
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 12 testes novos em `tests/sql-convites.test.ts`, nenhum removido
 
 **Tests**: integration
 **Gate**: quick
