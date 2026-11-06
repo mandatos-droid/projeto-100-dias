@@ -44,11 +44,13 @@ test.describe('Sem sessão e sem acesso (ADM-01.1, 01.2)', () => {
   test('"Entrar com Google" vai ao Supabase com redirect_to apontando para /admin', async ({ page }) => {
     await moca(page, estadoBase());
     await page.goto('/admin');
+    const origem = new URL(page.url()).origin; // antes do clique, que leva a página ao Supabase
     await page.getByRole('button', { name: 'Entrar com Google' }).click();
     await expect.poll(() => chamadas().some((c) => c.caminho.startsWith('auth/authorize'))).toBe(true);
     const ida = chamadas().find((c) => c.caminho.startsWith('auth/authorize'))!;
     const redirect = new URL(`http://x/${ida.caminho}`).searchParams.get('redirect_to');
-    expect(redirect).toBe('http://localhost:3000/admin');
+    // a origem vem da página aberta, para o teste valer em qualquer porta (o worktree isolado usa a 3100)
+    expect(redirect).toBe(`${origem}/admin`);
   });
 });
 
