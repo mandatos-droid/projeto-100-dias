@@ -639,8 +639,8 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Cobre: sem sessão (entrada, nenhuma chamada de mandatos); conta fora da equipe ("Sem acesso"); leitura (nenhum botão de alteração, seletores desabilitados); admin; abre em Mandatos; 401 volta à entrada; token vencido é renovado; escrita de leitura recusada com 403 mostra o aviso
-- [ ] ≥ 8 testes passam
+- [x] Cobre: sem sessão (entrada, nenhuma chamada de mandatos); conta fora da equipe ("Sem acesso"); leitura (nenhum botão de alteração, seletores desabilitados); admin; abre em Mandatos; 401 volta à entrada; token vencido é renovado; escrita de leitura recusada com 403 mostra o aviso
+- [x] ≥ 8 testes passam
 
 **Tests**: e2e
 **Gate**: full

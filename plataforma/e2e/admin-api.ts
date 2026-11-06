@@ -126,6 +126,9 @@ export async function moca(page: Page, estado: EstadoMoca = {}) {
       const papel = papelDoToken(token);
       return responde(rota, 200, { id: `uid-${papel}`, email: `${papel}@legisla.test` }, alvo);
     }
+    if (u.pathname === '/auth/v1/authorize') { // ida ao Google: só registra a chamada (com redirect_to) e devolve uma página vazia
+      return rota.fulfill({ status: 200, headers: { ...PERMITE, 'content-type': 'text/html' }, body: '<!doctype html><title>google</title>' });
+    }
     if (u.pathname === '/auth/v1/token') {
       const tipo = u.searchParams.get('grant_type');
       const corpo = JSON.parse(req.postData() ?? '{}');
