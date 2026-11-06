@@ -4,14 +4,37 @@ import { corPartido, posEspectro } from '@/lib/partidos';
 import type { GeoUF, Relacao, Status } from '@/lib/types';
 import { marca, statusDe } from './ponte';
 
-/** Ícone “i” que abre uma explicação curta ao lado de um número ou visualização (clique, toque ou foco). */
+/** Ícone “i” que abre uma explicação curta ao lado de um número ou visualização (clique, toque ou foco).
+    A caixa é posicionada em relação à janela, para nunca ficar cortada na borda nem atrás de outra caixa. */
 export function Info({ texto, rotulo = 'O que é isto?' }: { texto: string; rotulo?: string }) {
   const [aberto, setAberto] = useState(false);
+  const [sobre, setSobre] = useState(false);
+  const [pos, setPos] = useState<{ left: number; top: number }>({ left: 8, top: 0 });
+  const raiz = useRef<HTMLSpanElement>(null);
+  const caixa = useRef<HTMLSpanElement>(null);
+  const mede = () => {
+    const r = raiz.current?.getBoundingClientRect();
+    if (!r) return;
+    const w = Math.min(caixa.current?.offsetWidth ?? 288, window.innerWidth - 16);
+    const h = caixa.current?.offsetHeight ?? 0;
+    const left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, window.innerWidth - w - 8));
+    const abaixo = r.bottom + 6;
+    const top = abaixo + h > window.innerHeight - 8 && r.top - h - 6 > 8 ? r.top - h - 6 : abaixo;
+    setPos({ left, top });
+  };
+  const visivel = aberto || sobre;
+  useEffect(() => {
+    if (!visivel) return;
+    mede();
+    window.addEventListener('scroll', mede, true);
+    window.addEventListener('resize', mede);
+    return () => { window.removeEventListener('scroll', mede, true); window.removeEventListener('resize', mede); };
+  }, [visivel]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    <span className={`info ${aberto ? 'aberto' : ''}`}>
+    <span ref={raiz} className={`info ${aberto ? 'aberto' : ''}`} onMouseEnter={() => setSobre(true)} onMouseLeave={() => setSobre(false)}>
       <button type="button" className="info-bt" aria-label={rotulo} aria-expanded={aberto}
         onClick={() => setAberto((a) => !a)} onBlur={() => setAberto(false)} onKeyDown={(e) => e.key === 'Escape' && setAberto(false)}>i</button>
-      <span className="info-tx" role="note">{texto}</span>
+      <span ref={caixa} className="info-tx" role="note" style={{ left: pos.left, top: pos.top }}>{texto}</span>
     </span>
   );
 }

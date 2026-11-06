@@ -36,6 +36,7 @@ type Coluna = 'nome' | 'partido' | 'uf' | 'votos' | 'relacao';
 const ORD_REL: Record<Status, number> = { aliado: 0, concorrente: 1, neutro: 2 };
 type Filtros = Record<'partido' | 'genero' | 'raca' | 'mandato' | 'relacao', Set<string>>;
 type Faceta = keyof Filtros;
+const POR_PAGINA = 15;
 const vazio = (): Filtros => ({ partido: new Set(), genero: new Set(), raca: new Set(), mandato: new Set(), relacao: new Set() });
 const valor = (e: Eleito, f: Faceta): string =>
   f === 'partido' ? e.p : f === 'genero' ? e.g : f === 'raca' ? e.r : f === 'relacao' ? statusDe(e.s)
@@ -113,15 +114,12 @@ export default function Assentos() {
   const [fl, setFl] = useState<Filtros>(vazio);
   const [sel, setSel] = useState<string | null>(null);
   const [busca, setBusca] = useState('');
-  const [global, setGlobal] = useState('');
   const [menu, setMenu] = useState<string | null>(null);
-  const [limite, setLimite] = useState(40);
+  const [pagina, setPagina] = useState(0);
   const [ordem, setOrdem] = useState<{ col: Coluna; asc: boolean }>({ col: 'votos', asc: false });
-  // a tabela de um estado aparece inteira, sem rolar nem paginar; só o Brasil inteiro (1,6 mil linhas) pagina
-  const paginar = escopo === 'BR';
   const fichaRef = useRef<HTMLDivElement>(null);
-  const setCasa = (c: CasaChave) => { setCasaL(c); D.casaSel = c; salva(); setSel(null); setLimite(40); };
-  const setEscopo = (u: string) => { setEscopoL(u); D.escopoSel = u; salva(); setSel(null); setLimite(40); };
+  const setCasa = (c: CasaChave) => { setCasaL(c); D.casaSel = c; salva(); setSel(null); setPagina(0); };
+  const setEscopo = (u: string) => { setEscopoL(u); D.escopoSel = u; salva(); setSel(null); setPagina(0); };
   useEffect(() => { D.casaSel = casa; D.escopoSel = escopo; }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const daCasa = useMemo(() => (todos ?? []).filter((e) => e.k === K_CASA[casa]), [todos, casa]);
@@ -145,7 +143,7 @@ export default function Assentos() {
   const alterna = (f: Faceta, id: string) => {
     const n = { ...fl, [f]: new Set(fl[f]) };
     if (n[f].has(id)) n[f].delete(id); else n[f].add(id);
-    setFl(n); setLimite(40);
+    setFl(n); setPagina(0);
   };
   const rotuloFiltro = (f: Faceta, id: string) =>
     f === 'partido' ? id : (({ genero: GENERO, raca: RACA, mandato: MANDATO, relacao: RELACAO })[f].find(([k]) => k === id)?.[1] ?? id);
@@ -171,25 +169,18 @@ export default function Assentos() {
         : a.v - b.v;
       return cmp * d || b.v - a.v || a.u.localeCompare(b.u, 'pt');
     });
-  const ordena = (col: Coluna) => { setOrdem((o) => (o.col === col ? { col, asc: !o.asc } : { col, asc: col !== 'votos' })); setLimite(40); };
+  const ordena = (col: Coluna) => { setOrdem((o) => (o.col === col ? { col, asc: !o.asc } : { col, asc: col !== 'votos' })); setPagina(0); };
   const th = (col: Coluna, children: ReactNode) => (
     <th key={col} aria-sort={ordem.col === col ? (ordem.asc ? 'ascending' : 'descending') : 'none'}>
       <button type="button" className="th-ord" onClick={() => ordena(col)}>{children}<span aria-hidden="true">{ordem.col === col ? (ordem.asc ? ' ▲' : ' ▼') : ''}</span></button>
     </th>
   );
-  const aparecem = paginar ? limite : tabela.length;
+  const nPaginas = Math.max(1, Math.ceil(tabela.length / POR_PAGINA));
+  const pg = Math.min(pagina, nPaginas - 1);
+  const daPagina = tabela.slice(pg * POR_PAGINA, (pg + 1) * POR_PAGINA);
   const atual = (todos ?? []).find((e) => e.s === sel);
   const meuSq = (D.tse as { sq?: string }).sq;
   const relDe = (e: Eleito) => ({ nome: e.u, partido: e.p, cargo: cargoDe(e), uf: e.uf, votos: e.v || undefined });
-
-  const g = semAcento(global);
-  const achados = g.length < 2 ? [] : (todos ?? []).filter((e) => semAcento(e.u).includes(g) || semAcento(e.c).includes(g)).slice(0, 8);
-  const vaiPara = (e: Eleito) => {
-    setCasaL(CASA_K[e.k]); D.casaSel = CASA_K[e.k];
-    setEscopoL(e.uf); D.escopoSel = e.uf; salva();
-    setFl(vazio()); setSel(e.s); setGlobal(''); setBusca('');
-    setTimeout(() => fichaRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 50);
-  };
 
   const parceiros = visiveis.filter((e) => statusDe(e.s) === 'aliado').length;
   const concorrentes = visiveis.filter((e) => statusDe(e.s) === 'concorrente').length;
@@ -205,22 +196,6 @@ export default function Assentos() {
   return (
     <div className="ilha-corpo ass">
       <h4>Parlamentares eleitos · {nomeEscopo} · {rotuloCasa(casa, escopo)}</h4>
-
-      <div className="ass-busca">
-        <label className="rot" htmlFor="ass-global">Procurar qualquer parlamentar eleito no Brasil</label>
-        <input id="ass-global" type="search" autoComplete="off" value={global} onChange={(e) => setGlobal(e.target.value)}
-          placeholder="Digite o nome (ex.: Erika, Tabata, Nikolas…)" />
-        {achados.length > 0 && (
-          <div className="sugestoes" role="listbox">
-            {achados.map((e) => (
-              <button key={e.s} type="button" role="option" aria-selected={false} onClick={() => vaiPara(e)}>
-                <strong>{e.u}</strong> · {e.p} · {cargoDe(e)} · {e.uf}
-              </button>
-            ))}
-          </div>
-        )}
-        {g.length >= 2 && achados.length === 0 && !carregando && <p className="peq-t">Nenhum parlamentar eleito com esse nome.</p>}
-      </div>
 
       <div className="abas" role="tablist">
         {(['estadual', 'federal', 'senado'] as CasaChave[]).map((c) => {
@@ -273,7 +248,7 @@ export default function Assentos() {
                     </Ck>))}
                 </div>
               </Menu>
-              {filtrando && <button type="button" className="link-bt" onClick={() => { setFl(vazio()); setLimite(40); }}>Limpar tudo</button>}
+              {filtrando && <button type="button" className="link-bt" onClick={() => { setFl(vazio()); setPagina(0); }}>Limpar tudo</button>}
             </div>
             {filtrando && (
               <div className="ativos" aria-label="Filtros ativos">
@@ -384,13 +359,13 @@ export default function Assentos() {
 
           <section className="ass-main ass-tabela">
             <div className="ilha-filtros">
-              <input type="search" value={busca} onChange={(e) => { setBusca(e.target.value); setLimite(40); }} placeholder={`Buscar nesta lista (${nomeEscopo})`} aria-label="Buscar nesta lista" />
+              <input type="search" value={busca} onChange={(e) => { setBusca(e.target.value); setPagina(0); }} placeholder={`Buscar nesta lista (${nomeEscopo})`} aria-label="Buscar nesta lista" />
             </div>
             <div className="rolar">
               <table className="tb">
                 <thead><tr>{th('nome', 'Parlamentar')}{th('partido', 'Partido')}{escopo === 'BR' && th('uf', 'UF')}<th>Perfil</th>{th('votos', 'Votos')}{th('relacao', 'Relação')}</tr></thead>
                 <tbody>
-                  {tabela.slice(0, aparecem).map((e) => {
+                  {daPagina.map((e) => {
                     const st: Status = statusDe(e.s);
                     return (
                       <tr key={e.s} className={sel === e.s ? 'sel' : ''} onClick={() => setSel(e.s)}>
@@ -409,10 +384,12 @@ export default function Assentos() {
               </table>
               {tabela.length === 0 && <p className="sem">Nenhum parlamentar com esses filtros.</p>}
             </div>
-            {tabela.length > aparecem && (
-              <button type="button" className="bt fant peq" style={{ marginTop: 10 }} onClick={() => setLimite(limite + 80)}>
-                Mostrar mais ({nf.format(tabela.length - aparecem)} restantes)
-              </button>
+            {tabela.length > POR_PAGINA && (
+              <nav className="paginacao" aria-label="Paginação da tabela">
+                <button type="button" className="bt fant peq" disabled={pg === 0} onClick={() => setPagina(pg - 1)}>‹ Anterior</button>
+                <span className="peq-t" aria-live="polite">Página {nf.format(pg + 1)} de {nf.format(nPaginas)} · {nf.format(tabela.length)} parlamentares</span>
+                <button type="button" className="bt fant peq" disabled={pg >= nPaginas - 1} onClick={() => setPagina(pg + 1)}>Próxima ›</button>
+              </nav>
             )}
           </section>
         </>

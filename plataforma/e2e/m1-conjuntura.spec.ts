@@ -74,29 +74,22 @@ test.describe('Conjuntura do partido · só a pergunta abrangente (SUG-20)', () 
   });
 });
 
-test.describe('Conjuntura · tabela de eleitos completa (SUG-18)', () => {
+test.describe('Conjuntura · tabela de eleitos paginada (sugestão 92)', () => {
   const linhas = (page: Page) => page.locator('[data-ilha="assentos"] table.tb tbody tr');
-  const total = async (page: Page) => Number((await page.locator('[data-ilha="assentos"] .kp b').first().innerText()).replace(/\D/g, ''));
 
-  test('com um estado selecionado mostra todas as linhas, sem rolagem vertical nem horizontal na tabela', async ({ page }) => {
+  test('mostra 15 linhas por página e navega com Anterior/Próxima', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO });
-    await expect.poll(() => linhas(page).count(), { timeout: 30_000 }).toBeGreaterThan(40);
-    expect(await linhas(page).count()).toBe(await total(page));
-    await expect(page.getByRole('button', { name: /Mostrar mais/ })).toHaveCount(0);
-    const rolagem = await page.locator('[data-ilha="assentos"] .rolar').evaluate((el) => ({
-      v: el.scrollHeight - el.clientHeight, h: el.scrollWidth - el.clientWidth, estilo: getComputedStyle(el).maxHeight,
-    }));
-    expect(rolagem.estilo).toBe('none');
-    expect(rolagem.v).toBeLessThanOrEqual(1);
-    expect(rolagem.h).toBeLessThanOrEqual(1);
+    await expect.poll(() => linhas(page).count(), { timeout: 30_000 }).toBe(15);
+    await expect(page.getByText(/Página 1 de/)).toBeVisible();
+    await expect(page.getByRole('button', { name: /Anterior/ })).toBeDisabled();
+    await page.getByRole('button', { name: /Próxima/ }).click();
+    await expect(page.getByText(/Página 2 de/)).toBeVisible();
   });
 
-  test('no Brasil inteiro continua paginando com "Mostrar mais"', async ({ page }) => {
+  test('a busca global de parlamentares foi removida', async ({ page }) => {
     await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO });
-    await expect.poll(() => linhas(page).count(), { timeout: 30_000 }).toBeGreaterThan(40);
-    await page.getByRole('button', { name: 'Brasil inteiro' }).click();
-    await expect(page.getByRole('button', { name: /Mostrar mais/ })).toBeVisible();
-    expect(await linhas(page).count()).toBeLessThan(await total(page));
+    await expect.poll(() => linhas(page).count(), { timeout: 30_000 }).toBeGreaterThan(0);
+    await expect(page.getByText('Procurar qualquer parlamentar eleito no Brasil')).toHaveCount(0);
   });
 });
