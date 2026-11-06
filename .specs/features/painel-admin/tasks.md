@@ -639,7 +639,7 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Cobre (adiado: "escrita de leitura recusada com 403 mostra o aviso" e os seletores de papel desabilitados só podem ser exercidos quando houver botão de escrita e seletor de papel, nas telas das T23 e T26; aqui há asserção de que nenhum botão de alteração nem seletor de papel habilitado existe para leitura): sem sessão (entrada, nenhuma chamada de mandatos); conta fora da equipe ("Sem acesso"); leitura (nenhum botão de alteração, seletores desabilitados); admin; abre em Mandatos; 401 volta à entrada; token vencido é renovado; escrita de leitura recusada com 403 mostra o aviso
+- [x] Cobre (adiado e coberto na T23 em `e2e/admin-equipe.spec.ts`: "escrita recusada com 403 mostra o aviso" e seletores de papel desabilitados para leitura; "escrita de leitura recusada com 403 mostra o aviso" e os seletores de papel desabilitados só podem ser exercidos quando houver botão de escrita e seletor de papel, nas telas das T23 e T26; aqui há asserção de que nenhum botão de alteração nem seletor de papel habilitado existe para leitura): sem sessão (entrada, nenhuma chamada de mandatos); conta fora da equipe ("Sem acesso"); leitura (nenhum botão de alteração, seletores desabilitados); admin; abre em Mandatos; 401 volta à entrada; token vencido é renovado; escrita de leitura recusada com 403 mostra o aviso
 - [x] ≥ 8 testes passam
 
 **Tests**: e2e
@@ -689,12 +689,12 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Lista nome, e-mail, papel e entrada em ordem crescente, para admin e leitura
-- [ ] Admin: incluir (busca por e-mail, mensagens de sem conta, já na equipe e e-mail inválido), trocar papel e remover com confirmação; leitura vê a lista sem botões
-- [ ] Mensagens "A equipe precisa ter ao menos um admin." e "Pessoa não encontrada." exibidas como vêm do banco
-- [ ] Spec `e2e/admin-equipe.spec.ts` criado nesta task
-- [ ] Cobre: incluir ok; e-mail sem conta; já na equipe; e-mail inválido sem chamada ao banco; trocar papel; remover com confirmação; último admin recusado; duplo clique envia uma vez; leitura sem botões
-- [ ] ≥ 9 testes passam
+- [x] Lista nome, e-mail, papel e entrada em ordem crescente, para admin e leitura
+- [x] Admin: incluir (busca por e-mail, mensagens de sem conta, já na equipe e e-mail inválido), trocar papel e remover com confirmação; leitura vê a lista sem botões
+- [x] Mensagens "A equipe precisa ter ao menos um admin." e "Pessoa não encontrada." exibidas como vêm do banco
+- [x] Spec `e2e/admin-equipe.spec.ts` criado nesta task
+- [x] Cobre: incluir ok; e-mail sem conta; já na equipe; e-mail inválido sem chamada ao banco; trocar papel; remover com confirmação; último admin recusado; duplo clique envia uma vez; leitura sem botões
+- [x] ≥ 9 testes passam
 
 **Tests**: e2e
 **Gate**: full

@@ -9,7 +9,8 @@ import {
 } from '../../../lib/admin/sessao.ts';
 
 export type Papel = 'admin' | 'leitura';
-export interface ContextoAdmin { api: Api; papel: Papel; nome: string; sair: () => void }
+// usuarioId: quem está logado (as telas marcam "você" e recarregam se a pessoa mudar o próprio papel).
+export interface ContextoAdmin { api: Api; papel: Papel; nome: string; usuarioId: string; sair: () => void }
 
 const Contexto = createContext<ContextoAdmin | null>(null);
 export function useAdmin(): ContextoAdmin {
@@ -94,7 +95,7 @@ export default function Sessao({ children }: { children: React.ReactNode }) {
       const linhas = await api.ler<{ papel: Papel; nome: string | null }[]>(`equipe_legisla?select=papel,nome&user_id=eq.${u.id}`);
       if (!linhas.length) { setEstado({ tipo: 'semAcesso', email: u.email }); return; }
       const sair = () => voltaEntrada();
-      setEstado({ tipo: 'ok', ctx: { api, papel: linhas[0].papel, nome: linhas[0].nome || u.email, sair } });
+      setEstado({ tipo: 'ok', ctx: { api, papel: linhas[0].papel, nome: linhas[0].nome || u.email, usuarioId: u.id, sair } });
     } catch (e) {
       // se o 401 já levou à entrada dentro do wrapper, não sobrescreve; aqui sobram rede e 5xx
       if (e instanceof ErroApi && e.status === 401) return voltaEntrada(SESSAO_VENCIDA);
