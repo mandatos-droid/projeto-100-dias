@@ -852,12 +852,12 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Atividade: 50 por página, mais recente primeiro, "texto oculto" e "—" sem missão; lê só `v_admin_atividade`
-- [ ] Ações da equipe: 50 por página, data e hora no fuso de Brasília, quem fez e descrição
-- [ ] Sistema: links "Abrir logs na Vercel" e "Abrir logs no Supabase" com `target="_blank"` e `rel="noopener noreferrer"`; os dois endereços conferidos e registrados nesta task
-- [ ] Spec `e2e/admin-logs.spec.ts` criado nesta task
-- [ ] Cobre: ordem e paginação de 50; "texto oculto"; evento sem missão; fuso de Brasília; links externos com `rel`; leitura enxerga as três abas; `vazou()` vazio
-- [ ] ≥ 7 testes passam
+- [x] Atividade: 50 por página, mais recente primeiro, "texto oculto" e "—" sem missão; lê só `v_admin_atividade`
+- [x] Ações da equipe: 50 por página, data e hora no fuso de Brasília, quem fez e descrição
+- [x] Sistema: links "Abrir logs na Vercel" e "Abrir logs no Supabase" com `target="_blank"` e `rel="noopener noreferrer"`; os dois endereços conferidos e registrados nesta task. Vercel: `https://vercel.com/legisla/projeto-100-dias/logs` (padrão `/[team]/[project]/logs` na documentação oficial, vercel.com/docs/logs/runtime). Supabase: a documentação oficial linka `/dashboard/project/<ref>/logs`, e `/logs/explorer` não aparece lá, então a tela usa `https://supabase.com/dashboard/project/fldmekrexvzchynnmeuq/logs`
+- [x] Spec `e2e/admin-logs.spec.ts` criado nesta task
+- [x] Cobre: ordem e paginação de 50; "texto oculto"; evento sem missão; fuso de Brasília; links externos com `rel`; leitura enxerga as três abas; `vazou()` vazio
+- [x] ≥ 7 testes passam (12 e2e)
 
 **Tests**: e2e
 **Gate**: full

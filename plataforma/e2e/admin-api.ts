@@ -88,6 +88,23 @@ export async function semeiaSessao(page: Page, papel: Papel | 'fora', opcoes: { 
 const papelDoToken = (token: string) => (/-(admin|leitura|fora)$/.exec(token)?.[1] ?? 'fora') as Papel | 'fora';
 const tokenVale = (token: string) => /^tok(-novo)?-(admin|leitura|fora)$/.test(token);
 
+/** Aplica `order=col.desc,col2` do PostgREST (asc por padrão, nulos por último), para os specs provarem a ordem pedida. Sem `order`, mantém a lista. */
+function ordena(linhas: unknown[], order: string | null): unknown[] {
+  if (!order) return linhas;
+  const chaves = order.split(',').map((t) => { const [col, dir] = t.split('.'); return { col, desc: dir === 'desc' }; });
+  const valor = (l: unknown, c: string) => (l as Record<string, unknown>)[c];
+  return [...linhas].sort((a, b) => {
+    for (const { col, desc } of chaves) {
+      const x = valor(a, col), y = valor(b, col);
+      if (x === y) continue;
+      if (x == null) return 1;
+      if (y == null) return -1;
+      return (x < y ? -1 : 1) * (desc ? -1 : 1);
+    }
+    return 0;
+  });
+}
+
 /** Intercepta o Supabase e qualquer host externo. Chame antes de `page.goto`. */
 export async function moca(page: Page, estado: EstadoMoca = {}) {
   registro.chamadas = []; registro.naoMapeadas = []; registro.vazamentos = [];
@@ -170,7 +187,8 @@ export async function moca(page: Page, estado: EstadoMoca = {}) {
       // paginação do PostgREST (lerTudo e logs): sem limit/offset devolve a lista inteira, como antes
       const limite = u.searchParams.get('limit');
       const inicio = Number(u.searchParams.get('offset') ?? 0);
-      return responde(rota, 200, limite === null ? linhas : linhas.slice(inicio, inicio + Number(limite)), alvo);
+      const ordenadas = ordena(linhas, u.searchParams.get('order'));
+      return responde(rota, 200, limite === null ? ordenadas : ordenadas.slice(inicio, inicio + Number(limite)), alvo);
     }
     return naoMapeada();
   });
