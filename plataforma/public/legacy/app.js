@@ -106,8 +106,7 @@ var App={
        '<a class="it" href="#/biblioteca"><span class="nn">◆</span><span class="tx">Biblioteca</span></a>'+
        '<div class="nav-grupo">Mandato</div>'+
        '<a class="it" href="#/resumo"><span class="nn">◇</span><span class="tx">Resumo do preenchimento</span></a>'+
-       '<a class="it" href="#/equipe"><span class="nn">◇</span><span class="tx">Equipe e convites</span></a>'+
-       '<a class="it" href="#/config"><span class="nn">◇</span><span class="tx">Dados do mandato</span></a>';
+       '<a class="it" href="#/config"><span class="nn">◇</span><span class="tx">Configurações</span></a>';
     document.getElementById('ladoNav').innerHTML=h;
     document.getElementById('ladoQuem').textContent=Store.usuario.nome;
     document.getElementById('linkBiblio').href=BIBLIOTECA_URL;
@@ -191,7 +190,7 @@ painel(){
   }
 
   h+='<div class="linha100"><div class="cab">';
-  if(d===null)h+='<b>Sem data</b><span>Informe a data de posse em <a href="#/config">Dados do mandato</a> para acompanhar os prazos.</span>';
+  if(d===null)h+='<b>Sem data</b><span>Informe a data de posse em <a href="#/config">Configurações</a> para acompanhar os prazos.</span>';
   else if(d<1)h+='<b>Faltam '+Math.abs(d-1)+' dias</b><span>para a posse, em '+dBRc(posse())+'.</span>';
   else if(d>100)h+='<b>Dia '+d+'</b><span>os 100 primeiros dias terminaram em '+dBRc(somaDias(posse(),99))+'.</span>';
   else h+='<b>Dia '+d+' de 100</b><span>faltam '+(100-d)+' dias · '+g+'% dos exercícios concluídos</span>';

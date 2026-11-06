@@ -99,11 +99,11 @@ var Cad={
     t.className='tela largo';
     t.innerHTML=
       '<div class="etiqueta">'+(pri?'Primeiro acesso':novo?'Novo cadastro':'Mandato')+'</div>'+
-      '<h1 class="largo">'+(pri?'Vamos cadastrar o mandato':novo?'Cadastrar outro mandato':'Dados do mandato')+'</h1>'+
+      '<h1 class="largo">'+(pri?'Vamos cadastrar o mandato':novo?'Cadastrar outro mandato':'Configurações')+'</h1>'+
       '<p class="chamada">'+(pri
         ?'Este é o registro que organiza os 100 dias. São duas etapas rápidas: quem é o parlamentar e quem está fazendo o cadastro.'
         :novo?'Cadastre mais um parlamentar. Os mandatos que você já tem continuam na barra lateral, em Cadastros.'
-        :'Mantenha atualizado quem é o parlamentar e quem responde pelo preenchimento.')+'</p>'+
+        :'Dados do mandato, equipe e convites em um só lugar. Mantenha atualizado quem é o parlamentar e quem responde pelo preenchimento.')+'</p>'+
       (novo?this.blocoCodigo():'')+
       '<nav aria-label="Etapas do cadastro" id="cadSteps"></nav>'+
       '<div id="cadPasso"></div>'+
@@ -112,7 +112,7 @@ var Cad={
           ?'<a class="bt fant" href="#/" style="margin-left:-10px">Cancelar e voltar ao painel</a>'
           :(NUVEM?'<button type="button" class="bt fant" onclick="App.sair()">Sair da conta</button>'
             :(this.temMandatos()?'<button type="button" class="bt fant" onclick="App.sair()" style="margin-left:-10px">← Voltar à seleção de mandatos</button>':'')))+'</div>'
-        :'<hr class="regra"><h3>Seus dados</h3><p class="texto">'+(NUVEM?'Conta: '+esc((Store.usuario&&Store.usuario.email)||'')+'. ':'Os dados deste mandato ficam salvos apenas neste navegador. ')+
+        :'<hr class="regra">'+Telas.equipeHtml()+'<hr class="regra"><h3>Seus dados</h3><p class="texto">'+(NUVEM?'Conta: '+esc((Store.usuario&&Store.usuario.email)||'')+'. ':'Os dados deste mandato ficam salvos apenas neste navegador. ')+
           'Para solicitar acesso, correção, portabilidade ou eliminação dos seus dados, escreva para '+
           '<a href="mailto:contato@legislabrasil.org">contato@legislabrasil.org</a>.</p>'+
           '<hr class="regra"><h3>Excluir cadastro</h3><p class="texto">Apaga este mandato e tudo o que foi preenchido nele, para toda a equipe. Não dá para desfazer.</p>'+
@@ -700,13 +700,15 @@ Telas.primeiroAcesso=function(){
 
 /* ---------- Equipe e convites ---------- */
 var PAPEIS={coordenacao:'Coordenação',assessoria:'Assessoria'};
-Telas.equipe=function(){
+/* a antiga tela #/equipe agora é uma seção de Configurações (#/config) */
+Telas.equipe=function(){location.replace('#/config')};
+Telas.equipeHtml=function(){
   var m=Store.mandato||{},t=(window.D&&D.tse)||{};
   var cod=m.codigo||'';
   var par={sq:t.sq||'',nome:titulo(t.nome||m.nome_parlamentar||m.nome_civil||'Mandato'),uf:m.uf,ano:t.ano||2026};
   var membros=Store.membros||[];
-  var h='<div class="etiqueta">Mandato</div><h1>Equipe e convites</h1>'+
-    '<p class="chamada">Quem tiver o código entra no mesmo mandato e preenche junto.</p>'+
+  var h='<h2 class="cad-h3" style="margin-top:0">Equipe e convites</h2>'+
+    '<p class="texto">Quem tiver o código entra no mesmo mandato e preenche junto.</p>'+
     '<div class="eq-mandato"><span class="pc-foto pq">'+foto(par)+'</span><span><strong>'+esc(par.nome)+'</strong>'+
     (m.partido?' · '+esc(m.partido):'')+'<br><span class="pc-peq">'+esc([rotCargo(m.cargo,m.uf),m.uf,m.casa].filter(Boolean).join(' · '))+'</span></span></div>'+
     '<section class="eq-codigo" aria-labelledby="eqCodTit"><h2 id="eqCodTit" class="cad-h3">Código de convite</h2>'+
@@ -727,8 +729,7 @@ Telas.equipe=function(){
     }).join('')+'</ul>';
   }
   if(!NUVEM)h+='<div class="apoio atencao"><span class="tag">Modo local</span>O convite por código só funciona entre pessoas diferentes com o banco na nuvem configurado.</div>';
-  document.getElementById('tela').className='tela';
-  document.getElementById('tela').innerHTML=h;
+  return '<section id="cadEquipe" aria-label="Equipe e convites">'+h+'</section>';
 };
 window.Equipe={
   copiar:function(msg){
