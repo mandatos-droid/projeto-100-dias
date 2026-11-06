@@ -933,8 +933,8 @@ T36 → T37
 
 **Done when**:
 
-- [ ] `funcionalidadeDe(ilha)` devolve id estável ou `null`; `criaRegistrador(janelaMs = 60000)` grava a primeira abertura e ignora repetições do mesmo mandato e funcionalidade dentro de 60 s
-- [ ] `tests/uso.test.ts` ≥ 6 casos passam (59 s, 60 s, outro mandato, outra funcionalidade, ilha desconhecida, sem mandato)
+- [x] `funcionalidadeDe(ilha)` devolve id estável ou `null`; `criaRegistrador(janelaMs = 60000)` grava a primeira abertura e ignora repetições do mesmo mandato e funcionalidade dentro de 60 s
+- [x] `tests/uso.test.ts` ≥ 6 casos passam (59 s, 60 s, outro mandato, outra funcionalidade, ilha desconhecida, sem mandato)
 
 **Tests**: unit
 **Gate**: quick
