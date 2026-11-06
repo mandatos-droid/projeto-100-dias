@@ -454,8 +454,8 @@ T36 → T37
 
 **Done when**:
 
-- [ ] `usoPorFuncionalidade(campos)` devolve as 6 linhas da Fase 1 com mandatos que usaram; `aberturas` e `tendencia` ficam `null` sem registro de uso
-- [ ] `tests/admin-uso-funcionalidades.test.ts` ≥ 5 casos passam (zero mandatos, todos, um só, arquivado fora)
+- [x] `usoPorFuncionalidade(campos)` devolve as 6 linhas da Fase 1 com mandatos que usaram; `aberturas` e `tendencia` ficam `null` sem registro de uso
+- [x] `tests/admin-uso-funcionalidades.test.ts` ≥ 5 casos passam (zero mandatos, todos, um só, arquivado fora)
 
 **Tests**: unit
 **Gate**: quick

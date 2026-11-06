@@ -291,7 +291,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| ADM-01 | P1: Entrar no `/admin` e ter o papel respeitado (AC 1 a 5, tela de entrada e sessão) | Specify | Pending |
+| ADM-01 | P1: Entrar no `/admin` e ter o papel respeitado (AC 1 a 5, tela de entrada e sessão) | Specify | Implementing |
 | ADM-02 | P1: Entrar no `/admin` e ter o papel respeitado (AC 6 a 10, papéis e permissões no banco) | Specify | Implementing |
 | ADM-03 | P1: Gerir a equipe Legisla | Specify | Implementing |
 | ADM-04 | P1: Registrar toda ação administrativa em auditoria | Specify | Implementing |
