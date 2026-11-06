@@ -350,9 +350,9 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Envia `apikey` e `Authorization: Bearer <token>`; `rpc` faz POST em `/rest/v1/rpc/<nome>`
-- [ ] Lança `ErroApi {status, mensagem}` com a mensagem do corpo (`message`) quando existe
-- [ ] `tests/admin-api.test.ts` com `fetch` falso; ≥ 6 casos passam (cabeçalhos, corpo vazio 204, 401, 403, 500, rede)
+- [x] Envia `apikey` e `Authorization: Bearer <token>`; `rpc` faz POST em `/rest/v1/rpc/<nome>`
+- [x] Lança `ErroApi {status, mensagem}` com a mensagem do corpo (`message`) quando existe
+- [x] `tests/admin-api.test.ts` com `fetch` falso; ≥ 6 casos passam (cabeçalhos, corpo vazio 204, 401, 403, 500, rede)
 
 **Tests**: unit
 **Gate**: quick
