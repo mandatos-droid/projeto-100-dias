@@ -584,9 +584,9 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Exporta `semeiaSessao(page, papel)`, `moca(page, estado)` e `vazou(): string[]` (chaves `dados`, `texto`, `nome_civil`, `resp_telefone` em qualquer resposta)
-- [ ] Carrega o `nucleo.js` real; as chamadas ao Supabase nunca saem da máquina
-- [ ] Gate Build passa
+- [x] Exporta `semeiaSessao(page, papel)`, `moca(page, estado)` e `vazou(): string[]` (chaves `dados`, `texto`, `nome_civil`, `resp_telefone` em qualquer resposta)
+- [x] Carrega o `nucleo.js` real; as chamadas ao Supabase nunca saem da máquina
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
