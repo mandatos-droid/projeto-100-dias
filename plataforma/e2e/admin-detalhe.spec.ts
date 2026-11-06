@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { chamadas, esperaSemRpc, mandato, moca, naoMapeadas, semeiaSessao, vazou, type EstadoMoca, type Papel, type RespostaRpc } from './admin-api';
+import { chamadas, esperaSemRpc, mandato, moca, seguraRpc, naoMapeadas, semeiaSessao, vazou, type EstadoMoca, type Papel, type RespostaRpc } from './admin-api';
 
 /* Detalhe do mandato no /admin (ADM-06, ADM-07, ADM-08, ADM-16). Supabase todo interceptado (admin-api.ts); as funções
    admin_* respondem com o que o banco responderia, inclusive as mensagens de regra. */
@@ -279,12 +279,23 @@ test.describe('Arquivar e excluir (ADM-08)', () => {
     expect(banco.mandatos).toHaveLength(0);
   });
 
-  test('duplo clique em Excluir envia a ação uma só vez', async ({ page }) => {
-    await abre(page, criaBanco());
+  test('duplo clique em Excluir envia a ação uma só vez, com o botão desabilitado enquanto envia', async ({ page }) => {
+    const banco = criaBanco();
+    await abre(page, banco);
+    const gate = await seguraRpc(page, 'admin_mandato_excluir'); // a resposta fica presa: dá para olhar a tela com a chamada em curso
     await page.getByRole('button', { name: 'Excluir definitivamente…' }).click();
     const dlg = page.getByRole('dialog');
     await dlg.getByLabel(/Digite o código/).fill(CODIGO);
-    await dlg.getByRole('button', { name: 'Excluir definitivamente', exact: true }).dblclick();
+    const excluir = dlg.getByRole('button', { name: 'Excluir definitivamente', exact: true });
+    await excluir.dblclick();
+    await gate.noMeio;
+    await expect(excluir).toBeDisabled();
+    await expect(dlg.getByRole('button', { name: 'Cancelar' })).toBeDisabled();
+    // reenvio sem passar pelo botão, no mesmo instante: a trava síncrona tem de segurar
+    await dlg.getByLabel(/Digite o código/).evaluate((el) => { const f = (el as HTMLInputElement).form!; f.requestSubmit(); f.requestSubmit(); });
+    await page.waitForTimeout(400);
+    expect(gate.pedidos()).toBe(1);
+    gate.libera();
     await expect(page).toHaveURL(/\/admin$/);
     expect(chamou('admin_mandato_excluir')).toBe(1);
   });

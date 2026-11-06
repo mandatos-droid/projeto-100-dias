@@ -224,3 +224,21 @@ export async function moca(page: Page, estado: EstadoMoca = {}) {
     return naoMapeada();
   });
 }
+
+/** Segura a resposta de uma função (`rpc/<nome>`) até `libera()`, para os specs olharem a tela com a chamada em curso.
+ *  Chame DEPOIS de `moca` (a rota mais nova roda primeiro e repassa à da mocação com `fallback`).
+ *  `pedidos()` conta os POSTs que chegaram à função, soltos ou não: a mocação só os registra em `chamadas()` ao serem liberados. */
+export async function seguraRpc(page: Page, nome: string) {
+  let libera!: () => void;
+  const porta = new Promise<void>((r) => { libera = r; });
+  let chegou = 0;
+  let avisa!: () => void;
+  const noMeio = new Promise<void>((r) => { avisa = r; });
+  await page.route((u) => u.origin === ORIGEM && u.pathname === `/rest/v1/rpc/${nome}`, async (rota) => {
+    if (rota.request().method() !== 'POST') return rota.fallback();
+    chegou++; avisa();
+    await porta;
+    return rota.fallback();
+  });
+  return { libera, noMeio, pedidos: () => chegou };
+}

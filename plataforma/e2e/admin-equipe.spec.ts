@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { chamadas, esperaSemRpc, moca, naoMapeadas, semeiaSessao, vazou, type EstadoMoca, type Papel, type RespostaRpc } from './admin-api';
+import { chamadas, esperaSemRpc, moca, seguraRpc, naoMapeadas, semeiaSessao, vazou, type EstadoMoca, type Papel, type RespostaRpc } from './admin-api';
 
 /* Tela Equipe do /admin (ADM-03, ADM-16) e a cobertura adiada da T21 (403 de escrita e seletores desabilitados para leitura).
    Supabase todo interceptado (admin-api.ts); as funções admin_* respondem com o que o banco responderia. */
@@ -158,13 +158,23 @@ test.describe('Incluir pessoa (ADM-03.2 a 03.5)', () => {
     expect(await esperaSemRpc(page, 'admin_equipe_incluir', 0)).toEqual([]);
   });
 
-  test('duplo clique em Incluir envia a ação uma só vez', async ({ page }) => {
+  test('duplo clique em Incluir envia a ação uma só vez, com o botão desabilitado enquanto envia', async ({ page }) => {
     const banco = criaBanco();
     await abre(page, banco);
+    const gate = await seguraRpc(page, 'admin_equipe_incluir'); // a resposta fica presa: dá para olhar a tela com a chamada em curso
     await page.getByRole('button', { name: 'Incluir pessoa' }).click();
     const dlg = page.getByRole('dialog', { name: 'Incluir pessoa na equipe' });
     await dlg.getByLabel('E-mail da pessoa').fill('diego@exemplo.org');
-    await dlg.getByRole('button', { name: 'Incluir', exact: true }).dblclick();
+    const incluir = dlg.getByRole('button', { name: 'Incluir', exact: true });
+    await incluir.dblclick();
+    await gate.noMeio;
+    await expect(incluir).toBeDisabled();
+    await expect(dlg.getByRole('button', { name: 'Cancelar' })).toBeDisabled();
+    // reenvio sem passar pelo botão (Enter no campo, no mesmo instante): a trava síncrona tem de segurar
+    await dlg.getByLabel('E-mail da pessoa').evaluate((el) => { const f = (el as HTMLInputElement).form!; f.requestSubmit(); f.requestSubmit(); });
+    await page.waitForTimeout(400);
+    expect(gate.pedidos()).toBe(1);
+    gate.libera();
     await expect(linhas(page)).toHaveCount(4);
     expect(chamou('admin_equipe_incluir')).toBe(1);
     expect(chamou('admin_buscar_usuario')).toBe(1);
