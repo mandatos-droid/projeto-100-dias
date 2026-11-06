@@ -673,11 +673,11 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Todos os exercícios da missão em `feitos` devolvem "Concluída"; ao menos um e não todos, "Em andamento"; nenhum, "A fazer" (ACE-05.3)
-- [ ] Devolve as 5 missões na ordem do catálogo, mesmo com `feitos` vazio ou nulo
-- [ ] `feitos` com exercício de valor falso ou ausente não conta
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 6 testes em `tests/convites-missoes.test.ts`
+- [x] Todos os exercícios da missão em `feitos` devolvem "Concluída"; ao menos um e não todos, "Em andamento"; nenhum, "A fazer" (ACE-05.3)
+- [x] Devolve as 5 missões na ordem do catálogo, mesmo com `feitos` vazio ou nulo
+- [x] `feitos` com exercício de valor falso ou ausente não conta
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 6 testes em `tests/convites-missoes.test.ts`
 
 **Tests**: unit
 **Gate**: quick
