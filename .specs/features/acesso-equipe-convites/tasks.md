@@ -231,13 +231,13 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Membro sai por conta própria e vai embora de `membros` (ACE-03.9)
-- [ ] A última coordenação que tenta sair recebe a recusa da spec e continua no mandato (ACE-03.7, borda "último coordenador sai")
-- [ ] `delete from membros` direto por `authenticated` falha por falta de permissão (ACE-03.7, risco do design)
-- [ ] `excluir_meus_dados()` ainda remove a pessoa (teste de regressão)
-- [ ] Linha `membro_saiu` gravada na mesma transação (ACE-06.2)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 5 testes novos em `tests/sql-membros.test.ts`, nenhum removido
+- [x] Membro sai por conta própria e vai embora de `membros` (ACE-03.9)
+- [x] A última coordenação que tenta sair recebe a recusa da spec e continua no mandato (ACE-03.7, borda "último coordenador sai")
+- [x] `delete from membros` direto por `authenticated` falha por falta de permissão (ACE-03.7, risco do design)
+- [x] `excluir_meus_dados()` ainda remove a pessoa (teste de regressão)
+- [x] Linha `membro_saiu` gravada na mesma transação (ACE-06.2)
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 5 testes novos em `tests/sql-membros.test.ts`, nenhum removido
 
 **Tests**: integration
 **Gate**: quick

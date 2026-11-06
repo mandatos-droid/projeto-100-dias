@@ -248,3 +248,72 @@ test('anon não executa membro_remover', async () => {
   await assert.rejects(remover(LEITOR), /permission denied/);
   assert.deepEqual(await papeisA(), ESTADO_INICIAL);
 });
+
+// ---------- T5: membro_sair e fim da exclusão direta ----------
+
+const sair = (mandato: string = IDS.mandatoA) => banco.query('select public.membro_sair($1)', [mandato]);
+
+test('membro sai por conta própria e deixa membros; coordenação sai quando há outra coordenação (ACE-03.9)', async () => {
+  await como(banco, ASSESSORIA);
+  await sair();
+  assert.deepEqual(await papeisA(), { [IDS.membro]: 'coordenacao', [LEITOR]: 'leitura' });
+  await como(banco, ASSESSORIA);
+  assert.deepEqual(await q('select id from public.mandatos'), []);
+  await comoDono(banco);
+  await banco.query(`update public.membros set papel = 'coordenacao' where user_id = $1`, [LEITOR]);
+  await como(banco, IDS.membro);
+  await sair();
+  assert.deepEqual(await papeisA(), { [LEITOR]: 'coordenacao' });
+});
+
+test('a última coordenação que tenta sair recebe a recusa da spec e continua no mandato (ACE-03.7, borda)', async () => {
+  await como(banco, IDS.membro);
+  await assert.rejects(sair(), ULTIMA_COORDENACAO);
+  assert.deepEqual(await papeisA(), ESTADO_INICIAL);
+  assert.deepEqual(await historico(), []);
+});
+
+test('delete direto em membros falha por falta de permissão, inclusive da própria linha (ACE-03.7)', async () => {
+  for (const quem of [ASSESSORIA, IDS.membro]) {
+    await como(banco, quem);
+    await assert.rejects(banco.query('delete from public.membros where user_id = $1', [quem]), /permission denied/, quem);
+  }
+  await como(banco, IDS.membro);
+  await assert.rejects(banco.query('delete from public.membros where user_id = $1', [LEITOR]), /permission denied/);
+  assert.deepEqual(await papeisA(), ESTADO_INICIAL);
+});
+
+test('excluir_meus_dados() ainda tira a pessoa de membros (regressão)', async () => {
+  await como(banco, LEITOR);
+  await banco.query('select public.excluir_meus_dados()');
+  assert.deepEqual(await papeisA(), { [IDS.membro]: 'coordenacao', [ASSESSORIA]: 'assessoria' });
+});
+
+test('sair grava membro_saiu com a própria pessoa como ator e alvo, e nenhuma linha em eventos (ACE-06.2, ACE-06.5)', async () => {
+  await como(banco, ASSESSORIA);
+  await sair();
+  await como(banco, IDS.fora);
+  await assert.rejects(sair(), SEM_PERMISSAO);
+  assert.deepEqual(await historico(), [{
+    mandato_id: IDS.mandatoA, ator_id: ASSESSORIA, ator_nome: 'Alice Assessoria', tipo: 'membro_saiu',
+    alvo_id: ASSESSORIA, alvo_nome: 'Alice Assessoria', papel: 'assessoria',
+  }]);
+  assert.equal((await totais()).eventos, 0);
+});
+
+test('se a gravação do histórico falhar, a saída é desfeita (ACE-06.2, ACE-06.3)', async () => {
+  await quebraHistorico();
+  await como(banco, ASSESSORIA);
+  await assert.rejects(sair(), /histórico indisponível/);
+  assert.deepEqual(await papeisA(), ESTADO_INICIAL);
+});
+
+test('membro_sair trava as linhas do mandato antes de contar coordenações, e anon não executa (ACE-03.8)', async () => {
+  await comoDono(banco);
+  const [{ src }] = await q<{ src: string }>(`select prosrc src from pg_proc where proname = 'membro_sair'`);
+  const trava = src.search(/from public\.membros b where b\.mandato_id = p_mandato for update/);
+  assert.ok(trava >= 0 && trava < src.indexOf('papel_no_mandato') && trava < src.indexOf("b.papel = 'coordenacao'"), 'trava antes de ler papel e contar');
+  await como(banco, null);
+  await assert.rejects(sair(), /permission denied/);
+  assert.deepEqual(await papeisA(), ESTADO_INICIAL);
+});

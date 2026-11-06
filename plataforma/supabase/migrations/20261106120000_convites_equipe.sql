@@ -161,3 +161,34 @@ $$;
 
 revoke execute on function public.membro_remover(uuid, uuid) from public, anon;
 grant  execute on function public.membro_remover(uuid, uuid) to authenticated;
+
+-- A própria pessoa sai do mandato, desde que não seja a última coordenação.
+create or replace function public.membro_sair(p_mandato uuid)
+returns void language plpgsql security definer set search_path = '' as $$
+declare
+  v_uid uuid := (select auth.uid());
+  v_papel text;
+begin
+  perform 1 from public.membros b where b.mandato_id = p_mandato for update;
+  v_papel := private.papel_no_mandato(p_mandato);
+  if v_papel is null then
+    raise exception 'Você não tem permissão para esta ação.' using errcode = '42501';
+  end if;
+  if v_papel = 'coordenacao'
+     and not exists (select 1 from public.membros b
+                     where b.mandato_id = p_mandato and b.papel = 'coordenacao' and b.user_id <> v_uid) then
+    raise exception 'O mandato precisa ter ao menos uma pessoa na coordenação.';
+  end if;
+
+  perform private.evento_equipe(p_mandato, 'membro_saiu', v_uid, private.nome_pessoa(p_mandato, v_uid), v_papel);
+  delete from public.membros where mandato_id = p_mandato and user_id = v_uid;
+end;
+$$;
+
+revoke execute on function public.membro_sair(uuid) from public, anon;
+grant  execute on function public.membro_sair(uuid) to authenticated;
+
+-- Sem exclusão direta em membros: sair passa por membro_sair, que respeita a regra da coordenação.
+-- excluir_meus_dados() segue apagando por ser security definer.
+drop policy if exists membros_sair on public.membros;
+revoke delete on public.membros from authenticated;
