@@ -880,14 +880,14 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Sem sessão mostra "Entre para continuar" com botão para `/guia`
-- [ ] Com 2 ou mais mandatos mostra o seletor no topo e trocar o mandato troca a página (ACE-05.7)
-- [ ] Com 1 mandato não mostra o seletor (ACE-05.8)
-- [ ] Com nenhum mandato mostra "Você ainda não está em nenhum mandato" com "Cadastrar um mandato" (abre `/guia`) e "Tenho um link de convite" (abre `/convite`) (ACE-05.9)
-- [ ] O papel do mandato ativo fica disponível aos filhos
-- [ ] Toda requisição ao Supabase interceptada; layout sem rolagem horizontal em 400 px
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/mandato-casca.spec.ts`
-- [ ] Test count: ao menos 7 testes em `e2e/mandato-casca.spec.ts`
+- [x] Sem sessão mostra "Entre para continuar" com botão para `/guia`
+- [x] Com 2 ou mais mandatos mostra o seletor no topo e trocar o mandato troca a página (ACE-05.7)
+- [x] Com 1 mandato não mostra o seletor (ACE-05.8)
+- [x] Com nenhum mandato mostra "Você ainda não está em nenhum mandato" com "Cadastrar um mandato" (abre `/guia`) e "Tenho um link de convite" (abre `/convite`) (ACE-05.9)
+- [x] O papel do mandato ativo fica disponível aos filhos
+- [x] Toda requisição ao Supabase interceptada; layout sem rolagem horizontal em 400 px
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/mandato-casca.spec.ts`
+- [x] Test count: ao menos 7 testes em `e2e/mandato-casca.spec.ts`
 
 **Tests**: e2e
 **Gate**: full
