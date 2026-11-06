@@ -1057,15 +1057,15 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Mostra nome, e-mail e papel de cada pessoa e "você" na própria linha (ACE-04.6)
-- [ ] Coordenação vê seletor e "Remover" nas linhas das outras pessoas; assessoria e leitura veem o papel como texto (ACE-04.7, ACE-04.8)
-- [ ] Trocar papel e remover atualizam a lista sem recarregar, e remover pede confirmação na própria tela (ACE-04.10)
-- [ ] A recusa "O mandato precisa ter ao menos uma pessoa na coordenação." aparece e a lista não muda (ACE-03.7)
-- [ ] Mostra "A equipe da Legisla acompanha este mandato, conforme o cadastro." (ACE-04.12)
-- [ ] Ordem da tela: formulário, convites pendentes, pessoas (ACE-04.1)
-- [ ] Sem rolagem horizontal em 400 px (ACE-04.13)
-- [ ] Gate check passes (Build, última task da fase): `npx tsc --noEmit`, `npm test`, `npx playwright test e2e/convite-*.spec.ts e2e/mandato-*.spec.ts`
-- [ ] Test count: ao menos 8 testes novos em `e2e/mandato-equipe.spec.ts`, nenhum removido
+- [x] Mostra nome, e-mail e papel de cada pessoa e "você" na própria linha (ACE-04.6)
+- [x] Coordenação vê seletor e "Remover" nas linhas das outras pessoas; assessoria e leitura veem o papel como texto (ACE-04.7, ACE-04.8)
+- [x] Trocar papel e remover atualizam a lista sem recarregar, e remover pede confirmação na própria tela (ACE-04.10)
+- [x] A recusa "O mandato precisa ter ao menos uma pessoa na coordenação." aparece e a lista não muda (ACE-03.7)
+- [x] Mostra "A equipe da Legisla acompanha este mandato, conforme o cadastro." (ACE-04.12)
+- [x] Ordem da tela: formulário, convites pendentes, pessoas (ACE-04.1)
+- [x] Sem rolagem horizontal em 400 px (ACE-04.13)
+- [x] Gate check passes (Build, última task da fase): `npx tsc --noEmit`, `npm test`, `npx playwright test e2e/convite-*.spec.ts e2e/mandato-*.spec.ts`
+- [x] Test count: ao menos 8 testes novos em `e2e/mandato-equipe.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: build

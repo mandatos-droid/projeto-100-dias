@@ -400,3 +400,155 @@ test.describe('Convites pendentes (ACE-04.2, 04.3, 04.5, 04.10, 04.11)', () => {
     expect(sobra).toBeLessThanOrEqual(0);
   });
 });
+
+test.describe('Pessoas do mandato (ACE-04.1, 04.6 a 04.8, 04.10, 04.12, ACE-03.7)', () => {
+  const secao = (page: Page) => page.locator('.md-pessoas');
+  const linhas = (page: Page) => secao(page).locator('li');
+  const linhaDe = (page: Page, quem: string) => linhas(page).filter({ hasText: quem });
+  const marca = (page: Page) => page.evaluate(() => (window as unknown as { marca?: number }).marca);
+
+  const MARIA = pessoa('Mariana Rocha', 'coordenacao', 'mariana@gabinete.test', 'uid-mariana');
+  const JOAO = pessoa('João Pereira', 'assessoria', 'joao@gabinete.test', 'uid-joao');
+  const LUIZA = pessoa('Luiza Ferraz', 'leitura', 'luiza@gabinete.test', 'uid-luiza');
+  const EQUIPE = [MARIA, JOAO, LUIZA];
+
+  async function abrePessoas(page: Page, meuPapel: string, extra: NonNullable<EstadoMandato['rpc']> = {}, equipe = EQUIPE) {
+    await abre(page, { mandatos: [comPapel(meuPapel)], rpc: { equipe_do_mandato: () => ({ corpo: equipe }), ...extra } });
+    await expect(linhas(page)).toHaveCount(equipe.length);
+    await page.evaluate(() => { (window as unknown as { marca: number }).marca = 1; });
+  }
+
+  test('mostra nome, e-mail e papel de cada pessoa e marca "você" só na própria linha', async ({ page }) => {
+    await abrePessoas(page, 'coordenacao');
+    await expect(linhaDe(page, 'Mariana Rocha')).toContainText('mariana@gabinete.test');
+    await expect(linhaDe(page, 'Mariana Rocha').locator('.md-voce')).toHaveText('você');
+    await expect(linhaDe(page, 'Mariana Rocha').locator('.md-papel-txt')).toHaveText('Coordenação');
+    await expect(linhaDe(page, 'João Pereira')).toContainText('joao@gabinete.test');
+    await expect(linhaDe(page, 'João Pereira').locator('.md-voce')).toHaveCount(0);
+    await expect(linhaDe(page, 'João Pereira').getByLabel('Papel de João Pereira')).toHaveValue('assessoria');
+    await expect(linhaDe(page, 'Luiza Ferraz').getByLabel('Papel de Luiza Ferraz')).toHaveValue('leitura');
+    await expect(secao(page).locator('.md-pilula')).toHaveText('3');
+    expect(rpcs('equipe_do_mandato').map((c) => c.corpo)).toEqual([{ p_mandato: MANDATO_A }]);
+  });
+
+  test('coordenação vê seletor e "Remover" nas linhas das outras pessoas, e nenhum dos dois na própria', async ({ page }) => {
+    await abrePessoas(page, 'coordenacao');
+    const minha = linhaDe(page, 'Mariana Rocha');
+    await expect(minha.getByRole('combobox')).toHaveCount(0);
+    await expect(minha.getByRole('button')).toHaveCount(0);
+    for (const outra of ['João Pereira', 'Luiza Ferraz']) {
+      await expect(linhaDe(page, outra).getByRole('combobox')).toHaveCount(1);
+      await expect(linhaDe(page, outra).getByRole('combobox').locator('option')).toHaveText(['Coordenação', 'Assessoria', 'Somente leitura']);
+      await expect(linhaDe(page, outra).getByRole('button', { name: `Remover ${outra}` })).toHaveText('Remover');
+    }
+  });
+
+  for (const meuPapel of ['assessoria', 'leitura']) {
+    test(`quem é ${meuPapel} vê os papéis como texto, sem seletor e sem "Remover"`, async ({ page }) => {
+      await abrePessoas(page, meuPapel);
+      await expect(secao(page).getByRole('combobox')).toHaveCount(0);
+      await expect(secao(page).getByRole('button')).toHaveCount(0);
+      await expect(linhaDe(page, 'Mariana Rocha').locator('.md-papel-txt')).toHaveText('Coordenação');
+      await expect(linhaDe(page, 'João Pereira').locator('.md-papel-txt')).toHaveText('Assessoria');
+      await expect(linhaDe(page, 'Luiza Ferraz').locator('.md-papel-txt')).toHaveText('Somente leitura');
+    });
+  }
+
+  test('trocar o papel chama o banco e atualiza a lista sem recarregar a página', async ({ page }) => {
+    await abrePessoas(page, 'coordenacao', { membro_trocar_papel: () => ({}) });
+    await linhaDe(page, 'Luiza Ferraz').getByLabel('Papel de Luiza Ferraz').selectOption('coordenacao');
+    await expect.poll(() => rpcs('membro_trocar_papel').length).toBe(1);
+    expect(rpcs('membro_trocar_papel')[0].corpo).toEqual({ p_mandato: MANDATO_A, p_user: 'uid-luiza', p_papel: 'coordenacao' });
+    expect(rpcs('membro_trocar_papel')[0].token).toBe('tok-mariana');
+    await expect(linhaDe(page, 'Luiza Ferraz').getByLabel('Papel de Luiza Ferraz')).toHaveValue('coordenacao');
+    await expect(linhas(page)).toHaveCount(3);
+    expect(await marca(page)).toBe(1);
+    expect(rpcs('equipe_do_mandato')).toHaveLength(1); // a lista foi atualizada na tela, sem nova leitura
+  });
+
+  test('recusa ao trocar o papel mostra a mensagem do banco e a lista não muda', async ({ page }) => {
+    await abrePessoas(page, 'coordenacao', {
+      membro_trocar_papel: () => ({ status: 400, corpo: { message: 'O mandato precisa ter ao menos uma pessoa na coordenação.' } }),
+    });
+    await linhaDe(page, 'João Pereira').getByLabel('Papel de João Pereira').selectOption('leitura');
+    await expect(linhaDe(page, 'João Pereira').getByRole('alert')).toHaveText('O mandato precisa ter ao menos uma pessoa na coordenação.');
+    await expect(linhaDe(page, 'João Pereira').getByLabel('Papel de João Pereira')).toHaveValue('assessoria');
+    await expect(linhas(page)).toHaveCount(3);
+  });
+
+  test('sem permissão (papel mudou por fora) a troca mostra a mensagem de permissão e nada muda', async ({ page }) => {
+    await abrePessoas(page, 'coordenacao', {
+      membro_trocar_papel: () => ({ status: 403, corpo: { message: 'Você não tem permissão para esta ação.', code: '42501' } }),
+    });
+    await linhaDe(page, 'João Pereira').getByLabel('Papel de João Pereira').selectOption('coordenacao');
+    await expect(linhaDe(page, 'João Pereira').getByRole('alert')).toHaveText('Você não tem permissão para esta ação.');
+    await expect(linhaDe(page, 'João Pereira').getByLabel('Papel de João Pereira')).toHaveValue('assessoria');
+  });
+
+  test('"Remover" pede confirmação na própria tela; só confirmar chama o banco e tira a pessoa da lista', async ({ page }) => {
+    await abrePessoas(page, 'coordenacao', { membro_remover: () => ({}) });
+    await linhaDe(page, 'João Pereira').getByRole('button', { name: 'Remover João Pereira' }).click();
+    const confirma = linhaDe(page, 'João Pereira').getByRole('group', { name: 'Confirmar a remoção de João Pereira' });
+    await expect(confirma).toContainText('Remover João Pereira do mandato?');
+    await expect(confirma).toContainText('A conta dela continua na plataforma');
+    expect(rpcs('membro_remover')).toEqual([]);
+    // desistir não chama o banco e fecha a confirmação
+    await confirma.getByRole('button', { name: 'Não remover' }).click();
+    await expect(confirma).toHaveCount(0);
+    expect(rpcs('membro_remover')).toEqual([]);
+    // confirmar chama o banco e atualiza a lista, sem recarregar
+    await linhaDe(page, 'João Pereira').getByRole('button', { name: 'Remover João Pereira' }).click();
+    await confirma.getByRole('button', { name: 'Confirmar remoção' }).click();
+    await expect(linhas(page)).toHaveCount(2);
+    await expect(secao(page)).not.toContainText('João Pereira');
+    await expect(secao(page).locator('.md-pilula')).toHaveText('2');
+    expect(rpcs('membro_remover').map((c) => c.corpo)).toEqual([{ p_mandato: MANDATO_A, p_user: 'uid-joao' }]);
+    expect(await marca(page)).toBe(1);
+  });
+
+  test('recusa ao remover (última coordenação) mostra a mensagem exata e a lista não muda', async ({ page }) => {
+    await abrePessoas(page, 'coordenacao', {
+      membro_remover: () => ({ status: 400, corpo: { message: 'O mandato precisa ter ao menos uma pessoa na coordenação.' } }),
+    });
+    await linhaDe(page, 'Luiza Ferraz').getByRole('button', { name: 'Remover Luiza Ferraz' }).click();
+    await linhaDe(page, 'Luiza Ferraz').getByRole('button', { name: 'Confirmar remoção' }).click();
+    await expect(linhaDe(page, 'Luiza Ferraz').getByRole('alert')).toHaveText('O mandato precisa ter ao menos uma pessoa na coordenação.');
+    await expect(linhas(page)).toHaveCount(3);
+    await expect(secao(page).locator('.md-pilula')).toHaveText('3');
+    await expect(linhaDe(page, 'Luiza Ferraz').getByRole('button', { name: 'Remover Luiza Ferraz' })).toBeEnabled();
+  });
+
+  test('mostra "A equipe da Legisla acompanha este mandato, conforme o cadastro."', async ({ page }) => {
+    await abrePessoas(page, 'leitura');
+    await expect(secao(page)).toContainText('A equipe da Legisla acompanha este mandato, conforme o cadastro.');
+  });
+
+  test('a ordem da tela é formulário, convites pendentes e pessoas', async ({ page }) => {
+    await abrePessoas(page, 'coordenacao');
+    const titulos = await page.locator('.md-tela h2').allInnerTexts();
+    expect(titulos).toEqual(['Convidar uma pessoa', 'Convites pendentes', 'Pessoas neste mandato']);
+    const ys = await Promise.all(['.md-form', '.md-pendentes', '.md-pessoas'].map(async (s) => (await page.locator(s).boundingBox())!.y));
+    expect(ys[0]).toBeLessThan(ys[1]);
+    expect(ys[1]).toBeLessThan(ys[2]);
+  });
+
+  test('falha ao ler as pessoas mostra a mensagem e mantém a linha sobre a equipe da Legisla', async ({ page }) => {
+    await abre(page, { mandatos: [comPapel('coordenacao')], rpc: { equipe_do_mandato: () => ({ rede: true }) } });
+    await expect(secao(page).getByRole('alert')).toHaveText('Não foi possível concluir. Tente de novo.');
+    await expect(linhas(page)).toHaveCount(0);
+    await expect(secao(page)).toContainText('A equipe da Legisla acompanha este mandato');
+  });
+
+  test('em 400 px, com nomes e e-mails longos e os controles de coordenação, não há rolagem horizontal', async ({ page }) => {
+    await page.setViewportSize({ width: 400, height: 800 });
+    const longos = [
+      MARIA,
+      pessoa('Bartolomeu Nepomuceno de Albuquerque e Vasconcelos Filho', 'assessoria', 'bartolomeu.nepomuceno.de.albuquerque.vasconcelos.filho@gabinete-do-mandato.example.org', 'uid-barto'),
+    ];
+    await abrePessoas(page, 'coordenacao', {}, longos);
+    await linhaDe(page, 'Bartolomeu').getByRole('button', { name: /^Remover/ }).click();
+    await expect(linhaDe(page, 'Bartolomeu').getByRole('group')).toBeVisible();
+    const sobra = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(sobra).toBeLessThanOrEqual(0);
+  });
+});

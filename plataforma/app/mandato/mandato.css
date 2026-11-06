@@ -138,3 +138,15 @@
 .md-cresce > .md-mut { overflow-wrap: anywhere; }
 .md-bt--perigo { color: #B83636; border-color: var(--coral); }
 .md-linha-cheia { flex: 1 1 100%; }
+
+/* pessoas do mandato */
+.md-pessoas { display: flex; flex-direction: column; gap: 6px; }
+.md-pilula--neutra { border-color: var(--tinta-2); color: var(--tinta-2); }
+.md-voce {
+  display: inline-block; padding: 0 8px; border-radius: 999px; font-size: 12px; font-weight: 700;
+  border: 1.5px solid var(--tinta-2); color: var(--tinta-2);
+}
+.md-pessoas .md-cresce > span { overflow-wrap: anywhere; }
+.md-pessoas select { width: auto; max-width: 100%; padding: 6px 10px; font-size: 14px; }
+.md-papel-txt { font-size: 14px; font-weight: 600; }
+.md-confirma { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border: 1px solid var(--coral); border-radius: 8px; background: #FDF3F3; font-size: 14px; }

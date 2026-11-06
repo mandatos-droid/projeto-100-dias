@@ -6,11 +6,13 @@ import { mensagemDe } from '../../../lib/convites/erros.ts';
 import { useMandato } from '../contexto.ts';
 import FormularioConvite from './FormularioConvite.tsx';
 import ListaConvites from './ListaConvites.tsx';
+import ListaPessoas from './ListaPessoas.tsx';
 
 // Tela Equipe e convites: formulário, convites pendentes e pessoas, nesta ordem (ACE-04.1).
 export default function Equipe() {
   const { api, mandato, usuario } = useMandato();
   const [pessoas, setPessoas] = useState<PessoaEquipe[] | null>(null);
+  const [erroPessoas, setErroPessoas] = useState<string | null>(null);
   const [pendentes, setPendentes] = useState<ConvitePendente[] | null>(null);
   const [erroPendentes, setErroPendentes] = useState<string | null>(null);
   const leitura = useRef(0); // só a leitura mais recente vale: um convite gerado durante a carga inicial não some
@@ -28,8 +30,8 @@ export default function Equipe() {
   useEffect(() => {
     let vivo = true;
     equipeDoMandato(api, mandato.id).then(
-      (l) => { if (vivo) setPessoas(l); },
-      () => { /* sem a lista, a mensagem pronta usa um nome genérico para quem convida */ },
+      (l) => { if (vivo) { setPessoas(l); setErroPessoas(null); } },
+      (e) => { if (vivo) setErroPessoas(mensagemDe(e)); },
     );
     carregaPendentes();
     return () => { vivo = false; leitura.current++; };
@@ -48,6 +50,12 @@ export default function Equipe() {
         convites={pendentes}
         erro={erroPendentes}
         aoCancelar={(id) => { leitura.current++; setPendentes((l) => l && l.filter((c) => c.id !== id)); }}
+      />
+      <ListaPessoas
+        pessoas={pessoas}
+        erro={erroPessoas}
+        aoTrocar={(id, papel) => setPessoas((l) => l && l.map((p) => (p.user_id === id ? { ...p, papel } : p)))}
+        aoRemover={(id) => setPessoas((l) => l && l.filter((p) => p.user_id !== id))}
       />
     </>
   );
