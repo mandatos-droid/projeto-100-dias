@@ -797,7 +797,7 @@ function lerMandato(m){
   return {
     id:m.id, nome:m.nome_parlamentar||m.nome_civil||'(sem nome)',
     cargo:m.cargo||'', uf:m.uf||'', partido:m.partido||'', casa:m.casa||'',
-    posse:m.data_posse||null, resp:m.resp_nome||'', permite:!!m.permite_pesquisa,
+    posse:m.data_posse||null, resp:m.resp_nome||'',
     criado:m.criado_em||null, atualizado:m.atualizado_em||null, pessoas:0,
     prog:pct(feitosEx,totalEx), feitosEx:feitosEx, totalEx:totalEx, porMissao:porMissao,
     preditores:(d.preditores||[]).slice(),
@@ -1077,9 +1077,8 @@ var Painel={
     h+='<div class="nota"><span class="tag">Sobre privacidade</span>'+
       '<p>Este painel mostra apenas contagens e percentuais. O que os gabinetes escreveram (mapa político, legado, metas, '+
       'feedback de assessores) não é exibido aqui, mesmo quando está no banco.</p>'+
-      '<p>Para leitura de conteúdo é preciso autorização explícita do mandato, registrada no campo '+
-      '<code>permite_pesquisa</code>. Hoje '+L.filter(function(m){return m.permite}).length+' de '+L.length+
-      ' mandatos autorizaram.</p></div>';
+      '<p>Quem se cadastra consente que a equipe da Legisla acesse os dados do mandato. Por escolha desta tela, '+
+      'ela mostra só números.</p></div>';
 
     document.getElementById('painel').innerHTML=h;
   },
