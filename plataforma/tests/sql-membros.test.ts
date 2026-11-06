@@ -395,3 +395,47 @@ test('ninguém troca mandatos.criado_por pela API, nem a coordenação; o resto 
   await trocaCriador(ASSESSORIA);
   assert.equal(await criadoPor(), ASSESSORIA);
 });
+
+test('sonda S-3: quem criou o mandato e foi removido pela coordenação não se reinsere direto, com nenhum papel, e deixa de ver o mandato (ACE-03.5, ACE-03.6)', async () => {
+  // a coordenação passa a ser outra pessoa, que remove quem criou o mandato
+  await como(banco, IDS.membro);
+  await trocar(ASSESSORIA, 'coordenacao');
+  await como(banco, ASSESSORIA);
+  await remover(IDS.membro);
+  await como(banco, IDS.membro);
+  for (const papel of ['coordenacao', 'assessoria', 'leitura']) {
+    await assert.rejects(entraDireto(IDS.membro, papel), RLS, papel);
+  }
+  assert.deepEqual(await papeisA(), { [ASSESSORIA]: 'coordenacao', [LEITOR]: 'leitura' });
+  await como(banco, IDS.membro);
+  assert.deepEqual(await q('select id from public.mandatos'), []);
+});
+
+test('quem criou o mandato e saiu por conta própria também não volta direto (ACE-03.6)', async () => {
+  await comoDono(banco);
+  await banco.query(`update public.membros set papel = 'coordenacao' where user_id = $1`, [ASSESSORIA]);
+  await como(banco, IDS.membro);
+  await sair();
+  await como(banco, IDS.membro);
+  await assert.rejects(entraDireto(IDS.membro, 'coordenacao'), RLS);
+  assert.deepEqual(await papeisA(), { [ASSESSORIA]: 'coordenacao', [LEITOR]: 'leitura' });
+});
+
+test('cadastro novo, como o Guia faz: quem criou lê o mandato no RETURNING e entra direto só como a primeira pessoa, na coordenação (ACE-07.3)', async () => {
+  await como(banco, IDS.fora);
+  const [{ id }] = await q<{ id: string }>(
+    `insert into public.mandatos (codigo, nome_parlamentar, cargo, uf, criado_por) values ('CCC333', 'Parlamentar Três', 'Vereadora', 'RJ', $1)
+     returning id`, [IDS.fora]);
+  // a primeira linha precisa ser de coordenação
+  for (const papel of ['assessoria', 'leitura']) {
+    await assert.rejects(entraDireto(IDS.fora, papel, id), RLS, papel);
+  }
+  // outra conta não entra direto no mandato alheio, mesmo vazio
+  await como(banco, ASSESSORIA);
+  await assert.rejects(entraDireto(ASSESSORIA, 'coordenacao', id), RLS);
+  await como(banco, IDS.fora);
+  await entraDireto(IDS.fora, 'coordenacao', id);
+  assert.deepEqual(await q('select id from public.mandatos'), [{ id }]);
+  await comoDono(banco);
+  assert.deepEqual(await q('select user_id, papel from public.membros where mandato_id = $1', [id]), [{ user_id: IDS.fora, papel: 'coordenacao' }]);
+});
