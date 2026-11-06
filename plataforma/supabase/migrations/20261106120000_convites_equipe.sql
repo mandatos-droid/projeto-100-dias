@@ -500,3 +500,8 @@ $$;
 
 revoke execute on function public.convite_aceitar(text, text) from public, anon;
 grant  execute on function public.convite_aceitar(text, text) to authenticated;
+
+-- ---------- CÓDIGO DE CONVITE ANTIGO ----------
+-- O link pessoal é o único caminho de entrada. A função fica sem execução pela API;
+-- mandatos.codigo segue como identificador interno (painel-admin busca mandatos por ele).
+revoke execute on function public.entrar_com_codigo(text, text) from public, anon, authenticated;

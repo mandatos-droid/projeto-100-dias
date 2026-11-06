@@ -474,12 +474,12 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Chamar `entrar_com_codigo` com código válido como `authenticated` falha por falta de permissão e ninguém entra no mandato (ACE-07.1)
-- [ ] Cadastrar mandato novo continua inserindo a pessoa como `coordenacao` (ACE-07.3)
-- [ ] A coluna `mandatos.codigo` continua existindo e legível pelas views do `painel-admin` (ACE-07.5)
-- [ ] Todas as migrations rodam em sequência no PGlite sem erro
-- [ ] Gate check passes (Build, última task da fase): `npx tsc --noEmit`, `npm test`
-- [ ] Test count: ao menos 3 testes novos em `tests/sql-convites.test.ts`, nenhum removido
+- [x] Chamar `entrar_com_codigo` com código válido como `authenticated` falha por falta de permissão e ninguém entra no mandato (ACE-07.1)
+- [x] Cadastrar mandato novo continua inserindo a pessoa como `coordenacao` (ACE-07.3)
+- [x] A coluna `mandatos.codigo` continua existindo e legível pelas views do `painel-admin` (ACE-07.5)
+- [x] Todas as migrations rodam em sequência no PGlite sem erro
+- [x] Gate check passes (Build, última task da fase): `npx tsc --noEmit`, `npm test`
+- [x] Test count: ao menos 3 testes novos em `tests/sql-convites.test.ts`, nenhum removido
 
 **Tests**: integration
 **Gate**: build

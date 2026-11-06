@@ -849,3 +849,56 @@ test('aceite sem sessão (anon) é recusado e nada muda', async () => {
   assert.deepEqual(await membrosDe(), MEMBROS_A);
   assert.deepEqual(await estadoDo('token-bom'), NAO_USADO);
 });
+
+// ---------- T13: código de convite antigo aposentado ----------
+
+test('entrar_com_codigo com código válido falha por falta de permissão para authenticated e anon, e ninguém entra (ACE-07.1)', async () => {
+  for (const quem of [IDS.fora, COORD_B, null]) {
+    await como(banco, quem);
+    await assert.rejects(banco.query(`select public.entrar_com_codigo('AAA111', 'Quem tentou')`), NEGADO, String(quem));
+  }
+  assert.deepEqual(await membrosDe(), MEMBROS_A);
+  await comoDono(banco);
+  assert.deepEqual(await q(
+    `select has_function_privilege('anon', 'public.entrar_com_codigo(text, text)', 'execute') anon,
+            has_function_privilege('authenticated', 'public.entrar_com_codigo(text, text)', 'execute') authenticated`),
+  [{ anon: false, authenticated: false }]);
+});
+
+test('cadastrar mandato novo, como o Guia faz, continua incluindo a pessoa como coordenação (ACE-07.3)', async () => {
+  // nucleo.js criarMandato: POST mandatos com criado_por e return=representation, depois POST membros como coordenacao
+  await como(banco, IDS.fora);
+  const [{ id }] = await q<{ id: string }>(
+    `insert into public.mandatos (codigo, nome_parlamentar, cargo, uf, criado_por) values ('CCC333', 'Parlamentar Três', 'Vereadora', 'RJ', $1)
+     returning id`, [IDS.fora]);
+  await banco.query(`insert into public.membros (mandato_id, user_id, papel, nome) values ($1, $2, 'coordenacao', 'Fabio Fora')`, [id, IDS.fora]);
+  assert.deepEqual(await membrosDe(id), { [IDS.fora]: 'Fabio Fora/coordenacao' });
+  await como(banco, IDS.fora);
+  assert.deepEqual(await q('select private.papel_no_mandato($1) p', [id]), [{ p: 'coordenacao' }]);
+});
+
+test('a coluna mandatos.codigo continua existindo e legível pelas views do painel-admin (ACE-07.5)', async () => {
+  await comoDono(banco);
+  assert.deepEqual(await q(
+    `select column_name from information_schema.columns where table_schema = 'public' and table_name = 'mandatos' and column_name = 'codigo'`),
+  [{ column_name: 'codigo' }]);
+  for (const quem of [IDS.admin, IDS.leitura]) {
+    await como(banco, quem);
+    assert.deepEqual((await q<{ codigo: string }>('select codigo from public.v_admin_mandatos order by codigo')).map((x) => x.codigo),
+      ['AAA111', 'BBB222'], quem);
+  }
+});
+
+test('todas as migrations rodam em sequência no PGlite e deixam no banco as funções e tabelas de convite', async () => {
+  // criaBanco (before) aplicou todas as migrations em ordem; aqui se confere o que a de convites criou
+  await comoDono(banco);
+  const funcoes = ['public.convite_criar(uuid,text,text,text)', 'public.convites_pendentes(uuid)', 'public.convite_cancelar(uuid)',
+    'public.convite_previa(text)', 'public.convite_aceitar(text,text)', 'public.catalogo_exercicios()', 'private.token_aleatorio()',
+    'private.convite_origem()', 'private.convite_limite(text)', 'private.convite_falha(text)', 'public.entrar_com_codigo(text,text)'];
+  const r = await q<{ f: string; existe: boolean }>('select f, to_regprocedure(f) is not null existe from unnest($1::text[]) f', [funcoes]);
+  assert.deepEqual(r.filter((x) => !x.existe).map((x) => x.f), []);
+  assert.equal(r.length, funcoes.length);
+  const t = await q<{ t: string | null }>(
+    `select to_regclass(t)::text t from unnest(array['public.convites', 'public.convite_tentativas', 'public.convite_bloqueios']) t`);
+  assert.deepEqual(t.map((x) => x.t), ['convites', 'convite_tentativas', 'convite_bloqueios']);
+});
