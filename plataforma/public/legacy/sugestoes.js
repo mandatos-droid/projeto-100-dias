@@ -432,9 +432,19 @@ var lateralOrig=App.lateral,roteadorOrig=App.rotear;
 App.lateral=function(){
   lateralOrig.call(this);
   Sug.montar();
+  var nav=document.getElementById('ladoNav');
+  /* a Biblioteca de Mandatos sai do rodapé e vai para o grupo Mandato, logo após o Resumo do preenchimento */
+  var resumo=nav.querySelector('a[href="#/resumo"]'),pe=document.getElementById('linkBiblio');
+  if(resumo&&pe){
+    resumo.insertAdjacentHTML('afterend','<a class="it" id="itemBiblioMandatos" href="'+pe.getAttribute('href')+'" target="_blank" rel="noopener">'+
+      '<span class="nn">◇</span><span class="tx">Biblioteca de Mandatos</span></a>');
+    pe.style.display='none';
+  }
   if(Sug.equipe===null){Sug.equipe=false;Sug.checarEquipe()}
   else if(Sug.equipe){
-    document.getElementById('ladoNav').insertAdjacentHTML('beforeend',Sug.item());
+    nav.insertAdjacentHTML('beforeend',Sug.item());
+    if(Sug.ehEquipe)nav.insertAdjacentHTML('beforeend','<div class="nav-grupo">Admin</div>'+
+      '<a class="it" id="itemPainelAdmin" href="/admin"><span class="nn">◇</span><span class="tx">Painel admin</span></a>');
     this.marcar();
   }
 };
