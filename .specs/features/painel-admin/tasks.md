@@ -428,9 +428,9 @@ T36 → T37
 
 **Done when**:
 
-- [ ] `funil` conta como concluída a missão com todos os seus exercícios em `ok`
-- [ ] `travas` usa "alcançaram" = concluíram o anterior na ordem do Guia (primeiro: todos); abandono = (alcançaram − concluíram) ÷ alcançaram arredondado; ordem decrescente; até 10; omite alcançaram = 0
-- [ ] `tests/admin-funil.test.ts` ≥ 10 casos passam (missão incompleta por 1 exercício, arredondamento .5, exercício fora de ordem, 0 alcançaram, empate)
+- [x] `funil` conta como concluída a missão com todos os seus exercícios em `ok`
+- [x] `travas` usa "alcançaram" = concluíram o anterior na ordem do Guia (primeiro: todos); abandono = (alcançaram − concluíram) ÷ alcançaram arredondado; ordem decrescente; até 10; omite alcançaram = 0
+- [x] `tests/admin-funil.test.ts` ≥ 10 casos passam (missão incompleta por 1 exercício, arredondamento .5, exercício fora de ordem, 0 alcançaram, empate)
 
 **Tests**: unit
 **Gate**: quick
