@@ -191,6 +191,18 @@ test('gatilho: membro do gabinete não muda arquivado_em pela API, mas segue edi
   assert.ok((await dono<{ arquivado_em: string | null }>('select arquivado_em from public.mandatos where id = $1', [A]))[0].arquivado_em);
 });
 
+test('gatilho: pessoa com papel leitura que também é membro do mandato não arquiva nem desarquiva pela API (ADM-02.7, ADM-08.5)', async () => {
+  // leitura é da equipe Legisla (eh_legisla) mas não é admin: o gatilho tem de exigir eh_legisla_admin
+  await addMembro(A, IDS.leitura, 'assessoria');
+  await como(banco, IDS.leitura);
+  await assert.rejects(chama(`update public.mandatos set arquivado_em = now() where id = $1`, [A]), SEM_PERMISSAO);
+  assert.equal((await dono<{ arquivado_em: string | null }>('select arquivado_em from public.mandatos where id = $1', [A]))[0].arquivado_em, null);
+  await dono(`update public.mandatos set arquivado_em = now() where id = $1`, [A]);
+  await como(banco, IDS.leitura);
+  await assert.rejects(chama(`update public.mandatos set arquivado_em = null where id = $1`, [A]), SEM_PERMISSAO);
+  assert.ok((await dono<{ arquivado_em: string | null }>('select arquivado_em from public.mandatos where id = $1', [A]))[0].arquivado_em);
+});
+
 test('gatilho: admin da Legisla que também é membro pode arquivar direto; sem ser membro, o update direto não alcança linha alguma (ADM-08.5)', async () => {
   await como(banco, IDS.admin);
   const direto = await chama(`update public.mandatos set arquivado_em = now() where id = $1`, [A]);
