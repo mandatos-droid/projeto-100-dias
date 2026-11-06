@@ -586,11 +586,11 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Nome vazio ou só com espaços e nome com 81 caracteres devolvem "Informe um nome de até 80 caracteres."; 80 caracteres passa (ACE-01.7)
-- [ ] E-mail vazio passa; e-mail fora da regra do banco (um único `@`, sem espaço, com ponto no domínio, ver `convite_criar`), sem `@`, com espaço interno ou com 255 caracteres devolve "E-mail inválido."; e-mail válido de 254 caracteres passa (ACE-01.8)
-- [ ] Devolve nome e e-mail normalizados (aparados; e-mail em minúsculas)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 9 testes em `tests/convites-validacao.test.ts`
+- [x] Nome vazio ou só com espaços e nome com 81 caracteres devolvem "Informe um nome de até 80 caracteres."; 80 caracteres passa (ACE-01.7)
+- [x] E-mail vazio passa; e-mail fora da regra do banco (um único `@`, sem espaço, com ponto no domínio, ver `convite_criar`), sem `@`, com espaço interno ou com 255 caracteres devolve "E-mail inválido."; e-mail válido de 254 caracteres passa (ACE-01.8)
+- [x] Devolve nome e e-mail normalizados (aparados; e-mail em minúsculas)
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 9 testes em `tests/convites-validacao.test.ts`
 
 **Tests**: unit
 **Gate**: quick
