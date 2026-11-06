@@ -159,12 +159,12 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Os testes usam o ambiente da T2 (PGlite); nada roda em produção
-- [ ] `papel` aceita só `admin` e `leitura`; linhas `analista` viram `leitura`
-- [ ] `equipe_ler` usa `private.eh_legisla()`; política `equipe_gerir` e grants de escrita a `authenticated` removidos
-- [ ] `auditoria_admin` só aceita inclusão (sem grant nem política de update/delete) e só `eh_legisla()` lê
-- [ ] `admin_equipe`, `admin_buscar_usuario` (e-mail exato, 1 linha, só admin), `admin_equipe_incluir`, `admin_equipe_papel`, `admin_equipe_remover` gravam a auditoria na mesma transação e recusam último admin ("A equipe precisa ter ao menos um admin."), duplicado ("Esta pessoa já está na equipe.") e alvo ausente ("Pessoa não encontrada.")
-- [ ] Teste `tests/sql-admin-equipe.test.ts` (PGlite) cobre: admin e leitura leem a equipe; leitura recusado em cada função; anônimo sem dados; update e delete em `auditoria_admin` falham; falha na auditoria desfaz a ação; ≥ 12 casos passam
+- [x] Os testes usam o ambiente da T2 (PGlite); nada roda em produção
+- [x] `papel` aceita só `admin` e `leitura`; linhas `analista` viram `leitura`
+- [x] `equipe_ler` usa `private.eh_legisla()`; política `equipe_gerir` e grants de escrita a `authenticated` removidos
+- [x] `auditoria_admin` só aceita inclusão (sem grant nem política de update/delete) e só `eh_legisla()` lê
+- [x] `admin_equipe`, `admin_buscar_usuario` (e-mail exato, 1 linha, só admin), `admin_equipe_incluir`, `admin_equipe_papel`, `admin_equipe_remover` gravam a auditoria na mesma transação e recusam último admin ("A equipe precisa ter ao menos um admin."), duplicado ("Esta pessoa já está na equipe.") e alvo ausente ("Pessoa não encontrada.")
+- [x] Teste `tests/sql-admin-equipe.test.ts` (PGlite) cobre: admin e leitura leem a equipe; leitura recusado em cada função; anônimo sem dados; update e delete em `auditoria_admin` falham; falha na auditoria desfaz a ação; ≥ 12 casos passam
 
 **Tests**: integration
 **Gate**: quick

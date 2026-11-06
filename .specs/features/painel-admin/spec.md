@@ -293,8 +293,8 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | -------------- | ----- | ----- | ------ |
 | ADM-01 | P1: Entrar no `/admin` e ter o papel respeitado (AC 1 a 5, tela de entrada e sessão) | Specify | Pending |
 | ADM-02 | P1: Entrar no `/admin` e ter o papel respeitado (AC 6 a 10, papéis e permissões no banco) | Specify | Implementing |
-| ADM-03 | P1: Gerir a equipe Legisla | Specify | Pending |
-| ADM-04 | P1: Registrar toda ação administrativa em auditoria | Specify | Pending |
+| ADM-03 | P1: Gerir a equipe Legisla | Specify | Implementing |
+| ADM-04 | P1: Registrar toda ação administrativa em auditoria | Specify | Implementing |
 | ADM-05 | P1: Listar e achar mandatos | Specify | Pending |
 | ADM-06 | P1: Detalhe do mandato (AC 1 e 2, cadastro e privacidade) | Specify | Pending |
 | ADM-07 | P1: Detalhe do mandato (AC 3 a 9, CRUD de membros) | Specify | Pending |
