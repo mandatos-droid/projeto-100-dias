@@ -92,3 +92,15 @@
 .md-status--ok { color: var(--ok); }
 .md-status--av { color: var(--aviso); }
 .md-status--neutro { color: var(--tinta-2); }
+
+/* resumo da equipe */
+.md-resumo { display: flex; flex-direction: column; gap: 12px; }
+.md-resumo-corpo { align-items: center; justify-content: flex-start; gap: 12px; }
+.md-avatares { display: flex; gap: 6px; flex: none; }
+.md-av {
+  width: 36px; height: 36px; flex: none; border-radius: 50%; display: grid; place-items: center;
+  background: var(--verde); color: var(--branco); font-weight: 700; font-size: 13px;
+}
+.md-av--b { background: var(--coral); color: var(--tinta); }
+.md-av--c { background: var(--vinho); color: var(--papel); }
+.md-av--d { background: var(--turquesa); color: #0B2B28; }

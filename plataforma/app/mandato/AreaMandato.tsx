@@ -6,7 +6,8 @@ import { diaDoMandato, type DiaDoMandato } from '../../lib/convites/dias.ts';
 import { mensagemDe } from '../../lib/convites/erros.ts';
 import { statusMissoes, type ExercicioCatalogo, type StatusMissao } from '../../lib/convites/missoes.ts';
 import { podeEditar, rotuloPapel } from '../../lib/convites/papeis.ts';
-import { nomeDoMandato, useMandato, type MandatoDaPessoa } from './contexto.ts';
+import { iniciais, nomeDoMandato, useMandato, type MandatoDaPessoa } from './contexto.ts';
+import ResumoEquipe from './ResumoEquipe.tsx';
 
 // Nomes curtos das 5 missões, os mesmos do Guia (MISSOES[].curto em conteudo.js).
 const MISSOES = [
@@ -29,11 +30,6 @@ function fotoDoMandato(m: MandatoDaPessoa): string | null {
   const tse = (m.dados as { tse?: { sq?: unknown; ano?: unknown } } | null)?.tse;
   const sq = tse?.sq;
   return typeof sq === 'string' || typeof sq === 'number' ? fotoUrl(String(sq), m.uf, tse?.ano) : null;
-}
-
-export function iniciais(nome: string | null): string {
-  const p = (nome ?? '').trim().split(/\s+/).filter(Boolean);
-  return ((p[0]?.[0] ?? '') + (p.length > 1 ? p[p.length - 1][0] : '')).toUpperCase() || '?';
 }
 
 // 'YYYY-MM-DD' -> 'DD/MM/AAAA', sem passar por Date (nada de fuso).
@@ -123,6 +119,8 @@ export default function AreaMandato() {
           </ol>
         )}
       </section>
+
+      <ResumoEquipe />
     </>
   );
 }

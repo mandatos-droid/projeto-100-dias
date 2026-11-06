@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { naoMapeadas, rpcs, semeiaSessao } from './convite-api';
-import { ANA, BRUNO, MANDATO_B, fotosBloqueadas, mocaMandato, rpcCatalogo, type EstadoMandato, type MandatoDaPessoa } from './mandato-api';
+import { ANA, BRUNO, MANDATO_A, MANDATO_B, fotosBloqueadas, mocaMandato, pendente, pessoa, type EstadoMandato, type MandatoDaPessoa } from './mandato-api';
 
 /* Área do mandato (ACE-05): cartão, andamento, missões e "Editar dados". Supabase todo interceptado (mandato-api.ts). */
 
@@ -13,7 +13,7 @@ const missao = (page: Page, n: number) => page.locator(`[data-missao="${n}"]`);
 async function abre(page: Page, estado: EstadoMandato, agora = '2027-02-12T10:00:00-03:00') {
   await page.clock.setFixedTime(new Date(agora));
   await semeiaSessao(page, MARIANA);
-  await mocaMandato(page, { ...estado, rpc: { ...rpcCatalogo(), ...estado.rpc } });
+  await mocaMandato(page, estado);
   await page.goto('/mandato');
 }
 
@@ -166,5 +166,63 @@ test.describe('Vários mandatos e layout', () => {
     await expect(page.locator('[data-missao]')).toHaveCount(5);
     const sobra = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(sobra).toBeLessThanOrEqual(0);
+  });
+});
+
+test.describe('Resumo da equipe (ACE-05.4)', () => {
+  const resumo = (page: Page) => page.locator('.md-resumo');
+  const CINCO = [
+    pessoa('Ana Souza', 'assessoria', 'ana@x.test'), pessoa('Mariana Rocha', 'coordenacao', 'mariana@x.test'),
+    pessoa('João Pereira', 'assessoria', 'joao@x.test'), pessoa('Luiza Ferraz', 'leitura', 'luiza@x.test'),
+    pessoa('Carlos', 'assessoria', 'carlos@x.test'),
+  ];
+
+  test('com 5 pessoas mostra só 3 avatares com iniciais e o total real', async ({ page }) => {
+    await abre(page, { mandatos: [ANA], rpc: { equipe_do_mandato: () => ({ corpo: CINCO }) } });
+    await expect(resumo(page).locator('.md-av')).toHaveText(['AS', 'MR', 'JP']);
+    await expect(resumo(page)).toContainText('5 pessoas');
+  });
+
+  test('com 1 pessoa mostra 1 avatar e "1 pessoa"; sem nome usa a inicial do e-mail', async ({ page }) => {
+    await abre(page, { mandatos: [ANA], rpc: { equipe_do_mandato: () => ({ corpo: [pessoa(null, 'coordenacao', 'zeca@x.test')] }) } });
+    await expect(resumo(page).locator('.md-av')).toHaveText(['Z']);
+    await expect(resumo(page)).toContainText('1 pessoa');
+    await expect(resumo(page)).not.toContainText('1 pessoas');
+  });
+
+  test('mostra a contagem real de convites pendentes: 2, 1 e zero', async ({ page }) => {
+    const dois = [pendente('c1', 'Carlos Lima'), pendente('c2', 'Dora Alves', 'leitura')];
+    await abre(page, { mandatos: [ANA], rpc: { convites_pendentes: () => ({ corpo: dois }) } });
+    await expect(resumo(page)).toContainText('2 convites pendentes');
+    await abre(page, { mandatos: [ANA], rpc: { convites_pendentes: () => ({ corpo: dois.slice(0, 1) }) } });
+    await expect(resumo(page)).toContainText('1 convite pendente');
+    await expect(resumo(page)).not.toContainText('1 convites');
+    await abre(page, { mandatos: [ANA] });
+    await expect(resumo(page)).toContainText('0 convites pendentes');
+    await expect(resumo(page)).toContainText('0 pessoas');
+    await expect(resumo(page).locator('.md-av')).toHaveCount(0);
+  });
+
+  test('"Convidar pessoa" abre /mandato/equipe, para qualquer papel', async ({ page }) => {
+    for (const papel of ['coordenacao', 'assessoria', 'leitura']) {
+      await abre(page, { mandatos: [{ ...ANA, papel }] });
+      await expect(resumo(page).getByRole('link', { name: 'Convidar pessoa' })).toHaveAttribute('href', '/mandato/equipe');
+    }
+  });
+
+  test('lê equipe e convites do mandato ativo, uma vez cada, e troca de mandato pede os do outro', async ({ page }) => {
+    await abre(page, { mandatos: [ANA, BRUNO] });
+    await expect(resumo(page)).toContainText('0 convites pendentes');
+    expect(rpcs('equipe_do_mandato').map((c) => c.corpo)).toEqual([{ p_mandato: MANDATO_A }]);
+    expect(rpcs('convites_pendentes').map((c) => c.corpo)).toEqual([{ p_mandato: MANDATO_A }]);
+    await page.getByRole('combobox', { name: 'Mandato' }).selectOption(MANDATO_B);
+    await expect.poll(() => rpcs('equipe_do_mandato').map((c) => c.corpo)).toEqual([{ p_mandato: MANDATO_A }, { p_mandato: MANDATO_B }]);
+    expect(rpcs('convites_pendentes').map((c) => c.corpo)).toEqual([{ p_mandato: MANDATO_A }, { p_mandato: MANDATO_B }]);
+  });
+
+  test('falha ao ler a equipe mostra a mensagem e mantém o botão "Convidar pessoa"', async ({ page }) => {
+    await abre(page, { mandatos: [ANA], rpc: { equipe_do_mandato: () => ({ rede: true }) } });
+    await expect(resumo(page).getByRole('alert')).toHaveText('Não foi possível concluir. Tente de novo.');
+    await expect(resumo(page).getByRole('link', { name: 'Convidar pessoa' })).toBeVisible();
   });
 });

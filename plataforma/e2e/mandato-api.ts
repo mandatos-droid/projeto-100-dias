@@ -60,8 +60,8 @@ const PERMITE = {
 /** Intercepta o Supabase como `moca` e, além disso, as leituras de `/mandato`. Chame antes de `page.goto`. */
 export async function mocaMandato(page: Page, estado: EstadoMandato = {}) {
   leiturasFeitas = []; fotosAbortadas = [];
-  // a Área do mandato sempre lê o catálogo de exercícios: vem mapeado, e o teste troca por outra resposta quando precisar
-  await moca(page, { ...estado, rpc: { ...rpcCatalogo(), ...estado.rpc } });
+  // a Área do mandato sempre lê o catálogo, a equipe e os convites pendentes: vêm mapeados (vazios), e o teste troca a resposta quando precisar
+  await moca(page, { ...estado, rpc: { ...rpcPadrao(), ...estado.rpc } });
 
   // fotos do TSE: abortadas aqui (rota mais nova que a de hosts externos do `moca`), sem entrar em naoMapeadas
   await page.route((u) => u.hostname === 'resultados.tse.jus.br' || (!['localhost', '127.0.0.1'].includes(u.hostname) && /\.jpe?g$/i.test(u.pathname)), (rota) => {
@@ -110,3 +110,18 @@ export const CATALOGO = [
 
 /** `rpc` mínima para as telas da Área do mandato: só o catálogo. */
 export const rpcCatalogo = (): NonNullable<EstadoMoca['rpc']> => ({ catalogo_exercicios: () => ({ corpo: CATALOGO }) });
+
+/** Pessoa da equipe, como `equipe_do_mandato` devolve. */
+export const pessoa = (nome: string | null, papel: string, email: string | null = null, user_id = `uid-${(nome ?? email ?? 'x').toLowerCase().replace(/[^a-z]/g, '')}`) =>
+  ({ user_id, nome, email, papel, criado_em: '2027-02-01T12:00:00Z' });
+
+/** Convite pendente, como `convites_pendentes` devolve. */
+export const pendente = (id: string, nome: string, papel = 'assessoria', convidado_por_nome: string | null = 'Mariana Rocha', expira_em = '2027-02-18T12:00:00Z') =>
+  ({ id, nome, papel, convidado_por_nome, expira_em });
+
+/** Respostas padrão das funções que toda tela de /mandato lê: catálogo, equipe e convites pendentes (listas vazias). */
+export const rpcPadrao = (): NonNullable<EstadoMoca['rpc']> => ({
+  ...rpcCatalogo(),
+  equipe_do_mandato: () => ({ corpo: [] }),
+  convites_pendentes: () => ({ corpo: [] }),
+});

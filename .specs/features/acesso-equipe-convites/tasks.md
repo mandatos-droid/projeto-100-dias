@@ -941,11 +941,11 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Mostra no máximo 3 avatares com iniciais e o total real de pessoas (ACE-05.4)
-- [ ] Mostra "N convites pendentes" com a contagem real, inclusive zero (ACE-05.4)
-- [ ] "Convidar pessoa" abre `/mandato/equipe` (ACE-05.4)
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/mandato-area.spec.ts`
-- [ ] Test count: ao menos 4 testes novos em `e2e/mandato-area.spec.ts`, nenhum removido
+- [x] Mostra no máximo 3 avatares com iniciais e o total real de pessoas (ACE-05.4)
+- [x] Mostra "N convites pendentes" com a contagem real, inclusive zero (ACE-05.4)
+- [x] "Convidar pessoa" abre `/mandato/equipe` (ACE-05.4)
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/mandato-area.spec.ts`
+- [x] Test count: ao menos 4 testes novos em `e2e/mandato-area.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full

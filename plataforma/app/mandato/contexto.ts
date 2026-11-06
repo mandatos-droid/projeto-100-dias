@@ -42,3 +42,9 @@ export function useMandato(): ContextoMandato {
 export function nomeDoMandato(m: Pick<MandatoDaPessoa, 'nome_parlamentar'>): string {
   return m.nome_parlamentar?.trim() || 'Mandato sem nome';
 }
+
+// Iniciais para o círculo de avatar: primeira e última palavra do nome.
+export function iniciais(nome: string | null | undefined): string {
+  const p = (nome ?? '').trim().split(/\s+/).filter(Boolean);
+  return ((p[0]?.[0] ?? '') + (p.length > 1 ? p[p.length - 1][0] : '')).toUpperCase() || '?';
+}
