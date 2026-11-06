@@ -47,6 +47,8 @@ test.describe('Mandatos: lista e paginação (ADM-05.1)', () => {
 
   test('só pede a view v_admin_mandatos e não traz texto de gabinete (ADM-05.2)', async ({ page }) => {
     await abre(page, lista(3));
+    // o título aparece antes de a lista ser pedida; espera as linhas para só então conferir as chamadas
+    await expect(linhasDaTabela(page)).toHaveCount(3);
     const pedidos = chamadasDeMandatos();
     expect(pedidos.length).toBeGreaterThan(0);
     for (const p of pedidos) expect(p.caminho).toMatch(/^v_admin_mandatos\?/);
