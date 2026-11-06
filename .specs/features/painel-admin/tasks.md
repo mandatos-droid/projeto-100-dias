@@ -664,8 +664,8 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Foco preso e fecha com Esc; `confirmar` desabilita o botão enquanto a chamada está em curso (evita duplo clique)
-- [ ] Gate Build passa (cobertura nos e2e das T23 e T26)
+- [x] Foco preso e fecha com Esc; `confirmar` desabilita o botão enquanto a chamada está em curso (evita duplo clique)
+- [x] Gate Build passa (cobertura nos e2e das T23 e T26) (`npm run build` falhou só por `SecurityFatalError` do Next 16.4; valeu `tsc` + `npm test` e `/admin` respondendo 200)
 
 **Tests**: none
 **Gate**: build

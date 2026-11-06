@@ -114,7 +114,11 @@
 .adm .modal { position: fixed; inset: 0; background: rgba(23, 17, 15, .5); display: grid; place-items: center; padding: 16px; z-index: 50; }
 .adm .dlg { background: var(--branco); border-radius: 6px; padding: 18px; width: min(440px, 100%); display: grid; gap: 12px; }
 .adm .dlg h3 { margin: 0; font-size: 18px; color: var(--vinho); }
+.adm .dlg form { display: grid; gap: 12px; }
 .adm .dlg label { display: grid; gap: 4px; font-size: 13px; color: var(--tinta-2); }
+.adm .bar.fim { justify-content: flex-end; }
+.adm .hint { margin: 0; font-size: 13px; color: var(--tinta-2); }
+.adm .hint.ok { color: var(--ok); font-weight: 600; }
 
 /* gráficos */
 .adm .chart { border: 1px solid var(--linha); border-radius: 4px; padding: 14px; background: var(--branco); display: grid; gap: 8px; min-width: 0; }
