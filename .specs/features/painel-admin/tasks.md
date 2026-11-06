@@ -479,8 +479,8 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Todas as regras sob `.adm`; menu lateral vira faixa superior abaixo de 620 px; tabelas rolam dentro de `.adm .rolagem`; alvos de toque com no mínimo 40 px
-- [ ] Gate Build passa
+- [x] Todas as regras sob `.adm`; menu lateral vira faixa superior abaixo de 620 px; tabelas rolam dentro de `.adm .rolagem`; alvos de toque com no mínimo 40 px
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build

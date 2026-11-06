@@ -1,0 +1,150 @@
+/* Painel do administrador (/admin). Tudo sob .adm para não vazar para o Guia nem para a landing.
+   Estrutura do wireframe (menu lateral + área de trabalho); cores e tipografia da Legisla. */
+.adm {
+  --vinho: #571730; --vinho-2: #3E0F21; --verde: #035252;
+  --coral: #EB5454; --turquesa: #4ABFB2;
+  --papel: #FBF6EE; --branco: #fff;
+  --tinta: #17110F; --tinta-2: #5E524C; --tinta-3: #938780;
+  --linha: #E6DCCE; --linha-2: #F1E9DD;
+  --ok: #1B6B4F; --andamento: #A55415; --erro: #A32A20;
+  --corpo: var(--font-commissioner, 'Commissioner', system-ui, -apple-system, 'Segoe UI', sans-serif);
+  --mono: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-family: var(--corpo);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--tinta);
+  background: var(--papel);
+  min-height: 100vh;
+}
+.adm *, .adm *::before, .adm *::after { box-sizing: border-box; }
+.adm a { color: var(--vinho); }
+.adm :focus-visible { outline: 3px solid var(--turquesa); outline-offset: 2px; }
+.adm [hidden] { display: none !important; }
+
+/* casca: menu à esquerda e área de trabalho */
+.adm .app { display: grid; grid-template-columns: 224px minmax(0, 1fr); min-height: 100vh; }
+.adm .side { display: flex; flex-direction: column; gap: 4px; padding: 18px 14px; background: var(--vinho); color: var(--papel); }
+.adm .logo { margin: 0 6px 12px; font-weight: 800; font-size: 17px; letter-spacing: .01em; }
+.adm .logo small { display: block; font-weight: 500; font-size: 12px; color: #D9C0CA; }
+.adm .nav {
+  display: flex; align-items: center; min-height: 44px; padding: 8px 12px; border-radius: 4px;
+  color: #EBDDE3; text-decoration: none; font-weight: 600;
+}
+.adm .nav:hover { background: var(--vinho-2); }
+.adm .nav.on { background: var(--papel); color: var(--vinho); }
+.adm .nav.sep { margin-top: auto; font-size: 13px; font-weight: 500; border: 1px dashed rgba(251, 246, 238, .4); }
+.adm .main { padding: 22px; min-width: 0; display: grid; gap: 16px; align-content: start; }
+
+/* abaixo de 620 px o menu vira faixa no topo */
+@media (max-width: 620px) {
+  .adm .app { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+  .adm .side { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 16px; }
+  .adm .logo { flex: 1 0 100%; margin: 0 0 2px; }
+  .adm .nav.sep { margin-top: 0; }
+  .adm .main { padding: 16px; }
+}
+
+/* topo da tela */
+.adm .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.adm .top h2 { margin: 0; font-size: 22px; font-weight: 800; color: var(--vinho); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.adm .who { font-size: 13px; color: var(--tinta-2); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+/* botões e campos: alvo de toque de 40 px no mínimo */
+.adm .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 8px 16px;
+  font: 700 14px/1.2 var(--corpo); border: 1px solid var(--vinho); border-radius: 4px; background: var(--branco); color: var(--vinho);
+  cursor: pointer; text-decoration: none;
+}
+.adm .btn:hover { background: var(--linha-2); }
+.adm .btn.pri { background: var(--vinho); color: #fff; }
+.adm .btn.pri:hover { background: var(--vinho-2); }
+.adm .btn.bad { border-color: var(--erro); color: var(--erro); }
+.adm .btn.sm { min-height: 40px; padding: 6px 12px; font-size: 13px; }
+.adm .btn:disabled { opacity: .5; cursor: not-allowed; }
+.adm .bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.adm .in {
+  min-height: 40px; min-width: 0; padding: 8px 10px; font: 500 14px/1.2 var(--corpo);
+  border: 1px solid var(--tinta-3); border-radius: 4px; background: var(--branco); color: var(--tinta);
+}
+.adm .in:disabled { background: var(--linha-2); color: var(--tinta-3); cursor: not-allowed; }
+
+/* tabelas rolam dentro do próprio quadro, nunca a página */
+.adm .rolagem { overflow-x: auto; max-width: 100%; border: 1px solid var(--linha); border-radius: 4px; background: var(--branco); }
+.adm table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 14px; }
+.adm th, .adm td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--linha); white-space: nowrap; }
+.adm th { background: var(--linha-2); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--tinta-2); font-weight: 700; }
+.adm tr:last-child td { border-bottom: 0; }
+.adm td.num, .adm th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.adm .mono { font-family: var(--mono); font-size: 13px; }
+
+/* selos */
+.adm .pill { display: inline-block; padding: 2px 9px; border-radius: 10px; border: 1px solid currentColor; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.adm .pill.ok { color: var(--ok); }
+.adm .pill.warn { color: var(--andamento); background: #FBEBD9; }
+.adm .pill.mu { color: var(--tinta-2); }
+
+/* rodapé de lista e avisos */
+.adm .legend { font-size: 13px; color: var(--tinta-2); }
+.adm .rodape { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.adm .aviso { padding: 12px 14px; border-radius: 4px; border: 1px solid var(--erro); background: #FBEDEB; color: var(--erro); font-weight: 600; }
+.adm .vazio { padding: 28px 16px; text-align: center; border: 1px dashed var(--tinta-3); border-radius: 4px; background: var(--branco); display: grid; gap: 12px; justify-items: center; }
+.adm .vazio p { margin: 0; font-weight: 600; }
+
+/* cartões, indicadores e dados em pares */
+.adm .card { border: 1px solid var(--linha); border-radius: 4px; padding: 14px; background: var(--branco); display: grid; gap: 10px; min-width: 0; }
+.adm .card h3 { margin: 0; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--tinta-2); }
+.adm .card.danger { border-color: var(--erro); }
+.adm .card.danger h3 { color: var(--erro); }
+.adm .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.adm .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.adm .kpi { border: 1px solid var(--linha); border-radius: 4px; padding: 12px; background: var(--branco); }
+.adm .kpi b { display: block; font-size: 26px; color: var(--vinho); font-variant-numeric: tabular-nums; }
+.adm .kpi span { font-size: 13px; color: var(--tinta-2); }
+.adm .kv { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 4px 10px; margin: 0; font-size: 14px; }
+.adm .kv dt { color: var(--tinta-2); }
+.adm .kv dd { margin: 0; }
+.adm .meter { height: 8px; background: var(--linha-2); border-radius: 4px; overflow: hidden; }
+.adm .meter i { display: block; height: 100%; background: var(--vinho); }
+@media (max-width: 620px) {
+  .adm .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .adm .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* diálogo */
+.adm .modal { position: fixed; inset: 0; background: rgba(23, 17, 15, .5); display: grid; place-items: center; padding: 16px; z-index: 50; }
+.adm .dlg { background: var(--branco); border-radius: 6px; padding: 18px; width: min(440px, 100%); display: grid; gap: 12px; }
+.adm .dlg h3 { margin: 0; font-size: 18px; color: var(--vinho); }
+.adm .dlg label { display: grid; gap: 4px; font-size: 13px; color: var(--tinta-2); }
+
+/* gráficos */
+.adm .chart { border: 1px solid var(--linha); border-radius: 4px; padding: 14px; background: var(--branco); display: grid; gap: 8px; min-width: 0; }
+.adm .ct { margin: 0; font-size: 15px; font-weight: 800; color: var(--vinho); }
+.adm .cs { margin: 0; font-size: 13px; color: var(--tinta-2); }
+.adm .plot { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 6px; height: 180px; }
+.adm .yax { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; font-size: 11px; color: var(--tinta-2); font-variant-numeric: tabular-nums; padding-bottom: 18px; }
+.adm .cols { display: flex; gap: 8px; align-items: flex-end; border-left: 1px solid var(--tinta-3); border-bottom: 1px solid var(--tinta-3); padding: 0 6px; }
+.adm .cl { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; position: relative; }
+.adm .stk { display: flex; flex-direction: column-reverse; width: 100%; }
+.adm .seg { display: flex; align-items: center; justify-content: center; font-size: 11px; font-variant-numeric: tabular-nums; }
+.adm .seg.a { background: var(--vinho); color: #fff; }
+.adm .seg.p { background: var(--linha); color: var(--tinta); }
+.adm .cl em { position: absolute; bottom: -18px; left: 0; right: 0; text-align: center; font-style: normal; font-size: 11px; color: var(--tinta-2); }
+.adm .key { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--tinta-2); }
+.adm .key i { display: inline-block; width: 12px; height: 12px; margin-right: 5px; vertical-align: -1px; }
+.adm .key .a { background: var(--vinho); }
+.adm .key .p { background: var(--linha); }
+.adm .fun { display: grid; gap: 8px; }
+.adm .fr { display: grid; grid-template-columns: 70px minmax(0, 1fr) 90px; gap: 10px; align-items: center; font-size: 14px; }
+.adm .fr .meter { height: 14px; }
+.adm .fr small { color: var(--tinta-2); text-align: right; font-variant-numeric: tabular-nums; }
+
+/* abas (Logs) e entrada */
+.adm .abas { display: flex; gap: 6px; flex-wrap: wrap; }
+.adm .abas button { min-height: 40px; padding: 6px 14px; font: 600 14px var(--corpo); color: var(--tinta); background: transparent; border: 1px solid var(--linha); border-radius: 4px; cursor: pointer; }
+.adm .abas button[aria-selected='true'] { background: var(--vinho); border-color: var(--vinho); color: #fff; }
+.adm .lg { font-family: var(--mono); font-size: 13px; display: grid; grid-template-columns: 130px 70px minmax(0, 1fr); gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--linha); align-items: baseline; }
+.adm .entrada { max-width: 420px; margin: 0 auto; padding: 48px 16px; display: grid; gap: 14px; }
+.adm .entrada h1 { margin: 0; font-size: 26px; color: var(--vinho); }
+.adm .entrada p { margin: 0; color: var(--tinta-2); }
+.adm .entrada label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; color: var(--tinta-2); }
+.adm .carregando { padding: 48px 16px; text-align: center; color: var(--tinta-2); }
