@@ -558,9 +558,9 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Menu destaca a tela atual; link "Painel de métricas (/painel)" presente
-- [ ] Mostra o papel da pessoa; botão Sair
-- [ ] Gate Build passa (cobertura nos e2e da T21)
+- [x] Menu destaca a tela atual; link "Painel de métricas (/painel)" presente
+- [x] Mostra o papel da pessoa; botão Sair
+- [x] Gate Build passa (cobertura nos e2e da T21)
 
 **Tests**: none
 **Gate**: build
