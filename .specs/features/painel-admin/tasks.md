@@ -273,9 +273,9 @@ T36 → T37
 
 **Done when**:
 
-- [ ] `mensagemDe` devolve a mensagem do banco quando existe, "Você não tem permissão para esta ação." em 403 e "Não foi possível carregar." em 5xx ou rede
-- [ ] `emailValido` recusa vazio, sem arroba e sem domínio; constantes `SEM_CONTA` e `EMAIL_INVALIDO` com o texto da spec
-- [ ] `tests/admin-mensagens.test.ts` ≥ 6 casos passam
+- [x] `mensagemDe` devolve a mensagem do banco quando existe, "Você não tem permissão para esta ação." em 403 e "Não foi possível carregar." em 5xx ou rede
+- [x] `emailValido` recusa vazio, sem arroba e sem domínio; constantes `SEM_CONTA` e `EMAIL_INVALIDO` com o texto da spec
+- [x] `tests/admin-mensagens.test.ts` ≥ 6 casos passam
 
 **Tests**: unit
 **Gate**: quick
