@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { TOKEN, naoMapeadas, rpcs, semeiaSessao } from './convite-api';
-import { ANA, MANDATO_A, mocaMandato, pessoa, type EstadoMandato, type MandatoDaPessoa } from './mandato-api';
+import { ANA, MANDATO_A, mocaMandato, pendente, pessoa, type EstadoMandato, type MandatoDaPessoa } from './mandato-api';
 
 /* Tela Equipe e convites (ACE-01, ACE-03.7, ACE-04). Supabase todo interceptado (mandato-api.ts). */
 
@@ -277,5 +277,126 @@ test.describe('Layout (ACE-04.13)', () => {
       await alvo.focus();
       expect(await alvo.evaluate((el) => getComputedStyle(el).outlineStyle + ' ' + getComputedStyle(el).outlineWidth)).toBe('solid 3px');
     }
+  });
+});
+
+test.describe('Convites pendentes (ACE-04.2, 04.3, 04.5, 04.10, 04.11)', () => {
+  const lista = (page: Page) => page.locator('.md-pendentes');
+  const itens = (page: Page) => lista(page).locator('li');
+  const AGORA = '2027-02-12T12:00:00Z';
+  const dias = (n: number) => new Date(new Date(AGORA).getTime() + n * 86_400_000).toISOString();
+  const marca = (page: Page) => page.evaluate(() => (window as unknown as { marca?: number }).marca);
+
+  async function abrePendentes(page: Page, convites: ReturnType<typeof pendente>[], extra: NonNullable<EstadoMandato['rpc']> = {}) {
+    await page.clock.setFixedTime(new Date(AGORA));
+    await abre(page, { rpc: { convites_pendentes: () => ({ corpo: convites }), ...extra } });
+  }
+
+  test('mostra nome, papel, quem convidou e dias para expirar de cada convite', async ({ page }) => {
+    await abrePendentes(page, [
+      pendente('c1', 'Carlos Lima', 'assessoria', 'Mariana Rocha', dias(7)),
+      pendente('c2', 'Dora Alves', 'leitura', 'João Pereira', dias(1)),
+      pendente('c3', 'Eva Costa', 'coordenacao', null, dias(2)),
+    ]);
+    await expect(itens(page)).toHaveCount(3);
+    await expect(itens(page).nth(0)).toContainText('Carlos Lima');
+    await expect(itens(page).nth(0)).toContainText('Assessoria · enviado por Mariana Rocha · expira em 7 dias');
+    await expect(itens(page).nth(1)).toContainText('Somente leitura · enviado por João Pereira · expira em 1 dia');
+    await expect(itens(page).nth(1)).not.toContainText('1 dias');
+    await expect(itens(page).nth(2)).toContainText('Coordenação · enviado por alguém da equipe · expira em 2 dias');
+    await expect(lista(page).locator('.md-pilula')).toHaveText('3');
+    expect(rpcs('convites_pendentes').map((c) => c.corpo)).toEqual([{ p_mandato: MANDATO_A }]);
+  });
+
+  test('dias que sobram contam para cima: 6 dias e 1 hora é "7 dias" e 3 horas é "1 dia"', async ({ page }) => {
+    const mais = (ms: number) => new Date(new Date(AGORA).getTime() + ms).toISOString();
+    await abrePendentes(page, [
+      pendente('c1', 'Um', 'assessoria', 'Mariana Rocha', mais(6 * 86_400_000 + 3_600_000)),
+      pendente('c2', 'Dois', 'assessoria', 'Mariana Rocha', mais(3 * 3_600_000)),
+    ]);
+    await expect(itens(page).nth(0)).toContainText('expira em 7 dias');
+    await expect(itens(page).nth(1)).toContainText('expira em 1 dia');
+  });
+
+  test('"Cancelar" chama o banco com o id e tira o convite da lista sem recarregar a página', async ({ page }) => {
+    await abrePendentes(page, [pendente('c1', 'Carlos Lima', 'assessoria', 'Mariana Rocha', dias(7)), pendente('c2', 'Dora Alves', 'leitura', 'Mariana Rocha', dias(5))], {
+      convite_cancelar: () => ({}),
+    });
+    await expect(itens(page)).toHaveCount(2);
+    await page.evaluate(() => { (window as unknown as { marca: number }).marca = 1; });
+    await itens(page).filter({ hasText: 'Carlos Lima' }).getByRole('button', { name: 'Cancelar' }).click();
+    await expect(itens(page)).toHaveCount(1);
+    await expect(itens(page).first()).toContainText('Dora Alves');
+    await expect(lista(page).locator('.md-pilula')).toHaveText('1');
+    expect(rpcs('convite_cancelar').map((c) => c.corpo)).toEqual([{ p_id: 'c1' }]);
+    expect(rpcs('convite_cancelar')[0].token).toBe('tok-mariana');
+    expect(await marca(page)).toBe(1); // a página não recarregou
+    expect(rpcs('convites_pendentes')).toHaveLength(1);
+  });
+
+  test('cancelar o último convite mostra "Nenhum convite pendente."', async ({ page }) => {
+    await abrePendentes(page, [pendente('c1', 'Carlos Lima', 'assessoria', 'Mariana Rocha', dias(7))], { convite_cancelar: () => ({}) });
+    await lista(page).getByRole('button', { name: 'Cancelar' }).click();
+    await expect(lista(page)).toContainText('Nenhum convite pendente.');
+    await expect(itens(page)).toHaveCount(0);
+  });
+
+  test('recusa de permissão do banco mostra a mensagem e o convite continua na lista', async ({ page }) => {
+    await abrePendentes(page, [pendente('c1', 'Carlos Lima', 'assessoria', 'João Pereira', dias(7))], {
+      convite_cancelar: () => ({ status: 403, corpo: { message: 'Você não tem permissão para esta ação.', code: '42501' } }),
+    });
+    await lista(page).getByRole('button', { name: 'Cancelar' }).click();
+    await expect(lista(page).getByRole('alert')).toHaveText('Você não tem permissão para esta ação.');
+    await expect(itens(page)).toHaveCount(1);
+    await expect(lista(page).locator('.md-pilula')).toHaveText('1');
+    await expect(lista(page).getByRole('button', { name: 'Cancelar' })).toBeEnabled();
+  });
+
+  test('falha de rede ao cancelar mostra "Não foi possível concluir. Tente de novo." e o convite fica', async ({ page }) => {
+    await abrePendentes(page, [pendente('c1', 'Carlos Lima', 'assessoria', 'Mariana Rocha', dias(7))], { convite_cancelar: () => ({ rede: true }) });
+    await lista(page).getByRole('button', { name: 'Cancelar' }).click();
+    await expect(lista(page).getByRole('alert')).toHaveText('Não foi possível concluir. Tente de novo.');
+    await expect(itens(page)).toHaveCount(1);
+  });
+
+  test('lista vazia mostra "Nenhum convite pendente." e zero na contagem', async ({ page }) => {
+    await abrePendentes(page, []);
+    await expect(lista(page)).toContainText('Nenhum convite pendente.');
+    await expect(lista(page).locator('.md-pilula')).toHaveText('0');
+  });
+
+  test('um convite gerado no formulário aparece na lista sem recarregar a página', async ({ page }) => {
+    const servidor = [pendente('c1', 'Carlos Lima', 'assessoria', 'Mariana Rocha', dias(7))];
+    await abrePendentes(page, servidor, {
+      convite_criar: (a) => { servidor.push(pendente('c9', String(a.p_nome), String(a.p_papel), 'Mariana Rocha', dias(7))); return { corpo: CRIADO }; },
+      convites_pendentes: () => ({ corpo: [...servidor] }),
+    });
+    await expect(itens(page)).toHaveCount(1);
+    await page.evaluate(() => { (window as unknown as { marca: number }).marca = 1; });
+    await nome(page).fill('Dora Alves');
+    await papel(page).selectOption('leitura');
+    await gerar(page).click();
+    await expect(itens(page)).toHaveCount(2);
+    await expect(itens(page).nth(1)).toContainText('Dora Alves');
+    await expect(itens(page).nth(1)).toContainText('Somente leitura · enviado por Mariana Rocha · expira em 7 dias');
+    await expect(lista(page).locator('.md-pilula')).toHaveText('2');
+    expect(await marca(page)).toBe(1);
+  });
+
+  test('falha ao ler a lista mostra a mensagem e o formulário continua funcionando', async ({ page }) => {
+    await abrePendentes(page, [], { convites_pendentes: () => ({ rede: true }) });
+    await expect(lista(page).getByRole('alert')).toHaveText('Não foi possível concluir. Tente de novo.');
+    await expect(lista(page)).not.toContainText('Nenhum convite pendente.');
+    await nome(page).fill('Carlos Lima');
+    await gerar(page).click();
+    await expect(linkPronto(page)).toBeVisible();
+  });
+
+  test('em 400 px a lista com nomes longos não cria rolagem horizontal', async ({ page }) => {
+    await page.setViewportSize({ width: 400, height: 800 });
+    await abrePendentes(page, [pendente('c1', 'Bartolomeu Nepomuceno de Albuquerque e Vasconcelos Filho Segundo', 'assessoria', 'Maria Aparecida Fernandes de Souza Pimentel', dias(7))]);
+    await expect(itens(page)).toHaveCount(1);
+    const sobra = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(sobra).toBeLessThanOrEqual(0);
   });
 });

@@ -128,3 +128,13 @@
   border-radius: 8px; padding: 10px 12px; overflow-wrap: anywhere; word-break: break-all; user-select: all;
 }
 .md-linha--botoes { justify-content: flex-start; gap: 8px; }
+
+/* convites pendentes */
+.md-pendentes { display: flex; flex-direction: column; gap: 6px; }
+.md-pilula {
+  display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
+  border: 1.5px solid var(--aviso); color: var(--aviso);
+}
+.md-cresce > .md-mut { overflow-wrap: anywhere; }
+.md-bt--perigo { color: #B83636; border-color: var(--coral); }
+.md-linha-cheia { flex: 1 1 100%; }

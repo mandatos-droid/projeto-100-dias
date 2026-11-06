@@ -1027,13 +1027,13 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Mostra nome, papel, quem convidou e "expira em N dias" de cada pendente (ACE-04.2)
-- [ ] "Cancelar" remove o convite da lista sem recarregar a página (ACE-04.3, ACE-04.10)
-- [ ] Recusa de permissão do banco mostra mensagem e o convite continua na lista (ACE-04.5)
-- [ ] Lista vazia mostra "Nenhum convite pendente." (ACE-04.11)
-- [ ] Um convite gerado em T31 aparece na lista sem recarregar
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/mandato-equipe.spec.ts`
-- [ ] Test count: ao menos 6 testes novos em `e2e/mandato-equipe.spec.ts`, nenhum removido
+- [x] Mostra nome, papel, quem convidou e "expira em N dias" de cada pendente (ACE-04.2)
+- [x] "Cancelar" remove o convite da lista sem recarregar a página (ACE-04.3, ACE-04.10)
+- [x] Recusa de permissão do banco mostra mensagem e o convite continua na lista (ACE-04.5)
+- [x] Lista vazia mostra "Nenhum convite pendente." (ACE-04.11)
+- [x] Um convite gerado em T31 aparece na lista sem recarregar
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/mandato-equipe.spec.ts`
+- [x] Test count: ao menos 6 testes novos em `e2e/mandato-equipe.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
