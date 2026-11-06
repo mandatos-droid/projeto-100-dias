@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 28,
+  "next_id": 32,
   "lessons": [
     {
       "id": "L-001",
@@ -494,6 +494,78 @@
       ],
       "created": "2026-11-06T16:18:18Z",
       "last_seen": "2026-11-06T16:18:18Z"
+    },
+    {
+      "id": "L-028",
+      "key": "surviving_mutant::when an authorization check matches a membership by scope test an actor who holds the required role in another scope so the scope filter is pinned",
+      "text": "When an authorization check matches a membership by scope, test an actor who holds the required role in another scope so the scope filter is pinned.",
+      "signal": "surviving_mutant",
+      "scope": "sql",
+      "status": "candidate",
+      "features": [
+        "acesso-equipe-convites"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "A01 plataforma/supabase/migrations/20261106140000_convites_autoridade.sql:25 (sql)"
+      ],
+      "created": "2026-11-06T19:36:38Z",
+      "last_seen": "2026-11-06T19:36:38Z"
+    },
+    {
+      "id": "L-029",
+      "key": "surviving_mutant::when a rule says only current members may act test a former member acting on something they created before leaving",
+      "text": "When a rule says only current members may act, test a former member acting on something they created before leaving.",
+      "signal": "surviving_mutant",
+      "scope": "sql",
+      "status": "candidate",
+      "features": [
+        "acesso-equipe-convites"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "R-X01 plataforma/supabase/migrations/20261106120000_convites_equipe.sql:373 (sql)"
+      ],
+      "created": "2026-11-06T19:36:38Z",
+      "last_seen": "2026-11-06T19:36:38Z"
+    },
+    {
+      "id": "L-030",
+      "key": "surviving_mutant::when a quota excludes items that lost validity fill the whole quota with such items in a test so the exclusion is pinned",
+      "text": "When a quota excludes items that lost validity, fill the whole quota with such items in a test so the exclusion is pinned.",
+      "signal": "surviving_mutant",
+      "scope": "sql",
+      "status": "candidate",
+      "features": [
+        "acesso-equipe-convites"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "A07 plataforma/supabase/migrations/20261106140000_convites_autoridade.sql:58 (sql)"
+      ],
+      "created": "2026-11-06T19:36:39Z",
+      "last_seen": "2026-11-06T19:36:39Z"
+    },
+    {
+      "id": "L-031",
+      "key": "spec_precision_gap::when two unwanted behavior criteria can hold at once state in the spec which response wins",
+      "text": "When two unwanted-behavior criteria can hold at once, state in the spec which response wins.",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "acesso-equipe-convites"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "ACE-02.13, ACE-02.16 sonda N-9 (spec)"
+      ],
+      "created": "2026-11-06T19:36:39Z",
+      "last_seen": "2026-11-06T19:36:39Z"
     }
   ]
 }

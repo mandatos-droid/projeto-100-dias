@@ -174,6 +174,30 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: ACE-03.5, ACE-03.6 sonda V-1; plataforma/supabase/migrations/20261106120000_convites_equipe.sql:475 (sql)
 - last seen: 2026-11-06T16:18:18Z
 
+### L-028 - When an authorization check matches a membership by scope, test an actor who holds the required role in another scope so the scope filter is pinned.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `sql` · harmful: 0
+- features: acesso-equipe-convites
+- evidence: A01 plataforma/supabase/migrations/20261106140000_convites_autoridade.sql:25 (sql)
+- last seen: 2026-11-06T19:36:38Z
+
+### L-029 - When a rule says only current members may act, test a former member acting on something they created before leaving.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `sql` · harmful: 0
+- features: acesso-equipe-convites
+- evidence: R-X01 plataforma/supabase/migrations/20261106120000_convites_equipe.sql:373 (sql)
+- last seen: 2026-11-06T19:36:38Z
+
+### L-030 - When a quota excludes items that lost validity, fill the whole quota with such items in a test so the exclusion is pinned.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `sql` · harmful: 0
+- features: acesso-equipe-convites
+- evidence: A07 plataforma/supabase/migrations/20261106140000_convites_autoridade.sql:58 (sql)
+- last seen: 2026-11-06T19:36:39Z
+
+### L-031 - When two unwanted-behavior criteria can hold at once, state in the spec which response wins.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: acesso-equipe-convites
+- evidence: ACE-02.13, ACE-02.16 sonda N-9 (spec)
+- last seen: 2026-11-06T19:36:39Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
