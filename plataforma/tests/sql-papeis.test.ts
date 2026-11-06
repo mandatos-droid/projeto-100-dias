@@ -164,3 +164,48 @@ test('a migration de convites vem depois das migrations do painel-admin e roda n
             (select conname::text from pg_constraint where conname = 'membros_papel_check') c`);
   assert.deepEqual(r[0], { f: 'private.pode_editar(uuid)', c: 'membros_papel_check' });
 });
+
+// ---------- Complemento da T1: catálogo de exercícios por função ----------
+
+type Exercicio = { id: string; missao: number; ordem: number; titulo: string };
+const catalogo = () => banco.query<Exercicio>('select * from public.catalogo_exercicios()');
+const catalogoDaTabela = async () => {
+  await comoDono(banco);
+  return q<Exercicio>('select id, missao, ordem, titulo from public.exercicios_guia order by missao, ordem');
+};
+
+test('catalogo_exercicios devolve id, missao, ordem e titulo dos 16 exercícios a membro de qualquer papel e de qualquer mandato', async () => {
+  const esperado = await catalogoDaTabela();
+  assert.equal(esperado.length, 16);
+  assert.deepEqual(esperado[0], { id: 'm1.persona', missao: 1, ordem: 1, titulo: 'A persona' });
+  assert.deepEqual(esperado[15], { id: 'm5.imersao', missao: 5, ordem: 3, titulo: 'Calibragem e replanejamento' });
+  for (const quem of [IDS.membro, ASSESSORIA, LEITOR, COORD_B]) {
+    await como(banco, quem);
+    const r = await catalogo();
+    assert.deepEqual(r.fields.map((f) => f.name), ['id', 'missao', 'ordem', 'titulo'], quem);
+    assert.deepEqual(r.rows, esperado, quem);
+  }
+});
+
+test('catalogo_exercicios devolve o mesmo catálogo à equipe Legisla, mesmo sem ser membro de mandato', async () => {
+  const esperado = await catalogoDaTabela();
+  for (const quem of [IDS.admin, IDS.leitura]) {
+    await como(banco, quem);
+    assert.deepEqual((await catalogo()).rows, esperado, quem);
+  }
+});
+
+test('catalogo_exercicios recusa com erro de permissão quem não é membro nem da equipe Legisla, e anon não executa', async () => {
+  await como(banco, IDS.fora);
+  await assert.rejects(catalogo(), { code: '42501', message: /^Você não tem permissão para esta ação\.$/ });
+  await como(banco, null);
+  await assert.rejects(catalogo(), /permission denied/);
+});
+
+test('a tabela exercicios_guia continua sem leitura direta para membros: o catálogo só sai pela função', async () => {
+  for (const quem of [IDS.membro, ASSESSORIA, LEITOR]) {
+    await como(banco, quem);
+    assert.equal((await catalogo()).rows.length, 16, quem);
+    assert.equal((await q('select * from public.exercicios_guia')).length, 0, quem);
+  }
+});

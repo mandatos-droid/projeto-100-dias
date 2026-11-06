@@ -51,6 +51,26 @@ create policy eventos_criar on public.eventos
   for insert to authenticated
   with check (private.pode_editar(mandato_id) and user_id = (select auth.uid()));
 
+-- ---------- CATÁLOGO DE EXERCÍCIOS PARA MEMBROS ----------
+-- exercicios_guia segue fechada (só a equipe Legisla lê direto). Membros de qualquer mandato
+-- recebem o catálogo por esta função, para o status das missões na Área do mandato.
+
+create or replace function public.catalogo_exercicios()
+returns table (id text, missao int, ordem int, titulo text)
+language plpgsql security definer set search_path = '' stable as $$
+begin
+  if not (private.eh_legisla()
+          or exists (select 1 from public.membros b where b.user_id = (select auth.uid()))) then
+    raise exception 'Você não tem permissão para esta ação.' using errcode = '42501';
+  end if;
+  return query
+    select x.id, x.missao, x.ordem, x.titulo from public.exercicios_guia x order by x.missao, x.ordem;
+end;
+$$;
+
+revoke execute on function public.catalogo_exercicios() from public, anon;
+grant  execute on function public.catalogo_exercicios() to authenticated;
+
 -- ---------- HISTÓRICO DA EQUIPE ----------
 -- Tabela própria: eventos mede atividade do mandato no painel-admin e não recebe linhas de acesso.
 -- Nomes e papel são cópias, para o histórico sobreviver à saída da pessoa.

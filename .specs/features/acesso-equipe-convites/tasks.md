@@ -114,7 +114,7 @@ T33 → T34 → T35 → T36 → T37
 - [x] `membros.papel` rejeita qualquer valor fora de `coordenacao`, `assessoria`, `leitura` (ACE-03.1)
 - [x] Membro `leitura` não altera `mandatos` (nenhuma linha muda) e não insere em `eventos`; `coordenacao` e `assessoria` continuam gravando (ACE-03.2)
 - [x] Membro de outro mandato continua sem escrita; `private.pode_editar` devolve falso para quem não é membro
-- [ ] Complemento da T1 (executado no início do lote 2): função `public.catalogo_exercicios()` devolve `id, missao, ordem, titulo` de `exercicios_guia` a qualquer membro de algum mandato e a quem é da equipe Legisla; `anon` e quem não é membro recebem erro de permissão. A tabela `exercicios_guia` continua sem leitura direta para membros, e `tests/sql-admin-leitura.test.ts` não muda (decisão: o catálogo sai por função, não por política da tabela)
+- [x] Complemento da T1 (executado no início do lote 2): função `public.catalogo_exercicios()` devolve `id, missao, ordem, titulo` de `exercicios_guia` a qualquer membro de algum mandato e a quem é da equipe Legisla; `anon` e quem não é membro recebem erro de permissão. A tabela `exercicios_guia` continua sem leitura direta para membros, e `tests/sql-admin-leitura.test.ts` não muda (decisão: o catálogo sai por função, não por política da tabela)
 - [x] Migration roda após as migrations de `painel-admin` no ambiente PGlite sem erro
 - [x] Gate check passes: `npm test`
 - [x] Test count: ao menos 8 testes novos em `tests/sql-papeis.test.ts` e nenhum teste existente removido
