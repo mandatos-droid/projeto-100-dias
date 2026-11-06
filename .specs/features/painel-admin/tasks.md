@@ -1038,8 +1038,8 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Descreve `/admin`, as 4 migrations, `lib/admin/` e o aviso de que um exercício novo exige nova migration do `exercicios_guia`
-- [ ] Roda `graphify update .` na raiz depois do código (regra do `CLAUDE.md` do projeto)
+- [x] Descreve `/admin`, as 4 migrations, `lib/admin/` e o aviso de que um exercício novo exige nova migration do `exercicios_guia`
+- [x] Roda `graphify update .` na raiz depois do código (regra do `CLAUDE.md` do projeto) (não rodado no worktree isolado: o grafo fica na pasta compartilhada; o orquestrador atualiza ao integrar). Gate build: `npm run build` falhou só por `SecurityFatalError`; valeu `tsc` limpo + `npm test` 721 passando + `/admin` 200 na porta 3100
 
 **Tests**: none
 **Gate**: build

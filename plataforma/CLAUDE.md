@@ -11,7 +11,8 @@ npm run build
 npm run start
 npm run dados    # python scripts/build_data.py: gera public/data e public/geo (aceita --refresh)
 npx tsc --noEmit # sem lint; checagem de tipos
-npm test         # node --test em tests/ (só a lógica pura da landing)
+npm test         # node --test em tests/: lógica pura (landing, Guia, lib/admin) e testes de SQL (PGlite)
+npx playwright test e2e/admin-   # e2e do /admin (Supabase interceptado; ver "Painel admin")
 ```
 
 Scripts Python (só biblioteca padrão; brutos do TSE em `scripts/.cache`, fora do git):
@@ -57,6 +58,29 @@ O app **não é um app Next.js convencional**. O Guia original (HTML/JS vanilla,
 - Guia da API do TSE: `../contexto inicial/API_TSE_GUIA.md` (não oficial; 2022 não existe nesse host, usar CSV dos dados abertos).
 - **Supabase**: o legado fala com o Supabase por `fetch` direto (`nucleo.js`: `Nuvem`, `Store`, auth e REST), não por `supabase-js`. As URLs/chaves ficam em `AMBIENTES` no topo de `public/legacy/nucleo.js` (hoje preenchidas com o projeto "Projeto 100 Dias", ref `fldmekrexvzchynnmeuq`; sem elas o app roda só com `localStorage`, `NUVEM=false`). Nunca coloque `service_role` ali; só a chave pública. Schema em `supabase/migrations/` (tabelas `mandatos`, `membros`, `eventos`, `consentimentos`, `equipe_legisla`, RLS com `to authenticated`, funções auxiliares em schema `private`, views `security_invoker`). Mudanças de schema = nova migration com timestamp, nunca editar a existente.
 - Chaves de `localStorage`: `legisla.mandatoAtual`, `legisla.tok`.
+
+## Painel admin (`/admin`)
+
+Painel da equipe Legisla, **separado do `/painel`** (que segue em `public/painel.html`). Só abre para quem tem linha em `equipe_legisla` com papel `admin` (altera) ou `leitura` (só vê); gabinete e anônimo veem "Sem acesso". Reaproveita a sessão `legisla.tok` do Guia. Spec, design e tarefas em `.specs/features/painel-admin/`.
+
+- **Telas** (`app/admin/`): Mandatos (`page.tsx`) e detalhe (`mandatos/[id]`), Equipe, Analytics e Logs (Ações da equipe e Atividade dos gabinetes). Casca, sessão, diálogo, gráfico, membros e zona de risco ficam em `_componentes/`; estilo em `admin.css`, tudo sob `.adm`.
+- **Lógica pura** em `lib/admin/` (testada em `tests/admin-*.test.ts`): `api.ts` (cliente REST por `fetch`; `lerTudo` pagina por `limit/offset` e exige `order` com a chave única, porque o PostgREST corta consultas em 1.000 linhas), `sessao.ts`, `config.ts`, `mandatos.ts`, `analytics.ts`, `funil.ts`, `usoFuncionalidades.ts`, `escala.ts`, `mensagens.ts`. Datas e meses sempre no fuso `America/Sao_Paulo` (nunca `getMonth()` local).
+- **Banco: 4 migrations** em `supabase/migrations/`:
+  1. `20261105120000_admin_equipe.sql`: papéis `admin`/`leitura`, escrita da equipe por funções e `auditoria_admin` só de inclusão.
+  2. `20261105130000_admin_leitura.sql`: catálogo `exercicios_guia` e as views `v_admin_*` (mandatos, exercícios, eventos por mês, atividade, campos de uso).
+  3. `20261105140000_admin_mandatos_gestao.sql`: membros, arquivar e excluir mandato por funções `security definer`.
+  4. `20261105150000_uso_funcionalidades.sql`: registro de uso do Guia (`uso_funcionalidades`) e a view `v_admin_uso`. **É a única opcional**: o Analytics funciona sem ela (mostra "—").
+  O push na `main` aplica `supabase/migrations/**` em produção pelo workflow `migrations.yml`; não faça push de migration sem go-ahead.
+- **Padrão (AD-007), vale para telas futuras da equipe**: leitura só por `v_admin_*` com `security_invoker = true` e `where private.eh_legisla()`; escrita só por funções `security definer` que checam o papel e gravam a auditoria na mesma transação; contas em TS puro. As views nunca expõem `dados`, `eventos.texto`, `nome_civil` nem `resp_telefone` (os e2e conferem com `vazou()`).
+- **Catálogo duplicado**: `exercicios_guia` espelha os 16 exercícios de `MISSOES` em `public/painel.html` (ids de `public/legacy/conteudo.js`). **Exercício novo no Guia exige uma nova migration** que insira a linha em `exercicios_guia` (nunca editar a migration 2); `tests/admin-catalogo.test.ts` confere os ids.
+- **Registro de uso** (P3): `Ilhas.ligar` (`ilhas/ponte.tsx`) chama `registraUso`, que grava 1 linha `{mandato_id, funcionalidade, criado_em}` por abertura (no máximo 1 por minuto por mandato e funcionalidade, regra em `lib/uso.ts`). Sem nuvem, sem sessão ou com erro de rede/4xx/5xx não grava nem avisa. Não tem texto, nome, e-mail nem `user_id`.
+
+### Testes do admin
+
+- **SQL com PGlite** (Postgres em WebAssembly, sem Docker): `tests/sql-*.test.ts` usam `tests/sql-ambiente.ts`, que aplica **todas** as migrations em ordem, simula `auth.users`/`auth.uid()` e os privilégios padrão do Supabase (grants a `anon` e `authenticated` em objetos novos): por isso cada migration precisa `revoke` o que não deve existir. `como(banco, uuid)` troca de "usuário" (null = anônimo), `comoDono` volta ao superusuário. Roda no `npm test`.
+- **e2e** (`e2e/admin-*.spec.ts`): o app abre de verdade, mas toda chamada ao Supabase é interceptada por `e2e/admin-api.ts` (`moca`, `semeiaSessao`, `naoMapeadas`, `vazou`); nada sai da máquina. Os e2e do Guia que exercitam o registro de uso ligam a nuvem em memória (`NUVEM=true`) depois de abrir o Guia local.
+- **Em worktree isolado** (outra sessão usando a porta 3000): crie um `playwright.isolado.config.ts` (não versionado, nunca commitar) copiando `playwright.config.ts` com `baseURL: 'http://localhost:3100'` e `webServer.reuseExistingServer: true`, suba o servidor fora do Playwright (`npx next dev -p 3100`; o Next 16.4 interrompe o primeiro comando não interativo com um aviso de segurança, então o Playwright não consegue subi-lo) e rode `npx playwright test -c playwright.isolado.config.ts e2e/admin-`. Nunca use a 3000 nesse caso: ela pode servir outro código.
+- `npm run build` oscila com `SecurityFatalError` do Next 16.4 (advisory conhecido). Se falhar só por isso, vale `npx tsc --noEmit && npm test`.
 
 ## Convenções
 
