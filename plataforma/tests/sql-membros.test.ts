@@ -355,3 +355,43 @@ test('equipe_do_mandato devolve só as cinco colunas do design', async () => {
   assert.deepEqual(r.fields.map((f) => f.name), ['user_id', 'nome', 'email', 'papel', 'criado_em']);
   assert.deepEqual(Object.keys(r.rows[0] as object), ['user_id', 'nome', 'email', 'papel', 'criado_em']);
 });
+
+// ---------- Correções do Verifier: mandatos.criado_por deixa de ser credencial (sondas S-1, S-2 e S-3) ----------
+
+const RLS = /row-level security/;
+const criadoPor = async (mandato: string = IDS.mandatoA) => {
+  await comoDono(banco);
+  return (await q<{ criado_por: string | null }>('select criado_por from public.mandatos where id = $1', [mandato]))[0].criado_por;
+};
+const trocaCriador = (novo: string | null, mandato: string = IDS.mandatoA) =>
+  banco.query('update public.mandatos set criado_por = $2 where id = $1', [mandato, novo]);
+// POST /membros direto pela API, com o próprio id
+const entraDireto = (quem: string, papel: string, mandato: string = IDS.mandatoA) =>
+  banco.query('insert into public.membros (mandato_id, user_id, nome, papel) values ($1, $2, $3, $4)', [mandato, quem, 'Entrou direto', papel]);
+
+test('sonda S-1: assessoria não vira coordenação trocando criado_por, saindo e se reinserindo pela API (ACE-03.6)', async () => {
+  await como(banco, ASSESSORIA);
+  await assert.rejects(trocaCriador(ASSESSORIA), SEM_PERMISSAO);
+  await como(banco, ASSESSORIA);
+  await sair();
+  await como(banco, ASSESSORIA);
+  await assert.rejects(entraDireto(ASSESSORIA, 'coordenacao'), RLS);
+  assert.equal(await criadoPor(), IDS.membro);
+  assert.deepEqual(await papeisA(), { [IDS.membro]: 'coordenacao', [LEITOR]: 'leitura' });
+});
+
+test('ninguém troca mandatos.criado_por pela API, nem a coordenação; o resto do mandato segue editável (ACE-03.6)', async () => {
+  for (const [quem, novo] of [[ASSESSORIA, ASSESSORIA], [IDS.membro, ASSESSORIA], [IDS.membro, null]] as const) {
+    await como(banco, quem);
+    await assert.rejects(trocaCriador(novo), SEM_PERMISSAO, `${quem} -> ${novo}`);
+  }
+  assert.equal(await criadoPor(), IDS.membro);
+  // o Guia grava dados e o cadastro sem mexer em criado_por; repetir o mesmo valor também passa
+  await como(banco, ASSESSORIA);
+  assert.equal((await banco.query(`update public.mandatos set nome_parlamentar = 'Pela assessoria', dados = '{"x":1}'::jsonb where id = $1`, [IDS.mandatoA])).affectedRows, 1);
+  assert.equal((await banco.query('update public.mandatos set partido = $2, criado_por = $3 where id = $1', [IDS.mandatoA, 'PZ', IDS.membro])).affectedRows, 1);
+  // sem usuário na sessão (migrations, service_role) a coluna muda
+  await comoDono(banco);
+  await trocaCriador(ASSESSORIA);
+  assert.equal(await criadoPor(), ASSESSORIA);
+});
