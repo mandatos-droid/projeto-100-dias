@@ -221,6 +221,8 @@ test.describe('Trocar papel e remover (ADM-03.6 a 03.8)', () => {
   test('pessoa já removida por outro admin: mostra "Pessoa não encontrada." e atualiza a lista', async ({ page }) => {
     const banco = criaBanco();
     await abre(page, banco);
+    // espera a primeira leitura terminar: mexer no banco antes dela faria a linha sumir e o clique estourar o tempo
+    await expect(linhas(page)).toHaveCount(3);
     banco.equipe = banco.equipe.filter((p) => p.user_id !== 'uid-carla'); // outro admin removeu antes
     await linhas(page).filter({ hasText: 'Carla Dias' }).getByRole('button', { name: 'Remover' }).click();
     const dlg = page.getByRole('dialog');
