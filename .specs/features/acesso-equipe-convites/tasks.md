@@ -644,12 +644,12 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Na data da posse devolve `{estado:'em-curso', dia:1}`; 99 dias depois, `dia:100` (ACE-05.2)
-- [ ] Um dia antes da posse devolve `{estado:'antes'}`; 100 dias depois da posse devolve `{estado:'concluido'}` (ACE-05.2)
-- [ ] Uma hora às 23:30 de Brasília que já é o dia seguinte em UTC conta como o dia de Brasília
-- [ ] Posse ausente devolve `{estado:'sem-posse'}`
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 7 testes em `tests/convites-dias.test.ts`
+- [x] Na data da posse devolve `{estado:'em-curso', dia:1}`; 99 dias depois, `dia:100` (ACE-05.2)
+- [x] Um dia antes da posse devolve `{estado:'antes'}`; 100 dias depois da posse devolve `{estado:'concluido'}` (ACE-05.2)
+- [x] Uma hora às 23:30 de Brasília que já é o dia seguinte em UTC conta como o dia de Brasília
+- [x] Posse ausente devolve `{estado:'sem-posse'}`
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 7 testes em `tests/convites-dias.test.ts`
 
 **Tests**: unit
 **Gate**: quick
