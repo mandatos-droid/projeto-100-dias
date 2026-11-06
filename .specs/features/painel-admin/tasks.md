@@ -530,11 +530,11 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Sem sessão: formulário de entrada (Google e e-mail e senha) e nenhuma consulta de mandatos
-- [ ] Com sessão sem linha em `equipe_legisla`: "Sem acesso" e nenhuma consulta a views de mandatos
-- [ ] Aproveita `legisla.tok`; renova token vencido; qualquer 401 volta à entrada
-- [ ] Contexto expõe `{ api, papel, sair }`; lê o papel de `equipe_legisla` a cada abertura
-- [ ] Gate Build passa (cobertura nos e2e da T21)
+- [x] Sem sessão: formulário de entrada (Google e e-mail e senha) e nenhuma consulta de mandatos
+- [x] Com sessão sem linha em `equipe_legisla`: "Sem acesso" e nenhuma consulta a views de mandatos
+- [x] Aproveita `legisla.tok`; renova token vencido; qualquer 401 volta à entrada
+- [x] Contexto expõe `{ api, papel, sair }`; lê o papel de `equipe_legisla` a cada abertura
+- [x] Gate Build passa (cobertura nos e2e da T21)
 
 **Tests**: none
 **Gate**: build
