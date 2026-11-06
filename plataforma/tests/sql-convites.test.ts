@@ -446,3 +446,90 @@ test('anon não executa convites_pendentes', async () => {
   await como(banco, null);
   await assert.rejects(pendentes(), NEGADO);
 });
+
+// ---------- T10: convite_cancelar ----------
+
+const cancelar = (id: string) => banco.query('select public.convite_cancelar($1)', [id]);
+const nomesPendentes = async () => {
+  await comoDono(banco);
+  return (await q<{ nome: string }>(
+    `select nome from public.convites where usado_em is null and cancelado_em is null and expira_em > now() order by nome`)).map((x) => x.nome);
+};
+
+test('quem criou o convite (assessoria ou leitura) cancela o próprio e ele some dos pendentes (ACE-04.3, ACE-04.4)', async () => {
+  for (const quem of [ASSESSORIA, LEITOR]) {
+    await como(banco, quem);
+    const { id } = await criar(`Convite de ${quem}`, 'leitura');
+    await como(banco, quem);
+    await cancelar(id);
+    await como(banco, quem);
+    assert.deepEqual((await pendentes()).rows, [], quem);
+    await comoDono(banco);
+    assert.deepEqual(await q('select cancelado_em is not null cancelado, cancelado_por from public.convites where id = $1', [id]),
+      [{ cancelado: true, cancelado_por: quem }]);
+  }
+});
+
+test('a coordenação cancela convite criado por outra pessoa (ACE-04.4)', async () => {
+  await como(banco, LEITOR);
+  const { id } = await criar('Carlos Lima', 'leitura');
+  await como(banco, IDS.membro);
+  await cancelar(id);
+  assert.deepEqual(await nomesPendentes(), []);
+  assert.deepEqual(await q('select cancelado_por from public.convites where id = $1', [id]), [{ cancelado_por: IDS.membro }]);
+});
+
+test('assessoria ou leitura que não criou o convite recebe erro de permissão e o convite continua pendente (ACE-04.5)', async () => {
+  await como(banco, IDS.membro);
+  const daCoordenacao = (await criar('Da coordenação', 'assessoria')).id;
+  await como(banco, LEITOR);
+  const doLeitor = (await criar('Do leitor', 'leitura')).id;
+  await como(banco, ASSESSORIA);
+  await assert.rejects(cancelar(daCoordenacao), SEM_PERMISSAO);
+  await assert.rejects(cancelar(doLeitor), SEM_PERMISSAO);
+  await como(banco, LEITOR);
+  await assert.rejects(cancelar(daCoordenacao), SEM_PERMISSAO);
+  assert.deepEqual(await nomesPendentes(), ['Da coordenação', 'Do leitor']);
+});
+
+test('quem não é membro do mandato e convite inexistente dão erro de permissão; anon não executa; nada é cancelado', async () => {
+  await como(banco, IDS.membro);
+  const { id } = await criar('Carlos Lima', 'leitura');
+  for (const quem of [IDS.fora, COORD_B, IDS.admin]) {
+    await como(banco, quem);
+    await assert.rejects(cancelar(id), SEM_PERMISSAO, quem);
+  }
+  await como(banco, IDS.membro);
+  await assert.rejects(cancelar('00000000-0000-4000-8000-00000000ffff'), SEM_PERMISSAO);
+  await como(banco, null);
+  await assert.rejects(cancelar(id), NEGADO);
+  assert.deepEqual(await nomesPendentes(), ['Carlos Lima']);
+});
+
+test('cancelar grava convite_cancelado com ator, alvo e papel, e nenhuma linha em eventos (ACE-06.1, ACE-06.5)', async () => {
+  const id = await insereConvite({ nome: 'Carlos Lima', papel: 'assessoria', por: LEITOR, porNome: 'Leo Leitor' });
+  await como(banco, IDS.membro);
+  await cancelar(id);
+  assert.deepEqual(await historico(), [{
+    mandato_id: IDS.mandatoA, ator_id: IDS.membro, ator_nome: 'Mario Membro', tipo: 'convite_cancelado',
+    alvo_id: null, alvo_nome: 'Carlos Lima', papel: 'assessoria',
+  }]);
+  assert.equal(await totalEventos(), 0);
+});
+
+test('se a gravação do histórico falhar, o cancelamento é desfeito e o convite continua pendente (ACE-06.1, ACE-06.3)', async () => {
+  const id = await insereConvite({ nome: 'Carlos Lima' });
+  await quebraHistorico();
+  await como(banco, IDS.membro);
+  await assert.rejects(cancelar(id), /histórico indisponível/);
+  assert.deepEqual(await nomesPendentes(), ['Carlos Lima']);
+});
+
+test('convite já usado continua usado: cancelar não reverte o estado final nem grava histórico', async () => {
+  const id = await insereConvite({ nome: 'Carlos Lima', usado: '-1 hour', usadoPor: IDS.fora });
+  await como(banco, IDS.membro);
+  await cancelar(id);
+  await comoDono(banco);
+  assert.deepEqual(await q('select usado_por, cancelado_em from public.convites where id = $1', [id]), [{ usado_por: IDS.fora, cancelado_em: null }]);
+  assert.deepEqual(await historico(), []);
+});

@@ -357,3 +357,30 @@ $$;
 
 revoke execute on function public.convites_pendentes(uuid) from public, anon;
 grant  execute on function public.convites_pendentes(uuid) to authenticated;
+
+-- Cancela um convite pendente: quem o criou (e segue no mandato) ou a coordenação do mandato.
+-- Convite inexistente recebe o mesmo erro de permissão, para não revelar o que existe.
+-- Usado, cancelado ou vencido já não vale: nada a fazer (o estado final não volta).
+create or replace function public.convite_cancelar(p_id uuid)
+returns void language plpgsql security definer set search_path = '' as $$
+declare
+  v_uid   uuid := (select auth.uid());
+  v_c     public.convites%rowtype;
+  v_papel text;
+begin
+  select * into v_c from public.convites c where c.id = p_id for update;
+  v_papel := private.papel_no_mandato(v_c.mandato_id);
+  if v_papel is null or (v_papel <> 'coordenacao' and v_c.criado_por is distinct from v_uid) then
+    raise exception 'Você não tem permissão para esta ação.' using errcode = '42501';
+  end if;
+  if v_c.usado_em is not null or v_c.cancelado_em is not null or v_c.expira_em <= now() then
+    return;
+  end if;
+
+  update public.convites set cancelado_em = now(), cancelado_por = v_uid where id = p_id;
+  perform private.evento_equipe(v_c.mandato_id, 'convite_cancelado', null, v_c.nome, v_c.papel);
+end;
+$$;
+
+revoke execute on function public.convite_cancelar(uuid) from public, anon;
+grant  execute on function public.convite_cancelar(uuid) to authenticated;

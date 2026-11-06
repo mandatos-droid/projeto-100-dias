@@ -380,13 +380,13 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] O criador cancela o próprio convite e ele some de `convites_pendentes` (ACE-04.3, ACE-04.4)
-- [ ] Um `coordenacao` cancela convite criado por outra pessoa (ACE-04.4)
-- [ ] `assessoria` ou `leitura` que não criou o convite recebe erro de permissão e o convite continua pendente (ACE-04.5)
+- [x] O criador cancela o próprio convite e ele some de `convites_pendentes` (ACE-04.3, ACE-04.4)
+- [x] Um `coordenacao` cancela convite criado por outra pessoa (ACE-04.4)
+- [x] `assessoria` ou `leitura` que não criou o convite recebe erro de permissão e o convite continua pendente (ACE-04.5)
 - [ ] Um convite cancelado deixa de valer na prévia e no aceite (verificado em T11 e T12)
-- [ ] Linha `convite_cancelado` gravada na mesma transação (ACE-06.1)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 6 testes novos em `tests/sql-convites.test.ts`, nenhum removido
+- [x] Linha `convite_cancelado` gravada na mesma transação (ACE-06.1)
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 6 testes novos em `tests/sql-convites.test.ts`, nenhum removido
 
 **Tests**: integration
 **Gate**: quick
