@@ -1040,3 +1040,5 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .ilha-corpo .st button:not(:first-child):not(:last-child){border-radius:0}
 .ilha-corpo .st button.potencial[aria-pressed=true]{background:#2F6F82;border-color:#2F6F82;color:#fff}
 .ilha-corpo .ass-main table.tb .st button:not(:first-child){border-left-width:2px}
+.ass .paginacao{display:flex;align-items:center;justify-content:center;gap:0.875rem;flex-wrap:wrap;margin-top:0.75rem}
+.ass .paginacao .bt[disabled]{opacity:.45;cursor:default}
