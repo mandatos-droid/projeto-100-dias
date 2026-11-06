@@ -324,9 +324,9 @@ T36 → T37
 
 **Done when**:
 
-- [ ] `lerSessao`/`gravaSessao` recebem o `storage` por parâmetro e usam a chave `legisla.tok` no mesmo formato do Guia
-- [ ] `lerRetornoGoogle(hash)` aceita `access_token` e `error_description`; `renova` usa o `refresh_token`
-- [ ] `tests/admin-sessao.test.ts` com `storage` falso e `fetch` falso; ≥ 6 casos passam (sessão ausente, JSON inválido, retorno do Google, erro do Google, renovação ok e falha)
+- [x] `lerSessao`/`gravaSessao` recebem o `storage` por parâmetro e usam a chave `legisla.tok` no mesmo formato do Guia
+- [x] `lerRetornoGoogle(hash)` aceita `access_token` e `error_description`; `renova` usa o `refresh_token`
+- [x] `tests/admin-sessao.test.ts` com `storage` falso e `fetch` falso; ≥ 6 casos passam (sessão ausente, JSON inválido, retorno do Google, erro do Google, renovação ok e falha)
 
 **Tests**: unit
 **Gate**: quick
