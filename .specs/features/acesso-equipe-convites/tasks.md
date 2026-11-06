@@ -142,12 +142,12 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Membro do mandato lê as linhas do próprio mandato; quem não é membro recebe zero linhas (ACE-06.6)
-- [ ] `authenticated` não consegue `insert`, `update` nem `delete` direto em `eventos_equipe`, nem a equipe `admin` do Legisla (ACE-06.4)
-- [ ] `tipo` só aceita os 6 valores do design
-- [ ] Nenhuma função desta task grava em `eventos` (ACE-06.5, conferido por contagem de `eventos` antes e depois nas tasks seguintes)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 6 testes novos em `tests/sql-eventos-equipe.test.ts`, nenhum removido
+- [x] Membro do mandato lê as linhas do próprio mandato; quem não é membro recebe zero linhas (ACE-06.6)
+- [x] `authenticated` não consegue `insert`, `update` nem `delete` direto em `eventos_equipe`, nem a equipe `admin` do Legisla (ACE-06.4)
+- [x] `tipo` só aceita os 6 valores do design
+- [x] Nenhuma função desta task grava em `eventos` (ACE-06.5, conferido por contagem de `eventos` antes e depois nas tasks seguintes)
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 6 testes novos em `tests/sql-eventos-equipe.test.ts`, nenhum removido
 
 **Tests**: integration
 **Gate**: quick

@@ -50,3 +50,34 @@ drop policy if exists eventos_criar on public.eventos;
 create policy eventos_criar on public.eventos
   for insert to authenticated
   with check (private.pode_editar(mandato_id) and user_id = (select auth.uid()));
+
+-- ---------- HISTÓRICO DA EQUIPE ----------
+-- Tabela própria: eventos mede atividade do mandato no painel-admin e não recebe linhas de acesso.
+-- Nomes e papel são cópias, para o histórico sobreviver à saída da pessoa.
+
+create table if not exists public.eventos_equipe (
+  id          bigserial primary key,
+  mandato_id  uuid not null references public.mandatos on delete cascade,
+  criado_em   timestamptz not null default now(),
+  ator_id     uuid references auth.users on delete set null,
+  ator_nome   text,
+  tipo        text not null check (tipo in
+    ('convite_criado', 'convite_aceito', 'convite_cancelado', 'papel_trocado', 'membro_removido', 'membro_saiu')),
+  alvo_nome   text,
+  alvo_id     uuid,
+  papel       text
+);
+
+create index if not exists eventos_equipe_idx on public.eventos_equipe (mandato_id, criado_em desc);
+
+alter table public.eventos_equipe enable row level security;
+
+drop policy if exists eventos_equipe_ler on public.eventos_equipe;
+create policy eventos_equipe_ler on public.eventos_equipe
+  for select to authenticated
+  using (private.eh_membro(mandato_id));
+
+-- só leitura pela API, para membros; quem grava são as funções de equipe e de convite
+revoke all on public.eventos_equipe from anon, authenticated;
+grant select on public.eventos_equipe to authenticated;
+revoke all on sequence public.eventos_equipe_id_seq from anon, authenticated;
