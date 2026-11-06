@@ -610,12 +610,12 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Antes de escrever, ler `node_modules/next/dist/docs/` sobre páginas client (regra do `AGENTS.md`)
-- [ ] Lê só `v_admin_mandatos`; 25 por página; "X dias parado" em destaque; estado vazio com "Limpar filtros"; botão Ver leva a `/admin/mandatos/[id]`
-- [ ] Erro de rede mostra "Tentar de novo"
-- [ ] Spec `e2e/admin-mandatos.spec.ts` criado nesta task
-- [ ] Cobre: 25 por página e exatamente 25; busca sem acento; combinação de filtros; escala 7/15/30/45 muda a lista; destaque de parado; vazio com limpar filtros; `vazou()` vazio
-- [ ] ≥ 8 testes passam
+- [x] Antes de escrever, ler `node_modules/next/dist/docs/` sobre páginas client (regra do `AGENTS.md`)
+- [x] Lê só `v_admin_mandatos`; 25 por página; "X dias parado" em destaque; estado vazio com "Limpar filtros"; botão Ver leva a `/admin/mandatos/[id]`
+- [x] Erro de rede mostra "Tentar de novo"
+- [x] Spec `e2e/admin-mandatos.spec.ts` criado nesta task
+- [x] Cobre: 25 por página e exatamente 25; busca sem acento; combinação de filtros; escala 7/15/30/45 muda a lista; destaque de parado; vazio com limpar filtros; `vazou()` vazio
+- [x] ≥ 8 testes passam
 
 **Tests**: e2e
 **Gate**: full
