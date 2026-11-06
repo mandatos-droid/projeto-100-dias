@@ -533,3 +533,139 @@ test('convite já usado continua usado: cancelar não reverte o estado final nem
   assert.deepEqual(await q('select usado_por, cancelado_em from public.convites where id = $1', [id]), [{ usado_por: IDS.fora, cancelado_em: null }]);
   assert.deepEqual(await historico(), []);
 });
+
+// ---------- T11: convite_previa e limite de tentativas ----------
+
+const INVALIDO = { ok: false, erro: 'invalido' };
+const LIMITE = { ok: false, erro: 'limite' };
+const previa = async (token: string | null) => (await q<{ r: Record<string, unknown> }>('select public.convite_previa($1) r', [token]))[0].r;
+// simula o cabeçalho que o PostgREST repassa; vale para a sessão, em qualquer papel
+const cabecalhos = (valor: string) => banco.query("select set_config('request.headers', $1, false)", [valor]);
+const vindoDe = (xff: string) => cabecalhos(JSON.stringify({ 'x-forwarded-for': xff }));
+const tentativas = async () => {
+  await comoDono(banco);
+  return (await q<{ origem: string }>('select origem from public.convite_tentativas order by em')).map((x) => x.origem);
+};
+// o relógio anda: tentativas e bloqueios ficam mais antigos
+const passam = async (intervalo: string) => {
+  await comoDono(banco);
+  await banco.query('update public.convite_tentativas set em = em - $1::interval', [intervalo]);
+  await banco.query('update public.convite_bloqueios set ate = ate - $1::interval', [intervalo]);
+};
+const falhas = async (n: number) => {
+  const r = [];
+  for (let i = 0; i < n; i++) r.push(await previa(`token-que-nao-existe-${i}`));
+  return r;
+};
+
+test('convite válido devolve nome, papel, quem convidou, mandato e exige_email, e abrir não consome (ACE-02.1)', async () => {
+  await insereConvite({ token: 'token-sem-email', nome: 'Carlos Lima', papel: 'assessoria' });
+  await insereConvite({ token: 'token-com-email', nome: 'Dora Dias', papel: 'leitura', email: 'dora@exemplo.com', por: LEITOR, porNome: 'Leo Leitor' });
+  await como(banco, null);
+  const mandato = { nome_parlamentar: 'Parlamentar Um', cargo: 'Deputada Federal', uf: 'SP' };
+  for (let vez = 0; vez < 2; vez++) {
+    assert.deepEqual(await previa('token-sem-email'),
+      { ok: true, nome: 'Carlos Lima', papel: 'assessoria', convidado_por: 'Mario Membro', mandato, exige_email: false });
+    assert.deepEqual(await previa('token-com-email'),
+      { ok: true, nome: 'Dora Dias', papel: 'leitura', convidado_por: 'Leo Leitor', mandato, exige_email: true });
+  }
+  assert.deepEqual(await nomesPendentes(), ['Carlos Lima', 'Dora Dias']);
+  assert.deepEqual(await q('select count(*)::int n from public.convites where usado_em is not null or usado_por is not null'), [{ n: 0 }]);
+});
+
+test('token inexistente, vencido, cancelado ou usado devolve exatamente {ok:false, erro:"invalido"}, o mesmo nos quatro casos (ACE-02.10, ACE-02.11)', async () => {
+  await insereConvite({ token: 'token-vencido', criado: '-8 days', expira: '-1 second' });
+  await insereConvite({ token: 'token-cancelado', cancelado: '-1 minute' });
+  await insereConvite({ token: 'token-usado', usado: '-1 minute', usadoPor: IDS.fora });
+  await como(banco, null);
+  const r = [await previa('token-que-nunca-existiu'), await previa('token-vencido'), await previa('token-cancelado'), await previa('token-usado')];
+  for (const x of r) assert.deepEqual(x, INVALIDO);
+  assert.equal(new Set(r.map((x) => JSON.stringify(x))).size, 1);
+});
+
+test('convite cancelado por convite_cancelar deixa de valer na prévia (ACE-02.11, T10)', async () => {
+  await como(banco, IDS.membro);
+  const { id, token } = await criar('Carlos Lima', 'leitura');
+  await como(banco, null);
+  assert.equal((await previa(token)).ok, true);
+  await como(banco, IDS.membro);
+  await cancelar(id);
+  await como(banco, null);
+  assert.deepEqual(await previa(token), INVALIDO);
+});
+
+test('cada falha grava uma linha em convite_tentativas com o primeiro IP de x-forwarded-for: a função devolve dados, não exceção (ACE-02.14)', async () => {
+  await insereConvite({ token: 'token-bom' });
+  await vindoDe('1.2.3.4, 10.0.0.1');
+  await como(banco, null);
+  assert.deepEqual(await falhas(3), [INVALIDO, INVALIDO, INVALIDO]);
+  await como(banco, null);
+  assert.equal((await previa('token-bom')).ok, true);
+  assert.deepEqual(await tentativas(), ['1.2.3.4', '1.2.3.4', '1.2.3.4']);
+});
+
+test('a 11ª falha em 10 minutos devolve limite, e as chamadas seguintes da origem também, mesmo com token válido; outra origem segue normal (ACE-02.14)', async () => {
+  await insereConvite({ token: 'token-bom' });
+  await vindoDe('1.2.3.4');
+  await como(banco, null);
+  assert.deepEqual(await falhas(10), Array(10).fill(INVALIDO));
+  assert.deepEqual(await previa('mais-um-token-errado'), LIMITE);
+  assert.deepEqual(await previa('token-bom'), LIMITE);
+  assert.deepEqual(await previa('outro-token-errado'), LIMITE);
+  await vindoDe('5.6.7.8');
+  await como(banco, null);
+  assert.deepEqual(await previa('token-errado-de-outra-origem'), INVALIDO);
+  assert.equal((await previa('token-bom')).ok, true);
+});
+
+test('o bloqueio dura 15 minutos: aos 14 ainda recusa, depois dos 15 volta a responder (ACE-02.14)', async () => {
+  await insereConvite({ token: 'token-bom' });
+  await vindoDe('1.2.3.4');
+  await como(banco, null);
+  await falhas(11);
+  await passam('14 minutes');
+  await como(banco, null);
+  assert.deepEqual(await previa('token-bom'), LIMITE);
+  await passam('61 seconds');
+  await como(banco, null);
+  assert.equal((await previa('token-bom')).ok, true);
+  assert.deepEqual(await previa('token-errado-depois'), INVALIDO);
+});
+
+test('falhas com mais de 10 minutos não contam para o limite (ACE-02.14)', async () => {
+  await vindoDe('1.2.3.4');
+  await como(banco, null);
+  await falhas(10);
+  await passam('11 minutes');
+  await como(banco, null);
+  assert.deepEqual(await falhas(10), Array(10).fill(INVALIDO));
+  assert.deepEqual(await previa('a-décima-primeira-recente'), LIMITE);
+});
+
+test('sem x-forwarded-for (ausente, vazio, sem a chave ou JSON inválido) o limite não se aplica e a função responde normalmente', async () => {
+  await insereConvite({ token: 'token-bom' });
+  for (const valor of ['', '{}', 'isto não é json', '{"x-forwarded-for":""}']) {
+    await cabecalhos(valor);
+    await como(banco, null);
+    assert.deepEqual(await falhas(12), Array(12).fill(INVALIDO), valor);
+    assert.equal((await previa('token-bom')).ok, true, valor);
+  }
+  assert.deepEqual(await tentativas(), []);
+});
+
+test('anon e authenticated executam convite_previa', async () => {
+  await insereConvite({ token: 'token-bom' });
+  for (const quem of [null, IDS.fora, LEITOR]) {
+    await como(banco, quem);
+    assert.equal((await previa('token-bom')).ok, true, String(quem));
+  }
+});
+
+test('nenhuma outra função desta feature é liberada a anon: fora de gatilhos, só convite_previa', async () => {
+  await comoDono(banco);
+  const r = await q<{ f: string }>(
+    `select n.nspname || '.' || p.proname f from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+      where n.nspname in ('public', 'private') and p.prorettype <> 'trigger'::regtype
+        and has_function_privilege('anon', p.oid, 'execute') order by 1`);
+  assert.deepEqual(r.map((x) => x.f), ['public.convite_previa']);
+});

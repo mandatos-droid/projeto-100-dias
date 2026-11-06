@@ -384,3 +384,73 @@ $$;
 
 revoke execute on function public.convite_cancelar(uuid) from public, anon;
 grant  execute on function public.convite_cancelar(uuid) to authenticated;
+
+-- ---------- LIMITE DE TENTATIVAS ----------
+-- Origem = primeiro IP de x-forwarded-for, que o PostgREST repassa em request.headers. Sem o
+-- cabeçalho (ausente, vazio ou JSON inválido) não há origem e o limite não se aplica.
+create or replace function private.convite_origem()
+returns text language plpgsql stable set search_path = '' as $$
+begin
+  return nullif(btrim(split_part(
+    nullif(current_setting('request.headers', true), '')::json->>'x-forwarded-for', ',', 1)), '');
+exception when others then
+  return null;
+end;
+$$;
+
+-- Verdadeiro enquanto a origem estiver bloqueada.
+create or replace function private.convite_limite(p_origem text)
+returns boolean language sql stable security definer set search_path = '' as $$
+  select exists (select 1 from public.convite_bloqueios b where b.origem = p_origem and b.ate > now())
+$$;
+
+-- Registra um token inválido e devolve a resposta da falha. Mais de 10 falhas em 10 minutos
+-- bloqueiam a origem por 15 minutos, a partir desta. Quem chama devolve o resultado como dado,
+-- sem exceção, para a tentativa gravada não ser desfeita.
+create or replace function private.convite_falha(p_origem text)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+begin
+  if p_origem is not null then
+    insert into public.convite_tentativas (origem) values (p_origem);
+    if (select count(*) from public.convite_tentativas t
+        where t.origem = p_origem and t.em > now() - interval '10 minutes') > 10 then
+      insert into public.convite_bloqueios (origem, ate) values (p_origem, now() + interval '15 minutes')
+      on conflict (origem) do update set ate = excluded.ate;
+      return jsonb_build_object('ok', false, 'erro', 'limite');
+    end if;
+  end if;
+  return jsonb_build_object('ok', false, 'erro', 'invalido');
+end;
+$$;
+
+revoke execute on function private.convite_origem(), private.convite_limite(text), private.convite_falha(text)
+  from public, anon, authenticated;
+
+-- ---------- PRÉVIA PÚBLICA DO CONVITE ----------
+-- Única função desta feature liberada a anon: quem abre o link ainda não tem conta.
+-- Não consome nada. Inexistente, vencido, cancelado e usado dão a mesma resposta.
+create or replace function public.convite_previa(p_token text)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+declare
+  v_origem text := private.convite_origem();
+  v_c      record;
+begin
+  if private.convite_limite(v_origem) then
+    return jsonb_build_object('ok', false, 'erro', 'limite');
+  end if;
+  select c.nome, c.papel, c.criado_por_nome, c.email, m.nome_parlamentar, m.cargo, m.uf into v_c
+  from public.convites c join public.mandatos m on m.id = c.mandato_id
+  where c.token_hash = sha256(convert_to(coalesce(p_token, ''), 'UTF8'))
+    and c.usado_em is null and c.cancelado_em is null and c.expira_em > now();
+  if not found then
+    return private.convite_falha(v_origem);
+  end if;
+  return jsonb_build_object(
+    'ok', true, 'nome', v_c.nome, 'papel', v_c.papel, 'convidado_por', v_c.criado_por_nome,
+    'mandato', jsonb_build_object('nome_parlamentar', v_c.nome_parlamentar, 'cargo', v_c.cargo, 'uf', v_c.uf),
+    'exige_email', v_c.email is not null);
+end;
+$$;
+
+revoke execute on function public.convite_previa(text) from public;
+grant  execute on function public.convite_previa(text) to anon, authenticated;

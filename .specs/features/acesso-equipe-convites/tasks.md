@@ -410,14 +410,14 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Convite válido devolve `{ok:true, nome, papel, convidado_por, mandato:{nome_parlamentar, cargo, uf}, exige_email}` e não altera `usado_em` (ACE-02.1)
-- [ ] Token inexistente, vencido, cancelado ou usado devolve exatamente `{ok:false, erro:'invalido'}`, o mesmo valor nos quatro casos (ACE-02.10, ACE-02.11)
-- [ ] Cada falha grava uma linha em `convite_tentativas`, o que prova que a função devolve dados e não exceção (ACE-02.14)
-- [ ] A 11ª falha em 10 minutos pela mesma origem devolve `{ok:false, erro:'limite'}` e as chamadas seguintes por 15 minutos também; outra origem não é afetada; após 15 minutos volta a responder (ACE-02.14)
-- [ ] Sem o cabeçalho `x-forwarded-for` o limite não se aplica e a função responde normalmente
-- [ ] `anon` e `authenticated` executam a função; nenhuma outra função desta feature é liberada a `anon`
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 9 testes novos em `tests/sql-convites.test.ts`, nenhum removido
+- [x] Convite válido devolve `{ok:true, nome, papel, convidado_por, mandato:{nome_parlamentar, cargo, uf}, exige_email}` e não altera `usado_em` (ACE-02.1)
+- [x] Token inexistente, vencido, cancelado ou usado devolve exatamente `{ok:false, erro:'invalido'}`, o mesmo valor nos quatro casos (ACE-02.10, ACE-02.11)
+- [x] Cada falha grava uma linha em `convite_tentativas`, o que prova que a função devolve dados e não exceção (ACE-02.14)
+- [x] A 11ª falha em 10 minutos pela mesma origem devolve `{ok:false, erro:'limite'}` e as chamadas seguintes por 15 minutos também; outra origem não é afetada; após 15 minutos volta a responder (ACE-02.14)
+- [x] Sem o cabeçalho `x-forwarded-for` o limite não se aplica e a função responde normalmente
+- [x] `anon` e `authenticated` executam a função; nenhuma outra função desta feature é liberada a `anon`
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 9 testes novos em `tests/sql-convites.test.ts`, nenhum removido
 
 **Tests**: integration
 **Gate**: quick
