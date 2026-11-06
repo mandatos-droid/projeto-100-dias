@@ -25,7 +25,7 @@ export default function Casca({ tela, titulo, children }: { tela: Tela; titulo: 
           </Link>
         ))}
         {/* /painel é um rewrite para HTML estático: link comum, sem o roteador do Next */}
-        <a href="/painel" className="nav sep">Painel de métricas (/painel)</a>
+        <a href="/painel" className="nav">Painel de métricas</a>
       </nav>
       <div className="main">
         <div className="top">
