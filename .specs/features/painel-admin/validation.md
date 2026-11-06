@@ -2,14 +2,34 @@
 
 **Date**: 2026-11-06
 **Spec**: `.specs/features/painel-admin/spec.md`
-**Diff range**: `7b0942c..80d732a` (41 commits, branch `feat/painel-admin`, 60 arquivos, +7.034/-144)
-**Verifier**: sub-agente independente (autor != verificador). Árvore real somente leitura; mutações só em scratch (`git worktree` temporário em `%TEMP%`, removido ao fim).
+**Diff range**: `7b0942c..db72024` (branch `feat/painel-admin`; a iteração 1 verificou até `80d732a`; esta iteração 2 re-verificou `00b95ad..db72024`: 9 commits de correção F1 a F9, 12 arquivos, +249/-36)
+**Verifier**: sub-agente independente (autor != verificador), iteração 2 de no máximo 3. Árvore real somente leitura; mutações só num scratch fora do repositório.
 
-## Validation summary - FAIL
+## Validation summary - PASS
 
-**Result**: FAIL
+**Result**: PASS
 
-Todos os critérios de ADM-01 a ADM-16 e os 7 Edge Cases têm evidência (`file:line` + asserção). O veredito é FAIL por causa de três itens relevantes, listados em "Lacunas ranqueadas": (1) um e2e intermitente (~7% de falha em repetição), (2) um mutante de permissão que sobreviveu (gatilho de `arquivado_em` aceita papel `leitura`) e (3) testes de ausência de ADM-01.1/01.2 que passam cedo demais (dois mutantes de "vazamento atrasado" sobreviveram). Há ainda outros mutantes sobreviventes de menor risco e lacunas de precisão da spec.
+Todos os critérios ADM-01 a ADM-16 e os 7 Edge Cases têm evidência `file:line` + asserção, e as 8 lacunas ranqueadas da iteração 1 foram fechadas com correção verificada. Dos 9 mutantes relevantes que sobreviveram na iteração 1, 8 agora morrem; o E10 segue sobrevivendo por limite de projeto documentado e aceitável (ver Sensor). Das 13 mutações novas, 11 morreram e 2 sobreviveram por serem equivalentes (comportamento idêntico). Gates verdes em 3 rodadas seguidas e em 20 repetições de Equipe e de Mandatos (sem intermitência). Nenhuma lacuna relevante restante; só observações de baixo risco.
+
+### Histórico (iteração 1, FAIL)
+
+A iteração 1 (73 mutações, 61 mortas, 12 sobreviventes) reprovou por: (1) e2e intermitente em `admin-equipe.spec.ts` (~7%), (2) gatilho `arquivado_em` aceitando `leitura` sem teste (V5), (3) testes de ausência de ADM-01.1/01.2 que passavam cedo (EA2, EB). Outros sobreviventes: M13 (`search_path` sem teste), E14 (flag `NUVEM`), E1t, E6b, E8, E10, e a lista de Mandatos sem `lerTudo` (teto de 1.000). A iteração 1 também registrou um incidente de ambiente (junção de `node_modules` seguida por `git worktree remove --force`); nesta iteração nenhum link foi criado (ver Integridade).
+
+### Correções F1 a F9 (resumo)
+
+| Commit | O que mudou | Lacuna da iteração 1 |
+| ------ | ----------- | -------------------- |
+| `5567be0` | `admin-equipe.spec.ts:235` espera `toHaveCount(3)` antes de mexer no banco | 1 |
+| `5f0c8f3` | `sql-admin-mandatos.test.ts:194-205` cobre `leitura` + membro no gatilho | 2 |
+| `9c2c690` | `esperaSemChamadas`/`esperaSemMandatos`/`esperaSemRpc` em `e2e/admin-api.ts:42-58` (rede quieta + 1,2 s), usados em acesso, equipe e detalhe | 3 |
+| `cdbaeea` | `app/admin/page.tsx:36` lê com `lerTudo` e `order=ultima_atividade.desc,id`; e2e com 1.120 mandatos (`admin-mandatos.spec.ts:48`) | 4 |
+| `ff56547` | `tests/sql-admin-funcoes.test.ts` lê `pg_proc` (`prosecdef`, `proconfig`, `has_function_privilege`, `proacl`) | 5 |
+| `834852a` | `admin-uso-registro.spec.ts:75-91` isola `NUVEM` com `Nuvem.tok` e `CONFIG` | 6 |
+| `22eb009` | `vazou()` refatorado em `chavesProibidasEm`/`pedidoCitaChaves` + autoteste `e2e/admin-helper.spec.ts` (8 testes); regex sem âncora em `admin-transversal.spec.ts:141` | 7 |
+| `7a8dff1` | duplo clique com `seguraRpc`: `toBeDisabled()` no botão e em Cancelar, 2 `requestSubmit()` simultâneos, `pedidos()` igual a 1 | 8 |
+| `db72024` | 8 linhas de Assumptions na spec (precisão) | 9 |
+
+Única mudança de código de produção: `plataforma/app/admin/page.tsx` (leitura paginada de Mandatos).
 
 ---
 
@@ -17,19 +37,20 @@ Todos os critérios de ADM-01 a ADM-16 e os 7 Edge Cases têm evidência (`file:
 
 | Task | Status | Notes |
 | ---- | ------ | ----- |
-| T1 a T36 | Done | `tasks.md` tem 126 caixas marcadas; nenhuma de T1 a T36 em aberto |
-| T37 (spec da Fase 2) | Pendente de propósito | A task diz "só começa depois do Verifier da feature dar PASS"; 5 caixas abertas, todas dela |
+| T1 a T36 | Done | `tasks.md` com as caixas de T1 a T36 marcadas |
+| T37 (spec da Fase 2) | Pendente de propósito | só começa depois do PASS do Verifier da feature |
 
 ---
 
 ## Gate Check
 
-- **Comandos**: `npm test`, `npx tsc --noEmit`, `npx playwright test -c playwright.isolado.config.ts e2e/admin-` (config isolado, `next dev` na porta 3100). `npm run build` NÃO rodado (instrução do orquestrador; oscila com o aviso de segurança conhecido do Next 16.4).
-- **Unit/SQL (`npm test`)**: 721 testes, 721 passam, 0 falham, 0 pulados. Dos 721, 197 são desta feature (`tests/admin-*`, `tests/sql-*`, `tests/uso.test.ts`); antes da feature eram 524. Nenhum teste apagado (diff de `tests/` e `e2e/` só tem inserções).
-- **tsc**: `npx tsc --noEmit` sai com 0, sem mensagens (duas vezes: antes e depois da reinstalação descrita abaixo).
-- **e2e `e2e/admin-`**: rodada 1: 116 passaram (2,0 min); rodada 2: 116 passaram (2,2 min); rodada 3 (depois da reinstalação de `node_modules`): 116 passaram (1,8 min). Nenhum pulado.
-- **Intermitência encontrada**: repetindo só o teste `admin-equipe.spec.ts:221` com `--repeat-each` (12, 15, 15, 15 execuções) houve 2, 0, 1 e 1 falhas: 4 em 57 (~7%). Erro: `locator.click: Test timeout of 30000ms exceeded` esperando o botão Remover da linha "Carla Dias" (ver Lacuna 1). A suíte inteira passou 3 vezes seguidas por sorte.
-- **Incidente de ambiente (registrado por honestidade)**: ao remover o scratch, `git worktree remove --force` seguiu a junção `node_modules` do scratch (criada por mim) e apagou parte do `plataforma/node_modules` REAL (pastas `@dagrejs`, `@electric-sql`, `@emnapi`, `@img` e outras). Reparei com `npm install --no-save --no-audit --no-fund` em `plataforma/` (adicionou 8 e alterou 8 pacotes; nenhum arquivo versionado mudou). Depois conferi `npm test` (721), `tsc` (0) e o e2e inteiro (116). Pasta `node_modules` é ignorada pelo git; `git status --porcelain` ficou igual ao do início (`?? plataforma/playwright.isolado.config.ts`).
+- **Comandos**: `npm test`, `npx tsc --noEmit`, `npx playwright test -c playwright.isolado.config.ts e2e/admin-` (config isolado, `next dev` do worktree na porta 3100; `curl /admin` = 200). `npm run build` NÃO rodado (instrução do orquestrador).
+- **Unit/SQL (`npm test`)**: 725 testes, 725 passam, 0 falham, 0 pulados (721 na iteração 1: +3 em `sql-admin-funcoes.test.ts`, +1 em `sql-admin-mandatos.test.ts`). Repetido depois da limpeza do scratch: 725/725.
+- **tsc**: `npx tsc --noEmit` sai com 0, sem mensagens.
+- **e2e `e2e/admin-`**: rodada 1: 125 passaram (2,2 min); rodada 2: 125 (2,2 min); rodada 3: 125 (2,1 min); 0 falhas, 0 pulados (116 na iteração 1: +8 do autoteste do ajudante, +1 do teste de 1.120 mandatos).
+- **Intermitência**: `--repeat-each=20` de `e2e/admin-equipe.spec.ts`: 360 passaram, 0 falhas (5,7 min); de `e2e/admin-mandatos.spec.ts`: 300 passaram, 0 falhas (4,0 min). A iteração 1 media ~7% de falha no teste antigo `:221` (hoje `:231`); agora 0 em 360 execuções do arquivo todo.
+- **Test integrity**: `git diff 00b95ad..HEAD` em `tests/` e `e2e/` só tem acréscimos e endurecimentos; nenhum teste removido. Asserções trocadas: `chamou(x)).toBe(0)` e `chamadasDeMandatos()).toEqual([])` viraram `esperaSemRpc`/`esperaSemMandatos` (mais fortes: esperam). A segunda linha de `admin-acesso.spec.ts:31` (filtro `v_admin|mandatos`) foi absorvida por `ehDeMandatos` em `admin-api.ts:45`, que cobre `v_admin_|^mandatos|^eventos|rpc/admin_mandato|rpc/admin_membro` (mais ampla). A âncora `^` removida do regex ALTERA tornou o teste mais sensível.
+- **Regressão da leitura paginada de Mandatos**: nenhuma. Os testes de `admin-mandatos.spec.ts` (ordem, filtros, "X dias parado", "Parado há", 25 por página, vazio, erro, celular) seguem verdes em 20 repetições; a ordem continua por `ultima_atividade.desc` (o `,id` só desempata) e `lerTudo` tem testes unitários de fronteira (`tests/admin-api.test.ts`; mutantes T10, T11, N3, N16 mortos).
 
 ---
 
@@ -41,13 +62,13 @@ Legenda: PASS = asserção localizada e igual ao resultado da spec; GAP = sem as
 
 | AC | Resultado da spec | `file:line` + asserção | Situação |
 | -- | ----------------- | ---------------------- | -------- |
-| 1.1 sem sessão | tela de entrada (Google e e-mail), nenhum dado de mandato | `e2e/admin-acesso.spec.ts:25-29` `getByRole('button',{name:'Entrar com Google'})`, `getByLabel('E-mail'/'Senha')` visíveis, `tbody tr` count 0; `:30` `expect(chamadasDeMandatos()).toEqual([])` | PASS na tela; a parte "nenhum dado" é teste de ausência que passa cedo (Lacuna 3) |
-| 1.2 sem linha em equipe | "Sem acesso" e nenhuma consulta de mandatos | `admin-acesso.spec.ts:36` heading "Sem acesso"; `:39` `chamadasDeMandatos()` `[]`; `:41` `caminho.startsWith('equipe_legisla')` length 1 | PASS na mensagem; ausência de consulta é frágil (Lacuna 3: mutante EA2 sobreviveu) |
+| 1.1 sem sessão | tela de entrada (Google e e-mail), nenhum dado de mandato | `e2e/admin-acesso.spec.ts:25-29` `getByRole('button',{name:'Entrar com Google'})`, `getByLabel('E-mail'/'Senha')` visíveis, `tbody tr` count 0; `:30` `expect(chamadasDeMandatos()).toEqual([])` | PASS; a parte "nenhum dado" agora espera ~1,2 s + rede quieta: `admin-acesso.spec.ts:31` `expect(await esperaSemMandatos(page)).toEqual([])` (EB morto) |
+| 1.2 sem linha em equipe | "Sem acesso" e nenhuma consulta de mandatos | `admin-acesso.spec.ts:36` heading "Sem acesso"; `:39` `chamadasDeMandatos()` `[]`; `:41` `caminho.startsWith('equipe_legisla')` length 1 | PASS; `:39` `expect(await esperaSemMandatos(page)).toEqual([])` (EA2 morto, pelo teste `:34`) |
 | 1.3 papel admin/leitura | abre em Mandatos com menu Equipe, Mandatos, Analytics, Logs e link /painel | `admin-acesso.spec.ts:61` heading Mandatos; `:64` `toHaveText(['Equipe','Mandatos','Analytics','Logs','Painel de métricas (/painel)'])`; `:66` `href '/painel'` | PASS |
 | 1.4 reaproveita `legisla.tok` | sem novo login | `admin-acesso.spec.ts:58-69` (`Entrar com Google` count 0 depois de semear a sessão); `tests/admin-sessao.test.ts:23` chave `legisla.tok`; `:34` lê a sessão do Guia | PASS |
 | 1.5 401 volta à entrada | tela de entrada | `admin-acesso.spec.ts:152-158` `.aviso` `'Sua sessão venceu. Entre de novo.'` + botão Google visível + tentou renovar; `:139-143`, `:145-149` | PASS |
-| 2.6 leitura sem botões, seletores desabilitados | nenhum Incluir/Remover/Editar/Adicionar/Arquivar/Excluir; seletores de papel desabilitados | `admin-acesso.spec.ts:121-127` count 0 por nome + `habilitados` `toEqual(['UF','Casa','Situação','Parado há'])`; `admin-equipe.spec.ts:246-255` `seletores.nth(i)).toBeDisabled()`; `admin-detalhe.spec.ts:304-315`; `admin-logs.spec.ts:177-187`; `admin-analytics.spec.ts:309`; `admin-transversal.spec.ts:139-148` | PASS (mutantes E1, E2 mortos; ver E1t em Lacuna 7) |
-| 2.7 escrita direta de `leitura` recusada | erro de permissão, nada muda | `tests/sql-admin-equipe.test.ts:164-178` `assert.rejects(chama(sql,args), SEM_PERMISSAO)` para leitura/gabinete/fora e `/permission denied/` para anônimo; `tests/sql-admin-mandatos.test.ts:164-181` idem para as 5 funções de mandato; `:180-185` escrita direta em `equipe_legisla` recusada até para admin; `:187-199` auditoria | PASS nas funções; GAP no gatilho `arquivado_em` para `leitura` que também é membro (Lacuna 2, mutante V5) |
+| 2.6 leitura sem botões, seletores desabilitados | nenhum Incluir/Remover/Editar/Adicionar/Arquivar/Excluir; seletores de papel desabilitados | `admin-acesso.spec.ts:121-127` count 0 por nome + `habilitados` `toEqual(['UF','Casa','Situação','Parado há'])`; `admin-equipe.spec.ts:246-255` `seletores.nth(i)).toBeDisabled()`; `admin-detalhe.spec.ts:304-315`; `admin-logs.spec.ts:177-187`; `admin-analytics.spec.ts:309`; `admin-transversal.spec.ts:139-148` | PASS (mutantes E1, E2 e E1t mortos) |
+| 2.7 escrita direta de `leitura` recusada | erro de permissão, nada muda | `tests/sql-admin-equipe.test.ts:164-178` `assert.rejects(chama(sql,args), SEM_PERMISSAO)` para leitura/gabinete/fora e `/permission denied/` para anônimo; `tests/sql-admin-mandatos.test.ts:164-181` idem para as 5 funções de mandato; `:180-185` escrita direta em `equipe_legisla` recusada até para admin; `:187-199` auditoria | PASS nas funções e no gatilho: `sql-admin-mandatos.test.ts:194-205` `assert.rejects(chama(update ... arquivado_em), SEM_PERMISSAO)` para `leitura` que é membro, arquivar e desarquivar (V5 morto) |
 | 2.8 fora da equipe | erro de permissão ou 0 linhas | `tests/sql-admin-leitura.test.ts:34` `(await q(select * from v_admin_*)).length` 0 para membro e fora e `:38` `/permission denied/` para anônimo; `sql-admin-equipe.test.ts:64-80`; `sql-admin-mandatos.test.ts:32-44` | PASS |
 | 2.9 só admin/leitura; `analista` vira `leitura` | constraint + conversão | `sql-admin-equipe.test.ts:43` `papel` `'leitura'`; `:44-47` `rejects(..., /equipe_legisla_papel_check/)` | PASS |
 | 2.10 papel lido a cada chamada | troca vale na chamada seguinte | `tests/sql-ambiente.test.ts:73-83` (fora sem acesso, depois com, depois sem); `sql-admin-equipe.test.ts:136-140` (admin rebaixado/promovido por fora vale na chamada seguinte) | PASS |
@@ -59,7 +80,7 @@ Legenda: PASS = asserção localizada e igual ao resultado da spec; GAP = sem as
 | 3.1 lista | nome, e-mail, papel, entrada; da mais antiga à mais recente | `sql-admin-equipe.test.ts:57-60` `deepEqual([[nome,email,papel]...])` com Lia (jan) antes de Ana (fev); `e2e/admin-equipe.spec.ts:84` `thead th` `['Nome','E-mail','Papel','Desde','']`, `:86-93` ordem e datas `16/10/2026`, `20/10/2026`, `03/11/2026` | PASS |
 | 3.2 incluir | inclui com o papel e mostra | `admin-equipe.spec.ts:125-131` count 4, `Papel de Diego Reis` `'admin'`, `escritas()` `['rpc/admin_equipe_incluir']`; `sql-admin-equipe.test.ts:103` | PASS |
 | 3.3 busca por e-mail | exato, sem caixa/espaços, no máximo 1, só admin | `sql-admin-equipe.test.ts:85-87` `'  FORA@Exemplo.com '` -> 1 linha igual a `{user_id,nome,email}`; `'fora@exemplo'` -> 0; `:91-97` leitura/gabinete recusados | PASS |
-| 3.4 sem conta | "Nenhuma conta com este e-mail. A pessoa precisa entrar na plataforma uma vez." | `admin-equipe.spec.ts:137` `toHaveText(SEM_CONTA)`; `:138` `chamou('admin_equipe_incluir')` 0; `tests/admin-mensagens.test.ts:32` texto fixo | PASS (ausência imediata, Lacuna 3) |
+| 3.4 sem conta | "Nenhuma conta com este e-mail. A pessoa precisa entrar na plataforma uma vez." | `admin-equipe.spec.ts:137` `toHaveText(SEM_CONTA)`; `:138` `expect(await esperaSemRpc(page, 'admin_equipe_incluir')).toEqual([])`; `tests/admin-mensagens.test.ts:32` texto fixo | PASS (ausência com espera) |
 | 3.5 já na equipe | "Esta pessoa já está na equipe." | `sql-admin-equipe.test.ts:115` `/Esta pessoa já está na equipe\./` e `:118-119` equipe 2 e auditoria 0; `admin-equipe.spec.ts:147` `toHaveText('Esta pessoa já está na equipe.')` | PASS |
 | 3.6 trocar papel | grava e mostra | `sql-admin-equipe.test.ts:125-128`; `admin-equipe.spec.ts:178-181` `escritas()` `['rpc/admin_equipe_papel']` e `banco.equipe...papel` `'admin'` | PASS |
 | 3.7 remover | sem apagar a conta | `sql-admin-equipe.test.ts:148` `auth.users` ainda 1 linha, `:152` detalhe `{nome,papel}`; `admin-equipe.spec.ts:187-197` cancelar 0 chamadas, confirmar 1 | PASS |
@@ -79,7 +100,7 @@ Legenda: PASS = asserção localizada e igual ao resultado da spec; GAP = sem as
 
 | AC | Resultado da spec | `file:line` + asserção | Situação |
 | -- | ----------------- | ---------------------- | -------- |
-| 5.1 25 por página | colunas código, parlamentar, cargo, UF, partido, membros, última atividade | `e2e/admin-mandatos.spec.ts:29` `columnheader` `['Código','Parlamentar','Cargo','UF','Partido','Membros','Última atividade','']`, `:30` 25 linhas, `:31` `'1–25 de 60'`, `:35` `'26–50 de 60'`, `:37` 10 linhas; `tests/admin-mandatos.test.ts:114` `TAMANHO_PAGINA` 25 | PASS; formato do valor de "última atividade" não definido (SPEC?) |
+| 5.1 25 por página | colunas código, parlamentar, cargo, UF, partido, membros, última atividade | `e2e/admin-mandatos.spec.ts:29` `columnheader` `['Código','Parlamentar','Cargo','UF','Partido','Membros','Última atividade','']`, `:30` 25 linhas, `:31` `'1–25 de 60'`, `:35` `'26–50 de 60'`, `:37` 10 linhas; `tests/admin-mandatos.test.ts:114` `TAMANHO_PAGINA` 25 | PASS; leitura paginada: `admin-mandatos.spec.ts:48-58` com 1.120 mandatos, pedidos `['1000:0','1000:1000']` com `order=ultima_atividade.desc,id`, `'1–25 de 1120'` e, com "Parado há" 45, `'1–25 de 130'` (os 130 mais parados que um corte em 1.000 perderia) (N1, N2 mortos); formato da "última atividade" agora é Assumption da spec (F9) |
 | 5.2 view sem texto | sem `nome_civil`, `resp_telefone`, `dados`, `eventos.texto` | `sql-admin-leitura.test.ts:55-56` `cols.filter(PROIBIDAS.includes(column_name))` `[]` sobre `information_schema.columns` de `v_admin_%`; `admin-mandatos.spec.ts:52-55` caminho `/^v_admin_mandatos\?/` e `vazou()` `[]` | PASS (M9, M9b, E7 mortos) |
 | 5.3 busca | por código ou nome, sem caixa nem acento | `tests/admin-mandatos.test.ts:32-45`; `admin-mandatos.spec.ts:71-76` `fill('MARCIA avila')` -> `toContainText('Márcia Ávila')`, `fill('xyz7')` -> 'João Nunes' | PASS (T3, T3b mortos) |
 | 5.4 filtros combinam | UF, casa, situação + busca | `tests/admin-mandatos.test.ts:48-62`; `admin-mandatos.spec.ts:79-94` | PASS |
@@ -111,7 +132,7 @@ Legenda: PASS = asserção localizada e igual ao resultado da spec; GAP = sem as
 | 8.2 desarquivar | volta à lista e ao Analytics | `sql-admin-mandatos.test.ts:119` `arquivado_em` `null`; `admin-detalhe.spec.ts:256-259`; `admin-mandatos.spec.ts:89-94` filtro Arquivados | PASS |
 | 8.3 botão desabilitado | enquanto o texto difere do código | `admin-detalhe.spec.ts:267-275` `confirma` `toBeDisabled()` para `K7QX2`, `k7qx29`, `K7QX29 ` (espaço), `XK7QX29`, `toBeEnabled()` com o código exato | PASS (E3 morto) |
 | 8.4 excluir | apaga mandato; cascata em membros e eventos; sugestões ficam com `mandato_id` nulo | `sql-admin-mandatos.test.ts:154-157` mandatos `[B]`, membros 0, eventos 0, `deepEqual(sugestoes,[{mandato_id:null,texto:...}])`; `:141` código errado `/O código digitado não confere com o do mandato\./` | PASS (V6 morto) |
-| 8.5 só por função admin | sem update/delete direto | `sql-admin-mandatos.test.ts:164-181`; `:183-192` gatilho (membro de gabinete); `:194-202` admin não membro: `affectedRows` 0 | PASS para gabinete e admin; GAP para `leitura` que é membro (Lacuna 2) |
+| 8.5 só por função admin | sem update/delete direto | `sql-admin-mandatos.test.ts:164-181`; `:183-192` gatilho (membro de gabinete); `:194-202` admin não membro: `affectedRows` 0 | PASS para gabinete, admin e `leitura` que é membro (`:194-205`) |
 
 ### ADM-09 a ADM-12: Analytics
 
@@ -146,7 +167,7 @@ Legenda: PASS = asserção localizada e igual ao resultado da spec; GAP = sem as
 | 14.1 grava 1 linha | `mandato_id`, funcionalidade estável, `criado_em` | `e2e/admin-uso-registro.spec.ts:44-48` `Object.keys(corpo).sort()` `['criado_em','funcionalidade','mandato_id']`, `mandato_id 'm_teste'`, `funcionalidade 'conjuntura'`; `:65-72` outra funcionalidade grava a sua; `tests/uso.test.ts:11`, `:71` | PASS |
 | 14.2 sem texto/nome/e-mail/`user_id` | só 3 colunas (mais id) | `sql-uso-funcionalidades.test.ts:21-26`; `admin-uso-registro.spec.ts:44` (chaves exatas) | PASS |
 | 14.3 erro ignorado | sem aviso e sem nova tentativa | `admin-uso-registro.spec.ts:94-97` `usos` length 1 após 1,5 s, `erros` `[]`, `#toast` sem classe `on`, `#tela` visível (500, 401 e rede) | PASS |
-| 14.4 `NUVEM=false` | não grava | `admin-uso-registro.spec.ts:78-82` `usos` length 0 após 500 ms e `NUVEM` `false` | GAP parcial: o teste não isola o flag `NUVEM` (Lacuna 6, mutante E14 sobreviveu) |
+| 14.4 `NUVEM=false` | não grava | `admin-uso-registro.spec.ts:78-82` `usos` length 0 após 500 ms e `NUVEM` `false` | PASS: `admin-uso-registro.spec.ts:75-91` define `Nuvem.tok` e `CONFIG`, espera 1 s, `usos` length 0 e `[NUVEM, tok, !!CONFIG]` igual a `[false,'tok-teste',true]` (E14 morto) |
 | 14.5 1 linha em 60 s | só 1 | `tests/uso.test.ts:16-33` (59 s ignora; 60 s grava); `admin-uso-registro.spec.ts:61-62` `usos` length 1 | PASS (U1, U2 mortos) |
 | 14.6 inclusão só de membros; leitura só da equipe | RLS | `sql-uso-funcionalidades.test.ts:27-70` (membro insere; outro mandato e fora recusados; anônimo recusado; gabinete não lê; ninguém atualiza/apaga) | PASS (M14, M15 mortos) |
 | 15.7 tabela e gráfico com registro | aberturas do período, tendência de 5 semanas, gráfico de 14 dias | `admin-analytics-uso.spec.ts:67-71` `['Persona','3','17','0 0 10 4 3'],...`, `:88-100` períodos 7/15/45, `:113-114` 14 rótulos `dd/mm: Aberturas n`; `tests/admin-uso-funcionalidades.test.ts:63-136`; `sql-uso-funcionalidades.test.ts:72-90` | PASS; a Assumption da spec que lista "Exportar PDF" e "Enviar sugestão" entre as linhas do registro não foi implementada (só "Organograma e rotinas"): SPEC? |
@@ -163,87 +184,61 @@ Legenda: PASS = asserção localizada e igual ao resultado da spec; GAP = sem as
 | Edge case | `file:line` + asserção | Situação |
 | --------- | ---------------------- | -------- |
 | 5xx/erro de rede: "Não foi possível carregar. Tentar de novo" | `admin-mandatos.spec.ts:156-168` (rede e 500), `admin-analytics.spec.ts:301-306`, `admin-logs.spec.ts:189-193`, `admin-equipe.spec.ts:108-119`, `admin-detalhe.spec.ts:124-134`; `tests/admin-mensagens.test.ts:15-25` | PASS |
-| Duplo clique envia uma vez | `admin-equipe.spec.ts:161-171` `chamou('admin_equipe_incluir')` 1; `admin-detalhe.spec.ts:282-290` `chamou('admin_mandato_excluir')` 1 | PASS na contagem; o teste não afirma "botão desabilitado" e o mutante que remove a trava síncrona sobreviveu (Lacuna 8) |
-| Dois admins removem a mesma pessoa: "Pessoa não encontrada." | `sql-admin-equipe.test.ts:158`; `admin-equipe.spec.ts:228` | PASS; o e2e é o teste intermitente (Lacuna 1); a concorrência real não é simulada (só sequencial) |
+| Duplo clique envia uma vez | `admin-equipe.spec.ts:161-171` `chamou('admin_equipe_incluir')` 1; `admin-detalhe.spec.ts:282-290` `chamou('admin_mandato_excluir')` 1 | PASS: `admin-equipe.spec.ts:161-181` e `admin-detalhe.spec.ts:282-299` seguram a resposta (`seguraRpc`), afirmam `toBeDisabled()` no botão e em Cancelar, dois `requestSubmit()` no mesmo instante e `gate.pedidos()` 1 (E6b, N6, N6b mortos) |
+| Dois admins removem a mesma pessoa: "Pessoa não encontrada." | `sql-admin-equipe.test.ts:158`; `admin-equipe.spec.ts:228` | PASS; o e2e (`admin-equipe.spec.ts:231-243`) agora espera `toHaveCount(3)` antes de mexer no banco: 360/360 em `--repeat-each=20`; a concorrência real não é simulada (só sequencial, registrado na spec) |
 | Admin rebaixa a si mesmo (há outro admin) | `sql-admin-equipe.test.ts:139-140`; `admin-equipe.spec.ts:233-243` recarrega `equipe_legisla` e `admin_equipe_papel` 1 | PASS |
 | Exatamente 25 itens: sem página seguinte | `tests/admin-mandatos.test.ts:92`; `admin-mandatos.spec.ts:44-46` `Próxima` count 0 | PASS |
 | Mandato sem evento: `atualizado_em` | `sql-admin-leitura.test.ts:73` `{BBB222,'2026-02-01'}` | PASS |
-| E-mail inválido: "Digite um e-mail válido." sem consultar o banco | `admin-equipe.spec.ts:157-159` `toHaveText('Digite um e-mail válido.')`, `chamou('admin_buscar_usuario')` 0; `admin-detalhe.spec.ts:188-191` (`admin_buscar_usuario` 1 só do e-mail sem conta); `tests/admin-mensagens.test.ts:37-52` | PASS (ausência imediata, Lacuna 3) |
+| E-mail inválido: "Digite um e-mail válido." sem consultar o banco | `admin-equipe.spec.ts:156-158` `toHaveText('Digite um e-mail válido.')`, `esperaSemRpc(page,'admin_buscar_usuario')` `[]`; `admin-detalhe.spec.ts:188-191` (`admin_buscar_usuario` 1 só do e-mail sem conta); `tests/admin-mensagens.test.ts:37-52` | PASS (ausência com espera: `esperaSemRpc`) |
 
-**Status**: todos os ACs e Edge Cases têm evidência; GAPs parciais em 2.7/8.5 (`leitura` + membro) e 14.4 (flag `NUVEM`); lacunas de precisão listadas abaixo.
+**Status**: todos os ACs e Edge Cases têm evidência `file:line` + asserção; nenhum GAP restante. Os GAPs parciais da iteração 1 (2.7/8.5 `leitura` + membro; 14.4 flag `NUVEM`) e as asserções de ausência frágeis (ADM-01.1/01.2, 3.4, 7.5, e-mail inválido) estão fechados. Precisão da spec: as Assumptions de F9 fixam ativos no período, média, formato da última atividade, frases da auditoria, mandato arquivado, linhas de uso e concorrência (ver "Lacunas de precisão").
 
 ---
 
 ## Discrimination Sensor
 
-**Profundidade**: P0 (permissões, privacidade, autenticação): 73 mutações em scratch isolado (SQL e unitárias com `node --test`; e2e com `next dev --webpack` na porta 3200 e config Playwright temporária). A primeira tentativa de M10 (fuso da view) quebrava a migration em vez de mudar o comportamento e foi refeita corretamente; três M3 rodaram com um erro de ambiente e foram repetidas.
+**Método**: scratch em `%TEMP%\vscratch2` criado com `git archive HEAD | tar -x` (cópia do HEAD fora do repositório, sem `.git`), `npm ci` dentro de `plataforma/` do scratch, nenhuma junção nem link (busca por `ReparsePoint`: 0). SQL e unitárias com `node --test`; e2e com `next dev --webpack` na porta 3200 e config Playwright própria. Cada mutação foi aplicada por substituição exata de texto (falha se o trecho não aparece exatamente 1 vez), testada e revertida ao conteúdo original.
 
-| Mutação | Onde | Descrição | Resultado |
+### Os 9 sobreviventes da iteração 1, reinjetados
+
+| Mutante | Onde | Descrição | Resultado |
 | ------- | ---- | --------- | --------- |
-| M1a | `20261105120000_admin_equipe.sql:183-186` | remove a trava de último admin em `admin_equipe_remover` (a) | morto (`sql-admin-equipe.test.ts:155`) |
-| M1b | `...admin_equipe.sql:160` | `if false and v_antigo = 'admin'` em `admin_equipe_papel` | morto (`:131`) |
-| M2a | `...admin_equipe.sql:121` | `eh_legisla()` no lugar de `eh_legisla_admin()` em `admin_equipe_incluir` (b) | morto (`:164`) |
-| M2b | `20261105140000_admin_mandatos_gestao.sql:179` | idem em `admin_mandato_excluir` (b) | morto (`sql-admin-mandatos.test.ts:164`) |
-| M2c | `...gestao.sql:128` | idem em `admin_membro_remover` (b) | morto (`:164`) |
-| M3a | `20261105130000_admin_leitura.sql:80` | tira `where private.eh_legisla()` de `v_admin_mandatos` (c) | morto (`sql-admin-leitura.test.ts:29`) |
-| M3b | `...admin_leitura.sql:104` | idem em `v_admin_atividade` (c) | morto (`:29`) |
-| M3c | `...admin_leitura.sql:96` | idem em `v_admin_eventos_mes` (c) | morto (`:29`) |
-| M4a | `...gestao.sql:31-32` | remove o gatilho de `arquivado_em` (d) | morto (2 testes, `:183`, `:127`) |
-| M4b | `...gestao.sql:21` | `if false` na checagem do gatilho (d) | morto (`:183`) |
-| M4c | `...gestao.sql:24` | gatilho não devolve `atualizado_em` | morto (`:127`) |
-| M5 | `...admin_equipe.sql:73` | `grant execute on private.audita` a `authenticated` | morto (`sql-admin-equipe.test.ts:187`) |
-| M6 | `...admin_equipe.sql:56` | `grant select, update on auditoria_admin` | morto (`:187`) |
-| M7 | `...gestao.sql:137-141` | remove a trava de última coordenação em `admin_membro_remover` | morto (`sql-admin-mandatos.test.ts:102`) |
-| M8 | `...gestao.sql:186-187` | remove a chamada de auditoria em `admin_mandato_excluir` | morto (2 testes) |
-| M9 | `...admin_leitura.sql:74` | `v_admin_mandatos` expõe `nome_civil` | morto (`sql-admin-leitura.test.ts:52`) |
-| M9b | `...admin_leitura.sql:101` | `v_admin_atividade` expõe `e.texto` | morto (`:52`) |
-| M10 | `...admin_leitura.sql:93,97` | fuso da view mensal `America/Sao_Paulo` -> `UTC` | morto (`:106`) |
-| M10b | `...uso_funcionalidades.sql:43,51` | fuso de `v_admin_uso` -> `UTC` | morto (`sql-uso-funcionalidades.test.ts:72`) |
-| M11 | `...admin_equipe.sql:195-198` | `revoke ... from public` sem `anon` | morto (3 testes) |
-| M12 | `...admin_equipe.sql:30` | remove o `revoke insert, update, delete` de `equipe_legisla` | morto (`:180`) |
-| M13 | `...admin_equipe.sql:172` | tira `set search_path = ''` de `admin_equipe_remover` | **SOBREVIVEU** (Lacuna 5) |
-| M14 | `20261105150000_uso_funcionalidades.sql:27` | `with check (true)` na política de inserção | morto (`sql-uso-funcionalidades.test.ts:34`) |
-| M15 | `...uso_funcionalidades.sql:35` | não revoga os grants padrão de `anon` | morto (`:41`, `:62`) |
-| V1 | `...admin_leitura.sql:134` | `grant select` das views também a `anon` | sobreviveu, equivalente na prática: `anon` não tem `usage` no schema `private`, então o `where private.eh_legisla()` falha com `permission denied` do mesmo jeito (defesa em profundidade); o teste não distingue as duas camadas |
-| V3 | `...uso_funcionalidades.sql:50` | tira `private.eh_legisla()` de `v_admin_uso` | sobreviveu, equivalente na prática: a política `uso_func_ler` já limita à equipe |
-| V4 | `...uso_funcionalidades.sql:50` | `v_admin_uso` conta arquivados | morto (`:72`) |
-| V5 | `...gestao.sql:21` | gatilho de `arquivado_em` aceita `eh_legisla()` (inclui `leitura`) no lugar de `eh_legisla_admin()` | **SOBREVIVEU** (Lacuna 2) |
-| V6 | `...gestao.sql:188` | `admin_mandato_excluir` apaga também sugestões órfãs | morto (`sql-admin-mandatos.test.ts:149`) |
-| T1, T1b, T1c | `lib/admin/funil.ts:41,43` | muda a regra de "alcançaram" (sem anterior; invertida; "concluíram" global) (e) | mortos (8, 7 e 1 testes) |
-| T2 | `lib/admin/analytics.ts:29` | `statusMensal` usa mês UTC (f) | morto (2 testes de virada de fuso) |
-| T2b | `lib/admin/escala.ts:4` | `FUSO = 'UTC'` | morto (4 testes) |
-| T3, T3b | `lib/admin/mandatos.ts:22,23` | busca sem normalizar acento / sem minúsculas (g) | mortos (2 e 3 testes) |
-| T4 | `lib/admin/mandatos.ts:34` | `<=` -> `<` em "parado há" | morto (`tests/admin-mandatos.test.ts:68`) |
-| T5 | `lib/admin/funil.ts:9` | `Math.round` -> `Math.floor` | morto (3 testes) |
-| T6, T7, T8, T9 | `funil.ts:8`, `analytics.ts:10`, `mandatos.ts:20,42` | 10->11 travas, 12->13 meses, 25->26 por página, página extra com 25 itens | todos mortos |
-| T10, T11 | `lib/admin/api.ts:57,61` | `lerTudo`: `offset += tamanho + 1`; `<` -> `<=` | mortos (2 e 3 testes) |
-| T12, T13, T14, T15 | `analytics.ts:21`, `funil.ts:47,42`, `mensagens.ts:11` | fronteira de ativos, ordem das travas, remove "omite 0 alcançaram", 403 sem a mensagem de permissão | todos mortos |
-| U1, U2, U5, U6, U7 | `lib/uso.ts:34,27`, `escala.ts:20`, `mensagens.ts:18`, `uso.ts:18` | janela de 60 s (`<=`, 30 s), `diasParado` negativo, e-mail sem domínio, `ficha-N` -> cadeiras | todos mortos |
-| E1 | `app/admin/equipe/page.tsx:136` | leitura vê "Incluir pessoa" (h) | morto (`admin-equipe.spec.ts:246`) |
-| E1t | idem, rodando só `admin-transversal.spec.ts:139` | idem | **SOBREVIVEU** no transversal (Lacuna 7); o teste de Equipe o pega |
-| E2 | `equipe/page.tsx:157` | seletor de papel habilitado para leitura (h) | morto (`admin-equipe.spec.ts:246`, `admin-transversal.spec.ts:139`) |
-| E3 | `_componentes/ZonaRisco.tsx:35` | confirmação de exclusão sem diferenciar caixa | morto (`admin-detalhe.spec.ts:262`) |
-| E4, E13 | `logs/page.tsx:8,19` | 51 por página; fuso `UTC` na data | mortos (3 testes cada) |
-| E5 | `app/admin/page.tsx:13` | corte do destaque 45 -> 30 | morto |
-| E6 | `Dialogo.tsx:82` | tira `enviando` do `disabled` do botão de confirmar | sobreviveu, equivalente na prática: a trava síncrona `emCurso` (`Dialogo.tsx:27,61`) segura o duplo clique |
-| E6b | `Dialogo.tsx:61` | tira `emCurso.current` da trava síncrona | **SOBREVIVEU** (Lacuna 8) nos testes de duplo clique (`admin-equipe.spec.ts:161`, `admin-detalhe.spec.ts:282`); o React já aplica o `disabled` entre os dois cliques |
-| E7 | `app/admin/page.tsx:12` | o app pede a coluna `dados` | morto (17 testes; `vazou()` pega o pedido) |
-| E8 | `e2e/admin-api.ts:34` + `page.tsx:12` | `vazou()` sem a chave `dados` e o app pede `dados` | **SOBREVIVEU** (Lacuna 7): o ajudante não tem autoteste |
-| E9 | `e2e/admin-api.ts:71` | controle: fixture com chave `dados`, ajudante intacto | morto (13 falhas): a varredura de resposta funciona para o nome exato |
-| E10 | `e2e/admin-api.ts:71` | resposta traz o conteúdo sob a chave renomeada `conteudo` | **SOBREVIVEU** (Lacuna 7): a varredura é por nome |
-| E11 | `analytics/page.tsx:58` | exercícios lidos sem `lerTudo` | morto (`admin-analytics.spec.ts:289`) |
-| E12 | `logs/page.tsx:157-158` | sem `noopener` nos links | morto (`admin-logs.spec.ts:160`) |
-| E14 | `ilhas/ponte.tsx:137` | tira `!w.NUVEM` da guarda do registro | **SOBREVIVEU** (Lacuna 6) |
-| E15 | `ponte.tsx:140` | tira a regra de 60 s do gancho | morto (`admin-uso-registro.spec.ts:53`) |
-| E18 | `analytics/page.tsx:91` | o funil ignora a UF | morto |
-| EA | `Sessao.tsx:96` | "Sem acesso" dispara `v_admin_mandatos` na hora | morto (`admin-acesso.spec.ts:34`), mas por corrida de milissegundos |
-| EA2 | `Sessao.tsx:96` | "Sem acesso" dispara `v_admin_mandatos` 800 ms depois | **SOBREVIVEU** (Lacuna 3) |
-| EB | `Sessao.tsx:115` | tela de entrada dispara `v_admin_mandatos` 800 ms depois (sem sessão) | **SOBREVIVEU** (Lacuna 3) |
+| M13 | `20261105120000_admin_equipe.sql` `admin_equipe_remover` | tira `set search_path = ''` | **morto** (`sql-admin-funcoes.test.ts:30`) |
+| V5 | `20261105140000_admin_mandatos_gestao.sql:21` | gatilho de `arquivado_em` aceita `eh_legisla()` (inclui `leitura`) | **morto** (`sql-admin-mandatos.test.ts:194`) |
+| E1t | `app/admin/equipe/page.tsx:136` | leitura vê "+ Incluir pessoa" | **morto** no transversal (`admin-transversal.spec.ts:145` `expect(rotulos.filter(ALTERA)).toEqual([])`) |
+| E6b | `Dialogo.tsx:61` | tira `emCurso.current` da trava síncrona | **morto** (`admin-equipe.spec.ts:161`, `admin-detalhe.spec.ts:282`) |
+| E8 | `e2e/admin-api.ts:34` + `page.tsx:13` | ajudante sem a chave `dados` e o app pede `dados` | **morto** pelo autoteste (`admin-helper.spec.ts:7`, `:21`, `:39`). Sem o autoteste (só mandatos e transversal) ainda sobrevive (E8b), como esperado: quem mata é o autoteste |
+| E10 | `e2e/admin-api.ts` (resposta com o conteúdo sob chave renomeada) | a varredura de resposta é por nome de chave | **sobrevive, por limite de projeto** (avaliação abaixo; não reexecutado, o autoteste `admin-helper.spec.ts:30` afirma o comportamento) |
+| E14 | `ilhas/ponte.tsx:137` | tira `!w.NUVEM` da guarda | **morto** (`admin-uso-registro.spec.ts:75`) |
+| EA2 | `Sessao.tsx:96` | "Sem acesso" dispara `v_admin_mandatos` 800 ms depois | **morto** (`admin-acesso.spec.ts:34`, `esperaSemMandatos` em `:39`) |
+| EB | `Sessao.tsx:115` | tela de entrada dispara `v_admin_mandatos` 800 ms depois | **morto** (`admin-acesso.spec.ts:22` e `:88`) |
 
-**Resumo**: 73 mutações, 61 mortas, 12 sobreviventes: 9 relevantes (M13, V5, E1t, E6b, E8, E10, E14, EA2, EB) e 3 equivalentes na prática por defesa em profundidade (V1, V3, E6). Os 8 obrigatórios (a a h) estão cobertos: a, b, c, d, e, f, g, h mortos (h: E1 e E2 mortos; E8 e E10 sobreviveram para o ajudante `vazou()`).
-**Sensor**: FAIL (mutantes relevantes sobreviveram).
+Avaliação do E10: o limite está no docstring de `chavesProibidasEm` (`e2e/admin-api.ts`) e afirmado pelo autoteste (`admin-helper.spec.ts:30`, `chavesProibidasEm({conteudo:{notas:'segredo'}})` igual a `[]`). Quem impede o vazamento são as outras camadas, que têm mutantes mortos: o regex do pedido (`pedidoCitaChaves`, E7 morto), `naoMapeadas()` (lista de permissão da rede) e o `information_schema` do SQL (`sql-admin-leitura.test.ts:52-57`, M9 e M9b mortos). Uma coluna que carregasse `dados` sob outro nome só passaria se alguém a criasse na view; risco baixo, vira observação (lacuna 1). Aceitável.
 
-Isolamento: scratch em `%TEMP%\vscratch` removido; `git worktree list` sem entrada de scratch; `git status --porcelain` da árvore real idêntico ao do início (só `?? plataforma/playwright.isolado.config.ts`). Ver o incidente de `node_modules` em "Gate Check".
+Limite do helper de ausência: `esperaSemChamadas` espera rede quieta mais 1,2 s; EA2 e EB, com atraso de 800 ms, morreram. Uma chamada atrasada mais de ~1,2 s não seria vista (observação 2).
+
+### Mutações novas (13)
+
+| Mutante | Onde | Descrição | Resultado |
+| ------- | ---- | --------- | --------- |
+| N1 | `app/admin/page.tsx:36` | `lerTudo(...).then(l => l.slice(0,1000))` (descarta o 2º bloco) | morto (`admin-mandatos.spec.ts:48`, `toBeVisible` de `1–25 de 1120`) |
+| N2 | `app/admin/page.tsx:36` | tira o `,id` do `order` (ordem instável) | morto (`admin-mandatos.spec.ts:48`, checa `order=ultima_atividade.desc,id`) |
+| N3 | `lib/admin/api.ts` `lerTudo` | `offset` inicial 1 | morto (`tests/admin-api.test.ts`) |
+| N16 | `lib/admin/api.ts` `lerTudo` | `todas.push(...bloco.slice(1))` (perde a 1ª linha de cada bloco) | morto (`tests/admin-api.test.ts`) |
+| N17 | `lib/admin/api.ts` `lerTudo` | `bloco.length < tamanho - 1` | sobrevive, **equivalente**: só pede um bloco vazio a mais quando o bloco tem exatamente `tamanho-1` linhas; o resultado é o mesmo |
+| N4a | `...gestao.sql` `admin_mandato_arquivar` | aceita `eh_legisla()` (leitura) | sobrevive, **equivalente na prática**: o gatilho `mandatos_trava_arquivo` (V5 morto) recusa `leitura` com a mesma mensagem; defesa em profundidade (mesmo padrão de V1 e V3 da iteração 1) |
+| N4b | `...gestao.sql` `admin_membro_papel` | aceita `eh_legisla()` (leitura) | morto (`sql-admin-mandatos.test.ts:164`) |
+| N5 | `...admin_equipe.sql` `private.audita` | grava `autor` nulo | morto (`sql-admin-equipe.test.ts:105-110` `autor 'Ana Admin'`) |
+| N6 | `Dialogo.tsx:82` | botão de confirmar sem `enviando` no `disabled` | morto (`admin-equipe.spec.ts:161`, `admin-detalhe.spec.ts:282` `toBeDisabled()`); era o E6 equivalente na iteração 1, agora discriminado |
+| N6b | `Dialogo.tsx:80` | Cancelar sem `disabled={enviando}` | morto (mesmos dois testes) |
+| N7 | `lib/admin/funil.ts` `travas` | regra de "alcançaram" vira `true` (todos) | morto (`tests/admin-funil.test.ts`) |
+| N8 | `...admin_equipe.sql` `private.audita` | tira `set search_path = ''` | morto (`sql-admin-funcoes.test.ts:30`); cobre a função que não é `admin_*` |
+| N9 | `...gestao.sql:196` | `revoke execute ... from public` sem `anon` | morto (`sql-admin-funcoes.test.ts:39`) |
+
+**Resumo**: 22 mutações nesta iteração (9 reinjetadas + 13 novas); 19 mortas, 3 sobreviventes: E10 (limite documentado e aceito) e N4a, N17 (equivalentes). Nenhum mutante relevante sobrevive. Somadas às 73 da iteração 1: 95 mutações no total.
+**Sensor**: PASS.
+
+**Isolamento**: mutações só no scratch; `git status --porcelain` do worktree real igual ao do início (`?? plataforma/playwright.isolado.config.ts`). Scratch removido com `rm -rf` comum depois de confirmar 0 links; não foi criado worktree (`git archive`), então `git worktree list` não mudou e não houve `git worktree prune` nem `git worktree remove`. O servidor da porta 3200 foi encerrado; a porta 3100 (worktree real) segue em 200; a porta 3000 nunca foi usada.
 
 ---
 
@@ -251,47 +246,34 @@ Isolamento: scratch em `%TEMP%\vscratch` removido; `git worktree list` sem entra
 
 | Princípio | Situação |
 | --------- | -------- |
-| Sem funcionalidade além do pedido | OK, com um desvio documentado: `admin_membros` aceita `leitura` (marcado `SPEC_DEVIATION` em `20261105140000_admin_mandatos_gestao.sql:37`, justificado pela spec ADM-02.6 e ADM-07.3) |
-| Cirúrgico (só arquivos da feature) | OK: 60 arquivos, todos de `app/admin`, `lib/admin`, `lib/uso.ts`, migrations, testes, docs e o gancho de 21 linhas em `ilhas/ponte.tsx` |
-| Padrões do repositório | OK: imports `.ts`, `node --test`, Playwright, `security definer` + `revoke`, auditoria na mesma transação |
-| Asserções com o valor da spec | OK na maioria; fracas só onde listado nas lacunas |
-| Todo teste mapeia a um AC/edge case | OK (títulos citam o ADM-xx); testes de ambiente (`sql-ambiente.test.ts`, `admin-catalogo.test.ts`, `admin-config.test.ts`) sustentam ADM-02.10 e o catálogo |
-| Diretrizes do projeto | `plataforma/AGENTS.md` (ler docs do Next antes de rota) e `plataforma/CLAUDE.md` (imports `.ts`, `node --test`); sem mudança de comportamento em arquivos fora do escopo |
-| Segurança das migrations | `security definer` com `set search_path = ''` em todas as funções novas (leitura do código; não verificado por teste, Lacuna 5); `revoke execute ... from public, anon` em todas; nenhum grant a `anon` encontrado; nenhuma política remanescente (`equipe_gerir` removida); `auditoria_admin` sem grant de escrita |
+| Sem funcionalidade além do pedido | OK. A única mudança de produção (`app/admin/page.tsx`, 5 linhas) corrige a lacuna 4; o desvio `SPEC_DEVIATION` de `admin_membros` (leitura) continua documentado |
+| Cirúrgico | OK: 12 arquivos, todos de testes, helper e spec, mais `page.tsx` |
+| Padrões do repositório | OK: imports `.ts`, `node --test`, Playwright; `lerTudo` é o utilitário que o Analytics já usa |
+| Asserções com o valor da spec | OK; as frágeis da iteração 1 agora esperam ou isolam o estado |
+| Todo teste mapeia a um AC/edge case | OK; `admin-helper.spec.ts` e `sql-admin-funcoes.test.ts` sustentam ADM-01, ADM-02 e ADM-05.2 |
+| Segurança das migrations | `security definer` + `search_path` vazio e `revoke` agora verificados por teste lendo o catálogo (`sql-admin-funcoes.test.ts`: guarda de lista vazia com 10 ou mais funções públicas, `search_path=("")`, `anon`/`PUBLIC` sem execute, `authenticated` só nas públicas) |
+| Nota | `mandatos_trava_arquivo` não é `security definer` e fica fora do teste de catálogo por desenho (é gatilho; V5 o cobre) |
 
 ---
 
 ## Lacunas ranqueadas
 
-1. **Teste intermitente (Alta)**: `e2e/admin-equipe.spec.ts:221-229`. `abre()` (`:56-61`) só espera o título "Equipe Legisla"; a linha 224 (`banco.equipe = banco.equipe.filter(...)`) altera o banco simulado antes de a primeira leitura de `admin_equipe` terminar. Quando a leitura vem depois, a lista já não tem "Carla Dias" e o clique da linha 225 estoura 30 s. Medido: 4 falhas em 57 execuções (~7%) na árvore real; também falhou 2 vezes em 3 rodadas no scratch. Mesmo tipo de corrida já corrigida em `admin-mandatos.spec.ts`. Correção: antes da linha 224, `await expect(linhas(page)).toHaveCount(3)` (ou fazer `abre()` esperar as linhas).
-2. **Permissão (Alta)**: ADM-02.7 e ADM-08.5. O mutante V5 (`mandatos_trava_arquivo` aceitando `private.eh_legisla()` em vez de `eh_legisla_admin()`, `...gestao.sql:21`) sobreviveu: o teste `sql-admin-mandatos.test.ts:183-192` só usa membro de gabinete fora da equipe, e `:194-202` só o admin. Falta o caso `leitura` que também é membro do mandato fazendo `update mandatos set arquivado_em = now()` direto (deve falhar com `Você não tem permissão para esta ação.`). Hoje o código está correto (a leitura confirma `eh_legisla_admin()`); o risco é de regressão.
-3. **Testes de ausência que passam cedo (Alta)**: ADM-01.1 e 01.2. `e2e/admin-acesso.spec.ts:30`, `:31`, `:39`, `:85`, `:95`, `:142` (também `admin-equipe.spec.ts:138`, `:158` e `:190`, `admin-detalhe.spec.ts:190`, `:223` no mesmo estilo) afirmam `chamadasDeMandatos()`/`chamou(...)` igual a `[]`/0 logo depois de um `expect` de tela, sem esperar o tempo em que a chamada ocorreria. Mutantes EA2 (vazamento 800 ms depois do "Sem acesso") e EB (800 ms depois da tela de entrada) sobreviveram; EA (vazamento imediato) só morreu por corrida de milissegundos. Contraste: `admin-uso-registro.spec.ts:62`, `:81`, `:96` esperam 500 a 1.500 ms antes de afirmar ausência. Endurecer: ajudante `semChamadas(page, filtro)` que faz uma chamada-barreira conhecida depois da ação (o mock registra na ordem de chegada) e/ou `await page.waitForLoadState('networkidle')` mais um `waitForTimeout` de pelo menos 1 s; para cliques em Cancelar, o mesmo.
-4. **Teto de 1.000 linhas na lista de Mandatos (Média)**: `app/admin/page.tsx:33` lê `v_admin_mandatos` com `api.ler` (sem `lerTudo`, sem `limit`); o PostgREST corta em 1.000 linhas sem aviso e, com `order=ultima_atividade.desc`, os mandatos descartados são exatamente os mais parados. O teto não está registrado em lugar nenhum (nem spec, `design.md`, `tasks.md` T20, `plataforma/CLAUDE.md`, nem comentário no código; `CLAUDE.md:67` fala de `lerTudo` só para o Analytics) e não há teste. Latente (hoje há bem menos de 1.000 mandatos). Correção: `lerTudo` com `order=ultima_atividade.desc,id` (e um e2e com mais de 1.000 linhas, como `admin-analytics.spec.ts:289`) ou registrar o teto e avisar na tela.
-5. **`search_path` não é testado (Média)**: M13 sobreviveu. Nenhum teste lê `pg_proc.prosecdef/proconfig` das funções `admin_*` e `private.audita`, nem `has_function_privilege('anon'|PUBLIC, ...)`. Hoje o código tem `set search_path = ''` em todas (leitura das migrations). Adicionar um teste que enumere essas funções.
-6. **ADM-14.4 não isola o flag `NUVEM` (Média/Baixa)**: E14 sobreviveu. `admin-uso-registro.spec.ts:75-83` não define `Nuvem.tok`, então a guarda `!tok` (`ilhas/ponte.tsx:137`) mascara a ausência de `!w.NUVEM`. Correção: nesse teste, definir `Nuvem.tok` e `CONFIG` com `NUVEM=false` e afirmar 0 gravações.
-7. **Ajudante `vazou()` (Média)**: `e2e/admin-api.ts:34-57`. (a) a varredura de resposta é por nome exato da chave e sobre as fixtures do próprio teste, portanto circular: uma resposta com o conteúdo sob outro nome (E10) ou uma lista sem `dados` (E8) não é detectada, e o ajudante não tem autoteste; a proteção real está no pedido (`:136` regex `\bchave\b` na query), em `naoMapeadas()` (lista de permissão de fato) e no `information_schema` do SQL (`sql-admin-leitura.test.ts:52-57`), que cobrem bem. (b) `admin-transversal.spec.ts:140` usa `/^(Incluir|Remover|...)/` ancorado, que não casa "+ Incluir pessoa" nem "+ Adicionar membro" (E1t sobreviveu; os specs de Equipe e Detalhe pegam). Correção: autoteste do ajudante com resposta falsa contendo `dados`/aninhada e tirar a âncora `^`.
-8. **Duplo clique (Baixa)**: E6b sobreviveu; os testes (`admin-equipe.spec.ts:161`, `admin-detalhe.spec.ts:282`) contam chamadas, mas a spec pede "botão desabilitado enquanto envia" e nenhum teste afirma o estado desabilitado durante o envio (seria preciso atrasar o mock). Duplo clique rápido do tipo `dblclick` já é segurado pelo `disabled`; a trava `emCurso` cobre o caso sem re-render.
-9. **Lacunas de precisão da spec (não reprovam sozinhas)**:
-   - ADM-09.1: "ativos no período" (última atividade em até N dias, `lib/admin/analytics.ts:21`) e a formatação da média (`'5'`, `'4'`, `1,5`?) não estão definidos.
-   - ADM-05.1: formato do valor da coluna "última atividade" não definido (o e2e só afirma o destaque de "X dias parado").
-   - ADM-04.5: texto da "descrição" das 9 ações não definido (o e2e fixa frases em `admin-logs.spec.ts:119-148`).
-   - ADM-06.1: detalhe de mandato arquivado mostra "Missões concluídas: —" porque `v_admin_exercicios` esconde arquivados (`admin-detalhe.spec.ts:251`); a spec não diz.
-   - Assumption "Linhas da tabela uso por funcionalidade": "Exportar PDF" e "Enviar sugestão" deveriam entrar com o registro; só "Organograma e rotinas" entrou (`lib/uso.ts:5-14`, `admin-analytics-uso.spec.ts:70`). Os ACs 14/15.7 não enumeram as linhas.
-   - ADM-13.4: os dois endereços de log não foram abertos (a spec já registra).
-   - Concorrência (edge "dois admins"): só testada em sequência (sem duas transações simultâneas).
-   - A spec foi editada durante a implementação (duas linhas de Assumptions: "Parado há" e links de log); a confirmação do usuário não é verificável aqui.
-10. **Observações**: `plataforma/package-lock.json` e `package.json` mudaram só para `@electric-sql/pglite` (devDependency). `npm run build` não foi executado. `next dev` imprimiu o aviso de segurança conhecido do Next 16.4 (recomenda `next upgrade --agent=security`); é o aviso registrado no design, sem relação com a feature.
+Nenhuma lacuna relevante. Observações de baixo risco, para a Fase 2 ou para quando alguém mexer na área:
 
----
+1. **Varredura de resposta por nome (Baixa)**: E10. `chavesProibidasEm` em `e2e/admin-api.ts`: conteúdo de `dados` sob outro nome de coluna não seria visto pelo ajudante; coberto por regex do pedido, lista de permissão da rede e `information_schema` (`sql-admin-leitura.test.ts:52-57`). Limite documentado e afirmado em `admin-helper.spec.ts:30`.
+2. **Janela de espera de ausência (Baixa)**: `esperaSemChamadas` (`e2e/admin-api.ts:50-55`) vê atraso de até ~1,2 s com rede quieta; um vazamento mais tardio passaria. O mesmo vale para as ausências de `admin-uso-registro.spec.ts` (500 a 1.500 ms).
+3. **Camada de função de `admin_mandato_arquivar` (Info)**: N4a é equivalente porque o gatilho a segura; se o gatilho for removido por engano, V5 morre, então a combinação está protegida.
+4. **Concorrência (Info)**: só em sequência (registrado na spec, F9); não há teste com duas transações.
 
-## Fix Plans
+### Lacunas de precisão da spec
 
-- **Fix 1 (Alta)**: em `e2e/admin-equipe.spec.ts` antes de alterar `banco.equipe` (linha 224), esperar `toHaveCount(3)`. Verificar com `--repeat-each=30` do teste, 0 falhas.
-- **Fix 2 (Alta)**: novo teste em `tests/sql-admin-mandatos.test.ts`: `leitura` inserida em `membros` do mandato A faz `update ... arquivado_em` direto e recebe `SEM_PERMISSAO`; mutante V5 passa a morrer.
-- **Fix 3 (Alta)**: ajudante de ausência com barreira/espera nos testes citados; verificar que os mutantes EA2 e EB passam a morrer.
-- **Fix 4 (Média)**: `lerTudo` na lista de Mandatos (ou teto registrado e aviso) e e2e com mais de 1.000 mandatos.
-- **Fix 5, 6, 7, 8 (Média/Baixa)**: teste de `search_path`/privilégios das funções; teste de `NUVEM=false` com `Nuvem.tok`; autoteste de `vazou()` e regex sem âncora; asserção de botão desabilitado durante o envio.
-- Pós-correção: rodar de novo `npm test`, `tsc` e o e2e (2 vezes mais o `--repeat-each` do teste 221) e repetir os mutantes V5, M13, E14, EA2, EB, E6b, E1t.
+Resolvidas em F9 (agora Assumptions da spec): ativos no período e média (ADM-09.1), formato da "última atividade" (ADM-05.1), frases da auditoria (ADM-04.5), mandato arquivado "Missões concluídas: —" (ADM-06.1), linhas da tabela de uso (só "Organograma e rotinas" entra com registro; "Exportar PDF" e "Enviar sugestão" vão para a Fase 2), janela das aberturas (ADM-15.7), concorrência e a lista de Mandatos paginada em blocos de 1.000.
+
+Restam apenas:
+- ADM-13.4: os dois endereços de log não foram abertos (a spec já registra).
+- Concorrência real (edge "dois admins"): sequencial apenas (registrado na spec).
+- A spec foi editada em F9 e durante a implementação; a confirmação do usuário não é verificável aqui (as Assumptions novas têm `n` na coluna de confirmação).
+- `plataforma/package-lock.json` e `package.json` mudaram só para `@electric-sql/pglite` (devDependency). `npm run build` não foi executado. `next dev` mostra o aviso de segurança conhecido do Next 16.4, sem relação com a feature.
 
 ---
 
@@ -299,33 +281,37 @@ Isolamento: scratch em `%TEMP%\vscratch` removido; `git worktree list` sem entra
 
 | Requirement | Previous Status | New Status |
 | ----------- | --------------- | ---------- |
-| ADM-01 | Implementing | Needs Fix (Lacuna 3: ausência de consulta passa cedo) |
-| ADM-02 | Implementing | Needs Fix (Lacuna 2: `leitura` + membro no gatilho) |
-| ADM-03 | Implementing | Verified (e2e do edge case "dois admins" é o teste intermitente, Lacuna 1) |
-| ADM-04 | Implementing | Verified |
-| ADM-05 | Implementing | Needs Fix (Lacuna 4: teto de 1.000 sem registro nem teste) |
-| ADM-06 | Implementing | Verified |
-| ADM-07 | Implementing | Verified |
-| ADM-08 | Implementing | Needs Fix (Lacuna 2, mesma causa de ADM-02) |
-| ADM-09 | Implementing | Verified (precisão: ver Lacuna 9) |
-| ADM-10 | Implementing | Verified |
-| ADM-11 | Implementing | Verified |
-| ADM-12 | Implementing | Verified |
-| ADM-13 | Implementing | Verified |
-| ADM-14 | Implementing | Needs Fix (Lacuna 6: flag `NUVEM` sem teste que isole) |
-| ADM-15 | Implementing | Verified (precisão: linhas "Exportar PDF" e "Enviar sugestão") |
-| ADM-16 | Implementing | Verified |
+| ADM-01 | Needs Fix | Verified |
+| ADM-02 | Needs Fix | Verified |
+| ADM-03 | Verified | Verified |
+| ADM-04 | Verified | Verified |
+| ADM-05 | Needs Fix | Verified |
+| ADM-06 | Verified | Verified |
+| ADM-07 | Verified | Verified |
+| ADM-08 | Needs Fix | Verified |
+| ADM-09 | Verified | Verified |
+| ADM-10 | Verified | Verified |
+| ADM-11 | Verified | Verified |
+| ADM-12 | Verified | Verified |
+| ADM-13 | Verified | Verified |
+| ADM-14 | Needs Fix | Verified |
+| ADM-15 | Verified | Verified |
+| ADM-16 | Verified | Verified |
+
+---
+
+## Integridade do ambiente
+
+Depois do sensor: `plataforma/node_modules` do worktree real (44 entradas) e da pasta compartilhada (44 entradas, só leitura) contêm `@dagrejs`, `@electric-sql`, `@img`, `@playwright`, `next` e `react`; `npm test` no worktree: 725/725. `git status --porcelain` do worktree: só `?? plataforma/playwright.isolado.config.ts`.
 
 ---
 
 ## Summary
 
-**Overall**: Not Ready (reaprovar depois dos fix tasks)
+**Overall**: Ready (PASS na iteração 2 de 3)
 
-**Spec-anchored check**: 16/16 requisitos (todos os ACs e os 7 Edge Cases) com evidência `file:line`; 2 ACs com cobertura parcial (2.7/8.5 e 14.4); 8 lacunas de precisão da spec listadas.
-**Sensor**: 61 de 73 mutantes mortos; 12 sobreviveram (9 relevantes, 3 equivalentes na prática).
-**Gate**: unit 721/721, e2e 116/116 em 3 rodadas, tsc limpo; mas o teste `admin-equipe.spec.ts:221` falha ~7% em repetição.
+**Spec-anchored check**: 16/16 requisitos (todos os ACs e os 7 Edge Cases) com `file:line` + asserção; 0 GAPs; precisão da spec resolvida por Assumptions, sobrando só itens já registrados.
+**Sensor**: 22 mutações nesta iteração, 19 mortas, 3 sobreviventes (1 limite documentado aceito, 2 equivalentes); dos 9 antigos, 8 morreram e o E10 segue como limite de projeto.
+**Gate**: unit 725/725, e2e 125/125 em 3 rodadas, `--repeat-each=20` Equipe 360/360 e Mandatos 300/300, tsc limpo.
 
-**What works**: SQL (permissões, últimos admin e coordenação, auditoria só de inclusão e na mesma transação, privacidade das views por `information_schema`, fuso, RLS do uso), lógica pura (funil, travas, status mensal, busca, paginação, `lerTudo`) com mutantes mortos em todos os ramos testados, privacidade nos pedidos de rede e papel `leitura` nas telas.
-
-**Next steps**: executar os Fix Plans 1 a 4 (obrigatórios para o PASS), depois 5 a 8, e disparar a re-verificação (iteração 1 de no máximo 3). T37 (spec da Fase 2) só depois do PASS.
+**Next steps**: T37 (spec da Fase 2) pode começar; o orquestrador commita este relatório.
