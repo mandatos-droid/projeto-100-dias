@@ -850,6 +850,149 @@ test('aceite sem sessão (anon) é recusado e nada muda', async () => {
   assert.deepEqual(await estadoDo('token-bom'), NAO_USADO);
 });
 
+// ---------- Correção do Verifier: o convite vale só com a autoridade atual de quem o criou (sondas V-1, V-1b, V-1c) ----------
+
+const trocarPapel = (user: string, papel: string) =>
+  banco.query('select public.membro_trocar_papel($1, $2, $3)', [IDS.mandatoA, user, papel]);
+const removerMembro = (user: string) => banco.query('select public.membro_remover($1, $2)', [IDS.mandatoA, user]);
+const sairDoMandato = () => banco.query('select public.membro_sair($1)', [IDS.mandatoA]);
+const nomesListados = async (quem: string) => {
+  await como(banco, quem);
+  return (await pendentes()).rows.map((x) => x.nome).sort();
+};
+const tiposNoHistorico = async () => (await historico()).map((x) => x.tipo);
+// quem entrou pelo cadastro do Guia já gravou o consentimento
+const consentem = async (...ids: string[]) => {
+  await comoDono(banco);
+  for (const id of ids) await banco.query(`insert into public.consentimentos (user_id, versao) values ($1, '2026-10')`, [id]);
+};
+
+test('sonda V-1: a coordenação rebaixada a leitura não volta à coordenação pelo convite que ela mesma criou, nem antes nem depois de sair, e não remove quem a rebaixou (ACE-02.16, ACE-03.6, ACE-03.12)', async () => {
+  await consentem(IDS.membro, ASSESSORIA);
+  await como(banco, IDS.membro);
+  const { token } = await criar('Reserva', 'coordenacao');
+  await como(banco, IDS.membro);
+  await trocarPapel(ASSESSORIA, 'coordenacao');
+  await como(banco, ASSESSORIA);
+  await trocarPapel(IDS.membro, 'leitura');
+  await como(banco, IDS.membro);
+  assert.deepEqual(await aceitar(token), INVALIDO);
+  await como(banco, IDS.membro);
+  await sairDoMandato();
+  await como(banco, IDS.membro);
+  assert.deepEqual(await aceitar(token), INVALIDO);
+  await como(banco, IDS.membro);
+  await assert.rejects(removerMembro(ASSESSORIA), SEM_PERMISSAO);
+  assert.deepEqual(await membrosDe(), { [ASSESSORIA]: 'Alice Assessoria/coordenacao', [LEITOR]: 'Leo Leitor/leitura' });
+  assert.deepEqual(await estadoDo(token), NAO_USADO);
+  assert.deepEqual(await tiposNoHistorico(), ['convite_criado', 'papel_trocado', 'papel_trocado', 'membro_saiu']);
+});
+
+test('sonda V-1b: quem foi removido não volta pelo convite que criou antes; prévia e aceite respondem como token inválido, gravam a tentativa, e o convite sai dos pendentes (ACE-02.16, ACE-03.5, ACE-03.12)', async () => {
+  await consentem(IDS.membro);
+  await como(banco, IDS.membro);
+  const { token } = await criar('Reserva', 'coordenacao');
+  await como(banco, IDS.membro);
+  await trocarPapel(ASSESSORIA, 'coordenacao');
+  assert.deepEqual(await nomesListados(ASSESSORIA), ['Reserva']);
+  await como(banco, ASSESSORIA);
+  await removerMembro(IDS.membro);
+  await vindoDe('1.2.3.4');
+  await como(banco, null);
+  assert.deepEqual(await previa(token), INVALIDO);
+  await como(banco, IDS.membro);
+  assert.deepEqual(await aceitar(token), INVALIDO);
+  assert.deepEqual(await tentativas(), ['1.2.3.4', '1.2.3.4']);
+  assert.deepEqual(await membrosDe(), { [ASSESSORIA]: 'Alice Assessoria/coordenacao', [LEITOR]: 'Leo Leitor/leitura' });
+  assert.deepEqual(await estadoDo(token), NAO_USADO);
+  assert.deepEqual(await nomesListados(ASSESSORIA), []);
+  assert.ok(!(await tiposNoHistorico()).includes('convite_aceito'));
+});
+
+test('sonda V-1c: a assessoria rebaixada a leitura não recupera a escrita pelo próprio convite de assessoria, nem com outra conta nem saindo e aceitando (ACE-02.16, ACE-03.2, ACE-03.12)', async () => {
+  await contas();
+  await consentem(ASSESSORIA);
+  await como(banco, ASSESSORIA);
+  const { token } = await criar('Reserva', 'assessoria');
+  await como(banco, IDS.membro);
+  await trocarPapel(ASSESSORIA, 'leitura');
+  // outra conta da mesma pessoa
+  await como(banco, CARLOS);
+  assert.deepEqual(await aceitar(token), INVALIDO);
+  await como(banco, ASSESSORIA);
+  await sairDoMandato();
+  await como(banco, ASSESSORIA);
+  assert.deepEqual(await aceitar(token), INVALIDO);
+  await como(banco, ASSESSORIA);
+  assert.equal((await banco.query(`update public.mandatos set nome_parlamentar = 'Escrito' where id = $1`, [IDS.mandatoA])).affectedRows, 0);
+  assert.deepEqual(await membrosDe(), { [IDS.membro]: 'Mario Membro/coordenacao', [LEITOR]: 'Leo Leitor/leitura' });
+  assert.deepEqual(await estadoDo(token), NAO_USADO);
+});
+
+test('a coordenação que segue na coordenação convida como coordenação e outra pessoa aceita, mesmo com a equipe mudando em volta (ACE-02.4, ACE-02.16)', async () => {
+  await contas();
+  await como(banco, IDS.membro);
+  const { token } = await criar('Dora Dias', 'coordenacao');
+  await como(banco, IDS.membro);
+  await trocarPapel(ASSESSORIA, 'coordenacao');
+  await como(banco, ASSESSORIA);
+  await removerMembro(LEITOR);
+  assert.deepEqual(await nomesListados(ASSESSORIA), ['Dora Dias']);
+  await como(banco, null);
+  assert.equal((await previa(token)).ok, true);
+  await como(banco, DORA);
+  assert.deepEqual(await aceitar(token), { ok: true, mandato_id: IDS.mandatoA, ja_membro: false });
+  assert.deepEqual(await membrosDe(), {
+    [IDS.membro]: 'Mario Membro/coordenacao', [ASSESSORIA]: 'Alice Assessoria/coordenacao', [DORA]: 'Dora Dias/coordenacao',
+  });
+});
+
+test('rebaixada a assessoria, a coordenação mantém os convites de assessoria e leitura e perde só o de coordenação, que volta a valer se ela voltar à coordenação (ACE-02.16, ACE-03.12)', async () => {
+  await contas();
+  await como(banco, IDS.membro);
+  const leitura = await criar('Convite Leitura', 'leitura');
+  await como(banco, IDS.membro);
+  const assessoria = await criar('Convite Assessoria', 'assessoria');
+  await como(banco, IDS.membro);
+  const coordenacao = await criar('Convite Coordenação', 'coordenacao');
+  await como(banco, IDS.membro);
+  await trocarPapel(ASSESSORIA, 'coordenacao');
+  await como(banco, ASSESSORIA);
+  await trocarPapel(IDS.membro, 'assessoria');
+  assert.deepEqual(await nomesListados(ASSESSORIA), ['Convite Assessoria', 'Convite Leitura']);
+  await como(banco, null);
+  assert.equal((await previa(assessoria.token)).ok, true);
+  assert.deepEqual(await previa(coordenacao.token), INVALIDO);
+  await como(banco, CARLOS);
+  assert.deepEqual(await aceitar(leitura.token), { ok: true, mandato_id: IDS.mandatoA, ja_membro: false });
+  await como(banco, DORA);
+  assert.deepEqual(await aceitar(coordenacao.token), INVALIDO);
+  assert.deepEqual(await estadoDo(coordenacao.token), NAO_USADO);
+  // o papel é lido a cada chamada: de volta à coordenação, o convite de coordenação volta a valer
+  await como(banco, ASSESSORIA);
+  await trocarPapel(IDS.membro, 'coordenacao');
+  await como(banco, DORA);
+  assert.deepEqual(await aceitar(coordenacao.token), { ok: true, mandato_id: IDS.mandatoA, ja_membro: false });
+  assert.deepEqual(await membrosDe(), {
+    [IDS.membro]: 'Mario Membro/coordenacao', [ASSESSORIA]: 'Alice Assessoria/coordenacao', [LEITOR]: 'Leo Leitor/leitura',
+    [CARLOS]: 'Carlos Lima/leitura', [DORA]: 'Dora Dias/coordenacao',
+  });
+});
+
+test('convites de quem perdeu o papel ou teve a conta apagada não aparecem nos pendentes nem contam no limite de 20 (ACE-01.9, ACE-04.2, ACE-03.12)', async () => {
+  // criados pela assessoria antes de ser rebaixada a leitura, e por uma conta que já não existe
+  for (let i = 1; i <= 10; i++) {
+    await insereConvite({ token: `rebaixada-${i}`, nome: `Rebaixada ${i}`, papel: 'assessoria', por: LEITOR, porNome: 'Leo Leitor' });
+    await insereConvite({ token: `apagada-${i}`, nome: `Conta apagada ${i}`, papel: 'leitura', por: null, porNome: 'Ex Membro' });
+  }
+  assert.deepEqual(await nomesListados(IDS.membro), []);
+  await como(banco, IDS.membro);
+  await criar('Carlos Lima', 'leitura');
+  assert.deepEqual(await nomesListados(IDS.membro), ['Carlos Lima']);
+  await como(banco, null);
+  assert.deepEqual([await previa('rebaixada-1'), await previa('apagada-1')], [INVALIDO, INVALIDO]);
+});
+
 // ---------- T13: código de convite antigo aposentado ----------
 
 test('entrar_com_codigo com código válido falha por falta de permissão para authenticated e anon, e ninguém entra (ACE-07.1)', async () => {
