@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { chamadas, chamadasDeMandatos, mandato, moca, naoMapeadas, semeiaSessao, vazou, type EstadoMoca, type Papel } from './admin-api';
+import { chamadas, esperaSemMandatos, mandato, moca, naoMapeadas, semeiaSessao, vazou, type EstadoMoca, type Papel } from './admin-api';
 
 /* Acesso, papéis e sessão do /admin (ADM-01, ADM-02.6). Supabase todo interceptado (admin-api.ts). */
 const MANDATOS = [mandato({ id: 'a', codigo: 'ABC234', nome_parlamentar: 'Ana Souza' }), mandato({ id: 'b', codigo: 'XYZ789', nome_parlamentar: 'Bia Lima' })];
@@ -27,8 +27,8 @@ test.describe('Sem sessão e sem acesso (ADM-01.1, 01.2)', () => {
     await expect(page.getByLabel('Senha')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Entrar com e-mail' })).toBeVisible();
     await expect(page.locator('tbody tr')).toHaveCount(0);
-    expect(chamadasDeMandatos()).toEqual([]);
-    expect(chamadas().filter((c) => c.caminho.startsWith('v_admin') || c.caminho.startsWith('mandatos'))).toEqual([]);
+    // espera ~1,2 s: um pedido atrasado também seria visto
+    expect(await esperaSemMandatos(page)).toEqual([]);
   });
 
   test('conta fora de equipe_legisla vê "Sem acesso" e nenhuma view de mandatos é consultada', async ({ page }) => {
@@ -36,7 +36,7 @@ test.describe('Sem sessão e sem acesso (ADM-01.1, 01.2)', () => {
     await expect(page.getByRole('heading', { name: 'Sem acesso' })).toBeVisible();
     await expect(page.getByText('fora@legisla.test')).toBeVisible();
     await expect(page.locator('tbody tr')).toHaveCount(0);
-    expect(chamadasDeMandatos()).toEqual([]);
+    expect(await esperaSemMandatos(page)).toEqual([]);
     // só a checagem de papel foi ao banco
     expect(chamadas().filter((c) => c.caminho.startsWith('equipe_legisla')).length).toBe(1);
   });
@@ -82,7 +82,7 @@ test.describe('Entrada com sessão, retorno do Google e senha (ADM-01.3, 01.4)',
     await page.goto('/admin#error_description=Acesso+negado+pelo+Google');
     await expect(page.locator('.aviso')).toHaveText('Acesso negado pelo Google');
     await expect(page.getByRole('button', { name: 'Entrar com Google' })).toBeVisible();
-    expect(chamadasDeMandatos()).toEqual([]);
+    expect(await esperaSemMandatos(page)).toEqual([]);
   });
 
   test('entrada por e-mail e senha abre Mandatos; senha errada mostra o erro', async ({ page }) => {
@@ -92,7 +92,7 @@ test.describe('Entrada com sessão, retorno do Google e senha (ADM-01.3, 01.4)',
     await page.getByLabel('Senha').fill('errada');
     await page.getByRole('button', { name: 'Entrar com e-mail' }).click();
     await expect(page.locator('.aviso')).toHaveText('Invalid login credentials');
-    expect(chamadasDeMandatos()).toEqual([]);
+    expect(await esperaSemMandatos(page)).toEqual([]);
     await page.getByLabel('Senha').fill('segredo123');
     await page.getByRole('button', { name: 'Entrar com e-mail' }).click();
     await expect(linhas(page)).toHaveCount(2);
@@ -139,7 +139,7 @@ test.describe('Sessão vencida e 401 (ADM-01.5)', () => {
   test('token vencido sem refresh_token volta à entrada', async ({ page }) => {
     await entraComo(page, 'admin', estadoBase(), { vencido: true, semRefresh: true });
     await expect(page.getByRole('button', { name: 'Entrar com Google' })).toBeVisible();
-    expect(chamadasDeMandatos()).toEqual([]);
+    expect(await esperaSemMandatos(page)).toEqual([]);
   });
 
   test('renovação recusada volta à entrada com aviso', async ({ page }) => {

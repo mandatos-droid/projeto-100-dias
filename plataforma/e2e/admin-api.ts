@@ -38,8 +38,23 @@ const registro = { chamadas: [] as Chamada[], naoMapeadas: [] as string[], vazam
 export const chamadas = (): Chamada[] => [...registro.chamadas];
 /** Requisições abortadas por não terem mapa (inclui qualquer host externo). Deve ficar vazia. */
 export const naoMapeadas = (): string[] => [...registro.naoMapeadas];
+/** Ausência de POST a uma função (`rpc/<nome>`), com a espera de `esperaSemChamadas`. */
+export const esperaSemRpc = (page: Page, nome: string, ms = 1200): Promise<Chamada[]> =>
+  esperaSemChamadas(page, (c) => c.metodo === 'POST' && c.caminho === `rpc/${nome}`, ms);
 /** Chamadas ao banco que tocam mandatos ou eventos (views `v_admin_*`, tabelas e funções de mandato). */
-export const chamadasDeMandatos = (): Chamada[] => registro.chamadas.filter((c) => /v_admin_|^mandatos|^eventos|rpc\/admin_mandato|rpc\/admin_membro/.test(c.caminho));
+const ehDeMandatos = (c: Chamada) => /v_admin_|^mandatos|^eventos|rpc\/admin_mandato|rpc\/admin_membro/.test(c.caminho);
+export const chamadasDeMandatos = (): Chamada[] => registro.chamadas.filter(ehDeMandatos);
+/** Ausência de qualquer chamada de mandatos, com a espera de `esperaSemChamadas`. */
+export const esperaSemMandatos = (page: Page, ms = 1200): Promise<Chamada[]> => esperaSemChamadas(page, ehDeMandatos, ms);
+
+/** Para afirmar AUSÊNCIA de chamada: espera a rede ficar quieta e ao menos `ms` (pedido atrasado em até ~1 s também aparece)
+ *  e só então devolve as chamadas que casam com o filtro. Afirmar ausência logo após um `expect` de tela passa cedo demais. */
+export async function esperaSemChamadas(page: Page, filtro: (c: Chamada) => boolean, ms = 1200): Promise<Chamada[]> {
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(ms);
+  await page.waitForLoadState('networkidle');
+  return registro.chamadas.filter(filtro);
+}
 
 /** Ocorrências das chaves `dados`, `texto`, `nome_civil` e `resp_telefone` em toda resposta entregue ao app, e nos pedidos que as citam. */
 export function vazou(): string[] {

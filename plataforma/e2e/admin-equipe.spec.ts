@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { chamadas, moca, naoMapeadas, semeiaSessao, vazou, type EstadoMoca, type Papel, type RespostaRpc } from './admin-api';
+import { chamadas, esperaSemRpc, moca, naoMapeadas, semeiaSessao, vazou, type EstadoMoca, type Papel, type RespostaRpc } from './admin-api';
 
 /* Tela Equipe do /admin (ADM-03, ADM-16) e a cobertura adiada da T21 (403 de escrita e seletores desabilitados para leitura).
    Supabase todo interceptado (admin-api.ts); as funções admin_* respondem com o que o banco responderia. */
@@ -135,7 +135,7 @@ test.describe('Incluir pessoa (ADM-03.2 a 03.5)', () => {
     await abre(page, criaBanco());
     const dlg = await preencheEIncluir(page, 'ninguem@exemplo.org');
     await expect(dlg.getByRole('alert')).toHaveText(SEM_CONTA);
-    expect(chamou('admin_equipe_incluir')).toBe(0);
+    expect(await esperaSemRpc(page, 'admin_equipe_incluir')).toEqual([]);
     await dlg.getByRole('button', { name: 'Cancelar' }).click();
     await expect(linhas(page)).toHaveCount(3);
   });
@@ -154,8 +154,8 @@ test.describe('Incluir pessoa (ADM-03.2 a 03.5)', () => {
     await abre(page, criaBanco());
     const dlg = await preencheEIncluir(page, 'isto-nao-e-email');
     await expect(dlg.getByRole('alert')).toHaveText('Digite um e-mail válido.');
-    expect(chamou('admin_buscar_usuario')).toBe(0);
-    expect(chamou('admin_equipe_incluir')).toBe(0);
+    expect(await esperaSemRpc(page, 'admin_buscar_usuario')).toEqual([]);
+    expect(await esperaSemRpc(page, 'admin_equipe_incluir', 0)).toEqual([]);
   });
 
   test('duplo clique em Incluir envia a ação uma só vez', async ({ page }) => {
@@ -188,7 +188,7 @@ test.describe('Trocar papel e remover (ADM-03.6 a 03.8)', () => {
     const dlg = page.getByRole('dialog', { name: 'Remover pessoa da equipe' });
     await expect(dlg).toContainText('Carla Dias');
     await dlg.getByRole('button', { name: 'Cancelar' }).click();
-    expect(chamou('admin_equipe_remover')).toBe(0);
+    expect(await esperaSemRpc(page, 'admin_equipe_remover')).toEqual([]);
     await expect(linhas(page)).toHaveCount(3);
 
     await linhas(page).filter({ hasText: 'Carla Dias' }).getByRole('button', { name: 'Remover' }).click();

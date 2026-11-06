@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { chamadas, mandato, moca, naoMapeadas, semeiaSessao, vazou, type EstadoMoca, type Papel, type RespostaRpc } from './admin-api';
+import { chamadas, esperaSemRpc, mandato, moca, naoMapeadas, semeiaSessao, vazou, type EstadoMoca, type Papel, type RespostaRpc } from './admin-api';
 
 /* Detalhe do mandato no /admin (ADM-06, ADM-07, ADM-08, ADM-16). Supabase todo interceptado (admin-api.ts); as funções
    admin_* respondem com o que o banco responderia, inclusive as mensagens de regra. */
@@ -186,7 +186,7 @@ test.describe('Membros (ADM-07)', () => {
     await dlg.getByLabel('E-mail da pessoa').fill('isto-nao-e-email');
     await dlg.getByRole('button', { name: 'Adicionar', exact: true }).click();
     await expect(dlg.getByRole('alert')).toHaveText('Digite um e-mail válido.');
-    expect(chamou('admin_membro_adicionar')).toBe(0);
+    expect(await esperaSemRpc(page, 'admin_membro_adicionar')).toEqual([]);
     expect(chamou('admin_buscar_usuario')).toBe(1); // o inválido não consultou o banco
   });
 
@@ -218,7 +218,7 @@ test.describe('Membros (ADM-07)', () => {
     const dlg = page.getByRole('dialog', { name: 'Remover membro' });
     await expect(dlg).toContainText('Júlia Melo');
     await dlg.getByRole('button', { name: 'Cancelar' }).click();
-    expect(chamou('admin_membro_remover')).toBe(0);
+    expect(await esperaSemRpc(page, 'admin_membro_remover')).toEqual([]);
     await linhas(page).filter({ hasText: 'Júlia Melo' }).getByRole('button', { name: 'Remover' }).click();
     await page.getByRole('dialog').getByRole('button', { name: 'Remover', exact: true }).click();
     await expect(linhas(page)).toHaveCount(1);
