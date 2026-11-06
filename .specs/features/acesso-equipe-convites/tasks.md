@@ -1089,15 +1089,15 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Nenhuma tela do Guia (entrada sem mandato, Equipe e convites, Configurações) mostra o campo, o botão ou a mensagem de código de convite (ACE-07.2)
-- [ ] A tela Equipe e convites do Guia mostra um cartão com link para `/mandato/equipe`
-- [ ] `Store.entrarPorCodigo` não é mais chamado por nenhuma tela
-- [ ] Cadastrar mandato novo continua criando a pessoa como `coordenacao` (ACE-07.3)
-- [ ] `app.js` e `cadastro.js` não aparecem no `git diff` desta task
-- [ ] `acesso.js` carrega depois de `cadastro.js` em `app/guia/page.tsx`
-- [ ] Se a remoção sem editar `cadastro.js` e `app.js` se mostrar inviável, parar e reportar (o dono do repositório precisa commitar as edições pendentes primeiro)
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/guia-acesso.spec.ts`
-- [ ] Test count: ao menos 6 testes em `tests/legado-acesso.test.ts` e `e2e/guia-acesso.spec.ts`
+- [x] Nenhuma tela do Guia (entrada sem mandato, Equipe e convites, Configurações) mostra o campo, o botão ou a mensagem de código de convite (ACE-07.2)
+- [x] A tela Equipe e convites do Guia mostra um cartão com link para `/mandato/equipe`
+- [x] `Store.entrarPorCodigo` não é mais chamado por nenhuma tela
+- [x] Cadastrar mandato novo continua criando a pessoa como `coordenacao` (ACE-07.3)
+- [x] `app.js` e `cadastro.js` não aparecem no `git diff` desta task
+- [x] `acesso.js` carrega depois de `cadastro.js` em `app/guia/page.tsx`
+- [x] Se a remoção sem editar `cadastro.js` e `app.js` se mostrar inviável, parar e reportar (o dono do repositório precisa commitar as edições pendentes primeiro)
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/guia-acesso.spec.ts`
+- [x] Test count: ao menos 6 testes em `tests/legado-acesso.test.ts` e `e2e/guia-acesso.spec.ts`
 
 **Tests**: unit
 **Gate**: full
