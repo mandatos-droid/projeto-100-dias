@@ -986,8 +986,8 @@ T36 → T37
 
 **Done when**:
 
-- [ ] `usoPorFuncionalidade(campos, uso)` devolve aberturas e tendência; `usoPorDia(uso, agora)` devolve 14 dias; sem `uso` mantém o comportamento da T14
-- [ ] `tests/admin-uso-funcionalidades.test.ts` cresce em ≥ 5 casos e todos passam
+- [x] `usoPorFuncionalidade(campos, uso)` devolve aberturas e tendência; `usoPorDia(uso, agora)` devolve 14 dias; sem `uso` mantém o comportamento da T14
+- [x] `tests/admin-uso-funcionalidades.test.ts` cresce em ≥ 5 casos e todos passam
 
 **Tests**: unit
 **Gate**: quick
