@@ -42,7 +42,7 @@ const membros = [
 
 const estado = (): EstadoMoca => ({
   views: {
-    v_admin_mandatos: mandatos, v_admin_exercicios: exercicios, v_admin_eventos_mes: eventosMes, v_admin_uso_campos: campos,
+    v_admin_mandatos: mandatos, v_admin_exercicios: exercicios, v_admin_eventos_mes: eventosMes, v_admin_uso_campos: campos, v_admin_uso: [],
     exercicios_guia: guia, v_admin_atividade: atividade, auditoria_admin: auditoria,
   },
   rpc: { admin_equipe: () => ({ corpo: equipe }), admin_membros: () => ({ corpo: membros }) },

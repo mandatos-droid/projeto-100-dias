@@ -38,7 +38,7 @@ const numeroDoDia = (d: Date) => { const p = partesBrasilia(d); return Date.UTC(
 const numeroDe = (dia: string) => Date.UTC(Number(dia.slice(0, 4)), Number(dia.slice(5, 7)) - 1, Number(dia.slice(8, 10))) / DIA_MS;
 const rotuloDe = (n: number) => new Date(n * DIA_MS).toISOString().slice(0, 10);
 
-// Sem `uso` (ou com a lista vazia, que é registro ainda não ativo) aberturas e tendência ficam null e a tela mostra "—".
+// Sem `uso` (undefined: registro ainda não ativo) aberturas e tendência ficam null e a tela mostra "—".
 // Com `uso`: aberturas = soma de `qtd` nos últimos `periodo` dias de calendário (hoje incluído); tendência = aberturas por
 // semana (blocos de 7 dias terminando hoje) nas últimas 5 semanas, da mais antiga para a atual.
 export function usoPorFuncionalidade(
@@ -48,7 +48,7 @@ export function usoPorFuncionalidade(
   const base: LinhaUso[] = FUNCIONALIDADES.map(({ id, nome }) => ({
     id, nome, mandatos: ativos.filter((c) => c[id]).length, aberturas: null, tendencia: null,
   }));
-  if (!uso || uso.length === 0) return base;
+  if (!uso) return base; // lista vazia = registro ativo, mas sem abertura no recorte: aparece 0
 
   const hoje = numeroDoDia(agora);
   const linhas = [...base, { ...SO_REGISTRO, mandatos: 0, aberturas: null, tendencia: null }];

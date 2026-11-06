@@ -74,7 +74,7 @@ const CAMPOS = [
 ];
 
 const estadoPadrao = (): EstadoMoca => ({
-  views: { v_admin_mandatos: MANDATOS, v_admin_exercicios: EXERCICIOS, v_admin_eventos_mes: EVENTOS, v_admin_uso_campos: CAMPOS, exercicios_guia: exerciciosGuia },
+  views: { v_admin_mandatos: MANDATOS, v_admin_exercicios: EXERCICIOS, v_admin_eventos_mes: EVENTOS, v_admin_uso_campos: CAMPOS, v_admin_uso: [], exercicios_guia: exerciciosGuia },
 });
 
 async function abre(page: Page, extra: EstadoMoca = {}, papel: Papel = 'admin') {
@@ -92,10 +92,9 @@ const kpis = async (page: Page) => [await kpi(page, 0).innerText(), await kpi(pa
 const linhasTexto = (loc: ReturnType<Page['locator']>) => loc.locator('tbody tr').evaluateAll((trs) => trs.map((tr) => [...tr.querySelectorAll('td')].map((td) => td.textContent?.trim())));
 
 test.afterEach(() => {
-  // nada pode ter saído da máquina nem ter trazido texto de gabinete, e a view de uso (P3) não existe ainda
+  // nada pode ter saído da máquina nem ter trazido texto de gabinete (a view de uso vem vazia aqui: ver admin-analytics-uso.spec.ts)
   expect(naoMapeadas()).toEqual([]);
   expect(vazou()).toEqual([]);
-  expect(chamadas().filter((c) => /v_admin_uso\b|v_admin_uso\?/.test(c.caminho))).toEqual([]);
 });
 
 test.describe('Analytics: indicadores e filtros (ADM-09)', () => {
@@ -275,7 +274,7 @@ test.describe('Analytics: uso por funcionalidade sem registro (ADM-12)', () => {
 
 test.describe('Analytics: bordas', () => {
   test('sem mandatos mostra "Ainda não há mandatos cadastrados." no lugar dos gráficos (ADM-10.6)', async ({ page }) => {
-    await abre(page, { views: { v_admin_mandatos: [], v_admin_exercicios: [], v_admin_eventos_mes: [], v_admin_uso_campos: [], exercicios_guia: exerciciosGuia } });
+    await abre(page, { views: { v_admin_mandatos: [], v_admin_exercicios: [], v_admin_eventos_mes: [], v_admin_uso_campos: [], v_admin_uso: [], exercicios_guia: exerciciosGuia } });
     await expect(page.getByText('Ainda não há mandatos cadastrados.')).toBeVisible();
     await expect(page.getByRole('group')).toHaveCount(0);
     await expect(page.locator('table')).toHaveCount(0);

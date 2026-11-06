@@ -306,7 +306,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | ADM-12 | P2: Analytics (AC 11 e 12, uso por funcionalidade sem registro) | Specify | Implementing |
 | ADM-13 | P2: Consultar os Logs | Specify | Implementing |
 | ADM-14 | P3: Registrar o uso das funcionalidades (AC 1 a 6) | Specify | Implementing |
-| ADM-15 | P3: Mostrar o uso das funcionalidades (AC 7) | Specify | Pending |
+| ADM-15 | P3: Mostrar o uso das funcionalidades (AC 7) | Specify | Implementing |
 | ADM-16 | P2: Usar o painel no celular | Specify | Implementing |
 
 **ID format:** `[CATEGORY]-[NUMBER]` (e.g., `AUTH-01`, `CART-03`, `NOTIF-02`)

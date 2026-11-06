@@ -1011,10 +1011,10 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Com registro de uso a tabela mostra aberturas e tendência e o gráfico mostra 14 dias; sem registro mantém os "—"
-- [ ] Spec `e2e/admin-analytics-uso.spec.ts` criado nesta task
-- [ ] Cobre: números batem com a fixture; período troca as aberturas; gráfico de 14 dias; sem registro mostra "—"
-- [ ] ≥ 4 testes passam
+- [x] Com registro de uso a tabela mostra aberturas e tendência e o gráfico mostra 14 dias; sem registro mantém os "—"
+- [x] Spec `e2e/admin-analytics-uso.spec.ts` criado nesta task
+- [x] Cobre: números batem com a fixture; período troca as aberturas; gráfico de 14 dias; sem registro mostra "—"
+- [x] ≥ 4 testes passam
 
 **Tests**: e2e
 **Gate**: full

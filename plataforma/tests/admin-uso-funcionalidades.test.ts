@@ -103,12 +103,16 @@ test('"Mandatos que usaram" das 6 linhas segue vindo dos campos mesmo com uso (A
   assert.deepEqual(r.slice(0, 6).map((x) => x.mandatos), [1, 1, 1, 1, 1, 1]);
 });
 
-test('uso vazio ou ausente mantém o comportamento sem registro: 6 linhas com null (ADM-12.12)', () => {
-  for (const u of [undefined, []]) {
-    const r = usoPorFuncionalidade([todas('a')], u, AGORA, 30);
-    assert.equal(r.length, 6);
-    assert.ok(r.every((x) => x.aberturas === null && x.tendencia === null));
-  }
+test('uso ausente (undefined) mantém o comportamento sem registro: 6 linhas com null (ADM-12.12)', () => {
+  const r = usoPorFuncionalidade([todas('a')], undefined, AGORA, 30);
+  assert.equal(r.length, 6);
+  assert.ok(r.every((x) => x.aberturas === null && x.tendencia === null));
+});
+
+test('uso vazio é registro ativo sem abertura no recorte: 7 linhas com 0 e tendência zerada (ADM-15.7)', () => {
+  const r = usoPorFuncionalidade([todas('a')], [], AGORA, 30);
+  assert.equal(r.length, 7);
+  assert.ok(r.every((x) => x.aberturas === 0 && x.tendencia!.join() === '0,0,0,0,0'));
 });
 
 test('usoPorFuncionalidade com uso não altera a lista recebida', () => {
