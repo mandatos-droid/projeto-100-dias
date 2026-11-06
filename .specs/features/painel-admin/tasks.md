@@ -744,9 +744,9 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Botão "Excluir definitivamente" desabilitado enquanto o texto difere do código do mandato
-- [ ] Arquivar e desarquivar chamam `admin_mandato_arquivar`; excluir chama `admin_mandato_excluir` e volta à lista
-- [ ] Gate Build passa (cobertura no e2e da T26)
+- [x] Botão "Excluir definitivamente" desabilitado enquanto o texto difere do código do mandato
+- [x] Arquivar e desarquivar chamam `admin_mandato_arquivar`; excluir chama `admin_mandato_excluir` e volta à lista
+- [x] Gate Build passa (cobertura no e2e da T26) (`npm run build` compila e gera as rotas, mas falha no fim só por `SecurityFatalError` do Next 16.4; valeu `tsc` + `npm test`)
 
 **Tests**: none
 **Gate**: build
