@@ -172,3 +172,70 @@ test('cadastrar um mandato novo continua incluindo a pessoa como coordenacao (AC
   assert.ok(membro, 'POST em membros');
   assert.deepEqual({ ...membro.corpo }, { mandato_id: 'm-novo', user_id: 'uid-ana', papel: 'coordenacao', nome: 'Ana Lima' });
 });
+
+/* ---------- T35: modo somente leitura (ACE-03.2, ACE-03.3) ---------- */
+const AVISO_LEITURA = 'Você está com acesso somente leitura';
+
+/** Abre o mandato m-a como Lia pelo Store.abrir real; o papel de Lia vem da linha dela em `membros` (mutável em `estado`). */
+async function abreComo(papel: string) {
+  const estado = { papel };
+  const j = janela({
+    responde: (url, metodo) => {
+      if (metodo !== 'GET') return undefined;
+      if (url.includes('/rest/v1/mandatos?id=eq.m-a')) return [{ ...MANDATO }];
+      if (url.includes('/rest/v1/membros?mandato_id=eq.m-a'))
+        return [{ user_id: 'uid-lia', nome: 'Lia', papel: estado.papel }, { user_id: 'uid-mariana', nome: 'Mariana', papel: 'coordenacao' }];
+      if (url.includes('/rest/v1/eventos?')) return [];
+      return undefined;
+    },
+  });
+  j.w.Store.usuario = { id: 'uid-lia', nome: 'Lia', email: 'lia@gabinete.test' };
+  await j.w.Store.abrir('m-a');
+  j.pedidos.length = 0; // daqui em diante, só o que a pessoa faz
+  return { ...j, estado };
+}
+const avisoDe = (d: ReturnType<typeof documento>) => d.corpo.filhos.find((e) => e.id === 'avisoLeitura' && !e.removido);
+
+test('ao abrir um mandato com papel leitura, o body ganha so-leitura e aparece o aviso de somente leitura (ACE-03.3)', async () => {
+  const { document } = await abreComo('leitura');
+  assert.equal(document.body.classList.contains('so-leitura'), true);
+  assert.equal(avisoDe(document)?.textContent, AVISO_LEITURA);
+});
+
+test('com papel assessoria ou coordenacao, o Guia fica como hoje: sem so-leitura e sem aviso (ACE-03.3)', async () => {
+  for (const papel of ['assessoria', 'coordenacao']) {
+    const { document } = await abreComo(papel);
+    assert.equal(document.body.classList.contains('so-leitura'), false, papel);
+    assert.equal(avisoDe(document), undefined, papel);
+  }
+});
+
+test('trocar para um mandato em que a pessoa é coordenacao tira a classe e o aviso (ACE-03.3)', async () => {
+  const { w, document, estado } = await abreComo('leitura');
+  estado.papel = 'coordenacao';
+  await w.Store.abrir('m-a');
+  assert.equal(document.body.classList.contains('so-leitura'), false);
+  assert.equal(avisoDe(document), undefined);
+});
+
+test('como leitura, Store.salvar, gravar, atualizar e registrar não fazem nenhuma requisição (ACE-03.2)', async () => {
+  const { w, pedidos } = await abreComo('leitura');
+  w.Store.salvar();
+  await w.Store.gravar();
+  await w.Store.atualizar({ partido: 'NOVO' });
+  await w.Store.registrar(1, 'm1.persona', 'A persona');
+  assert.deepEqual(pedidos.map((p) => `${p.metodo} ${p.url}`), []);
+});
+
+test('como assessoria, as mesmas chamadas gravam como hoje: PATCH em mandatos e POST em eventos (ACE-03.2)', async () => {
+  const { w, pedidos } = await abreComo('assessoria');
+  w.Store.salvar();
+  await new Promise((r) => setImmediate(r));
+  await w.Store.atualizar({ partido: 'NOVO' });
+  await w.Store.registrar(1, 'm1.persona', 'A persona');
+  const rotas = pedidos.map((p) => `${p.metodo} ${p.url.replace(/^https:\/\/[^/]+\/rest\/v1\//, '')}`);
+  assert.deepEqual(rotas, ['PATCH mandatos?id=eq.m-a', 'PATCH mandatos?id=eq.m-a', 'POST eventos']);
+  assert.ok(pedidos[0].corpo && 'dados' in pedidos[0].corpo);
+  assert.deepEqual({ ...pedidos[1].corpo }, { partido: 'NOVO' });
+  assert.equal(pedidos[2].corpo?.mandato_id, 'm-a');
+});

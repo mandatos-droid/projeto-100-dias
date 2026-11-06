@@ -158,3 +158,93 @@ test('cadastrar um mandato novo pelo Guia inclui a pessoa como coordenacao (ACE-
   expect(membro).toHaveLength(1);
   expect(membro[0].corpo).toMatchObject({ mandato_id: MANDATO_NOVO, user_id: LIA.id, papel: 'coordenacao' });
 });
+
+/* ---------- T35: modo somente leitura (ACE-03.2, ACE-03.3) ---------- */
+test.describe('Modo somente leitura no Guia (ACE-03.2, ACE-03.3)', () => {
+  const AVISO = 'Você está com acesso somente leitura';
+  const editor = (page: Page) => page.locator('#tela .rico-area');
+
+  test('com papel leitura o body ganha so-leitura e aparece o aviso', async ({ page }) => {
+    await abre(page, '#/', { papel: 'leitura' });
+    await expect(page.locator('body')).toHaveClass(/\bso-leitura\b/);
+    await expect(page.getByText(AVISO, { exact: true })).toBeVisible();
+  });
+
+  test('no exercício, o campo de resposta e a barra de formatação ficam desabilitados; navegar segue livre', async ({ page }) => {
+    await abre(page, '#/m/1/m1.persona', { papel: 'leitura' });
+    await page.getByRole('button', { name: 'Avançar' }).click();
+    await expect(editor(page)).toHaveAttribute('contenteditable', 'false');
+    await expect(page.locator('#tela textarea[data-k="m1.q1"]')).toBeDisabled();
+    const barra = page.locator('#tela .rico-barra button');
+    expect(await barra.count()).toBeGreaterThan(0);
+    for (const b of await barra.all()) await expect(b).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Anterior' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Avançar' })).toBeEnabled();
+  });
+
+  test('nas Fragilidades, classificar e "Marcar como concluído" ficam desabilitados; "Próximo exercício" segue livre', async ({ page }) => {
+    await abre(page, '#/m/1/m1.frag', { papel: 'leitura' });
+    await expect(page.locator('.frag-i').first().getByRole('button', { name: 'Gabinete' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Marcar como concluído' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Próximo exercício ›' })).toBeEnabled();
+  });
+
+  test('em Configurações os campos e os botões Salvar alterações, trocar o parlamentar e Excluir cadastro ficam desabilitados', async ({ page }) => {
+    await abre(page, '#/config', { papel: 'leitura' });
+    await expect(page.locator('#cadNome')).toBeDisabled();
+    await expect(page.locator('#cadPosse')).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Salvar alterações' })).toBeDisabled();
+    // mandato sem dados do TSE abre no preenchimento manual: o botão de trocar o parlamentar (Cad.trocar) é "Voltar para a lista"
+    await expect(page.getByRole('button', { name: 'Voltar para a lista' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Excluir cadastro' })).toBeDisabled();
+  });
+
+  test('digitar, concluir e salvar como leitura não manda nenhuma gravação nem mostra "Não foi possível salvar"', async ({ page }) => {
+    await abre(page, '#/m/1/m1.persona', { papel: 'leitura' });
+    await page.getByRole('button', { name: 'Avançar' }).click();
+    // o editor fica num <label> cujo controle é o textarea desabilitado: o Playwright segue o label e recusa o clique; a pessoa clica normalmente
+    await editor(page).click({ force: true });
+    await page.keyboard.type('texto de quem só lê');
+    await expect(editor(page)).not.toContainText('texto de quem só lê');
+    // mesmo que algum controle escape da trava (ilha, atalho de teclado), o Store não grava
+    await page.evaluate(() => {
+      const w = window as unknown as { D: { campos: Record<string, string> }; Store: { salvar(): void; atualizar(c: Record<string, string>): Promise<void> }; Guia: { concluir(): void } };
+      w.D.campos['m1.q1'] = 'gravado por fora';
+      w.Store.salvar();
+      void w.Store.atualizar({ partido: 'NOVO' });
+      w.Guia.concluir();
+    });
+    await page.waitForTimeout(1500); // além dos 700 ms de espera do Store.salvar
+    expect(gravacoes()).toEqual([]);
+    await expect(page.locator('#toast')).not.toContainText('Não foi possível salvar');
+  });
+
+  test('com assessoria o campo segue editável, sem aviso, e digitar grava como hoje', async ({ page }) => {
+    await abre(page, '#/m/1/m1.persona', { papel: 'assessoria' });
+    await expect(page.locator('body')).not.toHaveClass(/\bso-leitura\b/);
+    await expect(page.getByText(AVISO)).toHaveCount(0);
+    await page.getByRole('button', { name: 'Avançar' }).click();
+    await expect(editor(page)).toHaveAttribute('contenteditable', 'true');
+    await editor(page).click();
+    await page.keyboard.type('resposta da assessoria');
+    await expect.poll(() => gravacoes().map((p) => `${p.metodo} ${p.caminho}`)).toContain(`PATCH mandatos?id=eq.${MANDATO}`);
+    const patch = gravacoes().find((p) => p.metodo === 'PATCH')!;
+    expect((patch.corpo as { dados: { campos: Record<string, string> } }).dados.campos['m1.q1']).toContain('resposta da assessoria');
+  });
+
+  test('com coordenacao, Configurações segue editável e sem aviso', async ({ page }) => {
+    await abre(page, '#/config', { papel: 'coordenacao' });
+    await expect(page.locator('body')).not.toHaveClass(/\bso-leitura\b/);
+    await expect(page.getByText(AVISO)).toHaveCount(0);
+    await expect(page.locator('#cadNome')).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Salvar alterações' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Excluir cadastro' })).toBeEnabled();
+  });
+
+  test('como leitura, "Novo cadastro" segue aberto para cadastrar outro mandato (ACE-07.3)', async ({ page }) => {
+    await abre(page, '#/novo', { papel: 'leitura' });
+    await expect(page.getByRole('heading', { name: 'Cadastrar outro mandato' })).toBeVisible();
+    await expect(page.locator('#cadUf')).toBeEnabled();
+    await expect(page.locator('input[name="cadCargo"]').first()).toBeEnabled();
+  });
+});

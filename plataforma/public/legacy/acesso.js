@@ -34,4 +34,57 @@ Telas.equipeHtml=function(){
   return '<section id="cadEquipe" aria-label="Equipe e convites">'+h+'</section>';
 };
 
+/* ---------- modo somente leitura (ACE-03.2, ACE-03.3) ----------
+   O papel vem da linha da própria pessoa em Store.membros, que o Store.abrir carrega a cada mandato aberto.
+   O banco já recusa a escrita de quem é leitura; aqui o Guia não tenta gravar e trava os controles. */
+var AVISO_LEITURA='Você está com acesso somente leitura';
+/* botões do Guia que gravam; navegação (Avançar, Próximo exercício, abas, baixar) segue livre */
+var GRAVA=/^\s*(Guia\.(concluir|reabrir)|Comp\.(mp|addFrag|rmFrag|pred|addMeta|rmMeta|addItem|rmItem|acao)|BandMural\.|Cad\.(enviar|excluir|trocar)|Telas\.salvarMandato)\(/;
+var avisoEl=null;
+
+function leitura(){
+  var u=Store.usuario,eu=u&&(Store.membros||[]).filter(function(x){return x.user_id===u.id})[0];
+  return !!eu&&eu.papel==='leitura';
+}
+/* desabilita o que grava dentro do #tela; o cadastro de outro mandato (#/novo) fica livre */
+function trava(raiz){
+  if(!raiz||!leitura()||(location.hash||'').indexOf('#/novo')===0)return;
+  var cada=function(sel,f){Array.prototype.forEach.call(raiz.querySelectorAll(sel),f)};
+  cada('input,textarea,select',function(el){el.disabled=true});
+  cada('[contenteditable="true"]',function(el){el.contentEditable='false';el.setAttribute('aria-readonly','true')});
+  cada('button',function(b){if(GRAVA.test(b.getAttribute('onclick')||'')||b.closest('.rico-barra'))b.disabled=true});
+}
+function aplicar(){
+  var on=leitura(),t=document.getElementById('tela');
+  document.body.classList.toggle('so-leitura',on);
+  if(on&&!avisoEl&&t&&t.parentNode){
+    avisoEl=document.createElement('p');
+    avisoEl.id='avisoLeitura';avisoEl.className='aviso-leitura';avisoEl.setAttribute('role','status');
+    avisoEl.textContent=AVISO_LEITURA;
+    t.parentNode.insertBefore(avisoEl,t);
+  }
+  if(!on&&avisoEl){avisoEl.remove();avisoEl=null}
+  trava(t);
+}
+
+var _abrir=Store.abrir;
+Store.abrir=async function(){var m=await _abrir.apply(this,arguments);aplicar();return m};
+
+/* quem é leitura não grava: os ganchos do Guia e das ilhas (ilhas/ponte.tsx) passam por estas quatro funções */
+var _salvar=Store.salvar,_gravar=Store.gravar,_atualizar=Store.atualizar,_registrar=Store.registrar;
+Store.salvar=function(){if(!leitura())return _salvar.apply(this,arguments)};
+Store.gravar=async function(){if(!leitura())return _gravar.apply(this,arguments)};
+Store.atualizar=async function(){if(!leitura())return _atualizar.apply(this,arguments)};
+Store.registrar=async function(){if(!leitura())return _registrar.apply(this,arguments)};
+
+/* cada tela nova (e cada ilha que monta depois) passa pela trava */
+var tela=document.getElementById('tela');
+if(tela&&window.MutationObserver)new MutationObserver(function(){trava(tela)}).observe(tela,{childList:true,subtree:true});
+
+var css=document.createElement('style');
+css.textContent='.aviso-leitura{margin:0;padding:.625rem 1.25rem;background:#FFF4D6;border-bottom:1px solid var(--linha);'+
+  'color:var(--tinta);font-weight:700;font-size:.9375rem}'+
+  '.so-leitura #tela :disabled,.so-leitura #tela [contenteditable="false"]{opacity:.6;cursor:not-allowed}';
+document.head.appendChild(css);
+
 })();

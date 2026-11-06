@@ -1121,11 +1121,11 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Ao abrir um mandato com papel `leitura` o `body` ganha `so-leitura` e aparece "Você está com acesso somente leitura" (ACE-03.3)
-- [ ] `input`, `textarea`, `select` e botões de gravação ficam desabilitados com o papel `leitura`; com `assessoria` e `coordenacao` ficam como hoje (ACE-03.3)
-- [ ] Nenhuma requisição de gravação sai do Guia aberto como `leitura` ao digitar ou clicar, e nenhum "Não foi possível salvar" aparece (ACE-03.2)
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/guia-acesso.spec.ts`
-- [ ] Test count: ao menos 6 testes novos em `tests/legado-acesso.test.ts` e `e2e/guia-acesso.spec.ts`, nenhum removido
+- [x] Ao abrir um mandato com papel `leitura` o `body` ganha `so-leitura` e aparece "Você está com acesso somente leitura" (ACE-03.3)
+- [x] `input`, `textarea`, `select` e botões de gravação ficam desabilitados com o papel `leitura`; com `assessoria` e `coordenacao` ficam como hoje (ACE-03.3)
+- [x] Nenhuma requisição de gravação sai do Guia aberto como `leitura` ao digitar ou clicar, e nenhum "Não foi possível salvar" aparece (ACE-03.2)
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/guia-acesso.spec.ts`
+- [x] Test count: ao menos 6 testes novos em `tests/legado-acesso.test.ts` e `e2e/guia-acesso.spec.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: full
