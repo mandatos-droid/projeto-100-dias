@@ -338,3 +338,22 @@ $$;
 
 revoke execute on function public.convite_criar(uuid, text, text, text) from public, anon;
 grant  execute on function public.convite_criar(uuid, text, text, text) to authenticated;
+
+-- Pendentes do mandato para qualquer membro, sem hash, token nem e-mail.
+create or replace function public.convites_pendentes(p_mandato uuid)
+returns table (id uuid, nome text, papel text, convidado_por_nome text, expira_em timestamptz)
+language plpgsql security definer set search_path = '' stable as $$
+begin
+  if not private.eh_membro(p_mandato) then
+    raise exception 'Você não tem permissão para esta ação.' using errcode = '42501';
+  end if;
+  return query
+    select c.id, c.nome, c.papel, c.criado_por_nome, c.expira_em
+    from public.convites c
+    where c.mandato_id = p_mandato and c.usado_em is null and c.cancelado_em is null and c.expira_em > now()
+    order by c.criado_em desc, c.id;
+end;
+$$;
+
+revoke execute on function public.convites_pendentes(uuid) from public, anon;
+grant  execute on function public.convites_pendentes(uuid) to authenticated;

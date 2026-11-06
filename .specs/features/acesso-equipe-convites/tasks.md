@@ -351,12 +351,12 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Lista só convites não vencidos, não cancelados e não usados (ACE-04.2)
-- [ ] O retorno não tem coluna de hash, token nem e-mail (ACE-01.3)
-- [ ] Quem não é membro recebe erro de permissão
-- [ ] `anon` não executa a função
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 5 testes novos em `tests/sql-convites.test.ts`, nenhum removido
+- [x] Lista só convites não vencidos, não cancelados e não usados (ACE-04.2)
+- [x] O retorno não tem coluna de hash, token nem e-mail (ACE-01.3)
+- [x] Quem não é membro recebe erro de permissão
+- [x] `anon` não executa a função
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 5 testes novos em `tests/sql-convites.test.ts`, nenhum removido
 
 **Tests**: integration
 **Gate**: quick

@@ -370,3 +370,79 @@ test('se a gravação do histórico falhar, nenhum convite é criado e a limpeza
   await assert.rejects(criar('Carlos Lima', 'leitura'), /histórico indisponível/);
   assert.deepEqual((await convitesDoBanco()).map((x) => x.nome), ['Vencido 31']);
 });
+
+// ---------- T9: convites_pendentes ----------
+
+interface Pendente { id: string; nome: string; papel: string; convidado_por_nome: string; expira_em: Date }
+const pendentes = (mandato: string = IDS.mandatoA) => banco.query<Pendente>('select * from public.convites_pendentes($1)', [mandato]);
+const porNome = (r: Pendente[]) => [...r].sort((a, b) => a.nome.localeCompare(b.nome))
+  .map((x) => ({ ...x, expira_em: x.expira_em.toISOString() }));
+// os cinco estados do convite no mandato A e um pendente no mandato B
+async function cenarioPendentes() {
+  const ids = {
+    p1: await insereConvite({ nome: 'Pendente Um', papel: 'leitura', por: LEITOR, porNome: 'Leo Leitor', expira: '2 days' }),
+    p2: await insereConvite({ nome: 'Pendente Dois', papel: 'coordenacao', expira: '7 days' }),
+  };
+  await insereConvite({ nome: 'Vencido', criado: '-7 days', expira: '-1 second' });
+  await insereConvite({ nome: 'Cancelado', cancelado: '-1 minute' });
+  await insereConvite({ nome: 'Usado', usado: '-1 minute', usadoPor: IDS.fora });
+  await insereConvite({ nome: 'De outro mandato', mandato: IDS.mandatoB, por: COORD_B, porNome: 'Bia Coord' });
+  await comoDono(banco);
+  const exp = Object.fromEntries((await q<{ nome: string; e: Date }>('select nome, expira_em e from public.convites')).map((x) => [x.nome, x.e.toISOString()]));
+  return { ids, exp };
+}
+
+test('convites_pendentes lista só os não vencidos, não cancelados e não usados do mandato, com nome, papel, quem convidou e validade (ACE-04.2)', async () => {
+  const { ids, exp } = await cenarioPendentes();
+  await como(banco, IDS.membro);
+  assert.deepEqual(porNome((await pendentes()).rows), [
+    { id: ids.p2, nome: 'Pendente Dois', papel: 'coordenacao', convidado_por_nome: 'Mario Membro', expira_em: exp['Pendente Dois'] },
+    { id: ids.p1, nome: 'Pendente Um', papel: 'leitura', convidado_por_nome: 'Leo Leitor', expira_em: exp['Pendente Um'] },
+  ]);
+});
+
+test('assessoria e leitura do mandato recebem a mesma lista de pendentes (ACE-04.2)', async () => {
+  await cenarioPendentes();
+  await como(banco, IDS.membro);
+  const daCoordenacao = porNome((await pendentes()).rows);
+  assert.equal(daCoordenacao.length, 2);
+  for (const quem of [ASSESSORIA, LEITOR]) {
+    await como(banco, quem);
+    assert.deepEqual(porNome((await pendentes()).rows), daCoordenacao, quem);
+  }
+});
+
+test('um convite recém-criado aparece nos pendentes com quem convidou e a validade devolvida na criação (ACE-04.2)', async () => {
+  await como(banco, ASSESSORIA);
+  const c = await criar('Carlos Lima', 'leitura');
+  await como(banco, LEITOR);
+  assert.deepEqual(porNome((await pendentes()).rows), [
+    { id: c.id, nome: 'Carlos Lima', papel: 'leitura', convidado_por_nome: 'Alice Assessoria', expira_em: new Date(c.expira_em).toISOString() },
+  ]);
+});
+
+test('o retorno de convites_pendentes não tem hash, token nem e-mail: só as cinco colunas (ACE-01.3)', async () => {
+  await como(banco, IDS.membro);
+  const { token } = await criar('Carlos Lima', 'leitura', 'carlos.lima@exemplo.com');
+  await como(banco, IDS.membro);
+  const r = await pendentes();
+  assert.deepEqual(r.fields.map((f) => f.name), ['id', 'nome', 'papel', 'convidado_por_nome', 'expira_em']);
+  assert.equal(r.rows.length, 1);
+  const texto = JSON.stringify(r.rows);
+  assert.ok(!texto.includes(token), 'token na listagem');
+  assert.ok(!texto.includes('carlos.lima@exemplo.com'), 'e-mail na listagem');
+});
+
+test('quem não é membro do mandato recebe erro de permissão em convites_pendentes', async () => {
+  await cenarioPendentes();
+  for (const quem of [IDS.fora, COORD_B, IDS.admin]) {
+    await como(banco, quem);
+    await assert.rejects(pendentes(), SEM_PERMISSAO, quem);
+  }
+});
+
+test('anon não executa convites_pendentes', async () => {
+  await cenarioPendentes();
+  await como(banco, null);
+  await assert.rejects(pendentes(), NEGADO);
+});
