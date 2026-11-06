@@ -503,11 +503,11 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] `rotuloPapel` devolve "Coordenação", "Assessoria" e "Somente leitura"
-- [ ] `papeisPermitidos('coordenacao')` devolve os três; `('assessoria')` devolve assessoria e leitura; `('leitura')` devolve só leitura (ACE-01.6, ACE-04.9)
-- [ ] `podeGerirEquipe` é verdadeiro só para coordenação; `podeEditar` é verdadeiro para coordenação e assessoria (ACE-03.3, ACE-04.7, ACE-04.8)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 8 testes em `tests/convites-papeis.test.ts`
+- [x] `rotuloPapel` devolve "Coordenação", "Assessoria" e "Somente leitura"
+- [x] `papeisPermitidos('coordenacao')` devolve os três; `('assessoria')` devolve assessoria e leitura; `('leitura')` devolve só leitura (ACE-01.6, ACE-04.9)
+- [x] `podeGerirEquipe` é verdadeiro só para coordenação; `podeEditar` é verdadeiro para coordenação e assessoria (ACE-03.3, ACE-04.7, ACE-04.8)
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 8 testes em `tests/convites-papeis.test.ts`
 
 **Tests**: unit
 **Gate**: quick
