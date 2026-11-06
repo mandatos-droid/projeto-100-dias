@@ -124,14 +124,15 @@
 .adm .chart { border: 1px solid var(--linha); border-radius: 4px; padding: 14px; background: var(--branco); display: grid; gap: 8px; min-width: 0; }
 .adm .ct { margin: 0; font-size: 15px; font-weight: 800; color: var(--vinho); }
 .adm .cs { margin: 0; font-size: 13px; color: var(--tinta-2); }
-.adm .plot { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 6px; height: 180px; }
-.adm .yax { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; font-size: 11px; color: var(--tinta-2); font-variant-numeric: tabular-nums; padding-bottom: 18px; }
+.adm .plot { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 6px; height: 180px; margin-bottom: 20px; } /* margem abriga os rótulos das colunas */
+.adm .yax { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; font-size: 11px; color: var(--tinta-2); font-variant-numeric: tabular-nums; }
 .adm .cols { display: flex; gap: 8px; align-items: flex-end; border-left: 1px solid var(--tinta-3); border-bottom: 1px solid var(--tinta-3); padding: 0 6px; }
 .adm .cl { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; position: relative; }
 .adm .stk { display: flex; flex-direction: column-reverse; width: 100%; }
 .adm .seg { display: flex; align-items: center; justify-content: center; font-size: 11px; font-variant-numeric: tabular-nums; }
 .adm .seg.a { background: var(--vinho); color: #fff; }
-.adm .seg.p { background: var(--linha); color: var(--tinta); }
+.adm .seg.p { background: var(--linha); color: var(--tinta); border: 1px solid var(--tinta-3); }
+.adm .gvazio { margin: 0; padding: 24px 12px; text-align: center; color: var(--tinta-2); font-weight: 600; border: 1px dashed var(--tinta-3); border-radius: 4px; }
 .adm .cl em { position: absolute; bottom: -18px; left: 0; right: 0; text-align: center; font-style: normal; font-size: 11px; color: var(--tinta-2); }
 .adm .key { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--tinta-2); }
 .adm .key i { display: inline-block; width: 12px; height: 12px; margin-right: 5px; vertical-align: -1px; }

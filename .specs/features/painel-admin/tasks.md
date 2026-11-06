@@ -798,9 +798,9 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Todo gráfico recebe `titulo` e `unidade` obrigatórios e mostra legenda quando há mais de uma série
-- [ ] Eixo com valores; contagem dentro de cada segmento; estado vazio com texto próprio
-- [ ] Gate Build passa (cobertura no e2e da T28)
+- [x] Todo gráfico recebe `titulo` e `unidade` obrigatórios e mostra legenda quando há mais de uma série
+- [x] Eixo com valores; contagem dentro de cada segmento; estado vazio com texto próprio
+- [x] Gate Build passa (cobertura no e2e da T28). `npm run build` falhou só por SecurityFatalError (advisory conhecido do Next 16.4, depois de compilar); valeu tsc + npm test (694 passam)
 
 **Tests**: none
 **Gate**: build
