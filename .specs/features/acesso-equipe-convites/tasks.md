@@ -701,11 +701,11 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] Guardar e ler devolve o mesmo token; limpar faz a leitura devolver `null` (ACE-02.5)
-- [ ] Valor guardado fora do formato de 22 caracteres lê como `null`
-- [ ] Armazenamento que lança exceção não derruba as três funções
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 5 testes em `tests/convites-pendente.test.ts`
+- [x] Guardar e ler devolve o mesmo token; limpar faz a leitura devolver `null` (ACE-02.5)
+- [x] Valor guardado fora do formato de 22 caracteres lê como `null`
+- [x] Armazenamento que lança exceção não derruba as três funções
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 5 testes em `tests/convites-pendente.test.ts`
 
 **Tests**: unit
 **Gate**: quick
