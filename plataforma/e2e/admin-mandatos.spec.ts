@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { chamadasDeMandatos, mandato, moca, naoMapeadas, semeiaSessao, vazou, type EstadoMoca } from './admin-api';
+import { chamadas, chamadasDeMandatos, mandato, moca, naoMapeadas, semeiaSessao, vazou, type EstadoMoca } from './admin-api';
 
 /* Tela Mandatos do /admin (ADM-05, ADM-16). O Supabase é todo interceptado (admin-api.ts); as datas das fixtures são
    relativas a "agora" porque "parado há" conta dias de calendário em Brasília. */
@@ -43,6 +43,18 @@ test.describe('Mandatos: lista e paginação (ADM-05.1)', () => {
     await abre(page, lista(25));
     await expect(linhasDaTabela(page)).toHaveCount(25);
     await expect(page.getByRole('button', { name: 'Próxima' })).toHaveCount(0);
+  });
+
+  test('mais de 1.000 mandatos: pede os dois blocos e conta todos, inclusive os mais parados (limite do PostgREST)', async ({ page }) => {
+    // 1.120 mandatos; os 130 mais parados (os que um corte em 1.000 perderia) têm atividade de 200 dias atrás
+    await abre(page, lista(1120, (i) => (i >= 990 ? { ultima_atividade: diasAtras(200) } : {})));
+    await expect(page.getByText('1–25 de 1120')).toBeVisible();
+    const pedidos = chamadas().filter((c) => c.caminho.startsWith('v_admin_mandatos?'));
+    expect(pedidos.map((c) => /limit=(\d+)&offset=(\d+)/.exec(c.caminho)!.slice(1).join(':'))).toEqual(['1000:0', '1000:1000']);
+    for (const p of pedidos) expect(decodeURIComponent(p.caminho)).toContain('order=ultima_atividade.desc,id');
+    // a última página (45ª) existe e é feita só de mandatos parados
+    await page.getByLabel('Parado há').selectOption('45');
+    await expect(page.getByText('1–25 de 130')).toBeVisible();
   });
 
   test('só pede a view v_admin_mandatos e não traz texto de gabinete (ADM-05.2)', async ({ page }) => {

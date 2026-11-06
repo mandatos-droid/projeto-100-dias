@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { lerTudo } from '../../lib/admin/api.ts';
 import { diasParado, ESCALA_DIAS } from '../../lib/admin/escala.ts';
 import { mensagemDe } from '../../lib/admin/mensagens.ts';
 import { filtraMandatos, paginaDe, TAMANHO_PAGINA, type Filtros, type LinhaMandato } from '../../lib/admin/mandatos.ts';
@@ -30,7 +31,9 @@ function ListaMandatos() {
   const carrega = useCallback(async () => {
     setEstado({ carga: 'carregando' });
     try {
-      const linhas = await api.ler<LinhaMandato[]>(`v_admin_mandatos?select=${COLUNAS}&order=ultima_atividade.desc`);
+      // lerTudo: o PostgREST corta em 1.000 linhas e, na ordem por atividade, os cortados seriam os mais parados.
+      // `id` no order dá a ordem estável que a paginação por limit/offset exige.
+      const linhas = await lerTudo<LinhaMandato>(api, `v_admin_mandatos?select=${COLUNAS}&order=ultima_atividade.desc,id`);
       setEstado({ carga: 'ok', linhas, agora: new Date() });
     } catch (e) {
       setEstado({ carga: 'erro', mensagem: mensagemDe(e) });
