@@ -531,11 +531,11 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] `montaLink('https://100dias.exemplo', 'abc')` devolve `https://100dias.exemplo/convite#abc` (ACE-01.1)
-- [ ] `tokenDoHash` devolve o token de `#` + 22 caracteres válidos e devolve `null` para hash vazio, curto, longo, com caractere fora de `A-Za-z0-9_-` e para `#access_token=...` (ACE-02.1)
-- [ ] `tokenDoHash` aceita link completo colado (`https://.../convite#token`) e devolve o token
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 8 testes em `tests/convites-link.test.ts`
+- [x] `montaLink('https://100dias.exemplo', 'abc')` devolve `https://100dias.exemplo/convite#abc` (ACE-01.1)
+- [x] `tokenDoHash` devolve o token de `#` + 22 caracteres válidos e devolve `null` para hash vazio, curto, longo, com caractere fora de `A-Za-z0-9_-` e para `#access_token=...` (ACE-02.1)
+- [x] `tokenDoHash` aceita link completo colado (`https://.../convite#token`) e devolve o token
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 8 testes em `tests/convites-link.test.ts`
 
 **Tests**: unit
 **Gate**: quick
