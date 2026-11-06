@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wireframe do painel do administrador (Legisla Brasil)</title>
+<style>
+/* Layout: casca de admin (menu lateral + área de trabalho) em baixa fidelidade; círculos laranja numerados explicam cada bloco */
+:root{
+  --bg:#f3f4f6; --paper:#ffffff; --ink:#1f2933; --mute:#6b7785; --line:#c5ccd6; --fill:#e6e9ee;
+  --note:#c2410c; --note-bg:#fff1e6; --ok:#2f7d4f; --warn:#a16207; --bad:#b42318;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,monospace; --sans:system-ui,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12161b; --paper:#1a2027; --ink:#e4e8ee; --mute:#93a0af; --line:#3a4552; --fill:#262e37;
+  --note:#fb923c; --note-bg:#2a1d12; --ok:#5ec089; --warn:#e0b04a; --bad:#f07a70; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 var(--sans);
+  padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:16px}
+h1{font-size:20px;margin:0}
+.intro{color:var(--mute);margin:4px 0 0;max-width:70ch}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);padding:8px 14px;border-radius:4px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--note);outline-offset:2px}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px;align-items:start}
+@media(max-width:900px){.stage{grid-template-columns:minmax(0,1fr)}}
+.app{background:var(--paper);border:1.5px solid var(--ink);border-radius:6px;display:grid;grid-template-columns:170px minmax(0,1fr);min-height:520px;overflow:hidden}
+@media(max-width:620px){.app{grid-template-columns:minmax(0,1fr)}.side{flex-direction:row!important;flex-wrap:wrap;border-right:0!important;border-bottom:1px solid var(--line)}}
+.side{border-right:1px solid var(--line);padding:14px;display:flex;flex-direction:column;gap:6px;background:var(--fill)}
+.logo{font-weight:700;margin-bottom:8px}
+.logo small{display:block;font-weight:400;color:var(--mute);font-size:11px}
+.nav{padding:7px 9px;border-radius:4px;color:var(--mute);cursor:pointer}
+.nav.on{background:var(--paper);color:var(--ink);font-weight:600;border:1px solid var(--line)}
+.nav.sep{margin-top:auto;font-size:12px;border:1px dashed var(--line)}
+.main{padding:18px;min-width:0;display:grid;gap:14px;align-content:start;position:relative}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.top h2{margin:0;font-size:17px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.who{font-size:12px;color:var(--mute);display:flex;gap:8px;align-items:center}
+.av{width:24px;height:24px;border-radius:50%;background:var(--line);display:inline-block}
+.btn{font:inherit;border:1px solid var(--ink);background:var(--paper);color:var(--ink);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px}
+.btn.pri{background:var(--ink);color:var(--bg)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn.sm{padding:3px 8px;font-size:12px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.in{font:inherit;font-size:13px;border:1px dashed var(--mute);background:transparent;color:var(--ink);padding:6px 10px;border-radius:4px;min-width:0}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:13px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:var(--fill);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:600}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;padding:1px 8px;border-radius:10px;border:1px solid currentColor;font-size:11px}
+.pill.ok{color:var(--ok)}.pill.warn{color:var(--warn)}.pill.mu{color:var(--mute)}
+.mono{font-family:var(--mono);font-size:12px}
+.pt{position:absolute;width:20px;height:20px;border-radius:50%;background:var(--note);color:#fff;font:700 11px/20px var(--sans);text-align:center;z-index:2;box-shadow:0 0 0 3px var(--paper)}
+.pt.i{position:static;display:inline-block;flex:none}
+.card{border:1px solid var(--line);border-radius:4px;padding:12px;display:grid;gap:8px;position:relative;min-width:0}
+.card h3{margin:0;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(max-width:620px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.kv{display:grid;grid-template-columns:110px minmax(0,1fr);gap:4px 10px;font-size:13px}
+.kv dt{color:var(--mute)}.kv dd{margin:0}
+.lock{border:1.5px dashed var(--mute);border-radius:4px;padding:14px;display:flex;gap:12px;align-items:center;color:var(--mute);background:repeating-linear-gradient(135deg,transparent 0 8px,var(--fill) 8px 9px)}
+.meter{height:8px;background:var(--fill);border-radius:4px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--mute)}
+.danger{border-color:var(--bad)}
+.danger h3{color:var(--bad)}
+.modal{position:absolute;inset:0;background:color-mix(in srgb,var(--ink) 40%,transparent);display:grid;place-items:center;padding:16px;z-index:5}
+.modal[hidden]{display:none}
+.dlg{background:var(--paper);border:1.5px solid var(--ink);border-radius:6px;padding:16px;width:min(420px,100%);display:grid;gap:10px;position:relative}
+.dlg label{display:grid;gap:4px;font-size:12px;color:var(--mute)}
+.dlg h3{margin:0;font-size:15px}
+.hint{font-size:12px;color:var(--mute);margin:0}
+.notes{display:grid;gap:10px}
+.notes h2{font-size:13px;margin:0;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.nt{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;background:var(--note-bg);border:1px solid var(--note);border-radius:4px;padding:10px;font-size:13px}
+.nt b{display:block}
+.nt span.d{color:var(--mute)}
+.legend{font-size:12px;color:var(--mute)}
+.screen[hidden]{display:none}
+.tag{font-family:var(--mono);font-size:11px;background:var(--fill);padding:1px 5px;border-radius:3px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media(max-width:620px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{border:1px solid var(--line);border-radius:4px;padding:10px}
+.kpi b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--mute)}
+.badge{display:inline-block;font-size:11px;padding:1px 7px;border-radius:3px;border:1px solid currentColor;white-space:nowrap}
+.badge.ja{color:var(--ok)}.badge.novo{color:var(--note)}.badge.ext{color:var(--warn)}
+.sub{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sub button{font:inherit;font-size:12px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:4px;padding:5px 10px;cursor:pointer}
+.sub button[aria-selected="true"]{background:var(--fill);border-color:var(--ink);font-weight:600}
+.lg{font-family:var(--mono);font-size:12px;display:grid;grid-template-columns:96px 70px minmax(0,1fr);gap:8px;padding:7px 10px;border-bottom:1px solid var(--line);align-items:baseline}
+.lg:last-child{border-bottom:0}
+.lg .t{color:var(--mute)}
+.lg .e{color:var(--bad)}
+.lg .redact{background:var(--fill);color:var(--mute);padding:0 6px;border-radius:3px}
+.logs{border:1px solid var(--line);border-radius:4px;overflow-x:auto}
+.logs>div{min-width:480px}
+
+/* gráficos: título em cima, unidade embaixo do título, legenda e eixo */
+.chart{border:1px solid var(--line);border-radius:4px;padding:12px;display:grid;gap:8px;position:relative;min-width:0}
+.ct{margin:0;font-size:14px;font-weight:700}
+.cs{margin:0;font-size:12px;color:var(--mute)}
+.plot{display:grid;grid-template-columns:28px minmax(0,1fr);gap:6px;height:170px}
+.yax{display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;font-size:10px;color:var(--mute);font-variant-numeric:tabular-nums;padding-bottom:18px}
+.cols{display:flex;gap:8px;align-items:flex-end;border-left:1px solid var(--mute);border-bottom:1px solid var(--mute);padding:0 6px;
+  background:repeating-linear-gradient(to top,transparent 0 33px,var(--fill) 33px 34px)}
+.cl{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;position:relative}
+.stk{display:flex;flex-direction:column-reverse;width:100%}
+.seg{display:flex;align-items:center;justify-content:center;font-size:10px;font-variant-numeric:tabular-nums}
+.seg.a{background:var(--ink);color:var(--bg)}
+.seg.p{background:var(--fill);color:var(--ink);border:1px solid var(--mute)}
+.cl em{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-style:normal;font-size:10px;color:var(--mute)}
+.cl .one{background:var(--ink);width:100%}
+.key{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mute)}
+.key i{display:inline-block;width:11px;height:11px;vertical-align:-1px;margin-right:5px}
+.key .a{background:var(--ink)}.key .p{background:var(--fill);border:1px solid var(--mute)}
+.fun{display:grid;gap:8px}
+.fr{display:grid;grid-template-columns:70px minmax(0,1fr) 90px;gap:10px;align-items:center;font-size:13px}
+.fr .meter{height:14px}.fr .meter i{background:var(--ink)}
+.fr small{color:var(--mute);text-align:right;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Painel do administrador: wireframe</h1>
+    <p class="intro">Rascunho de baixa fidelidade para decidirmos o que entra antes de escrever código. Os dados são exemplos inventados. Clique nas abas e nos itens do menu para navegar; os círculos laranja explicam cada bloco.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Telas">
+    <button role="tab" aria-selected="true" data-t="equipe">1. Equipe Legisla</button>
+    <button role="tab" aria-selected="false" data-t="mandatos">2. Mandatos</button>
+    <button role="tab" aria-selected="false" data-t="detalhe">3. Detalhe do mandato</button>
+    <button role="tab" aria-selected="false" data-t="analytics">4. Analytics</button>
+    <button role="tab" aria-selected="false" data-t="logs">5. Logs</button>
+  </div>
+
+  <!-- ============ 1. EQUIPE ============ -->
+  <section class="stage screen" id="s-equipe">
+    <div class="app"><nav class="side" aria-label="Menu de exemplo"></nav>
+      <div class="main">
+        <span class="pt" style="right:6px;top:6px">1</span>
+        <div class="top"><h2>Equipe Legisla</h2><div class="who"><span class="av"></span> Ana Souza · admin</div></div>
+        <div class="bar">
+          <input class="in" placeholder="Buscar por nome ou e-mail" aria-label="Buscar na equipe" style="flex:1;min-width:160px">
+          <button class="btn pri" id="abrir"><span class="mono">+</span> Incluir pessoa</button>
+          <span class="pt i">2</span>
+        </div>
+        <div class="tw"><table>
+          <thead><tr><th>Nome</th><th>E-mail</th><th>Papel</th><th>Desde</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>Ana Souza</td><td class="mono">ana@exemplo.org</td><td><span class="pill ok">admin</span> (você)</td><td>16/10/2026</td><td></td></tr>
+            <tr><td>Bruno Lima</td><td class="mono">bruno@exemplo.org</td><td><select class="in" aria-label="Papel de Bruno"><option>leitura</option><option>admin</option></select></td><td>20/10/2026</td><td><button class="btn sm bad">Remover</button></td></tr>
+            <tr><td>Carla Dias</td><td class="mono">carla@exemplo.org</td><td><select class="in" aria-label="Papel de Carla"><option>leitura</option><option>admin</option></select></td><td>03/11/2026</td><td><button class="btn sm bad">Remover</button></td></tr>
+          </tbody>
+        </table></div>
+        <p class="legend"><span class="pt i">3</span>&nbsp; <b>admin</b>: vê tudo e gerencia a equipe e os mandatos. <b>leitura</b>: vê tudo, não altera nada.</p>
+        <div class="modal" id="modal" hidden>
+          <div class="dlg" role="dialog" aria-label="Incluir pessoa">
+            <span class="pt" style="right:-8px;top:-8px">4</span>
+            <h3>Incluir pessoa na equipe</h3>
+            <label>E-mail da pessoa<input class="in" value="diego@exemplo.org"></label>
+            <p class="hint">✓ Encontrada: Diego Reis (já entrou na plataforma)</p>
+            <label>Papel<select class="in"><option>leitura</option><option>admin</option></select></label>
+            <div class="bar" style="justify-content:flex-end"><button class="btn" id="fechar">Cancelar</button><button class="btn pri">Incluir</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <aside class="notes" aria-label="Notas da tela">
+      <h2>Notas da tela</h2>
+      <div class="nt"><span class="pt i">1</span><div><b>Só admin entra aqui</b><span class="d">Quem não for admin não vê esta tela. A regra mora no banco (<span class="tag">eh_legisla_admin</span>), não só na tela.</span></div></div>
+      <div class="nt"><span class="pt i">2</span><div><b>Incluir pela tela</b><span class="d">Hoje só dá por SQL. Abre uma janelinha para digitar o e-mail.</span></div></div>
+      <div class="nt"><span class="pt i">3</span><div><b>Dois papéis, só</b><span class="d">O banco tem três (admin, analista e leitura), mas analista e leitura enxergam exatamente a mesma coisa. A tela mostra só <b>admin</b> e <b>leitura</b>. No banco, "analista" passa a ser tratado como leitura.</span></div></div>
+      <div class="nt"><span class="pt i">4</span><div><b>Busca por e-mail</b><span class="d">Precisa de uma função nova no banco (migration). A pessoa já deve ter entrado na plataforma uma vez. Não deixa remover o último admin.</span></div></div>
+    </aside>
+  </section>
+
+  <!-- ============ 2. MANDATOS ============ -->
+  <section class="stage screen" id="s-mandatos" hidden>
+    <div class="app"><nav class="side" aria-label="Menu de exemplo"></nav>
+      <div class="main">
+        <div class="top"><h2>Mandatos <span class="pill mu">128 cadastros</span></h2><div class="who"><span class="av"></span> Ana Souza · admin</div></div>
+        <div class="bar">
+          <input class="in" placeholder="Buscar parlamentar ou código" aria-label="Buscar mandato" style="flex:1;min-width:160px">
+          <select class="in" aria-label="UF"><option>UF: todas</option></select>
+          <select class="in" aria-label="Casa"><option>Casa: todas</option></select>
+          <select class="in" aria-label="Situação"><option>Ativos</option><option>Arquivados</option></select><select class="in" aria-label="Parado há"><option>Parado há: qualquer</option><option>Parado há: 7 dias</option><option>Parado há: 15 dias</option><option>Parado há: 30 dias</option><option>Parado há: 45 dias</option></select>
+          <span class="pt i">1</span>
+        </div>
+        <div class="tw"><table>
+          <thead><tr><th>Código</th><th>Parlamentar</th><th>Cargo</th><th>UF</th><th>Partido</th><th class="num">Membros</th><th>Última atividade</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="mono">K7QX-29</td><td>Marina Alves</td><td>Dep. Federal</td><td>SP</td><td>ABC</td><td class="num">4</td><td>hoje</td><td><button class="btn sm" data-go="detalhe">Ver</button></td></tr>
+            <tr><td class="mono">P3MD-81</td><td>Paulo Nunes</td><td>Dep. Estadual</td><td>MG</td><td>DEF</td><td class="num">2</td><td>há 3 dias</td><td><button class="btn sm" data-go="detalhe">Ver</button></td></tr>
+            <tr><td class="mono">T8WZ-04</td><td>Helena Prado</td><td>Senadora</td><td>BA</td><td>GHI</td><td class="num">6</td><td>há 2 sem.</td><td><button class="btn sm" data-go="detalhe">Ver</button></td></tr>
+            <tr><td class="mono">R2NB-57</td><td>Otávio Reis</td><td>Dep. Federal</td><td>PR</td><td>ABC</td><td class="num">1</td><td><span class="pill warn">45 dias parado</span></td><td><button class="btn sm" data-go="detalhe">Ver</button></td></tr>
+          </tbody>
+        </table></div>
+        <div class="bar" style="justify-content:space-between"><span class="legend"><span class="pt i">2</span>&nbsp; Mostra só metadados. Nunca o texto escrito pelo gabinete.</span><span class="legend">1–4 de 128 · ‹ ›</span></div>
+      </div>
+    </div>
+    <aside class="notes" aria-label="Notas da tela">
+      <h2>Notas da tela</h2>
+      <div class="nt"><span class="pt i">1</span><div><b>Busca e filtros</b><span class="d">Por nome, código, UF, casa e situação. Arquivados ficam escondidos por padrão.</span></div></div>
+      <div class="nt"><span class="pt i">2</span><div><b>View só com metadados</b><span class="d">Uma view nova no banco expõe código, cargo, UF, partido, membros e atividade. O campo <span class="tag">dados</span> fica fora.</span></div></div>
+      <div class="nt"><span class="pt i">!</span><div><b>Sinal de parado</b><span class="d">Destaca mandatos sem atividade há mais de N dias. N vem do seletor "Parado há" (7, 15, 30 ou 45; padrão 45), para a equipe saber quem apoiar.</span></div></div>
+    </aside>
+  </section>
+
+  <!-- ============ 3. DETALHE ============ -->
+  <section class="stage screen" id="s-detalhe" hidden>
+    <div class="app"><nav class="side" aria-label="Menu de exemplo"></nav>
+      <div class="main">
+        <div class="top">
+          <h2><button class="btn sm" data-go="mandatos">‹ Voltar</button> Marina Alves <span class="mono" style="color:var(--mute)">K7QX-29</span></h2>
+          <div class="who"><span class="av"></span> Ana Souza · admin</div>
+        </div>
+        <div class="grid2">
+          <div class="card"><span class="pt" style="right:-8px;top:-8px">1</span>
+            <h3>Cadastro</h3>
+            <dl class="kv" style="margin:0"><dt>Cargo</dt><dd>Deputada Federal · SP</dd><dt>Partido</dt><dd>ABC</dd><dt>Posse</dt><dd>01/02/2027</dd><dt>Responsável</dt><dd>Rafael Cruz (chefe de gabinete)</dd><dt>Criado em</dt><dd>21/10/2026</dd></dl>
+          </div>
+          <div class="card"><span class="pt" style="right:-8px;top:-8px">2</span>
+            <h3>Andamento (só contagens)</h3>
+            <div>Missões concluídas: 2 de 5</div><div class="meter"><i style="width:40%"></i></div>
+            <div>Exercícios feitos: 7 de 16</div><div class="meter"><i style="width:42%"></i></div>
+            <div class="legend">Última atividade: hoje</div>
+          </div>
+        </div>
+        <div class="card"><span class="pt" style="right:-8px;top:-8px">3</span>
+          <div class="top"><h3>Membros (4)</h3><button class="btn sm pri" id="m-novo"><span class="mono">+</span> Adicionar membro</button></div>
+          <div class="tw"><table style="min-width:520px">
+            <thead><tr><th>Nome</th><th>E-mail</th><th>Papel</th><th>Desde</th><th></th></tr></thead>
+            <tbody id="membros">
+              <tr><td>Rafael Cruz</td><td class="mono">rafael@exemplo.org</td><td>coordenacao</td><td>21/10</td><td></td></tr>
+              <tr><td>Júlia Melo</td><td class="mono">julia@exemplo.org</td><td>assessoria</td><td>22/10</td><td></td></tr>
+              <tr><td>Marina Alves</td><td class="mono">marina@exemplo.org</td><td>assessoria</td><td>22/10</td><td></td></tr>
+              <tr><td>Luiz Tavares</td><td class="mono">luiz@exemplo.org</td><td>assessoria</td><td>30/10</td><td></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="lock"><span class="pt i">4</span><div><b>Só números e metadados.</b><br>Esta versão do painel não mostra o texto escrito pelo gabinete.</div></div>
+        <div class="card danger"><span class="pt" style="right:-8px;top:-8px">5</span>
+          <h3>Zona de risco</h3>
+          <div class="bar"><button class="btn sm">Arquivar mandato</button><button class="btn sm bad">Excluir definitivamente…</button></div>
+          <p class="hint">Excluir apaga membros e eventos e não tem volta. Pede para digitar o código <span class="mono">K7QX-29</span> para confirmar.</p>
+        </div>
+        <div class="modal" id="m-modal" hidden>
+          <div class="dlg" role="dialog" aria-label="Membro do mandato">
+            <h3 id="m-tit">Adicionar membro</h3>
+            <label>E-mail da pessoa<input class="in" id="m-email" value="paula@exemplo.org"></label>
+            <label>Papel no mandato<select class="in" id="m-papel"><option>assessoria</option><option>coordenacao</option></select></label>
+            <div class="bar" style="justify-content:flex-end"><button class="btn" id="m-cancela">Cancelar</button><button class="btn pri" id="m-salva">Salvar</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <aside class="notes" aria-label="Notas da tela">
+      <h2>Notas da tela</h2>
+      <div class="nt"><span class="pt i">1</span><div><b>Cadastro</b><span class="d">Dados do próprio cadastro, somente leitura.</span></div></div>
+      <div class="nt"><span class="pt i">2</span><div><b>Andamento</b><span class="d">Mesmos números do /painel atual, agora por gabinete.</span></div></div>
+      <div class="nt"><span class="pt i">3</span><div><b>CRUD de membros</b><span class="d">Ver, <b>adicionar</b>, <b>editar o papel</b> e <b>remover</b>. Clique em Adicionar, Editar ou Remover para testar. Só admin vê os botões. <span class="badge novo">precisa criar</span> Hoje o banco não deixa a Legisla alterar membros, então entram funções novas, e cada ação vai para o log de auditoria.</span></div></div>
+      <div class="nt"><span class="pt i">4</span><div><b>Só o necessário</b><span class="d">O texto escrito pelo gabinete não é carregado nesta versão: o detalhe usa só a view de metadados e as contagens.</span></div></div>
+      <div class="nt"><span class="pt i">5</span><div><b>Arquivar primeiro</b><span class="d">Reversível e padrão. A exclusão é função nova no banco e fica registrada (quem apagou e quando).</span></div></div>
+    </aside>
+  </section>
+
+  <!-- ============ 4. ANALYTICS ============ -->
+  <section class="stage screen" id="s-analytics" hidden>
+    <div class="app"><nav class="side" aria-label="Menu de exemplo"></nav>
+      <div class="main">
+        <div class="top"><h2>Analytics</h2>
+          <div class="bar"><select class="in" aria-label="Período"><option>Últimos 7 dias</option><option>Últimos 15 dias</option><option selected>Últimos 30 dias</option><option>Últimos 45 dias</option></select><select class="in" aria-label="Parado há"><option>Parado há: 7 dias</option><option>Parado há: 15 dias</option><option>Parado há: 30 dias</option><option selected>Parado há: 45 dias</option></select><select class="in" aria-label="UF"><option>UF: todas</option></select><span class="pt i">1</span></div>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><b>128</b><span>mandatos cadastrados</span></div>
+          <div class="kpi"><b>96</b><span>ativos nos últimos 30 dias</span></div>
+          <div class="kpi"><b>31%</b><span>exercícios concluídos (média)</span></div>
+          <div class="kpi"><b>9</b><span>parados há mais de 45 dias (muda com "Parado há")</span></div>
+        </div>
+        <div class="chart"><span class="pt" style="right:-8px;top:-8px">2</span>
+          <p class="ct">Status de atividade dos mandatos por mês</p>
+          <p class="cs">Quantidade de mandatos cadastrados em cada mês, por status (exemplo)</p>
+          <div class="plot"><div class="yax" id="mc-y"></div><div class="cols" id="mc"></div></div>
+          <div class="key"><span><i class="a"></i>Ativo: ao menos 1 registro no mês</span><span><i class="p"></i>Parado: cadastrado, sem registro no mês</span></div>
+        </div>
+        <div class="chart"><span class="pt" style="right:-8px;top:-8px">3</span>
+          <p class="ct">Funil das missões</p>
+          <p class="cs">Mandatos que concluíram cada missão, em número e % dos 128 cadastrados (exemplo)</p>
+          <div class="fun">
+            <div class="fr"><span>Missão 1</span><div class="meter"><i style="width:82%"></i></div><small>105 · 82%</small></div>
+            <div class="fr"><span>Missão 2</span><div class="meter"><i style="width:64%"></i></div><small>82 · 64%</small></div>
+            <div class="fr"><span>Missão 3</span><div class="meter"><i style="width:41%"></i></div><small>52 · 41%</small></div>
+            <div class="fr"><span>Missão 4</span><div class="meter"><i style="width:22%"></i></div><small>28 · 22%</small></div>
+            <div class="fr"><span>Missão 5</span><div class="meter"><i style="width:9%"></i></div><small>12 · 9%</small></div>
+          </div>
+        </div>
+        <div class="chart"><span class="pt" style="right:-8px;top:-8px">4</span>
+          <p class="ct">Uso das funcionalidades por dia</p>
+          <p class="cs">Total de aberturas de todas as funcionalidades, nos últimos 14 dias (exemplo)</p>
+          <div class="plot"><div class="yax" id="ud-y"></div><div class="cols" id="ud"></div></div>
+        </div>
+        <div class="card"><span class="pt" style="right:-8px;top:-8px">5</span>
+          <h3>Tabela: onde os mandatos travam</h3>
+          <div class="tw"><table style="min-width:520px">
+            <thead><tr><th>Exercício</th><th>Missão</th><th class="num">Alcançaram</th><th class="num">Concluíram</th><th class="num">Abandono</th></tr></thead>
+            <tbody>
+              <tr><td>Mapa de comissões</td><td>4</td><td class="num">61</td><td class="num">28</td><td class="num"><span class="pill warn">54%</span></td></tr>
+              <tr><td>Metas e responsáveis</td><td>3</td><td class="num">70</td><td class="num">41</td><td class="num"><span class="pill warn">41%</span></td></tr>
+              <tr><td>Escalação de cargos</td><td>2</td><td class="num">88</td><td class="num">64</td><td class="num"><span class="pill mu">27%</span></td></tr>
+            </tbody></table></div>
+        </div>
+        <div class="card"><span class="pt" style="right:-8px;top:-8px">6</span>
+          <h3>Tabela: uso por funcionalidade</h3>
+          <div class="tw"><table>
+            <thead><tr><th>Funcionalidade</th><th>Missão</th><th class="num">Mandatos que usaram</th><th class="num">Aberturas (30d)</th><th>Tendência</th></tr></thead>
+            <tbody>
+              <tr><td>Persona (pleitos, relações)</td><td>1</td><td class="num">98</td><td class="num">412</td><td class="mono">▂▃▅▆▇</td></tr>
+              <tr><td>Mapa de votos e município</td><td>1</td><td class="num">77</td><td class="num">301</td><td class="mono">▃▃▄▅▅</td></tr>
+              <tr><td>Eleitorado e social</td><td>1</td><td class="num">54</td><td class="num">188</td><td class="mono">▂▂▃▃▄</td></tr>
+              <tr><td>Cadeiras e escalação</td><td>2</td><td class="num">82</td><td class="num">260</td><td class="mono">▃▅▅▄▄</td></tr>
+              <tr><td>Organograma e rotinas</td><td>3</td><td class="num">41</td><td class="num">97</td><td class="mono">▁▂▂▃▃</td></tr>
+              <tr><td>Exportar PDF</td><td>todas</td><td class="num">35</td><td class="num">66</td><td class="mono">▁▁▂▂▃</td></tr>
+              <tr><td>Enviar sugestão</td><td>todas</td><td class="num">23</td><td class="num">51</td><td class="mono">▂▃▂▃▂</td></tr>
+            </tbody></table></div>
+        </div>
+      </div>
+    </div>
+    <aside class="notes" aria-label="Notas da tela">
+      <h2>Notas da tela</h2>
+      <div class="nt"><span class="pt i">1</span><div><b>Missões e funcionalidades juntas</b><span class="d">Uma tela só, com filtros de período e UF valendo para tudo.</span></div></div>
+      <div class="nt"><span class="pt i">2</span><div><b>Status de atividade por mês</b><span class="d"><span class="badge ja">dado já existe</span> Um mandato conta como ativo no mês se tem ao menos um registro em <span class="tag">eventos</span> naquele mês. Só se usa a data, nunca o texto. O gráfico começa no mês do primeiro cadastro.</span></div></div>
+      <div class="nt"><span class="pt i">3</span><div><b>Funil das missões</b><span class="d"><span class="badge ja">dado já existe</span> Sai do campo <span class="tag">feitos</span> de cada mandato (views v_panorama e afins).</span></div></div>
+      <div class="nt"><span class="pt i">4</span><div><b>Uso por dia</b><span class="d"><span class="badge novo">precisa criar</span> Hoje ninguém registra quando uma funcionalidade é aberta. Entra uma tabela nova de eventos de uso, com só: funcionalidade, dia e mandato. Sem texto e sem dado pessoal.</span></div></div>
+      <div class="nt"><span class="pt i">5</span><div><b>Onde travam</b><span class="d"><span class="badge ja">dado já existe</span> Mostra onde apoiar os gabinetes ou melhorar o texto do Guia.</span></div></div>
+      <div class="nt"><span class="pt i">6</span><div><b>Uso por funcionalidade</b><span class="d"><span class="badge ja">dado já existe</span> a coluna "Mandatos que usaram". <span class="badge novo">precisa criar</span> "Aberturas" e "Tendência", pela mesma tabela de uso.</span></div></div>
+      <div class="nt"><span class="pt i">!</span><div><b>Alternativa mais simples</b><span class="d"><span class="badge ext">externo</span> Ligar o Vercel Web Analytics dá visitas e páginas sem código, mas não enxerga as telas internas do Guia.</span></div></div>
+    </aside>
+  </section>
+
+  <!-- ============ 5. LOGS ============ -->
+  <section class="stage screen" id="s-logs" hidden>
+    <div class="app"><nav class="side" aria-label="Menu de exemplo"></nav>
+      <div class="main">
+        <div class="top"><h2>Logs</h2></div>
+        <div class="sub" role="tablist" aria-label="Tipo de log">
+          <button aria-selected="true" data-l="at">Atividade dos gabinetes</button>
+          <button aria-selected="false" data-l="au">Ações da equipe</button>
+          <button aria-selected="false" data-l="si">Sistema e erros</button>
+          <span class="pt i">1</span>
+        </div>
+        <div class="logs" id="l-at"><div>
+          <div class="lg"><span class="t">hoje 14:02</span><span>M3</span><span>K7QX-29 · registrou no exercício "Metas" · <span class="redact">texto oculto</span></span></div>
+          <div class="lg"><span class="t">hoje 11:40</span><span>M2</span><span>P3MD-81 · registrou no exercício "Cadeiras" · <span class="redact">texto oculto</span></span></div>
+          <div class="lg"><span class="t">ontem 18:15</span><span>M1</span><span>T8WZ-04 · registrou no exercício "Persona" · <span class="redact">texto oculto</span></span></div>
+          <div class="lg"><span class="t">ontem 09:30</span><span>M4</span><span>R2NB-57 · registrou no exercício "Comissões" · <span class="redact">texto oculto</span></span></div>
+        </div></div>
+        <div class="logs" id="l-au" hidden><div>
+          <div class="lg"><span class="t">hoje 10:05</span><span>admin</span><span>Ana Souza incluiu diego@exemplo.org na equipe como leitura</span></div>
+          <div class="lg"><span class="t">04/11 16:20</span><span>admin</span><span>Ana Souza mudou o papel de Carla Dias, de admin para leitura</span></div>
+          <div class="lg"><span class="t">04/11 15:41</span><span>admin</span><span>Ana Souza adicionou paula@exemplo.org como assessoria em K7QX-29</span></div>
+          <div class="lg"><span class="t">03/11 09:12</span><span>admin</span><span>Ana Souza arquivou o mandato Q9LM-33</span></div>
+        </div></div>
+        <div class="logs" id="l-si" hidden><div>
+          <div class="lg"><span class="t">hoje 13:58</span><span class="e">erro</span><span>/api/votos-mun · TSE respondeu 503 (3 tentativas) · uf=RO</span></div>
+          <div class="lg"><span class="t">hoje 08:21</span><span class="e">erro</span><span>/api/clipping · tempo esgotado</span></div>
+          <div class="lg"><span class="t">ontem 22:07</span><span>aviso</span><span>Supabase · 5 logins falhos seguidos do mesmo IP</span></div>
+        </div></div>
+        <p class="legend" id="l-nota"></p>
+      </div>
+    </div>
+    <aside class="notes" aria-label="Notas da tela">
+      <h2>Notas da tela</h2>
+      <div class="nt"><span class="pt i">1</span><div><b>Três tipos de log</b><span class="d">Cada um tem origem e situação diferentes. Troque as abas ao lado para ver.</span></div></div>
+      <div class="nt"><span class="pt i">2</span><div><b>Atividade dos gabinetes</b><span class="d"><span class="badge ja">dado já existe</span> Vem da tabela <span class="tag">eventos</span>, que guarda o que os gabinetes escrevem. Por privacidade, o painel lê só a data, a missão e o exercício.</span></div></div>
+      <div class="nt"><span class="pt i">3</span><div><b>Ações da equipe</b><span class="d"><span class="badge novo">precisa criar</span> Tabela nova de auditoria: quem incluiu, removeu, editou ou apagou o quê. As telas de Equipe, Mandatos e Membros dependem dela.</span></div></div>
+      <div class="nt"><span class="pt i">4</span><div><b>Sistema e erros</b><span class="d"><span class="badge ext">externo</span> Os logs do servidor ficam na Vercel e no Supabase, e o navegador não tem permissão de lê-los. Opções: botão que abre cada painel, ou uma rota segura no servidor que busca e mostra aqui.</span></div></div>
+    </aside>
+  </section>
+</div>
+
+<script>
+var tabs=document.querySelectorAll('.tabs button');
+var TELAS=['equipe','mandatos','detalhe','analytics','logs'];
+var MENU=[['equipe','Equipe'],['mandatos','Mandatos'],['analytics','Analytics'],['logs','Logs']];
+function ir(t){
+  tabs.forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.t===t))});
+  TELAS.forEach(function(k){document.getElementById('s-'+k).hidden=(k!==t)});
+}
+tabs.forEach(function(b){b.addEventListener('click',function(){ir(b.dataset.t)})});
+document.querySelectorAll('[data-go]').forEach(function(b){b.addEventListener('click',function(){ir(b.dataset.go)})});
+
+/* menu lateral igual em todas as telas */
+document.querySelectorAll('.side').forEach(function(s){
+  var id=s.closest('.screen').id.slice(2),atual=id==='detalhe'?'mandatos':id;
+  s.innerHTML='<div class="logo">Legisla Brasil<small>Admin</small></div>'+MENU.map(function(m){
+    return '<div class="nav'+(m[0]===atual?' on':'')+'" data-nav="'+m[0]+'">'+m[1]+'</div>'}).join('')+
+    '<div class="nav sep">↗ Painel de métricas (/painel)</div>';
+});
+document.querySelectorAll('[data-nav]').forEach(function(n){n.addEventListener('click',function(){ir(n.dataset.nav)})});
+
+/* gráfico de colunas empilhadas (ativos + parados por mês) */
+function eixo(el,max){var h='';[max,Math.round(max*2/3),Math.round(max/3),0].forEach(function(v){h+='<span>'+v+'</span>'});el.innerHTML=h}
+(function(){
+  var meses=[['Jun',[6,2]],['Jul',[14,4]],['Ago',[27,6]],['Set',[48,9]],['Out',[71,15]],['Nov',[96,32]]],max=140,altura=152;
+  eixo(document.getElementById('mc-y'),max);
+  document.getElementById('mc').innerHTML=meses.map(function(m){
+    var a=m[1][0],p=m[1][1];
+    return '<div class="cl"><div class="stk"><div class="seg p" style="height:'+(p/max*altura)+'px">'+p+'</div><div class="seg a" style="height:'+(a/max*altura)+'px">'+a+'</div></div><em>'+m[0]+'</em></div>';
+  }).join('');
+  /* uso por dia (14 dias) */
+  var uso=[31,45,40,52,60,22,18,58,66,61,70,74,25,20],umax=80;
+  eixo(document.getElementById('ud-y'),umax);
+  document.getElementById('ud').innerHTML=uso.map(function(v,i){
+    return '<div class="cl"><div class="one" style="height:'+(v/umax*152)+'px" title="'+v+' aberturas"></div><em>'+(i%2===0?(i+22>31?i+22-31:i+22):'')+'</em></div>';
+  }).join('');
+})();
+
+/* equipe: janela de incluir pessoa */
+var m=document.getElementById('modal');
+document.getElementById('abrir').addEventListener('click',function(){m.hidden=false});
+document.getElementById('fechar').addEventListener('click',function(){m.hidden=true});
+
+/* detalhe: CRUD de membros (só visual, sem salvar de verdade) */
+var membros=[
+  {n:'Rafael Cruz',e:'rafael@exemplo.org',p:'coordenacao',d:'21/10'},
+  {n:'Júlia Melo',e:'julia@exemplo.org',p:'assessoria',d:'22/10'},
+  {n:'Marina Alves',e:'marina@exemplo.org',p:'assessoria',d:'22/10'},
+  {n:'Luiz Tavares',e:'luiz@exemplo.org',p:'assessoria',d:'30/10'}
+],editando=-1,removendo=-1;
+var mm=document.getElementById('m-modal');
+function desenha(){
+  document.getElementById('membros').innerHTML=membros.map(function(x,i){
+    var acao=removendo===i
+      ?'<span class="hint">Remover do mandato?</span> <button class="btn sm bad" data-ok="'+i+'">Sim, remover</button> <button class="btn sm" data-nao="1">Não</button>'
+      :'<button class="btn sm" data-ed="'+i+'">Editar</button> <button class="btn sm bad" data-rm="'+i+'">Remover</button>';
+    return '<tr><td>'+x.n+'</td><td class="mono">'+x.e+'</td><td>'+x.p+'</td><td>'+x.d+'</td><td>'+acao+'</td></tr>';
+  }).join('');
+  document.querySelector('#s-detalhe .card .top h3').textContent='Membros ('+membros.length+')';
+}
+document.getElementById('membros').addEventListener('click',function(ev){
+  var t=ev.target;
+  if(t.dataset.ed!==undefined){editando=+t.dataset.ed;var x=membros[editando];
+    document.getElementById('m-tit').textContent='Editar membro';
+    document.getElementById('m-email').value=x.e;document.getElementById('m-email').disabled=true;
+    document.getElementById('m-papel').value=x.p;mm.hidden=false}
+  if(t.dataset.rm!==undefined){removendo=+t.dataset.rm;desenha()}
+  if(t.dataset.nao){removendo=-1;desenha()}
+  if(t.dataset.ok!==undefined){membros.splice(+t.dataset.ok,1);removendo=-1;desenha()}
+});
+document.getElementById('m-novo').addEventListener('click',function(){
+  editando=-1;document.getElementById('m-tit').textContent='Adicionar membro';
+  document.getElementById('m-email').disabled=false;document.getElementById('m-email').value='paula@exemplo.org';
+  document.getElementById('m-papel').value='assessoria';mm.hidden=false});
+document.getElementById('m-cancela').addEventListener('click',function(){mm.hidden=true});
+document.getElementById('m-salva').addEventListener('click',function(){
+  var e=document.getElementById('m-email').value,p=document.getElementById('m-papel').value;
+  if(editando>=0)membros[editando].p=p;
+  else membros.push({n:e.split('@')[0].replace(/^./,function(c){return c.toUpperCase()}),e:e,p:p,d:'hoje'});
+  mm.hidden=true;desenha()});
+desenha();
+
+/* logs: sub-abas */
+var NOTAS={at:'<span class="pt i">2</span>&nbsp; <span class="badge ja">dado já existe</span> Mostra só quando, qual missão e qual gabinete. O texto fica oculto.',
+  au:'<span class="pt i">3</span>&nbsp; <span class="badge novo">precisa criar</span> Tabela de auditoria, preenchida sozinha a cada ação do admin.',
+  si:'<span class="pt i">4</span>&nbsp; <span class="badge ext">externo</span> Vem da Vercel e do Supabase. Aqui entraria um resumo e um link para o painel de cada um.'};
+document.getElementById('l-nota').innerHTML=NOTAS.at;
+document.querySelectorAll('.sub button').forEach(function(b){b.addEventListener('click',function(){
+  document.querySelectorAll('.sub button').forEach(function(x){x.setAttribute('aria-selected',String(x===b))});
+  ['at','au','si'].forEach(function(k){document.getElementById('l-'+k).hidden=(k!==b.dataset.l)});
+  document.getElementById('l-nota').innerHTML=NOTAS[b.dataset.l];
+})});
+</script>
+</body>
+</html>

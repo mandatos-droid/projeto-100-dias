@@ -63,7 +63,7 @@ O app **não é um app Next.js convencional**. O Guia original (HTML/JS vanilla,
 - TypeScript `strict`, alias `@/*` aponta para a raiz. Componentes de ilha são `'use client'`.
 - Estilo do código existente: compacto, comentários curtos em português explicando o *porquê*; ilhas grandes em um arquivo por módulo (`Persona`, `Assentos`, `Conjuntura`, `Municipio`, `Eleitorado`, `Social`, `Equipe`, `Resumos`). `ilhas/pecas.tsx` guarda peças visuais compartilhadas.
 - Cuidado com limitações de dados já documentadas no README: RO ainda "aguardando reprocessamento" no TSE (`npm run dados -- --refresh`); Senado só com eleitos de 2026 (+ 2022 em `eleitos.json`); município lista só os 6 deputados mais votados; votos de partido são nominais; cruzamento de reeleição é por nome civil + UF (sem CPF).
-- Dados pessoais: `mandatos.permite_pesquisa` controla se a equipe da Legisla lê o conteúdo escrito (não só agregados). Respeite isso em qualquer consulta ou painel novo.
+- Dados pessoais: quem se cadastra consente que a equipe da Legisla acesse os dados do mandato (decisão de 2026-11-05); `mandatos.permite_pesquisa` não condiciona mais nenhuma tela nova. Mesmo assim, telas novas mostram só o necessário (o `/admin` lê views sem o texto escrito). Pendente: o aviso de privacidade do cadastro (`lib/legacyBody.ts`) ainda diz que o conteúdo é acessível só a quem tem o código de convite e não cita a equipe; atualizar o texto e a versão do consentimento antes de a equipe ler conteúdo.
 
 ## Armadilhas
 

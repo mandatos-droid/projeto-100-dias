@@ -39,6 +39,12 @@
 - A estratégia A/B/C só define o texto do nó do preditor; a árvore do planejamento e as metas da Missão 3 não mudam. Mandato com `m3.obj.*` abre na estratégia B.
 - As telas antigas (escalação, painel da cadeira, rotinas por cadeia, entrega) saíram de `ilhas/equipe/`; a sugestão do checklist (`m2.c1..c3`) ficou na ilha `m2-sugestao-checklist`.
 
+### AD-007: Telas administrativas leem por views `v_admin_*` e escrevem por funções com auditoria (2026-11-05)
+
+- Leitura da equipe Legisla: views `security_invoker` com `where private.eh_legisla()` e só as colunas necessárias (nunca `dados`, `eventos.texto`, `nome_civil`, `resp_telefone`). Escrita: funções `security definer` que checam `private.eh_legisla_admin()` e gravam `auditoria_admin` na mesma transação; sem `update` ou `delete` direto pelo navegador.
+- Contas (filtros, status por mês, funil, travas) em funções puras de `plataforma/lib/admin/`, testadas com `node --test`; o SQL só entrega linhas mínimas.
+- Motivo: o RLS atual deixa a equipe ler a linha inteira de `mandatos` e `eventos` por API; as views e funções são a barreira de privacidade e de auditoria enquanto isso não for endurecido (feature `painel-admin`).
+
 ## Handoff
 
 Feature `missao2-3-reestruturacao`: T1 a T29 implementadas (T27A criada no fechamento para a sugestão do checklist). 497 testes unitários; e2e completo na T27 com 391 passando (mais o spec `migracao` corrigido e relançado, 5 de 5); `m23-migracao` e `m5-feedback` 24 de 24; `npm run build` passou na T27. Pendente: Verifier da feature, artefatos de `graphify-out/` (ficam para o orquestrador), `git push` e deploy aguardam go-ahead. Arquivos do usuário seguem não commitados (`graphify-out/`, `contexto inicial/`, `.vscode/`, `Alterador/`).
