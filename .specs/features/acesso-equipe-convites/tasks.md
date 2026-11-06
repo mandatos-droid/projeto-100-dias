@@ -614,13 +614,13 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] `invalido` devolve "Este convite não vale mais. Peça um novo para quem convidou você." (ACE-02.10, ACE-02.11)
-- [ ] `email` devolve "Este convite é para outro e-mail. Entre com a conta indicada ou peça um novo convite." (ACE-02.9)
-- [ ] `limite` devolve "Muitas tentativas. Tente de novo em alguns minutos." (ACE-02.14)
-- [ ] As exceções de papel maior, 20 pendentes e última coordenação devolvem os textos exatos da spec (ACE-01.6, ACE-01.9, ACE-03.7)
-- [ ] Erro desconhecido devolve "Não foi possível concluir. Tente de novo."
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 9 testes em `tests/convites-erros.test.ts`
+- [x] `invalido` devolve "Este convite não vale mais. Peça um novo para quem convidou você." (ACE-02.10, ACE-02.11)
+- [x] `email` devolve "Este convite é para outro e-mail. Entre com a conta indicada ou peça um novo convite." (ACE-02.9)
+- [x] `limite` devolve "Muitas tentativas. Tente de novo em alguns minutos." (ACE-02.14)
+- [x] As exceções de papel maior, 20 pendentes e última coordenação devolvem os textos exatos da spec (ACE-01.6, ACE-01.9, ACE-03.7)
+- [x] Erro desconhecido devolve "Não foi possível concluir. Tente de novo."
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 9 testes em `tests/convites-erros.test.ts`
 
 **Tests**: unit
 **Gate**: quick
