@@ -718,9 +718,9 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Lista nome, e-mail, papel (`coordenacao` ou `assessoria`) e entrada
-- [ ] Admin: adicionar por e-mail, trocar papel, remover com confirmação; mensagens de sem conta, já é membro e última coordenação
-- [ ] Gate Build passa (cobertura no e2e da T26)
+- [x] Lista nome, e-mail, papel (`coordenacao` ou `assessoria`) e entrada
+- [x] Admin: adicionar por e-mail, trocar papel, remover com confirmação; mensagens de sem conta, já é membro e última coordenação
+- [x] Gate Build passa (cobertura no e2e da T26) (`npm run build` falhou só por `SecurityFatalError` do Next 16.4; valeu `tsc` + `npm test`)
 
 **Tests**: none
 **Gate**: build
