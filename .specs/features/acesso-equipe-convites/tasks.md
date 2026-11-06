@@ -758,11 +758,11 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] `criaConvite`, `previaConvite`, `aceitaConvite`, `cancelaConvite`, `convitesPendentes`, `equipeDoMandato`, `trocaPapel`, `removeMembro`, `saiDoMandato`, `catalogoExercicios` chamam a `rpc` certa com os argumentos `p_mandato`, `p_nome`, `p_email`, `p_papel`, `p_token`, `p_id`, `p_user`
-- [ ] `previaConvite` e `aceitaConvite` devolvem o objeto `{ok, ...}` sem lançar quando `ok` é falso; erros HTTP viram `ErroApi`
-- [ ] `lerEventosEquipe(mandato)` lê `eventos_equipe` ordenado do mais recente, com limite de 10 (ACE-05.5)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 12 testes em `tests/convites-api.test.ts`
+- [x] `criaConvite`, `previaConvite`, `aceitaConvite`, `cancelaConvite`, `convitesPendentes`, `equipeDoMandato`, `trocaPapel`, `removeMembro`, `saiDoMandato`, `catalogoExercicios` chamam a `rpc` certa com os argumentos `p_mandato`, `p_nome`, `p_email`, `p_papel`, `p_token`, `p_id`, `p_user`
+- [x] `previaConvite` e `aceitaConvite` devolvem o objeto `{ok, ...}` sem lançar quando `ok` é falso; erros HTTP viram `ErroApi`
+- [x] `lerEventosEquipe(mandato)` lê `eventos_equipe` ordenado do mais recente, com limite de 10 (ACE-05.5)
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 12 testes em `tests/convites-api.test.ts`
 
 **Tests**: unit
 **Gate**: quick
