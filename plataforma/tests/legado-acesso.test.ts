@@ -48,15 +48,17 @@ function elemento(id = ''): El {
 function documento() {
   const porId = new Map<string, El>();
   const corpo = elemento('corpo');
+  // indicador "Salvando…" / "Salvo automaticamente" do Guia (nucleo.js, marcaSalvando e marcaSalvo)
+  const salvo = elemento('salvo');
   return {
-    corpo, body: elemento('body'), head: elemento('head'),
+    corpo, salvo, body: elemento('body'), head: elemento('head'),
     createElement: () => elemento(),
     getElementById(id: string) {
       if (!porId.has(id)) { const e = elemento(id); if (id === 'tela') corpo.appendChild(e); porId.set(id, e); }
       return porId.get(id)!;
     },
     querySelector: () => null,
-    querySelectorAll: () => [],
+    querySelectorAll: (s: string) => (s === '[data-salvo]' ? [salvo] : []),
   };
 }
 
@@ -220,8 +222,10 @@ test('trocar para um mandato em que a pessoa é coordenacao tira a classe e o av
 });
 
 test('como leitura, Store.salvar, gravar, atualizar e registrar não fazem nenhuma requisição (ACE-03.2)', async () => {
-  const { w, pedidos } = await abreComo('leitura');
+  const { w, pedidos, document } = await abreComo('leitura');
   w.Store.salvar();
+  // a guarda do próprio salvar: sem ela o "Salvando…" ficaria preso, sem gravação que o troque
+  assert.equal(document.salvo.textContent, '');
   await w.Store.gravar();
   await w.Store.atualizar({ partido: 'NOVO' });
   await w.Store.registrar(1, 'm1.persona', 'A persona');
