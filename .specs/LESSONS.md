@@ -11,8 +11,8 @@ Corroborated across multiple features. Safe to apply as guidance.
 ### L-019 - Isolate each guard flag in its own test by satisfying the other guards, so a redundant guard cannot mask its removal.
 - signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `e2e` · harmful: 0
 - features: painel-admin, acesso-equipe-convites
-- evidence: ilhas/ponte.tsx:137 (mutante E14, ADM-14.4) (e2e) (+1 more)
-- last seen: 2026-11-06T15:40:32Z
+- evidence: ilhas/ponte.tsx:137 (mutante E14, ADM-14.4) (e2e) (+3 more)
+- last seen: 2026-11-06T16:18:18Z
 
 ## Candidates (under observation - do NOT load as guidance yet)
 
@@ -167,6 +167,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: acesso-equipe-convites
 - evidence: ACE-03.7 excluir_meus_dados (spec)
 - last seen: 2026-11-06T15:40:32Z
+
+### L-027 - When a role can be lowered or removed, re-check the issuer's current role whenever something it issued, such as a pending invite, is used, and test demote-then-reuse.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `sql` · harmful: 0
+- features: acesso-equipe-convites
+- evidence: ACE-03.5, ACE-03.6 sonda V-1; plataforma/supabase/migrations/20261106120000_convites_equipe.sql:475 (sql)
+- last seen: 2026-11-06T16:18:18Z
 
 ## Quarantined (failed when applied - ignore)
 

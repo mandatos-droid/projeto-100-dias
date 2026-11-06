@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 27,
+  "next_id": 28,
   "lessons": [
     {
       "id": "L-001",
@@ -344,10 +344,12 @@
       "harmful": 0,
       "evidence": [
         "ilhas/ponte.tsx:137 (mutante E14, ADM-14.4) (e2e)",
-        "T15/E08 plataforma/public/legacy/acesso.js:75 (e2e)"
+        "T15/E08 plataforma/public/legacy/acesso.js:75 (e2e)",
+        "B06 plataforma/supabase/migrations/20261106130000_papeis_blindagem.sql:53 (sql)",
+        "B08 plataforma/supabase/migrations/20261106130000_papeis_blindagem.sql:49 (sql)"
       ],
       "created": "2026-11-06T04:46:47Z",
-      "last_seen": "2026-11-06T15:40:32Z"
+      "last_seen": "2026-11-06T16:18:18Z"
     },
     {
       "id": "L-020",
@@ -474,6 +476,24 @@
       ],
       "created": "2026-11-06T15:40:32Z",
       "last_seen": "2026-11-06T15:40:32Z"
+    },
+    {
+      "id": "L-027",
+      "key": "ac_gap::when a role can be lowered or removed re check the issuer s current role whenever something it issued such as a pending invite is used and test demote then reuse",
+      "text": "When a role can be lowered or removed, re-check the issuer's current role whenever something it issued, such as a pending invite, is used, and test demote-then-reuse.",
+      "signal": "ac_gap",
+      "scope": "sql",
+      "status": "candidate",
+      "features": [
+        "acesso-equipe-convites"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "ACE-03.5, ACE-03.6 sonda V-1; plataforma/supabase/migrations/20261106120000_convites_equipe.sql:475 (sql)"
+      ],
+      "created": "2026-11-06T16:18:18Z",
+      "last_seen": "2026-11-06T16:18:18Z"
     }
   ]
 }
