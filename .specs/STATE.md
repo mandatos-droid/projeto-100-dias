@@ -63,13 +63,20 @@
 - Política ou função nova que decida acesso lê o papel atual (`private.papel_no_mandato`, `private.pode_editar`, `private.eh_membro`), nunca `criado_por`. `excluir_mandato` exige `coordenacao`.
 - Motivo: o Verifier mostrou três caminhos pela API (sondas S-1 a S-3) em que `criado_por` subia o acesso ou sobrevivia à remoção.
 
+### AD-011: O convite vale só com a autoridade atual de quem o criou (2026-11-06)
+
+- Prévia e aceite exigem que quem criou o convite siga no mandato com papel igual ou maior que o do convite (`private.convite_autorizado`, lido de `membros` a cada chamada). Senão a resposta é a do token inválido (`{ok:false, erro:'invalido'}`, com a tentativa gravada), sem consumir o convite. `convites_pendentes` deixa de listar esse convite e `convite_criar` deixa de contá-lo no limite de 20 (`supabase/migrations/20261106140000_convites_autoridade.sql`).
+- Trocar papel, remover e sair não cancelam convites: se a pessoa recuperar o papel antes do vencimento, o convite volta a valer.
+- Efeito colateral: o convite de quem saiu do mandato (ou teve a conta apagada) deixa de valer, e o de quem foi rebaixado vale só até o novo papel. Decisão tomada pelo orquestrador com base no objetivo 3 da spec e na linha "Limite do papel concedido"; **a confirmar pelo dono do produto**. A alternativa mínima, se ele quiser manter esses convites, é recusar só o aceite pela própria pessoa que criou (`auth.uid() = convites.criado_por`); ela não fecha o caso de uma segunda conta da mesma pessoa.
+- Motivo: sonda V-1 do Verifier (iteração 2). A coordenação rebaixada a `leitura`, ou removida, voltava como `coordenacao` aceitando um convite que tinha criado antes, e removia quem a rebaixou (ACE-02.16, ACE-03.12).
+
 ## Handoff
 
 - **Feature**: `acesso-equipe-convites` (`.specs/features/acesso-equipe-convites/`)
-- **Phase / Task**: Fase 6 concluída; T1 a T37 implementadas e commitadas. Verifier 1 deu FAIL (`validation.md`); a correção 1 de 3 fechou as três falhas altas (sondas S-1 a S-3, ACE-03.2, 03.5, 03.6) na migration `20261106130000_papeis_blindagem.sql` (commits `336ae11`, `cb6f20d`, `fb8dd0e`) e a menor T15/E08 no teste do Guia (`f25911d`). T12 ficou como está (equivalente).
-- **Completed**: T1 a T37; correções 1 a 4 do `validation.md`
+- **Phase / Task**: Fase 6 concluída; T1 a T37 implementadas e commitadas. Verifier 1 deu FAIL; a correção 1 de 3 fechou as sondas S-1 a S-3 (`20261106130000_papeis_blindagem.sql`) e T15/E08. Verifier 2 deu FAIL (`validation.md`, sonda V-1 e mutantes B06/B08); a correção 2 de 3 fecha V-1, V-1b e V-1c na migration `20261106140000_convites_autoridade.sql` (AD-011, ACE-02.16, ACE-03.12) e isola as guardas B06 e B08 de `membros_criar` em `tests/sql-membros.test.ts`. T12 ficou como está (equivalente).
+- **Completed**: T1 a T37; correções 1 a 4 da iteração 1; correções 6, 7 e 8 da iteração 2
 - **In-progress**: nenhum
-- **Next step**: rodar o Verifier de novo (iteração 2 de 3); depois, com go-ahead explícito, `git push`, migrations e deploy
+- **Next step**: rodar o Verifier (iteração 3 de 3, a última); se a falha persistir, levar ao usuário. Depois, com go-ahead explícito, `git push`, migrations e deploy
 - **Blockers**: nenhum desta feature. Fora dela, 8 e2e do Guia já falhavam antes da fase 6 e falham igual com `acesso.js` vazio (`capital-acoes` 4, `rumo-painel` 3, `m1-etapas` 1)
 - **Uncommitted files**: só de outras frentes (`.pw-out-tmp/`, `AJUSTES_GUIA_100_DIAS.md`, `supabase/` na raiz, `graphify-out/`, `contexto inicial/`)
 - **Branch**: `feat/acesso-convites`
@@ -79,8 +86,9 @@
 1. Conferir "Confirmar e-mail" no Supabase (Authentication, Providers, Email). Ligado: quem é de fora pode não receber a confirmação (e-mail embutido) e o convite guardado no `sessionStorage` só vale na mesma aba; em outra aba ou aparelho a pessoa abre o link de novo.
 2. Incluir `<domínio>/convite` nas Redirect URLs do Supabase (sem isso o retorno do Google cai na raiz e é repassado).
 3. Depois do primeiro uso em produção, conferir se o `x-forwarded-for` chega à função do banco e qual IP é confiável: o primeiro costuma ser controlado pelo cliente, e trocar o cabeçalho contorna o limite de tentativas.
-4. Aplicar `20261106120000_convites_equipe.sql` e `20261106130000_papeis_blindagem.sql`, nessa ordem, só ao subir para a `main`, com go-ahead explícito.
+4. Aplicar `20261106120000_convites_equipe.sql`, `20261106130000_papeis_blindagem.sql` e `20261106140000_convites_autoridade.sql`, nessa ordem, só ao subir para a `main`, com go-ahead explícito.
 5. A tela de membros do `/admin` precisa aceitar o papel `leitura` (spec `painel-admin`).
+6. Confirmar o AD-011: o convite de quem saiu do mandato, ou foi rebaixado abaixo do papel do convite, deixa de valer.
 
 **Acompanhamentos (fora do escopo desta feature):**
 
