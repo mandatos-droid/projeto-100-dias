@@ -639,7 +639,7 @@ T36 → T37
 
 **Done when**:
 
-- [x] Cobre: sem sessão (entrada, nenhuma chamada de mandatos); conta fora da equipe ("Sem acesso"); leitura (nenhum botão de alteração, seletores desabilitados); admin; abre em Mandatos; 401 volta à entrada; token vencido é renovado; escrita de leitura recusada com 403 mostra o aviso
+- [ ] Cobre (adiado: "escrita de leitura recusada com 403 mostra o aviso" e os seletores de papel desabilitados só podem ser exercidos quando houver botão de escrita e seletor de papel, nas telas das T23 e T26; aqui há asserção de que nenhum botão de alteração nem seletor de papel habilitado existe para leitura): sem sessão (entrada, nenhuma chamada de mandatos); conta fora da equipe ("Sem acesso"); leitura (nenhum botão de alteração, seletores desabilitados); admin; abre em Mandatos; 401 volta à entrada; token vencido é renovado; escrita de leitura recusada com 403 mostra o aviso
 - [x] ≥ 8 testes passam
 
 **Tests**: e2e
