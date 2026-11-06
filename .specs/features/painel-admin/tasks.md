@@ -220,11 +220,11 @@ T36 → T37
 
 **Done when**:
 
-- [ ] `admin_membros`, `admin_membro_adicionar`, `admin_membro_papel`, `admin_membro_remover` só para admin, com auditoria; recusam duplicado ("Esta pessoa já é membro deste mandato.") e última coordenação ("O mandato precisa de ao menos uma pessoa na coordenação.")
-- [ ] `admin_mandato_arquivar(p_id, p_arquivar)` grava ou limpa `arquivado_em` e audita; os membros seguem acessando o mandato
-- [ ] `admin_mandato_excluir(p_id, p_codigo)` recusa código diferente, apaga em cascata e deixa `sugestoes.mandato_id` nulo; a auditoria guarda código e nome parlamentar
-- [ ] Gatilho em `mandatos` recusa mudança de `arquivado_em` a quem não é admin da Legisla (membro do gabinete é recusado)
-- [ ] Teste `tests/sql-admin-mandatos.test.ts` (PGlite): leitura recusado em todas as funções; trava de coordenação; código errado; cascata; gatilho; ≥ 12 casos passam
+- [x] `admin_membros`, `admin_membro_adicionar`, `admin_membro_papel`, `admin_membro_remover` só para admin, com auditoria; recusam duplicado ("Esta pessoa já é membro deste mandato.") e última coordenação ("O mandato precisa de ao menos uma pessoa na coordenação.")
+- [x] `admin_mandato_arquivar(p_id, p_arquivar)` grava ou limpa `arquivado_em` e audita; os membros seguem acessando o mandato
+- [x] `admin_mandato_excluir(p_id, p_codigo)` recusa código diferente, apaga em cascata e deixa `sugestoes.mandato_id` nulo; a auditoria guarda código e nome parlamentar
+- [x] Gatilho em `mandatos` recusa mudança de `arquivado_em` a quem não é admin da Legisla (membro do gabinete é recusado)
+- [x] Teste `tests/sql-admin-mandatos.test.ts` (PGlite): leitura recusado em todas as funções; trava de coordenação; código errado; cascata; gatilho; ≥ 12 casos passam
 
 **Tests**: integration
 **Gate**: quick

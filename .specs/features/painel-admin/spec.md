@@ -297,8 +297,8 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | ADM-04 | P1: Registrar toda ação administrativa em auditoria | Specify | Implementing |
 | ADM-05 | P1: Listar e achar mandatos | Specify | Implementing |
 | ADM-06 | P1: Detalhe do mandato (AC 1 e 2, cadastro e privacidade) | Specify | Implementing |
-| ADM-07 | P1: Detalhe do mandato (AC 3 a 9, CRUD de membros) | Specify | Pending |
-| ADM-08 | P1: Arquivar e excluir mandatos | Specify | Pending |
+| ADM-07 | P1: Detalhe do mandato (AC 3 a 9, CRUD de membros) | Specify | Implementing |
+| ADM-08 | P1: Arquivar e excluir mandatos | Specify | Implementing |
 | ADM-09 | P2: Analytics (AC 1 a 3, indicadores e filtros) | Specify | Implementing |
 | ADM-10 | P2: Analytics (AC 4 a 6, status de atividade por mês) | Specify | Implementing |
 | ADM-11 | P2: Analytics (AC 7 a 10, funil, travas e títulos de gráfico) | Specify | Implementing |
