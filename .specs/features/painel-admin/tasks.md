@@ -504,9 +504,9 @@ T36 → T37
 
 **Done when**:
 
-- [ ] Antes de escrever, ler `node_modules/next/dist/docs/` sobre layouts e CSS (regra do `AGENTS.md`)
-- [ ] `metadata.title` "Admin · Legisla Brasil"; renderiza `<div class="adm">` com `children`
-- [ ] Gate Build passa
+- [x] Antes de escrever, ler `node_modules/next/dist/docs/` sobre layouts e CSS (regra do `AGENTS.md`)
+- [x] `metadata.title` "Admin · Legisla Brasil"; renderiza `<div class="adm">` com `children`
+- [x] Gate Build passa
 
 **Tests**: none
 **Gate**: build
