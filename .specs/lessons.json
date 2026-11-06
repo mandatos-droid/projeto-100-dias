@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 21,
+  "next_id": 27,
   "lessons": [
     {
       "id": "L-001",
@@ -335,17 +335,19 @@
       "text": "Isolate each guard flag in its own test by satisfying the other guards, so a redundant guard cannot mask its removal.",
       "signal": "surviving_mutant",
       "scope": "e2e",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "painel-admin"
+        "painel-admin",
+        "acesso-equipe-convites"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "ilhas/ponte.tsx:137 (mutante E14, ADM-14.4) (e2e)"
+        "ilhas/ponte.tsx:137 (mutante E14, ADM-14.4) (e2e)",
+        "T15/E08 plataforma/public/legacy/acesso.js:75 (e2e)"
       ],
       "created": "2026-11-06T04:46:47Z",
-      "last_seen": "2026-11-06T04:46:47Z"
+      "last_seen": "2026-11-06T15:40:32Z"
     },
     {
       "id": "L-020",
@@ -364,6 +366,114 @@
       ],
       "created": "2026-11-06T04:46:47Z",
       "last_seen": "2026-11-06T04:46:47Z"
+    },
+    {
+      "id": "L-021",
+      "key": "ac_gap::block api updates to any column that another policy or function trusts as authority such as a creator id and test the escalation through it",
+      "text": "Block API updates to any column that another policy or function trusts as authority, such as a creator id, and test the escalation through it.",
+      "signal": "ac_gap",
+      "scope": "sql",
+      "status": "candidate",
+      "features": [
+        "acesso-equipe-convites"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "ACE-03.6 sonda S-1; plataforma/supabase/migrations/20261106120000_convites_equipe.sql:44 (sql)"
+      ],
+      "created": "2026-11-06T15:40:31Z",
+      "last_seen": "2026-11-06T15:40:31Z"
+    },
+    {
+      "id": "L-022",
+      "key": "ac_gap::when a feature adds roles route every existing policy and function that grants power by ownership through the new role check",
+      "text": "When a feature adds roles, route every existing policy and function that grants power by ownership through the new role check.",
+      "signal": "ac_gap",
+      "scope": "sql",
+      "status": "candidate",
+      "features": [
+        "acesso-equipe-convites"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "ACE-03.2 sonda S-2; plataforma/supabase/migrations/20261020130000_excluir_mandato.sql:14 (sql)"
+      ],
+      "created": "2026-11-06T15:40:31Z",
+      "last_seen": "2026-11-06T15:40:31Z"
+    },
+    {
+      "id": "L-023",
+      "key": "surviving_mutant::when code compares a flag with strict equality to true add a test case with a truthy non boolean value so the strictness is pinned",
+      "text": "When code compares a flag with strict equality to true, add a test case with a truthy non-boolean value so the strictness is pinned.",
+      "signal": "surviving_mutant",
+      "scope": "lib",
+      "status": "candidate",
+      "features": [
+        "acesso-equipe-convites"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "T12 plataforma/lib/convites/missoes.ts:15 (lib)"
+      ],
+      "created": "2026-11-06T15:40:32Z",
+      "last_seen": "2026-11-06T15:40:32Z"
+    },
+    {
+      "id": "L-024",
+      "key": "spec_precision_gap::when a criterion depends on concurrent transactions plan a two connection test on real postgres instead of matching the lock in the function source",
+      "text": "When a criterion depends on concurrent transactions, plan a two-connection test on real Postgres instead of matching the lock in the function source.",
+      "signal": "spec_precision_gap",
+      "scope": "sql",
+      "status": "candidate",
+      "features": [
+        "acesso-equipe-convites"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "ACE-02.12, ACE-03.8 plataforma/tests/sql-convites.test.ts:775 (sql)"
+      ],
+      "created": "2026-11-06T15:40:32Z",
+      "last_seen": "2026-11-06T15:40:32Z"
+    },
+    {
+      "id": "L-025",
+      "key": "spec_precision_gap::define in the spec which request header identifies the client for a rate limit and whether the client can forge it",
+      "text": "Define in the spec which request header identifies the client for a rate limit and whether the client can forge it.",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "acesso-equipe-convites"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "ACE-02.14 plataforma/supabase/migrations/20261106120000_convites_equipe.sql:394 (spec)"
+      ],
+      "created": "2026-11-06T15:40:32Z",
+      "last_seen": "2026-11-06T15:40:32Z"
+    },
+    {
+      "id": "L-026",
+      "key": "spec_precision_gap::list in the spec every existing path that removes a member account deletion included when a criterion protects a minimum membership",
+      "text": "List in the spec every existing path that removes a member, account deletion included, when a criterion protects a minimum membership.",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "acesso-equipe-convites"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "ACE-03.7 excluir_meus_dados (spec)"
+      ],
+      "created": "2026-11-06T15:40:32Z",
+      "last_seen": "2026-11-06T15:40:32Z"
     }
   ]
 }

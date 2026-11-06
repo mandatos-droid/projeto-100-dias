@@ -57,13 +57,19 @@
 - O navegador não envia o fragmento ao servidor nem no `Referer`; `/convite` responde com `Referrer-Policy: no-referrer` e `X-Robots-Tag: noindex`.
 - Motivo: caminho e query aparecem nos logs da Vercel e no `Referer` de sites externos.
 
+### AD-010: Acesso ao mandato vem só de `membros.papel`; `mandatos.criado_por` não é credencial (2026-11-06)
+
+- `criado_por` não muda pela API (gatilho `mandatos_trava_criador`). Ele só vale no cadastro: com o mandato ainda sem membros, quem criou lê o mandato (o `INSERT ... RETURNING`) e entra direto em `membros` como `coordenacao`. Depois disso, só por convite (`supabase/migrations/20261106130000_papeis_blindagem.sql`).
+- Política ou função nova que decida acesso lê o papel atual (`private.papel_no_mandato`, `private.pode_editar`, `private.eh_membro`), nunca `criado_por`. `excluir_mandato` exige `coordenacao`.
+- Motivo: o Verifier mostrou três caminhos pela API (sondas S-1 a S-3) em que `criado_por` subia o acesso ou sobrevivia à remoção.
+
 ## Handoff
 
 - **Feature**: `acesso-equipe-convites` (`.specs/features/acesso-equipe-convites/`)
-- **Phase / Task**: Fase 6 concluída; T1 a T37 implementadas e commitadas (T34 tirou o código de convite do Guia, T35 criou o modo somente leitura, T36 trocou a expressão no aviso de consentimento)
-- **Completed**: T1 a T37
+- **Phase / Task**: Fase 6 concluída; T1 a T37 implementadas e commitadas. Verifier 1 deu FAIL (`validation.md`); a correção 1 de 3 fechou as três falhas altas (sondas S-1 a S-3, ACE-03.2, 03.5, 03.6) na migration `20261106130000_papeis_blindagem.sql` (commits `336ae11`, `cb6f20d`, `fb8dd0e`) e a menor T15/E08 no teste do Guia (`f25911d`). T12 ficou como está (equivalente).
+- **Completed**: T1 a T37; correções 1 a 4 do `validation.md`
 - **In-progress**: nenhum
-- **Next step**: rodar o Verifier da feature; depois, com go-ahead explícito, `git push`, migration e deploy
+- **Next step**: rodar o Verifier de novo (iteração 2 de 3); depois, com go-ahead explícito, `git push`, migrations e deploy
 - **Blockers**: nenhum desta feature. Fora dela, 8 e2e do Guia já falhavam antes da fase 6 e falham igual com `acesso.js` vazio (`capital-acoes` 4, `rumo-painel` 3, `m1-etapas` 1)
 - **Uncommitted files**: só de outras frentes (`.pw-out-tmp/`, `AJUSTES_GUIA_100_DIAS.md`, `supabase/` na raiz, `graphify-out/`, `contexto inicial/`)
 - **Branch**: `feat/acesso-convites`
@@ -73,12 +79,12 @@
 1. Conferir "Confirmar e-mail" no Supabase (Authentication, Providers, Email). Ligado: quem é de fora pode não receber a confirmação (e-mail embutido) e o convite guardado no `sessionStorage` só vale na mesma aba; em outra aba ou aparelho a pessoa abre o link de novo.
 2. Incluir `<domínio>/convite` nas Redirect URLs do Supabase (sem isso o retorno do Google cai na raiz e é repassado).
 3. Depois do primeiro uso em produção, conferir se o `x-forwarded-for` chega à função do banco e qual IP é confiável: o primeiro costuma ser controlado pelo cliente, e trocar o cabeçalho contorna o limite de tentativas.
-4. Aplicar `20261106120000_convites_equipe.sql` só ao subir para a `main`, com go-ahead explícito.
+4. Aplicar `20261106120000_convites_equipe.sql` e `20261106130000_papeis_blindagem.sql`, nessa ordem, só ao subir para a `main`, com go-ahead explícito.
 5. A tela de membros do `/admin` precisa aceitar o papel `leitura` (spec `painel-admin`).
 
 **Acompanhamentos (fora do escopo desta feature):**
 
-1. Segurança: `authenticated` tem privilégios padrão excessivos (TRUNCATE, UPDATE, DELETE, TRIGGER, REFERENCES) em `mandatos`, `membros` e `eventos`; `excluir_mandato` aceita quem criou o mandato mesmo rebaixado a `leitura`; `membros_criar` deixa quem criou o mandato se reinserir com qualquer papel; `uso_funcionalidades` aceita insert de `leitura` (telemetria).
+1. Segurança: `authenticated` tem privilégios padrão excessivos (TRUNCATE, UPDATE, DELETE, TRIGGER, REFERENCES) em `mandatos`, `membros` e `eventos`; `uso_funcionalidades` aceita insert de `leitura` (telemetria).
 2. `excluir_meus_dados()` apaga a linha de membro sem checar coordenação e pode deixar o mandato sem coordenação.
 3. `convite_tentativas` e `convite_bloqueios` nunca são limpas (IPs se acumulam).
 4. O limite de 20 convites pendentes não trava a contagem: duas criações simultâneas podem chegar a 21.

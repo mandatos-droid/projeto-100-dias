@@ -8,7 +8,11 @@
 
 Corroborated across multiple features. Safe to apply as guidance.
 
-_none_
+### L-019 - Isolate each guard flag in its own test by satisfying the other guards, so a redundant guard cannot mask its removal.
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `e2e` · harmful: 0
+- features: painel-admin, acesso-equipe-convites
+- evidence: ilhas/ponte.tsx:137 (mutante E14, ADM-14.4) (e2e) (+1 more)
+- last seen: 2026-11-06T15:40:32Z
 
 ## Candidates (under observation - do NOT load as guidance yet)
 
@@ -122,17 +126,47 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: app/admin/page.tsx:33 (ADM-05, teto de 1.000 linhas sem registro) (routes)
 - last seen: 2026-11-06T04:46:47Z
 
-### L-019 - Isolate each guard flag in its own test by satisfying the other guards, so a redundant guard cannot mask its removal.
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e` · harmful: 0
-- features: painel-admin
-- evidence: ilhas/ponte.tsx:137 (mutante E14, ADM-14.4) (e2e)
-- last seen: 2026-11-06T04:46:47Z
-
 ### L-020 - Give a forbidden-field scanner in a test helper its own self-test with a polluted fixture.
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e` · harmful: 0
 - features: painel-admin
 - evidence: e2e/admin-api.ts:34 (mutantes E8 e E10) (e2e)
 - last seen: 2026-11-06T04:46:47Z
+
+### L-021 - Block API updates to any column that another policy or function trusts as authority, such as a creator id, and test the escalation through it.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `sql` · harmful: 0
+- features: acesso-equipe-convites
+- evidence: ACE-03.6 sonda S-1; plataforma/supabase/migrations/20261106120000_convites_equipe.sql:44 (sql)
+- last seen: 2026-11-06T15:40:31Z
+
+### L-022 - When a feature adds roles, route every existing policy and function that grants power by ownership through the new role check.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `sql` · harmful: 0
+- features: acesso-equipe-convites
+- evidence: ACE-03.2 sonda S-2; plataforma/supabase/migrations/20261020130000_excluir_mandato.sql:14 (sql)
+- last seen: 2026-11-06T15:40:31Z
+
+### L-023 - When code compares a flag with strict equality to true, add a test case with a truthy non-boolean value so the strictness is pinned.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `lib` · harmful: 0
+- features: acesso-equipe-convites
+- evidence: T12 plataforma/lib/convites/missoes.ts:15 (lib)
+- last seen: 2026-11-06T15:40:32Z
+
+### L-024 - When a criterion depends on concurrent transactions, plan a two-connection test on real Postgres instead of matching the lock in the function source.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `sql` · harmful: 0
+- features: acesso-equipe-convites
+- evidence: ACE-02.12, ACE-03.8 plataforma/tests/sql-convites.test.ts:775 (sql)
+- last seen: 2026-11-06T15:40:32Z
+
+### L-025 - Define in the spec which request header identifies the client for a rate limit and whether the client can forge it.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: acesso-equipe-convites
+- evidence: ACE-02.14 plataforma/supabase/migrations/20261106120000_convites_equipe.sql:394 (spec)
+- last seen: 2026-11-06T15:40:32Z
+
+### L-026 - List in the spec every existing path that removes a member, account deletion included, when a criterion protects a minimum membership.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: acesso-equipe-convites
+- evidence: ACE-03.7 excluir_meus_dados (spec)
+- last seen: 2026-11-06T15:40:32Z
 
 ## Quarantined (failed when applied - ignore)
 
