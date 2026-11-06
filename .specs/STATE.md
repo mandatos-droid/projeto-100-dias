@@ -45,12 +45,45 @@
 - Contas (filtros, status por mês, funil, travas) em funções puras de `plataforma/lib/admin/`, testadas com `node --test`; o SQL só entrega linhas mínimas.
 - Motivo: o RLS atual deixa a equipe ler a linha inteira de `mandatos` e `eventos` por API; as views e funções são a barreira de privacidade e de auditoria enquanto isso não for endurecido (feature `painel-admin`).
 
+### AD-008: Convite e equipe só por funções `security definer`; a falha que precisa persistir volta como dado (2026-11-06)
+
+- `convites`, `convite_tentativas` e `convite_bloqueios` não têm grant para `anon` nem `authenticated`; `eventos_equipe` só tem `select`. Criar, listar, cancelar, prever e aceitar convite, e trocar papel, remover e sair, passam por funções `security definer` com `set search_path = ''` (`supabase/migrations/20261106120000_convites_equipe.sql`).
+- Erro de regra vira `raise exception` com a mensagem da spec. Quando a tentativa precisa ficar gravada (token inválido, limite de tentativas), a função devolve `{ok:false, erro}` em vez de exceção, porque a exceção desfaria a gravação.
+- Motivo: nenhuma tabela de convite fica exposta ao navegador, o e-mail da equipe só sai para membros do mandato e o limite de tentativas funciona.
+
+### AD-009: Segredo de link vai no fragmento da URL (2026-11-06)
+
+- O token do convite fica em `/convite#<token>`, nunca no caminho nem na query. Vale para todo segredo novo levado em link.
+- O navegador não envia o fragmento ao servidor nem no `Referer`; `/convite` responde com `Referrer-Policy: no-referrer` e `X-Robots-Tag: noindex`.
+- Motivo: caminho e query aparecem nos logs da Vercel e no `Referer` de sites externos.
+
 ## Handoff
 
-Feature `missao2-3-reestruturacao`: T1 a T29 implementadas (T27A criada no fechamento para a sugestão do checklist). 497 testes unitários; e2e completo na T27 com 391 passando (mais o spec `migracao` corrigido e relançado, 5 de 5); `m23-migracao` e `m5-feedback` 24 de 24; `npm run build` passou na T27. Pendente: Verifier da feature, artefatos de `graphify-out/` (ficam para o orquestrador), `git push` e deploy aguardam go-ahead. Arquivos do usuário seguem não commitados (`graphify-out/`, `contexto inicial/`, `.vscode/`, `Alterador/`).
+- **Feature**: `acesso-equipe-convites` (`.specs/features/acesso-equipe-convites/`)
+- **Phase / Task**: Fase 6 concluída; T1 a T37 implementadas e commitadas (T34 tirou o código de convite do Guia, T35 criou o modo somente leitura, T36 trocou a expressão no aviso de consentimento)
+- **Completed**: T1 a T37
+- **In-progress**: nenhum
+- **Next step**: rodar o Verifier da feature; depois, com go-ahead explícito, `git push`, migration e deploy
+- **Blockers**: nenhum desta feature. Fora dela, 8 e2e do Guia já falhavam antes da fase 6 e falham igual com `acesso.js` vazio (`capital-acoes` 4, `rumo-painel` 3, `m1-etapas` 1)
+- **Uncommitted files**: só de outras frentes (`.pw-out-tmp/`, `AJUSTES_GUIA_100_DIAS.md`, `supabase/` na raiz, `graphify-out/`, `contexto inicial/`)
+- **Branch**: `feat/acesso-convites`
 
-Feature `missao5-avanco` concluída: T1 a T18 implementadas (sucessos mensais, monitoramento com link, feedback pelo organograma, novos planejamentos com arquivados somente leitura); 339 testes unitários e 319 e2e passando. `npm run build` falha só por `SecurityFatalError` do Next 16.4 (advisory conhecido). Pendente: validação (verifier) da feature, `git push` e deploy aguardam go-ahead. Arquivos do usuário seguem não commitados (`Equipe.tsx`, `Organograma.tsx`, `types.ts`, `novos.js`, `guia.js`, `cadastro.js`, entre outros).
+**Pendências manuais (dependem do dono do projeto):**
 
-Feature `missao4-capital-politico` concluída: T1 a T26. Rodada 1 do Verifier deu FAIL (2 mutantes em CAP-32); F1 (`84b5a69`, constante `LIMITE_BUSCAS_POR_HORA` testada) e F2 (`a449c89`, e2e do cabeçalho `Authorization`) fecharam as lacunas e a rodada 2 deu PASS (M2, M3 e E2 mortos; só M20 sobrevive, spec indefinida). 367 unit e 374 e2e passando, `tsc` ok; `validate_state.py` sai com 0. Observações não bloqueantes: lacunas de precisão da spec G1 a G7 (lições L-010 a L-013 seguem como candidatas no `lessons.py`). `git push` e deploy aguardam go-ahead.
+1. Conferir "Confirmar e-mail" no Supabase (Authentication, Providers, Email). Ligado: quem é de fora pode não receber a confirmação (e-mail embutido) e o convite guardado no `sessionStorage` só vale na mesma aba; em outra aba ou aparelho a pessoa abre o link de novo.
+2. Incluir `<domínio>/convite` nas Redirect URLs do Supabase (sem isso o retorno do Google cai na raiz e é repassado).
+3. Depois do primeiro uso em produção, conferir se o `x-forwarded-for` chega à função do banco e qual IP é confiável: o primeiro costuma ser controlado pelo cliente, e trocar o cabeçalho contorna o limite de tentativas.
+4. Aplicar `20261106120000_convites_equipe.sql` só ao subir para a `main`, com go-ahead explícito.
+5. A tela de membros do `/admin` precisa aceitar o papel `leitura` (spec `painel-admin`).
 
-Feature `sugestoes-m4` concluída (8 pedidos da Alana #46 a #53, lidos do Supabase por CLI em 2026-11-04): comissões (relatoria relevante, até 4 movimentos com data, Presidência da Casa), ações (resumo ou registro completo, meta do planejamento, ação escrita em cada frente) e comunicação (registro semanal/15 dias ou mensal, data certa do último registro). 525 unitários e 126 e2e `capital-` passando, `tsc` ok. Pendente: confirmação da Alana sobre as 5 suposições da spec, marcar as 8 linhas como resolvidas (escrita em produção), `git push` e deploy aguardam go-ahead. Fora de escopo: #33, #60 e #61 (Missão 3 e envio de sugestão).
+**Acompanhamentos (fora do escopo desta feature):**
+
+1. Segurança: `authenticated` tem privilégios padrão excessivos (TRUNCATE, UPDATE, DELETE, TRIGGER, REFERENCES) em `mandatos`, `membros` e `eventos`; `excluir_mandato` aceita quem criou o mandato mesmo rebaixado a `leitura`; `membros_criar` deixa quem criou o mandato se reinserir com qualquer papel; `uso_funcionalidades` aceita insert de `leitura` (telemetria).
+2. `excluir_meus_dados()` apaga a linha de membro sem checar coordenação e pode deixar o mandato sem coordenação.
+3. `convite_tentativas` e `convite_bloqueios` nunca são limpas (IPs se acumulam).
+4. O limite de 20 convites pendentes não trava a contagem: duas criações simultâneas podem chegar a 21.
+5. Não há botão "Sair do mandato" na UI (`membro_sair` no banco, `saiDoMandato` em `lib/convites/api.ts`); decidir onde entra.
+6. Textos sem definição exata na spec, para revisão do dono do produto: mensagens do GoTrue, "expira em N dias" (arredonda para cima, mínimo 1 dia), "Data de posse não informada", textos dos 6 eventos, ator só pelo primeiro nome; no Guia, o cartão "Abrir Equipe e convites", o aviso do modo nuvem ("acessíveis a quem tiver o link de convite") e a mensagem de `Store.entrarPorCodigo`.
+7. Modo somente leitura do Guia: campos das ilhas React ficam desabilitados (inclusive filtros), mas os botões das ilhas não são travados um a um; a gravação é barrada no `Store`.
+8. `lib/legacyBody.ts` é gerado por `scripts/extrair_legado.py`: uma nova extração devolve "código de convite" ao aviso (o teste `legado-acesso` acusa).
+9. Rodapé dos commits dos lotes 1, 2 e 4 usa "Claude Opus 5.5"; os demais, "Claude Sonnet 5.5".

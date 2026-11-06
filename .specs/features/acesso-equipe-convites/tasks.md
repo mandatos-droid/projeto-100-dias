@@ -1176,11 +1176,11 @@ T33 → T34 → T35 → T36 → T37
 
 **Done when**:
 
-- [ ] AD-008 (convite e equipe só por funções `security definer`, falha devolvida como dado quando a tentativa precisa persistir) e AD-009 (segredo de link no fragmento da URL) estão em `## Decisions`
-- [ ] O `## Handoff` lista as pendências manuais: conferir "Confirmar e-mail" no Supabase, conferir o cabeçalho `x-forwarded-for` em produção, incluir `/convite` nas Redirect URLs, aplicar a migration só com go-ahead e a tela de membros do `/admin` aceitar `leitura`
-- [ ] `excluir_meus_dados()` sem checagem de coordenação está registrada como acompanhamento
-- [ ] Gate check passes (Build): `npx tsc --noEmit`, `npm test`, `npx playwright test e2e/convite-*.spec.ts e2e/mandato-*.spec.ts e2e/guia-acesso.spec.ts`
-- [ ] A seção `## Decisions` anterior continua intacta
+- [x] AD-008 (convite e equipe só por funções `security definer`, falha devolvida como dado quando a tentativa precisa persistir) e AD-009 (segredo de link no fragmento da URL) estão em `## Decisions`
+- [x] O `## Handoff` lista as pendências manuais: conferir "Confirmar e-mail" no Supabase, conferir o cabeçalho `x-forwarded-for` em produção, incluir `/convite` nas Redirect URLs, aplicar a migration só com go-ahead e a tela de membros do `/admin` aceitar `leitura`
+- [x] `excluir_meus_dados()` sem checagem de coordenação está registrada como acompanhamento
+- [x] Gate check passes (Build): `npx tsc --noEmit`, `npm test`, `npx playwright test e2e/convite-*.spec.ts e2e/mandato-*.spec.ts e2e/guia-acesso.spec.ts`
+- [x] A seção `## Decisions` anterior continua intacta
 
 **Tests**: none
 **Gate**: build
