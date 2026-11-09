@@ -7,8 +7,9 @@ import { useMandato } from '../contexto.ts';
 import FormularioConvite from './FormularioConvite.tsx';
 import ListaConvites from './ListaConvites.tsx';
 import ListaPessoas from './ListaPessoas.tsx';
+import SairDoMandato from './SairDoMandato.tsx';
 
-// Tela Equipe e convites: formulário, convites pendentes e pessoas, nesta ordem (ACE-04.1).
+// Tela Equipe e convites: formulário, convites pendentes e pessoas, nesta ordem (ACE-04.1); por último, sair do mandato.
 export default function Equipe() {
   const { api, mandato, usuario } = useMandato();
   const [pessoas, setPessoas] = useState<PessoaEquipe[] | null>(null);
@@ -57,6 +58,7 @@ export default function Equipe() {
         aoTrocar={(id, papel) => setPessoas((l) => l && l.map((p) => (p.user_id === id ? { ...p, papel } : p)))}
         aoRemover={(id) => setPessoas((l) => l && l.filter((p) => p.user_id !== id))}
       />
+      <SairDoMandato pessoas={pessoas} />
     </>
   );
 }

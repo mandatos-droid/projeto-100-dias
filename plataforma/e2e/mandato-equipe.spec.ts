@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { TOKEN, naoMapeadas, rpcs, semeiaSessao } from './convite-api';
+import { TOKEN, esperaSemRpc, localDe, naoMapeadas, rpcs, semeiaSessao } from './convite-api';
 import { ANA, MANDATO_A, mocaMandato, pendente, pessoa, type EstadoMandato, type MandatoDaPessoa } from './mandato-api';
 
 /* Tela Equipe e convites (ACE-01, ACE-03.7, ACE-04). Supabase todo interceptado (mandato-api.ts). */
@@ -548,6 +548,115 @@ test.describe('Pessoas do mandato (ACE-04.1, 04.6 a 04.8, 04.10, 04.12, ACE-03.7
     await abrePessoas(page, 'coordenacao', {}, longos);
     await linhaDe(page, 'Bartolomeu').getByRole('button', { name: /^Remover/ }).click();
     await expect(linhaDe(page, 'Bartolomeu').getByRole('group')).toBeVisible();
+    const sobra = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(sobra).toBeLessThanOrEqual(0);
+  });
+});
+
+test.describe('Sair do mandato (ACE-04.14 a 04.18, ACE-03.9)', () => {
+  const area = (page: Page) => page.getByRole('region', { name: 'Sair do mandato' });
+  const botao = (page: Page) => area(page).getByRole('button', { name: 'Sair do mandato' });
+  const confirma = (page: Page) => area(page).getByRole('group', { name: 'Confirmar a saída do mandato' });
+  const linhaDe = (page: Page, quem: string) => page.locator('.md-pessoas li').filter({ hasText: quem });
+  const caminho = (page: Page) => new URL(page.url()).pathname;
+  const UNICA = 'Você é a única pessoa na coordenação. Promova outra pessoa para a Coordenação antes de sair.';
+  const MARIA = pessoa('Mariana Rocha', 'coordenacao', 'mariana@gabinete.test', 'uid-mariana');
+  const JOAO = pessoa('João Pereira', 'assessoria', 'joao@gabinete.test', 'uid-joao');
+  const JOAO_COORD = { ...JOAO, papel: 'coordenacao' };
+
+  // devolve as janelas do navegador (confirm, alert) que a página abriu: a confirmação é na própria página
+  async function abreSair(page: Page, meuPapel: string, equipe: ReturnType<typeof pessoa>[], extra: NonNullable<EstadoMandato['rpc']> = {}) {
+    const janelas: string[] = [];
+    page.on('dialog', (d) => { janelas.push(d.type()); d.dismiss().catch(() => {}); });
+    await abre(page, { mandatos: [comPapel(meuPapel)], rpc: { equipe_do_mandato: () => ({ corpo: equipe }), ...extra } });
+    await expect(page.locator('.md-pessoas li')).toHaveCount(equipe.length);
+    return janelas;
+  }
+
+  for (const meuPapel of ['coordenacao', 'assessoria', 'leitura']) {
+    test(`quem é ${meuPapel} vê "Sair do mandato" depois de "Pessoas neste mandato", fora da lista`, async ({ page }) => {
+      await abreSair(page, meuPapel, [{ ...EU, papel: meuPapel }, JOAO_COORD]);
+      await expect(botao(page)).toBeVisible();
+      await expect(botao(page)).toBeEnabled();
+      await expect(page.locator('.md-pessoas').getByRole('button', { name: 'Sair do mandato' })).toHaveCount(0);
+      const yPessoas = (await page.locator('.md-pessoas').boundingBox())!.y;
+      expect((await area(page).boundingBox())!.y).toBeGreaterThan(yPessoas);
+    });
+  }
+
+  test('clicar pede a confirmação na própria página; "Não sair" fecha sem chamar o banco; "Confirmar saída" chama membro_sair, apaga o mandato ativo e abre o Guia', async ({ page }) => {
+    const janelas = await abreSair(page, 'assessoria', [EU, JOAO_COORD], { membro_sair: () => ({}) });
+    expect(await localDe(page, 'legisla.mandatoAtual')).toBe(MANDATO_A);
+    await botao(page).click();
+    await expect(confirma(page)).toContainText('Sair de Ana Souza?');
+    await confirma(page).getByRole('button', { name: 'Não sair' }).click();
+    await expect(confirma(page)).toHaveCount(0);
+    expect(await esperaSemRpc(page, 'membro_sair')).toEqual([]);
+    await botao(page).click();
+    await confirma(page).getByRole('button', { name: 'Confirmar saída' }).click();
+    await expect(page.getByRole('heading', { name: 'Guia aberto' })).toBeVisible();
+    expect(caminho(page)).toBe('/guia');
+    expect(rpcs('membro_sair').map((c) => ({ corpo: c.corpo, token: c.token }))).toEqual([{ corpo: { p_mandato: MANDATO_A }, token: 'tok-mariana' }]);
+    expect(await localDe(page, 'legisla.mandatoAtual')).toBeNull();
+    expect(janelas).toEqual([]);
+  });
+
+  test('a única coordenação recebe a orientação no clique e o banco não é chamado', async ({ page }) => {
+    const janelas = await abreSair(page, 'coordenacao', [MARIA, JOAO], { membro_sair: () => ({}) });
+    await botao(page).click();
+    await expect(area(page).getByRole('alert')).toHaveText(UNICA);
+    await expect(confirma(page)).toHaveCount(0);
+    expect(await esperaSemRpc(page, 'membro_sair')).toEqual([]);
+    expect(caminho(page)).toBe('/mandato/equipe');
+    expect(await localDe(page, 'legisla.mandatoAtual')).toBe(MANDATO_A);
+    expect(janelas).toEqual([]);
+  });
+
+  test('com outra pessoa na coordenação, a coordenação confirma e sai', async ({ page }) => {
+    await abreSair(page, 'coordenacao', [MARIA, JOAO_COORD], { membro_sair: () => ({}) });
+    await botao(page).click();
+    await expect(area(page).getByRole('alert')).toHaveCount(0);
+    await confirma(page).getByRole('button', { name: 'Confirmar saída' }).click();
+    await expect(page.getByRole('heading', { name: 'Guia aberto' })).toBeVisible();
+    expect(rpcs('membro_sair').map((c) => c.corpo)).toEqual([{ p_mandato: MANDATO_A }]);
+  });
+
+  test('promover outra pessoa para a Coordenação na mesma tela libera a saída, sem recarregar', async ({ page }) => {
+    await abreSair(page, 'coordenacao', [MARIA, JOAO], { membro_trocar_papel: () => ({}) });
+    await botao(page).click();
+    await expect(area(page).getByRole('alert')).toHaveText(UNICA);
+    await linhaDe(page, 'João Pereira').getByLabel('Papel de João Pereira').selectOption('coordenacao');
+    await expect(linhaDe(page, 'João Pereira').getByLabel('Papel de João Pereira')).toHaveValue('coordenacao');
+    await expect(linhaDe(page, 'João Pereira').getByLabel('Papel de João Pereira')).toBeEnabled();
+    await botao(page).click();
+    await expect(area(page).getByRole('alert')).toHaveCount(0);
+    await expect(confirma(page)).toBeVisible();
+    expect(rpcs('equipe_do_mandato')).toHaveLength(1);
+  });
+
+  for (const [caso, resposta, mensagem] of [
+    ['a recusa da coordenação', { status: 400, corpo: { message: 'O mandato precisa ter ao menos uma pessoa na coordenação.' } }, 'O mandato precisa ter ao menos uma pessoa na coordenação.'],
+    ['a falha de rede', { rede: true }, 'Não foi possível concluir. Tente de novo.'],
+  ] as const) {
+    test(`${caso} ao sair mostra a mensagem e a pessoa continua na tela, com o mesmo mandato ativo`, async ({ page }) => {
+      // a lista ainda mostra outra coordenação, mas no banco ela já saiu
+      await abreSair(page, 'coordenacao', [MARIA, JOAO_COORD], { membro_sair: () => resposta });
+      await botao(page).click();
+      await confirma(page).getByRole('button', { name: 'Confirmar saída' }).click();
+      await expect(area(page).getByRole('alert')).toHaveText(mensagem);
+      await expect(confirma(page)).toHaveCount(0);
+      expect(rpcs('membro_sair')).toHaveLength(1);
+      expect(caminho(page)).toBe('/mandato/equipe');
+      expect(await localDe(page, 'legisla.mandatoAtual')).toBe(MANDATO_A);
+      await expect(botao(page)).toBeEnabled();
+    });
+  }
+
+  test('em 400 px, com a confirmação aberta, não há rolagem horizontal', async ({ page }) => {
+    await page.setViewportSize({ width: 400, height: 800 });
+    await abreSair(page, 'coordenacao', [MARIA, JOAO_COORD]);
+    await botao(page).click();
+    await expect(confirma(page)).toBeVisible();
     const sobra = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(sobra).toBeLessThanOrEqual(0);
   });

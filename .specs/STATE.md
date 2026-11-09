@@ -105,7 +105,7 @@
 2. `excluir_meus_dados()` apaga a linha de membro sem checar coordenação e pode deixar o mandato sem coordenação.
 3. `convite_tentativas` e `convite_bloqueios` nunca são limpas (IPs se acumulam).
 4. O limite de 20 convites pendentes não trava a contagem: duas criações simultâneas podem chegar a 21.
-5. Não há botão "Sair do mandato" na UI (`membro_sair` no banco, `saiDoMandato` em `lib/convites/api.ts`); decidir onde entra.
+5. Resolvido em 2026-11-09: o botão "Sair do mandato" fica na tela Equipe e convites, para qualquer papel (`app/mandato/equipe/SairDoMandato.tsx`, ACE-04.14 a 04.18).
 6. Textos sem definição exata na spec, para revisão do dono do produto: mensagens do GoTrue, "expira em N dias" (arredonda para cima, mínimo 1 dia), "Data de posse não informada", textos dos 6 eventos, ator só pelo primeiro nome; no Guia, o cartão "Abrir Equipe e convites", o aviso do modo nuvem ("acessíveis a quem tiver o link de convite") e a mensagem de `Store.entrarPorCodigo`.
 7. Modo somente leitura do Guia: campos das ilhas React ficam desabilitados (inclusive filtros), mas os botões das ilhas não são travados um a um; a gravação é barrada no `Store`.
 8. `lib/legacyBody.ts` é gerado por `scripts/extrair_legado.py`: uma nova extração devolve "código de convite" ao aviso (o teste `legado-acesso` acusa).

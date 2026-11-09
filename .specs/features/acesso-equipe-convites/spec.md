@@ -58,7 +58,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | Retenção de convites vencidos | Convites vencidos ou cancelados há mais de 30 dias são apagados quando alguém do mandato cria um novo convite | Evita guardar nome e e-mail de quem nunca entrou, sem precisar de rotina agendada | n |
 | Consentimento ao criar conta pelo convite | A página do convite mostra o mesmo aviso de consentimento do cadastro e grava em `consentimentos`, como o cadastro atual | A decisão registrada é que quem se cadastra consente o acesso da equipe Legisla | n |
 | Expressão "código de convite" no aviso | Trocada por "link de convite"; nenhuma outra palavra do aviso muda | Mantém o aviso coerente com a mudança sem tocar no texto jurídico | n |
-| Quem pode sair do mandato | Qualquer membro, em qualquer papel, desde que reste ao menos uma coordenação | A spec não restringe a saída por papel; sair é direito da própria pessoa | n |
+| Quem pode sair do mandato | Qualquer membro, em qualquer papel, pelo botão "Sair do mandato" da tela Equipe e convites, desde que reste ao menos uma coordenação; depois de sair, o Guia abre outro mandato da pessoa ou o primeiro acesso | Decisão do usuário em 2026-11-09 (botão na tela Equipe, confirmação na própria página); sair é direito da própria pessoa | y |
 | Cancelar convite que já não está pendente | Não faz nada e não grava evento | O estado final não volta e nenhuma mensagem nova é necessária | n |
 | Cancelar convite de quem já saiu do mandato | Só quem ainda é membro cancela, mesmo sendo o criador do convite | Ex-membro não deve mexer em dados do mandato | n |
 | Convite de quem perdeu o papel | Enquanto quem criou o convite está no mandato, ele vale se o papel atual dessa pessoa é igual ou maior que o do convite, conferido na prévia e no aceite; volta a valer se ela recuperar o papel antes do vencimento. Quem sai por conta própria mantém os convites até o papel que tinha ao sair. Remoção (pela coordenação ou pelo `/admin`), conta apagada e dados excluídos fazem os convites deixarem de valer. Quem volta ao mandato passa a valer pelo papel atual, e a saída seguinte grava o papel novo. Convite que não vale responde como convite que não vale mais, sai de "Convites pendentes" e não conta no limite de 20 | Sem isso, quem foi rebaixado ou removido volta ao papel antigo aceitando um convite que criou antes (sonda V-1 do Verifier). Decisão do usuário em 2026-11-09 (AD-012, supera em parte o AD-011): sair por conta própria não invalida os convites, sem reabrir a V-1 | y |
@@ -175,8 +175,13 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 11. IF a lista de convites pendentes está vazia THEN the tela SHALL mostrar "Nenhum convite pendente." <!-- unwanted-behavior -->
 12. The tela SHALL mostrar a linha "A equipe da Legisla acompanha este mandato, conforme o cadastro." <!-- ubiquitous -->
 13. The tela SHALL funcionar em largura de celular (400 px) sem rolagem horizontal da página. <!-- ubiquitous -->
+14. The tela SHALL mostrar o botão "Sair do mandato" a quem a vê, em qualquer papel, depois de "Pessoas neste mandato". <!-- ubiquitous -->
+15. WHEN a pessoa clica em "Sair do mandato" THEN the tela SHALL pedir a confirmação na própria página, sem janela do navegador, e só "Confirmar saída" chama o banco. <!-- event-driven -->
+16. WHEN a pessoa confirma e o banco a tira do mandato (ACE-03.9) THEN the sistema SHALL apagar o mandato ativo guardado no navegador (`legisla.mandatoAtual`) e abrir o Guia, que abre outro mandato da pessoa ou o primeiro acesso. <!-- event-driven -->
+17. IF a pessoa é `coordenacao` e nenhuma outra pessoa da lista é `coordenacao` THEN the tela SHALL responder ao clique em "Sair do mandato" com "Você é a única pessoa na coordenação. Promova outra pessoa para a Coordenação antes de sair." e não chamar o banco. <!-- unwanted-behavior -->
+18. IF o banco recusa a saída THEN the tela SHALL mostrar a mensagem da recusa ("O mandato precisa ter ao menos uma pessoa na coordenação." ou "Não foi possível concluir. Tente de novo.") e a pessoa continuar na tela, com o mesmo mandato ativo. <!-- unwanted-behavior -->
 
-**Independent Test**: Abrir a tela como `coordenacao`, gerar convite, vê-lo em pendentes, cancelá-lo; trocar o papel de uma pessoa; abrir como `leitura` e ver tudo sem controles de edição.
+**Independent Test**: Abrir a tela como `coordenacao`, gerar convite, vê-lo em pendentes, cancelá-lo; trocar o papel de uma pessoa; abrir como `leitura` e ver tudo sem controles de edição, salvo "Sair do mandato"; sair e cair no Guia.
 
 ---
 
@@ -247,7 +252,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 - IF a pessoa fecha a página no meio do login com Google THEN the convite SHALL continuar válido e não consumido até a confirmação.
 - IF a sessão expira durante o aceite THEN the página SHALL pedir novo login e retomar o mesmo convite.
 - WHEN o convite é aceito por conta com e-mail diferente do preenchido THEN the sistema SHALL recusar sem consumir, pelo critério P1 Aceitar, item 9.
-- IF o último `coordenacao` tenta sair do mandato THEN the sistema SHALL recusar e orientar a promover outra pessoa antes.
+- IF o último `coordenacao` tenta sair do mandato THEN the sistema SHALL recusar e orientar a promover outra pessoa antes (ACE-03.7, ACE-04.17).
 
 ---
 
@@ -284,6 +289,8 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 ACE-02.16 e ACE-03.12 (o convite vale só com a autoridade atual de quem o criou) entraram na correção 2 do Verifier, pela sonda V-1 (AD-011): `supabase/migrations/20261106140000_convites_autoridade.sql`, testes em `tests/sql-convites.test.ts`.
 
 ACE-02.17 e ACE-02.18, e a nova redação de ACE-02.16 e ACE-03.12, vêm da decisão do usuário de 2026-11-09 (AD-012): o convite de quem sai por conta própria vale até o papel que a pessoa tinha ao sair. `supabase/migrations/20261106150000_convites_de_quem_sai.sql` (coluna `convites.papel_ao_sair`, gatilho `membros_reentrada`), testes em `tests/sql-convites.test.ts` (seção AD-012).
+
+ACE-04.14 a ACE-04.18 (botão "Sair do mandato") também vêm da decisão do usuário de 2026-11-09: `app/mandato/equipe/SairDoMandato.tsx`, testes em `e2e/mandato-equipe.spec.ts` (bloco "Sair do mandato").
 
 **ID format:** `[CATEGORY]-[NUMBER]`; critérios são citados como `ACE-02.9` (história, número do critério).
 
