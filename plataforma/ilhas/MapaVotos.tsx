@@ -113,7 +113,7 @@ export default function MapaVotos({ uf, casa, sq, nome, totalUF }: { uf: string;
 
       <div className="mv-corpo">
         <div className="mv-mapa" ref={caixa} onMouseMove={move} onMouseLeave={() => { setFoco(null); setMouse(null); }}>
-          <SvgZoom w={g.w} h={g.h} className="mapa" rotulo={`Votos de ${nome} por município`}>
+          <SvgZoom w={g.w} h={g.h} className="mapa" rotulo={`Votos de ${nome} por município`} nomes={g}>
             {g.mun.map((m) => {
               const l = porId.get(m.id)!;
               return (

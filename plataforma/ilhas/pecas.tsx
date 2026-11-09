@@ -3,6 +3,7 @@ import { memo, useEffect, useMemo, useRef, useState, type ReactNode } from 'reac
 import { corPartido, posEspectro } from '@/lib/partidos';
 import type { GeoUF, Relacao, Status } from '@/lib/types';
 import { marca, statusDe } from './ponte';
+import { RotulosMun, useLarguraPx } from './RotulosMun';
 
 /** Ícone “i” que abre uma explicação curta ao lado de um número ou visualização (clique, toque ou foco).
     A caixa é posicionada em relação à janela, para nunca ficar cortada na borda nem atrás de outra caixa. */
@@ -188,12 +189,15 @@ export function Hemiciclo({ membros, partidos, filtroStatus, visivel, selecionad
 }
 
 /* ---------- svg com botões de zoom (+, −, ver tudo) e arrasto quando aproximado ---------- */
-export function SvgZoom({ w, h, className, rotulo, role = 'img', children }: {
+export function SvgZoom({ w, h, className, rotulo, role = 'img', nomes, children }: {
   w: number; h: number; className: string; rotulo: string; role?: 'img' | 'group'; children: ReactNode;
+  /** mapa de municípios: mostra o nome das cidades maiores, mais nomes a cada aproximação */
+  nomes?: GeoUF;
 }) {
   const [v, setV] = useState({ k: 1, cx: w / 2, cy: h / 2 });
   const arr = useRef<{ x: number; y: number; cx: number; cy: number; moveu: boolean } | null>(null);
   const el = useRef<SVGSVGElement>(null);
+  const px = useLarguraPx(el);
   const limita = (n: { k: number; cx: number; cy: number }) => {
     const k = Math.min(10, Math.max(1, n.k)), vw = w / k, vh = h / k;
     return { k, cx: Math.min(w - vw / 2, Math.max(vw / 2, n.cx)), cy: Math.min(h - vh / 2, Math.max(vh / 2, n.cy)) };
@@ -216,6 +220,7 @@ export function SvgZoom({ w, h, className, rotulo, role = 'img', children }: {
         onPointerLeave={() => { arr.current = null; }}
         onClickCapture={(e) => { if (arr.current?.moveu) { e.stopPropagation(); e.preventDefault(); } }}>
         {children}
+        {nomes && px > 0 && <RotulosMun geo={nomes} k={v.k} upp={vw / px} caixa={{ x: v.cx - vw / 2, y: v.cy - vh / 2, w: vw, h: vh }} />}
       </svg>
       <div className="cj-zoom" role="group" aria-label="Zoom do mapa">
         <button type="button" aria-label="Aproximar" onClick={() => zoom(1.8)}>+</button>
@@ -232,7 +237,7 @@ function MapaBase({ geo, fill, selecionado, onSelecionar, titulo }: {
   onSelecionar: (id: string) => void; titulo: (id: string, nome: string) => string;
 }) {
   return (
-    <SvgZoom w={geo.w} h={geo.h} className="mapa" rotulo="Mapa dos municípios">
+    <SvgZoom w={geo.w} h={geo.h} className="mapa" rotulo="Mapa dos municípios" nomes={geo}>
       {geo.mun.map((m) => (
         <path key={m.id} d={m.d} fill={fill(m.id)} onClick={() => onSelecionar(m.id)}>
           <title>{titulo(m.id, m.nm)}</title>

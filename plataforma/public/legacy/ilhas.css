@@ -1032,3 +1032,5 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 #tela .res2 ul.frag b{display:grid;place-items:center;flex:none;width:1.5rem;height:1.5rem;border-radius:2px;background:var(--tinta-3);font-family:'Anton',sans-serif;font-weight:400;font-size:.8rem;color:#fff}
 #tela .res2 ul.frag b.M{background:var(--verde)}
 #tela .res2 ul.frag b.P{background:var(--vinho)}
+/* nomes das cidades no mapa: branco com contorno escuro, legível sobre qualquer cor */
+.rot-mun text{fill:#fff;stroke:rgba(20,16,24,.85);stroke-linejoin:round;paint-order:stroke;font-weight:700;font-family:system-ui,sans-serif;vector-effect:none}

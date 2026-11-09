@@ -2,6 +2,7 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GeoUF } from '@/lib/types';
 import { COR_REL } from './pecas';
+import { RotulosMun, useLarguraPx } from './RotulosMun';
 
 /** Valor de um município na camada ativa: cor de preenchimento e linhas do balão. */
 export type Celula = { fill: string; titulo: string; linhas: string[] };
@@ -89,6 +90,7 @@ export default function MapaConjuntura({ geo, celulas, selecionado, casa = null,
   useEffect(() => () => cancelAnimationFrame(anim.current), []);
 
   const w = geo.w / vista.k, h = geo.h / vista.k, x = vista.cx - w / 2, y = vista.cy - h / 2;
+  const px = useLarguraPx(svg);
 
   // roda do mouse: zoom em torno do cursor (precisa de listener não passivo para segurar a rolagem da página)
   useEffect(() => {
@@ -153,6 +155,7 @@ export default function MapaConjuntura({ geo, celulas, selecionado, casa = null,
         {foco && focoGeo && foco !== selecionado && <path d={focoGeo.d} className="cj-hover" pointerEvents="none" />}
         {multi && geo.mun.filter((m) => multi.has(m.id)).map((m) => <path key={m.id} d={m.d} className="cj-sel2" pointerEvents="none" />)}
         {selGeo && <path d={selGeo.d} className="cj-sel" pointerEvents="none" />}
+        {px > 0 && <RotulosMun geo={geo} k={vista.k} upp={w / px} caixa={{ x, y, w, h }} />}
         {mostraMarcas && Object.entries(marcas).map(([id, mk]) => {
           if (!caixas[id]) return null;
           const c = centro(id);
