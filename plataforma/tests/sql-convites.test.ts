@@ -1078,6 +1078,266 @@ test('o limite de 20 conta só convites com autoridade: 20 de coordenação de q
   });
 });
 
+// ---------- AD-012: convites de quem sai por conta própria valem até o papel que a pessoa tinha ao sair ----------
+
+const MANDATO_A = { nome_parlamentar: 'Parlamentar Um', cargo: 'Deputada Federal', uf: 'SP' };
+const removerDe = (mandato: string, user: string) => banco.query('select public.membro_remover($1, $2)', [mandato, user]);
+// prévia anônima de cada token: 'vale' ou 'invalido' (a resposta exata do token inexistente, ACE-02.10)
+const situacao = async (...tokens: string[]) => {
+  const r: string[] = [];
+  for (const t of tokens) {
+    await como(banco, null);
+    const p = await previa(t);
+    r.push(p.ok === true ? 'vale' : JSON.stringify(p) === JSON.stringify(INVALIDO) ? 'invalido' : JSON.stringify(p));
+  }
+  return r;
+};
+// Mario sai do A como coordenação; antes, Alice vira coordenação para o mandato não ficar sem
+const marioSaiComoCoordenacao = async () => {
+  await como(banco, IDS.membro);
+  await trocarPapel(ASSESSORIA, 'coordenacao');
+  await como(banco, IDS.membro);
+  await sairDoMandato();
+};
+
+test('quem sai por conta própria como coordenação mantém o convite de coordenação: vale na prévia, nos pendentes e no aceite por outra pessoa (ACE-02.17)', async () => {
+  await contas();
+  await como(banco, IDS.membro);
+  const { token } = await criar('Reserva', 'coordenacao');
+  await marioSaiComoCoordenacao();
+  await como(banco, null);
+  assert.deepEqual(await previa(token),
+    { ok: true, nome: 'Reserva', papel: 'coordenacao', convidado_por: 'Mario Membro', mandato: MANDATO_A, exige_email: false });
+  assert.deepEqual(await nomesListados(ASSESSORIA), ['Reserva']);
+  await como(banco, DORA);
+  assert.deepEqual(await aceitar(token), { ok: true, mandato_id: IDS.mandatoA, ja_membro: false });
+  assert.deepEqual(await estadoDo(token), { usado: true, usado_por: DORA, cancelado: false });
+  assert.deepEqual(await membrosDe(), {
+    [ASSESSORIA]: 'Alice Assessoria/coordenacao', [LEITOR]: 'Leo Leitor/leitura', [DORA]: 'Dora Dias/coordenacao',
+  });
+});
+
+test('quem sai como assessoria mantém os convites de assessoria e leitura; o de coordenação, criado antes de ser rebaixada, não vale (ACE-02.16, ACE-02.17)', async () => {
+  await contas();
+  // criado quando Alice ainda era coordenação
+  await insereConvite({ token: 'coordenacao-da-alice', nome: 'Coordenação da Alice', papel: 'coordenacao', por: ASSESSORIA, porNome: 'Alice Assessoria' });
+  await como(banco, ASSESSORIA);
+  const assessoria = await criar('Assessoria da Alice', 'assessoria');
+  await como(banco, ASSESSORIA);
+  const leitura = await criar('Leitura da Alice', 'leitura');
+  await como(banco, ASSESSORIA);
+  await sairDoMandato();
+  assert.deepEqual(await situacao('coordenacao-da-alice', assessoria.token, leitura.token), ['invalido', 'vale', 'vale']);
+  assert.deepEqual(await nomesListados(IDS.membro), ['Assessoria da Alice', 'Leitura da Alice']);
+  await como(banco, CARLOS);
+  assert.deepEqual(await aceitar('coordenacao-da-alice'), INVALIDO);
+  assert.deepEqual(await estadoDo('coordenacao-da-alice'), NAO_USADO);
+  await como(banco, CARLOS);
+  assert.deepEqual(await aceitar(assessoria.token), { ok: true, mandato_id: IDS.mandatoA, ja_membro: false });
+  await como(banco, DORA);
+  assert.deepEqual(await aceitar(leitura.token), { ok: true, mandato_id: IDS.mandatoA, ja_membro: false });
+  assert.deepEqual(await membrosDe(), {
+    [IDS.membro]: 'Mario Membro/coordenacao', [LEITOR]: 'Leo Leitor/leitura', [CARLOS]: 'Carlos Lima/assessoria', [DORA]: 'Dora Dias/leitura',
+  });
+});
+
+test('sonda V-1 na regra nova: a coordenação rebaixada a leitura que depois sai não volta à coordenação pelo próprio convite, com nenhuma conta; o de leitura segue valendo (ACE-02.16, ACE-03.12)', async () => {
+  await contas();
+  await consentem(IDS.membro);
+  await como(banco, IDS.membro);
+  const coordenacao = await criar('Reserva', 'coordenacao');
+  await como(banco, IDS.membro);
+  const leitura = await criar('Leitura', 'leitura');
+  await como(banco, IDS.membro);
+  await trocarPapel(ASSESSORIA, 'coordenacao');
+  await como(banco, ASSESSORIA);
+  await trocarPapel(IDS.membro, 'leitura');
+  await como(banco, IDS.membro);
+  await sairDoMandato();
+  assert.deepEqual(await situacao(coordenacao.token, leitura.token), ['invalido', 'vale']);
+  assert.deepEqual(await nomesListados(ASSESSORIA), ['Leitura']);
+  for (const quem of [IDS.membro, CARLOS]) {
+    await como(banco, quem);
+    assert.deepEqual(await aceitar(coordenacao.token), INVALIDO, quem);
+  }
+  assert.deepEqual(await estadoDo(coordenacao.token), NAO_USADO);
+  await como(banco, IDS.membro);
+  assert.deepEqual(await aceitar(leitura.token), { ok: true, mandato_id: IDS.mandatoA, ja_membro: false });
+  assert.deepEqual(await membrosDe(), {
+    [IDS.membro]: 'Mario Membro/leitura', [ASSESSORIA]: 'Alice Assessoria/coordenacao', [LEITOR]: 'Leo Leitor/leitura',
+  });
+});
+
+test('removida pela coordenação ou pelo /admin, a pessoa perde todos os convites que criou, mesmo os de leitura (ACE-02.16, ACE-03.12)', async () => {
+  await como(banco, LEITOR);
+  const doLeo = await criar('Do Leo', 'leitura');
+  await como(banco, ASSESSORIA);
+  const daAlice = await criar('Da Alice', 'leitura');
+  await como(banco, IDS.membro);
+  await removerMembro(LEITOR);
+  await como(banco, IDS.admin);
+  await banco.query('select public.admin_membro_remover($1, $2)', [IDS.mandatoA, ASSESSORIA]);
+  assert.deepEqual(await situacao(doLeo.token, daAlice.token), ['invalido', 'invalido']);
+  assert.deepEqual(await nomesListados(IDS.membro), []);
+});
+
+test('quem sai por conta própria e depois tem a conta apagada perde os convites (ACE-02.16)', async () => {
+  await contas();
+  await como(banco, IDS.membro);
+  const { token } = await criar('Reserva', 'coordenacao');
+  await marioSaiComoCoordenacao();
+  assert.deepEqual(await situacao(token), ['vale']);
+  await comoDono(banco);
+  await banco.query('delete from auth.users where id = $1', [IDS.membro]);
+  assert.deepEqual(await situacao(token), ['invalido']);
+  assert.deepEqual(await nomesListados(ASSESSORIA), []);
+  await como(banco, DORA);
+  assert.deepEqual(await aceitar(token), INVALIDO);
+  assert.deepEqual(await estadoDo(token), NAO_USADO);
+});
+
+test('quem sai por conta própria e depois exclui os próprios dados perde os convites; os de outra pessoa que saiu seguem valendo (ACE-02.16, ACE-02.17)', async () => {
+  await como(banco, IDS.membro);
+  const doMario = await criar('Do Mario', 'coordenacao');
+  await como(banco, ASSESSORIA);
+  const daAlice = await criar('Da Alice', 'assessoria');
+  await como(banco, IDS.membro);
+  await trocarPapel(LEITOR, 'coordenacao');
+  for (const quem of [IDS.membro, ASSESSORIA]) {
+    await como(banco, quem);
+    await sairDoMandato();
+  }
+  assert.deepEqual(await situacao(doMario.token, daAlice.token), ['vale', 'vale']);
+  await como(banco, IDS.membro);
+  await banco.query('select public.excluir_meus_dados()');
+  assert.deepEqual(await situacao(doMario.token, daAlice.token), ['invalido', 'vale']);
+  assert.deepEqual(await nomesListados(LEITOR), ['Da Alice']);
+});
+
+test('quem sai, volta por outro convite com papel menor e depois é removida: dentro vale o papel atual e, removida, o convite antigo não volta a valer (ACE-02.18, ACE-03.12)', async () => {
+  await consentem(IDS.membro);
+  await como(banco, IDS.membro);
+  const reserva = await criar('Reserva', 'coordenacao');
+  await marioSaiComoCoordenacao();
+  await como(banco, ASSESSORIA);
+  const volta = await criar('Volta', 'leitura');
+  await como(banco, IDS.membro);
+  assert.deepEqual(await aceitar(volta.token), { ok: true, mandato_id: IDS.mandatoA, ja_membro: false });
+  // de volta como leitura: vale o papel atual
+  assert.deepEqual(await situacao(reserva.token), ['invalido']);
+  assert.deepEqual(await nomesListados(ASSESSORIA), []);
+  await como(banco, ASSESSORIA);
+  await removerMembro(IDS.membro);
+  assert.deepEqual(await situacao(reserva.token), ['invalido']);
+  await como(banco, IDS.membro);
+  assert.deepEqual(await aceitar(reserva.token), INVALIDO);
+  assert.deepEqual(await nomesListados(ASSESSORIA), []);
+  assert.deepEqual(await estadoDo(reserva.token), NAO_USADO);
+  assert.deepEqual(await membrosDe(), { [ASSESSORIA]: 'Alice Assessoria/coordenacao', [LEITOR]: 'Leo Leitor/leitura' });
+});
+
+test('a volta pelo /admin também descarta o papel da saída: removida depois, a pessoa não recupera o convite de coordenação (ACE-02.18)', async () => {
+  await como(banco, IDS.membro);
+  const reserva = await criar('Reserva', 'coordenacao');
+  await marioSaiComoCoordenacao();
+  await como(banco, IDS.admin);
+  await banco.query('select public.admin_membro_adicionar($1, $2, $3)', [IDS.mandatoA, IDS.membro, 'assessoria']);
+  assert.deepEqual(await situacao(reserva.token), ['invalido']);
+  await como(banco, IDS.admin);
+  await banco.query('select public.admin_membro_remover($1, $2)', [IDS.mandatoA, IDS.membro]);
+  assert.deepEqual(await situacao(reserva.token), ['invalido']);
+  assert.deepEqual(await nomesListados(ASSESSORIA), []);
+});
+
+test('quem sai duas vezes vale pelo papel da última saída (ACE-02.17, ACE-02.18)', async () => {
+  await consentem(IDS.membro);
+  await como(banco, IDS.membro);
+  const reserva = await criar('Reserva', 'coordenacao');
+  await marioSaiComoCoordenacao();
+  assert.deepEqual(await situacao(reserva.token), ['vale']);
+  await como(banco, ASSESSORIA);
+  const volta = await criar('Volta', 'leitura');
+  await como(banco, IDS.membro);
+  assert.deepEqual(await aceitar(volta.token), { ok: true, mandato_id: IDS.mandatoA, ja_membro: false });
+  await como(banco, IDS.membro);
+  await sairDoMandato();
+  assert.deepEqual(await situacao(reserva.token), ['invalido']);
+  assert.deepEqual(await nomesListados(ASSESSORIA), []);
+});
+
+test('a saída vale só para os convites da própria pessoa no mandato de que ela saiu (ACE-02.16, ACE-02.17)', async () => {
+  // Mario é coordenação também do mandato B
+  await comoDono(banco);
+  await banco.query(`insert into public.membros (mandato_id, user_id, nome, papel) values ($1, $2, 'Mario Membro', 'coordenacao')`,
+    [IDS.mandatoB, IDS.membro]);
+  await como(banco, IDS.membro);
+  const doA = await criar('Reserva A', 'coordenacao');
+  await como(banco, IDS.membro);
+  const doB = await criar('Reserva B', 'coordenacao', null, IDS.mandatoB);
+  await como(banco, LEITOR);
+  const doLeo = await criar('Do Leo', 'leitura');
+  await marioSaiComoCoordenacao();
+  // fora do A e ainda coordenação do B: o convite do A vale pelo papel da saída
+  assert.deepEqual(await situacao(doA.token, doB.token, doLeo.token), ['vale', 'vale', 'vale']);
+  // removidos depois (Leo do A, Mario do B), os convites deles deixam de valer
+  await como(banco, ASSESSORIA);
+  await removerMembro(LEITOR);
+  await como(banco, COORD_B);
+  await removerDe(IDS.mandatoB, IDS.membro);
+  assert.deepEqual(await situacao(doA.token, doB.token, doLeo.token), ['vale', 'invalido', 'invalido']);
+  assert.deepEqual(await nomesListados(ASSESSORIA), ['Reserva A']);
+});
+
+test('entrar em outro mandato, ou outra pessoa entrar no mandato, não descarta o papel de quem saiu (ACE-02.17, ACE-02.18)', async () => {
+  await contas();
+  await consentem(IDS.membro);
+  await como(banco, IDS.membro);
+  const primeiro = await criar('Primeiro', 'coordenacao');
+  await como(banco, IDS.membro);
+  const segundo = await criar('Segundo', 'coordenacao');
+  await marioSaiComoCoordenacao();
+  // Dora entra no A pelo convite de Mario
+  await como(banco, DORA);
+  assert.deepEqual(await aceitar(primeiro.token), { ok: true, mandato_id: IDS.mandatoA, ja_membro: false });
+  // Mario entra no B
+  await como(banco, COORD_B);
+  const noB = await criar('Mario no B', 'leitura', null, IDS.mandatoB);
+  await como(banco, IDS.membro);
+  assert.deepEqual(await aceitar(noB.token), { ok: true, mandato_id: IDS.mandatoB, ja_membro: false });
+  assert.deepEqual(await situacao(segundo.token), ['vale']);
+  assert.deepEqual(await nomesListados(ASSESSORIA), ['Segundo']);
+});
+
+test('os convites de quem saiu por conta própria contam no limite de 20 (ACE-01.9, ACE-02.17)', async () => {
+  for (let i = 1; i <= 20; i++) {
+    await como(banco, IDS.membro);
+    await criar(`Antigo ${i}`, 'coordenacao');
+  }
+  await marioSaiComoCoordenacao();
+  assert.equal((await nomesListados(ASSESSORIA)).length, 20);
+  await como(banco, ASSESSORIA);
+  await assert.rejects(criar('Novo 21', 'leitura'), VINTE_PENDENTES);
+  await comoDono(banco);
+  assert.equal((await q(`select 1 from public.convites where nome = 'Novo 21'`)).length, 0);
+});
+
+test('os convites de coordenação de quem foi rebaixada a leitura e depois saiu não contam no limite de 20 (ACE-01.9, ACE-02.16)', async () => {
+  for (let i = 1; i <= 20; i++) {
+    await como(banco, IDS.membro);
+    await criar(`Antigo ${i}`, 'coordenacao');
+  }
+  await como(banco, IDS.membro);
+  await trocarPapel(ASSESSORIA, 'coordenacao');
+  await como(banco, ASSESSORIA);
+  await trocarPapel(IDS.membro, 'leitura');
+  await como(banco, IDS.membro);
+  await sairDoMandato();
+  assert.deepEqual(await nomesListados(ASSESSORIA), []);
+  await como(banco, ASSESSORIA);
+  await criar('Novo 1', 'leitura');
+  assert.deepEqual(await nomesListados(ASSESSORIA), ['Novo 1']);
+});
+
 // ---------- T13: código de convite antigo aposentado ----------
 
 test('entrar_com_codigo com código válido falha por falta de permissão para authenticated e anon, e ninguém entra (ACE-07.1)', async () => {

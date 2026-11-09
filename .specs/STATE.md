@@ -69,6 +69,14 @@
 - Trocar papel, remover e sair não cancelam convites: se a pessoa recuperar o papel antes do vencimento, o convite volta a valer.
 - Efeito colateral: o convite de quem saiu do mandato (ou teve a conta apagada) deixa de valer, e o de quem foi rebaixado vale só até o novo papel. Decisão tomada pelo orquestrador com base no objetivo 3 da spec e na linha "Limite do papel concedido"; **a confirmar pelo dono do produto**. A alternativa mínima, se ele quiser manter esses convites, é recusar só o aceite pela própria pessoa que criou (`auth.uid() = convites.criado_por`); ela não fecha o caso de uma segunda conta da mesma pessoa.
 - Motivo: sonda V-1 do Verifier (iteração 2). A coordenação rebaixada a `leitura`, ou removida, voltava como `coordenacao` aceitando um convite que tinha criado antes, e removia quem a rebaixou (ACE-02.16, ACE-03.12).
+- **Status**: superado em parte pelo AD-012 (2026-11-09). O dono do produto confirmou a regra para rebaixamento, remoção e conta apagada; quem sai por conta própria passa a manter os convites.
+
+### AD-012: Quem sai por conta própria mantém os convites até o papel que tinha ao sair (2026-11-09)
+
+- `membro_sair` grava em `convites.papel_ao_sair` o papel da pessoa, em todos os convites dela naquele mandato; cada saída sobrescreve a anterior. Fora do mandato, o convite vale se esse papel é igual ou maior que o do convite (`private.convite_autorizado(mandato, criado_por, papel, papel_ao_sair)`), na prévia, no aceite, nos pendentes e no limite de 20 (`supabase/migrations/20261106150000_convites_de_quem_sai.sql`).
+- A V-1 segue fechada. Quem é rebaixado e depois sai grava o papel menor. Remoção (pela coordenação ou pelo `/admin`) não grava nada. Conta apagada (`criado_por` nulo) e `excluir_meus_dados()` fazem o convite não valer. O gatilho `membros_reentrada` zera `papel_ao_sair` quando a pessoa entra de novo no mandato, por qualquer caminho, e daí vale o papel atual.
+- Regra para código novo: caminho novo de saída voluntária grava `papel_ao_sair`; caminho novo de remoção não grava; entrada nova em `membros` já passa pelo gatilho.
+- Motivo: decisão do usuário de 2026-11-09. A regra proposta sem a trava de conta apagada e sem o gatilho reabria a V-1 em dois casos, provados por sonda antes da implementação: sair e depois ter a conta apagada; sair, voltar por outro convite e ser removida.
 
 ## Handoff
 
@@ -86,9 +94,10 @@
 1. Conferir "Confirmar e-mail" no Supabase (Authentication, Providers, Email). Ligado: quem é de fora pode não receber a confirmação (e-mail embutido) e o convite guardado no `sessionStorage` só vale na mesma aba; em outra aba ou aparelho a pessoa abre o link de novo.
 2. Incluir `<domínio>/convite` nas Redirect URLs do Supabase (sem isso o retorno do Google cai na raiz e é repassado).
 3. Depois do primeiro uso em produção, conferir se o `x-forwarded-for` chega à função do banco e qual IP é confiável: o primeiro costuma ser controlado pelo cliente, e trocar o cabeçalho contorna o limite de tentativas.
-4. Aplicar `20261106120000_convites_equipe.sql`, `20261106130000_papeis_blindagem.sql` e `20261106140000_convites_autoridade.sql`, nessa ordem, só ao subir para a `main`, com go-ahead explícito.
+4. Aplicar `20261106120000_convites_equipe.sql`, `20261106130000_papeis_blindagem.sql`, `20261106140000_convites_autoridade.sql` e `20261106150000_convites_de_quem_sai.sql`, nessa ordem, só ao subir para a `main`, com go-ahead explícito.
 5. A tela de membros do `/admin` precisa aceitar o papel `leitura` (spec `painel-admin`).
-6. Confirmar o AD-011: o convite de quem saiu do mandato, ou foi rebaixado abaixo do papel do convite, deixa de valer.
+6. AD-011 confirmado com ajuste (AD-012): rebaixamento, remoção e conta apagada invalidam os convites; quem sai por conta própria os mantém até o papel que tinha ao sair.
+7. Decidir os três efeitos do AD-012 que seguem abertos: (a) quem sai por conta própria pode voltar pelos próprios convites pendentes, com a própria conta ou com outra, até o papel que tinha ao sair, até vencerem (7 dias) ou serem cancelados; (b) a coordenação vê esses convites em "Convites pendentes" e pode cancelá-los; (c) se a pessoa sai enquanto a coordenação tenta removê-la, a remoção falha com "Pessoa não encontrada." e os convites seguem valendo até alguém cancelar.
 
 **Acompanhamentos (fora do escopo desta feature):**
 

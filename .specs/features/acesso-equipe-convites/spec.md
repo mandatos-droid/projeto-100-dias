@@ -61,7 +61,10 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | Quem pode sair do mandato | Qualquer membro, em qualquer papel, desde que reste ao menos uma coordenação | A spec não restringe a saída por papel; sair é direito da própria pessoa | n |
 | Cancelar convite que já não está pendente | Não faz nada e não grava evento | O estado final não volta e nenhuma mensagem nova é necessária | n |
 | Cancelar convite de quem já saiu do mandato | Só quem ainda é membro cancela, mesmo sendo o criador do convite | Ex-membro não deve mexer em dados do mandato | n |
-| Convite de quem perdeu o papel | O convite só vale enquanto quem o criou segue no mandato com papel igual ou maior que o do convite, conferido na prévia e no aceite. Fora disso responde como convite que não vale mais, sai de "Convites pendentes" e não conta no limite de 20; volta a valer se a pessoa recuperar o papel antes do vencimento. Convite de quem saiu do mandato deixa de valer | Sem isso, quem foi rebaixado ou removido volta ao papel antigo aceitando um convite que criou antes (sonda V-1 do Verifier), o que a linha "Limite do papel concedido" quer impedir. Decisão do orquestrador pelo objetivo 3; a confirmar pelo dono do produto (AD-011) | n |
+| Convite de quem perdeu o papel | Enquanto quem criou o convite está no mandato, ele vale se o papel atual dessa pessoa é igual ou maior que o do convite, conferido na prévia e no aceite; volta a valer se ela recuperar o papel antes do vencimento. Quem sai por conta própria mantém os convites até o papel que tinha ao sair. Remoção (pela coordenação ou pelo `/admin`), conta apagada e dados excluídos fazem os convites deixarem de valer. Quem volta ao mandato passa a valer pelo papel atual, e a saída seguinte grava o papel novo. Convite que não vale responde como convite que não vale mais, sai de "Convites pendentes" e não conta no limite de 20 | Sem isso, quem foi rebaixado ou removido volta ao papel antigo aceitando um convite que criou antes (sonda V-1 do Verifier). Decisão do usuário em 2026-11-09 (AD-012, supera em parte o AD-011): sair por conta própria não invalida os convites, sem reabrir a V-1 | y |
+| Volta pelos próprios convites | Quem sai por conta própria pode voltar ao mandato pelos próprios convites pendentes, com a própria conta ou com outra, até o papel que tinha ao sair, até o convite vencer (7 dias) ou ser cancelado | Efeito direto do AD-012; pendente de decisão do usuário | n |
+| Convites de quem saiu na lista | Seguem em "Convites pendentes" com o nome de quem convidou, e a coordenação pode cancelá-los | Efeito direto do AD-012; pendente de decisão do usuário | n |
+| Saída ao mesmo tempo que a remoção | Se a pessoa sai enquanto a coordenação tenta removê-la, a remoção falha com "Pessoa não encontrada." e os convites dela seguem valendo até alguém da coordenação cancelá-los | A saída vence a corrida pela trava de `membros`; pendente de decisão do usuário | n |
 | Formato de e-mail válido | Um único `@`, sem espaço e com ponto no domínio (`x@y.z`); a mesma regra vale no banco e no navegador | Evita regra diferente nas duas pontas | n |
 | Fuso das datas | `America/Sao_Paulo` | Público e equipe no Brasil | y |
 
@@ -118,7 +121,9 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 13. IF a pessoa que aceita já é membro do mandato THEN the sistema SHALL manter o papel atual, mostrar "Você já está neste mandato" e não consumir o convite. <!-- unwanted-behavior -->
 14. IF a mesma origem enviar mais de 10 tokens inválidos em 10 minutos THEN the sistema SHALL recusar novas tentativas dessa origem por 15 minutos com "Muitas tentativas. Tente de novo em alguns minutos." <!-- unwanted-behavior -->
 15. IF a criação da conta falhar (e-mail já usado ou senha fraca) THEN the página SHALL mostrar o motivo e o convite continuar válido e não consumido. <!-- unwanted-behavior -->
-16. IF quem criou o convite não é mais membro do mandato ou tem hoje papel menor que o do convite THEN the banco SHALL responder na prévia e no aceite como no critério 10 e não consumir o convite. <!-- unwanted-behavior -->
+16. IF quem criou o convite tem hoje, no mandato, papel menor que o do convite; ou saiu por conta própria com papel menor que o do convite; ou está fora do mandato por remoção (pela coordenação ou pelo `/admin`); ou teve a conta apagada ou os dados excluídos THEN the banco SHALL responder na prévia e no aceite como no critério 10 e não consumir o convite. <!-- unwanted-behavior -->
+17. WHILE quem criou o convite está fora do mandato depois de sair por conta própria the banco SHALL tratar o convite como válido na prévia, no aceite, em "Convites pendentes" e no limite de 20 se o papel que a pessoa tinha ao sair é igual ou maior que o do convite. <!-- state-driven -->
+18. WHEN quem criou o convite entra de novo no mandato, por convite ou pelo `/admin`, THEN the banco SHALL descartar o papel da saída anterior: o convite passa a valer pelo papel atual, deixa de valer se a pessoa for removida depois e, se ela sair de novo, vale pelo papel dessa última saída. <!-- event-driven -->
 
 **Independent Test**: Gerar um convite, abrir o link em janela anônima, criar conta e ver o Guia aberto no mandato com o papel certo; abrir o mesmo link de novo e ver "Este convite não vale mais".
 
@@ -143,7 +148,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 9. WHEN uma pessoa sai do mandato por conta própria THEN the banco SHALL tirá-la dos membros, respeitando a regra de ao menos uma coordenação. <!-- event-driven -->
 10. The banco SHALL impedir que a equipe Legisla seja afetada: as linhas de `equipe_legisla` e as permissões do `/admin` não mudam por nenhuma função desta feature. <!-- ubiquitous -->
 11. WHILE o papel do membro é `leitura` the banco SHALL aceitar criar convite só com o papel `leitura` e cancelar só os convites que ela criou. <!-- state-driven -->
-12. IF uma pessoa rebaixada, removida ou que saiu tenta voltar ao papel antigo por um convite que criou antes, com a própria conta ou com outra THEN the banco SHALL recusá-lo pelo ACE-02.16 e nada mudar. <!-- unwanted-behavior -->
+12. IF uma pessoa removida tenta voltar por um convite que criou antes, ou uma pessoa rebaixada tenta voltar, por um convite que criou antes, a papel maior que o atual ou, se saiu depois, maior que o que tinha ao sair, com a própria conta ou com outra THEN the banco SHALL recusá-lo pelo ACE-02.16 e nada mudar. <!-- unwanted-behavior -->
 
 **Independent Test**: Com membro `leitura`, tentar gravar um exercício, um convite com papel Assessoria e uma troca de papel direto pela API e ver erro de permissão nas três; criar um convite com papel Somente leitura e ver que funciona; tentar remover a única coordenação e ver a recusa.
 
@@ -158,7 +163,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 **Acceptance Criteria**:
 
 1. WHEN o membro abre Equipe e convites THEN the tela SHALL mostrar, nesta ordem, o formulário "Convidar uma pessoa", "Convites pendentes" e "Pessoas neste mandato". <!-- event-driven -->
-2. The lista "Convites pendentes" SHALL mostrar só convites não vencidos, não cancelados, não usados e que ainda valem pelo ACE-02.16, com nome, papel, quem convidou e dias para expirar. <!-- ubiquitous -->
+2. The lista "Convites pendentes" SHALL mostrar só convites não vencidos, não cancelados, não usados e que ainda valem pelos ACE-02.16 a ACE-02.18, com nome, papel, quem convidou e dias para expirar. <!-- ubiquitous -->
 3. WHEN o membro clica em "Cancelar" num convite pendente THEN the sistema SHALL invalidar o convite e removê-lo da lista pendente. <!-- event-driven -->
 4. WHEN quem pede o cancelamento é quem criou o convite ou um `coordenacao` THEN the banco SHALL aceitar o cancelamento. <!-- event-driven -->
 5. IF quem pede o cancelamento não criou o convite e não é `coordenacao` THEN the banco SHALL recusar com erro de permissão. <!-- unwanted-behavior -->
@@ -277,6 +282,8 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | ACE-07 | P2: Retirar o código de convite antigo | - | Pending |
 
 ACE-02.16 e ACE-03.12 (o convite vale só com a autoridade atual de quem o criou) entraram na correção 2 do Verifier, pela sonda V-1 (AD-011): `supabase/migrations/20261106140000_convites_autoridade.sql`, testes em `tests/sql-convites.test.ts`.
+
+ACE-02.17 e ACE-02.18, e a nova redação de ACE-02.16 e ACE-03.12, vêm da decisão do usuário de 2026-11-09 (AD-012): o convite de quem sai por conta própria vale até o papel que a pessoa tinha ao sair. `supabase/migrations/20261106150000_convites_de_quem_sai.sql` (coluna `convites.papel_ao_sair`, gatilho `membros_reentrada`), testes em `tests/sql-convites.test.ts` (seção AD-012).
 
 **ID format:** `[CATEGORY]-[NUMBER]`; critérios são citados como `ACE-02.9` (história, número do critério).
 
