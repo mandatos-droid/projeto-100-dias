@@ -81,12 +81,16 @@
 ## Handoff
 
 - **Feature**: `acesso-equipe-convites` (`.specs/features/acesso-equipe-convites/`)
-- **Phase / Task**: Fase 6 concluída; T1 a T37 implementadas e commitadas. Verifier 1 deu FAIL; a correção 1 de 3 fechou as sondas S-1 a S-3 (`20261106130000_papeis_blindagem.sql`) e T15/E08. Verifier 2 deu FAIL (`validation.md`, sonda V-1 e mutantes B06/B08); a correção 2 de 3 fecha V-1, V-1b e V-1c na migration `20261106140000_convites_autoridade.sql` (AD-011, ACE-02.16, ACE-03.12) e isola as guardas B06 e B08 de `membros_criar` em `tests/sql-membros.test.ts`. T12 ficou como está (equivalente). Verifier 3 deu FAIL só por discriminação (sobreviventes A01, R-X01 e A07, nenhuma violação no código). A iteração 4, autorizada pelo usuário, foi feita **só de testes**: três testes novos em `plataforma/tests/sql-convites.test.ts` (`:998` A01, `:1032` R-X01, `:1054` A07), sem mudar código do app nem migrations. Cada mutante foi aplicado numa cópia das migrations fora do repositório: os três morrem com os testes novos e sobrevivem aos testes de `eb1cc0d`; as migrations seguem idênticas às commitadas (mesmo hash de blob). Gate: tsc 0 erros; `npm test` 968/968 (965 + 3). e2e não rodou (nenhum código do app mudou).
-- **Completed**: T1 a T37; correções 1 a 4 da iteração 1; correções 6, 7 e 8 da iteração 2; correções 9, 10 e 11 da iteração 4 (só testes)
+- **Phase / Task**: Fase 6 concluída; T1 a T37 e as correções das iterações 1 a 4 do Verifier commitadas (até `ab6d5b3`). Em 2026-11-09 o usuário decidiu três pontos, entregues em três commits:
+  - `a594caf`: AD-012. Quem sai por conta própria mantém os convites até o papel que tinha ao sair. Migration `20261106150000_convites_de_quem_sai.sql` (coluna `convites.papel_ao_sair`, `private.convite_autorizado` com 4 argumentos, gatilho `membros_reentrada`, `membro_sair` e `excluir_meus_dados` redefinidas). Spec: ACE-02.16 e ACE-03.12 reescritos, ACE-02.17 e ACE-02.18 novos. 13 testes SQL; os 20 mutantes das guardas novas morrem, aplicados numa cópia das migrations fora do repositório (migrations anteriores idênticas ao HEAD; a nova reaplicada 2 vezes sem erro).
+  - `1ed70ab`: botão "Sair do mandato" na tela Equipe e convites, para qualquer papel (`app/mandato/equipe/SairDoMandato.tsx`, ACE-04.14 a 04.18). 10 e2e novos em `e2e/mandato-equipe.spec.ts`.
+  - Este commit: telemetria `uso_funcionalidades` por `leitura` aceita pelo usuário, sem mudança de código (premissa na spec); handoff.
+  - Gate: tsc 0 erros; `npm test` 981/981 (968 + 13); e2e `mandato-*`, `convite-*` e `guia-acesso` 147/147. O gate da tarefa do botão rodou num worktree isolado (porta 3100, `next dev --webpack`), com os arquivos idênticos aos commitados: a pasta compartilhada tinha edições em andamento de outra sessão em `ilhas/` (`pecas.tsx` não compila) e a porta 3000 estava parada.
+- **Completed**: T1 a T37; correções 1 a 11 das iterações 1 a 4; decisões A (botão sair), B (AD-012) e C (telemetria aceita) de 2026-11-09
 - **In-progress**: nenhum
-- **Next step**: Verifier final restrito às guardas A01, R-X01 e A07 (re-rodar esses três mutantes contra a suíte), depois entrega ao usuário. As decisões do dono do produto seguem as do relatório (`validation.md`, "Decisões que pedem o dono do produto", sobretudo AD-011). Depois, com go-ahead explícito, `git push`, migrations e deploy
+- **Next step**: Verifier final da feature, com foco no intervalo `ab6d5b3..HEAD` (AD-012 e botão sair), depois entrega ao usuário com a pendência 7. Depois, com go-ahead explícito, `git push`, migrations e deploy
 - **Blockers**: nenhum desta feature. Fora dela, 8 e2e do Guia já falhavam antes da fase 6 e falham igual com `acesso.js` vazio (`capital-acoes` 4, `rumo-painel` 3, `m1-etapas` 1)
-- **Uncommitted files**: só de outras frentes (`.pw-out-tmp/`, `AJUSTES_GUIA_100_DIAS.md`, `supabase/` na raiz, `graphify-out/`, `contexto inicial/`)
+- **Uncommitted files**: `.specs/features/acesso-equipe-convites/validation.md` (rascunho do Verifier parado, fora dos commits) e arquivos de outras frentes (`.pw-out-tmp/`, `AJUSTES_GUIA_100_DIAS.md`, `supabase/` na raiz, `graphify-out/`, `plataforma/public/data/*.json`, `plataforma/ilhas/*` e `plataforma/public/legacy/ilhas.css`)
 - **Branch**: `feat/acesso-convites`
 
 **Pendências manuais (dependem do dono do projeto):**
@@ -101,12 +105,12 @@
 
 **Acompanhamentos (fora do escopo desta feature):**
 
-1. Segurança: `authenticated` tem privilégios padrão excessivos (TRUNCATE, UPDATE, DELETE, TRIGGER, REFERENCES) em `mandatos`, `membros` e `eventos`; `uso_funcionalidades` aceita insert de `leitura` (telemetria).
+1. Segurança: `authenticated` tem privilégios padrão excessivos (TRUNCATE, UPDATE, DELETE, TRIGGER, REFERENCES) em `mandatos`, `membros` e `eventos`. O insert de `leitura` em `uso_funcionalidades` (telemetria) foi aceito pelo usuário em 2026-11-09 e fica como está.
 2. `excluir_meus_dados()` apaga a linha de membro sem checar coordenação e pode deixar o mandato sem coordenação.
 3. `convite_tentativas` e `convite_bloqueios` nunca são limpas (IPs se acumulam).
 4. O limite de 20 convites pendentes não trava a contagem: duas criações simultâneas podem chegar a 21.
 5. Resolvido em 2026-11-09: o botão "Sair do mandato" fica na tela Equipe e convites, para qualquer papel (`app/mandato/equipe/SairDoMandato.tsx`, ACE-04.14 a 04.18).
-6. Textos sem definição exata na spec, para revisão do dono do produto: mensagens do GoTrue, "expira em N dias" (arredonda para cima, mínimo 1 dia), "Data de posse não informada", textos dos 6 eventos, ator só pelo primeiro nome; no Guia, o cartão "Abrir Equipe e convites", o aviso do modo nuvem ("acessíveis a quem tiver o link de convite") e a mensagem de `Store.entrarPorCodigo`.
+6. Textos sem definição exata na spec, para revisão do dono do produto: mensagens do GoTrue, "expira em N dias" (arredonda para cima, mínimo 1 dia), "Data de posse não informada", textos dos 6 eventos, ator só pelo primeiro nome; no Guia, o cartão "Abrir Equipe e convites", o aviso do modo nuvem ("acessíveis a quem tiver o link de convite") e a mensagem de `Store.entrarPorCodigo`; na saída do mandato, "Você pode sair deste mandato. A sua conta continua na plataforma." e "Sair de <mandato>? Você deixa de ver este mandato e, para voltar, precisa de um link de convite.".
 7. Modo somente leitura do Guia: campos das ilhas React ficam desabilitados (inclusive filtros), mas os botões das ilhas não são travados um a um; a gravação é barrada no `Store`.
 8. `lib/legacyBody.ts` é gerado por `scripts/extrair_legado.py`: uma nova extração devolve "código de convite" ao aviso (o teste `legado-acesso` acusa).
 9. Rodapé dos commits dos lotes 1, 2 e 4 usa "Claude Opus 5.5"; os demais, "Claude Sonnet 5.5".

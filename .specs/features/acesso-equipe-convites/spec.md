@@ -65,6 +65,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | Volta pelos próprios convites | Quem sai por conta própria pode voltar ao mandato pelos próprios convites pendentes, com a própria conta ou com outra, até o papel que tinha ao sair, até o convite vencer (7 dias) ou ser cancelado | Efeito direto do AD-012; pendente de decisão do usuário | n |
 | Convites de quem saiu na lista | Seguem em "Convites pendentes" com o nome de quem convidou, e a coordenação pode cancelá-los | Efeito direto do AD-012; pendente de decisão do usuário | n |
 | Saída ao mesmo tempo que a remoção | Se a pessoa sai enquanto a coordenação tenta removê-la, a remoção falha com "Pessoa não encontrada." e os convites dela seguem valendo até alguém da coordenação cancelá-los | A saída vence a corrida pela trava de `membros`; pendente de decisão do usuário | n |
+| Registro de uso por `leitura` | Um membro `leitura` grava linhas em `uso_funcionalidades` ao abrir telas do Guia, como os demais papéis; ACE-03.2 não vale para esse registro | Decisão do usuário em 2026-11-09: aceito sem mudança de código. A linha tem só mandato, funcionalidade e hora, sem texto, nome, e-mail nem `user_id`, e não altera dados do mandato | y |
 | Formato de e-mail válido | Um único `@`, sem espaço e com ponto no domínio (`x@y.z`); a mesma regra vale no banco e no navegador | Evita regra diferente nas duas pontas | n |
 | Fuso das datas | `America/Sao_Paulo` | Público e equipe no Brasil | y |
 
