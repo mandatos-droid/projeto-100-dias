@@ -10,7 +10,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 
 **Design**: `.specs/features/acesso-equipe-convites/design.md`
 **Spec**: `.specs/features/acesso-equipe-convites/spec.md`
-**Status**: Draft (aguardando aprovação; nada foi executado)
+**Status**: ✅ Verified (T1 a T37 e correções concluídas; Verifier final PASS em 2026-11-09, `validation.md`)
 **Branch**: `feat/acesso-convites` (criada a partir de `feat/painel-admin`)
 
 Regras que valem para todas as tasks:

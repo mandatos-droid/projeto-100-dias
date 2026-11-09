@@ -198,6 +198,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: ACE-02.13, ACE-02.16 sonda N-9 (spec)
 - last seen: 2026-11-06T19:36:39Z
 
+### L-032 - When a UI pre-check depends on data that may fail to load, test the action with that load failed, so the fallback branch is pinned.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e` · harmful: 0
+- features: acesso-equipe-convites
+- evidence: U12 plataforma/app/mandato/equipe/SairDoMandato.tsx:23 (e2e)
+- last seen: 2026-11-09T16:33:50Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

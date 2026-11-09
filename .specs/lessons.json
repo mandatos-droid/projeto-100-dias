@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 32,
+  "next_id": 33,
   "lessons": [
     {
       "id": "L-001",
@@ -566,6 +566,24 @@
       ],
       "created": "2026-11-06T19:36:39Z",
       "last_seen": "2026-11-06T19:36:39Z"
+    },
+    {
+      "id": "L-032",
+      "key": "surviving_mutant::when a ui pre check depends on data that may fail to load test the action with that load failed so the fallback branch is pinned",
+      "text": "When a UI pre-check depends on data that may fail to load, test the action with that load failed, so the fallback branch is pinned.",
+      "signal": "surviving_mutant",
+      "scope": "e2e",
+      "status": "candidate",
+      "features": [
+        "acesso-equipe-convites"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "U12 plataforma/app/mandato/equipe/SairDoMandato.tsx:23 (e2e)"
+      ],
+      "created": "2026-11-09T16:33:50Z",
+      "last_seen": "2026-11-09T16:33:50Z"
     }
   ]
 }

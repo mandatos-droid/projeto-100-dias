@@ -279,13 +279,13 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| ACE-01 | P1: Criar um convite por link pessoal | Design | Pending |
-| ACE-02 | P1: Aceitar o convite e entrar no mandato | Design | Pending |
-| ACE-03 | P1: Papéis do mandato aplicados no banco | Design | Pending |
-| ACE-04 | P1: Tela Equipe e convites | Design | Pending |
-| ACE-05 | P2: Área do mandato | - | Pending |
-| ACE-06 | P2: Histórico da equipe | - | Pending |
-| ACE-07 | P2: Retirar o código de convite antigo | - | Pending |
+| ACE-01 | P1: Criar um convite por link pessoal | Execute | ✅ Verified |
+| ACE-02 | P1: Aceitar o convite e entrar no mandato | Execute | ✅ Verified |
+| ACE-03 | P1: Papéis do mandato aplicados no banco | Execute | ✅ Verified |
+| ACE-04 | P1: Tela Equipe e convites | Execute | ✅ Verified |
+| ACE-05 | P2: Área do mandato | Execute | ✅ Verified |
+| ACE-06 | P2: Histórico da equipe | Execute | ✅ Verified |
+| ACE-07 | P2: Retirar o código de convite antigo | Execute | ✅ Verified |
 
 ACE-02.16 e ACE-03.12 (o convite vale só com a autoridade atual de quem o criou) entraram na correção 2 do Verifier, pela sonda V-1 (AD-011): `supabase/migrations/20261106140000_convites_autoridade.sql`, testes em `tests/sql-convites.test.ts`.
 
@@ -297,7 +297,7 @@ ACE-04.14 a ACE-04.18 (botão "Sair do mandato") também vêm da decisão do usu
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage:** 7 total, 0 mapped to tasks, 7 unmapped ⚠️
+**Coverage:** 7 total, 7 mapped to tasks (T1 a T37 e correções), 0 unmapped. Verificado pelo Verifier final em 2026-11-09 (`validation.md`, PASS).
 
 ---
 
