@@ -546,6 +546,19 @@ T11 → T12 → T13
 
 ---
 
+### T15: Cobrir o nome civil e as bordas do território
+
+**What**: e2e com nome parlamentar vazio (usa o nome civil); testes de nome repetido no item e de município sem uf (decisão: só o nome, sem sufixo; lib/resumoSocial.ts não mudou).
+
+**Tests**: e2e/unit
+**Gate**: full
+
+**Commit**: `test(resumo): cover name fallback and territory edge cases`
+
+**Status**: ✅ Done (correção da rodada 1 do Verifier)
+
+---
+
 ## Phase Execution Map
 
 ```

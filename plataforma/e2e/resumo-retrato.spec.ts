@@ -103,3 +103,10 @@ test('a 600 px o cartão fica acima dos números, em faixa horizontal (RES-06.10
   expect(Math.abs(foto.top - parl.top)).toBeLessThanOrEqual(1);
   expect(parl.width).toBeGreaterThan(400);
 });
+
+test('sem nome parlamentar o cartão mostra o nome civil e a inicial dele (RES-06.1)', async ({ page }) => {
+  await abre(page, { mandato: { ...MANDATO, nome_parlamentar: '', nome_civil: 'Maria Oliveira' } });
+  const parl = page.locator('#tela .parl');
+  await expect(parl.locator('strong')).toHaveText('Maria Oliveira');
+  await expect(parl.locator('.foto')).toContainText('M');
+});

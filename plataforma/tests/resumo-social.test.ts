@@ -74,5 +74,13 @@ test('itens do mesmo território, em itens distintos, vão para a mesma linha, n
 test('um município e uma UF de mesmo nome são territórios distintos; nome repetido no mesmo item não duplica a linha', () => {
   assert.deepEqual(nomesDe([item('UF', 'problema', ['Rio de Janeiro'], 'RJ'), item('MUN', 'problema', ['Rio de Janeiro'], 'RJ')]),
     ['Rio de Janeiro', 'Rio de Janeiro (RJ)']);
-  assert.deepEqual(nomesDe([item('UF', 'problema', ['Bahia', 'Bahia'])]), ['Bahia']);
+  const repetido = porTerritorio([item('UF', 'problema', ['Bahia', 'Bahia'])]);
+  assert.deepEqual(repetido.map((l) => l.territorio), ['Bahia']);
+  assert.equal(repetido[0].problemas.length, 1); // o item entra uma só vez na linha
+});
+
+/* A spec (RES-08.2) só define "{nome} ({uf})" com uf. Decisão: município sem uf fica só com o nome, nunca "(undefined)". */
+test('município sem uf aparece só com o nome, sem sufixo (decisão sobre RES-08.2)', () => {
+  assert.deepEqual(nomesDe([item('MUN', 'problema', ['Campinas'], '')]), ['Campinas']);
+  assert.ok(!nomesDe([item('MUN', 'problema', ['Campinas'], undefined as unknown as string)])[0].includes('undefined'));
 });
