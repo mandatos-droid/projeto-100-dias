@@ -147,7 +147,7 @@
 
 - **Feature**: `resumo-reestruturado` (`.specs/features/resumo-reestruturado/`), tela `#/resumo` com blocos recolhíveis, retrato, cartões, tabela por território e organograma. Decisões AD-R1 a AD-R8.
 - **Branch**: `feat/resumo-reestruturado`, no worktree `Dev Apps/Projeto 100 dias - resumo`, criado de `origin/main`. Nada foi enviado: sem push, deploy nem migration.
-- **Phase / Task**: T1 a T13 concluídas, um commit por task. Falta o Verifier, que escreve `.specs/features/resumo-reestruturado/validation.md` (máx. 3 rodadas), e então `validate_state.py resumo-reestruturado` e `graphify update .`.
+- **Phase / Task**: T1 a T17 concluídas, um commit por task. Verifier PASS na rodada 2 (`.specs/features/resumo-reestruturado/validation.md`); `validate_state.py` com 0 erros. Spec encerrada (Done).
 - **Gate**: 11 e2e do gate de build já falham sem a feature (`m1-etapas:26`, `m23-migracao:110`, `m23-pdf:39`, `m23-plano:64/92/148`, `m23-rotinas:31/42`, `rumo-painel:19/32/54`); nenhuma falha nova aceita.
 - **Pendência para o dono do produto**: o grupo "Potenciais" (RES-07) lê o status `potencial` de `D.relacoes`, que o Guia não grava hoje; sem esse dado o grupo nunca aparece.
 - **Blockers**: nenhum

@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/resumo-reestruturado/spec.md`
 **Referência visual**: `.specs/features/resumo-reestruturado/proposta.html` (CSS e marcação do mock são o ponto de partida; os tokens são os de `legacy.css`)
-**Status**: Draft
+**Status**: Done
 
 ---
 

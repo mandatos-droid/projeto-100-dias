@@ -11,7 +11,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 **Design**: `.specs/features/resumo-reestruturado/design.md`
 **Spec**: `.specs/features/resumo-reestruturado/spec.md`
 **Referência visual**: `.specs/features/resumo-reestruturado/proposta.html`
-**Status**: Done (T1 a T13; aguarda o Verifier)
+**Status**: Done (T1 a T17; Verifier PASS na rodada 2)
 **Branch**: `feat/resumo-reestruturado`, num worktree próprio, a partir de `origin/main`
 
 Regras que valem para todas as tasks:
