@@ -24,6 +24,30 @@ App.iniciar=function(){
   return r;
 };
 
+/* ---------- login só com Google (PAG-01, PAG-05) ----------
+   Com a nuvem ligada não há senha nem cadastro por e-mail: Store.criarConta e Store.entrar recusam sem chamada de rede
+   (nucleo.js continua com o código, que deixa de ter caminho que o alcance), a tela de entrada fica só com o botão do
+   Google e o aviso de LGPD, e o erro do Google usa o texto da spec. A renovação por refresh_token (Store.sessao) segue
+   como está. Modo local (sem nuvem) não tem Google nem rede: fica como era. */
+var ERRO_GOOGLE='Não foi possível entrar com o Google. Tente de novo.';
+if(NUVEM){
+  var ENTRE_COM_GOOGLE='Entre com o Google.';
+  Store.criarConta=async function(){throw new Error(ENTRE_COM_GOOGLE)};
+  Store.entrar=async function(){throw new Error(ENTRE_COM_GOOGLE)};
+  App.aba=function(){};
+  App.comEmail=function(){};
+  App.submeter=async function(){};
+  /* abas, campos de e-mail, senha e nome, caixa de concordância do cadastro, botão Entrar e "Usar e-mail e senha" saem da tela */
+  Array.prototype.forEach.call(document.querySelectorAll('#entrada .abas,#entrada .campo,#entrada #wrapLgpd,#entrada .bts,#entrada #btComEmail'),
+    function(el){el.remove()});
+  var _sessao=Store.sessao;
+  Store.sessao=async function(){
+    var u=await _sessao.apply(this,arguments);
+    if(Store.erroOAuth)Store.erroOAuth=ERRO_GOOGLE;
+    return u;
+  };
+}
+
 /* ---------- primeiro acesso: perfil antes do Guia (PAG-02, PAG-04) ----------
    Quem não está na equipe Legisla e não tem perfil vai a /primeiro-acesso; sem mandato, o cadastro do mandato só abre
    depois de "Ainda não" (marca legisla.semEquipe), senão a pergunta "sua equipe já criou?" vem primeiro. Uma consulta que

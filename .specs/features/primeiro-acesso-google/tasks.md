@@ -499,19 +499,21 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] A tela de entrada do Guia mostra só "Entrar com Google" e o aviso de LGPD, sem campos de e-mail, senha e nome, sem abas e sem "Criar conta" (PAG-01.1, 01.2)
-- [ ] `Store.criarConta` e `Store.entrar` lançam `Error('Entre com o Google.')` sem chamada de rede (PAG-05.1)
-- [ ] A mensagem "Confirme o e-mail enviado e faça login" não aparece em nenhuma tela do Guia (PAG-05.2)
-- [ ] A renovação por `refresh_token` do Guia continua (PAG-05.3)
-- [ ] Uma busca por `signup` e `grant_type=password` em `app/`, `lib/` e `public/legacy/acesso.js` não acha uso (PAG-05.1)
-- [ ] `app.js` e `nucleo.js` seguem sem edição
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/guia-acesso.spec.ts`
-- [ ] Test count: ao menos 6 testes novos entre `tests/legado-acesso.test.ts` e `e2e/guia-acesso.spec.ts`, nenhum removido
+- [x] A tela de entrada do Guia mostra só "Entrar com Google" e o aviso de LGPD, sem campos de e-mail, senha e nome, sem abas e sem "Criar conta" (PAG-01.1, 01.2)
+- [x] `Store.criarConta` e `Store.entrar` lançam `Error('Entre com o Google.')` sem chamada de rede (PAG-05.1)
+- [x] A mensagem "Confirme o e-mail enviado e faça login" não aparece em nenhuma tela do Guia (PAG-05.2)
+- [x] A renovação por `refresh_token` do Guia continua (PAG-05.3)
+- [x] Uma busca por `signup` e `grant_type=password` em `app/`, `lib/` e `public/legacy/acesso.js` não acha uso (PAG-05.1)
+- [x] `app.js` e `nucleo.js` seguem sem edição
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/guia-acesso.spec.ts`
+- [x] Test count: ao menos 6 testes novos entre `tests/legado-acesso.test.ts` e `e2e/guia-acesso.spec.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: full
 
 **Commit**: `feat(guia): sign in with Google only`
+
+**Status**: ✅ Done
 
 ---
 

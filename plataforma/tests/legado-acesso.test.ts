@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import vm from 'node:vm';
 
 /* acesso.js é o arquivo de ganchos da feature acesso-equipe-convites sobre o Guia legado (AD-003). Aqui ele roda numa
@@ -72,6 +72,8 @@ interface Guia {
     abrir(id: string): Promise<unknown>; salvar(): void; gravar(): Promise<void>; atualizar(c: Record<string, unknown>): Promise<void>;
     registrar(m: number, e: string, t: string): Promise<void>; entrarPorCodigo(c: string): Promise<unknown>;
     criarMandato(c: Record<string, unknown>): Promise<{ id: string }>;
+    criarConta(e: string, s: string, n: string): Promise<unknown>; entrar(e: string, s: string): Promise<unknown>;
+    sessao(): Promise<{ id: string } | null>; erroOAuth?: string;
   };
   Telas: { equipeHtml(): string; primeiroAcesso(): void };
   Cad: { blocoCodigo(): string };
@@ -79,15 +81,16 @@ interface Guia {
 }
 
 /** Carrega nucleo.js, app.js, cadastro.js e acesso.js reais, na ordem do Guia. O atraso de 700 ms do Store.salvar some. */
-function janela(o: { nuvem?: boolean; responde?: Responde } = {}) {
+function janela(o: { nuvem?: boolean; responde?: Responde; hash?: string; tok?: string } = {}) {
   const pedidos: Pedido[] = [];
   const guardado = new Map<string, string>();
+  if (o.tok) guardado.set('legisla.tok', o.tok);
   const guardadoSessao = new Map<string, string>();
   const redirecionou: string[] = [];
   const document = documento();
   const ctx: Record<string, unknown> = {
     document, console, URLSearchParams,
-    location: { hostname: 'localhost', hash: '#/', origin: 'http://localhost:3000', pathname: '/guia', search: '', replace: (u: string) => { redirecionou.push(u); } },
+    location: { hostname: 'localhost', hash: o.hash ?? '#/', origin: 'http://localhost:3000', pathname: '/guia', search: '', replace: (u: string) => { redirecionou.push(u); } },
     history: { replaceState() {} },
     localStorage: {
       getItem: (k: string) => guardado.get(k) ?? null,
@@ -105,6 +108,8 @@ function janela(o: { nuvem?: boolean; responde?: Responde } = {}) {
       const metodo = op.method ?? 'GET';
       pedidos.push({ url, metodo, corpo: op.body ? JSON.parse(op.body) : undefined });
       const r = o.responde?.(url, metodo);
+      const recusa = r && typeof r === 'object' && '__status' in r ? Number((r as { __status: number }).__status) : 0; // resposta de erro HTTP
+      if (recusa) return { ok: false, status: recusa, text: async () => '', json: async () => ({}) };
       return { ok: true, status: 200, text: async () => (r === undefined ? '' : JSON.stringify(r)), json: async () => r };
     },
     FRAGILIDADES: [],
@@ -367,4 +372,57 @@ test('a marca "Ainda não" não vale sem perfil: continua indo ao formulário (P
   await w.App.entrou();
   assert.deepEqual(redirecionou, ['/primeiro-acesso?volta=guia']);
   assert.deepEqual(aberturaDoCadastro, []);
+});
+
+/* ---------- login só com Google (PAG-01.4, PAG-05.1, 05.2, 05.3) ---------- */
+test('Store.criarConta recusa com "Entre com o Google." e sem nenhuma chamada de rede (PAG-05.1)', async () => {
+  const { w, pedidos } = janela();
+  await assert.rejects(w.Store.criarConta('a@b.org', 'segredo123', 'Ana'), { message: 'Entre com o Google.' });
+  assert.equal(pedidos.length, 0);
+});
+
+test('Store.entrar recusa com "Entre com o Google." e sem nenhuma chamada de rede (PAG-05.1)', async () => {
+  const { w, pedidos } = janela();
+  await assert.rejects(w.Store.entrar('a@b.org', 'segredo123'), { message: 'Entre com o Google.' });
+  assert.equal(pedidos.length, 0);
+});
+
+test('erro do Google na volta da entrada mostra "Não foi possível entrar com o Google. Tente de novo." (PAG-01.4)', async () => {
+  const { w, document } = janela({ hash: '#error_description=Acesso+negado+pelo+Google' });
+  await w.App.iniciar();
+  assert.match(document.getElementById('erroEntrada').innerHTML, /Não foi possível entrar com o Google\. Tente de novo\./);
+  assert.doesNotMatch(document.getElementById('erroEntrada').innerHTML, /Acesso negado/);
+});
+
+test('token vencido: o Guia renova pelo refresh_token e não usa senha (PAG-05.3)', async () => {
+  let consultasAoUsuario = 0;
+  const { w, pedidos } = janela({
+    tok: JSON.stringify({ access_token: 'vencido', refresh_token: 'r1' }),
+    responde: (url, metodo) => {
+      if (url.endsWith('/auth/v1/user')) return ++consultasAoUsuario === 1 ? { __status: 401 } : { id: 'u1', email: 'lia@gabinete.test', user_metadata: { nome: 'Lia' } };
+      if (metodo === 'POST' && url.endsWith('/auth/v1/token?grant_type=refresh_token')) return { access_token: 'novo', refresh_token: 'r2', user: { id: 'u1' } };
+      return undefined;
+    },
+  });
+  const u = await w.Store.sessao();
+  assert.equal(u?.id, 'u1');
+  const renovacao = pedidos.filter((p) => p.url.includes('/auth/v1/token'));
+  assert.deepEqual(renovacao.map((p) => [p.url.split('/auth/v1/')[1], { ...p.corpo }]), [['token?grant_type=refresh_token', { refresh_token: 'r1' }]]);
+});
+
+/* Nenhum caminho do app chama o cadastro com senha nem o login por senha, nem trata e-mail não confirmado (PAG-05.1, 05.2). */
+function arquivosDe(pasta: URL): URL[] {
+  return readdirSync(pasta, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? arquivosDe(new URL(`${e.name}/`, pasta)) : [new URL(e.name, pasta)]));
+}
+
+test('app/, lib/ e acesso.js não têm uso de signup, grant_type=password, email_not_confirmed nem a mensagem de confirmar o e-mail (PAG-05.1, 05.2)', () => {
+  const raiz = new URL('../', import.meta.url);
+  const alvos = [...arquivosDe(new URL('app/', raiz)), ...arquivosDe(new URL('lib/', raiz)), new URL('public/legacy/acesso.js', raiz)]
+    .filter((u) => /\.(ts|tsx|js)$/.test(u.pathname));
+  assert.ok(alvos.length > 20);
+  const achados = alvos.flatMap((u) => {
+    const texto = readFileSync(u, 'utf8');
+    return [/signup/i, /grant_type=password/, /email_not_confirmed/, /Confirme o e-mail/i].filter((re) => re.test(texto)).map((re) => `${u.pathname}: ${re}`);
+  });
+  assert.deepEqual(achados, []);
 });

@@ -17,6 +17,7 @@ const CODIGO = 'KJ4TP9';
 const CODIGO_DE_CONVITE = /c[oó]digo/i;
 
 type Papel = 'coordenacao' | 'assessoria' | 'leitura';
+const VENCIDO = 'tok-lia-vencido';
 const LIA = { id: 'uid-lia', nome: 'Lia Torres', email: 'lia@gabinete.test', token: 'tok-lia' };
 const LINHA_MANDATO = {
   id: MANDATO, codigo: CODIGO, nome_parlamentar: 'Ana Souza', nome_civil: 'Ana Souza Lima', cargo: 'Deputado(a) Estadual',
@@ -48,6 +49,8 @@ interface Estado {
   semEquipe?: boolean;
   /** Não espera a tela do Guia: o teste espera outra coisa (redirecionamento, erro). */
   semEspera?: boolean;
+  /** legisla.tok começa com o access_token vencido (o refresh_token vale): o Guia renova pelo refresh_token. */
+  vencido?: boolean;
 }
 
 /** Abre o Guia real em `hash`, com Lia logada (salvo `semSessao`) e o Supabase simulado. */
@@ -76,6 +79,10 @@ async function abre(page: Page, hash: string, e: Estado = {}) {
       rota.fulfill({ status, headers: { ...PERMITE, 'content-type': 'application/json' }, body: c === undefined ? '' : JSON.stringify(c) });
     const semMapa = () => { registro.naoMapeadas.push(`${req.method()} ${u.pathname}${u.search}`); return rota.abort('blockedbyclient'); };
 
+    // renovação do Guia (Store.sessao): o access_token vencido é recusado e o refresh_token vale
+    if (u.pathname === '/auth/v1/token' && req.method() === 'POST' && u.searchParams.get('grant_type') === 'refresh_token')
+      return e.vencido ? responde(200, { access_token: LIA.token, refresh_token: 'ref-lia', user: { id: LIA.id, email: LIA.email } }) : semMapa();
+    if (e.vencido && u.pathname === '/auth/v1/user' && (req.headers()['authorization'] ?? '') === `Bearer ${VENCIDO}`) return responde(401, { message: 'invalid JWT' });
     if ((req.headers()['authorization'] ?? '') !== `Bearer ${LIA.token}`) return semMapa();
     if (u.pathname === '/auth/v1/user' && req.method() === 'GET') return responde(200, { id: LIA.id, email: LIA.email, user_metadata: { nome: LIA.nome } });
     if (!u.pathname.startsWith('/rest/v1/')) return semMapa();
@@ -113,7 +120,7 @@ async function abre(page: Page, hash: string, e: Estado = {}) {
       sessionStorage.setItem('ga-semeado', '1');
       if (semEquipe) sessionStorage.setItem('legisla.semEquipe', '1');
       localStorage.setItem('legisla.tok', JSON.stringify({ access_token: t, refresh_token: 'ref-lia' }));
-    }, { t: LIA.token, semEquipe: e.semEquipe ?? papel === null });
+    }, { t: e.vencido ? VENCIDO : LIA.token, semEquipe: e.semEquipe ?? papel === null });
   }
   await page.goto(`/guia${hash}`);
   if (e.semEspera) return;
@@ -265,14 +272,68 @@ test.describe('Modo somente leitura no Guia (ACE-03.2, ACE-03.3)', () => {
   });
 });
 
-/* ---------- T36: aviso de consentimento do Guia (ACE-07.4) ---------- */
-test('na tela de entrada, a aba Criar conta mostra o aviso com "link de convite" e nenhuma menção a código (ACE-07.2, ACE-07.4)', async ({ page }) => {
-  await abre(page, '#/', { semSessao: true });
-  await page.getByRole('button', { name: 'Usar e-mail e senha' }).click();
-  await page.getByRole('tab', { name: 'Criar conta' }).click();
-  await expect(page.locator('#blocoLgpd')).toBeVisible();
-  await expect(page.locator('#blocoLgpd')).toContainText('acessíveis a quem tiver o link de convite dele.');
-  await expect(page.locator('#entrada')).not.toContainText(CODIGO_DE_CONVITE);
+/* ---------- T36: aviso de consentimento do Guia (ACE-07.4) e login só com Google (PAG-01, PAG-05) ---------- */
+const SO_GOOGLE = async (page: Page) => {
+  const entrada = page.locator('#entrada');
+  await expect(entrada.getByRole('button', { name: 'Entrar com Google' })).toBeVisible();
+  await expect(entrada.locator('input')).toHaveCount(0); // sem e-mail, senha, nome nem a caixa do cadastro
+  await expect(entrada.getByRole('tab')).toHaveCount(0);
+  await expect(entrada.getByRole('button')).toHaveCount(1); // sem "Entrar", "Usar e-mail e senha" nem abas
+  // texto visível (o aviso de LGPD, escondido, diz "Ao criar conta" e não conta como tela de cadastro)
+  expect(await entrada.evaluate((el) => (el as HTMLElement).innerText)).not.toMatch(/criar conta|e-mail e senha|senha/i);
+};
+
+test.describe('Entrada do Guia só com Google (PAG-01.1, 01.2, 01.4, PAG-05.1, 05.2, 05.3)', () => {
+  test('sem sessão, a tela de entrada mostra só "Entrar com Google" e o aviso de LGPD', async ({ page }) => {
+    await abre(page, '#/', { semSessao: true });
+    await SO_GOOGLE(page);
+    await expect(page.locator('#entrada .google-lgpd')).toContainText('tratamento dos dados pessoais (LGPD)');
+  });
+
+  test('o link do aviso abre o texto de consentimento com "link de convite" e nenhuma menção a código (ACE-07.2, ACE-07.4)', async ({ page }) => {
+    await abre(page, '#/', { semSessao: true });
+    await page.locator('#entrada .google-lgpd').getByRole('link', { name: 'tratamento dos dados pessoais (LGPD)' }).click();
+    await expect(page.locator('#blocoLgpd')).toBeVisible();
+    await expect(page.locator('#blocoLgpd')).toContainText('acessíveis a quem tiver o link de convite dele.');
+    await expect(page.locator('#entrada')).not.toContainText(CODIGO_DE_CONVITE);
+  });
+
+  test('"Confirme o e-mail enviado e faça login" não aparece na tela de entrada nem no Guia aberto (PAG-05.2)', async ({ page }) => {
+    await abre(page, '#/', { semSessao: true });
+    await expect(page.locator('body')).not.toContainText(/confirme o e-mail/i);
+  });
+
+  test('com sessão, o Guia aberto também não mostra a mensagem de confirmar o e-mail (PAG-05.2)', async ({ page }) => {
+    await abre(page, '#/config');
+    await expect(page.locator('body')).not.toContainText(/confirme o e-mail/i);
+  });
+
+  test('Store.criarConta e Store.entrar recusam com "Entre com o Google." e sem chamada de rede (PAG-05.1)', async ({ page }) => {
+    await abre(page, '#/', { semSessao: true });
+    const antes = registro.pedidos.length;
+    const erros = await page.evaluate(async () => {
+      const Store = (window as unknown as { Store: { criarConta(e: string, s: string, n: string): Promise<unknown>; entrar(e: string, s: string): Promise<unknown> } }).Store;
+      const pega = (f: () => Promise<unknown>) => f().then(() => null, (e: Error) => e.message);
+      return [await pega(() => Store.criarConta('a@b.org', 'segredo123', 'Ana')), await pega(() => Store.entrar('a@b.org', 'segredo123'))];
+    });
+    expect(erros).toEqual(['Entre com o Google.', 'Entre com o Google.']);
+    expect(registro.pedidos.length).toBe(antes);
+    expect(registro.pedidos.filter((p) => p.caminho.includes('grant_type=password') || p.caminho.startsWith('signup'))).toEqual([]);
+  });
+
+  test('erro do Google na volta mostra "Não foi possível entrar com o Google. Tente de novo." e mantém o botão (PAG-01.4)', async ({ page }) => {
+    await abre(page, '#error_description=Acesso+negado+pelo+Google', { semSessao: true });
+    await expect(page.locator('#erroEntrada')).toHaveText('Não foi possível entrar com o Google. Tente de novo.');
+    await SO_GOOGLE(page);
+  });
+
+  test('token vencido: o Guia renova pelo refresh_token, abre sem pedir login e nunca chama senha (PAG-05.3)', async ({ page }) => {
+    await abre(page, '#/', { vencido: true });
+    const tok = await page.evaluate(() => JSON.parse(localStorage.getItem('legisla.tok') ?? 'null'));
+    expect(tok.access_token).toBe(LIA.token);
+    const renovacoes = registro.pedidos.filter((p) => p.caminho.startsWith('token?grant_type='));
+    expect(renovacoes.map((p) => [p.caminho, p.corpo])).toEqual([['token?grant_type=refresh_token', { refresh_token: 'ref-lia' }]]);
+  });
 });
 
 /* ---------- primeiro acesso: perfil antes do Guia (PAG-02.1, 02.2, 02.15, 02.16, PAG-04.1, 04.6, 04.7) ---------- */
