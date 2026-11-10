@@ -21,7 +21,7 @@ Regras que valem para todas as tasks:
 - Imports em `lib/` e `tests/` são relativos e terminam em `.ts` (AD-004).
 - `public/legacy/nucleo.js`, `app.js` e os demais arquivos extraídos não se editam à mão (AD-003); o Guia muda só por `public/legacy/acesso.js` e `lib/legacyBody.ts`.
 - Esta feature não faz `git push`, não aplica migration no Supabase e não faz deploy. A migration só é aplicada pelo workflow ao subir para a `main`, e isso exige go-ahead explícito.
-- Todas as mensagens de erro e textos de tela seguem literalmente a spec. Os rótulos de gênero, raça, UF e faixa de tempo seguem a spec e o `design.md`.
+- Todas as mensagens de erro e textos de tela seguem literalmente a spec. Os rótulos de gênero, raça e faixa de tempo seguem a spec e o `design.md`.
 - Texto do consentimento de dados sensíveis é provisório (revisão jurídica da Legisla pendente): marque no código com o comentário `// TEXTO PROVISÓRIO: revisão jurídica pendente`.
 
 ---
@@ -128,10 +128,10 @@ T13 → T14 → T15 → T16
 
 ### T2: Trava do banco nas portas de entrada e exclusão de dados
 
-**What**: Exigir perfil em `aceitar_convite` e em `mandatos_criar`, e apagar `perfis` em `excluir_meus_dados`, na mesma migration.
+**What**: Exigir perfil em `convite_aceitar` e em `mandatos_criar`, e apagar `perfis` em `excluir_meus_dados`, na mesma migration.
 **Where**: `plataforma/supabase/migrations/20261109120000_perfis.sql` (modify) e `plataforma/tests/sql-ambiente.ts` (modify)
 **Depends on**: T1
-**Reuses**: versão atual de `aceitar_convite` e `excluir_meus_dados` em `20261106150000_convites_de_quem_sai.sql`; política `mandatos_criar` de `20261016120000_schema_inicial.sql`
+**Reuses**: versão atual de `convite_aceitar` e `excluir_meus_dados` em `20261106150000_convites_de_quem_sai.sql`; política `mandatos_criar` de `20261016120000_schema_inicial.sql`
 **Requirement**: PAG-02, PAG-03
 
 **Tools**:
@@ -141,7 +141,7 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [x] `aceitar_convite` copia a versão de `20261106150000` sem mudar mais nada e devolve `{ok:false, erro:'perfil'}` logo depois da checagem de consentimento para quem não tem perfil nem está na equipe Legisla; o convite não é consumido (PAG-02.2). No banco a função se chama `public.convite_aceitar`; o `diff` com a versão de `20261106150000` mostra só as 3 linhas da checagem
+- [x] `convite_aceitar` copia a versão de `20261106150000` sem mudar mais nada e devolve `{ok:false, erro:'perfil'}` logo depois da checagem de consentimento para quem não tem perfil nem está na equipe Legisla; o convite não é consumido (PAG-02.2). No banco a função se chama `public.convite_aceitar`; o `diff` com a versão de `20261106150000` mostra só as 3 linhas da checagem
 - [x] A política `mandatos_criar` exige `private.tem_perfil()` além de `criado_por = auth.uid()`; quem não tem perfil recebe erro de permissão ao criar mandato (PAG-02.2)
 - [x] `excluir_meus_dados` copia a versão de `20261106150000` e acrescenta a exclusão da linha de `perfis` da pessoa (PAG-03.10)
 - [x] Excluir a conta (`delete` em `auth.users`) apaga o perfil em cascata (PAG-03.9)
@@ -160,7 +160,7 @@ T13 → T14 → T15 → T16
 
 ### T3: Função de resumo para o Analytics
 
-**What**: Criar `admin_perfil_resumo()` com contagens por mês, gênero, raça, UF, faixa etária e atuação.
+**What**: Criar `admin_perfil_resumo()` com contagens por mês, gênero, raça, faixa etária e atuação.
 **Where**: `plataforma/supabase/migrations/20261109130000_perfil_resumo.sql` (new)
 **Depends on**: T2
 **Reuses**: `private.eh_legisla`; molde de função de leitura de `20261105130000_admin_leitura.sql`
@@ -310,6 +310,7 @@ T13 → T14 → T15 → T16
 - [ ] Duplo clique em enviar grava um único perfil (botão desabilitado durante o envio) (PAG-02.14)
 - [ ] Quem já tem perfil ou está na equipe Legisla não vê o formulário (PAG-02.15, 02.16)
 - [ ] Layout legível em 400 px de largura, sem rolagem horizontal
+- [ ] `perfilSalvar` lança `ErroApi` para 401 e para os demais 4xx (só rede e 5xx viram "Não foi possível salvar. Tente de novo."): a página renova a sessão no 401 e mostra "Não foi possível salvar. Tente de novo." nos outros 4xx
 - [ ] Gate check passes: `npm test` e `npx playwright test e2e/primeiro-acesso.spec.ts`
 - [ ] Test count: ao menos 12 testes e2e novos em `e2e/primeiro-acesso.spec.ts` (mock em `e2e/primeiro-acesso-api.ts`), nenhum removido
 
@@ -549,7 +550,7 @@ T13 → T14 → T15 → T16
 **Done when**:
 
 - [ ] A seção aparece na tela Analytics para `admin` e `leitura` e mostra o total e o gráfico de cadastros por mês (PAG-06.1, 06.2)
-- [ ] Mostra gênero, raça, UF, faixa etária e atuação com número e porcentagem; cada gráfico tem título que diz o que mede e categorias em texto (PAG-06.3, 06.11)
+- [ ] Mostra gênero, raça, faixa etária e atuação com número e porcentagem; cada gráfico tem título que diz o que mede e categorias em texto (PAG-06.3, 06.11)
 - [ ] Nenhum nome, e-mail, telefone nem data de nascimento aparece na tela nem nas chamadas de rede (PAG-06.6)
 - [ ] Sem perfis mostra "Ainda não há perfis cadastrados." e nenhum gráfico vazio (PAG-06.9)
 - [ ] Falha da rpc mostra "Não foi possível carregar o perfil. Tente de novo." sem afetar o restante do Analytics (PAG-06.10)
@@ -579,7 +580,7 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] Decisão `AD-013` registra: login só com Google, perfil de 8 campos, consentimento da versão `2026-11`, `/primeiro-acesso` como página única e trava do banco nas duas portas
+- [ ] Decisão `AD-013` registra: login só com Google, perfil de 7 campos, consentimento da versão `2026-11`, `/primeiro-acesso` como página única e trava do banco nas duas portas
 - [ ] Pendências listadas: revisão jurídica do texto do consentimento, conferir no banco que não há contas com senha, `/painel` (`painel.html`) ainda tem login próprio, `/primeiro-acesso` e `/convite` nas Redirect URLs do Supabase, sessão por `sessionStorage` perde o token se a pessoa trocar de aba, tela de lista e exportação de perfis fora do escopo
 - [ ] A seção Handoff aponta a branch, a última task e o próximo passo
 - [ ] Gate check passes: `npx tsc --noEmit` e `npm test`
