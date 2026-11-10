@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Resumo do preenchimento — proposta visual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Commissioner:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Tokens: os mesmos do Guia (legacy.css) ===== */
+:root{
+  --vinho:#571730; --verde:#035252; --coral:#EB5454; --turquesa:#4ABFB2; --roxo:#BA6BED;
+  --papel:#FBF6EE; --tinta:#17110F; --tinta-2:#5E524C; --tinta-3:#938780;
+  --linha:#E6DCCE; --linha-2:#F1E9DD; --branco:#fff;
+  --ok:#1B6B4F; --andamento:#A55415; --erro:#A32A20;
+  --nav:18.75rem; --r:4px; --barra:6.5rem;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{font-size:clamp(14px,.45vw + 9.5px,18px);scroll-behavior:smooth;scroll-padding-top:calc(var(--barra) + 1rem)}
+body{margin:0;background:var(--papel);color:var(--tinta);font-family:'Commissioner',system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,.anton{font-family:'Anton',Impact,sans-serif;font-weight:400;line-height:1.05;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2.5px solid var(--verde);outline-offset:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+/* ===== Casca do app (só para dar contexto; já existe no Guia) ===== */
+.lado{position:fixed;inset:0 auto 0 0;width:var(--nav);background:var(--vinho);color:#fff;padding:1.6rem 1.5rem;z-index:40;overflow:hidden}
+.lado .logo{font-family:'Anton';font-size:1.1rem;letter-spacing:.04em;opacity:.9;margin-bottom:1.4rem}
+.lado .nome{font-family:'Anton';font-size:1.2rem}
+.lado .sub{font-size:.78rem;color:rgba(255,255,255,.62)}
+.lado .dia{margin-top:1.1rem;display:flex;align-items:baseline;gap:.55rem}
+.lado .dia b{font-family:'Anton';font-size:2.5rem;line-height:.9;color:var(--turquesa)}
+.lado .dia span{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.lado ul{list-style:none;padding:0;margin:1.6rem 0 0}
+.lado li{display:flex;gap:.75rem;padding:.6rem .7rem;font-size:.9rem;color:rgba(255,255,255,.85);border-radius:var(--r)}
+.lado li.on{background:rgba(255,255,255,.14);color:#fff}
+.lado li i{font-style:normal;font-family:'Anton';font-size:.8rem;width:1.1rem;color:var(--turquesa)}
+.corpo{margin-left:var(--nav);min-height:100vh}
+.tela{max-width:70rem;margin:0 auto;padding:2.6rem 2.2rem 8rem}
+
+/* ===== Cabeçalho ===== */
+.etiqueta{font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--tinta-3);margin-bottom:.5rem}
+.tela>h1{font-size:clamp(2.2rem,4vw,3.2rem);color:var(--vinho)}
+.chamada{max-width:62ch;color:var(--tinta-2);margin:.8rem 0 1.8rem}
+
+/* ===== Retrato do mandato (stat boxes) ===== */
+.retrato{display:grid;grid-template-columns:auto 1fr;gap:1.2rem;align-items:stretch;margin:0 0 2rem}
+.retrato-num{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:.9rem}
+.parl{display:flex;flex-direction:column;width:10.5rem;background:var(--vinho);color:#fff;border-radius:var(--r);overflow:hidden}
+.parl .foto{position:relative;flex:1;min-height:11rem;background:#3f0f23;display:grid;place-items:center;font-family:'Anton';font-size:4.5rem;color:var(--turquesa)}
+.parl .foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.parl .id{padding:.65rem .8rem .75rem;border-top:4px solid var(--turquesa)}
+.parl .id strong{display:block;font-family:'Anton';font-weight:400;font-size:1.15rem;line-height:1.1}
+.parl .id span{display:block;font-size:.74rem;color:rgba(255,255,255,.72);line-height:1.35;margin-top:.15rem}
+@media(max-width:47.5rem){.retrato{grid-template-columns:1fr}.parl{flex-direction:row;width:100%}.parl .foto{flex:none;width:6.5rem;min-height:7.5rem;font-size:3rem}.parl .id{flex:1;border-top:0;border-left:4px solid var(--turquesa);align-self:center}}
+.stat{background:var(--branco);border:1px solid var(--linha);border-left:5px solid var(--c);border-radius:var(--r);padding:.85rem 1rem .8rem}
+.stat b{display:block;font-family:'Anton';font-weight:400;font-size:2.4rem;line-height:1;color:var(--tinta);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.stat b small{font-size:1.2rem;color:var(--tinta-2);margin-left:.15rem}
+.stat span{display:block;font-size:.84rem;font-weight:600;margin-top:.35rem;line-height:1.3}
+.stat em{display:block;font-style:normal;font-size:.72rem;color:var(--tinta-3);margin-top:.15rem}
+
+/* ===== Barra fixa: progresso + navegação + ações ===== */
+.barra{position:sticky;top:0;z-index:30;margin:0 -2.2rem 1.6rem;padding:.55rem 2.2rem .6rem;background:rgba(251,246,238,.94);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--linha);min-height:var(--barra)}
+.barra-l1{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;justify-content:space-between}
+.geral{display:flex;align-items:baseline;gap:.6rem}
+.geral b{font-family:'Anton';font-weight:400;font-size:1.9rem;line-height:1;color:var(--vinho);font-variant-numeric:tabular-nums}
+.geral span{font-size:.82rem;color:var(--tinta-2)}
+.acoes{display:flex;gap:.5rem;flex-wrap:wrap}
+.bt{border:1.5px solid var(--vinho);background:transparent;color:var(--vinho);font-weight:700;font-size:.84rem;padding:.45rem .9rem;border-radius:var(--r);transition:background-color .15s,color .15s}
+.bt.pri{background:var(--vinho);color:#fff}
+.bt:hover{background:var(--vinho);color:#fff}
+.bt.pri:hover{background:#3f0f23}
+.bt.fant{border-color:var(--linha);color:var(--tinta-2)}
+.bt.fant:hover{background:var(--tinta);border-color:var(--tinta);color:#fff}
+.segs{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;margin-top:.55rem}
+.seg{text-align:left;background:none;border:0;border-top:3px solid transparent;padding:.3rem .1rem 0;min-width:0;border-radius:0}
+.seg .t{display:flex;justify-content:space-between;gap:.4rem;font-size:.74rem;font-weight:700;color:var(--tinta-2)}
+.seg .t span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg .t span:last-child{font-variant-numeric:tabular-nums;color:var(--tinta-3)}
+.seg .f{height:6px;background:var(--linha);border-radius:3px;margin-top:.3rem;overflow:hidden}
+.seg .f i{display:block;height:100%;background:var(--c);width:var(--p);transition:width .4s}
+.seg:hover .t span:first-child{color:var(--tinta)}
+.seg[aria-current="true"]{border-top-color:var(--c)}
+.seg[aria-current="true"] .t span:first-child{color:var(--tinta)}
+
+/* ===== Ferramentas da lista ===== */
+.ferr{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;align-items:center;margin:0 0 1.2rem;font-size:.86rem}
+.lk{background:none;border:0;padding:.2rem 0;color:var(--verde);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.chave{display:inline-flex;align-items:center;gap:.5rem;font-weight:600;color:var(--tinta-2);cursor:pointer}
+.chave input{width:1.05rem;height:1.05rem;accent-color:var(--verde)}
+.pend-total{margin-left:auto;color:var(--tinta-3)}
+
+/* ===== Missão (acordeão de 1º nível) ===== */
+.missao{margin:0 0 1.6rem;background:var(--branco);border:1px solid var(--linha);border-top:4px solid var(--c);border-radius:var(--r)}
+.missao>summary{list-style:none;display:grid;grid-template-columns:1fr auto auto;gap:.3rem 1.2rem;align-items:center;padding:1rem 1.3rem;cursor:pointer}
+.missao>summary::-webkit-details-marker{display:none}
+.m-eb{grid-column:1;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ct)}
+.m-tit{grid-column:1;font-family:'Anton';font-size:1.55rem;line-height:1.05}
+.m-prazo{grid-column:2;grid-row:1/3;font-size:.78rem;color:var(--tinta-3);text-align:right}
+.m-cont{grid-column:3;grid-row:1/3;display:flex;align-items:center;gap:.7rem}
+.m-cont b{font-family:'Anton';font-weight:400;font-size:1.3rem;font-variant-numeric:tabular-nums}
+.chev{width:.7rem;height:.7rem;border-right:2.5px solid var(--tinta-2);border-bottom:2.5px solid var(--tinta-2);transform:rotate(-45deg);transition:transform .2s}
+details[open]>summary .chev{transform:rotate(45deg)}
+.missao>summary:hover .m-tit{color:var(--ct)}
+.m-corpo{padding:0 1.3rem 1.2rem}
+.m-vazia{margin:0 0 .6rem;padding:.8rem 1rem;background:var(--linha-2);border-radius:var(--r);font-size:.9rem;color:var(--tinta-2);display:flex;justify-content:space-between;gap:1rem;align-items:center;flex-wrap:wrap}
+
+/* ===== Exercício (acordeão de 2º nível) ===== */
+.ex{border-top:1px solid var(--linha)}
+.ex>summary{list-style:none;display:grid;grid-template-columns:1fr auto;gap:.15rem 1rem;align-items:center;padding:.85rem 0;cursor:pointer}
+.ex>summary::-webkit-details-marker{display:none}
+.ex-t{display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;font-weight:700;font-size:1rem}
+.ex-t .chev{width:.55rem;height:.55rem;flex:none}
+.ex-p{grid-column:1;font-size:.84rem;color:var(--tinta-3);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;padding-left:1.25rem}
+.ex[open] .ex-p{display:none}
+.ex-n{grid-column:2;grid-row:1/3;font-size:.78rem;color:var(--tinta-3);font-variant-numeric:tabular-nums;text-align:right}
+.selo{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:2px .5rem;border-radius:2px;font-weight:700;background:var(--linha-2);color:var(--tinta-3)}
+.selo.ok{background:rgba(27,107,79,.12);color:var(--ok)}
+.selo.andamento{background:rgba(165,84,21,.12);color:var(--andamento)}
+.ex-corpo{padding:.2rem 0 1.2rem 1.25rem}
+.ex-corpo a.ir{font-size:.8rem;font-weight:700;color:var(--verde)}
+
+/* pergunta / resposta */
+.q{margin:0 0 1.1rem}
+.q>.pq{font-size:.8rem;font-weight:700;color:var(--tinta-3);margin:0 0 .25rem}
+.q>.pq a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--tinta-3)}
+.q>.pq a:hover{color:var(--verde);border-color:var(--verde)}
+.q>.rs{margin:0;padding-left:.9rem;border-left:2px solid var(--linha);font-size:.95rem;max-width:72ch}
+.sem{color:var(--tinta-3);font-style:italic}
+.q.vazio>.rs{border-left-style:dashed}
+.preencher{margin-left:.6rem;font-style:normal;font-size:.8rem;font-weight:700;color:var(--verde)}
+
+/* cartão de pessoa */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(15.5rem,1fr));gap:.7rem;margin:.4rem 0 1rem}
+.pessoa{display:flex;gap:.75rem;padding:.75rem;border:1px solid var(--linha);border-radius:var(--r);background:var(--papel);min-width:0}
+.av{flex:none;width:2.9rem;height:2.9rem;border-radius:50%;background:var(--linha);display:grid;place-items:center;font-family:'Anton';font-size:1.2rem;color:var(--vinho);
+  box-shadow:0 0 0 3px var(--ring,var(--linha))}
+.pessoa.grande .av{width:4rem;height:4rem;font-size:1.6rem}
+.pessoa div{min-width:0}
+.pessoa strong{display:block;font-size:.93rem;line-height:1.2;overflow-wrap:anywhere}
+.pessoa .meta{font-size:.78rem;color:var(--tinta-2);line-height:1.35}
+.pessoa .votos{font-size:.8rem;font-weight:700;margin-top:.2rem;font-variant-numeric:tabular-nums}
+.partido{display:inline-block;font-size:.68rem;font-weight:700;padding:0 .4rem;border-radius:2px;background:var(--vinho);color:#fff;margin-right:.3rem;vertical-align:1px}
+.grp{display:flex;align-items:center;gap:.5rem;margin:1.1rem 0 .1rem;font-size:.82rem;font-weight:700}
+.grp span{color:#fff;border-radius:999px;padding:1px .6rem;font-size:.75rem}
+.grp.al span{background:var(--verde)}.grp.op span{background:var(--coral)}.grp.po span{background:var(--roxo)}
+.cards.al{--ring:var(--verde)}.cards.op{--ring:var(--coral)}.cards.po{--ring:var(--roxo)}
+
+/* tags */
+.tag{display:inline-block;font-size:.78rem;font-weight:600;padding:.12rem .6rem;border-radius:999px;margin:0 .3rem .3rem 0;border:1px solid transparent}
+.tag.prob{background:rgba(235,84,84,.12);color:var(--erro);border-color:rgba(235,84,84,.3)}
+.tag.pot{background:rgba(3,82,82,.1);color:var(--verde);border-color:rgba(3,82,82,.28)}
+.tag.bandeira{background:var(--vinho);color:#fff}
+.leg{display:flex;gap:1rem;font-size:.76rem;color:var(--tinta-2);margin:.2rem 0 .6rem;flex-wrap:wrap}
+.leg .tag{margin:0 .3rem 0 0}
+
+/* tabela por território */
+.terr{width:100%;border-collapse:collapse;font-size:.88rem}
+.terr th{text-align:left;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tinta-3);padding:.4rem .6rem;border-bottom:2px solid var(--linha)}
+.terr td{padding:.65rem .6rem;border-bottom:1px solid var(--linha-2);vertical-align:top}
+.terr td:first-child{font-weight:700;white-space:nowrap}
+.terr-w{overflow-x:auto}
+
+/* fragilidades */
+.frag{list-style:none;padding:0;margin:0;display:grid;gap:.4rem}
+.frag li{display:flex;gap:.7rem;align-items:baseline;font-size:.92rem}
+.frag b{flex:none;font-family:'Anton';font-weight:400;font-size:.8rem;width:1.5rem;height:1.5rem;display:grid;place-items:center;border-radius:2px;color:#fff}
+.frag b.M{background:var(--verde)}.frag b.P{background:var(--vinho)}
+
+/* organograma */
+.org-leg{display:flex;gap:1.1rem;flex-wrap:wrap;font-size:.76rem;color:var(--tinta-2);margin:.2rem 0 1rem}
+.org-leg i{display:inline-block;width:.8rem;height:.8rem;border-radius:2px;margin-right:.35rem;vertical-align:-1px}
+.org{--lig:#C9BBAA}
+.org-raiz{display:flex;justify-content:center;position:relative;padding-bottom:1.1rem}
+.org-raiz::after{content:"";position:absolute;left:50%;bottom:0;height:1.1rem;border-left:2px solid var(--lig)}
+.org-ram{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem;position:relative;padding-top:1.1rem}
+.org-ram::before{content:"";position:absolute;top:0;left:12.5%;right:12.5%;border-top:2px solid var(--lig)}
+.ram{position:relative;min-width:0}
+.ram::before{content:"";position:absolute;top:-1.1rem;left:50%;height:1.1rem;border-left:2px solid var(--lig)}
+.ram h5{margin:0 0 .45rem;font-family:'Commissioner';font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;text-align:center;color:var(--tinta-2);font-weight:700}
+.car{display:block;padding:.5rem .6rem;margin-bottom:.4rem;border:1px solid var(--linha);border-left:4px solid var(--ok);border-radius:var(--r);background:var(--branco);min-width:0}
+.car small{display:block;font-size:.68rem;color:var(--tinta-3);line-height:1.25}
+.car strong{display:block;font-size:.84rem;line-height:1.25;overflow-wrap:anywhere}
+.car.chefe{width:min(17rem,100%)}
+.car.vaga{border-style:dashed;border-left:4px dashed var(--andamento);background:rgba(165,84,21,.06)}
+.car.vaga strong{color:var(--andamento)}
+.car.aberto{border-left-color:var(--linha);background:var(--papel)}
+.car.aberto strong{color:var(--tinta-3);font-weight:400;font-style:italic}
+
+/* checklist vazio e metas */
+.prev{margin:0;padding-left:1.1rem;font-size:.92rem}
+
+/* rodapé de ações no celular */
+@media(max-width:61.25rem){
+  .lado{display:none}.corpo{margin-left:0}
+  .tela{padding:1.6rem 1rem 7rem}
+  .barra{margin:0 -1rem 1.3rem;padding:.5rem 1rem}
+  .acoes{position:fixed;left:0;right:0;bottom:0;background:var(--papel);border-top:1px solid var(--linha);padding:.6rem 1rem calc(.6rem + env(safe-area-inset-bottom));z-index:35;display:grid;grid-template-columns:1fr}
+  .acoes .bt{padding:.6rem .4rem;font-size:.8rem}
+  .segs{display:flex;overflow-x:auto;gap:.9rem;scrollbar-width:none;padding-bottom:.1rem}
+  .segs::-webkit-scrollbar{display:none}
+  .seg{flex:none;width:7.2rem}
+  :root{--barra:5.5rem}
+  .org-ram{grid-template-columns:1fr;padding-top:0}
+  .org-ram::before,.ram::before,.org-raiz::after{display:none}
+  .m-prazo{display:none}
+  .m-tit{font-size:1.3rem}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+
+/* ===== Só pendentes ===== */
+.so-pend .ex[data-estado="ok"]{display:none}
+.so-pend .missao[data-pend="0"]{display:none}
+
+/* ===== Impressão: tudo aberto, sem barras ===== */
+@media print{
+  .lado,.barra,.ferr,.nota,.anexo{display:none!important}
+  .corpo{margin:0}.tela{max-width:none;padding:0}
+  .missao{break-inside:auto;border:0;border-top:3px solid var(--c)}
+  .ex{break-inside:avoid}
+  .chev{display:none}
+  .ex-p{display:none}
+}
+
+/* ===== Anexo: decisões sobre as sugestões ===== */
+.anexo{margin-top:3.5rem;padding-top:1.6rem;border-top:3px solid var(--tinta)}
+.anexo h2{font-size:1.7rem;margin-bottom:.4rem}
+.anexo>p{max-width:70ch;color:var(--tinta-2)}
+.dec{width:100%;border-collapse:collapse;font-size:.86rem;margin:1rem 0 2rem;background:var(--branco)}
+.dec th{text-align:left;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tinta-3);padding:.5rem .7rem;border-bottom:2px solid var(--linha)}
+.dec td{padding:.65rem .7rem;border-bottom:1px solid var(--linha-2);vertical-align:top}
+.dec td:first-child{font-weight:700;width:22%}
+.dec td:nth-child(2){width:11%}
+.v{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px .5rem;border-radius:2px;white-space:nowrap}
+.v.a{background:rgba(27,107,79,.12);color:var(--ok)}.v.b{background:rgba(165,84,21,.12);color:var(--andamento)}.v.c{background:rgba(87,23,48,.1);color:var(--vinho)}
+.anexo h3{font-size:1.2rem;margin:1.6rem 0 .5rem}
+.anexo ul{margin:.3rem 0 0;padding-left:1.2rem;max-width:78ch;font-size:.9rem}
+.anexo li{margin-bottom:.35rem}
+.nota{background:var(--vinho);color:#fff;font-size:.8rem;padding:.5rem 1rem;text-align:center}
+</style>
+</head>
+<body>
+<div class="nota">Proposta visual com dados de exemplo (nada aqui vem de um mandato real). Role a página, recolha seções e use a barra fixa para testar.</div>
+
+<aside class="lado" aria-hidden="true">
+  <div class="logo">LEGISLA</div>
+  <div class="nome">Marta Silva</div>
+  <div class="sub">Deputada estadual · SP · PSB</div>
+  <div class="dia"><b>12</b><span>de 100 dias</span></div>
+  <ul>
+    <li><i>1</i>Prepare sua chegada</li><li><i>2</i>Estruture a equipe</li><li><i>3</i>Defina o rumo</li>
+    <li><i>4</i>Construa capital político</li><li><i>5</i>Garanta o avanço</li>
+    <li class="on"><i>≡</i>Resumo do preenchimento</li>
+  </ul>
+</aside>
+
+<main class="corpo">
+<div class="tela" id="tela">
+  <div class="etiqueta">Mandato</div>
+  <h1>Resumo do preenchimento</h1>
+  <p class="chamada">Tudo o que a equipe registrou, exercício por exercício. Use nas reuniões de alinhamento e na imersão de planejamento.</p>
+
+  <section class="retrato" aria-label="Retrato do mandato">
+    <div class="parl">
+      <div class="foto"><span aria-hidden="true">M</span><img src="" alt="Foto de Marta Silva" width="168" height="224" hidden></div>
+      <div class="id"><strong>Marta Silva</strong><span>Deputada estadual · SP<br>PSB · eleita em 2026</span></div>
+    </div>
+    <div class="retrato-num">
+      <div class="stat" style="--c:var(--turquesa)"><b>97.335</b><span>Votos válidos</span><em>57º mais votado · SP · TSE 2026</em></div>
+      <div class="stat" style="--c:var(--turquesa)"><b>2</b><span>Cadeiras do PSB na Câmara SP</span><em>Missão 1 · conjuntura do partido</em></div>
+      <div class="stat" style="--c:var(--turquesa)"><b>112 mil<small>+</small></b><span>Filiados do PSB em SP</span><em>TSE · atualizado todo mês</em></div>
+      <div class="stat" style="--c:var(--coral)"><b>11<small>/20</small></b><span>Cargos da equipe com nome</span><em>Missão 2 · 3 processos seletivos a abrir</em></div>
+    </div>
+  </section>
+
+  <!-- Barra fixa -->
+  <div class="barra" id="barra">
+    <div class="barra-l1">
+      <div class="geral"><b>38%</b><span>do planejamento concluído · 6 de 16 exercícios</span></div>
+      <div class="acoes">
+        <button class="bt pri" type="button">Baixar resumo completo (HTML)</button>
+      </div>
+    </div>
+    <nav class="segs" aria-label="Ir para a missão" id="segs"></nav>
+  </div>
+
+  <div class="ferr">
+    <button class="lk" type="button" id="expandir">Expandir tudo</button>
+    <button class="lk" type="button" id="recolher">Recolher tudo</button>
+    <label class="chave"><input type="checkbox" id="so"> Mostrar só o que falta preencher</label>
+    <span class="pend-total" aria-live="polite" id="pt">10 exercícios ainda sem conclusão</span>
+  </div>
+
+  <!-- ============ MISSÃO 1 ============ -->
+  <details class="missao" id="m1" open style="--c:#4ABFB2;--ct:#176F66" data-pend="1">
+    <summary>
+      <span class="m-eb">Missão 1</span><span class="m-tit">Prepare sua chegada</span>
+      <span class="m-prazo">até o 15º dia</span>
+      <span class="m-cont"><b>3/4</b><i class="chev"></i></span>
+    </summary>
+    <div class="m-corpo">
+
+      <details class="ex" data-estado="ok" open>
+        <summary>
+          <span class="ex-t"><i class="chev"></i>A persona <span class="selo ok">concluído</span></span>
+          <span class="ex-p">Filha de professora, sindicalista na rede estadual por 12 anos antes da primeira candidatura…</span>
+          <span class="ex-n">3 de 3 perguntas</span>
+        </summary>
+        <div class="ex-corpo">
+          <div class="q"><p class="pq"><a href="#">1. Quem é a liderança parlamentar?</a></p>
+            <p class="rs">Professora de história, sindicalista na rede estadual por 12 anos. Entrou na política pela defesa da merenda escolar e foi vereadora antes de disputar a Assembleia.</p></div>
+          <div class="q"><p class="pq"><a href="#">2. Qual foi o seu desempenho eleitoral em todos os pleitos?</a></p>
+            <div class="rs" style="border:0;padding:0">
+              <div class="pessoa grande" style="max-width:34rem;--ring:var(--turquesa)">
+                <span class="av" aria-hidden="true">M</span>
+                <div><strong>Marta Silva</strong>
+                  <span class="meta"><span class="partido">PSB</span>Deputada estadual · SP</span>
+                  <div class="votos">97.335 votos · 0,43% dos votos válidos do cargo</div>
+                  <span class="meta">57º mais votada entre 1.812 candidaturas (94 vagas) · Eleita por QP</span></div>
+              </div>
+            </div></div>
+          <div class="q"><p class="pq"><a href="#">3. Qual é o desejo da liderança parlamentar para o futuro?</a></p>
+            <p class="rs">Reeleição em 2030 com votação concentrada na Zona Leste e, em dois mandatos, disputar a presidência da Comissão de Educação.</p></div>
+        </div>
+      </details>
+
+      <details class="ex" data-estado="ok" open>
+        <summary>
+          <span class="ex-t"><i class="chev"></i>A conjuntura <span class="selo ok">concluído</span></span>
+          <span class="ex-p">7 relacionamentos mapeados na Casa · PSB com 2 cadeiras · 112 mil filiados em SP…</span>
+          <span class="ex-n">3 de 3 perguntas</span>
+        </summary>
+        <div class="ex-corpo">
+          <div class="q"><p class="pq"><a href="#">4. Como está posta a legislatura atual?</a></p>
+            <div class="rs" style="border:0;padding:0">
+              <div class="grp al"><span>Aliados · 3</span></div>
+              <div class="cards al" data-lista="aliados"></div>
+              <div class="grp op"><span>Opositores · 2</span></div>
+              <div class="cards op" data-lista="opositores"></div>
+              <div class="grp po"><span>Potenciais · 2</span></div>
+              <div class="cards po" data-lista="potenciais"></div>
+            </div></div>
+          <div class="q"><p class="pq"><a href="#">5. Qual é a conjuntura política regional e nacional do seu partido?</a></p>
+            <p class="rs">Bancada pequena, mas com assento na Comissão de Educação. Partido no campo do governo federal e na oposição ao governo estadual.</p></div>
+          <div class="q"><p class="pq"><a href="#">6. Qual é a conjuntura política do seu estado ou município de origem?</a></p>
+            <p class="rs">Capital dividida entre dois blocos; a Zona Leste decide a eleição municipal e é onde a deputada tem base.</p></div>
+        </div>
+      </details>
+
+      <details class="ex" data-estado="andamento" open>
+        <summary>
+          <span class="ex-t"><i class="chev"></i>As oportunidades e ameaças <span class="selo andamento">em andamento</span></span>
+          <span class="ex-p">Expectativas do eleitorado: 1ª pergunta não preenchida · 3 territórios mapeados…</span>
+          <span class="ex-n">1 de 2 perguntas</span>
+        </summary>
+        <div class="ex-corpo">
+          <div class="q vazio"><p class="pq"><a href="#">7. Quais são as principais expectativas do eleitorado?</a></p>
+            <p class="rs"><span class="sem">não preenchido</span><a class="preencher" href="#">Preencher →</a></p></div>
+          <div class="q"><p class="pq"><a href="#">8. Qual é a conjuntura social do território?</a></p>
+            <div class="leg"><span><span class="tag prob">Problema</span>o que dói hoje</span><span><span class="tag pot">Potencialidade</span>o que pode crescer</span></div>
+            <div class="terr-w"><table class="terr">
+              <thead><tr><th scope="col">Território</th><th scope="col">Problemas</th><th scope="col">Potencialidades</th></tr></thead>
+              <tbody>
+                <tr><th scope="row" style="font-weight:700;font-size:.88rem;text-transform:none;letter-spacing:0;color:var(--tinta)">Zona Leste</th>
+                  <td><span class="tag prob">Segurança pública</span><span class="tag prob">Transporte</span></td>
+                  <td><span class="tag pot">Inteligência artificial</span><span class="tag pot">Economia criativa</span></td></tr>
+                <tr><th scope="row" style="font-weight:700;font-size:.88rem;text-transform:none;letter-spacing:0;color:var(--tinta)">Baixada Santista</th>
+                  <td><span class="tag prob">Saneamento</span><span class="tag prob">Habitação</span></td>
+                  <td><span class="tag pot">Economia do mar</span></td></tr>
+                <tr><th scope="row" style="font-weight:700;font-size:.88rem;text-transform:none;letter-spacing:0;color:var(--tinta)">Vale do Ribeira</th>
+                  <td><span class="tag prob">Educação básica</span></td>
+                  <td><span class="tag pot">Turismo</span><span class="tag pot">Agricultura familiar</span></td></tr>
+              </tbody></table></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="ex" data-estado="ok">
+        <summary>
+          <span class="ex-t"><i class="chev"></i>As fragilidades <span class="selo ok">concluído</span></span>
+          <span class="ex-p">5 fragilidades classificadas: 3 do mandato e 2 da parlamentar</span>
+          <span class="ex-n">5 itens</span>
+        </summary>
+        <div class="ex-corpo">
+          <p class="pq" style="font-size:.8rem;font-weight:700;color:var(--tinta-3);margin:0 0 .4rem">Fragilidades classificadas <span style="font-weight:400">(M = mandato · P = parlamentar)</span></p>
+          <ul class="frag">
+            <li><b class="M">M</b>Rotina de gestão de emendas parlamentares</li>
+            <li><b class="P">P</b>Domínio do regimento interno da Casa</li>
+            <li><b class="M">M</b>Prestação de contas e transparência</li>
+            <li><b class="P">P</b>Oratória em plenário</li>
+            <li><b class="M">M</b>Comunicação em tempo real</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <!-- ============ MISSÃO 2 ============ -->
+  <details class="missao" id="m2" open style="--c:#EB5454;--ct:#B83636" data-pend="1">
+    <summary>
+      <span class="m-eb">Missão 2</span><span class="m-tit">Estruture a equipe</span>
+      <span class="m-prazo">até o 30º dia</span>
+      <span class="m-cont"><b>1/2</b><i class="chev"></i></span>
+    </summary>
+    <div class="m-corpo">
+      <details class="ex" data-estado="ok" open>
+        <summary>
+          <span class="ex-t"><i class="chev"></i>A escalação do time <span class="selo ok">concluído</span></span>
+          <span class="ex-p">11 de 20 cargos com nome · 3 processos seletivos a abrir</span>
+          <span class="ex-n">11 de 20 cargos</span>
+        </summary>
+        <div class="ex-corpo">
+          <div class="org-leg" aria-label="Legenda">
+            <span><i style="background:var(--ok)"></i>Preenchido</span>
+            <span><i style="background:var(--andamento)"></i>Processo seletivo a abrir</span>
+            <span><i style="background:var(--linha);border:1px solid var(--tinta-3)"></i>Ainda sem nome</span>
+          </div>
+          <div class="org" id="org"></div>
+        </div>
+      </details>
+
+      <details class="ex" data-estado="nao">
+        <summary>
+          <span class="ex-t"><i class="chev"></i>Organograma e rotinas <span class="selo">não iniciado</span></span>
+          <span class="ex-p">Escopo de cada cargo, organograma do mandato e rotinas de comunicação pactuadas.</span>
+          <span class="ex-n">0 de 9 itens</span>
+        </summary>
+        <div class="ex-corpo">
+          <div class="m-vazia"><span>Nenhum item do checklist foi marcado ainda.</span><a class="preencher" style="margin:0" href="#">Começar este exercício →</a></div>
+        </div>
+      </details>
+    </div>
+  </details>
+
+  <!-- ============ MISSÃO 3 ============ -->
+  <details class="missao" id="m3" open style="--c:#571730;--ct:#571730" data-pend="2">
+    <summary>
+      <span class="m-eb">Missão 3</span><span class="m-tit">Defina o rumo</span>
+      <span class="m-prazo">até o 45º dia</span>
+      <span class="m-cont"><b>2/4</b><i class="chev"></i></span>
+    </summary>
+    <div class="m-corpo">
+      <details class="ex" data-estado="ok">
+        <summary>
+          <span class="ex-t"><i class="chev"></i>As bandeiras do mandato <span class="selo ok">concluído</span></span>
+          <span class="ex-p">Educação pública · Mulheres na política · Juventude e trabalho</span>
+          <span class="ex-n">3 bandeiras</span>
+        </summary>
+        <div class="ex-corpo"><span class="tag bandeira">Educação pública</span><span class="tag bandeira">Mulheres na política</span><span class="tag bandeira">Juventude e trabalho</span></div>
+      </details>
+      <details class="ex" data-estado="ok">
+        <summary>
+          <span class="ex-t"><i class="chev"></i>O Legado do mandato <span class="selo ok">concluído</span></span>
+          <span class="ex-p">Ser lembrada como a deputada que levou o ensino técnico a toda a Zona Leste.</span>
+          <span class="ex-n">2 de 2 campos</span>
+        </summary>
+        <div class="ex-corpo">
+          <div class="q"><p class="pq"><a href="#">Como queremos ser lembrados ao fim do mandato?</a></p><p class="rs">Ser lembrada como a deputada que levou o ensino técnico a toda a Zona Leste.</p></div>
+          <div class="q"><p class="pq"><a href="#">Que marca concreta o mandato deixa?</a></p><p class="rs">Lei do ensino técnico integrado e três escolas técnicas em funcionamento.</p></div>
+        </div>
+      </details>
+      <details class="ex" data-estado="andamento">
+        <summary>
+          <span class="ex-t"><i class="chev"></i>Os preditores de sucesso <span class="selo andamento">em andamento</span></span>
+          <span class="ex-p">2 preditores escolhidos · 1 objetivo ainda sem texto</span>
+          <span class="ex-n">2 preditores</span>
+        </summary>
+        <div class="ex-corpo">
+          <div class="q"><p class="pq">Presença territorial</p><p class="rs">Visitar todas as 32 subprefeituras até o 100º dia.</p></div>
+          <div class="q vazio"><p class="pq">Produção legislativa</p><p class="rs"><span class="sem">não preenchido</span><a class="preencher" href="#">Preencher →</a></p></div>
+        </div>
+      </details>
+      <details class="ex" data-estado="nao">
+        <summary>
+          <span class="ex-t"><i class="chev"></i>As metas dos primeiros 100 dias <span class="selo">não iniciado</span></span>
+          <span class="ex-p">Nenhuma meta cadastrada.</span>
+          <span class="ex-n">0 metas</span>
+        </summary>
+        <div class="ex-corpo"><div class="m-vazia"><span>Nenhuma meta cadastrada.</span><a class="preencher" style="margin:0" href="#">Cadastrar a primeira meta →</a></div></div>
+      </details>
+    </div>
+  </details>
+
+  <!-- ============ MISSÃO 4 (não iniciada: já vem recolhida) ============ -->
+  <details class="missao" id="m4" style="--c:#BA6BED;--ct:#7E2FB8" data-pend="3">
+    <summary>
+      <span class="m-eb">Missão 4</span><span class="m-tit">Construa capital político</span>
+      <span class="m-prazo">desde o 1º dia</span>
+      <span class="m-cont"><b>0/3</b><i class="chev"></i></span>
+    </summary>
+    <div class="m-corpo">
+      <div class="m-vazia"><span>Missão ainda não iniciada. Ela abre sozinha quando houver a primeira resposta.</span><a class="preencher" style="margin:0" href="#">Começar a Missão 4 →</a></div>
+      <details class="ex" data-estado="nao"><summary><span class="ex-t"><i class="chev"></i>A escolha das Comissões Permanentes <span class="selo">não iniciado</span></span><span class="ex-n">0 comissões</span></summary><div class="ex-corpo"><span class="sem">não preenchido</span></div></details>
+      <details class="ex" data-estado="nao"><summary><span class="ex-t"><i class="chev"></i>As ações dos 100 dias <span class="selo">não iniciado</span></span><span class="ex-n">0 ações</span></summary><div class="ex-corpo"><span class="sem">não preenchido</span></div></details>
+      <details class="ex" data-estado="nao"><summary><span class="ex-t"><i class="chev"></i>O acompanhamento da comunicação <span class="selo">não iniciado</span></span><span class="ex-n">0 de 6 itens</span></summary><div class="ex-corpo"><span class="sem">não preenchido</span></div></details>
+    </div>
+  </details>
+
+  <!-- ============ MISSÃO 5 ============ -->
+  <details class="missao" id="m5" style="--c:#035252;--ct:#035252" data-pend="3">
+    <summary>
+      <span class="m-eb">Missão 5</span><span class="m-tit">Garanta o avanço</span>
+      <span class="m-prazo">começar antes do 100º dia</span>
+      <span class="m-cont"><b>0/3</b><i class="chev"></i></span>
+    </summary>
+    <div class="m-corpo">
+      <div class="m-vazia"><span>Missão ainda não iniciada.</span><a class="preencher" style="margin:0" href="#">Começar a Missão 5 →</a></div>
+      <details class="ex" data-estado="nao"><summary><span class="ex-t"><i class="chev"></i>O monitoramento do avanço das metas <span class="selo">não iniciado</span></span><span class="ex-n">0 monitoramentos</span></summary><div class="ex-corpo"><span class="sem">não preenchido</span></div></details>
+      <details class="ex" data-estado="nao"><summary><span class="ex-t"><i class="chev"></i>O primeiro ciclo de feedback estruturado <span class="selo">não iniciado</span></span><span class="ex-n">0 registros</span></summary><div class="ex-corpo"><span class="sem">não preenchido</span></div></details>
+      <details class="ex" data-estado="nao"><summary><span class="ex-t"><i class="chev"></i>Calibragem e replanejamento <span class="selo">não iniciado</span></span><span class="ex-n">0 itens</span></summary><div class="ex-corpo"><span class="sem">não preenchido</span></div></details>
+    </div>
+  </details>
+
+  <!-- ============ ANEXO: decisões ============ -->
+  <section class="anexo" aria-labelledby="anx">
+    <h2 id="anx">O que foi feito com cada sugestão</h2>
+    <p>Esta seção é só para a validação: não existe no produto. Cada linha diz se a sugestão da outra IA entrou como veio, entrou adaptada ou ficou de fora, e por quê.</p>
+    <table class="dec">
+      <thead><tr><th scope="col">Sugestão</th><th scope="col">Decisão</th><th scope="col">Motivo</th></tr></thead>
+      <tbody>
+        <tr><td>Índice lateral fixo com as 5 missões</td><td><span class="v b">Adaptada</span></td><td>O Guia já tem um menu lateral de 300 px. Uma segunda coluna fixa espremeria o conteúdo e não funciona no celular. O índice virou 5 segmentos na barra fixa do topo, que também mostram o progresso de cada missão e marcam a missão em que você está ao rolar.</td></tr>
+        <tr><td>Recolher cada missão</td><td><span class="v a">Aceita</span></td><td>Missão sem nenhuma resposta já abre recolhida. Há "Expandir tudo" e "Recolher tudo". Na impressão tudo abre sozinho.</td></tr>
+        <tr><td>Barra de progresso geral e por missão</td><td><span class="v a">Aceita</span></td><td>Usa a mesma conta do menu lateral (exercícios marcados como concluídos), para os números não divergirem. Atenção: o percentual só sobe quando o exercício é marcado como concluído, não quando se digita texto.</td></tr>
+        <tr><td>Cards de parceiros e concorrentes</td><td><span class="v a">Aceita</span></td><td>Agrupados em aliados, opositores e potenciais, com cor de anel por grupo. A foto vem do TSE (o Resumo já faz isso hoje) e cai para a inicial do nome quando não carrega.</td></tr>
+        <tr><td>Problemas e potencialidades com tags coloridas por tema</td><td><span class="v b">Adaptada</span></td><td>A cor indica o <em>tipo</em> (vermelho = problema, verde = potencialidade), não o tema. Colorir por tema não escala (são dezenas de agendas) e a cor deixaria de significar uma coisa só.</td></tr>
+        <tr><td>Organograma em árvore com vagas em aberto</td><td><span class="v a">Aceita</span></td><td>Cargos com "*" já significam "processo seletivo a abrir" no Guia; ganham borda tracejada. Cargos sem nome aparecem apagados. A árvore tem 4 áreas sob a Chefia de gabinete; no celular vira lista.</td></tr>
+        <tr><td>Sanfonas por subtópico</td><td><span class="v b">Adaptada</span></td><td>Um acordeão por exercício, não por pergunta (pergunta a pergunta ficaria picado). Fechado, mostra uma prévia de uma linha e o contador. Usa <code>&lt;details&gt;</code> nativo: funciona por teclado e leitor de tela sem JavaScript extra.</td></tr>
+        <tr><td>KPIs em destaque</td><td><span class="v a">Aceita</span></td><td>Quatro números lidos dos módulos que já existem (TSE, cadeiras, filiados, equipe). Cada caixa leva a cor da missão de origem. O bloco só mostra o número que tiver dado; sem dado, some.</td></tr>
+        <tr><td>Foto da parlamentar no cabeçalho <em>(pedido na validação)</em></td><td><span class="v a">Incluída</span></td><td>Retrato ao lado dos grandes números, com nome, cargo e partido. Na versão real usa a foto do TSE (a mesma do cartão da Missão 1, pelo <code>sq</code> da candidatura) e, se não carregar ou não houver candidatura vinculada, mostra a inicial do nome. Aqui aparece a inicial porque não há foto real.</td></tr>
+        <tr><td>Botões de ação fixos</td><td><span class="v b">Adaptada</span></td><td>Ficou um só botão, "Baixar resumo completo (HTML)", a pedido na validação: "Gerar PDF" e "Baixar dados (JSON)" saem da tela. No topo no computador; no celular vão para uma barra no rodapé, onde o polegar alcança. Somem na impressão.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Itens novos, vindos da revisão de interface</h3>
+    <ul>
+      <li><strong>Só o que falta preencher.</strong> Chave que esconde exercícios concluídos. Serve para a reunião de alinhamento: "o que ainda está aberto?".</li>
+      <li><strong>Vazio com saída.</strong> "Não preenchido" ganha o link "Preencher →" que leva à pergunta (o Guia já tem a rota <code>#/m/N/exercicio/PASSO</code>).</li>
+      <li><strong>Impressão pelo navegador.</strong> Sem o botão de PDF, quem usar Ctrl+P ainda recebe tudo aberto e sem barras (com acordeões fechados a página sairia vazia).</li>
+      <li><strong>Acessibilidade.</strong> Segmentos como botões com <code>aria-current</code>, foco visível, <code>scroll-margin</code> para a barra fixa não cobrir o título ao pular, movimento reduzido respeitado, números com algarismos tabulares.</li>
+    </ul>
+
+    <h3>Riscos de implementação</h3>
+    <ul>
+      <li>O Resumo é reaproveitado em outros lugares (o bloco recolhível de cada missão e o HTML baixado). A nova casca deve ficar só na tela <code>#/resumo</code>, e o download continua simples.</li>
+      <li><code>app.js</code> e <code>legacy.css</code> são regenerados pela extração. A mudança entra por override em <code>novos.js</code> e <code>ilhas.css</code>.</li>
+      <li>A barra fixa não pode usar âncoras <code>#</code>: o roteador do Guia usa o hash. Os segmentos rolam por <code>scrollIntoView</code>.</li>
+      <li>O estado aberto/fechado fica só no navegador (<code>localStorage</code>); a URL pertence ao roteador.</li>
+    </ul>
+  </section>
+</div>
+</main>
+
+<script>
+/* ---------- dados de exemplo ---------- */
+var MISSOES=[
+  {id:'m1',nome:'Prepare sua chegada',f:3,t:4,c:'#4ABFB2'},
+  {id:'m2',nome:'Estruture a equipe',f:1,t:2,c:'#EB5454'},
+  {id:'m3',nome:'Defina o rumo',f:2,t:4,c:'#571730'},
+  {id:'m4',nome:'Construa capital político',f:0,t:3,c:'#BA6BED'},
+  {id:'m5',nome:'Garanta o avanço',f:0,t:3,c:'#035252'}];
+var PESSOAS={
+  aliados:[['Rogério Batista','PSB','Dep. estadual · SP','61.204'],['Helena Duarte','PT','Dep. estadual · SP','88.410'],['Cláudio Neves','PSB','Vereador · São Paulo','23.115']],
+  opositores:[['Wilson Prado','PL','Dep. estadual · SP','102.870'],['Sandra Teixeira','NOVO','Dep. estadual · SP','54.332']],
+  potenciais:[['Marcos Yamada','PSD','Dep. estadual · SP','47.901'],['Beatriz Cardoso','MDB','Dep. estadual · SP','39.560']]};
+/* [cargo, nome, estado] estado: ok | vaga | aberto */
+var ORG={
+ chefe:['Chefia de gabinete','Paulo Ribeiro','ok'],
+ ramos:[
+  ['Legislativo',[['Coord. Legislativo/a','Ana Furtado','ok'],['Ass. Legislativo/a','Lucas Menezes','ok'],['Ass. Políticas públicas','Processo seletivo a abrir','vaga'],['Ass. Emendas','Camila Rocha','ok'],['Especialista temático 1','Educação · Beto Lima','ok'],['Especialista temático 2','Sem nome','aberto']]],
+  ['Comunicação',[['Coord. Comunicação','Dani Pires','ok'],['Social-media','Igor Santana','ok'],['Vídeo-maker','Processo seletivo a abrir','vaga'],['Ass. Tempo real','Sem nome','aberto']]],
+  ['Articulação e mobilização',[['Coord. Articulação','Neide Alves','ok'],['Ass. Articulação','Sem nome','aberto'],['Líder de mobilização','Tadeu Costa','ok'],['Ass. Mobilização','Processo seletivo a abrir','vaga'],['Ass. Mobilização','Sem nome','aberto'],['Ass. Mobilização','Sem nome','aberto']]],
+  ['Administrativo',[['Coord. Administrativa','Rita Gomes','ok'],['Ass. Demandas','Joana Freitas','ok'],['Motorista','Sem nome','aberto']]]]};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+/* cartões de pessoas */
+document.querySelectorAll('[data-lista]').forEach(function(el){
+  el.innerHTML=PESSOAS[el.dataset.lista].map(function(p){
+    return '<div class="pessoa"><span class="av" aria-hidden="true">'+esc(p[0][0])+'</span><div><strong>'+esc(p[0])+'</strong>'+
+      '<span class="meta"><span class="partido">'+esc(p[1])+'</span>'+esc(p[2])+'</span><div class="votos">'+p[3]+' votos</div></div></div>'}).join('');
+});
+/* organograma */
+function car(c,extra){var k=c[2]==='vaga'?' vaga':c[2]==='aberto'?' aberto':'';
+  return '<div class="car'+k+(extra||'')+'"><small>'+esc(c[0])+'</small><strong>'+esc(c[1])+'</strong></div>'}
+document.getElementById('org').innerHTML='<div class="org-raiz">'+car(ORG.chefe,' chefe')+'</div><div class="org-ram">'+
+  ORG.ramos.map(function(r){return '<div class="ram"><h5>'+esc(r[0])+'</h5>'+r[1].map(function(c){return car(c)}).join('')+'</div>'}).join('')+'</div>';
+
+/* barra: segmentos */
+var segs=document.getElementById('segs');
+segs.innerHTML=MISSOES.map(function(m,i){
+  return '<button class="seg" type="button" data-alvo="'+m.id+'" style="--c:'+m.c+';--p:'+Math.round(m.f/m.t*100)+'%"><span class="t"><span>M'+(i+1)+' · '+esc(m.nome)+'</span><span>'+m.f+'/'+m.t+'</span></span><span class="f"><i></i></span></button>'}).join('');
+segs.addEventListener('click',function(e){
+  var b=e.target.closest('.seg');if(!b)return;
+  var s=document.getElementById(b.dataset.alvo);s.open=true;s.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'});
+});
+/* scroll-spy */
+var btns=[].slice.call(segs.querySelectorAll('.seg'));
+function marca(id){btns.forEach(function(b){b.setAttribute('aria-current',b.dataset.alvo===id?'true':'false')})}
+marca('m1');
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)marca(e.target.id)})},{rootMargin:'-140px 0px -60% 0px'});
+MISSOES.forEach(function(m){io.observe(document.getElementById(m.id))});
+
+/* ferramentas */
+var todos=function(){return [].slice.call(document.querySelectorAll('#tela details.missao, #tela details.ex'))};
+document.getElementById('expandir').onclick=function(){todos().forEach(function(d){d.open=true})};
+document.getElementById('recolher').onclick=function(){todos().forEach(function(d){d.open=false})};
+document.getElementById('so').onchange=function(){document.getElementById('tela').classList.toggle('so-pend',this.checked)};
+/* impressão: abre tudo e restaura depois */
+var antes=[];
+addEventListener('beforeprint',function(){antes=todos().map(function(d){return d.open});todos().forEach(function(d){d.open=true})});
+addEventListener('afterprint',function(){todos().forEach(function(d,i){d.open=antes[i]})});
+</script>
+</body>
+</html>
