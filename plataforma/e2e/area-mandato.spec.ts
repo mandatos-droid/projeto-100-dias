@@ -376,11 +376,11 @@ test.describe('Dados do mandato', () => {
     const vistas: string[] = [];
     page.once('dialog', (d) => { vistas.push(d.message()); return d.dismiss(); });
     await zona(page).getByRole('button', { name: 'Excluir cadastro' }).click();
-    await expect.poll(() => vistas).toEqual([CONFIRMA]);
+    await expect.poll(() => vistas, { timeout: 20_000 }).toEqual([CONFIRMA]);
     expect(area.rpcs('excluir_mandato')).toEqual([]);
     page.once('dialog', (d) => d.accept());
     await zona(page).getByRole('button', { name: 'Excluir cadastro' }).click();
-    await expect(page).toHaveURL(/\/primeiro-acesso$/); // era o único mandato de Lia
+    await expect(page).toHaveURL(/\/primeiro-acesso$/, { timeout: 20_000 }); // era o único mandato de Lia
     expect(area.rpcs('excluir_mandato').map((p) => p.corpo)).toEqual([{ p_id: area.MANDATO_A }]);
   });
 

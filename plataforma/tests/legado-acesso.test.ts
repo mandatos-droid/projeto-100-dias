@@ -75,7 +75,7 @@ interface Guia {
     criarConta(e: string, s: string, n: string): Promise<unknown>; entrar(e: string, s: string): Promise<unknown>;
     sessao(): Promise<{ id: string } | null>; erroOAuth?: string;
   };
-  Telas: { equipeHtml(): string; primeiroAcesso(): void; config(): void };
+  Telas: { primeiroAcesso(): void; config(): void };
   Cad: { blocoCodigo(): string };
   App: { iniciar(): Promise<void>; entrou(): Promise<void> };
   Area: { ir(id: string): void; tecla(ev: { key: string; preventDefault(): void }): void };
@@ -142,25 +142,9 @@ test('o cadastro novo (primeiro acesso e "Novo cadastro") não traz mais o bloco
   assert.equal(w.Cad.blocoCodigo(), '');
 });
 
-test('nenhum script do Guia tem link para /mandato nem /mandato/equipe, e Telas.equipeHtml não leva mais ao endereço antigo (AMA-03.4)', () => {
+test('nenhum script do Guia tem link para /mandato nem /mandato/equipe (AMA-03.4)', () => {
   const lista = /const SCRIPTS = \[([^\]]*)\]/.exec(PAGINA)![1].replace(/['\s]/g, '').split(',');
   for (const n of lista) assert.doesNotMatch(arquivo(n), /["'`(=]\/mandato(\/equipe)?["'`)\s]/, `${n}.js`);
-  const { w } = janela();
-  w.Store.mandato = { ...MANDATO };
-  const h = w.Telas.equipeHtml();
-  assert.doesNotMatch(h, /href="\/mandato/);
-  assert.match(h, /<a [^>]*href="#\/config\/equipe"[^>]*>/);
-  assert.doesNotMatch(h, CODIGO_DE_CONVITE);
-  assert.equal(h.includes('KJ4TP9'), false);
-});
-
-test('no modo local, Equipe e convites segue sem código e sem link para /mandato (ACE-07.2, AMA-03.4)', () => {
-  const { w } = janela({ nuvem: false });
-  w.Store.mandato = { ...MANDATO };
-  const h = w.Telas.equipeHtml();
-  assert.doesNotMatch(h, CODIGO_DE_CONVITE);
-  assert.equal(h.includes('KJ4TP9'), false);
-  assert.equal(h.includes('/mandato'), false);
 });
 
 /* ---------- volta do login Google na aba pedida (AMA-03.5) ---------- */

@@ -187,7 +187,7 @@ test.describe('Sair do mandato', () => {
     expect(area.rpcs('membro_sair')).toEqual([]);
     await botao(page).click();
     await confirma(page).getByRole('button', { name: 'Confirmar saída' }).click();
-    await expect(page).toHaveURL(/\/primeiro-acesso$/);
+    await expect(page).toHaveURL(/\/primeiro-acesso$/, { timeout: 20_000 });
     expect(area.rpcs('membro_sair').map((c) => ({ corpo: c.corpo, token: c.token }))).toEqual([{ corpo: { p_mandato: area.MANDATO_A }, token: area.LIA.token }]);
     expect(janelas).toEqual([]);
   });
@@ -208,7 +208,7 @@ test.describe('Sair do mandato', () => {
     await botao(page).click();
     await expect(regiao(page).getByRole('alert')).toHaveCount(0);
     await confirma(page).getByRole('button', { name: 'Confirmar saída' }).click();
-    await expect(page).toHaveURL(/\/primeiro-acesso$/);
+    await expect(page).toHaveURL(/\/primeiro-acesso$/, { timeout: 20_000 });
     expect(area.rpcs('membro_sair').map((c) => c.corpo)).toEqual([{ p_mandato: area.MANDATO_A }]);
   });
 

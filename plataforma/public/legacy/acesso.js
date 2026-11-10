@@ -89,16 +89,6 @@ App.entrou=async function(){
   return _entrou.apply(this,arguments);
 };
 
-/* ---------- Equipe e convites (seção de Configurações): atalho para a aba da Área do mandato ---------- */
-Telas.equipeHtml=function(){
-  var h='<h2 class="cad-h3" style="margin-top:0">Equipe e convites</h2>';
-  h+=NUVEM
-    ?'<div class="apoio"><p class="texto" style="margin-top:0">Convide pessoas por link, acompanhe os convites pendentes e veja quem está no mandato.</p>'+
-      '<div class="bts"><a class="bt pri" href="#/config/equipe">Abrir Equipe e convites</a></div></div>'
-    :'<div class="apoio atencao"><span class="tag">Modo local</span>O convite por link só funciona com o banco na nuvem configurado.</div>';
-  return '<section id="cadEquipe" aria-label="Equipe e convites">'+h+'</section>';
-};
-
 /* ---------- volta do login Google na aba pedida (AMA-03.5) ----------
    Nuvem.google manda a pessoa de volta a origin + pathname, sem o hash: quem abriu /guia#/config/equipe sem sessão
    voltaria ao painel. O hash fica no sessionStorage antes de sair e é restaurado na entrada seguinte. */

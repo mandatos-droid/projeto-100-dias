@@ -456,14 +456,14 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Busca confirma que nada chama `Telas.equipeHtml`; override e testes saem (a varredura de AMA-03.4 dos scripts fica)
-- [ ] Os oito e2e de Q-2 usam timeout maior no `expect`, sem enfraquecer a asserção
-- [ ] Gate check passes: `npx tsc --noEmit`, `npm test` e todos os e2e do gate Build
-- [ ] Test count: registrado
+- [x] Busca confirma que nada chama `Telas.equipeHtml`; o override de `acesso.js` e os 2 testes saem (o original de `cadastro.js`, anterior à feature e também sem uso, fica) (a varredura de AMA-03.4 dos scripts fica)
+- [x] Os oito e2e de Q-2 usam timeout maior no `expect`, sem enfraquecer a asserção
+- [x] Gate check passes: `npx tsc --noEmit`, `npm test` e todos os e2e do gate Build
+- [x] Test count: unit 1158 -> 1157 (o teste de `equipeHtml` do modo local sai; o da varredura de AMA-03.4 fica sem a parte de `equipeHtml`)
 
 **Tests**: unit, e2e
 **Gate**: build
 
 **Commit**: `refactor(area-mandato): remove the dead equipeHtml override and steady the navigation waits`
 
-**Status**: Pending
+**Status**: ✅ Done

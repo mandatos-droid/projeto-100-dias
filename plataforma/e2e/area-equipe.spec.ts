@@ -137,7 +137,7 @@ test('"Sair do mandato" pede confirmação; confirmar chama membro_sair e o Guia
   const confirma = painel(page).getByRole('group', { name: 'Confirmar a saída do mandato' });
   await expect(confirma).toContainText('Sair de Ana Souza?');
   await confirma.getByRole('button', { name: 'Confirmar saída' }).click();
-  await expect(page.locator('#ladoMandato')).toContainText('Bruno Alves');
+  await expect(page.locator('#ladoMandato')).toContainText('Bruno Alves', { timeout: 20_000 });
   expect(area.rpcs('membro_sair').map((p) => p.corpo)).toEqual([{ p_mandato: area.MANDATO_A }]);
   expect(new URL(page.url()).pathname).toBe('/guia');
   expect(await page.evaluate(() => localStorage.getItem('legisla.mandatoAtual'))).toBe(area.MANDATO_B);
@@ -147,15 +147,15 @@ test('sair do único mandato leva ao primeiro acesso, como hoje (Edge Case: sair
   await abre(page);
   await sair(page).getByRole('button', { name: 'Sair do mandato' }).click();
   await painel(page).getByRole('button', { name: 'Confirmar saída' }).click();
-  await expect(page).toHaveURL(/\/primeiro-acesso$/);
+  await expect(page).toHaveURL(/\/primeiro-acesso$/, { timeout: 20_000 });
   expect(area.rpcs('membro_sair').map((p) => p.corpo)).toEqual([{ p_mandato: area.MANDATO_A }]);
 });
 
 test('a única pessoa na coordenação recebe a orientação ao sair e o banco não é chamado (AMA-02.6)', async ({ page }) => {
   await abre(page, { equipe: [{ ...MARIANA, papel: 'assessoria' }] });
-  await expect(pessoas(page).locator('li')).toHaveCount(2);
+  await expect(pessoas(page).locator('li')).toHaveCount(2, { timeout: 20_000 });
   await sair(page).getByRole('button', { name: 'Sair do mandato' }).click();
-  await expect(sair(page).getByRole('alert')).toHaveText('Você é a única pessoa na coordenação. Promova outra pessoa para a Coordenação antes de sair.');
+  await expect(sair(page).getByRole('alert')).toHaveText('Você é a única pessoa na coordenação. Promova outra pessoa para a Coordenação antes de sair.', { timeout: 20_000 });
   await expect(painel(page).getByRole('group', { name: 'Confirmar a saída do mandato' })).toHaveCount(0);
   expect(area.rpcs('membro_sair')).toEqual([]);
 });

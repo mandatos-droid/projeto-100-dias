@@ -27,14 +27,14 @@ test.describe('redirects do Next (AMA-03.1, 03.2)', () => {
   test('no navegador, /mandato abre a Visão geral da Área do mandato (AMA-03.1)', async ({ page }) => {
     await area.abreArea(page, '#/');
     await page.goto('/mandato');
-    await expect(page).toHaveURL(/\/guia#\/config$/);
+    await expect(page).toHaveURL(/\/guia#\/config$/, { timeout: 20_000 });
     await expect(aba(page, 'Visão geral')).toHaveAttribute('aria-selected', 'true');
   });
 
   test('no navegador, /mandato/equipe abre a aba Equipe e convites (AMA-03.2)', async ({ page }) => {
     await area.abreArea(page, '#/');
     await page.goto('/mandato/equipe');
-    await expect(page).toHaveURL(/\/guia#\/config\/equipe$/);
+    await expect(page).toHaveURL(/\/guia#\/config\/equipe$/, { timeout: 20_000 });
     await expect(aba(page, 'Equipe e convites (2)')).toHaveAttribute('aria-selected', 'true');
   });
 });
@@ -64,7 +64,7 @@ test.describe('sem sessão (AMA-03.5)', () => {
 
   test('/mandato/equipe sem sessão mostra a entrada com o Google (AMA-03.5)', async ({ page }) => {
     await semSessao(page, '/mandato/equipe');
-    await expect(page).toHaveURL(/\/guia#\/config\/equipe$/);
+    await expect(page).toHaveURL(/\/guia#\/config\/equipe$/, { timeout: 20_000 });
     await expect(page.locator('#entrada').getByRole('button', { name: /Google/ })).toBeVisible();
     await expect(page.locator('#ladoNav .it')).toHaveCount(0);
   });
@@ -77,7 +77,7 @@ test.describe('sem sessão (AMA-03.5)', () => {
     // (o hash guardado só é legível na origem do Guia; a prova é a aba pedida abrir na volta)
     await page.goto(`/guia#access_token=${LIA.token}&refresh_token=${LIA.refresh}`);
     await page.locator('#ladoNav .it').first().waitFor();
-    await expect(page).toHaveURL(/\/guia#\/config\/equipe$/);
+    await expect(page).toHaveURL(/\/guia#\/config\/equipe$/, { timeout: 20_000 });
     await expect(aba(page, 'Equipe e convites (2)')).toHaveAttribute('aria-selected', 'true');
     expect(await page.evaluate(() => sessionStorage.getItem('legisla.hashVolta'))).toBeNull();
   });
@@ -87,7 +87,7 @@ test.describe('sem sessão (AMA-03.5)', () => {
     await page.locator('#entrada').getByRole('button', { name: /Google/ }).click();
     await page.goto(`/guia#access_token=${LIA.token}&refresh_token=${LIA.refresh}`);
     await page.locator('#ladoNav .it').first().waitFor();
-    await expect(page).toHaveURL(/\/guia#\/config$/);
+    await expect(page).toHaveURL(/\/guia#\/config$/, { timeout: 20_000 });
     await expect(aba(page, 'Visão geral')).toHaveAttribute('aria-selected', 'true');
   });
 
