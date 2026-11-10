@@ -391,18 +391,20 @@ T11 → T12 → T13
 
 **Done when**:
 
-- [ ] Nível `BR` vira o território "Brasil"; `UF` e `MUN` viram uma linha por nome de `nomes`, com município como "{nome} ({uf})" (RES-08.2)
-- [ ] Um item com `nomes: ['São Paulo','Rio de Janeiro']` aparece em duas linhas (RES-08.2)
-- [ ] Ordem: Brasil, UFs, municípios, e alfabética pt-BR dentro de UFs e de municípios, com acento ("Ceará" antes de "Distrito Federal") (RES-08.3)
-- [ ] Cada linha separa `problemas` e `potencialidades` por `tipo` (RES-08.4)
-- [ ] Lista vazia devolve `[]` (RES-08.6)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ≥ 8 testes novos em `tests/resumo-social.test.ts`, nenhum removido
+- [x] Nível `BR` vira o território "Brasil"; `UF` e `MUN` viram uma linha por nome de `nomes`, com município como "{nome} ({uf})" (RES-08.2)
+- [x] Um item com `nomes: ['São Paulo','Rio de Janeiro']` aparece em duas linhas (RES-08.2)
+- [x] Ordem: Brasil, UFs, municípios, e alfabética pt-BR dentro de UFs e de municípios, com acento ("Ceará" antes de "Distrito Federal") (RES-08.3)
+- [x] Cada linha separa `problemas` e `potencialidades` por `tipo` (RES-08.4)
+- [x] Lista vazia devolve `[]` (RES-08.6)
+- [x] Gate check passes: `npm test`
+- [x] Test count: ≥ 8 testes novos em `tests/resumo-social.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(resumo): add pure grouping of social items by territory`
+
+**Status**: ✅ Done
 
 ---
 
