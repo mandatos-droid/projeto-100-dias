@@ -154,3 +154,18 @@ test('sair e voltar a #/resumo não acumula ouvintes de scroll, beforeprint e af
   }
   expect(await ativos()).toEqual(primeira);
 });
+
+test('o limiar do scroll-spy é 160 px: missão com o topo a ~150 px é a ativa; a ~170 px ainda não é (RES-02.4)', async ({ page }) => {
+  await abreResumo(page, SEIS);
+  await page.getByRole('button', { name: 'Expandir tudo' }).click();
+  const naAltura = async (n: number, alvo: number) => {
+    await page.evaluate(([id, a]) => window.scrollTo({ top: document.getElementById(id)!.getBoundingClientRect().top + scrollY - (a as number), behavior: 'instant' }), [`res-m${n}`, alvo]);
+    await expect.poll(() => topo(page, n)).toBeGreaterThan(alvo - 4);
+    await expect.poll(() => topo(page, n)).toBeLessThan(alvo + 4);
+  };
+  await naAltura(3, 150);
+  await expect(seg(page, 3)).toHaveAttribute('aria-current', 'true');
+  await naAltura(3, 170);
+  await expect(seg(page, 3)).toHaveAttribute('aria-current', 'false');
+  await expect(seg(page, 2)).toHaveAttribute('aria-current', 'true');
+});

@@ -533,6 +533,19 @@ T11 → T12 → T13
 
 ---
 
+### T14: Fixar o limiar de 160 px do scroll-spy
+
+**What**: e2e com a missão a ~150 px (ativa) e a ~170 px (não ativa); mutantes <=120 e <=260 morrem (RES-02.4).
+
+**Tests**: e2e/unit
+**Gate**: full
+
+**Commit**: `test(resumo): pin the scroll-spy boundary at 160 px`
+
+**Status**: ✅ Done (correção da rodada 1 do Verifier)
+
+---
+
 ## Phase Execution Map
 
 ```
