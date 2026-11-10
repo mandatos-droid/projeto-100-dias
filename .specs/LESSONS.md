@@ -204,6 +204,36 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: U12 plataforma/app/mandato/equipe/SairDoMandato.tsx:23 (e2e)
 - last seen: 2026-11-09T16:33:50Z
 
+### L-033 - When an e2e mocks refusals that a backend returns as data, reproduce the backend check order for a brand-new account, not each refusal alone.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `e2e` · harmful: 0
+- features: primeiro-acesso-google
+- evidence: PAG-02.1; plataforma/supabase/migrations/20261109120000_perfis.sql:157-162; plataforma/app/convite/Convite.tsx:135 (e2e)
+- last seen: 2026-11-10T03:08:53Z
+
+### L-034 - When a feature adds a precondition to join a resource, apply it to every policy and function that inserts into the same table, not only the main entry paths.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `sql` · harmful: 0
+- features: primeiro-acesso-google
+- evidence: PAG-02.2; sonda S1; plataforma/supabase/migrations/20261106130000_papeis_blindagem.sql:46-54 (sql)
+- last seen: 2026-11-10T03:08:53Z
+
+### L-035 - Specify whether categorical distributions list categories with zero count.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: primeiro-acesso-google
+- evidence: PAG-06.3 SP-1; plataforma/tests/admin-perfil.test.ts:70 (spec)
+- last seen: 2026-11-10T03:08:54Z
+
+### L-036 - Specify the rounding rule for integer percentages and whether they must sum to 100.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: primeiro-acesso-google
+- evidence: PAG-06.3 SP-2; plataforma/lib/admin/perfil.ts:39 (spec)
+- last seen: 2026-11-10T03:08:54Z
+
+### L-037 - Specify what the user sees and how to retry when a gating lookup fails, not only where the user must not be sent.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: primeiro-acesso-google
+- evidence: PAG-02.1 SP-3; plataforma/public/legacy/acesso.js:56-60 (spec)
+- last seen: 2026-11-10T03:08:54Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 33,
+  "next_id": 38,
   "lessons": [
     {
       "id": "L-001",
@@ -584,6 +584,96 @@
       ],
       "created": "2026-11-09T16:33:50Z",
       "last_seen": "2026-11-09T16:33:50Z"
+    },
+    {
+      "id": "L-033",
+      "key": "ac_gap::when an e2e mocks refusals that a backend returns as data reproduce the backend check order for a brand new account not each refusal alone",
+      "text": "When an e2e mocks refusals that a backend returns as data, reproduce the backend check order for a brand-new account, not each refusal alone.",
+      "signal": "ac_gap",
+      "scope": "e2e",
+      "status": "candidate",
+      "features": [
+        "primeiro-acesso-google"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "PAG-02.1; plataforma/supabase/migrations/20261109120000_perfis.sql:157-162; plataforma/app/convite/Convite.tsx:135 (e2e)"
+      ],
+      "created": "2026-11-10T03:08:53Z",
+      "last_seen": "2026-11-10T03:08:53Z"
+    },
+    {
+      "id": "L-034",
+      "key": "ac_gap::when a feature adds a precondition to join a resource apply it to every policy and function that inserts into the same table not only the main entry paths",
+      "text": "When a feature adds a precondition to join a resource, apply it to every policy and function that inserts into the same table, not only the main entry paths.",
+      "signal": "ac_gap",
+      "scope": "sql",
+      "status": "candidate",
+      "features": [
+        "primeiro-acesso-google"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "PAG-02.2; sonda S1; plataforma/supabase/migrations/20261106130000_papeis_blindagem.sql:46-54 (sql)"
+      ],
+      "created": "2026-11-10T03:08:53Z",
+      "last_seen": "2026-11-10T03:08:53Z"
+    },
+    {
+      "id": "L-035",
+      "key": "spec_precision_gap::specify whether categorical distributions list categories with zero count",
+      "text": "Specify whether categorical distributions list categories with zero count.",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "primeiro-acesso-google"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "PAG-06.3 SP-1; plataforma/tests/admin-perfil.test.ts:70 (spec)"
+      ],
+      "created": "2026-11-10T03:08:54Z",
+      "last_seen": "2026-11-10T03:08:54Z"
+    },
+    {
+      "id": "L-036",
+      "key": "spec_precision_gap::specify the rounding rule for integer percentages and whether they must sum to 100",
+      "text": "Specify the rounding rule for integer percentages and whether they must sum to 100.",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "primeiro-acesso-google"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "PAG-06.3 SP-2; plataforma/lib/admin/perfil.ts:39 (spec)"
+      ],
+      "created": "2026-11-10T03:08:54Z",
+      "last_seen": "2026-11-10T03:08:54Z"
+    },
+    {
+      "id": "L-037",
+      "key": "spec_precision_gap::specify what the user sees and how to retry when a gating lookup fails not only where the user must not be sent",
+      "text": "Specify what the user sees and how to retry when a gating lookup fails, not only where the user must not be sent.",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "primeiro-acesso-google"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "PAG-02.1 SP-3; plataforma/public/legacy/acesso.js:56-60 (spec)"
+      ],
+      "created": "2026-11-10T03:08:54Z",
+      "last_seen": "2026-11-10T03:08:54Z"
     }
   ]
 }
