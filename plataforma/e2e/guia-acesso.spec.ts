@@ -44,7 +44,7 @@ interface Estado {
   /** Lia tem linha em `perfis` (padrão: sim); 'falha' = a consulta devolve 500. */
   perfil?: boolean | 'falha';
   /** Lia está em `equipe_legisla` (padrão: não). */
-  legisla?: boolean;
+  legisla?: boolean | 'falha';
   /** Marca legisla.semEquipe no sessionStorage ("Ainda não"). Padrão: presente só para quem não tem mandato, para o cadastro abrir. */
   semEquipe?: boolean;
   /** Não espera a tela do Guia: o teste espera outra coisa (redirecionamento, erro). */
@@ -95,7 +95,7 @@ async function abre(page: Page, hash: string, e: Estado = {}) {
       if (tabela === 'mandatos' && q('id')) return responde(200, mandatos.filter((x) => q('id') === `eq.${x.id}`));
       if (tabela === 'membros' && q('mandato_id')) return responde(200, membros.filter((m) => q('mandato_id') === `eq.${m.mandato_id}`));
       if (tabela === 'eventos' && q('mandato_id')) return responde(200, []);
-      if (tabela === 'equipe_legisla' && q('user_id') === `eq.${LIA.id}`) return responde(200, e.legisla ? [{ user_id: LIA.id }] : []);
+      if (tabela === 'equipe_legisla' && q('user_id') === `eq.${LIA.id}`) return e.legisla === 'falha' ? responde(500, { message: 'boom' }) : responde(200, e.legisla ? [{ user_id: LIA.id }] : []);
       if (tabela === 'perfis' && q('user_id') === `eq.${LIA.id}`)
         return e.perfil === 'falha' ? responde(500, { message: 'boom' }) : responde(200, e.perfil === false ? [] : [{ user_id: LIA.id }]);
       if (tabela === 'sugestoes' && q('resolvida') === 'eq.false') return responde(200, []);
@@ -383,6 +383,23 @@ test.describe('Perfil antes do Guia', () => {
     expect(new URL(page.url()).pathname).toBe('/guia');
     expect(navegou.filter((p) => p !== '/guia')).toEqual([]);
     expect(registro.pedidos.filter((p) => p.metodo === 'GET' && p.caminho.startsWith('perfis')).length).toBe(2);
+  });
+
+  test('falha na consulta de equipe_legisla (500) mostra a caixa "Não foi possível carregar seus dados. Tente de novo." e o botão "Tentar de novo", sem ir a /primeiro-acesso nem ler os mandatos; o botão com a consulta funcionando abre o Guia', async ({ page }) => {
+    const navegou: string[] = [];
+    page.on('framenavigated', (f) => { if (f === page.mainFrame()) navegou.push(new URL(f.url()).pathname); });
+    const e: Estado = { legisla: 'falha', semEspera: true };
+    await abre(page, '#/', e);
+    await expect(page.locator('#erroPerfil').getByRole('alert')).toHaveText(ERRO_PERFIL);
+    await expect(page.getByRole('button', { name: 'Tentar de novo', exact: true })).toBeVisible();
+    await page.waitForLoadState('networkidle');
+    expect(new URL(page.url()).pathname).toBe('/guia');
+    expect(lerDe('membros?select=papel')).toBe(-1);
+    e.legisla = false; // a próxima consulta responde
+    await page.getByRole('button', { name: 'Tentar de novo', exact: true }).click();
+    await expect(page.locator('#ladoNav .it').first()).toBeVisible();
+    await expect(page.getByText(ERRO_PERFIL)).toHaveCount(0);
+    expect(navegou.filter((p) => p !== '/guia')).toEqual([]);
   });
 
   test('com perfil, sem mandato e sem a marca "Ainda não", o Guia abre /primeiro-acesso para a pergunta (PAG-04.1)', async ({ page }) => {

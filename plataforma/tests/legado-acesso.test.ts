@@ -289,16 +289,16 @@ test('fora dessa expressão, o corpo do Guia não muda: desfazer a troca devolve
 });
 
 /* ---------- primeiro acesso: perfil antes do Guia (PAG-02.1, 02.2, 02.15, 02.16, PAG-04.1, 04.6) ---------- */
-interface Pessoa { legisla?: boolean; perfil?: boolean; mandatos?: unknown[]; falhaPerfil?: boolean }
+interface Pessoa { legisla?: boolean; perfil?: boolean; mandatos?: unknown[]; falhaPerfil?: boolean; falhaLegisla?: boolean; falhaMandatos?: boolean }
 
 /** App.entrou real, com a pessoa u1 e as respostas das consultas que o Guia faz (equipe_legisla, perfis, membros). */
 function entrando(p: Pessoa, semEquipe = false) {
   const j = janela({
     responde: (url, metodo) => {
       if (metodo !== 'GET') return undefined;
-      if (url.includes('/rest/v1/equipe_legisla?')) return p.legisla ? [{ user_id: 'u1' }] : [];
+      if (url.includes('/rest/v1/equipe_legisla?')) { if (p.falhaLegisla) throw new Error('rede'); return p.legisla ? [{ user_id: 'u1' }] : []; }
       if (url.includes('/rest/v1/perfis?')) { if (p.falhaPerfil) throw new Error('rede'); return p.perfil ? [{ user_id: 'u1' }] : []; }
-      if (url.includes('/rest/v1/membros?select=papel,mandatos(*)')) return (p.mandatos ?? []).map((m) => ({ papel: 'coordenacao', mandatos: m }));
+      if (url.includes('/rest/v1/membros?select=papel,mandatos(*)')) { if (p.falhaMandatos) throw new Error('rede'); return (p.mandatos ?? []).map((m) => ({ papel: 'coordenacao', mandatos: m })); }
       if (url.includes('/rest/v1/mandatos?id=eq.')) return [{ ...MANDATO }];
       if (url.includes('/rest/v1/membros?mandato_id=')) return [{ user_id: 'u1', nome: 'Lia', papel: 'coordenacao' }];
       if (url.includes('/rest/v1/eventos?')) return [];
@@ -382,6 +382,24 @@ test('"Tentar de novo" refaz a entrada: falhando de novo a caixa volta, sem form
   assert.deepEqual(redirecionou, []);
   p.falhaPerfil = false;
   await Promise.resolve(segunda.botao.onclick()).catch(() => {}); // o resto da abertura usa telas que o documento simulado não tem
+  assert.deepEqual(caixasDeErro(document), []);
+  assert.deepEqual(redirecionou, []);
+  assert.ok(leituras().some((u) => u.startsWith('membros?select=papel')), 'com a consulta funcionando, o Guia lê os mandatos');
+  assert.equal(document.getElementById('app').classList.contains('oculto'), false);
+});
+
+test('falha na consulta de equipe_legisla mostra a mesma caixa "Não foi possível carregar seus dados. Tente de novo." com "Tentar de novo", sem formulário e sem ler os mandatos; com a consulta funcionando o Guia abre', async () => {
+  const p: Pessoa = { falhaLegisla: true, perfil: true, mandatos: [{ ...MANDATO }] };
+  const { w, redirecionou, leituras, document, aberturaDoCadastro } = entrando(p);
+  await w.App.entrou();
+  assert.deepEqual(redirecionou, []);
+  assert.deepEqual(aberturaDoCadastro, []);
+  assert.equal(leituras().some((u) => u.startsWith('membros?select=papel')), false);
+  const { mensagem, botao } = caixaDeErro(document);
+  assert.equal(mensagem.textContent, ERRO_PERFIL);
+  assert.equal(botao.textContent, 'Tentar de novo');
+  p.falhaLegisla = false;
+  await Promise.resolve(botao.onclick()).catch(() => {}); // o resto da abertura usa telas que o documento simulado não tem
   assert.deepEqual(caixasDeErro(document), []);
   assert.deepEqual(redirecionou, []);
   assert.ok(leituras().some((u) => u.startsWith('membros?select=papel')), 'com a consulta funcionando, o Guia lê os mandatos');

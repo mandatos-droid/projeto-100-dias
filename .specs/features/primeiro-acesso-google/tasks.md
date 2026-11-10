@@ -93,6 +93,12 @@ T13 → T14 → T15 → T16
 T16 → T17 → T18 → T19
 ```
 
+### Phase 7: Correções do Verifier (rodada 2)
+
+```
+T19 → T20 → T21
+```
+
 ---
 
 ## Task Breakdown
@@ -716,3 +722,55 @@ T16 → T17 → T18 → T19
 **Commit**: `fix(admin): list every profile category in analytics`
 
 **Status**: ✅ Done
+
+### T20: Testes da falha da consulta de `equipe_legisla` no Guia
+
+**What**: Corrigir GAP-R2-1 (mutante M8): provar em cada camada que a falha da consulta de `equipe_legisla` mostra a caixa de erro com "Tentar de novo", sem ir a `/primeiro-acesso` e sem ler `membros` nem os mandatos. Só teste; nenhum código de produção muda.
+**Where**: `plataforma/tests/legado-acesso.test.ts` (modify, opção `falhaLegisla`), `plataforma/e2e/guia-acesso.spec.ts` (modify, `legisla: 'falha'`), `.specs/features/primeiro-acesso-google/tasks.md` (modify, status)
+**Depends on**: T19
+**Reuses**: harness `entrando` e helper `caixaDeErro` (unidade); helper `abre` e constante `ERRO_PERFIL` (e2e)
+**Requirement**: PAG-02 (design, Error Handling)
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [x] Unidade: com `falhaLegisla`, aparece a caixa com o texto "Não foi possível carregar seus dados. Tente de novo." e o botão "Tentar de novo"; nenhum redirecionamento; nenhuma leitura de `membros`; o botão, com a consulta funcionando, abre o Guia
+- [x] e2e: o mesmo com `legisla: 'falha'` (HTTP 500), ficando em `/guia`
+- [x] Mutante M8 (consulta de `equipe_legisla` fora do `try` em `acesso.js`) faz o teste novo falhar; aplicado e desfeito (hash do arquivo igual antes e depois)
+- [x] Gate check passes: `npm test` (1108 testes, 0 falhas) e `npx playwright test e2e/guia-acesso.spec.ts` (28 passaram). Mutante aplicado nas duas camadas: o teste novo falhou e `acesso.js` voltou com o mesmo sha256
+
+**Tests**: unit, e2e
+**Gate**: full
+
+**Commit**: `test(guia): cover equipe_legisla lookup failure`
+
+**Status**: ✅ Done
+
+### T21: Leitura dos mandatos dentro da trava do Guia
+
+**What**: Corrigir SP-R2-1: a leitura `Store.meusMandatos()` logo após a trava de perfil fica sob o mesmo tratamento; se falhar, mostra a mesma caixa de erro com "Tentar de novo", nunca tela em branco nem o formulário de perfil. `app.js`, `nucleo.js` e `lib/legacyBody.ts` não se editam (AD-003).
+**Where**: `plataforma/public/legacy/acesso.js` (modify), `plataforma/tests/legado-acesso.test.ts` (modify, opção `falhaMandatos`), `plataforma/e2e/guia-acesso.spec.ts` (modify, `mandatos: 'falha'`), `.specs/features/primeiro-acesso-google/tasks.md` e `.specs/STATE.md` (modify, status e Handoff)
+**Depends on**: T20
+**Reuses**: `mostraErroPerfil` e `ERRO_PERFIL` de `acesso.js`
+**Requirement**: PAG-02 (spec, Assumption "Falha ao consultar o perfil ou os mandatos no Guia")
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Unidade e e2e: com a leitura de mandatos falhando aparece a caixa com o texto literal e o botão "Tentar de novo"; sem redirecionamento a `/primeiro-acesso`; o botão, com a leitura funcionando, abre o Guia
+- [ ] Mutante (tirar `meusMandatos` do tratamento) faz o teste falhar; aplicado e desfeito (hash igual)
+- [ ] Gate check passes: `npm test` e `npx playwright test e2e/guia-acesso.spec.ts`; gate de build da fase: `npx tsc --noEmit`, `npm test` e os specs `e2e/convite-*`, `e2e/mandato-*`, `e2e/guia-acesso*`, `e2e/primeiro-acesso*`, `e2e/admin-*`
+- [ ] Handoff do `STATE.md` atualizado (última task T21, próximo passo: re-verificação independente rodada 3)
+
+**Tests**: unit, e2e
+**Gate**: build
+
+**Commit**: `fix(guia): show the retry box when the mandates read fails`
