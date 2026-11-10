@@ -5,7 +5,7 @@
 **Diff range**: `ff334b6..100dd79` (branch `feat/admin-usuarios`, T1 a T7)
 **Verifier**: sub-agente independente (autor ≠ verificador), rodada única enxuta
 
-**Veredito: FAIL** (1 gap real, menor: mutante M9 sobreviveu. Os 4 grupos de AC passam e os 8 mutantes de segurança foram mortos.)
+**Veredito: PASS** (rodada 1 foi FAIL por 1 gap menor, mutante M9; fechado abaixo. Os 4 grupos de AC passam e os 9 mutantes foram mortos.)
 
 ---
 
@@ -120,7 +120,7 @@ Scratch fora da árvore (`git worktree add --detach` em pasta temporária, com c
 | M8 | `app/admin/usuarios/[id]/page.tsx:249` | botão "Editar" no detalhe | ✅ morto (E2:172, E2:179) |
 | M9 (extra) | `...admin_usuarios.sql:41` | `p_papel` desconhecido passa a filtrar (`p_papel <> 'legisla'`) | ❌ **sobreviveu**: 0 falhas em `sql-admin-usuarios.test.ts` |
 
-**Sensor depth**: lightweight reforçado (9 mutantes, foco em segurança e dado sensível). **Result**: 8/9 mortos, **FAIL**.
+**Sensor depth**: lightweight reforçado (9 mutantes, foco em segurança e dado sensível). **Result**: 8/9 mortos na rodada 1; M9 morto depois do teste novo (9/9). **PASS**.
 
 Isolamento: `git status --porcelain` do worktree da feature idêntico ao de antes (as mudanças em `graphify-out/` já existiam). Scratch e `playwright.isolado.config.ts` removidos; sem servidor na porta 3100.
 
@@ -179,10 +179,17 @@ Isolamento: `git status --porcelain` do worktree da feature idêntico ao de ante
 
 ## Summary
 
-**Overall**: ❌ FAIL (por GAP-1; nenhum AC falhou)
+**Overall**: ✅ PASS (GAP-1 fechado com teste, ver Fechamento da rodada 1; nenhum AC falhou)
 
 **Spec-anchored check**: 4/4 grupos (38 ACs e 5 edge cases) bateram com o resultado da spec; 5 imprecisões de spec anotadas.
 **Sensor**: 8/9 mutantes mortos, 1 sobrevivente (M9).
 **Gate**: tsc 0 erros; 1190/1190 unidade e SQL; 68/68 e2e.
 
 **Next steps**: aplicar o teste de GAP-1 e rodar de novo o Verifier só sobre ele. As 10 decisões do worker em AD-014 não escondem gap de segurança; SP-1 a SP-4 pedem confirmação do dono do produto.
+
+## Fechamento da rodada 1
+
+- **GAP-1 (M9) corrigido só com teste**, sem mudar código de produção: `tests/sql-admin-usuarios.test.ts` ganhou "papel desconhecido não filtra e não dá erro, nem com aspas e comandos SQL (USR-04.2, USR-03)", que chama `lista({papel})` com `xyz`, `'; drop table public.perfis; --`, `Coordenacao` e vazio e afirma total e ids iguais aos de `lista()`.
+- **Evidência de discriminação (orquestrador, não o Verifier):** com o código real o arquivo passa 35/35; com o mutante M9 (`v_papel := nullif(p_papel, '')`, papel desconhecido passando a filtrar) o novo teste falha (3 falhas no arquivo) e o mutante morre. A migration foi restaurada com `git checkout` e `git status` ficou só com o arquivo de teste alterado.
+- **Limite desta verificação:** o fechamento foi feito pelo orquestrador a pedido do usuário, para ganhar tempo, e não por um novo Verifier independente. O Verifier da rodada 1 indicou exatamente esta correção.
+- **Lacunas de precisão SP-1 a SP-5** continuam como decisões do dono do produto, registradas em AD-014 no `STATE.md`; nenhuma esconde gap de segurança.

@@ -274,6 +274,17 @@ test('busca com mais de 100 caracteres é cortada em 100, sem erro (Edge Cases)'
   assert.deepEqual(ids(r), [id]);
 });
 
+test('papel desconhecido não filtra e não dá erro, nem com aspas e comandos SQL (USR-04.2, USR-03)', async () => {
+  await cenario();
+  const todas = await lista();
+  assert.ok(todas.total > 0);
+  for (const papel of ['xyz', "'; drop table public.perfis; --", 'Coordenacao', '']) {
+    const r = await lista({ papel });
+    assert.equal(r.total, todas.total, `papel ${JSON.stringify(papel)}`);
+    assert.deepEqual(ids(r), ids(todas));
+  }
+});
+
 // ---------- filtros (USR-04.2 a 04.5) ----------
 
 test('filtro de papel: coordenacao, assessoria e leitura acham quem tem o papel em algum mandato; legisla acha a equipe (USR-04.2)', async () => {
