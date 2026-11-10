@@ -228,18 +228,20 @@ T6 → T7
 
 **Done when**:
 
-- [ ] A busca filtra por nome ou e-mail, volta à primeira página e a consulta fica na URL (USR-04.1, 04.6)
-- [ ] O filtro de papel tem `Todos`, `Coordenação`, `Assessoria`, `Somente leitura` e `Equipe Legisla`; o de mandato lista os não arquivados em ordem alfabética; o de "Só quem ainda não preencheu o perfil" existe (USR-04.2 a 04.4)
-- [ ] Mais de um filtro vale junto e trocar de página mantém busca e filtros (USR-04.5, 04.6)
-- [ ] Sem resultado mostra "Nenhuma pessoa encontrada com esses filtros."; com filtros ativos aparece "Limpar filtros" e ele volta ao padrão (USR-04.7, 04.8)
-- [ ] Busca com mais de 100 caracteres é cortada sem erro (Edge Cases)
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/admin-usuarios.spec.ts`
-- [ ] Test count: ao menos 10 testes e2e novos, nenhum removido
+- [x] A busca filtra por nome ou e-mail, volta à primeira página e a consulta fica na URL (USR-04.1, 04.6)
+- [x] O filtro de papel tem `Todos`, `Coordenação`, `Assessoria`, `Somente leitura` e `Equipe Legisla`; o de mandato lista os não arquivados em ordem alfabética; o de "Só quem ainda não preencheu o perfil" existe (USR-04.2 a 04.4)
+- [x] Mais de um filtro vale junto e trocar de página mantém busca e filtros (USR-04.5, 04.6)
+- [x] Sem resultado mostra "Nenhuma pessoa encontrada com esses filtros."; com filtros ativos aparece "Limpar filtros" e ele volta ao padrão (USR-04.7, 04.8)
+- [x] Busca com mais de 100 caracteres é cortada sem erro (Edge Cases)
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/admin-usuarios.spec.ts`
+- [x] Test count: ao menos 10 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(admin): add users search and filters`
+
+**Status**: ✅ Done
 
 ---
 
