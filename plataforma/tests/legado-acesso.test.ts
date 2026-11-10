@@ -350,9 +350,11 @@ for (const papel of ['assessoria', 'leitura']) {
   });
 }
 
-test('sem a linha da própria pessoa em membros (papel desconhecido), a Zona de risco não aparece (Edge Case: papel)', () => {
+test('sem a linha da própria pessoa em membros (papel desconhecido), a aba Dados mostra o erro com "Tentar de novo", sem formulário, sem "Salvar alterações" e sem Zona de risco (Edge Case: papel)', () => {
   const r = dadosEm(null);
-  assert.equal(r.dados.includes('Cad.excluir'), false);
+  assert.match(r.dados, /<div class="erro-cx" role="alert">Não foi possível carregar\. Tente de novo\.<\/div>/);
+  assert.match(r.dados, /<button type="button" class="bt pri" onclick="Area\.reler\(\)">Tentar de novo<\/button>/);
+  for (const fora of ['cadSalvar1', 'Salvar alterações', 'cadNome', 'Cad.excluir', 'Zona de risco']) assert.equal(r.dados.includes(fora), false, fora);
 });
 
 test('sem nuvem (modo local, sem contas nem papéis) a Zona de risco aparece, como o "Excluir cadastro" de antes', () => {

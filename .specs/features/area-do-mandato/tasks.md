@@ -368,3 +368,102 @@ T6 → T7 → T8 → T9
 **Commit**: `docs(area-mandato): record decisions and open items`
 
 **Status**: ✅ Done
+
+---
+
+## Phase 4: Correções do Verifier (rodada 1)
+
+Fix tasks dos gaps de `validation.md` (rodada 1). Decisões do usuário: GAP-1 opção B (a aba Equipe mantém as regras de hoje; spec corrigida, sem mudar o código) e GAP-4 desvio aceito (UF fora da Minha conta, sem migration).
+
+```
+T9 → T10 → T11 → T12
+```
+
+### T10: Aba Dados sem papel conhecido e aba Equipe sem mandato (GAP-2, GAP-3)
+
+**What**: Na aba Dados, quando a leitura do papel falha (nuvem, sem a linha da própria pessoa em `Store.membros`), mostrar o erro da aba com "Tentar de novo" e nunca o formulário; cobrir com teste o Edge Case de abrir `#/config...` sem mandato ativo.
+**Where**: `plataforma/public/legacy/acesso.js` (modify), `plataforma/tests/legado-acesso.test.ts`, `plataforma/e2e/area-mandato.spec.ts`, `plataforma/e2e/guia-acesso.spec.ts` (modify)
+**Depends on**: T9
+**Reuses**: `semLiaNosMembros` de `e2e/area-api.ts`, `abre` de `e2e/guia-acesso.spec.ts`
+**Requirement**: AMA-02.10, AMA-02.11, Edge Cases (papel; sem mandato)
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [x] Sem a linha da própria pessoa em membros (nuvem), `#/config/dados` mostra "Não foi possível carregar. Tente de novo." e o botão "Tentar de novo"; não há campo, "Salvar alterações" nem Zona de risco
+- [x] "Tentar de novo" relê o mandato (`Store.abrir`) e, com o papel de volta, abre o formulário
+- [x] Teste vm e e2e da aba Dados falham sem a correção; e2e abre `#/config/equipe` sem mandato e vai para `/primeiro-acesso`, sem `tablist` (GAP-3)
+- [x] `validation.md`, `LESSONS.md` e `lessons.json` do Verifier entram neste commit
+- [x] Gate check passes: `npx tsc --noEmit`, `npm test` e e2e `area-mandato`, `guia-acesso`
+- [x] Test count: +2 e2e; unit sem mudança de contagem (1 reescrito)
+
+**Tests**: unit, e2e
+**Gate**: full
+
+**Commit**: `fix(area-mandato): show the tab error when the role read fails on the Dados tab`
+
+**Status**: ✅ Done
+
+---
+
+### T11: Spec: Equipe para leitura, UF e texto de erro (GAP-1, GAP-4, SP-1)
+
+**What**: Corrigir a spec (AMA-02.11, AMA-02.8, AMA-02.10), cobrir com e2e o que quem é leitura vê na aba Equipe com convites pendentes e alinhar o texto de erro de leitura das abas.
+**Where**: `.specs/features/area-do-mandato/spec.md`, `plataforma/app/mandato/*.tsx`, `plataforma/app/mandato/equipe/Equipe.tsx`, `plataforma/e2e/area-*.spec.ts` (modify)
+**Depends on**: T10
+**Reuses**: `e2e/area-equipe.spec.ts`
+**Requirement**: AMA-02.8, AMA-02.10, AMA-02.11
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] AMA-02.11 diz que a aba Equipe é exceção explícita: quem é leitura mantém as regras de AMA-02.6 (o banco recusa o que não pode); a premissa "Quem só lê" é corrigida
+- [ ] AMA-02.8 e a premissa "Minha conta" saem da UF, registradas como desvio aceito (`perfis` não tem UF; sem migration)
+- [ ] AMA-02.10 define um único texto, "Não foi possível carregar. Tente de novo.", com "Tentar de novo"; código e testes de leitura das abas o usam
+- [ ] e2e: papel leitura, convites pendentes (de outra pessoa): botão "Cancelar" visível, o banco recusa e a tela mostra o erro
+- [ ] Gate check passes: `npx tsc --noEmit`, `npm test` e e2e `area-`
+- [ ] Test count: registrado
+
+**Tests**: e2e
+**Gate**: full
+
+**Commit**: `docs(area-mandato): align the spec with the Equipe tab for readers, the UF deviation and the read error text`
+
+**Status**: Pending
+
+---
+
+### T12: Código morto e estabilidade dos e2e (Q-1, Q-2)
+
+**What**: Remover `Telas.equipeHtml` (override em `acesso.js`) e seus testes se nada o usa; dar timeout explícito às esperas de ida para `/primeiro-acesso` e do diálogo da Zona de risco sob carga.
+**Where**: `plataforma/public/legacy/acesso.js`, `plataforma/tests/legado-acesso.test.ts`, `plataforma/e2e/area-*.spec.ts` (modify)
+**Depends on**: T11
+**Reuses**: nenhum
+**Requirement**: AMA-03.4, AMA-05
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Busca confirma que nada chama `Telas.equipeHtml`; override e testes saem (a varredura de AMA-03.4 dos scripts fica)
+- [ ] Os oito e2e de Q-2 usam timeout maior no `expect`, sem enfraquecer a asserção
+- [ ] Gate check passes: `npx tsc --noEmit`, `npm test` e todos os e2e do gate Build
+- [ ] Test count: registrado
+
+**Tests**: unit, e2e
+**Gate**: build
+
+**Commit**: `refactor(area-mandato): remove the dead equipeHtml override and steady the navigation waits`
+
+**Status**: Pending

@@ -402,6 +402,21 @@ test.describe('Dados do mandato', () => {
     await expect(page.getByText('Você está com acesso somente leitura', { exact: true })).toBeVisible();
   });
 
+  test('sem o papel da pessoa no mandato, a aba Dados mostra o erro com "Tentar de novo", sem formulário nem "Salvar alterações"; "Tentar de novo" relê e abre o formulário (Edge Case: papel)', async ({ page }) => {
+    const estado: area.EstadoArea = { semLiaNosMembros: true };
+    await area.abreArea(page, '#/config/dados', estado);
+    await expect(dados(page).getByRole('alert')).toHaveText('Não foi possível carregar. Tente de novo.');
+    await expect(salvar(page)).toHaveCount(0);
+    await expect(dados(page).locator('input, select, textarea')).toHaveCount(0);
+    await expect(dados(page).getByRole('button')).toHaveText(['Tentar de novo']);
+    const lidos = area.leituras('membros').length;
+    estado.semLiaNosMembros = false;
+    await dados(page).getByRole('button', { name: 'Tentar de novo' }).click();
+    await expect(salvar(page)).toBeEnabled();
+    await expect(dados(page).getByRole('alert')).toHaveCount(0);
+    expect(area.leituras('membros').length).toBeGreaterThan(lidos);
+  });
+
   test('"Informar agora", na Visão geral sem data de posse, abre a aba Dados com o campo da data de posse vazio (AMA-02.2, 02.3)', async ({ page }) => {
     await area.abreArea(page, '#/config', { mandato: { data_posse: null } });
     await visaoAviso(page).getByRole('link', { name: 'Informar agora' }).click();

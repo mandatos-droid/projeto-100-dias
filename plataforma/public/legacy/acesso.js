@@ -131,6 +131,11 @@ function abaDoHash(h){
   var p=String(h||'').replace(/^#\/?/,'').split('/'),id=p[0]==='config'?p[1]:'';
   return ABAS_AREA.filter(function(a){return a.id===id})[0]||ABAS_AREA[0];
 }
+var ERRO_ABA='Não foi possível carregar. Tente de novo.';
+function euNosMembros(){
+  var u=Store.usuario;
+  return !!u&&(Store.membros||[]).some(function(x){return x.user_id===u.id});
+}
 var Area={
   focar:false,
   hash:function(id){return id==='visao'?'#/config':'#/config/'+id},
@@ -156,10 +161,23 @@ var Area={
   preencher:function(a){
     var p=document.getElementById(a.painel);
     if(!p)return;
-    if(a.id==='dados'){Cad.abrir('editar',false,p);return}
+    if(a.id==='dados'){
+      /* nuvem sem a linha da própria pessoa em Store.membros: papel desconhecido; sem formulário (liberaria "Salvar alterações") */
+      if(NUVEM&&!euNosMembros()){this.erro(p);return}
+      Cad.abrir('editar',false,p);return
+    }
     if(!a.ilha)return;
     p.innerHTML='<div class="ilha" data-ilha="'+a.ilha+'"></div>';
     if(window.Ilhas)Ilhas.ligar(p);
+  },
+  erro:function(p){
+    p.innerHTML='<div class="erro-cx" role="alert">'+ERRO_ABA+'</div><div class="bts"><button type="button" class="bt pri" onclick="Area.reler()">Tentar de novo</button></div>';
+  },
+  /* "Tentar de novo": relê o mandato e os membros do banco (Store.abrir, de onde vem o papel) e redesenha a aba */
+  reler:async function(){
+    var id=Store.mandato&&Store.mandato.id;
+    try{if(id)await Store.abrir(id)}catch(e){}
+    this.desenhar();
   },
   /* a aba Equipe entrega a lista de pessoas que leu do banco ou alterou: Store.membros e o rótulo "Equipe e convites (N)"
      acompanham (AMA-02.7). Lista de outro mandato (a troca de mandato chegou antes) não vale. */

@@ -433,6 +433,13 @@ test.describe('Perfil antes do Guia', () => {
     await expect(page).toHaveURL(/\/primeiro-acesso$/);
   });
 
+  test('com perfil e sem mandato ativo, #/config/equipe abre /primeiro-acesso e não mostra a Área do mandato (Edge Case: sem mandato)', async ({ page }) => {
+    await abre(page, '#/config/equipe', { papel: null, semEquipe: false, semEspera: true });
+    await expect(page).toHaveURL(/\/primeiro-acesso$/);
+    await expect(page.getByRole('tablist', { name: 'Área do mandato' })).toHaveCount(0);
+    await expect(page.locator('#areaEquipe')).toHaveCount(0);
+  });
+
   test('com perfil, sem mandato e com a marca "Ainda não", o Guia abre o cadastro do mandato (PAG-04.6)', async ({ page }) => {
     await abre(page, '#/', { papel: null, semEquipe: true });
     await expect(page.getByRole('heading', { name: 'Vamos cadastrar o mandato' })).toBeVisible();
