@@ -295,18 +295,20 @@ T11 → T12 → T13
 
 **Done when**:
 
-- [ ] A linha da área "Chefia de área" vira `chefia`; as demais viram ramos na ordem de `COORDENACOES`, só os ramos com linhas (RES-09.1)
-- [ ] Dentro do ramo a ordem é Chefia, Coordenação, Especialista, Executora e, em empate, a ordem das linhas (RES-09.2)
-- [ ] Pessoa com `*` vira `estado:'vaga'`; pessoa vazia vira `'aberto'`; demais `'ok'` (RES-09.3)
-- [ ] Mandato no formato antigo (sem `m2.n`) usa a vista derivada e produz os mesmos ramos que a tabela (RES-09.5)
-- [ ] Sem linhas ativas devolve `chefia: null` e `ramos: []` (RES-09.7)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ≥ 10 testes novos em `tests/resumo-equipe.test.ts`, nenhum removido
+- [x] A linha da área "Chefia de área" vira `chefia`; as demais viram ramos na ordem de `COORDENACOES`, só os ramos com linhas (RES-09.1)
+- [x] Dentro do ramo a ordem é Chefia, Coordenação, Especialista, Executora e, em empate, a ordem das linhas (RES-09.2)
+- [x] Pessoa com `*` vira `estado:'vaga'`; pessoa vazia vira `'aberto'`; demais `'ok'` (RES-09.3)
+- [x] Mandato no formato antigo (sem `m2.n`) usa a vista derivada e produz os mesmos ramos que a tabela (RES-09.5)
+- [x] Sem linhas ativas devolve `chefia: null` e `ramos: []` (RES-09.7)
+- [x] Gate check passes: `npm test`
+- [x] Test count: ≥ 10 testes novos em `tests/resumo-equipe.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(resumo): add pure tree model for the team chart`
+
+**Status**: ✅ Done (linha sem área vai para o ramo "Sem área", depois de COORDENACOES; outra linha da Chefia de área vai para o ramo dela)
 
 ---
 
