@@ -455,16 +455,18 @@ T11 → T12 → T13
 
 **Done when**:
 
-- [ ] Com 3 itens M e 2 P, aparecem 5 linhas com o selo certo e o texto escapado (RES-11.1)
-- [ ] Sem item classificado, o corpo mostra "não preenchido" (RES-11.2)
-- [ ] Sem `Resumo.vivo`, `Resumo.ex` do tipo `frag` devolve o mesmo HTML de antes (RES-12.1, 12.3)
-- [ ] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/resumo-estrutura.spec.ts`
-- [ ] Test count: ≥ 4 testes unitários novos, nenhum removido
+- [x] Com 3 itens M e 2 P, aparecem 5 linhas com o selo certo e o texto escapado (RES-11.1)
+- [x] Sem item classificado, o corpo mostra "não preenchido" (RES-11.2)
+- [x] Sem `Resumo.vivo`, `Resumo.ex` do tipo `frag` devolve o mesmo HTML de antes (RES-12.1, 12.3)
+- [x] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/resumo-estrutura.spec.ts`
+- [x] Test count: ≥ 4 testes unitários novos, nenhum removido
 
 **Tests**: unit
 **Gate**: full
 
 **Commit**: `feat(resumo): highlight mandate and parliamentarian weaknesses`
+
+**Status**: ✅ Done
 
 ---
 

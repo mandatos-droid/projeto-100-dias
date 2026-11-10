@@ -1024,3 +1024,11 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 #tela .res2 .terr td{padding:.65rem .6rem;border-bottom:1px solid var(--linha-2);vertical-align:top;color:var(--tinta-3)}
 #tela .res2 .terr-it{margin-bottom:.45rem}
 #tela .res2 .terr-it small{display:block;font-size:.76rem;line-height:1.35;color:var(--tinta-2);overflow-wrap:anywhere}
+
+/* fragilidades com selo M (mandato, verde) ou P (parlamentar, vinho) (RES-11) */
+#tela .res2 .frag-leg{font-weight:400;text-transform:none;letter-spacing:0}
+#tela .res2 ul.frag{display:grid;gap:.4rem;margin:0;padding:0;list-style:none}
+#tela .res2 ul.frag li{display:flex;align-items:baseline;gap:.7rem;font-size:.92rem}
+#tela .res2 ul.frag b{display:grid;place-items:center;flex:none;width:1.5rem;height:1.5rem;border-radius:2px;background:var(--tinta-3);font-family:'Anton',sans-serif;font-weight:400;font-size:.8rem;color:#fff}
+#tela .res2 ul.frag b.M{background:var(--verde)}
+#tela .res2 ul.frag b.P{background:var(--vinho)}

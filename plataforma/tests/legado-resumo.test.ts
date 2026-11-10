@@ -477,3 +477,65 @@ test('nome e partido com HTML saem escapados no cartão', () => {
   assert.ok(h.includes('&lt;b&gt;ana&lt;/b&gt;'));
   assert.equal(h.includes('<i>X</i>'), false);
 });
+
+/* ---------- fragilidades com selos M e P (RES-11) ---------- */
+type Frag = { t: string; mp?: string };
+const fragEx = (frags: Frag[]) => { const w = guia({ frags }); return { w, ex: exDe(w, 'm1.frag') }; };
+const linhasFrag = (h: string) => [...h.matchAll(/<li><b class="([^"]*)">([^<]*)<\/b> <span>([^<]*)<\/span><\/li>/g)].map((m) => [m[1], m[2], m[3]]);
+
+test('com 3 itens M e 2 P aparecem 5 linhas, cada uma com o selo certo e o texto (RES-11.1)', () => {
+  const { w, ex } = fragEx([
+    { t: 'Gestão de emendas', mp: 'M' }, { t: 'Regimento interno', mp: 'P' }, { t: 'Prestação de contas', mp: 'M' },
+    { t: 'Oratória', mp: 'P' }, { t: 'Comunicação em tempo real', mp: 'M' },
+  ]);
+  assert.deepEqual(linhasFrag(rx(w, ex)), [
+    ['M', 'M', 'Gestão de emendas'], ['P', 'P', 'Regimento interno'], ['M', 'M', 'Prestação de contas'],
+    ['P', 'P', 'Oratória'], ['M', 'M', 'Comunicação em tempo real'],
+  ]);
+  assert.ok(rx(w, ex).includes('<ul class="frag">'));
+});
+
+test('o texto da fragilidade sai escapado (RES-11.1)', () => {
+  const { w, ex } = fragEx([{ t: '<img src=x onerror=alert(1)> & cia', mp: 'M' }]);
+  const h = rx(w, ex);
+  assert.equal(h.includes('<img'), false);
+  assert.deepEqual(linhasFrag(h), [['M', 'M', '&lt;img src=x onerror=alert(1)&gt; &amp; cia']]);
+});
+
+test('item sem classificação não aparece; só itens sem classificação ou lista vazia mostram "não preenchido" (RES-11.2)', () => {
+  const { w, ex } = fragEx([{ t: 'Sem classe' }, { t: 'Vazio', mp: '' }]);
+  const h = rx(w, ex);
+  assert.ok(h.includes('<dd><span class="sem">não preenchido</span></dd>'));
+  assert.equal(h.includes('<ul'), false);
+  assert.equal(h.includes('Sem classe'), false);
+  const outro = guia({});
+  assert.ok(rx(outro, exDe(outro, 'm1.frag')).includes('<span class="sem">não preenchido</span>'));
+  const misto = fragEx([{ t: 'Sem classe' }, { t: 'Com classe', mp: 'P' }]);
+  assert.deepEqual(linhasFrag(rx(misto.w, misto.ex)), [['P', 'P', 'Com classe']]);
+});
+
+test('sem Resumo.vivo o Resumo.ex do tipo frag devolve o mesmo HTML de antes, sem selos (RES-12.1, RES-12.3)', () => {
+  const D = () => ({ frags: [{ t: 'Oratória', mp: 'P' }, { t: 'Emendas', mp: 'M' }, { t: 'Sem classe' }] });
+  const com = guia(D()), sem = guia(D(), false);
+  const a = com.Resumo.ex(exDe(com, 'm1.frag')), b = sem.Resumo.ex(exDe(sem, 'm1.frag'));
+  assert.equal(a, b);
+  assert.ok(a.includes('<ul class="marcados"><li><strong>P</strong> — Oratória</li><li><strong>M</strong> — Emendas</li></ul>'));
+  assert.equal(a.includes('class="frag"'), false);
+});
+
+test('a sobreposição vale só para o tipo frag: os demais exercícios saem iguais com Resumo.vivo (RES-12.1)', () => {
+  const D = () => ({ campos: { 'm1.q1': 'Professora', 'm2.f1': 'Paulo' }, frags: [{ t: 'Oratória', mp: 'P' }] });
+  const com = guia(D()), sem = guia(D(), false);
+  for (const m of com.MISSOES) for (const ex of m.exercicios) {
+    if (ex.tipo === 'frag') continue;
+    assert.equal(rx(com, ex), comVivo(sem, () => sem.Resumo.ex(exDe(sem, ex.id))), ex.id);
+  }
+});
+
+test('a tela mostra os selos no corpo do exercício de fragilidades e a prévia do resumo traz o texto puro (RES-11.1)', () => {
+  const w = guia({ campos: {}, frags: [{ t: 'Oratória', mp: 'P' }, { t: 'Emendas', mp: 'M' }] });
+  const b = blocoEx(tela(w), 'm1.frag');
+  assert.ok(b.includes('<li><b class="P">P</b> <span>Oratória</span></li>'));
+  assert.ok(b.includes('<li><b class="M">M</b> <span>Emendas</span></li>'));
+  assert.equal(previaDe(b), 'P Oratória M Emendas'); // texto puro, sem tags
+});

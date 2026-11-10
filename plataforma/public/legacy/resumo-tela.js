@@ -195,6 +195,17 @@ ResumoIlhas.html=function(ilha){
     this.mapa(ilha,ilha==='assentos'?'Hemiciclo da Casa':'Mapa político do estado');
 };
 
+/* ---------- fragilidades com selo M (mandato) ou P (parlamentar) (RES-11) ----------
+   Só para o exercício de tipo frag e só com Resumo.vivo: o Painel e o download seguem com a saída original (RES-12). */
+var exTexto=Resumo.ex;
+Resumo.ex=function(ex){
+  if(!Resumo.vivo||!ex||ex.tipo!=='frag')return exTexto.call(this,ex);
+  var fs=(D.frags||[]).filter(function(f){return f.mp});
+  return '<dl class="cmp"><dt>Fragilidades classificadas <span class="frag-leg">(M = mandato · P = parlamentar)</span></dt><dd>'+
+    (fs.length?'<ul class="frag">'+fs.map(function(f){
+      return '<li><b class="'+esc(f.mp)+'">'+esc(f.mp)+'</b> <span>'+esc(f.t)+'</span></li>'}).join('')+'</ul>':this.sem)+'</dd></dl>';
+};
+
 /* a nova tela substitui a de novos.js (que também ligava Resumo.vivo e as ilhas) */
 Telas.resumo=function(){
   var t=document.getElementById('tela');
