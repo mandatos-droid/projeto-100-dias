@@ -10,7 +10,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 
 **Design**: `.specs/features/primeiro-acesso-google/design.md`
 **Spec**: `.specs/features/primeiro-acesso-google/spec.md`
-**Status**: Draft
+**Status**: In progress (Execute)
 **Branch**: `feat/primeiro-acesso-google` (criada a partir de `feat/acesso-convites`)
 
 Regras que valem para todas as tasks:
@@ -106,21 +106,23 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] A tabela `perfis` segue o modelo do `design.md`; `authenticated` só tem `select`, sem `insert`, `update` nem `delete` (PAG-03.1)
-- [ ] Pessoa lê só o próprio perfil; a equipe Legisla (qualquer papel) lê todos; membro de mandato lê zero linhas de outra pessoa, mesmo do mesmo mandato (PAG-03.4, 03.5, 03.6)
-- [ ] `perfil_salvar` grava só com o `user_id` da sessão e é a única porta de escrita; insert direto de `authenticated` é recusado (PAG-03.2, 03.3)
-- [ ] `perfil_salvar` grava `perfis` e `consentimentos` (versão `2026-11`) na mesma transação; se o consentimento falhar (gatilho de teste que levanta exceção) o perfil é desfeito (PAG-02.12)
-- [ ] Segunda chamada com perfil existente devolve `{ok:true}` e mantém uma única linha (PAG-02.14)
-- [ ] `perfil_salvar` devolve `{ok:false, erro:<campo>}` para nome fora de 2 a 120 caracteres ou com uma palavra, data inexistente, futura ou anterior a 1900-01-01, telefone sem DDD de 11 a 99 mais 8 ou 9 dígitos, gênero, raça, UF, atuação ou tempo fora da lista, e tempo com `atua = false` ou ausente com `atua = true` (PAG-02.9, 02.10, 02.11, PAG-03.7, 03.8)
-- [ ] `private.tem_perfil()` devolve `true` para quem está em `equipe_legisla` ou tem perfil e `false` nos demais casos (PAG-02.15, 02.16)
-- [ ] `anon` não executa as funções
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 14 testes novos em `tests/sql-perfil.test.ts`, nenhum removido
+- [x] A tabela `perfis` segue o modelo do `design.md`; `authenticated` só tem `select`, sem `insert`, `update` nem `delete` (PAG-03.1). Sem a coluna `uf`: a spec (Assumptions, "sem UF (decidido em 2026-11-09)", e PAG-02.3) fixa os campos sem UF
+- [x] Pessoa lê só o próprio perfil; a equipe Legisla (qualquer papel) lê todos; membro de mandato lê zero linhas de outra pessoa, mesmo do mesmo mandato (PAG-03.4, 03.5, 03.6)
+- [x] `perfil_salvar` grava só com o `user_id` da sessão e é a única porta de escrita; insert direto de `authenticated` é recusado (PAG-03.2, 03.3)
+- [x] `perfil_salvar` grava `perfis` e `consentimentos` (versão `2026-11`) na mesma transação; se o consentimento falhar (gatilho de teste que levanta exceção) o perfil é desfeito (PAG-02.12)
+- [x] Segunda chamada com perfil existente devolve `{ok:true}` e mantém uma única linha (PAG-02.14)
+- [x] `perfil_salvar` devolve `{ok:false, erro:<campo>}` para nome fora de 2 a 120 caracteres ou com uma palavra, data inexistente, futura ou anterior a 1900-01-01, telefone sem DDD de 11 a 99 mais 8 ou 9 dígitos, gênero, raça, atuação ou tempo fora da lista, e tempo com `atua = false` ou ausente com `atua = true` (PAG-02.9, 02.10, 02.11, PAG-03.7, 03.8). Sem `p_uf` (spec sem UF); `p_nascimento` é texto, para data inexistente voltar como `{ok:false, erro:'nascimento'}` e não como exceção
+- [x] `private.tem_perfil()` devolve `true` para quem está em `equipe_legisla` ou tem perfil e `false` nos demais casos (PAG-02.15, 02.16)
+- [x] `anon` não executa as funções
+- [x] Gate check passes: `npm test` (999 testes, 0 falhas)
+- [x] Test count: 18 testes novos em `tests/sql-perfil.test.ts`, nenhum removido (981 → 999)
 
 **Tests**: integration
 **Gate**: quick
 
 **Commit**: `feat(perfil): add profile table and save function`
+
+**Status**: ✅ Done
 
 ---
 
