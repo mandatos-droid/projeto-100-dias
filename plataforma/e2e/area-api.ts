@@ -48,6 +48,11 @@ export const evento = (id: number, tipo: string, ator_nome: string | null, alvo_
 
 export interface Nuvem { mandatos: LinhaMandato[]; membros: Membro[]; convites: Convite[]; eventos: Evento[] }
 
+/** Token (22 caracteres base64url) e validade do n-ésimo convite criado na nuvem em memória. */
+export const tokenDoConvite = (n: number) => `Xk9-2fQa_7LmPq3RsT8u${String(n).padStart(2, '0')}`;
+export const EXPIRA_NOVO = '2027-02-19T12:00:00Z';
+let criados = 0;
+
 export type Falha = 'rede' | 'servidor';
 export interface RespostaRpc { status?: number; corpo?: unknown; rede?: boolean }
 
@@ -110,7 +115,7 @@ export function criaNuvem(e: EstadoArea = {}): Nuvem {
 
 /** Abre o Guia real em `hash` com Lia logada e o Supabase simulado. Devolve a nuvem em memória (viva). */
 export async function abreArea(page: Page, hash = '#/config', estado: EstadoArea = {}): Promise<Nuvem> {
-  registro.pedidos = []; registro.naoMapeadas = []; registro.fotos = [];
+  registro.pedidos = []; registro.naoMapeadas = []; registro.fotos = []; criados = 0;
   const nuvem = criaNuvem(estado);
   const eq = (u: URL, k: string) => (u.searchParams.get(k) ?? '').replace(/^eq\./, '');
 
@@ -176,10 +181,34 @@ export async function abreArea(page: Page, hash = '#/config', estado: EstadoArea
         return responde(200, nuvem.membros.filter((m) => m.mandato_id === args.p_mandato).map(({ mandato_id: _m, ...p }) => p));
       if (nome === 'convites_pendentes')
         return responde(200, nuvem.convites.filter((c) => c.mandato_id === args.p_mandato).map(({ mandato_id: _m, ...c }) => c));
+      // o que a aba Equipe grava: a nuvem muda como o banco mudaria (as recusas do banco entram por `estado.rpc`)
+      if (nome === 'convite_criar') {
+        const n = ++criados;
+        const c = { ...convite(`c-novo-${n}`, String(args.p_nome), args.p_papel as Papel, String(args.p_mandato)), convidado_por_nome: LIA.nome, expira_em: EXPIRA_NOVO };
+        nuvem.convites.push(c);
+        return responde(200, { id: c.id, token: tokenDoConvite(n), expira_em: c.expira_em });
+      }
+      if (nome === 'convite_cancelar') { nuvem.convites = nuvem.convites.filter((c) => c.id !== args.p_id); return responde(204); }
+      if (nome === 'membro_trocar_papel') {
+        nuvem.membros = nuvem.membros.map((m) => (m.mandato_id === args.p_mandato && m.user_id === args.p_user ? { ...m, papel: args.p_papel as Papel } : m));
+        return responde(204);
+      }
+      if (nome === 'membro_remover') {
+        nuvem.membros = nuvem.membros.filter((m) => !(m.mandato_id === args.p_mandato && m.user_id === args.p_user));
+        return responde(204);
+      }
+      if (nome === 'membro_sair') {
+        nuvem.membros = nuvem.membros.filter((m) => !(m.mandato_id === args.p_mandato && m.user_id === LIA.id));
+        return responde(204);
+      }
       return semMapa();
     }
     return semMapa();
   });
+
+  // /primeiro-acesso é outra página (testada à parte): aqui só prova que o Guia mandou a pessoa para lá
+  await page.route((u) => local(u) && u.pathname === '/primeiro-acesso', (rota) =>
+    rota.fulfill({ status: 200, headers: { 'content-type': 'text/html' }, body: '<!doctype html><title>perfil</title><h1>Primeiro acesso aberto</h1>' }));
 
   await page.addInitScript((t) => {
     if (sessionStorage.getItem('area-semeado')) return;

@@ -240,6 +240,22 @@ test('a Visão geral recebe no painel dela a ilha area-visao, ligada pelo Ilhas.
   assert.deepEqual(ligou, ['areaVisao']);
 });
 
+test('a lista de pessoas da aba Equipe acerta Store.membros e o rótulo "Equipe e convites (N)"; lista de outro mandato não vale (AMA-02.7)', () => {
+  const j = areaEm('#/config/equipe');
+  const area = (j.w as unknown as { Area: { equipe(m: string, l: unknown[]): void } }).Area;
+  const tres = [
+    { user_id: 'u1', nome: 'Lia', email: 'lia@x.test', papel: 'coordenacao', criado_em: 'x' },
+    { user_id: 'u2', nome: 'Mariana', email: null, papel: 'assessoria', criado_em: 'x' },
+    { user_id: 'u3', nome: 'Rui', email: null, papel: 'leitura', criado_em: 'x' },
+  ];
+  area.equipe('m-a', tres);
+  assert.equal(j.document.getElementById('abaEquipe').textContent, 'Equipe e convites (3)');
+  assert.deepEqual(JSON.parse(JSON.stringify(j.w.Store.membros)), tres.map(({ criado_em: _c, ...p }) => ({ mandato_id: 'm-a', ...p })));
+  area.equipe('m-outro', tres.slice(0, 1));
+  assert.equal(j.document.getElementById('abaEquipe').textContent, 'Equipe e convites (3)');
+  assert.equal(j.w.Store.membros.length, 3);
+});
+
 test('clicar numa aba (Area.ir) leva ao endereço dela: #/config para a Visão geral e #/config/<aba> para as outras (AMA-01.4)', () => {
   const { w } = areaEm('#/config');
   for (const [id, hash] of [['equipe', '#/config/equipe'], ['conta', '#/config/conta'], ['dados', '#/config/dados'], ['visao', '#/config']]) {

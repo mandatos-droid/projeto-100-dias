@@ -19,9 +19,11 @@ interface Props {
   aoTrocar: (userId: string, papel: Papel) => void;
   /** O banco removeu a pessoa do mandato (a conta dela continua na plataforma). */
   aoRemover: (userId: string) => void;
+  /** Lê a lista de novo depois de uma falha ("Tentar de novo"). */
+  aoTentarDeNovo?: () => void;
 }
 
-export default function ListaPessoas({ pessoas, erro, aoTrocar, aoRemover }: Props) {
+export default function ListaPessoas({ pessoas, erro, aoTrocar, aoRemover, aoTentarDeNovo }: Props) {
   const { api, mandato, usuario, papel } = useMandato();
   const gere = podeGerirEquipe(papel);
   const [ocupado, setOcupado] = useState<string | null>(null);
@@ -65,6 +67,9 @@ export default function ListaPessoas({ pessoas, erro, aoTrocar, aoRemover }: Pro
         {pessoas && <span className="md-pilula md-pilula--neutra" aria-label={`${pessoas.length} pessoas`}>{pessoas.length}</span>}
       </div>
       {erro && <div className="md-aviso" role="alert">{erro}</div>}
+      {erro && aoTentarDeNovo && (
+        <div><button type="button" className="md-bt md-bt--peq" onClick={aoTentarDeNovo}>Tentar de novo</button></div>
+      )}
       {pessoas && (
         <ul className="md-lista">
           {pessoas.map((p, i) => {

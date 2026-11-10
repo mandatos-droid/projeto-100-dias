@@ -107,7 +107,7 @@ var ROTULO_AREA='Área do mandato';
 var ABAS_AREA=[
   {id:'visao',rot:'Visão geral',painel:'areaVisao',bt:'abaVisao',ilha:'area-visao'},
   {id:'dados',rot:'Dados do mandato',painel:'areaDados',bt:'abaDados'},
-  {id:'equipe',rot:'Equipe e convites',painel:'areaEquipe',bt:'abaEquipe'},
+  {id:'equipe',rot:'Equipe e convites',painel:'areaEquipe',bt:'abaEquipe',ilha:'area-equipe'},
   {id:'conta',rot:'Minha conta',painel:'areaConta',bt:'abaConta'}
 ];
 function abaDoHash(h){
@@ -140,6 +140,14 @@ var Area={
     if(!p||!a.ilha)return;
     p.innerHTML='<div class="ilha" data-ilha="'+a.ilha+'"></div>';
     if(window.Ilhas)Ilhas.ligar(p);
+  },
+  /* a aba Equipe entrega a lista de pessoas que leu do banco ou alterou: Store.membros e o rótulo "Equipe e convites (N)"
+     acompanham (AMA-02.7). Lista de outro mandato (a troca de mandato chegou antes) não vale. */
+  equipe:function(mandatoId,lista){
+    if(!Store.mandato||Store.mandato.id!==mandatoId||!Array.isArray(lista))return;
+    Store.membros=lista.map(function(p){return {mandato_id:mandatoId,user_id:p.user_id,nome:p.nome,email:p.email,papel:p.papel}});
+    var a=ABAS_AREA.filter(function(x){return x.id==='equipe'})[0],b=document.getElementById(a.bt);
+    if(b)b.textContent=this.rotulo(a);
   },
   /* troca de aba = troca de hash; o hashchange redesenha (App.rotear). O foco volta à aba escolhida. */
   ir:function(id){
@@ -198,11 +206,12 @@ function leitura(){
   var u=Store.usuario,eu=u&&(Store.membros||[]).filter(function(x){return x.user_id===u.id})[0];
   return !!eu&&eu.papel==='leitura';
 }
-/* desabilita o que grava dentro do #tela; o cadastro de outro mandato (#/novo) fica livre */
+/* desabilita o que grava dentro do #tela; o cadastro de outro mandato (#/novo) fica livre. A aba Equipe e convites também:
+   lá o banco decide (quem é leitura convida como Somente leitura e sai do mandato, como em /mandato/equipe) */
 function trava(raiz){
   if(!raiz||!leitura()||(location.hash||'').indexOf('#/novo')===0)return;
   var cada=function(sel,f){Array.prototype.forEach.call(raiz.querySelectorAll(sel),f)};
-  cada('input,textarea,select',function(el){el.disabled=true});
+  cada('input,textarea,select',function(el){if(!(el.closest&&el.closest('#areaEquipe')))el.disabled=true});
   cada('[contenteditable="true"]',function(el){el.contentEditable='false';el.setAttribute('aria-readonly','true')});
   cada('button',function(b){if(GRAVA.test(b.getAttribute('onclick')||'')||b.closest('.rico-barra'))b.disabled=true});
 }

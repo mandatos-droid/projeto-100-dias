@@ -198,18 +198,20 @@ T6 → T7 → T8 → T9
 
 **Done when**:
 
-- [ ] A aba mostra o formulário de convite, os pendentes, as pessoas e o "Sair do mandato", com as mesmas regras, mensagens e permissões de hoje (AMA-02.6)
-- [ ] Depois de "Sair do mandato", o Guia abre outro mandato da pessoa ou o primeiro acesso, como hoje (Edge Case)
-- [ ] O rótulo da aba mostra o total de pessoas e se atualiza quando alguém entra, sai ou é removido (AMA-02.7)
-- [ ] Para `leitura` a aba não mostra botão que altera (AMA-02.11)
-- [ ] Falha da leitura mostra o erro da aba com "Tentar de novo" (AMA-02.10)
-- [ ] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/area-equipe.spec.ts e2e/area-mandato.spec.ts`
-- [ ] Test count: ao menos 12 testes e2e novos cobrindo convidar, cancelar, trocar papel, remover, sair do mandato e o papel `leitura`, nenhum removido
+- [x] A aba mostra o formulário de convite, os pendentes, as pessoas e o "Sair do mandato", com as mesmas regras, mensagens e permissões de hoje (AMA-02.6)
+- [x] Depois de "Sair do mandato", o Guia abre outro mandato da pessoa ou o primeiro acesso, como hoje (Edge Case)
+- [x] O rótulo da aba mostra o total de pessoas e se atualiza quando alguém entra, sai ou é removido (AMA-02.7)
+- [x] Para `leitura` a aba não mostra botão que altera (AMA-02.11)
+- [x] Falha da leitura mostra o erro da aba com "Tentar de novo" (AMA-02.10)
+- [x] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/area-equipe.spec.ts e2e/area-mandato.spec.ts`
+- [x] Test count: ao menos 12 testes e2e novos cobrindo convidar, cancelar, trocar papel, remover, sair do mandato e o papel `leitura`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(area-mandato): add team and invites tab`
+
+**Status**: ✅ Done
 
 ---
 

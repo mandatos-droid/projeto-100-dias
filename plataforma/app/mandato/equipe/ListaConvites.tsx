@@ -21,9 +21,11 @@ interface Props {
   erro: string | null;
   /** Chamado depois que o banco cancelou: a tela tira o convite da lista sem recarregar. */
   aoCancelar: (id: string) => void;
+  /** Lê a lista de novo depois de uma falha ("Tentar de novo"). */
+  aoTentarDeNovo?: () => void;
 }
 
-export default function ListaConvites({ convites, erro, aoCancelar }: Props) {
+export default function ListaConvites({ convites, erro, aoCancelar, aoTentarDeNovo }: Props) {
   const { api } = useMandato();
   const [cancelando, setCancelando] = useState<string | null>(null);
   const [recusa, setRecusa] = useState<{ id: string; mensagem: string } | null>(null);
@@ -50,6 +52,9 @@ export default function ListaConvites({ convites, erro, aoCancelar }: Props) {
         {convites && <span className="md-pilula" aria-label={`${convites.length} pendentes`}>{convites.length}</span>}
       </div>
       {erro && <div className="md-aviso" role="alert">{erro}</div>}
+      {erro && aoTentarDeNovo && (
+        <div><button type="button" className="md-bt md-bt--peq" onClick={aoTentarDeNovo}>Tentar de novo</button></div>
+      )}
       {convites && convites.length === 0 && <p className="md-mut">Nenhum convite pendente.</p>}
       {convites && convites.length > 0 && (
         <ul className="md-lista">
