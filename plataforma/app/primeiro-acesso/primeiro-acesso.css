@@ -1,16 +1,68 @@
-/* Primeiro acesso (/primeiro-acesso). Reaproveita a casca e os tokens de convite.css (classes cv-*);
-   aqui só entra o que o formulário de perfil acrescenta. */
-.pa select {
-  font: inherit; width: 100%; min-width: 0; padding: 10px 12px; border: 1.5px solid var(--tinta-2); border-radius: 8px;
-  background: var(--branco); color: var(--tinta);
+/* Primeiro acesso (/primeiro-acesso). Reaproveita só a estrutura e os tokens de convite.css (classes cv-*);
+   a aparência segue os componentes do Guia (public/legacy/legacy.css): etiqueta acima do título, título em Anton,
+   campos de borda --linha de 2 px com foco verde, botão principal vinho e botão de contorno vinho.
+   Tudo sob .pa: /convite e /mandato não mudam. */
+
+/* a página não tem o reset do Guia: tira a margem de 8 px do body só aqui */
+body:has(.pa) { margin: 0; background: #FBF6EE; }
+
+.pa { --r: 4px; --tinta-3: #6F645E; --erro: #A32A20; line-height: 1.6; }
+.pa :focus-visible { outline: 3px solid var(--verde); outline-offset: 2px; }
+
+/* barra: marca discreta sobre o papel, sem a faixa vinho; o rótulo "Primeiro acesso" vira a etiqueta do título */
+.pa .cv-barra { background: transparent; color: var(--vinho); border-bottom: 1px solid var(--linha); padding: 14px 16px; }
+.pa .cv-barra b { color: var(--vinho); font-size: 20px; letter-spacing: .04em; }
+.pa .cv-barra span { display: none; }
+
+.pa .cv-corpo { padding: 32px 16px 64px; }
+.pa .cv-centro { max-width: 520px; gap: 20px; }
+
+/* etiqueta e título, como a tela de cadastro do Guia */
+.pa-etq { margin: 0 0 -8px; font-size: 11.5px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--tinta-3); }
+.pa h1 {
+  font-family: var(--display); font-weight: 400; font-size: clamp(30px, 8vw, 42px); line-height: 1.05;
+  letter-spacing: .004em; text-transform: none; margin: 0;
 }
+.pa .cv-mut { font-size: 17px; line-height: 1.5; color: var(--tinta-2); }
+
+/* campos: rótulo em negrito e caixa com borda --linha de 2 px, foco verde */
+.pa .cv-campo { gap: 5px; }
+.pa .cv-campo span { font-size: 16.5px; font-weight: 700; }
+.pa input:not([type="radio"]):not([type="checkbox"]), .pa select {
+  font: inherit; width: 100%; min-width: 0; padding: 11px 14px; border: 2px solid var(--linha); border-radius: var(--r);
+  background: var(--branco); color: var(--tinta); line-height: 1.55; transition: border-color .15s;
+}
+.pa select { padding-right: 10px; }
+.pa input:not([type="radio"]):not([type="checkbox"]):focus, .pa select:focus { outline: 0; border-color: var(--verde); box-shadow: 0 0 0 3px rgba(3, 82, 82, .2); }
+.pa [aria-invalid="true"] { border-color: var(--erro); box-shadow: 0 0 0 3px #FDECEC; }
+
 .pa-grupo { border: 0; margin: 0; padding: 0; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-.pa-grupo legend { padding: 0; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-.pa-opcoes { display: flex; gap: 20px; flex-wrap: wrap; }
-.pa-opcao { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; cursor: pointer; }
+.pa-grupo legend { padding: 0; font-size: 16.5px; font-weight: 700; margin-bottom: 4px; }
+.pa-opcoes { display: flex; gap: 24px; flex-wrap: wrap; }
+.pa-opcao { display: inline-flex; align-items: center; gap: 10px; font-size: 16px; cursor: pointer; }
 .pa .pa-opcao input { width: 20px; height: 20px; margin: 0; padding: 0; accent-color: var(--vinho); }
-.pa [aria-invalid="true"] { border-color: #B3261E; box-shadow: 0 0 0 2px #FDECEC; }
-.pa-grupo[data-invalido="true"], .pa-chk[data-invalido="true"] { padding: 6px 8px; border: 1.5px solid #B3261E; border-radius: 8px; background: #FDECEC; }
-.pa-ajuda { font-size: 13px; color: var(--tinta-2); }
-.pa-sensiveis { font-size: 13px; line-height: 1.5; color: var(--tinta-2); overflow-wrap: anywhere; }
-.pa-passos { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
+.pa-grupo[data-invalido="true"], .pa-chk[data-invalido="true"] { padding: 8px 10px; border: 2px solid var(--erro); border-radius: var(--r); background: #FDECEC; }
+.pa-ajuda { font-size: 14.5px; line-height: 1.55; color: var(--tinta-2); margin: 0; }
+.pa-sensiveis { font-size: 14.5px; line-height: 1.55; color: var(--tinta-2); overflow-wrap: anywhere; }
+.pa-passos { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; font-size: 16px; }
+
+/* aviso de consentimento e caixas de concordância */
+.pa .cv-lgpd { border: 1px solid var(--linha); border-radius: var(--r); font-size: 14.5px; }
+.pa .cv-chk { font-size: 16px; line-height: 1.5; gap: 12px; }
+.pa .cv-aviso { border-left-color: var(--erro); border-radius: var(--r); background: #FDECEC; color: #7A1F1F; font-size: 15px; }
+
+/* botões do Guia: principal vinho (texto branco), contorno vinho, discreto */
+.pa-bts { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+.pa-bt {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; padding: 13px 26px;
+  border: 0; border-radius: var(--r); font: inherit; font-weight: 700; font-size: 15px; text-align: center; text-decoration: none;
+  cursor: pointer; transition: .15s;
+}
+.pa-bt--pri { background: var(--vinho); color: #fff; }
+.pa-bt--pri:hover:not(:disabled) { background: #3E0F21; }
+.pa-bt--sec { background: none; color: var(--vinho); box-shadow: inset 0 0 0 2px var(--vinho); }
+.pa-bt--sec:hover:not(:disabled) { background: rgba(87, 23, 48, .06); }
+.pa-bt--fant { background: none; color: var(--tinta-2); padding-left: 10px; padding-right: 10px; }
+.pa-bt--fant:hover:not(:disabled) { color: var(--vinho); }
+.pa-bt:disabled { opacity: .4; cursor: not-allowed; }
+@media (max-width: 480px) { .pa-bts > .pa-bt { flex: 1 1 100%; } }

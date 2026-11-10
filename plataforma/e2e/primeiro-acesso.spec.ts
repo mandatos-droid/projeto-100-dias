@@ -181,6 +181,53 @@ test.describe('Recusas no formulário (PAG-02.8 a 02.11)', () => {
   });
 });
 
+test.describe('Campo de telefone (PAG-02.17)', () => {
+  const campo = (page: Page) => page.getByLabel('Telefone com DDD', { exact: true });
+
+  test('o campo é de um telefone: tipo tel, teclado numérico, 15 caracteres e texto de ajuda', async ({ page }) => {
+    await abreFormulario(page);
+    await expect(campo(page)).toHaveAttribute('type', 'tel');
+    await expect(campo(page)).toHaveAttribute('inputmode', 'numeric');
+    await expect(campo(page)).toHaveAttribute('autocomplete', 'tel-national');
+    await expect(campo(page)).toHaveAttribute('maxlength', '15');
+    await expect(page.getByText('Telefone com DDD, ex.: (11) 99999-9999')).toBeVisible();
+  });
+
+  test('digitar 11999999999 mostra (11) 99999-9999', async ({ page }) => {
+    await abreFormulario(page);
+    await campo(page).pressSequentially('11999999999');
+    await expect(campo(page)).toHaveValue('(11) 99999-9999');
+  });
+
+  test('apagar com Backspace tira um dígito por vez, sem travar na máscara', async ({ page }) => {
+    await abreFormulario(page);
+    await campo(page).pressSequentially('1199999999');
+    await expect(campo(page)).toHaveValue('(11) 9999-9999');
+    for (const esperado of ['(11) 9999-999', '(11) 9999-99', '(11) 9999-9', '(11) 9999', '(11) 999']) {
+      await campo(page).press('Backspace');
+      await expect(campo(page)).toHaveValue(esperado);
+    }
+  });
+
+  test('colar dois números mantém só o primeiro, formatado, e o envio manda só dígitos', async ({ page }) => {
+    await abreFormulario(page);
+    await preenche(page);
+    await campo(page).fill('');
+    // fill entrega o texto de uma vez, como o navegador faz ao colar
+    await campo(page).fill('11999999999 11888888888');
+    await expect(campo(page)).toHaveValue('(11) 99999-9999');
+    await enviar(page).click();
+    await expect(page).toHaveURL(/\/guia$/);
+    expect(argumentosSalvar(salvamentos()[0]).p_telefone).toBe('11999999999');
+  });
+
+  test('letras digitadas são descartadas', async ({ page }) => {
+    await abreFormulario(page);
+    await campo(page).pressSequentially('11abc99999-9999');
+    await expect(campo(page)).toHaveValue('(11) 99999-9999');
+  });
+});
+
 test.describe('Envio (PAG-02.12 a 02.14)', () => {
   test('formulário válido grava com os argumentos p_* (telefone só com dígitos) e segue ao ponto de partida (PAG-02.12)', async ({ page }) => {
     await abreFormulario(page);

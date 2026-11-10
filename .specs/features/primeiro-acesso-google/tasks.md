@@ -10,7 +10,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 
 **Design**: `.specs/features/primeiro-acesso-google/design.md`
 **Spec**: `.specs/features/primeiro-acesso-google/spec.md`
-**Status**: ✅ Verified (T1 a T21; Verifier final PASS na rodada 3, `validation.md`)
+**Status**: ✅ Verified (T1 a T21; T22 é ajuste pós-publicação; Verifier final PASS na rodada 3, `validation.md`)
 **Branch**: `feat/primeiro-acesso-google` (criada a partir de `feat/acesso-convites`)
 
 Regras que valem para todas as tasks:
@@ -97,6 +97,12 @@ T16 → T17 → T18 → T19
 
 ```
 T19 → T20 → T21
+```
+
+### Phase 8: Ajustes pós-publicação
+
+```
+T21 → T22
 ```
 
 ---
@@ -774,5 +780,36 @@ T19 → T20 → T21
 **Gate**: build
 
 **Commit**: `fix(guia): show the retry box when the mandates read fails`
+
+**Status**: ✅ Done
+
+---
+
+## Phase 8: Ajustes pós-publicação
+
+### T22: Telefone e visual do primeiro acesso
+
+**What**: (1) O telefone do formulário de perfil aceita um único número brasileiro: `type="tel"`, `inputMode="numeric"`, `autoComplete="tel-national"`, `maxLength` 15; descarta o que não é dígito, limita a 11 dígitos e mostra `(11) 99999-9999` ou `(11) 9999-9999`, com a ajuda "Telefone com DDD, ex.: (11) 99999-9999"; a validação de `validacao.ts` não muda. (2) `/primeiro-acesso` passa a usar os componentes do Guia no escopo `.pa`: botão principal vinho com texto branco, botão de contorno vinho, campos e selects de borda `--linha` de 2 px com foco verde, etiqueta "Primeiro acesso" acima do título; `convite.css` e `legacy.css` não mudam.
+**Where**: `plataforma/lib/perfil/telefone.ts` (new), `plataforma/tests/perfil-telefone.test.ts` (new), `plataforma/app/primeiro-acesso/PrimeiroAcesso.tsx` (modify), `plataforma/app/primeiro-acesso/primeiro-acesso.css` (modify), `plataforma/e2e/primeiro-acesso.spec.ts` (modify)
+**Depends on**: T21
+**Reuses**: `validaPerfil`; tokens e componentes `.bt`, `.etiqueta` de `public/legacy/legacy.css` como referência visual
+**Requirement**: PAG-02.17 e Assumption "Visual de `/primeiro-acesso`"
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [x] Unidade: digitar, apagar, colar com máscara, colar vários números, letras, mais de 11 dígitos, 10 e 11 dígitos e vazio
+- [x] e2e: digitar `11999999999` mostra `(11) 99999-9999`; colar `11999999999 11888888888` mantém o primeiro número formatado e o envio manda só dígitos
+- [x] Capturas do formulário, da pergunta e das instruções conferidas a 1280 px e a 400 px, sem rolagem horizontal
+- [x] Gate check passes: `npx tsc --noEmit`, `npm test` e e2e `primeiro-acesso*`, `convite-*`, `mandato-*`, `guia-acesso*`
+
+**Tests**: unit, e2e
+**Gate**: build
+
+**Commit**: `feat(primeiro-acesso): single phone number and Guia look`
 
 **Status**: ✅ Done

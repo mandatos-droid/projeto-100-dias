@@ -69,6 +69,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | Falha ao consultar o perfil ou os mandatos no Guia | Mostra uma caixa de erro "Não foi possível carregar seus dados. Tente de novo." com botão "Tentar de novo"; nunca manda ao formulário de perfil por causa da falha; vale para a consulta de `equipe_legisla`, de `perfis` e para a leitura dos mandatos que vem logo depois | Decisão do orquestrador nas rodadas 1 e 2 do Verifier (SP-3 e SP-R2-1): sem isso o Guia fica em branco | n |
 | Ordem das checagens no aceite do convite | Perfil antes de consentimento: quem não tem perfil recebe `erro:'perfil'` e preenche o perfil (que já grava o consentimento) sem ver a tela de consentimento do convite | Verifier rodada 1 (GAP-1): a ordem inversa mostrava o consentimento duas vezes | y |
 | Tratamento de "Prefiro não informar" | Aparece como uma categoria própria, nunca somado a outra | Dado honesto sobre quem não quis responder | n |
+| Visual de `/primeiro-acesso`: usa os componentes do Guia (botão principal vinho, campos de borda `--linha`, foco verde) em vez dos do `/convite` | Decisão do usuário em 2026-11-10 (relato: tela fora do design da plataforma) | n |
 
 **Open questions:** none - all resolved or logged above (required before the spec is confirmed).
 
@@ -119,6 +120,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 14. WHEN a pessoa envia o formulário duas vezes seguidas THEN the sistema SHALL manter um único perfil por pessoa. <!-- event-driven -->
 15. WHERE a pessoa já tem perfil gravado the sistema SHALL não mostrar o formulário de novo. <!-- optional-feature -->
 16. WHERE a pessoa está em `equipe_legisla` the sistema SHALL não mostrar o formulário nem bloquear nenhuma tela. <!-- optional-feature -->
+17. The campo de telefone SHALL aceitar só um número, descartar tudo que não é dígito, limitar a 11 dígitos e exibi-lo como `(11) 99999-9999` ou `(11) 9999-9999`. <!-- ubiquitous -->
 
 **Independent Test**: Entrar com uma conta Google sem perfil, tentar abrir `/guia` e ver o formulário; enviar vazio e ver a recusa; enviar completo e ver o perfil no banco; entrar de novo e não ver o formulário.
 
@@ -228,7 +230,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
 | PAG-01 | P1: Entrar só com Google | Execute (T7, T9, T11, T12, T13, T16) | ✅ Verified (Verifier rodada 3) |
-| PAG-02 | P1: Cadastro de perfil no primeiro acesso | Execute (T1 a T10, T16, T17, T18) | ✅ Verified (Verifier rodada 3) |
+| PAG-02 | P1: Cadastro de perfil no primeiro acesso | Execute (T1 a T10, T16, T17, T18, T22) | ✅ Verified (Verifier rodada 3, PAG-02.1 a 02.16); PAG-02.17 testado em T22 |
 | PAG-03 | P1: Perfil protegido no banco | Execute (T1, T2, T6, T16) | ✅ Verified (Verifier rodada 3) |
 | PAG-04 | P1: Pergunta sobre a equipe e escolha do mandato | Execute (T5, T8, T9, T10, T16, T17) | ✅ Verified (Verifier rodada 3) |
 | PAG-05 | P2: Remoção do login por senha no código | Execute (T11, T12, T13, T16) | ✅ Verified (Verifier rodada 3) |

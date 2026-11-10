@@ -9,6 +9,7 @@ import { lePendente } from '../../lib/convites/pendente.ts';
 import { tokenDoLinkColado } from '../../lib/perfil/link.ts';
 import { ehEquipeLegisla, meuPerfil, perfilSalvar, ERRO_SALVAR, type ResultadoSalvar } from '../../lib/perfil/api.ts';
 import { proximoPasso, type Passo } from '../../lib/perfil/fluxo.ts';
+import { formataTelefone, soDigitosTelefone } from '../../lib/perfil/telefone.ts';
 import { GENEROS, RACAS, TEMPOS } from '../../lib/perfil/opcoes.ts';
 import { validaPerfil, type Campo, type DadosPerfil } from '../../lib/perfil/validacao.ts';
 import { criaAutenticada, type Autenticada } from '../mandato/sessaoApi.ts';
@@ -149,7 +150,7 @@ export default function PrimeiroAcesso() {
     return (
       <div className="cv-centro">
         <div className="cv-aviso" role="alert">{estado.mensagem}</div>
-        <button type="button" className="cv-bt" onClick={carrega}>Tentar de novo</button>
+        <button type="button" className="pa-bt pa-bt--sec" onClick={carrega}>Tentar de novo</button>
       </div>
     );
   }
@@ -159,9 +160,12 @@ export default function PrimeiroAcesso() {
   if (estado.tipo === 'pergunta') {
     return (
       <section className="cv-centro" aria-labelledby="pa-pergunta">
+        <p className="pa-etq">Primeiro acesso</p>
         <h1 id="pa-pergunta">A equipe do seu mandato já criou uma conta?</h1>
-        <button type="button" className="cv-bt cv-bt--pri" onClick={() => setEstado({ tipo: 'instrucoes' })}>Sim, já criou</button>
-        <button type="button" className="cv-bt" onClick={aindaNao}>Ainda não</button>
+        <div className="pa-bts">
+          <button type="button" className="pa-bt pa-bt--pri" onClick={() => setEstado({ tipo: 'instrucoes' })}>Sim, já criou</button>
+          <button type="button" className="pa-bt pa-bt--sec" onClick={aindaNao}>Ainda não</button>
+        </div>
       </section>
     );
   }
@@ -187,11 +191,20 @@ function Entrada({ aviso }: { aviso?: string }) {
   const msg = falha ?? aviso;
   return (
     <section className="cv-centro" aria-labelledby="pa-entrada">
+      <p className="pa-etq">Primeiro acesso</p>
       <h1 id="pa-entrada">Entre para continuar</h1>
       {msg && <div className="cv-aviso" role="alert">{msg}</div>}
-      <button type="button" className="cv-bt cv-bt--pri" onClick={clica} disabled={enviando}>Entrar com Google</button>
+      <div className="pa-bts"><button type="button" className="pa-bt pa-bt--pri" onClick={clica} disabled={enviando}>Entrar com Google</button></div>
     </section>
   );
+}
+
+// Digitar ou colar: só dígitos, até 11, com máscara. Apagar um parêntese, espaço ou hífen não muda os dígitos:
+// nesse caso remove o último dígito, para o Backspace nunca travar na máscara.
+function mudaTelefone(antes: string, novo: string): string {
+  const digitos = soDigitosTelefone(novo);
+  if (novo.length < antes.length && digitos === soDigitosTelefone(antes)) return formataTelefone(digitos.slice(0, -1));
+  return formataTelefone(digitos);
 }
 
 interface Falha { erro: string; campo?: Campo }
@@ -241,6 +254,7 @@ function FormularioPerfil({ nomeInicial, salva, sessaoPerdida }: {
 
   return (
     <form className="cv-centro" onSubmit={envia} noValidate aria-labelledby="pa-titulo">
+      <p className="pa-etq">Primeiro acesso</p>
       <h1 id="pa-titulo">Conte um pouco sobre você</h1>
       <p className="cv-mut">Todos os campos são obrigatórios.</p>
       {falha && <div className="cv-aviso" role="alert">{falha.erro}</div>}
@@ -259,8 +273,12 @@ function FormularioPerfil({ nomeInicial, salva, sessaoPerdida }: {
           <option value="">Selecione</option>
           {RACAS.map((o) => <option key={o.chave} value={o.chave}>{o.rotulo}</option>)}
         </select></div>
-      <label className="cv-campo"><span>Telefone com DDD</span>
-        <input id="pa-telefone" type="tel" autoComplete="tel" value={telefone} onChange={(e) => setTelefone(e.target.value)} aria-invalid={inv('telefone')} /></label>
+      <div className="cv-campo">
+        <label className="cv-campo"><span>Telefone com DDD</span>
+          <input id="pa-telefone" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={15} value={telefone}
+            onChange={(e) => setTelefone(mudaTelefone(telefone, e.target.value))} aria-invalid={inv('telefone')} aria-describedby="pa-telefone-aj" /></label>
+        <p id="pa-telefone-aj" className="pa-ajuda">Telefone com DDD, ex.: (11) 99999-9999</p>
+      </div>
 
       <fieldset className="pa-grupo" data-invalido={inv('atua')}>
         <legend>Atua na política?</legend>
@@ -289,7 +307,7 @@ function FormularioPerfil({ nomeInicial, salva, sessaoPerdida }: {
         </label>
       </div>
 
-      <button type="submit" className="cv-bt cv-bt--pri" disabled={enviando}>Salvar e continuar</button>
+      <div className="pa-bts"><button type="submit" className="pa-bt pa-bt--pri" disabled={enviando}>Salvar e continuar</button></div>
     </form>
   );
 }
@@ -317,6 +335,7 @@ function Instrucoes({ volta }: { volta: () => void }) {
 
   return (
     <form className="cv-centro" onSubmit={abre} noValidate aria-labelledby="pa-instrucoes">
+      <p className="pa-etq">Primeiro acesso</p>
       <h1 id="pa-instrucoes">Peça o link de convite à sua equipe</h1>
       <p className="cv-mut">Quem já criou a conta do mandato gera o link em 3 passos:</p>
       <ol className="pa-passos">
@@ -327,8 +346,10 @@ function Instrucoes({ volta }: { volta: () => void }) {
       {aviso && <div className="cv-aviso" role="alert">{aviso}</div>}
       <label className="cv-campo"><span>Cole o link do convite</span>
         <input value={colado} onChange={(e) => setColado(e.target.value)} autoComplete="off" spellCheck={false} aria-invalid={aviso ? true : undefined} /></label>
-      <button type="submit" className="cv-bt cv-bt--pri">Abrir convite</button>
-      <button type="button" className="cv-link" onClick={volta}>Voltar à pergunta</button>
+      <div className="pa-bts">
+        <button type="submit" className="pa-bt pa-bt--pri">Abrir convite</button>
+        <button type="button" className="pa-bt pa-bt--fant" onClick={volta}>Voltar à pergunta</button>
+      </div>
     </form>
   );
 }
