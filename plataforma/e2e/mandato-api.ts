@@ -62,7 +62,12 @@ export async function mocaMandato(page: Page, estado: EstadoMandato = {}) {
   leiturasFeitas = []; fotosAbortadas = [];
   // a Área do mandato sempre lê o catálogo, a equipe e os convites pendentes: vêm mapeados (vazios), e o teste troca a resposta quando precisar
   await moca(page, { ...estado, rpc: { ...rpcPadrao(), ...estado.rpc } });
-  const lerPadrao: NonNullable<EstadoMandato['ler']> = { eventos_equipe: () => ({ corpo: [] }) };
+  // quem entra em /mandato já tem perfil (a casca consulta equipe_legisla e perfis antes dos mandatos)
+  const lerPadrao: NonNullable<EstadoMandato['ler']> = {
+    eventos_equipe: () => ({ corpo: [] }),
+    equipe_legisla: () => ({ corpo: [] }),
+    perfis: () => ({ corpo: [{ user_id: 'uid' }] }),
+  };
 
   // fotos do TSE: abortadas aqui (rota mais nova que a de hosts externos do `moca`), sem entrar em naoMapeadas
   await page.route((u) => u.hostname === 'resultados.tse.jus.br' || (!['localhost', '127.0.0.1'].includes(u.hostname) && /\.jpe?g$/i.test(u.pathname)), (rota) => {

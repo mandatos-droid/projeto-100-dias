@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { carregaConfig, type Config } from '../../lib/admin/config.ts';
 import { CHAVE_SESSAO, gravaSessao, lerSessao } from '../../lib/admin/sessao.ts';
 import { DESCONHECIDO, mensagemDe } from '../../lib/convites/erros.ts';
+import { ehEquipeLegisla, meuPerfil } from '../../lib/perfil/api.ts';
 import { rotuloPapel } from '../../lib/convites/papeis.ts';
 import { Contexto, nomeDoMandato, type ContextoMandato, type MandatoDaPessoa, type Usuario } from './contexto.ts';
 import { criaAutenticada, type Autenticada } from './sessaoApi.ts';
@@ -51,6 +52,12 @@ export default function Casca({ children }: { children: React.ReactNode }) {
         perdeu: () => { perdida = true; try { localStorage.removeItem(CHAVE_SESSAO); } catch { /* sem armazenamento */ } },
       });
       const usuario = await sessao.usuario();
+      // Sem perfil e fora da equipe Legisla, o formulário vem antes (PAG-02.1, 02.2). Falha na consulta cai no erro abaixo:
+      // nunca vira "sem perfil".
+      if (!(await ehEquipeLegisla(sessao.api, usuario.id)) && !(await meuPerfil(sessao.api, usuario.id))) {
+        location.replace('/primeiro-acesso?volta=mandato');
+        return;
+      }
       // Mesma consulta de Store.meusMandatos (nucleo.js): o papel vem da linha de membros.
       const linhas = (await sessao.api.ler<LinhaMembro[] | null>(
         `membros?select=papel,mandatos(*)&user_id=eq.${encodeURIComponent(usuario.id)}`,

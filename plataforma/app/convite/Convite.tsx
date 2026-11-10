@@ -124,6 +124,13 @@ export default function Convite() {
         setTimeout(() => abreGuia(mandato), ESPERA_GUIA_MS);
         return;
       }
+      // sem perfil: guarda o convite e manda ao formulário; na volta o aceite conclui sozinho (PAG-02.1, 04.8)
+      if (r.erro === 'perfil') {
+        saindo = true;
+        guardaPendente(armSessao(), atual.token);
+        location.replace('/primeiro-acesso?volta=convite');
+        return;
+      }
       if (r.erro === 'consentimento') { setConcordo(false); setEstado({ ...atual, etapa: 'consentimento', aviso: undefined }); return; }
       if (r.erro === 'invalido') limpaPendente(armSessao());
       // invalido e limite encerram o convite nesta tela; outro e-mail deixa o convite disponível
@@ -142,8 +149,11 @@ export default function Convite() {
       const retorno = lerRetornoGoogle(location.hash);
       if (!retorno) {
         const token = tokenDoHash(location.hash);
-        if (token) carregaPrevia(token);
-        else setEstado({ tipo: 'colar' });
+        if (!token) { setEstado({ tipo: 'colar' }); return; }
+        const atual = await carregaPrevia(token);
+        // volta do perfil: o token guardado antes de sair é o mesmo do endereço e a sessão já existe; conclui sem novo clique
+        const s = sessaoAtual();
+        if (atual && s && lePendente(armSessao()) === token) await aceitaComSessao(atual, s);
         return;
       }
       const token = lePendente(armSessao());

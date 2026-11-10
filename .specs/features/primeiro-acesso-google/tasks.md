@@ -371,18 +371,20 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] `aceitaConvite` traduz `erro:'perfil'` em um tipo próprio, sem mensagem para a pessoa
-- [ ] `Convite.tsx` guarda o token pendente e abre `/primeiro-acesso?volta=convite` quando o aceite devolve `perfil`; na volta do perfil, o aceite conclui e abre o Guia (PAG-02.1, 04.8)
-- [ ] `Casca.tsx` de `/mandato` abre `/primeiro-acesso?volta=mandato` para quem não tem perfil e não é da Legisla; quem tem perfil ou é da Legisla segue sem mudança (PAG-02.1, 02.2, 02.16)
-- [ ] Falha na consulta de perfil mostra o erro existente de `/mandato` e nunca manda ao formulário (design: Error Handling)
-- [ ] Os specs `e2e/convite-*.spec.ts` e `e2e/mandato-*.spec.ts` existentes continuam passando com o mock ajustado, sem enfraquecer teste
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/convite-*.spec.ts e2e/mandato-*.spec.ts`
-- [ ] Test count: ao menos 6 testes e2e novos (convite e mandato), nenhum removido
+- [x] `aceitaConvite` traduz `erro:'perfil'` em um tipo próprio, sem mensagem para a pessoa
+- [x] `Convite.tsx` guarda o token pendente e abre `/primeiro-acesso?volta=convite` quando o aceite devolve `perfil`; na volta do perfil, o aceite conclui e abre o Guia (PAG-02.1, 04.8)
+- [x] `Casca.tsx` de `/mandato` abre `/primeiro-acesso?volta=mandato` para quem não tem perfil e não é da Legisla; quem tem perfil ou é da Legisla segue sem mudança (PAG-02.1, 02.2, 02.16)
+- [x] Falha na consulta de perfil mostra o erro existente de `/mandato` e nunca manda ao formulário (design: Error Handling)
+- [x] Os specs `e2e/convite-*.spec.ts` e `e2e/mandato-*.spec.ts` existentes continuam passando com o mock ajustado, sem enfraquecer teste
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/convite-*.spec.ts e2e/mandato-*.spec.ts`
+- [x] Test count: ao menos 6 testes e2e novos (convite e mandato), nenhum removido
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(primeiro-acesso): send people without a profile to the form`
+
+**Status**: ✅ Done
 
 ---
 

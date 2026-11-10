@@ -16,7 +16,7 @@ export type Previa =
 
 export type Aceite =
   | { ok: true; mandato_id: string; ja_membro: boolean }
-  | { ok: false; erro: 'invalido' | 'email' | 'consentimento' | 'limite' };
+  | { ok: false; erro: 'invalido' | 'email' | 'consentimento' | 'limite' | 'perfil' }; // perfil: falta o cadastro (sem mensagem: a tela manda ao formulário)
 
 export interface ConvitePendente { id: string; nome: string; papel: Papel; convidado_por_nome: string | null; expira_em: string }
 export interface PessoaEquipe { user_id: string; nome: string | null; email: string | null; papel: Papel; criado_em: string }
