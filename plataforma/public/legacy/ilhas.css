@@ -1011,3 +1011,16 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 #tela .res2 .pessoa strong{display:block;font-size:.93rem;line-height:1.2;overflow-wrap:anywhere}
 #tela .res2 .pessoa .meta{display:block;font-size:.78rem;line-height:1.35;color:var(--tinta-2)}
 #tela .res2 .pessoa .votos{display:block;margin-top:.2rem;font-size:.8rem;font-weight:700;font-variant-numeric:tabular-nums}
+
+/* problemas e potencialidades por território (ilha social-resumo): etiqueta vermelha ou verde por tipo; o quadro rola na horizontal */
+#tela .res2 .leg{display:flex;flex-wrap:wrap;gap:.3rem 1rem;margin:.2rem 0 .6rem;font-size:.76rem;color:var(--tinta-2)}
+#tela .res2 .tag{display:inline-block;margin:0 .3rem .15rem 0;padding:.12rem .6rem;border:1px solid transparent;border-radius:999px;font-size:.78rem;font-weight:600}
+#tela .res2 .tag.prob{background:rgba(235,84,84,.12);border-color:rgba(235,84,84,.3);color:var(--erro)}
+#tela .res2 .tag.pot{background:rgba(3,82,82,.1);border-color:rgba(3,82,82,.28);color:var(--verde)}
+#tela .res2 .terr-w{max-width:100%;overflow-x:auto}
+#tela .res2 .terr{width:100%;min-width:34rem;border-collapse:collapse;font-size:.88rem}
+#tela .res2 .terr th{padding:.4rem .6rem;border-bottom:2px solid var(--linha);text-align:left;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tinta-3)}
+#tela .res2 .terr tbody th{border-bottom:1px solid var(--linha-2);vertical-align:top;font-size:.88rem;letter-spacing:0;text-transform:none;font-weight:700;color:var(--tinta);white-space:nowrap}
+#tela .res2 .terr td{padding:.65rem .6rem;border-bottom:1px solid var(--linha-2);vertical-align:top;color:var(--tinta-3)}
+#tela .res2 .terr-it{margin-bottom:.45rem}
+#tela .res2 .terr-it small{display:block;font-size:.76rem;line-height:1.35;color:var(--tinta-2);overflow-wrap:anywhere}

@@ -423,18 +423,20 @@ T11 → T12 → T13
 
 **Done when**:
 
-- [ ] Com um problema em SP e RJ e uma potencialidade em SP, a tabela tem 2 linhas: SP com os dois tipos e RJ com "—" em Potencialidades (RES-08.1, 08.5)
-- [ ] A etiqueta de problema usa o estilo vermelho e a de potencialidade o verde, ambas com o nome da agenda e o texto abaixo (RES-08.4)
-- [ ] Lista vazia mostra "Nada registrado ainda." (RES-08.6)
-- [ ] A 375 px a tabela rola dentro do quadro e a página não ganha rolagem horizontal (RES-08.7)
-- [ ] Nenhum teste existente que dependia do texto antigo continua falhando; os ajustados mantêm a intenção (nenhum teste removido)
-- [ ] Gate check passes: `npx playwright test -c playwright.isolado.config.ts e2e/resumo-territorio.spec.ts`, `npm test` e `npx tsc --noEmit`
-- [ ] Test count: ≥ 6 e2e novos em `e2e/resumo-territorio.spec.ts`, nenhum removido
+- [x] Com um problema em SP e RJ e uma potencialidade em SP, a tabela tem 2 linhas: SP com os dois tipos e RJ com "—" em Potencialidades (RES-08.1, 08.5)
+- [x] A etiqueta de problema usa o estilo vermelho e a de potencialidade o verde, ambas com o nome da agenda e o texto abaixo (RES-08.4)
+- [x] Lista vazia mostra "Nada registrado ainda." (RES-08.6)
+- [x] A 375 px a tabela rola dentro do quadro e a página não ganha rolagem horizontal (RES-08.7)
+- [x] Nenhum teste existente que dependia do texto antigo continua falhando; os ajustados mantêm a intenção (nenhum teste removido)
+- [x] Gate check passes: `npx playwright test -c playwright.isolado.config.ts e2e/resumo-territorio.spec.ts`, `npm test` e `npx tsc --noEmit`
+- [x] Test count: ≥ 6 e2e novos em `e2e/resumo-territorio.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: build
 
 **Commit**: `feat(resumo): show social items as a territory table`
+
+**Status**: ✅ Done
 
 ---
 

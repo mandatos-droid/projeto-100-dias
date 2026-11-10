@@ -8,6 +8,7 @@ import { carregaGeo, carregaMapaBR, carregaUFs } from '@/lib/dados';
 import { AGENDAS, FAIXAS, carregaCatalogo, carregaIndicador, carregaPerfil, faixaDe, opcoesIndicador } from '@/lib/agendas';
 import { mistura } from '@/lib/partidos';
 import { nf } from '@/lib/format';
+import { porTerritorio } from '@/lib/resumoSocial';
 import type { GeoUF, ItemSoc, NivelSoc, TipoSoc } from '@/lib/types';
 import { useLegado } from './ponte';
 import { useCarga } from './pecas';
@@ -310,30 +311,38 @@ export default function SocialIlha() {
   );
 }
 
-/** Versão somente leitura para a aba Resumo. */
+/** Versão somente leitura para a aba Resumo: uma linha por território, com problemas e potencialidades lado a lado (RES-08). */
 export function SocialResumo() {
   const { D } = useLegado();
-  const itens = D.social?.itens ?? [];
-  if (!itens.length) return <p className="sem">Nada registrado ainda.</p>;
+  const linhas = porTerritorio(D.social?.itens ?? []);
+  if (!linhas.length) return <p className="sem">Nada registrado ainda.</p>;
+  const celula = (itens: ItemSoc[], cl: 'prob' | 'pot') =>
+    itens.length === 0 ? '—' : itens.map((i) => (
+      <div className="terr-it" key={i.id}>
+        <span className={`tag ${cl}`}>{agendaDe(i.agenda)?.rot ?? i.agenda}</span>
+        <small>{i.texto}</small>
+      </div>
+    ));
   return (
     <div className="ilha-corpo">
-      {TIPOS.map((t) => {
-        const l = itens.filter((i) => i.tipo === t.k);
-        if (!l.length) return null;
-        return (
-          <div key={t.k}>
-            <strong style={{ color: t.cor }}>{t.rot} ({l.length})</strong>
-            <ul className="el-resumo-lista">
-              {(['BR', 'UF', 'MUN'] as NivelSoc[]).flatMap((n) => l.filter((i) => i.nivel === n)).map((i) => (
-                <li key={i.id}>
-                  <strong>{ROT_NIVEL[i.nivel]}{i.nivel !== 'BR' && i.nomes.length ? ` · ${[...i.nomes].sort(porNome).join(', ')}${i.nivel === 'MUN' && i.uf ? ` (${i.uf})` : ''}` : ''}</strong>
-                  {' · '}{agendaDe(i.agenda)?.rot ?? i.agenda} — {i.texto}
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
-      })}
+      <div className="leg">
+        <span><span className="tag prob">Problema</span>o que dói hoje</span>
+        <span><span className="tag pot">Potencialidade</span>o que pode crescer</span>
+      </div>
+      <div className="terr-w" tabIndex={0} role="region" aria-label="Problemas e potencialidades por território">
+        <table className="terr">
+          <thead><tr><th scope="col">Território</th><th scope="col">Problemas</th><th scope="col">Potencialidades</th></tr></thead>
+          <tbody>
+            {linhas.map((l) => (
+              <tr key={`${l.nivel}|${l.territorio}`}>
+                <th scope="row">{l.territorio}</th>
+                <td>{celula(l.problemas, 'prob')}</td>
+                <td>{celula(l.potencialidades, 'pot')}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

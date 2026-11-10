@@ -255,7 +255,7 @@ A aba "Resumo do preenchimento" (`#/resumo`) lista as 16 respostas do Guia como 
 | RES-05 | P1: Impressão, teclado e movimento | Execute (T2, T3) | In progress |
 | RES-06 | P1: Retrato do mandato no cabeçalho | Execute (T4, T5) | Implemented (aguarda o Verifier) |
 | RES-07 | P2: Cartões de aliados, opositores e potenciais | Execute (T8) | Implemented (aguarda o Verifier) |
-| RES-08 | P2: Problemas e potencialidades por território | Execute (T9) | In progress |
+| RES-08 | P2: Problemas e potencialidades por território | Execute (T9, T10) | Implemented (aguarda o Verifier) |
 | RES-09 | P2: Organograma da equipe com vagas marcadas | Execute (T6, T7) | Implemented (aguarda o Verifier) |
 | RES-10 | P1: Missões e exercícios recolhíveis (saída do vazio) | Execute (T1) | Implemented (aguarda o Verifier) |
 | RES-11 | P3: Fragilidades com M e P em destaque | Tasks | Pending |
