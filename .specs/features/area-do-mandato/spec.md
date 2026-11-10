@@ -178,5 +178,5 @@ How we know the feature is successful:
 
 - [ ] Uma pessoa gera um convite, vê a equipe e edita os dados do mandato sem sair do menu lateral do Guia.
 - [ ] Nenhum link, convite ou favorito antigo de `/mandato` quebra.
-- [ ] Nenhuma permissão muda: `leitura` não altera nada e só `coordenacao` exclui o cadastro.
+- [ ] Nenhuma permissão muda: `leitura` não altera nada (na aba Equipe e convites os botões aparecem e o banco recusa, AMA-02.11) e só `coordenacao` exclui o cadastro.
 - [ ] A suíte de testes não perde nenhum caso das telas movidas.

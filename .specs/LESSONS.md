@@ -276,6 +276,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: SPEC_DEVIATION tasks.md T8 lib/types.ts:37 (spec)
 - last seen: 2026-11-10T19:53:32Z
 
+### L-043 - When a criterion gains an explicit exception, update every absolute statement of the old rule in assumptions, independent tests and success criteria.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: area-do-mandato
+- evidence: .specs/features/area-do-mandato/spec.md:181 (N-1, rodada 2) (spec)
+- last seen: 2026-11-10T20:55:53Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

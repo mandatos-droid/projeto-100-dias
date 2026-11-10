@@ -1,13 +1,27 @@
 # Área do Mandato Validation
 
 **Date**: 2026-11-10
-**Spec**: `.specs/features/area-do-mandato/spec.md`
-**Diff range**: `e50098f..85e3372` (T1 `f983b18` a T9 `85e3372`; base `e50098f` = docs da spec e das tasks), branch `feat/area-do-mandato`
-**Verifier**: sub-agente independente, rodada 1 de 3 (autor ≠ verificador)
+**Spec**: `.specs/features/area-do-mandato/spec.md` (versão de `e8f9fc2`)
+**Diff range**: `e50098f..f8f31db` (feature inteira, T1 `f983b18` a T12 `f8f31db`); correções desta rodada: `85e3372..f8f31db` (`8e23a4c`, `e8f9fc2`, `f8f31db`), branch `feat/area-do-mandato`
+**Verifier**: sub-agente independente, rodada 2 de 3 (autor ≠ verificador)
 
-## Validation: area-do-mandato - FAIL ❌
+## Validation: area-do-mandato - PASS ✅
 
-O gate passa e o sensor matou 25/25 mutantes, mas um critério P1 (AMA-02.11, parte da aba Equipe) não é cumprido no texto da spec, o Edge Case "leitura do papel falha" não vale para a aba Dados, um Edge Case não tem teste e AMA-02.8 tem um desvio (UF) que a spec ainda não registra.
+Os sete itens da rodada 1 (GAP-1 a GAP-4, SP-1, Q-1, Q-2) estão fechados contra a spec atual. A spec editada é coerente nos quatro critérios mexidos (AMA-02.6, 02.8, 02.10, 02.11) e os testes afirmam o que ela define, sem asserção afrouxada. Gate verde na primeira rodada (tsc limpo, unit 1157/1157, e2e 384/384, nenhum flake). Sensor: 18/18 mutantes mortos por asserção. Fica uma nota de redação na spec (N-1, Success Criteria), que não bloqueia.
+
+---
+
+## Fechamento dos itens da rodada 1
+
+| Item | Estado na spec atual | Evidência (`file:line`) | Result |
+| ---- | -------------------- | ----------------------- | ------ |
+| GAP-1 (AMA-02.11, Equipe para leitura) | AMA-02.11 vira exceção explícita: a aba Equipe mantém AMA-02.6 ("Gerar link de convite" como Somente leitura, "Cancelar", "Sair do mandato"; o banco recusa e a tela mostra o erro); a lista de pessoas fica sem seletor e sem "Remover". Premissa "Quem só lê" e Independent Test alinhados (`spec.md:43`, `:93`, `:95`) | `plataforma/e2e/area-equipe.spec.ts:184` - papel leitura, convite pendente de Mariana: `painel.getByRole('button')` `toHaveText(['Gerar link de convite','Cancelar','Sair do mandato'])`, `pessoas.getByRole('button')` `toHaveCount(0)`, recusa 403 → `pendentes.getByRole('alert')` `toHaveText('Você não tem permissão para esta ação.')`, convite segue na lista, `rpcs('convite_cancelar')` `toEqual([{p_id:'c1'}])`; `:173` convida como `p_papel: 'leitura'`; `:163` papéis em texto | ✅ |
+| GAP-2 (Edge Case papel na aba Dados) | Edge Case "leitura do papel falha" (`spec.md:150`) + texto de AMA-02.10 | Código: `plataforma/public/legacy/acesso.js:156` (`if(NUVEM&&!euNosMembros()){this.erro(p);return}`), `:163-171` (erro + `Area.reler` com `Store.abrir`). Testes: `plataforma/tests/legado-acesso.test.ts:337` - HTML exato do alerta e do botão `onclick="Area.reler()"`, sem `cadSalvar1`, `Salvar alterações`, `cadNome`, `Cad.excluir`, `Zona de risco`; `plataforma/e2e/area-mandato.spec.ts:405` - alerta `toHaveText('Não foi possível carregar. Tente de novo.')`, `salvar` `toHaveCount(0)`, nenhum `input, select, textarea`, botões `toHaveText(['Tentar de novo'])`; "Tentar de novo" relê `membros` (`toBeGreaterThan(lidos)`) e o formulário volta com `salvar` `toBeEnabled()` | ✅ |
+| GAP-3 (Edge Case sem mandato) | Edge Case `spec.md:152` | `plataforma/e2e/guia-acesso.spec.ts:436` - `#/config/equipe` com perfil e sem mandato: `toHaveURL(/\/primeiro-acesso$/)` (o `$` exclui o `?volta=guia` de quem não tem perfil), `tablist "Área do mandato"` e `#areaEquipe` `toHaveCount(0)` | ✅ |
+| GAP-4 (UF em AMA-02.8) | UF fora de AMA-02.8 e da premissa, como desvio aceito por decisão do usuário (`spec.md:44`, `:90`) | `plataforma/e2e/area-conta.spec.ts:29` (`COMPLETO` sem UF), `plataforma/tests/mandato-conta.test.ts:34`; `plataforma/lib/mandato/conta.ts:6-9` registra o motivo | ✅ |
+| SP-1 (texto do erro de leitura) | AMA-02.10 nomeia o texto único "Não foi possível carregar. Tente de novo." e deixa as ações com as mensagens de hoje (`spec.md:92`) | Todas as leituras das abas usam o texto: `plataforma/app/mandato/ProvedorLegado.tsx:58`, `plataforma/app/mandato/ResumoEquipe.tsx:26`, `plataforma/app/mandato/Atividade.tsx:60`, `plataforma/app/mandato/equipe/Equipe.tsx:35`, `:43`, `plataforma/ilhas/AreaConta.tsx:34`, `plataforma/public/legacy/acesso.js:124`. As ações seguem com `mensagemDe`: `ListaConvites.tsx:41`, `FormularioConvite.tsx:50`, `SairDoMandato.tsx:40`, `ListaPessoas.tsx:41`, `:57`. Testes com o texto exato: `area-mandato.spec.ts:259`, `:275`, `:287`, `:408`; `area-visao.spec.ts:97`, `:160`; `area-equipe.spec.ts:204`, `:216`, `:226`; `area-equipe-convites.spec.ts:326`; `area-equipe-pessoas.spec.ts:138`; `area-conta.spec.ts:64`; `tests/mandato-legado.test.ts:84`; `tests/legado-acesso.test.ts:339`. Erros de ação seguem fixos no texto de hoje (`area-equipe-convites.spec.ts:20` `ERRO_REDE`, `area-equipe.spec.ts:196`) | ✅ |
+| Q-1 (override morto `Telas.equipeHtml`) | - | Override saiu de `acesso.js`; nada chama `Telas.equipeHtml` (busca em `plataforma/`: só a definição original em `plataforma/public/legacy/cadastro.js:714`, anterior à feature, sem chamador desde que `Cad.desenhar` passou a `zonaRisco`). O modo local não usava o override (nenhum chamador); a aba Dados no modo local segue com formulário e Zona de risco (`tests/legado-acesso.test.ts:344`, mutante R12 morto). A varredura de AMA-03.4 ficou (`tests/legado-acesso.test.ts:145`) e o código de convite segue fora das 4 abas (`e2e/guia-acesso.spec.ts:160`) | ✅ |
+| Q-2 (esperas sob carga) | - | As esperas dos 8 testes de Q-2 (13 linhas) ganharam `{ timeout: 20_000 }` sem mudar o valor esperado (`area-equipe.spec.ts:140`, `:150`, `:156`, `:158`; `area-equipe-pessoas.spec.ts:190`, `:211`; `area-mandato.spec.ts:379`, `:383`; `area-redirects.spec.ts:30`, `:37`, `:67`, `:80`, `:90`). Gate e2e desta rodada: 384/384 na primeira passada | ✅ |
 
 ---
 
@@ -15,15 +29,10 @@ O gate passa e o sensor matou 25/25 mutantes, mas um critério P1 (AMA-02.11, pa
 
 | Task | Status | Notes |
 | ---- | ------ | ----- |
-| T1 `f983b18` | ✅ Done | casca com abas, rota, teclado, menu |
-| T2 `609450a` | ✅ Done | `ProvedorLegado` + `lib/mandato/legado.ts` |
-| T3 `205e3df` | ✅ Done | Visão geral |
-| T4 `2ce31ea` | ✅ Done | Equipe e convites |
-| T5 `67a830c` | ✅ Done | Dados + Zona de risco; ver GAP-2 (papel desconhecido) |
-| T6 `8fcfaed` | ✅ Done | Minha conta, sem UF (SPEC_DEVIATION, GAP-4) |
-| T7 `0ea8927` | ✅ Done | redirects 308, `volta=mandato`, hash guardado na volta do Google |
-| T8 `afe257d` | ✅ Done | páginas e casca antigas removidas; migração caso a caso no corpo do commit |
-| T9 `85e3372` | ✅ Done | AD-014 e Handoff no STATE.md |
+| T1-T9 (`f983b18`..`85e3372`) | ✅ Done | conferidas na rodada 1 |
+| T10 `8e23a4c` | ✅ Done | GAP-2 e GAP-3 |
+| T11 `e8f9fc2` | ✅ Done | GAP-1, GAP-4, SP-1 (spec + texto único + e2e de leitura com convite) |
+| T12 `f8f31db` | ✅ Done | Q-1 e Q-2 |
 
 ---
 
@@ -33,105 +42,92 @@ O gate passa e o sensor matou 25/25 mutantes, mas um critério P1 (AMA-02.11, pa
 
 | Critério | Outcome da spec | `file:line` + asserção | Result |
 | -------- | --------------- | ---------------------- | ------ |
-| 01.1 item "Área do mandato" no grupo Mandato, no lugar de "Configurações" | rótulo exato, `href="#/config"`, grupo Mandato, sem "Configurações" | `plataforma/e2e/area-mandato.spec.ts:34` - `toHaveAttribute('href', '#/config')`, `expect(grupos['Mandato']).toContain('Área do mandato')`, `not.toContainText('Configurações')` | ✅ PASS |
-| 01.2 `#/config` mostra as 4 abas, Visão geral ativa | abas `Visão geral`, `Dados do mandato`, `Equipe e convites`, `Minha conta`; ativa = Visão geral | `plataforma/e2e/area-mandato.spec.ts:54` - `toHaveText(ROTULOS)` + `ativa(page, ABAS[0])`; `plataforma/tests/legado-acesso.test.ts:240` - `deepEqual(... ['true','false','false','false'])` | ✅ PASS |
-| 01.3 `#/config/dados|equipe|conta` abre a aba | aba correspondente ativa | `plataforma/e2e/area-mandato.spec.ts:62` - `ativa(page, a)`; `plataforma/tests/legado-acesso.test.ts:251` - `equal(r.ativa, i)` | ✅ PASS |
-| 01.4 clicar troca sem recarregar e atualiza o endereço | sem reload; hash da aba | `plataforma/e2e/area-mandato.spec.ts:75` - `toHaveURL(fim('#/config/dados'))` + marcador `__mesmaPagina` `toBe(true)`; `plataforma/tests/legado-acesso.test.ts:378` - `equal(w.location.hash, hash)` | ✅ PASS |
-| 01.5 Voltar mostra a aba anterior | aba anterior ativa | `plataforma/e2e/area-mandato.spec.ts:87` - `goBack()` → `toHaveURL(fim('#/config/dados'))` + `ativa(ABAS[1])`, depois `#/config` + `ativa(ABAS[0])` | ✅ PASS |
-| 01.6 aba desconhecida → Visão geral | `#/config/xyz` = Visão geral | `plataforma/e2e/area-mandato.spec.ts:70` - `ativa(page, ABAS[0])`; `plataforma/tests/legado-acesso.test.ts:258` - `equal(r.ativa, 0)` | ✅ PASS |
-| 01.7 menu, cabeçalho e item ativo em todas as abas | item `.on` único em cada aba | `plataforma/e2e/area-mandato.spec.ts:101` - `toHaveClass(/\bon\b/)` + `#ladoNav .it.on` `toHaveCount(1)` + `#lado` visível | ✅ PASS |
+| 01.1 "Área do mandato" no grupo Mandato | rótulo, `#/config`, sem "Configurações" | `plataforma/e2e/area-mandato.spec.ts:34` - `toHaveAttribute('href','#/config')`, `grupos['Mandato']` contém o rótulo, `not.toContainText('Configurações')` | ✅ PASS |
+| 01.2 `#/config` = 4 abas, Visão geral ativa | 4 rótulos, ativa a 1ª | `plataforma/e2e/area-mandato.spec.ts:54` - `toHaveText(ROTULOS)`; `plataforma/tests/legado-acesso.test.ts:224` - `aria-selected` `['true','false','false','false']` | ✅ PASS |
+| 01.3 `#/config/<aba>` abre a aba | aba ativa | `plataforma/e2e/area-mandato.spec.ts:63`; `plataforma/tests/legado-acesso.test.ts:235` | ✅ PASS |
+| 01.4 clique troca sem recarregar e muda o hash | sem reload; hash da aba | `plataforma/e2e/area-mandato.spec.ts:75` - `toHaveURL(fim('#/config/dados'))` + marcador `__mesmaPagina`; `plataforma/tests/legado-acesso.test.ts:364` | ✅ PASS |
+| 01.5 Voltar mostra a aba anterior | aba anterior ativa | `plataforma/e2e/area-mandato.spec.ts:87` | ✅ PASS |
+| 01.6 aba desconhecida → Visão geral | Visão geral | `plataforma/e2e/area-mandato.spec.ts:70`; `plataforma/tests/legado-acesso.test.ts:242` | ✅ PASS |
+| 01.7 menu e item ativo em todas as abas | `.on` único | `plataforma/e2e/area-mandato.spec.ts:101` | ✅ PASS |
 
 ### AMA-02: Conteúdo de cada aba (P1)
 
 | Critério | Outcome da spec | `file:line` + asserção | Result |
 | -------- | --------------- | ---------------------- | ------ |
-| 02.1 cartão, papel, resumo, atividade; sem andamento nem missões | nome, cargo, UF, partido, posse; papel; avatares, total, pendentes, "Convidar pessoa" → aba Equipe; atividade; nada de 100 dias/missões | `plataforma/e2e/area-mandato.spec.ts:166` - `toHaveText('Deputado(a) Estadual · SP · Partido Exemplo · posse em 01/02/2027')`; `:173` papel; `:187` `toContainText('4 pessoas · 2 convites pendentes')`; `:199` atividade; `:214` `toHaveCount(0)` para `.md-andamento, .md-missoes-bloco` e `rpcs('catalogo_exercicios')` vazio; `:224` `href '#/config/equipe'` + aba ativa sem reload; `plataforma/e2e/area-visao.spec.ts:19-164` | ✅ PASS |
-| 02.2 sem posse: aviso + "Informar agora" → aba Dados | texto exato "Informe a data de posse para acompanhar os prazos." + link para Dados | `plataforma/e2e/area-mandato.spec.ts:235` - `toHaveText(`${AVISO_POSSE} Informar agora`)`, `href '#/config/dados'`, clique → aba Dados ativa; `:249` sem aviso com posse | ✅ PASS |
-| 02.3 formulário de edição com "Salvar alterações" | mesmo formulário e mesmo botão | `plataforma/e2e/area-mandato.spec.ts:337` (valores e botão), `:356` PATCH `mandatos?id=eq.<A>` com `data_posse: '2027-03-01'`; `plataforma/tests/legado-acesso.test.ts:320` | ✅ PASS |
-| 02.4 coordenacao: "Zona de risco" no fim, "Excluir cadastro" com a confirmação de hoje | bloco separado, último da aba, mesma confirmação | `plataforma/e2e/area-mandato.spec.ts:370` - último filho `aria-labelledby='cadRiscoTit'`, diálogo `toEqual([CONFIRMA])`, `excluir_mandato` só depois de aceitar; `plataforma/tests/legado-acesso.test.ts:334` | ✅ PASS |
-| 02.5 não coordenacao: sem Zona de risco | assessoria e leitura não veem | `plataforma/e2e/area-mandato.spec.ts:387` - `getByText('Zona de risco')` e botão `toHaveCount(0)`; `plataforma/tests/legado-acesso.test.ts:344` | ✅ PASS |
-| 02.6 formulário, pendentes, pessoas e "Sair", mesmas regras | ordem e regras de hoje | `plataforma/e2e/area-equipe.spec.ts:34` ordem `['Convidar uma pessoa','Convites pendentes','Pessoas neste mandato','Sair do mandato']`; `:45`, `:63`, `:74`, `:83`, `:92`, `:101`, `:109`, `:154`; `plataforma/e2e/area-equipe-convites.spec.ts` (25 casos); `plataforma/e2e/area-equipe-pessoas.spec.ts` (21 casos) | ✅ PASS |
-| 02.7 rótulo "Equipe e convites (N)" | total de pessoas | `plataforma/tests/legado-acesso.test.ts:264` - `(2)` e `(3)`; `:290` lista da aba acerta o rótulo; `plataforma/e2e/area-equipe.spec.ts:109` `(3)` → `(2)` após remover; `:125` `(2)` → `(3)` | ✅ PASS |
-| 02.8 Minha conta: e-mail + nome, nascimento, gênero, raça, **UF**, telefone, atuação, em texto; texto de correção | 8 campos + e-mail; texto exato | `plataforma/e2e/area-conta.spec.ts:29` - `toEqual(COMPLETO)` (sem UF); `:35` nenhum campo editável + `toHaveText(CORRIGIR)`; `plataforma/tests/mandato-conta.test.ts:34`, `:64` | ⚠️ SPEC_DEVIATION (GAP-4): UF não aparece porque `perfis` não tem UF (`plataforma/supabase/migrations/20261109120000_perfis.sql:11`); a spec ainda pede UF |
-| 02.9 sem perfil (equipe Legisla): só o e-mail | só e-mail | `plataforma/e2e/area-conta.spec.ts:44` - `toEqual([['E-mail', 'lia@gabinete.test']])`; `plataforma/tests/mandato-conta.test.ts:55` | ✅ PASS |
-| 02.10 falha de leitura: erro da aba + "Tentar de novo", sem derrubar as outras | erro + botão; outras abas seguem | `plataforma/e2e/area-mandato.spec.ts:256`, `:272`; `plataforma/e2e/area-equipe.spec.ts:184`, `:196`; `plataforma/e2e/area-conta.spec.ts:59` (repete a leitura e troca de aba) | ✅ PASS; ⚠️ SP-1: a spec não define o texto do erro |
-| 02.11 leitura: Dados só leitura; Equipe sem botões que alteram | Dados travado; **nenhum** botão que altera na aba Equipe | Dados: `plataforma/e2e/area-mandato.spec.ts:396` - `#cadNome`, `#cadPosse`, "Salvar alterações" `toBeDisabled()`; `plataforma/e2e/guia-acesso.spec.ts:225`. Equipe: `plataforma/e2e/area-equipe.spec.ts:163` só confere a lista de pessoas (`pessoas(page).getByRole('button')` `toHaveCount(0)`) | ❌ GAP-1 (Equipe): com convite pendente, quem é leitura vê "Gerar link de convite", "Cancelar" (em convite de outra pessoa, que o banco recusa: `convite_cancelar` exige coordenação ou autoria, `plataforma/supabase/migrations/20261106120000_convites_equipe.sql`) e "Sair do mandato" |
+| 02.1 cartão, papel, resumo, atividade; sem andamento/missões | textos exatos; nada de missões | `plataforma/e2e/area-mandato.spec.ts:166`, `:173`, `:187`, `:199`, `:214`, `:224`; `plataforma/e2e/area-visao.spec.ts:20`, `:79`, `:85` | ✅ PASS |
+| 02.2 sem posse: aviso + "Informar agora" → Dados | texto exato + link | `plataforma/e2e/area-mandato.spec.ts:235`, `:249`, `:420` | ✅ PASS |
+| 02.3 formulário com "Salvar alterações" | mesmo formulário e botão | `plataforma/e2e/area-mandato.spec.ts:337`, `:356`; `plataforma/tests/legado-acesso.test.ts:304` | ✅ PASS |
+| 02.4 coordenacao: Zona de risco no fim | último bloco, confirmação de hoje | `plataforma/e2e/area-mandato.spec.ts:370`; `plataforma/tests/legado-acesso.test.ts:318` | ✅ PASS |
+| 02.5 não coordenacao: sem Zona de risco | assessoria e leitura não veem | `plataforma/e2e/area-mandato.spec.ts:388`; `plataforma/tests/legado-acesso.test.ts:328` | ✅ PASS |
+| 02.6 formulário, pendentes, pessoas, "Sair", regras de hoje | ordem e regras | `plataforma/e2e/area-equipe.spec.ts:34` (ordem), `:45`, `:68`, `:74`, `:83`, `:92`, `:101`, `:109`, `:154`, `:173`, `:184`; `plataforma/e2e/area-equipe-convites.spec.ts`; `plataforma/e2e/area-equipe-pessoas.spec.ts` | ✅ PASS |
+| 02.7 rótulo "Equipe e convites (N)" | total de pessoas | `plataforma/tests/legado-acesso.test.ts:248`, `:274`; `plataforma/e2e/area-equipe.spec.ts:109`, `:125` | ✅ PASS |
+| 02.8 Minha conta: e-mail + 6 campos sem UF, em texto; texto de correção | ordem e texto exatos | `plataforma/e2e/area-conta.spec.ts:29` `toEqual(COMPLETO)`, `:35` nada editável + `toHaveText(CORRIGIR)`; `plataforma/tests/mandato-conta.test.ts:34`, `:64` | ✅ PASS |
+| 02.9 sem perfil: só o e-mail | só e-mail | `plataforma/e2e/area-conta.spec.ts:44`; `plataforma/tests/mandato-conta.test.ts:55` | ✅ PASS |
+| 02.10 falha de leitura: "Não foi possível carregar. Tente de novo." + "Tentar de novo", outras abas seguem | texto exato + botão | ver SP-1 acima; botão e releitura: `plataforma/e2e/area-mandato.spec.ts:256`, `:272`, `:405`; `plataforma/e2e/area-equipe.spec.ts:201`, `:213`; `plataforma/e2e/area-conta.spec.ts:59` | ✅ PASS |
+| 02.11 leitura: Dados só leitura; Equipe como AMA-02.6, sem seletor nem "Remover" | Dados travado; botões exatos na Equipe | Dados: `plataforma/e2e/area-mandato.spec.ts:396` (`toBeDisabled()`), `plataforma/e2e/guia-acesso.spec.ts:225`. Equipe: `plataforma/e2e/area-equipe.spec.ts:184`, `:163`, `plataforma/e2e/area-equipe-pessoas.spec.ts:68` | ✅ PASS |
 
 ### AMA-03: Endereços antigos (P1)
 
 | Critério | Outcome da spec | `file:line` + asserção | Result |
 | -------- | --------------- | ---------------------- | ------ |
-| 03.1 `/mandato` → `/guia#/config` | redirect permanente | `plataforma/e2e/area-redirects.spec.ts:15` - `status()` `toBe(308)`, `location` `toMatch(/\/guia#\/config$/)`; `:27` no navegador, Visão geral ativa | ✅ PASS |
-| 03.2 `/mandato/equipe` → `/guia#/config/equipe` | redirect permanente | `plataforma/e2e/area-redirects.spec.ts:21` - `308` + `/guia#\/config\/equipe$/`; `:34` aba Equipe ativa | ✅ PASS |
-| 03.3 `volta=mandato` abre `/guia#/config` | destino exato | `plataforma/e2e/primeiro-acesso.spec.ts:420` e `:268` - `toHaveURL(/\/guia#\/config$/)` | ✅ PASS (nota: trocar o destino por `/mandato` é mutante equivalente, o redirect leva ao mesmo endereço) |
-| 03.4 Guia sem link para `/mandato` e `/mandato/equipe` | nenhum link | `plataforma/tests/legado-acesso.test.ts:145` - varre todos os scripts do Guia com `doesNotMatch(/["'`(=]\/mandato(\/equipe)?["'`)\s]/)`; `plataforma/e2e/area-redirects.spec.ts:43` - `a[href^="/mandato"]` `toHaveCount(0)` nas 4 abas e em `#/` | ✅ PASS |
-| 03.5 sem sessão: entrada Google e, depois do login, a aba pedida | entrada com Google; volta na aba pedida | `plataforma/e2e/area-redirects.spec.ts:65` entrada com Google; `:72` volta em `#/config/equipe` com a aba ativa e `hashVolta` limpo; `:85` `/mandato` → Visão geral; `:94` sem endereço antigo não força aba; `plataforma/tests/legado-acesso.test.ts:169`, `:177`, `:192`, `:199`, `:209` | ✅ PASS |
+| 03.1 `/mandato` → `/guia#/config` | 308 | `plataforma/e2e/area-redirects.spec.ts:15` (`toBe(308)`, `location`), `:27` | ✅ PASS |
+| 03.2 `/mandato/equipe` → `/guia#/config/equipe` | 308 | `plataforma/e2e/area-redirects.spec.ts:21`, `:34` | ✅ PASS |
+| 03.3 `volta=mandato` → `/guia#/config` | destino exato | `plataforma/e2e/primeiro-acesso.spec.ts:420`, `:268` | ✅ PASS |
+| 03.4 sem link para `/mandato` | nenhum | `plataforma/tests/legado-acesso.test.ts:145`; `plataforma/e2e/area-redirects.spec.ts:44` | ✅ PASS |
+| 03.5 sem sessão: Google e volta à aba | aba pedida | `plataforma/e2e/area-redirects.spec.ts:65`, `:72`, `:85`, `:94`; `plataforma/tests/legado-acesso.test.ts:153`, `:161`, `:176`, `:183`, `:193` | ✅ PASS |
 
-### AMA-04: Teclado, leitor de tela e celular (P2)
+### AMA-04 (P2) e AMA-05 (P3)
 
-| Critério | Outcome da spec | `file:line` + asserção | Result |
-| -------- | --------------- | ---------------------- | ------ |
-| 04.1 `tablist`/`tab`/`tabpanel`, `aria-selected` | papéis e seleção | `plataforma/tests/legado-acesso.test.ts:240`, `:269` (`aria-controls` ↔ `aria-labelledby`); `plataforma/e2e/area-mandato.spec.ts:54` | ✅ PASS |
-| 04.2 setas movem foco e ativam; Home/End | vizinha, primeira, última | `plataforma/e2e/area-mandato.spec.ts:114` - `toBeFocused()` + aba ativa + hash a cada tecla; `plataforma/tests/legado-acesso.test.ts:386` | ✅ PASS |
-| 04.3 400 px sem rolagem horizontal da página; lista rola dentro | página 0; lista rolável | `plataforma/e2e/area-mandato.spec.ts:130` - `medida.pagina` `toBe(0)`, `medida.lista` `> 0`, `overflowX` auto/scroll; mais 400 px em cada aba (`area-mandato.spec.ts:313`, `area-conta.spec.ts:84`, `area-equipe.spec.ts:215`) | ✅ PASS |
+| Critério | `file:line` + asserção | Result |
+| -------- | ---------------------- | ------ |
+| 04.1 `tablist`/`tab`/`tabpanel` | `plataforma/tests/legado-acesso.test.ts:224`, `:253`; `plataforma/e2e/area-mandato.spec.ts:54` | ✅ PASS |
+| 04.2 setas, Home, End | `plataforma/e2e/area-mandato.spec.ts:114`; `plataforma/tests/legado-acesso.test.ts:372` | ✅ PASS |
+| 04.3 400 px sem rolagem da página | `plataforma/e2e/area-mandato.spec.ts:130`, `:313`; `plataforma/e2e/area-conta.spec.ts:84`; `plataforma/e2e/area-equipe.spec.ts:232` | ✅ PASS |
+| 05.1 páginas e casca antigas fora | estrutural (`afe257d`), redirects em `plataforma/e2e/area-redirects.spec.ts:15` | ✅ PASS |
+| 05.2 casos `mandato-*` migrados | conferido na rodada 1 (corpo de `afe257d`); nenhum caso saiu nesta rodada | ✅ PASS |
 
-### AMA-05: Código antigo removido (P3)
-
-| Critério | Outcome da spec | Evidência | Result |
-| -------- | --------------- | --------- | ------ |
-| 05.1 sem `app/mandato/page.tsx`, `app/mandato/equipe/page.tsx`, `Casca.tsx` | arquivos ausentes | `git diff e50098f..85e3372` apaga os 4 arquivos (`afe257d`); `app/mandato/` hoje só tem componentes reaproveitados; busca por `Casca` só acha a casca do `/admin` (outra); redirects cobertos em `plataforma/e2e/area-redirects.spec.ts:15` | ✅ PASS (evidência estrutural) |
-| 05.2 casos de `e2e/mandato-*.spec.ts` migrados | nenhum caso que ainda vale removido | corpo do commit `afe257d` lista caso a caso (101 casos declarados); conferi a lista contra os 4 arquivos antigos em `e50098f`: os que saíram são do andamento/missões (fora de AMA-02.1), da casca ou do seletor de mandato, que agora é do Guia | ✅ PASS |
-
-**Status**: ❌ Gaps presentes (GAP-1, GAP-2, GAP-3, GAP-4) e ⚠️ 1 spec-precision gap (SP-1).
+**Status**: ✅ 30/30 critérios com asserção no valor que a spec define. Nenhum spec-precision gap aberto.
 
 ---
 
 ## Edge Cases
 
-- [ ] **Leitura do papel falha → erro com "Tentar de novo" e nenhum botão de edição**: Visão geral ✅ (`plataforma/e2e/area-mandato.spec.ts:284`), Equipe ✅ (`plataforma/e2e/area-equipe.spec.ts:207`), Minha conta usa o mesmo `ProvedorLegado`. **Aba Dados ❌ (GAP-2)**: sonda em scratch com `semLiaNosMembros` em `#/config/dados` deu `{"salvarEnabled":true,"nomeEnabled":true,"tentar":0,"alerta":[]}`: formulário editável, sem erro e sem "Tentar de novo". `plataforma/tests/legado-acesso.test.ts:353` só prova que a Zona de risco some.
-- [x] **Troca de mandato estando na Área**: `plataforma/e2e/area-mandato.spec.ts:298`, `plataforma/e2e/area-visao.spec.ts:85`, `plataforma/e2e/area-equipe-convites.spec.ts:190`, `plataforma/tests/mandato-legado.test.ts:39`.
-- [ ] **Aba Equipe sem mandato ativo → primeiro acesso**: o comportamento vale (sonda em scratch: `#/config/equipe` sem mandato foi para `/primeiro-acesso`, sem `tablist` nem `#areaEquipe`), mas **nenhum teste** abre um `#/config...` sem mandato; `plataforma/e2e/guia-acesso.spec.ts:431` só cobre `#/` (GAP-3).
-- [x] **Sair do mandato pela aba Equipe**: `plataforma/e2e/area-equipe.spec.ts:134` (abre o outro mandato), `:146` e `plataforma/e2e/area-equipe-pessoas.spec.ts:179` (primeiro acesso).
+- [x] **Leitura do papel falha**: Visão geral `plataforma/e2e/area-mandato.spec.ts:284`; Dados `plataforma/e2e/area-mandato.spec.ts:405` e `plataforma/tests/legado-acesso.test.ts:337`; Equipe `plataforma/e2e/area-equipe.spec.ts:224`; Minha conta usa o mesmo `ProvedorLegado` (`plataforma/ilhas/AreaConta.tsx:59`) e não tem botão de edição.
+- [x] **Troca de mandato na Área**: `plataforma/e2e/area-mandato.spec.ts:298`, `plataforma/e2e/area-visao.spec.ts:85`, `plataforma/e2e/area-equipe-convites.spec.ts:191`, `plataforma/tests/mandato-legado.test.ts:39`.
+- [x] **Aba Equipe sem mandato ativo**: `plataforma/e2e/guia-acesso.spec.ts:436`.
+- [x] **Sair do mandato pela aba Equipe**: `plataforma/e2e/area-equipe.spec.ts:134`, `:146`; `plataforma/e2e/area-equipe-pessoas.spec.ts:180`.
 
 ---
 
 ## Discrimination Sensor
 
-Scratch: `git worktree add --detach ../area-mandato-sensor-scratch 85e3372` + `npm ci`; servidor próprio na porta 3200 (o da 3100 não foi tocado). Baseline no scratch antes das mutações: unitários dos arquivos alvo 74/74 e e2e alvo 210/210. Cada mutante foi aplicado sozinho e o arquivo restaurado a partir do conteúdo original antes do próximo.
+Scratch: `git worktree add --detach ../area-mandato-sensor-r2 f8f31db` + `npm ci`; servidor próprio na porta 3200 (o da 3100 não foi tocado). Baseline no scratch: unit dos arquivos alvo 65/65, e2e alvo 20/20. Cada mutante aplicado sozinho por substituição de texto com contagem exata (1 ocorrência) e desfeito com `git checkout -- plataforma` dentro do scratch.
 
-| # | File | Mutação | Testes que mataram | Killed? |
-| - | ---- | ------- | ------------------ | ------- |
-| U1 | `public/legacy/acesso.js` (Nuvem.google) | regex do hash guardado aceita qualquer `#...` | `legado-acesso.test.ts:177` | ✅ |
-| U1b | `public/legacy/acesso.js` (App.entrou) | regex do hash restaurado aceita qualquer coisa | `legado-acesso.test.ts:199` | ✅ |
-| U2 | `public/legacy/acesso.js` (App.entrou) | hash guardado não é restaurado | `legado-acesso.test.ts:192` | ✅ |
-| E7 | idem, no navegador | hash guardado não é restaurado | `area-redirects.spec.ts:72`, `:85` | ✅ |
-| E1 | `next.config.mjs` | `/mandato/equipe` → `/guia#/config` (destino errado) | `area-redirects.spec.ts:21`, `:34` | ✅ |
-| E8 | `app/primeiro-acesso/PrimeiroAcesso.tsx` | `volta=mandato` → `/guia` sem a aba | `primeiro-acesso.spec.ts:420` | ✅ |
-| U3 | `public/legacy/cadastro.js` (zonaRisco) | Zona de risco visível para assessoria | `legado-acesso.test.ts:344` | ✅ |
-| E4 | idem, no navegador | Zona de risco visível para assessoria | `area-mandato.spec.ts:388` | ✅ |
-| U4 | `public/legacy/acesso.js` (Area.rotulo) | contador fixo em `(2)` | `legado-acesso.test.ts:264` | ✅ |
-| U5 | `public/legacy/acesso.js` (Area.equipe) | rótulo não se atualiza | `legado-acesso.test.ts:290` | ✅ |
-| E13 | `ilhas/AreaEquipe.tsx` | a aba não entrega a lista ao Guia | `area-equipe.spec.ts:109`, `:125` | ✅ |
-| U6 | `public/legacy/acesso.js` (Area.equipe) | aceita lista de outro mandato | `legado-acesso.test.ts:290` | ✅ |
-| U7 | `public/legacy/acesso.js` (abaDoHash) | aba desconhecida cai em Dados | `legado-acesso.test.ts:240`, `:258`, `:386` | ✅ |
-| U8 | `public/legacy/acesso.js` (Area.tecla) | seta esquerda vai para a direita | `legado-acesso.test.ts:386` | ✅ |
-| U9 | `public/legacy/acesso.js` (Area.tecla) | End vai à penúltima | `legado-acesso.test.ts:386` | ✅ |
-| U13 | `public/legacy/acesso.js` (Area.desenhar) | todas as abas `aria-selected="true"` | `legado-acesso.test.ts:240`, `:251`, `:258` | ✅ |
-| U10 | `lib/mandato/legado.ts` | papel da primeira linha de membros, não da própria | `mandato-legado.test.ts:32`, `:65` | ✅ |
-| E2 | `app/mandato/ProvedorLegado.tsx` | papel do contexto fixo em `coordenacao` (leitura com botões de coordenação) | `area-equipe.spec.ts:163`, `area-equipe-pessoas.spec.ts:67` (5 testes) | ✅ |
-| E3 | `public/legacy/acesso.js` (trava) | trava de leitura poupa a aba Dados | `area-mandato.spec.ts:396`, `guia-acesso.spec.ts:225` | ✅ |
-| U11 | `lib/mandato/conta.ts` | consulta de `perfis` sem filtro `user_id` | `mandato-conta.test.ts:59` | ✅ |
-| U12 | `lib/mandato/conta.ts` | sem perfil mostra campo a mais | `mandato-conta.test.ts:55` | ✅ |
-| E9 | `ilhas/AreaConta.tsx` | "Tentar de novo" não relê | `area-conta.spec.ts:59` | ✅ |
-| E5 | `ilhas/AreaVisao.tsx` | "Informar agora" aponta para `#/config` | `area-mandato.spec.ts:235`, `:405` | ✅ |
-| E11 | `ilhas/AreaVisao.tsx` | "Convidar pessoa" aponta para `#/config` | `area-mandato.spec.ts:224`, `area-visao.spec.ts:79` | ✅ |
-| E6 | `public/legacy/acesso.js` (Seletor.ir) | trocar de mandato na Área não redesenha a aba | `area-mandato.spec.ts:298`, `area-visao.spec.ts:85`, `area-equipe-convites.spec.ts:190` | ✅ |
+| # | File:line | Mutação | Testes que mataram | Killed? |
+| - | --------- | ------- | ------------------ | ------- |
+| R1 | `plataforma/public/legacy/acesso.js:156` | aba Dados abre o formulário sem a linha da pessoa em membros | `tests/legado-acesso.test.ts:337`, `e2e/area-mandato.spec.ts:405` | ✅ |
+| R2 | `plataforma/public/legacy/acesso.js:127` | `euNosMembros` aceita a linha de qualquer pessoa | `tests/legado-acesso.test.ts:337`, `e2e/area-mandato.spec.ts:405` | ✅ |
+| R3 | `plataforma/public/legacy/acesso.js:124` | texto do erro da aba Dados trocado pelo de ação | `tests/legado-acesso.test.ts:337`, `e2e/area-mandato.spec.ts:405` | ✅ |
+| R4 | `plataforma/public/legacy/acesso.js:169` | "Tentar de novo" da aba Dados não relê (`Store.abrir` sai) | `e2e/area-mandato.spec.ts:405` (`toBeEnabled`) | ✅ |
+| R12 | `plataforma/public/legacy/acesso.js:156` | guarda vale também no modo local (`NUVEM&&` sai) | `tests/legado-acesso.test.ts:344` | ✅ |
+| R5 | `plataforma/app/mandato/equipe/Equipe.tsx:35` | falha dos pendentes volta ao texto de ação | `e2e/area-equipe.spec.ts:213`, `e2e/area-equipe-convites.spec.ts:324` | ✅ |
+| R11 | `plataforma/app/mandato/equipe/Equipe.tsx:43` | falha das pessoas volta ao texto de ação | `e2e/area-equipe.spec.ts:201`, `e2e/area-equipe-pessoas.spec.ts:136` | ✅ |
+| R6 | `plataforma/app/mandato/Atividade.tsx:60` | falha da atividade volta ao texto de ação | `e2e/area-mandato.spec.ts:272`, `e2e/area-visao.spec.ts:158` | ✅ |
+| R7b | `plataforma/app/mandato/equipe/ListaConvites.tsx:72` | leitura deixa de ver "Cancelar" (`display:none`) | `e2e/area-equipe.spec.ts:184` | ✅ |
+| R8b | `plataforma/app/mandato/equipe/SairDoMandato.tsx:49` | leitura deixa de ver "Sair do mandato" (`display:none`) | `e2e/area-equipe.spec.ts:184` | ✅ |
+| R9 | `plataforma/app/mandato/equipe/ListaConvites.tsx:81` | recusa do banco ao cancelar some da tela | `e2e/area-equipe.spec.ts:184` | ✅ |
+| R10 | `plataforma/public/legacy/acesso.js:87` | sem mandato em `#/config...` não vai ao primeiro acesso | `e2e/guia-acesso.spec.ts:436` | ✅ |
+| E2 | `plataforma/app/mandato/ProvedorLegado.tsx:37` | papel do contexto fixo em `coordenacao` (rodada 1) | `e2e/area-equipe.spec.ts:163`, `:184`, `e2e/area-equipe-pessoas.spec.ts:68` (2) | ✅ |
+| E3 | `plataforma/public/legacy/acesso.js:242` | trava de leitura poupa a aba Dados (rodada 1) | `e2e/area-mandato.spec.ts:396`, `e2e/guia-acesso.spec.ts:225` | ✅ |
+| U10 | `plataforma/lib/mandato/legado.ts:24` | papel da primeira linha de membros (rodada 1) | `tests/mandato-legado.test.ts:20`, `:32`, `:65`, `:70` | ✅ |
+| U3 | `plataforma/public/legacy/cadastro.js:125` | Zona de risco visível para assessoria (rodada 1) | `tests/legado-acesso.test.ts:328`, `e2e/area-mandato.spec.ts:388` | ✅ |
+| E6 | `plataforma/public/legacy/acesso.js:212` | trocar de mandato na Área não redesenha (rodada 1) | `e2e/area-mandato.spec.ts:298`, `e2e/area-visao.spec.ts:85` | ✅ |
+| E1 | `plataforma/next.config.mjs:13` | `/mandato/equipe` → `/guia#/config` (rodada 1) | `e2e/area-redirects.spec.ts:21`, `:34` | ✅ |
 
-**Sensor depth**: expandido (permissões e papéis): 25 mutações, 14 unitárias e 11 e2e.
-**Result**: 25/25 killed ✅. Todas morreram por asserção (nenhuma por erro de sintaxe).
-**Isolamento**: scratch removido (`git worktree remove --force` + `prune`); `git status --porcelain` do worktree real ficou idêntico ao do início (inclusive `graphify-out` e `plataforma/playwright.isolado.config.ts`).
-
-Sondas (no scratch, não são testes da suíte): A = papel leitura com convite pendente na aba Equipe → botões `["Gerar link de convite","Cancelar","Sair do mandato"]`; B = aba Dados sem a linha da própria pessoa → formulário editável; C = `#/config/equipe` sem mandato → `/primeiro-acesso`.
+**Sensor depth**: expandido (papéis e permissões): 12 mutantes novos para o que mudou na rodada + 6 dos mais fortes da rodada 1.
+**Result**: 18/18 killed ✅, todos por asserção (`expect(...)` falhou; nenhum por erro de compilação).
+**Mutantes inócuos descartados**: R7 e R8 (mesma ideia com o atributo `hidden`) passaram porque `.md-bt` (`display:inline-flex`) e `.md-pilha` (`display:flex`) em `plataforma/app/mandato/mandato.css:58`, `:34` anulam o `hidden`: o botão continuava visível, então a mutação não mudava comportamento. Refeitos como R7b/R8b com `display:none` em linha e mortos.
+**Isolamento**: servidor da 3200 parado, scratch removido (`git worktree remove --force` + `prune`); `git status --porcelain` do worktree real (sem `graphify-out` e `plataforma/playwright.isolado.config.ts`) igual ao do início (vazio) e HEAD em `f8f31db`.
 
 ---
 
@@ -139,16 +135,15 @@ Sondas (no scratch, não são testes da suíte): A = papel leitura com convite p
 
 | Principle | Status |
 | --------- | ------ |
-| Minimum code | ⚠️ `Telas.equipeHtml` (override em `plataforma/public/legacy/acesso.js:93`) não é mais chamado por ninguém e segue testado em `plataforma/tests/legado-acesso.test.ts:145-165` (Q-1) |
-| Surgical changes | ✅ `nucleo.js`, `app.js`, `guia.js`, `conteudo.js`, `resumo.js` e `lib/legacyBody.ts` sem diff no intervalo |
-| No scope creep | ✅ sem migration e sem mudança de RLS/função no intervalo; a única mudança de trava é poupar os campos de `#areaEquipe`, que reproduz a tela de equipe de antes |
-| Matches patterns | ✅ ilhas em `ponte.tsx`, overrides em `acesso.js`/`cadastro.js`, imports `.ts` relativos em `lib/` e `tests/` |
-| Spec-anchored outcome check | ❌ AMA-02.11 (Equipe) afirma menos do que a spec pede (GAP-1) |
-| Per-layer coverage | ⚠️ Edge Case de papel desconhecido sem cobertura na aba Dados (GAP-2) e Edge Case sem mandato sem teste (GAP-3) |
-| Every test maps to a requirement | ✅ todo teste novo cita AMA-xx, Edge Case ou caso migrado |
+| Minimum code | ✅ override morto saiu; a guarda da aba Dados reaproveita o padrão da trava (`leitura()` em `acesso.js:233`) |
+| Surgical changes | ✅ só os arquivos das correções; nenhum teste de outra feature mexido |
+| No scope creep | ✅ sem migration, RLS ou função de banco no intervalo |
+| Matches patterns | ✅ erro da aba com `erro-cx` + `role="alert"`, como `mostraErroPerfil` (`acesso.js:58`) |
+| Spec-anchored outcome check | ✅ textos e listas exatas da spec nas asserções |
+| Per-layer coverage | ✅ vm + e2e para a aba Dados; e2e para Equipe e sem mandato |
+| Every test maps to a requirement | ✅ os 3 e2e novos citam AMA-02.6/02.11 e os Edge Cases |
 | Guidelines followed | ✅ `plataforma/AGENTS.md`, `plataforma/CLAUDE.md` (worktree isolado, porta 3100) |
-
-Sem link para `/mandato` nem `/mandato/equipe` em `plataforma/public`, `ilhas`, `app` e `lib` (só um comentário em `app/mandato/mandato.css:1`).
+| Asserções afrouxadas | ✅ nenhuma: as trocas de texto seguem a spec (AMA-02.10) e os `timeout` não mudam o valor esperado |
 
 ---
 
@@ -156,50 +151,19 @@ Sem link para `/mandato` nem `/mandato/equipe` em `plataforma/public`, `ilhas`, 
 
 - **Gate command**: `npx tsc --noEmit`; `npm test`; `npx playwright test -c playwright.isolado.config.ts e2e/area- e2e/convite- e2e/guia-acesso e2e/primeiro-acesso e2e/admin-` (porta 3100)
 - **tsc**: limpo (exit 0)
-- **npm test**: 1158 passed, 0 failed, 0 skipped
-- **e2e**: 381 testes. 1ª rodada 372 passed / 9 failed, todos por tempo (a 1ª rodada correu junto com o `npm ci` do scratch). Os 9 passaram de novo: 7 na rodada conjunta seguinte e os 2 restantes (`area-equipe-pessoas.spec.ts:179`, `area-mandato.spec.ts:370`) sozinhos. Resultado final: 381/381.
-- **Test count before feature** (`e50098f`): unit 1109; e2e do mesmo conjunto (com `e2e/mandato-*`) 349
-- **Test count after feature**: unit 1158; e2e 381
-- **Delta**: +49 unit, +32 e2e (saíram 4 arquivos `mandato-*`, com a migração descrita em `afe257d`)
-- **Skipped tests**: nenhum
-- **Flakes (Q-2)**: testes que esperam a navegação para `/primeiro-acesso` ou o diálogo da Zona de risco com o timeout padrão de 5 s caem sob carga em paralelo (`area-equipe.spec.ts:134`, `:146`, `:154`; `area-equipe-pessoas.spec.ts:179`, `:205`; `area-mandato.spec.ts:370`; `area-redirects.spec.ts:27`, `:85`). Passam sozinhos.
+- **npm test**: 1157 passed, 0 failed, 0 skipped
+- **e2e**: 384 passed, 0 failed, 0 flaky, 0 skipped (6,7 min, primeira passada)
+- **Test count before feature** (`e50098f`): unit 1109; e2e do mesmo conjunto 349
+- **Test count after feature**: unit 1157; e2e 384
+- **Delta**: +48 unit, +35 e2e. Nesta rodada: unit 1158 → 1157 (o teste de `Telas.equipeHtml` no modo local saiu com o override; o da varredura AMA-03.4 ficou sem a parte de `equipeHtml`), e2e 381 → 384 (aba Dados sem papel, leitura com convite pendente, `#/config/equipe` sem mandato)
 
 ---
 
-## Fix Plans
+## Notas (não bloqueiam)
 
-### GAP-1 (Major): AMA-02.11 na aba Equipe — leitura vê botões que alteram
-
-- **Root cause**: AMA-02.11 diz "a aba Equipe SHALL não mostrar botões que alteram" e a premissa "Equipe sem botões de alterar (já existente)" está errada: a tela de equipe de antes já mostrava a quem é leitura "Gerar link de convite" (convida como Somente leitura), "Cancelar" em todo convite pendente e "Sair do mandato". AMA-02.6 ("mesmas regras de hoje") manda manter isso. O teste `plataforma/e2e/area-equipe.spec.ts:163` só afirma a lista de pessoas e não semeia convites.
-- **Fix task**: decisão do usuário. (a) Ajustar AMA-02.11 e a premissa para dizer o que quem é leitura vê na aba Equipe (sem seletor de papel e sem "Remover"; convida só como Somente leitura; sai do mandato; e se "Cancelar" aparece em convite de outra pessoa, que o banco recusa); ou (b) esconder de quem é leitura o "Cancelar" de convites que não criou (pede `criado_por` em `convites_pendentes`, mudança de banco fora do escopo atual). Nos dois casos, um e2e com papel leitura **e** convites pendentes afirmando a lista exata de botões da aba.
-- **Priority**: Major
-
-### GAP-2 (Major): Edge Case "leitura do papel falha" não vale para a aba Dados
-
-- **Root cause**: `Area.preencher` (`plataforma/public/legacy/acesso.js:156-159`) desenha `Cad.abrir('editar',...)` sem olhar o papel. Sem a linha da própria pessoa em `Store.membros`, `leitura()` dá `false`, a trava não age e o formulário fica editável, com "Salvar alterações" ativo, sem erro e sem "Tentar de novo".
-- **Fix task**: na aba Dados, com nuvem e sem papel da própria pessoa, mostrar o erro da aba com "Tentar de novo" (relendo com `Store.abrir`, como o `ProvedorLegado`) em vez do formulário. Testes: vm em `legado-acesso.test.ts` (sem papel → sem `cadSalvar1`, com o erro e o botão) e e2e `area-mandato.spec.ts` com `semLiaNosMembros` em `#/config/dados`.
-- **Priority**: Major
-
-### GAP-3 (Minor): Edge Case "aba Equipe sem mandato ativo" sem teste
-
-- **Root cause**: o comportamento vem do `App.entrou` do Guia e vale (sonda C), mas nenhum teste abre `#/config/equipe` sem mandato.
-- **Fix task**: e2e (em `area-redirects.spec.ts` ou `guia-acesso.spec.ts`) que abre `/guia#/config/equipe` com a lista de mandatos vazia e afirma a ida para `/primeiro-acesso` e a ausência do `tablist` "Área do mandato".
-- **Priority**: Minor
-
-### GAP-4 (Minor): AMA-02.8 pede UF, que `perfis` não tem
-
-- **Root cause**: SPEC_DEVIATION registrado em `plataforma/lib/mandato/conta.ts:6-9` e em `tasks.md` (T6), mas `spec.md` (AMA-02.8 e a premissa "Minha conta") ainda lista a UF.
-- **Fix task**: confirmar com o usuário e tirar a UF de AMA-02.8 e da premissa (só documento; nenhuma migration).
-- **Priority**: Minor
-
-### SP-1 (Minor): AMA-02.10 não define o texto do erro
-
-- A spec diz "a mensagem de erro daquela aba". O código usa dois textos: "Não foi possível concluir. Tente de novo." nas seções da Visão e da Equipe e "Não foi possível carregar. Tente de novo." no contexto e na Minha conta. Os testes fixam os textos atuais. Recomendo a spec nomear o texto (ou os dois).
-
-### Q-1 / Q-2 (Minor, sem bloqueio)
-
-- Q-1: remover o override morto `Telas.equipeHtml` e os 2 testes que o exercitam, ou registrar por que fica.
-- Q-2: dar timeout explícito às esperas de navegação para `/primeiro-acesso` nos testes listados no Gate Check.
+- **N-1 (Minor, redação da spec)**: `spec.md:181` (Success Criteria) ainda diz "`leitura` não altera nada", o que contradiz a exceção de AMA-02.11 (`spec.md:93`): quem é leitura gera link de convite como Somente leitura e sai do mandato (`plataforma/e2e/area-equipe.spec.ts:173`, `:184`). As permissões não mudam; só a frase. Sugestão: "Nenhuma permissão muda: `leitura` não edita os dados do mandato nem a equipe (só convida como Somente leitura e sai) e só `coordenacao` exclui o cadastro."
+- **N-2 (Info)**: o texto único de AMA-02.10 vive em duas constantes, `ERRO_ABA` (`plataforma/public/legacy/acesso.js:124`) e `ERRO_CARREGAR` (`plataforma/lib/mandato/legado.ts:9`). As duas estão fixadas por teste (`tests/legado-acesso.test.ts:339`, `tests/mandato-legado.test.ts:84`), então uma divergência quebra a suíte.
+- **N-3 (Info)**: com o override removido, a definição original de `Telas.equipeHtml` em `plataforma/public/legacy/cadastro.js:714-742` (anterior à feature, com o bloco "Código de convite") voltou a ser a única, ainda sem chamador. ACE-07.2 segue coberto nas 4 abas (`plataforma/e2e/guia-acesso.spec.ts:160`). Removê-la é limpeza opcional, fora do escopo.
 
 ---
 
@@ -208,23 +172,32 @@ Sem link para `/mandato` nem `/mandato/equipe` em `plataforma/public`, `ilhas`, 
 | Requirement | Previous Status | New Status |
 | ----------- | --------------- | ---------- |
 | AMA-01 | Pending | ✅ Verified |
-| AMA-02 | Pending | ❌ Needs Fix (02.11 Equipe; 02.8 UF; Edge Case de papel na aba Dados) |
+| AMA-02 | Pending (Needs Fix na rodada 1) | ✅ Verified |
 | AMA-03 | Pending | ✅ Verified |
 | AMA-04 | Pending | ✅ Verified |
 | AMA-05 | Pending | ✅ Verified |
+
+(`spec.md` ainda mostra "Pending" na tabela de rastreabilidade; o orquestrador atualiza junto com N-1.)
+
+---
+
+## Histórico
+
+- Rodada 1 (`e50098f..85e3372`): reprovada com GAP-1 a GAP-4, SP-1, Q-1, Q-2; sensor 25/25. Relatório completo: `git show 8e23a4c:.specs/features/area-do-mandato/validation.md`.
+- Rodada 2 (`85e3372..f8f31db`): aprovada, este relatório.
 
 ---
 
 ## Summary
 
-**Overall**: ❌ Not Ready
+**Overall**: ✅ Ready
 
-**Spec-anchored check**: 26/28 critérios casam com a spec; 1 gap (AMA-02.11 Equipe), 1 desvio não registrado na spec (AMA-02.8 UF), 1 spec-precision gap (SP-1); Edge Cases: 2/4 cobertos, 1 com falha (aba Dados), 1 sem teste
-**Sensor**: 25/25 mutações mortas
-**Gate**: tsc limpo; unit 1158/1158; e2e 381/381 (9 flakes de carga repetidos e verdes)
+**Spec-anchored check**: 30/30 critérios casam com a spec; 4/4 Edge Cases cobertos; 0 spec-precision gap aberto
+**Sensor**: 18/18 mutações mortas (2 inócuas refeitas)
+**Gate**: tsc limpo; unit 1157/1157; e2e 384/384 sem flake
 
-**What works**: casca com abas, rotas, Voltar, teclado e 400 px; Visão geral, Dados, Equipe e Minha conta; contador da aba; redirects 308; volta do Google na aba pedida; `volta=mandato`; código antigo removido com a migração dos testes conferida.
+**What works**: tudo da rodada 1, mais a aba Dados sem papel conhecido (erro + releitura), o texto único de erro de leitura, a aba Equipe para leitura conforme a exceção registrada e o Edge Case sem mandato com teste.
 
-**Issues found**: GAP-1 e GAP-4 pedem decisão do usuário sobre a spec; GAP-2 e GAP-3 são correções de código e teste.
+**Issues found**: só N-1 (frase dos Success Criteria), de redação.
 
-**Next steps**: orquestrador leva GAP-1 e GAP-4 ao usuário, cria as tasks de GAP-2 e GAP-3 (e Q-1/Q-2, se quiser) e chama o Verifier na rodada 2.
+**Next steps**: orquestrador corrige N-1 e a tabela de rastreabilidade em `spec.md` (opcional antes do merge) e segue para publicação conforme o fluxo do projeto.
