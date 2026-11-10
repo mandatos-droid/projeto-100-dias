@@ -573,17 +573,19 @@
       "text": "When a UI pre-check depends on data that may fail to load, test the action with that load failed, so the fallback branch is pinned.",
       "signal": "surviving_mutant",
       "scope": "e2e",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "acesso-equipe-convites"
+        "acesso-equipe-convites",
+        "primeiro-acesso-google"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "U12 plataforma/app/mandato/equipe/SairDoMandato.tsx:23 (e2e)"
+        "U12 plataforma/app/mandato/equipe/SairDoMandato.tsx:23 (e2e)",
+        "M8 rodada 2; plataforma/public/legacy/acesso.js:73-78; tests/legado-acesso.test.ts:300 (e2e)"
       ],
       "created": "2026-11-09T16:33:50Z",
-      "last_seen": "2026-11-09T16:33:50Z"
+      "last_seen": "2026-11-10T11:18:08Z"
     },
     {
       "id": "L-033",
@@ -670,10 +672,11 @@
       "recurrence": 1,
       "harmful": 0,
       "evidence": [
-        "PAG-02.1 SP-3; plataforma/public/legacy/acesso.js:56-60 (spec)"
+        "PAG-02.1 SP-3; plataforma/public/legacy/acesso.js:56-60 (spec)",
+        "SP-R2-1 rodada 2; plataforma/public/legacy/acesso.js:84 (spec)"
       ],
       "created": "2026-11-10T03:08:54Z",
-      "last_seen": "2026-11-10T03:08:54Z"
+      "last_seen": "2026-11-10T11:18:09Z"
     }
   ]
 }

@@ -14,6 +14,12 @@ Corroborated across multiple features. Safe to apply as guidance.
 - evidence: ilhas/ponte.tsx:137 (mutante E14, ADM-14.4) (e2e) (+3 more)
 - last seen: 2026-11-06T16:18:18Z
 
+### L-032 - When a UI pre-check depends on data that may fail to load, test the action with that load failed, so the fallback branch is pinned.
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `e2e` · harmful: 0
+- features: acesso-equipe-convites, primeiro-acesso-google
+- evidence: U12 plataforma/app/mandato/equipe/SairDoMandato.tsx:23 (e2e) (+1 more)
+- last seen: 2026-11-10T11:18:08Z
+
 ## Candidates (under observation - do NOT load as guidance yet)
 
 Seen once or not yet corroborated. Tracked, not trusted.
@@ -198,12 +204,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: ACE-02.13, ACE-02.16 sonda N-9 (spec)
 - last seen: 2026-11-06T19:36:39Z
 
-### L-032 - When a UI pre-check depends on data that may fail to load, test the action with that load failed, so the fallback branch is pinned.
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e` · harmful: 0
-- features: acesso-equipe-convites
-- evidence: U12 plataforma/app/mandato/equipe/SairDoMandato.tsx:23 (e2e)
-- last seen: 2026-11-09T16:33:50Z
-
 ### L-033 - When an e2e mocks refusals that a backend returns as data, reproduce the backend check order for a brand-new account, not each refusal alone.
 - signal: `ac_gap` · recurrence: 1 feature(s) · scope: `e2e` · harmful: 0
 - features: primeiro-acesso-google
@@ -231,8 +231,8 @@ Seen once or not yet corroborated. Tracked, not trusted.
 ### L-037 - Specify what the user sees and how to retry when a gating lookup fails, not only where the user must not be sent.
 - signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
 - features: primeiro-acesso-google
-- evidence: PAG-02.1 SP-3; plataforma/public/legacy/acesso.js:56-60 (spec)
-- last seen: 2026-11-10T03:08:54Z
+- evidence: PAG-02.1 SP-3; plataforma/public/legacy/acesso.js:56-60 (spec) (+1 more)
+- last seen: 2026-11-10T11:18:09Z
 
 ## Quarantined (failed when applied - ignore)
 
