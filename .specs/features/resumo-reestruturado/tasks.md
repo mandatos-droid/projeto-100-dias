@@ -572,6 +572,19 @@ T11 → T12 → T13
 
 ---
 
+### T17: Alinhar a spec ao comportamento entregue
+
+**What**: spec.md: RES-07.1 (Potenciais), RES-06.5 (cadeiras por cargo), RES-09.1 (Chefia de área), RES-12.1 (exceção com Resumo.vivo), RES-02.4 e RES-02.8 (limiares exatos). Sem mudar o escopo.
+
+**Tests**: e2e/unit
+**Gate**: full
+
+**Commit**: `docs(resumo): align spec with delivered behavior`
+
+**Status**: ✅ Done (correção da rodada 1 do Verifier)
+
+---
+
 ## Phase Execution Map
 
 ```

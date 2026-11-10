@@ -67,11 +67,11 @@ A aba "Resumo do preenchimento" (`#/resumo`) lista as 16 respostas do Guia como 
 1. WHEN o usuário abre `#/resumo` THEN a tela SHALL mostrar uma barra no topo com o percentual `progGeral()` e o texto "N de 16 exercícios concluídos" (N = soma dos exercícios concluídos das 5 missões, 16 = soma dos exercícios), e cinco segmentos, um por missão, na ordem do Guia.  <!-- RES-02 -->
 2. Cada segmento SHALL mostrar "M{n} · {título curto da missão}", "{feitos}/{total}" da missão e uma barra preenchida em `feitos/total` na cor da missão.
 3. WHEN o usuário clica em um segmento THEN a tela SHALL abrir a missão correspondente e rolá-la até o topo sem alterar `location.hash`.
-4. WHILE o usuário rola a página THEN a barra SHALL permanecer visível no topo da janela (abaixo de `.topo-movel` quando ele existe) e o segmento da missão atual SHALL ter `aria-current="true"`, e os demais `aria-current="false"`.
+4. WHILE o usuário rola a página THEN a barra SHALL permanecer visível no topo da janela (abaixo de `.topo-movel` quando ele existe) e o segmento da missão atual SHALL ter `aria-current="true"`, e os demais `aria-current="false"`. A missão atual é a última cujo topo está a 160 px ou menos do topo da janela (160 px exatos contam; 161 px não); a 1ª se nenhuma.
 5. WHEN o título de uma missão é levado ao topo por um segmento THEN a barra SHALL NOT cobri-lo.
 6. The barra SHALL conter exatamente um botão de ação, "Baixar resumo completo (HTML)", e a tela SHALL NOT conter "Gerar PDF" nem "Baixar dados (JSON)".  <!-- RES-03 -->
 7. WHEN o usuário clica em "Baixar resumo completo (HTML)" THEN a tela SHALL chamar `Baixar.tudo()`, que baixa `regimento-<nome>-completo.html` e mostra "Resumo completo baixado.".
-8. WHILE a largura da janela é de 61,25rem ou menos, o botão de ação SHALL ficar fixo no rodapé da janela, na largura toda, com margem inferior `env(safe-area-inset-bottom)`, e os segmentos SHALL rolar na horizontal dentro da barra.
+8. WHILE a largura da janela é de 61,25rem (980 px) ou menos, o botão de ação SHALL ficar fixo no rodapé da janela, na largura toda, com margem inferior `env(safe-area-inset-bottom)`, e os segmentos SHALL rolar na horizontal dentro da barra.
 
 **Independent Test**: Abrir `#/resumo` com dados parciais, rolar até a Missão 4 e ver o segmento M4 marcado; clicar em M2 e ver a Missão 2 no topo, com a barra ainda visível.
 
@@ -112,7 +112,7 @@ A aba "Resumo do preenchimento" (`#/resumo`) lista as 16 respostas do Guia como 
 2. WHERE `D.tse.sq` existe THEN a foto SHALL vir do TSE, pela mesma URL que `ResumoIlhas.foto` usa (`ele2024/619` para prefeito e vereador, `ele2026/6259` para os demais cargos).
 3. IF não há `D.tse.sq` ou a foto não carrega THEN o cartão SHALL mostrar a primeira letra do nome em maiúscula no lugar da foto.
 4. WHERE `D.tse.votos` existe THEN o primeiro número SHALL ser a votação em formato pt-BR (`97.335`) com o rótulo "Votos válidos" e, se `D.tse.pos` existe, a legenda "{pos}º mais votado(a) · {UF} · TSE".
-5. WHERE as cadeiras do partido na Casa do mandato estão disponíveis THEN um número SHALL mostrar essa quantidade com o rótulo "Cadeiras do {partido} na {Casa}".
+5. WHERE as cadeiras do partido na Casa do mandato estão disponíveis THEN um número SHALL mostrar essa quantidade com o rótulo "Cadeiras do {partido} na {Casa}". Para deputado estadual é a bancada do partido na Assembleia da UF; para deputado federal e senador, a do partido na Casa inteira (`nacional.json`); para vereador não há fonte e o número é omitido.
 6. WHERE os filiados do partido na UF estão disponíveis THEN um número SHALL mostrar o total, abreviado a partir de 10.000 ("112 mil+"), com o rótulo "Filiados do {partido} em {UF}".
 7. WHERE a tabela de equipe tem ao menos uma linha ativa THEN um número SHALL mostrar "{X}/{Y}" (X = linhas com pessoa e sem `*`, Y = linhas ativas) com o rótulo "Cargos da equipe com nome" e, se há processos seletivos a abrir, a legenda "{K} processos seletivos a abrir" ("1 processo seletivo a abrir" quando K = 1).
 8. IF a fonte de um número está indisponível (sem TSE, sem partido, sem a Casa, carga que falhou ou tabela vazia) THEN a tela SHALL omitir esse número, sem traço nem espaço vazio; IF todos faltam THEN o cabeçalho SHALL mostrar só o cartão da parlamentar.
@@ -131,7 +131,7 @@ A aba "Resumo do preenchimento" (`#/resumo`) lista as 16 respostas do Guia como 
 
 **Acceptance Criteria**:
 
-1. WHEN as perguntas m1.q4 ou m1.q6 têm relações em `D.relacoes` THEN a tela SHALL mostrar três grupos — "Aliados", "Opositores" e "Potenciais", cada um com a contagem — e um cartão por pessoa.  <!-- RES-07 -->
+1. WHEN as perguntas m1.q4 ou m1.q6 têm relações em `D.relacoes` THEN a tela SHALL mostrar três grupos — "Aliados" (status `aliado`), "Opositores" (`concorrente`) e "Potenciais" (`potencial`), cada um com a contagem — e um cartão por pessoa. O Guia ainda não grava o status `potencial`; enquanto isso o grupo Potenciais fica vazio e, como todo grupo vazio, é omitido.  <!-- RES-07 -->
 2. Cada cartão SHALL mostrar a foto (ou a inicial), o nome, o partido, o cargo, o município quando a relação é local e, se `votos` existe, "{votos} votos" em pt-BR.
 3. The cartão SHALL ter o anel da foto verde para aliado, coral para opositor e roxo para potencial.
 4. IF um grupo não tem pessoas THEN a tela SHALL omitir o grupo.
@@ -170,7 +170,7 @@ A aba "Resumo do preenchimento" (`#/resumo`) lista as 16 respostas do Guia como 
 
 **Acceptance Criteria**:
 
-1. WHEN o exercício "A escalação do time" tem linhas ativas THEN seu corpo no Resumo SHALL mostrar um organograma: a linha da Chefia de gabinete no topo e, abaixo, um ramo por área presente, na ordem de `COORDENACOES`.  <!-- RES-09 -->
+1. WHEN o exercício "A escalação do time" tem linhas ativas THEN seu corpo no Resumo SHALL mostrar um organograma: a linha da "Chefia de área" (a chefia de gabinete) no topo e, abaixo, um ramo por área presente, na ordem de `COORDENACOES`.  <!-- RES-09 -->
 2. Dentro de cada ramo, os cartões SHALL seguir a ordem das categorias Chefia, Coordenação, Especialista, Executora e, dentro delas, a ordem das linhas.
 3. Cada cartão SHALL mostrar o cargo e, em destaque, a pessoa; linha com `*` na pessoa SHALL mostrar "Processo seletivo a abrir" com borda tracejada; linha sem pessoa SHALL mostrar "Sem nome", apagada.
 4. The organograma SHALL ter uma legenda com os três estados (preenchido, processo seletivo a abrir, ainda sem nome).
@@ -205,7 +205,7 @@ A aba "Resumo do preenchimento" (`#/resumo`) lista as 16 respostas do Guia como 
 
 **Acceptance Criteria**:
 
-1. The `Resumo.missao(m)` e o `Resumo.ex(ex)` SHALL devolver o mesmo HTML que devolviam antes desta feature, para os mesmos dados.  <!-- RES-12 -->
+1. The `Resumo.missao(m)` e o `Resumo.ex(ex)` SHALL devolver o mesmo HTML que devolviam antes desta feature, para os mesmos dados. A única exceção é `Resumo.ex` de um exercício do tipo `frag` (e as listas de pessoas de `ResumoIlhas`) enquanto `Resumo.vivo` está ligado, ou seja, só na tela; o Painel e o download não ligam `Resumo.vivo`.  <!-- RES-12 -->
 2. WHEN o usuário abre o Painel e abre "Ver o que foi preenchido" THEN o bloco SHALL mostrar o mesmo conteúdo de antes.
 3. WHEN o usuário baixa o resumo completo THEN o arquivo SHALL conter os mesmos títulos e respostas de antes e SHALL NOT conter a barra, os segmentos nem os cartões.
 4. The textos de `conteudo.js` SHALL permanecer idênticos (os testes de hash existentes seguem passando).
