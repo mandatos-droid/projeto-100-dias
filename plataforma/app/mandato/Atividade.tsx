@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { lerEventosEquipe, type EventoEquipe } from '../../lib/convites/api.ts';
-import { mensagemDe } from '../../lib/convites/erros.ts';
+import { ERRO_CARREGAR } from '../../lib/mandato/legado.ts';
 import { PAPEIS, rotuloPapel, type Papel } from '../../lib/convites/papeis.ts';
 import { iniciais, useMandato } from './contexto.ts';
 
@@ -57,7 +57,7 @@ export default function Atividade() {
     let vivo = true;
     lerEventosEquipe(api, mandato.id).then(
       (l) => { if (vivo) setEventos(l.slice(0, LIMITE)); },
-      (e) => { if (vivo) setErro(mensagemDe(e)); },
+      (e) => { if (vivo) setErro(ERRO_CARREGAR); },
     );
     return () => { vivo = false; };
   }, [api, mandato.id, tentativa]);

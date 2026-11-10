@@ -425,19 +425,19 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] AMA-02.11 diz que a aba Equipe é exceção explícita: quem é leitura mantém as regras de AMA-02.6 (o banco recusa o que não pode); a premissa "Quem só lê" é corrigida
-- [ ] AMA-02.8 e a premissa "Minha conta" saem da UF, registradas como desvio aceito (`perfis` não tem UF; sem migration)
-- [ ] AMA-02.10 define um único texto, "Não foi possível carregar. Tente de novo.", com "Tentar de novo"; código e testes de leitura das abas o usam
-- [ ] e2e: papel leitura, convites pendentes (de outra pessoa): botão "Cancelar" visível, o banco recusa e a tela mostra o erro
-- [ ] Gate check passes: `npx tsc --noEmit`, `npm test` e e2e `area-`
-- [ ] Test count: registrado
+- [x] AMA-02.11 diz que a aba Equipe é exceção explícita: quem é leitura mantém as regras de AMA-02.6 (o banco recusa o que não pode); a premissa "Quem só lê" é corrigida
+- [x] AMA-02.8 e a premissa "Minha conta" saem da UF, registradas como desvio aceito (`perfis` não tem UF; sem migration)
+- [x] AMA-02.10 define um único texto, "Não foi possível carregar. Tente de novo.", com "Tentar de novo"; código e testes de leitura das abas o usam
+- [x] e2e: papel leitura, convites pendentes (de outra pessoa): botão "Cancelar" visível, o banco recusa e a tela mostra o erro
+- [x] Gate check passes: `npx tsc --noEmit`, `npm test` e e2e `area-`
+- [x] Test count: +1 e2e (leitura com convite pendente); unit sem mudança
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `docs(area-mandato): align the spec with the Equipe tab for readers, the UF deviation and the read error text`
 
-**Status**: Pending
+**Status**: ✅ Done
 
 ---
 

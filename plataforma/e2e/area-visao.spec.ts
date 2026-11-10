@@ -94,7 +94,7 @@ test.describe('Resumo da equipe', () => {
 
   test('falha ao ler a equipe mantém o botão "Convidar pessoa" (AMA-02.10)', async ({ page }) => {
     await area.abreArea(page, '#/config', { falha: { 'rpc/equipe_do_mandato': 'rede' } });
-    await expect(resumo(page).getByRole('alert')).toHaveText('Não foi possível concluir. Tente de novo.');
+    await expect(resumo(page).getByRole('alert')).toHaveText('Não foi possível carregar. Tente de novo.');
     await expect(resumo(page).getByRole('link', { name: 'Convidar pessoa' })).toBeVisible();
   });
 });
@@ -157,7 +157,7 @@ test.describe('Atividade recente', () => {
 
   test('falha ao ler o histórico não derruba o resto da aba (AMA-02.10)', async ({ page }) => {
     await area.abreArea(page, '#/config', { falha: { eventos_equipe: 'rede' } });
-    await expect(atividade(page).getByRole('alert')).toHaveText('Não foi possível concluir. Tente de novo.');
+    await expect(atividade(page).getByRole('alert')).toHaveText('Não foi possível carregar. Tente de novo.');
     await expect(cartao(page)).toBeVisible();
     await expect(resumo(page)).toContainText('2 pessoas');
   });

@@ -40,8 +40,8 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | Aviso de data de posse | Sem data de posse, a Visão geral mostra um aviso com link para a aba Dados | O link antigo "Informe a data de posse em Configurações" do Guia passa a cair na Visão geral | n |
 | Número na aba Equipe | Mostra o total de pessoas do mandato, ex.: "Equipe e convites (2)" | Já está carregado no Guia; sem convites pendentes (fora de escopo) | n |
 | Excluir cadastro | Fica no fim da aba Dados, em bloco separado "Zona de risco", só para `coordenacao`, com a mesma confirmação de hoje | Separa a ação destrutiva do formulário | n |
-| Quem só lê (`leitura`) | Vê as quatro abas; Dados em modo somente leitura (já existente) e Equipe sem botões de alterar (já existente) | As regras de papel não mudam | y |
-| Minha conta | Mostra e-mail da conta, nome, telefone, data de nascimento, gênero, raça, UF e atuação do perfil da própria pessoa, só leitura; quem não tem perfil (equipe Legisla) vê só o e-mail | O perfil vem de `perfis`, que a própria pessoa lê | n |
+| Quem só lê (`leitura`) | Vê as quatro abas; Dados em modo somente leitura (já existente). A aba Equipe é exceção explícita: mantém as regras de hoje (AMA-02.6), com "Gerar link de convite" (como Somente leitura), "Cancelar" nos convites pendentes e "Sair do mandato"; o banco recusa o que o papel não permite e a tela mostra o erro. Sem seletor de papel e sem "Remover" | As regras de papel não mudam; a tela de equipe de antes já era assim. Decisão do usuário em 2026-11-10 (opção B da rodada 1 do Verifier) | y |
+| Minha conta | Mostra e-mail da conta, nome, telefone, data de nascimento, gênero, raça e atuação do perfil da própria pessoa, só leitura; quem não tem perfil (equipe Legisla) vê só o e-mail | O perfil vem de `perfis`, que a própria pessoa lê. Desvio aceito: `perfis` não tem UF, então a UF não aparece (sem migration); decisão do usuário em 2026-11-10 | y |
 | Endereços antigos | `/mandato` e `/mandato/equipe` redirecionam (redirect permanente do Next) para `/guia#/config` e `/guia#/config/equipe`; fragmentos e `?volta=mandato` do primeiro acesso passam a apontar para `/guia#/config` | Convites e favoritos não quebram | n |
 | Código antigo | As páginas de `/mandato` e a casca antiga saem do código depois da migração dos testes | Evita duas versões da mesma tela | n |
 | Fuso das datas | `America/Sao_Paulo` | Público e equipe no Brasil | y |
@@ -87,12 +87,12 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 5. WHERE a pessoa não é `coordenacao` the aba Dados SHALL não mostrar a Zona de risco. <!-- optional-feature -->
 6. The aba Equipe e convites SHALL mostrar o formulário de convite, os convites pendentes, as pessoas do mandato e o "Sair do mandato", com as mesmas regras e permissões de hoje. <!-- ubiquitous -->
 7. The aba Equipe e convites SHALL mostrar no rótulo o total de pessoas, no formato "Equipe e convites (2)". <!-- ubiquitous -->
-8. The aba Minha conta SHALL mostrar o e-mail da conta e os campos do próprio perfil (nome, data de nascimento, gênero, raça, UF, telefone, atuação política) em texto, sem campo editável, e o texto "Para corrigir seus dados, escreva para contato@legislabrasil.org". <!-- ubiquitous -->
+8. The aba Minha conta SHALL mostrar o e-mail da conta e os campos do próprio perfil (nome, data de nascimento, gênero, raça, telefone, atuação política; a UF fica de fora porque `perfis` não a guarda, desvio aceito) em texto, sem campo editável, e o texto "Para corrigir seus dados, escreva para contato@legislabrasil.org". <!-- ubiquitous -->
 9. WHERE a pessoa não tem perfil (equipe Legisla) the aba Minha conta SHALL mostrar só o e-mail. <!-- optional-feature -->
-10. IF a leitura de uma aba falha THEN the Guia SHALL mostrar a mensagem de erro daquela aba com o botão "Tentar de novo" sem derrubar as outras abas. <!-- unwanted-behavior -->
-11. WHILE a pessoa tem papel `leitura` the aba Dados SHALL mostrar o formulário só para leitura e a aba Equipe SHALL não mostrar botões que alteram. <!-- state-driven -->
+10. IF a leitura de uma aba falha THEN the Guia SHALL mostrar na aba a mensagem "Não foi possível carregar. Tente de novo." com o botão "Tentar de novo", sem derrubar as outras abas. Esse é o único texto de erro de leitura das abas; erros de ações (convidar, cancelar, remover, sair) seguem as mensagens de hoje. <!-- unwanted-behavior -->
+11. WHILE a pessoa tem papel `leitura` the aba Dados SHALL mostrar o formulário só para leitura. Exceção explícita: a aba Equipe mantém as regras de hoje de AMA-02.6 ("Gerar link de convite" como Somente leitura, "Cancelar" nos convites pendentes e "Sair do mandato" seguem visíveis e o banco recusa o que o papel não permite, com a mensagem de erro na tela); a lista de pessoas não tem seletor de papel nem "Remover". <!-- state-driven -->
 
-**Independent Test**: Em um mandato com 2 pessoas, abrir cada aba e conferir o conteúdo; como `coordenacao` ver a Zona de risco; como `leitura` não ver nenhum botão que altera.
+**Independent Test**: Em um mandato com 2 pessoas, abrir cada aba e conferir o conteúdo; como `coordenacao` ver a Zona de risco; como `leitura` ver a aba Dados travada e, na aba Equipe, só as ações de hoje (sem seletor de papel nem "Remover").
 
 ---
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { convitesPendentes, equipeDoMandato, type PessoaEquipe } from '../../lib/convites/api.ts';
-import { mensagemDe } from '../../lib/convites/erros.ts';
+import { ERRO_CARREGAR } from '../../lib/mandato/legado.ts';
 import { iniciais, useMandato } from './contexto.ts';
 
 const AVATARES = 3;
@@ -23,7 +23,7 @@ export default function ResumoEquipe({ convidar }: { convidar: string }) {
     let vivo = true;
     Promise.all([equipeDoMandato(api, mandato.id), convitesPendentes(api, mandato.id)]).then(
       ([p, c]) => { if (vivo) { setPessoas(p); setPendentes(c.length); } },
-      (e) => { if (vivo) setErro(mensagemDe(e)); },
+      (e) => { if (vivo) setErro(ERRO_CARREGAR); },
     );
     return () => { vivo = false; };
   }, [api, mandato.id, tentativa]);

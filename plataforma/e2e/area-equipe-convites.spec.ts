@@ -17,6 +17,7 @@ const origem = (page: Page) => new URL(page.url()).origin;
 const semRolagem = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 const TEXTO_NOME = 'Informe um nome de até 80 caracteres.';
 const ERRO_REDE = 'Não foi possível concluir. Tente de novo.';
+const ERRO_LEITURA = 'Não foi possível carregar. Tente de novo.';
 
 async function abre(page: Page, estado: area.EstadoArea = {}) {
   const nuvem = await area.abreArea(page, '#/config/equipe', estado);
@@ -322,7 +323,7 @@ test.describe('Convites pendentes', () => {
 
   test('falha ao ler a lista mostra a mensagem e o formulário continua funcionando (AMA-02.10)', async ({ page }) => {
     await abrePendentes(page, [], { falha: { 'rpc/convites_pendentes': 'rede' } });
-    await expect(lista(page).getByRole('alert')).toHaveText(ERRO_REDE);
+    await expect(lista(page).getByRole('alert')).toHaveText(ERRO_LEITURA);
     await expect(lista(page)).not.toContainText('Nenhum convite pendente.');
     await nome(page).fill('Carlos Lima');
     await gerar(page).click();

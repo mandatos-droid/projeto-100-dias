@@ -12,6 +12,7 @@ const linhaDe = (page: Page, quem: string) => linhas(page).filter({ hasText: que
 const seletorDe = (page: Page, quem: string) => linhaDe(page, quem).getByLabel(`Papel de ${quem}`);
 const semRolagem = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 const ERRO_REDE = 'Não foi possível concluir. Tente de novo.';
+const ERRO_LEITURA = 'Não foi possível carregar. Tente de novo.';
 const ULTIMA = 'O mandato precisa ter ao menos uma pessoa na coordenação.';
 
 const MARIANA = area.membro(area.MANDATO_A, area.MARIANA.id, area.MARIANA.nome, 'coordenacao', area.MARIANA.email);
@@ -134,7 +135,7 @@ test.describe('Pessoas do mandato', () => {
 
   test('falha ao ler as pessoas mantém a linha sobre a equipe da Legisla (AMA-02.10)', async ({ page }) => {
     await abre(page, { falha: { 'rpc/equipe_do_mandato': 'rede' } });
-    await expect(secao(page).getByRole('alert')).toHaveText(ERRO_REDE);
+    await expect(secao(page).getByRole('alert')).toHaveText(ERRO_LEITURA);
     await expect(linhas(page)).toHaveCount(0);
     await expect(secao(page)).toContainText('A equipe da Legisla acompanha este mandato');
   });

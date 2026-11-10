@@ -155,7 +155,7 @@ test.describe('Visão geral', () => {
   const resumo = (page: Page) => visao(page).locator('.md-resumo');
   const atividade = (page: Page) => visao(page).locator('.md-atividade');
   const AVISO_POSSE = 'Informe a data de posse para acompanhar os prazos.';
-  const ERRO_LEITURA = 'Não foi possível concluir. Tente de novo.';
+  const ERRO_LEITURA = 'Não foi possível carregar. Tente de novo.';
   const marca = (page: Page) => page.evaluate(() => { (window as unknown as { __mesmaPagina: boolean }).__mesmaPagina = true; });
   const mesmaPagina = (page: Page) => page.evaluate(() => (window as unknown as { __mesmaPagina?: boolean }).__mesmaPagina === true);
 

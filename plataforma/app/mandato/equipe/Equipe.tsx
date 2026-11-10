@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { convitesPendentes, equipeDoMandato, type ConvitePendente, type PessoaEquipe } from '../../../lib/convites/api.ts';
-import { mensagemDe } from '../../../lib/convites/erros.ts';
+import { ERRO_CARREGAR } from '../../../lib/mandato/legado.ts';
 import { useMandato } from '../contexto.ts';
 import FormularioConvite from './FormularioConvite.tsx';
 import ListaConvites from './ListaConvites.tsx';
@@ -32,7 +32,7 @@ export default function Equipe({ nivel = 1, aoMudarPessoas }: Props) {
       const l = await convitesPendentes(api, mandato.id);
       if (minha === leitura.current) { setPendentes(l); setErroPendentes(null); }
     } catch (e) {
-      if (minha === leitura.current) setErroPendentes(mensagemDe(e));
+      if (minha === leitura.current) setErroPendentes(ERRO_CARREGAR);
     }
   }, [api, mandato.id]);
 
@@ -40,7 +40,7 @@ export default function Equipe({ nivel = 1, aoMudarPessoas }: Props) {
     let vivo = true;
     equipeDoMandato(api, mandato.id).then(
       (l) => { if (vivo) { setPessoas(l); setErroPessoas(null); } },
-      (e) => { if (vivo) setErroPessoas(mensagemDe(e)); },
+      (e) => { if (vivo) setErroPessoas(ERRO_CARREGAR); },
     );
     carregaPendentes();
     return () => { vivo = false; leitura.current++; };

@@ -17,7 +17,7 @@ const linhaDe = (page: Page, quem: string) => pessoas(page).locator('li', { hasT
 const sair = (page: Page) => painel(page).getByRole('region', { name: 'Sair do mandato' });
 const abaEquipe = (page: Page) => page.getByRole('tablist', { name: 'Área do mandato' }).getByRole('tab', { name: /^Equipe e convites/ });
 const aba = (page: Page, nomeAba: string) => page.getByRole('tablist', { name: 'Área do mandato' }).getByRole('tab', { name: nomeAba, exact: true });
-const ERRO_LEITURA = 'Não foi possível concluir. Tente de novo.';
+const ERRO_LEITURA = 'Não foi possível carregar. Tente de novo.';
 const JOAO = area.membro(area.MANDATO_A, 'uid-joao', 'João Pereira', 'assessoria', 'joao@gabinete.test');
 const MARIANA = area.membro(area.MANDATO_A, area.MARIANA.id, area.MARIANA.nome, 'coordenacao', area.MARIANA.email);
 
@@ -179,6 +179,23 @@ test('quem é leitura convida como Somente leitura, como hoje: dentro da aba os 
   await gerar(page).click();
   await expect(painel(page).getByTestId('link-convite')).toBeVisible();
   expect(area.rpcs('convite_criar').map((p) => p.corpo)).toEqual([{ p_mandato: area.MANDATO_A, p_nome: 'Dora Alves', p_email: null, p_papel: 'leitura' }]);
+});
+
+test('exceção de AMA-02.11: quem é leitura vê na aba Equipe os botões de hoje (Gerar link, Cancelar em convite de outra pessoa, Sair do mandato); o banco recusa o Cancelar e a tela mostra o erro (AMA-02.6, AMA-02.11)', async ({ page }) => {
+  await abre(page, {
+    papel: 'leitura',
+    equipe: [MARIANA, JOAO],
+    convites: [area.convite('c1', 'Carlos Lima', 'assessoria')], // convidado por Mariana, não por Lia
+    rpc: { convite_cancelar: () => ({ status: 403, corpo: { message: 'Você não tem permissão para esta ação.', code: '42501' } }) },
+  });
+  await expect(pendentes(page).locator('li')).toHaveCount(1);
+  // a lista de pessoas segue sem seletor e sem "Remover"; o resto da aba mantém as regras de AMA-02.6
+  await expect(pessoas(page).getByRole('button')).toHaveCount(0);
+  await expect(painel(page).getByRole('button')).toHaveText(['Gerar link de convite', 'Cancelar', 'Sair do mandato']);
+  await pendentes(page).getByRole('button', { name: 'Cancelar' }).click();
+  await expect(pendentes(page).getByRole('alert')).toHaveText('Você não tem permissão para esta ação.');
+  await expect(pendentes(page).locator('li')).toHaveCount(1);
+  expect(area.rpcs('convite_cancelar').map((p) => p.corpo)).toEqual([{ p_id: 'c1' }]);
 });
 
 test('falha ao ler as pessoas mostra o erro e "Tentar de novo"; tentar de novo com a leitura funcionando mostra a lista (AMA-02.10)', async ({ page }) => {
