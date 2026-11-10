@@ -994,3 +994,20 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
   #tela .res2 .com-raiz .org-ram::before,#tela .res2 .com-raiz .ram::before,#tela .res2 .com-raiz .org-raiz::after{display:none}
   #tela .res2 .org-raiz{padding-bottom:.7rem}
 }
+
+/* cartões de aliados, opositores e potenciais (RES-07): anel da foto verde, coral ou roxo conforme o grupo */
+#tela .res2 .grp{display:flex;align-items:center;gap:.5rem;margin:1.1rem 0 .1rem;font-size:.82rem;font-weight:700}
+#tela .res2 .grp span{color:#fff;border-radius:999px;padding:1px .6rem;font-size:.75rem;font-variant-numeric:tabular-nums}
+#tela .res2 .grp.al span{background:var(--verde)}
+#tela .res2 .grp.op span{background:var(--coral)}
+#tela .res2 .grp.po span{background:var(--roxo)}
+#tela .res2 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(15.5rem,1fr));gap:.7rem;margin:.4rem 0 1rem}
+#tela .res2 .cards.al{--ring:var(--verde)}
+#tela .res2 .cards.op{--ring:var(--coral)}
+#tela .res2 .cards.po{--ring:var(--roxo)}
+#tela .res2 .pessoa{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem;min-width:0;border:1px solid var(--linha);border-radius:var(--r);background:var(--papel)}
+#tela .res2 .pessoa .foto{box-shadow:0 0 0 3px var(--ring,var(--linha));margin:3px}
+#tela .res2 .pessoa>div{min-width:0}
+#tela .res2 .pessoa strong{display:block;font-size:.93rem;line-height:1.2;overflow-wrap:anywhere}
+#tela .res2 .pessoa .meta{display:block;font-size:.78rem;line-height:1.35;color:var(--tinta-2)}
+#tela .res2 .pessoa .votos{display:block;margin-top:.2rem;font-size:.8rem;font-weight:700;font-variant-numeric:tabular-nums}

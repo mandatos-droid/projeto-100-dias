@@ -389,3 +389,91 @@ test('a missão abre quando o único exercício que abre é um "não iniciado" c
   assert.deepEqual(missoes(tela(w)).map(aberto), [true, false, false, false, false]);
   assert.deepEqual(Array.from(w.MISSOES, (m) => w.ResumoTela.abreMissao(m)), [true, false, false, false, false]);
 });
+
+/* ---------- cartões de aliados, opositores e potenciais (RES-07) ---------- */
+type Rel = { status: string; nome: string; partido: string; cargo: string; uf: string; mun?: string; votos?: number };
+type JanelaRel = Janela & { ResumoIlhas: { html(ilha: string): string; lista(arr: unknown[], grupo: string): string } };
+const rel = (status: string, nome: string, extra: Partial<Rel> = {}): Rel =>
+  ({ status, nome, partido: 'PSB', cargo: 'Deputado(a) Estadual', uf: 'SP', ...extra });
+const ilha = (w: Janela, nome: string) => comVivo(w, () => (w as JanelaRel).ResumoIlhas.html(nome));
+const grupos = (h: string) => [...h.matchAll(/<div class="grp (al|op|po)"><span>([^<]*)<\/span><\/div>/g)].map((m) => `${m[1]}:${m[2]}`);
+const nCartoes = (h: string) => (h.match(/<div class="pessoa">/g) ?? []).length;
+const TRES_DOIS_UM = () => ({
+  relacoes: {
+    a1: rel('aliado', 'Ana Alves'), a2: rel('aliado', 'Beto Braga'), a3: rel('aliado', 'Carla Cruz'),
+    c1: rel('concorrente', 'Davi Dias'), c2: rel('concorrente', 'Eva Esteves'),
+    p1: rel('potencial', 'Fábio Faria'),
+  },
+});
+
+test('com 3 aliados, 2 opositores e 1 potencial: três grupos com contagens 3, 2 e 1 e um cartão por pessoa (RES-07.1)', () => {
+  const h = ilha(guia(TRES_DOIS_UM()), 'assentos');
+  assert.deepEqual(grupos(h), ['al:Aliados · 3', 'op:Opositores · 2', 'po:Potenciais · 1']);
+  assert.equal(nCartoes(h), 6);
+  assert.equal((h.match(/<div class="cards al">/g) ?? []).length, 1);
+  assert.equal((h.match(/<div class="cards op">/g) ?? []).length, 1);
+  assert.equal((h.match(/<div class="cards po">/g) ?? []).length, 1);
+});
+
+test('o cartão mostra foto (ou inicial), nome, partido, cargo e "{votos} votos" em pt-BR (RES-07.2)', () => {
+  const w = guia({ relacoes: { '123': rel('aliado', 'Ana Alves', { votos: 97335, partido: 'PT', cargo: 'Deputado(a) Federal' }) } });
+  const h = ilha(w, 'assentos');
+  assert.ok(h.includes('<span class="foto"'));
+  assert.ok(h.includes('>A<img src="https://resultados.tse.jus.br/oficial/ele2026/6259/fotos/sp/123.jpeg"'), 'inicial e foto do TSE');
+  assert.ok(h.includes('<strong>Ana Alves</strong>'));
+  assert.ok(h.includes('PT · Deputado(a) Federal'));
+  assert.ok(h.includes('<span class="votos">97.335 votos</span>'));
+});
+
+test('sem "votos" o cartão não mostra a linha de votos (RES-07.2)', () => {
+  const h = ilha(guia({ relacoes: { x: rel('aliado', 'Ana Alves') } }), 'assentos');
+  assert.equal(h.includes('votos'), false);
+});
+
+test('o município só aparece no cartão da relação local (RES-07.2)', () => {
+  const w = guia({ relacoes: { casa: rel('aliado', 'Ana Alves'), loc: rel('concorrente', 'Davi Dias', { mun: 'Campinas' }) } });
+  const casa = ilha(w, 'assentos'), mun = ilha(w, 'municipio');
+  assert.equal(casa.includes('Campinas'), false);
+  assert.equal(nCartoes(casa), 1);
+  assert.equal(nCartoes(mun), 1);
+  assert.ok(mun.includes('PSB · Deputado(a) Estadual · Campinas'));
+  assert.ok(mun.includes('<strong>Davi Dias</strong>'));
+});
+
+test('grupo vazio não aparece (RES-07.4)', () => {
+  const h = ilha(guia({ relacoes: { a: rel('aliado', 'Ana Alves'), p: rel('potencial', 'Fábio Faria') } }), 'assentos');
+  assert.deepEqual(grupos(h), ['al:Aliados · 1', 'po:Potenciais · 1']);
+  assert.equal(h.includes('Opositores'), false);
+  assert.equal(h.includes('cards op'), false);
+});
+
+test('sem nenhuma relação a pergunta mantém "não preenchido" (RES-07.5)', () => {
+  const w = guia({ relacoes: {} });
+  const h = ilha(w, 'assentos');
+  assert.ok(h.includes('<dd><span class="sem">não preenchido</span></dd>'));
+  assert.equal(nCartoes(h), 0);
+  const sem = guia({ relacoes: { n: rel('neutro', 'Zé Neutro') } });
+  assert.ok(ilha(sem, 'municipio').includes('<dd><span class="sem">não preenchido</span></dd>'));
+});
+
+test('sem Resumo.vivo (download) a lista de texto sai idêntica à de antes, sem cartões (RES-07.6, RES-12.3)', () => {
+  const D = () => ({ relacoes: {
+    a: rel('aliado', 'Ana Alves', { votos: 1200 }), c: rel('concorrente', 'Davi Dias', { mun: 'Campinas' }), p: rel('potencial', 'Fábio Faria'),
+  } });
+  const com = guia(D()) as JanelaRel, sem = guia(D(), false) as JanelaRel;
+  for (const ilhaNome of ['assentos', 'municipio']) {
+    assert.equal(com.ResumoIlhas.html(ilhaNome), sem.ResumoIlhas.html(ilhaNome), ilhaNome);
+    assert.equal(com.ResumoIlhas.html(ilhaNome).includes('class="pessoa"'), false);
+  }
+  const arr = [{ k: 'a', status: 'aliado', nome: 'Ana Alves', partido: 'PSB', cargo: 'Dep.', uf: 'SP', votos: 1200 }];
+  assert.equal(com.ResumoIlhas.lista(arr, 'assentos'), sem.ResumoIlhas.lista(arr, 'assentos'));
+  assert.ok(com.ResumoIlhas.lista(arr, 'assentos').startsWith('<ul class="marcados">'));
+  assert.ok(sem.ResumoIlhas.html('assentos').includes('<strong>Parceiros (1)</strong>'));
+});
+
+test('nome e partido com HTML saem escapados no cartão', () => {
+  const h = ilha(guia({ relacoes: { a: rel('aliado', '<b>Ana</b>', { partido: '<i>X</i>' }) } }), 'assentos');
+  assert.equal(h.includes('<b>'), false);
+  assert.ok(h.includes('&lt;b&gt;ana&lt;/b&gt;'));
+  assert.equal(h.includes('<i>X</i>'), false);
+});

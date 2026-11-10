@@ -359,18 +359,20 @@ T11 → T12 → T13
 
 **Done when**:
 
-- [ ] Com 3 aliados, 2 opositores e 1 potencial, aparecem três grupos com contagens 3, 2 e 1 e um cartão por pessoa (RES-07.1)
-- [ ] Cada cartão tem foto ou inicial, nome, partido, cargo, município (só relação local) e "{votos} votos" em pt-BR quando `votos` existe (RES-07.2)
-- [ ] O anel da foto é verde, coral ou roxo conforme o grupo (RES-07.3)
-- [ ] Grupo vazio não aparece; sem nenhuma relação, o Resumo mantém "não preenchido" (RES-07.4, 07.5)
-- [ ] Sem `Resumo.vivo` (download), a lista de texto original sai idêntica à de antes (RES-07.6, RES-12.3)
-- [ ] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/resumo-cartoes.spec.ts`
-- [ ] Test count: ≥ 6 testes unitários e ≥ 4 e2e novos, nenhum removido
+- [x] Com 3 aliados, 2 opositores e 1 potencial, aparecem três grupos com contagens 3, 2 e 1 e um cartão por pessoa (RES-07.1)
+- [x] Cada cartão tem foto ou inicial, nome, partido, cargo, município (só relação local) e "{votos} votos" em pt-BR quando `votos` existe (RES-07.2)
+- [x] O anel da foto é verde, coral ou roxo conforme o grupo (RES-07.3)
+- [x] Grupo vazio não aparece; sem nenhuma relação, o Resumo mantém "não preenchido" (RES-07.4, 07.5)
+- [x] Sem `Resumo.vivo` (download), a lista de texto original sai idêntica à de antes (RES-07.6, RES-12.3)
+- [x] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/resumo-cartoes.spec.ts`
+- [x] Test count: ≥ 6 testes unitários e ≥ 4 e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(resumo): show allies, opponents and potentials as cards`
+
+**Status**: ✅ Done (SPEC_DEVIATION: 'Potenciais' lê o status 'potencial' de D.relacoes, que o Guia ainda não grava (só aliado/concorrente); o grupo só aparece quando existir)
 
 ---
 

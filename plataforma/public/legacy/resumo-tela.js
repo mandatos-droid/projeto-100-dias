@@ -149,6 +149,52 @@ function ligar(raiz){
   marca();
 }
 
+/* ---------- cartões de aliados, opositores e potenciais (RES-07) ----------
+   Só com Resumo.vivo (a tela). O download roda sem vivo e segue com a lista de texto original (RES-07.6, RES-12.3). */
+var listaTexto=ResumoIlhas.lista; // a original de novos.js, intacta
+/* titulo e fmt de novos.js são locais daquele arquivo: mesmas regras aqui (nome do TSE em caixa alta; números pt-BR) */
+var PARTICULAS={de:1,da:1,do:1,das:1,dos:1,e:1};
+function titulo(s){
+  return String(s||'').toLowerCase().split(' ').map(function(p,i){return (i>0&&PARTICULAS[p])?p:p.charAt(0).toUpperCase()+p.slice(1)}).join(' ');
+}
+function fmt(n){return Number(n||0).toLocaleString('pt-BR')}
+var GRUPOS=[{st:'aliado',cl:'al',rot:'Aliados'},{st:'concorrente',cl:'op',rot:'Opositores'},{st:'potencial',cl:'po',rot:'Potenciais'}];
+
+function cartao(x,local){
+  var meta=[x.partido,x.cargo,local&&x.mun?x.mun:''].filter(Boolean).map(esc).join(' · ');
+  return '<div class="pessoa">'+ResumoIlhas.foto(x.k,x.uf,x.cargo,x.nome,46)+'<div><strong>'+esc(titulo(x.nome))+'</strong>'+
+    (meta?'<span class="meta">'+meta+'</span>':'')+
+    (x.votos!=null?'<span class="votos">'+fmt(x.votos)+' votos</span>':'')+'</div></div>';
+}
+ResumoIlhas.lista=function(arr,grupo){
+  if(!Resumo.vivo)return listaTexto.call(this,arr,grupo);
+  var g=GRUPOS.filter(function(x){return arr.length&&arr[0].status===x.st})[0]||GRUPOS[0];
+  return '<div class="cards '+g.cl+'">'+arr.map(function(x){return cartao(x,grupo==='municipio')}).join('')+'</div>';
+};
+
+/* relações da Casa (sem município) ou do município, já separadas por grupo; as de outro status ficam de fora */
+function relacoesPor(ilha){
+  var r=D.relacoes||{},out={aliado:[],concorrente:[],potencial:[]};
+  Object.keys(r).forEach(function(k){
+    var x=r[k];if(!x||!out[x.status])return;
+    var local=!!x.mun;
+    if(ilha==='assentos'&&local)return;
+    if(ilha==='municipio'&&!local)return;
+    out[x.status].push(Object.assign({k:k},x));
+  });
+  return out;
+}
+var htmlTexto=ResumoIlhas.html;
+ResumoIlhas.html=function(ilha){
+  if(!Resumo.vivo||(ilha!=='assentos'&&ilha!=='municipio'))return htmlTexto.call(this,ilha);
+  var g=relacoesPor(ilha),grupos=GRUPOS.filter(function(x){return g[x.st].length});
+  if(!grupos.length)return htmlTexto.call(this,ilha); // nenhuma relação: mantém "não preenchido"
+  var rot=ilha==='assentos'?'na Casa Legislativa':'no município',self=this;
+  return '<dt style="color:var(--tinta)">Parceiros e concorrentes '+rot+'</dt><dd>'+grupos.map(function(x){
+    return '<div class="grp '+x.cl+'"><span>'+x.rot+' · '+g[x.st].length+'</span></div>'+self.lista(g[x.st],ilha)}).join('')+'</dd>'+
+    this.mapa(ilha,ilha==='assentos'?'Hemiciclo da Casa':'Mapa político do estado');
+};
+
 /* a nova tela substitui a de novos.js (que também ligava Resumo.vivo e as ilhas) */
 Telas.resumo=function(){
   var t=document.getElementById('tela');
