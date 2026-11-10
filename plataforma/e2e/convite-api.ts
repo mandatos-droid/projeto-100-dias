@@ -33,6 +33,8 @@ export interface EstadoMoca {
   senha?: { email: string; senha: string };
   /** O que /auth/v1/token?grant_type=refresh_token responde (padrão: ok, com `tok-novo-<quem>`). */
   renovacao?: 'ok' | 'falha';
+  /** Nome da conta Google em `user_metadata.full_name` de GET /auth/v1/user (padrão: a conta vem sem nome). */
+  nomeGoogle?: string;
 }
 
 /** Sessão que o GoTrue devolve no cadastro e no login de Carlos (formato do Supabase). */
@@ -125,7 +127,7 @@ export async function moca(page: Page, estado: EstadoMoca = {}) {
     if (u.pathname === '/auth/v1/user' && req.method() === 'GET') {
       if (!tokenDeUsuario(token)) return responde(rota, 401, { code: 401, error_code: 'bad_jwt', msg: 'invalid JWT' });
       const quem = quemDoToken(token);
-      return responde(rota, 200, { id: `uid-${quem}`, email: `${quem}@gabinete.test` });
+      return responde(rota, 200, { id: `uid-${quem}`, email: `${quem}@gabinete.test`, ...(estado.nomeGoogle ? { user_metadata: { full_name: estado.nomeGoogle } } : {}) });
     }
     if (u.pathname === '/auth/v1/signup' && req.method() === 'POST') {
       const r = estado.cadastro?.(dados) ?? { corpo: { ...SESSAO_CARLOS, user: { ...SESSAO_CARLOS.user, email: dados.email } } };

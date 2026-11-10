@@ -303,21 +303,23 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] Sem sessão a página mostra só "Entrar com Google"; na volta do Google segue o fluxo de `proximoPasso` (PAG-01.1, 01.3)
-- [ ] Erro ou cancelamento do Google mostra "Não foi possível entrar com o Google. Tente de novo." e mantém o botão (PAG-01.4)
-- [ ] O formulário traz os 7 campos da spec com as listas de `opcoes.ts`, o nome do Google preenchido e editável, o tempo só quando "Sim", o aviso geral da LGPD, a caixa geral e a caixa específica dos dados sensíveis com o comentário `// TEXTO PROVISÓRIO` (PAG-02.3 a 02.7)
-- [ ] Cada recusa de PAG-02.8 a 02.11 aparece com o texto literal, campo destacado e dados mantidos; falha ao salvar mostra "Não foi possível salvar. Tente de novo." sem perder o que foi digitado (PAG-02.13)
-- [ ] Duplo clique em enviar grava um único perfil (botão desabilitado durante o envio) (PAG-02.14)
-- [ ] Quem já tem perfil ou está na equipe Legisla não vê o formulário (PAG-02.15, 02.16)
-- [ ] Layout legível em 400 px de largura, sem rolagem horizontal
-- [ ] `perfilSalvar` lança `ErroApi` para 401 e para os demais 4xx (só rede e 5xx viram "Não foi possível salvar. Tente de novo."): a página renova a sessão no 401 e mostra "Não foi possível salvar. Tente de novo." nos outros 4xx
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/primeiro-acesso.spec.ts`
-- [ ] Test count: ao menos 12 testes e2e novos em `e2e/primeiro-acesso.spec.ts` (mock em `e2e/primeiro-acesso-api.ts`), nenhum removido
+- [x] Sem sessão a página mostra só "Entrar com Google"; na volta do Google segue o fluxo de `proximoPasso` (PAG-01.1, 01.3)
+- [x] Erro ou cancelamento do Google mostra "Não foi possível entrar com o Google. Tente de novo." e mantém o botão (PAG-01.4)
+- [x] O formulário traz os 7 campos da spec com as listas de `opcoes.ts`, o nome do Google preenchido e editável, o tempo só quando "Sim", o aviso geral da LGPD, a caixa geral e a caixa específica dos dados sensíveis com o comentário `// TEXTO PROVISÓRIO` (PAG-02.3 a 02.7)
+- [x] Cada recusa de PAG-02.8 a 02.11 aparece com o texto literal, campo destacado e dados mantidos; falha ao salvar mostra "Não foi possível salvar. Tente de novo." sem perder o que foi digitado (PAG-02.13)
+- [x] Duplo clique em enviar grava um único perfil (botão desabilitado durante o envio) (PAG-02.14)
+- [x] Quem já tem perfil ou está na equipe Legisla não vê o formulário (PAG-02.15, 02.16)
+- [x] Layout legível em 400 px de largura, sem rolagem horizontal
+- [x] `perfilSalvar` lança `ErroApi` para 401 e para os demais 4xx (só rede e 5xx viram "Não foi possível salvar. Tente de novo."): a página renova a sessão no 401 e mostra "Não foi possível salvar. Tente de novo." nos outros 4xx
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/primeiro-acesso.spec.ts`
+- [x] Test count: ao menos 12 testes e2e novos em `e2e/primeiro-acesso.spec.ts` (mock em `e2e/primeiro-acesso-api.ts`), nenhum removido
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(primeiro-acesso): add profile form page`
+
+**Status**: ✅ Done
 
 ---
 

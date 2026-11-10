@@ -1,0 +1,15 @@
+/* Primeiro acesso (/primeiro-acesso). Reaproveita a casca e os tokens de convite.css (classes cv-*);
+   aqui só entra o que o formulário de perfil acrescenta. */
+.pa select {
+  font: inherit; width: 100%; min-width: 0; padding: 10px 12px; border: 1.5px solid var(--tinta-2); border-radius: 8px;
+  background: var(--branco); color: var(--tinta);
+}
+.pa-grupo { border: 0; margin: 0; padding: 0; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.pa-grupo legend { padding: 0; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.pa-opcoes { display: flex; gap: 20px; flex-wrap: wrap; }
+.pa-opcao { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; cursor: pointer; }
+.pa .pa-opcao input { width: 20px; height: 20px; margin: 0; padding: 0; accent-color: var(--vinho); }
+.pa [aria-invalid="true"] { border-color: #B3261E; box-shadow: 0 0 0 2px #FDECEC; }
+.pa-grupo[data-invalido="true"], .pa-chk[data-invalido="true"] { padding: 6px 8px; border: 1.5px solid #B3261E; border-radius: 8px; background: #FDECEC; }
+.pa-ajuda { font-size: 13px; color: var(--tinta-2); }
+.pa-sensiveis { font-size: 13px; line-height: 1.5; color: var(--tinta-2); overflow-wrap: anywhere; }
