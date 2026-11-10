@@ -565,19 +565,21 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] A seção aparece na tela Analytics para `admin` e `leitura` e mostra o total e o gráfico de cadastros por mês (PAG-06.1, 06.2)
-- [ ] Mostra gênero, raça, faixa etária e atuação com número e porcentagem; cada gráfico tem título que diz o que mede e categorias em texto (PAG-06.3, 06.11)
-- [ ] Nenhum nome, e-mail, telefone nem data de nascimento aparece na tela nem nas chamadas de rede (PAG-06.6)
-- [ ] Sem perfis mostra "Ainda não há perfis cadastrados." e nenhum gráfico vazio (PAG-06.9)
-- [ ] Falha da rpc mostra "Não foi possível carregar o perfil. Tente de novo." sem afetar o restante do Analytics (PAG-06.10)
-- [ ] Layout legível em 400 px, sem rolagem horizontal; os specs `e2e/admin-analytics*.spec.ts` existentes continuam passando
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/admin-analytics-perfil.spec.ts e2e/admin-analytics.spec.ts`
-- [ ] Test count: ao menos 8 testes e2e novos, nenhum removido
+- [x] A seção aparece na tela Analytics para `admin` e `leitura` e mostra o total e o gráfico de cadastros por mês (PAG-06.1, 06.2)
+- [x] Mostra gênero, raça, faixa etária e atuação com número e porcentagem; cada gráfico tem título que diz o que mede e categorias em texto (PAG-06.3, 06.11)
+- [x] Nenhum nome, e-mail, telefone nem data de nascimento aparece na tela nem nas chamadas de rede (PAG-06.6)
+- [x] Sem perfis mostra "Ainda não há perfis cadastrados." e nenhum gráfico vazio (PAG-06.9)
+- [x] Falha da rpc mostra "Não foi possível carregar o perfil. Tente de novo." sem afetar o restante do Analytics (PAG-06.10)
+- [x] Layout legível em 400 px, sem rolagem horizontal; os specs `e2e/admin-analytics*.spec.ts` existentes continuam passando
+- [x] Gate check passes: `npm test` (1098 testes, 0 falhas) e `npx playwright test e2e/admin-analytics-perfil.spec.ts e2e/admin-analytics.spec.ts` (mais `admin-analytics-uso`: 30 passaram)
+- [x] Test count: 9 testes e2e novos, nenhum removido; `e2e/admin-api.ts` responde "sem perfis" à rpc `admin_perfil_resumo` quando o spec não a mapeia, para os specs de outras telas não a tratarem como chamada não mapeada
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(admin): add profile section to analytics`
+
+**Status**: ✅ Done
 
 ---
 

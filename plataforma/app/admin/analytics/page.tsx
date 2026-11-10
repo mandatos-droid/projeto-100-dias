@@ -11,6 +11,7 @@ import { usoPorDia, usoPorFuncionalidade, type LinhaUsoCampos, type LinhaUsoDia 
 import Casca from '../_componentes/Casca.tsx';
 import Grafico from '../_componentes/Grafico.tsx';
 import Sessao, { useAdmin } from '../_componentes/Sessao.tsx';
+import SecaoPerfil from './SecaoPerfil.tsx';
 
 // Só metadados e números, nunca `dados`, `nome_civil`, `resp_telefone` nem texto de evento.
 // Cada consulta traz `order` com a chave única: lerTudo pagina por limit/offset e precisa de ordem estável.
@@ -210,6 +211,8 @@ function Analytics() {
           </div>
         </>
       )}
+
+      <SecaoPerfil />
     </>
   );
 }

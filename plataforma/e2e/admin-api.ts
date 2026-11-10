@@ -87,6 +87,7 @@ function varre(corpo: unknown, origem: string) {
 }
 
 const ORIGEM = new URL(lerConfig(readFileSync(join(process.cwd(), 'public/legacy/nucleo.js'), 'utf8')).url).origin;
+const PERFIL_VAZIO = { total: 0, por_mes: [], genero: {}, raca: {}, faixa: {}, atuacao: {} };
 const PERMITE = {
   'access-control-allow-origin': '*',
   'access-control-allow-headers': 'authorization, apikey, content-type, prefer',
@@ -189,7 +190,9 @@ export async function moca(page: Page, estado: EstadoMoca = {}) {
     // ---- REST ----
     if (u.pathname.startsWith('/rest/v1/rpc/')) {
       const nome = u.pathname.replace('/rest/v1/rpc/', '');
-      const f = estado.rpc?.[nome];
+      // o resumo de perfil do Analytics responde "sem perfis" quando o spec não o mapeia: os specs de outras telas não o citam
+      const f: ((args: Record<string, unknown>) => RespostaRpc) | undefined =
+        estado.rpc?.[nome] ?? (nome === 'admin_perfil_resumo' ? () => ({ corpo: PERFIL_VAZIO }) : undefined);
       if (!f) return naoMapeada();
       if (!tokenVale(token)) return responde(rota, 401, { message: 'JWT expired' }, alvo);
       const r = f(JSON.parse(req.postData() ?? '{}'));
