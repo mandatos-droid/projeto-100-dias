@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { convitesPendentes, equipeDoMandato, type PessoaEquipe } from '../../lib/convites/api.ts';
 import { mensagemDe } from '../../lib/convites/erros.ts';
@@ -12,8 +11,8 @@ const CORES = ['a', 'b', 'c', 'd'];
 const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um : varios}`;
 
 // Resumo da equipe na Área do mandato: até 3 avatares, total de pessoas, convites pendentes e atalho para convidar.
-// `convidar`: destino do atalho dentro do Guia (a aba Equipe, por hash, sem recarregar); sem ele, a tela /mandato/equipe.
-export default function ResumoEquipe({ convidar }: { convidar?: string }) {
+// `convidar`: destino do atalho dentro do Guia (a aba Equipe, por hash, sem recarregar).
+export default function ResumoEquipe({ convidar }: { convidar: string }) {
   const { api, mandato } = useMandato();
   const [pessoas, setPessoas] = useState<PessoaEquipe[] | null>(null);
   const [pendentes, setPendentes] = useState<number | null>(null);
@@ -53,9 +52,7 @@ export default function ResumoEquipe({ convidar }: { convidar?: string }) {
             </span>
           </>
         )}
-        {convidar
-          ? <a className="md-bt md-bt--pri md-bt--peq" href={convidar}>Convidar pessoa</a>
-          : <Link className="md-bt md-bt--pri md-bt--peq" href="/mandato/equipe">Convidar pessoa</Link>}
+        <a className="md-bt md-bt--pri md-bt--peq" href={convidar}>Convidar pessoa</a>
       </div>
     </section>
   );

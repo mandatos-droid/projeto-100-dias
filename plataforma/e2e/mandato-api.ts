@@ -4,7 +4,7 @@ import type { Page } from '@playwright/test';
 import { lerConfig } from '../lib/admin/config.ts';
 import { moca, type EstadoMoca, type RespostaRpc } from './convite-api';
 
-/* Apoio dos e2e de /mandato (Área do mandato e Equipe). Estende convite-api.ts sem alterá-lo: `moca` continua cuidando de auth,
+/* Apoio dos e2e que ainda usam o mock de mandatos (primeiro-acesso; as telas de /mandato viraram redirects e a Área do mandato usa area-api.ts). Estende convite-api.ts sem alterá-lo: `moca` continua cuidando de auth,
    rpc, consentimentos, hosts externos e do /guia; aqui entra uma rota mais nova (o Playwright dá prioridade à última registrada)
    que responde as LEITURAS do REST (GET /rest/v1/<tabela>) e repassa o resto com `fallback()`. Leitura sem mapa cai no `moca`,
    que aborta e registra em `naoMapeadas()`. As leituras ficam no registro deste módulo (`leituras()`); as demais chamadas
@@ -117,21 +117,9 @@ export const CATALOGO = [
 /** `rpc` mínima para as telas da Área do mandato: só o catálogo. */
 export const rpcCatalogo = (): NonNullable<EstadoMoca['rpc']> => ({ catalogo_exercicios: () => ({ corpo: CATALOGO }) });
 
-/** Pessoa da equipe, como `equipe_do_mandato` devolve. */
-export const pessoa = (nome: string | null, papel: string, email: string | null = null, user_id = `uid-${(nome ?? email ?? 'x').toLowerCase().replace(/[^a-z]/g, '')}`) =>
-  ({ user_id, nome, email, papel, criado_em: '2027-02-01T12:00:00Z' });
-
-/** Convite pendente, como `convites_pendentes` devolve. */
-export const pendente = (id: string, nome: string, papel = 'assessoria', convidado_por_nome: string | null = 'Mariana Rocha', expira_em = '2027-02-18T12:00:00Z') =>
-  ({ id, nome, papel, convidado_por_nome, expira_em });
-
 /** Respostas padrão das funções que toda tela de /mandato lê: catálogo, equipe e convites pendentes (listas vazias). */
 export const rpcPadrao = (): NonNullable<EstadoMoca['rpc']> => ({
   ...rpcCatalogo(),
   equipe_do_mandato: () => ({ corpo: [] }),
   convites_pendentes: () => ({ corpo: [] }),
 });
-
-/** Evento do histórico, como `eventos_equipe` devolve (colunas pedidas por lerEventosEquipe). */
-export const evento = (id: number, tipo: string, ator_nome: string | null, alvo_nome: string | null, papel: string | null, criado_em = '2027-02-12T13:42:00Z') =>
-  ({ id, criado_em, ator_nome, tipo, alvo_nome, papel });

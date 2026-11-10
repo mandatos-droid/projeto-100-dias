@@ -306,8 +306,6 @@ T6 → T7 → T8 → T9
 
 **Commit**: `feat(area-mandato): redirect old mandate addresses to the Guia`
 
----
-
 **Status**: ✅ Done
 
 ---
@@ -327,17 +325,19 @@ T6 → T7 → T8 → T9
 
 **Done when**:
 
-- [ ] Cada caso de `mandato-area`, `mandato-casca`, `mandato-equipe` e `mandato-perfil` que ainda vale está coberto por um teste em `e2e/area-*.spec.ts`; o que testava só a casca ou a tela antiga e deixou de existir sai, com a razão em cada commit (AMA-05.2)
-- [ ] Saem `app/mandato/page.tsx`, `app/mandato/equipe/page.tsx`, `app/mandato/Casca.tsx` e `app/mandato/layout.tsx`; ficam só os componentes e os arquivos que as abas reaproveitam (AMA-05.1)
-- [ ] A busca por `Casca` e pelas páginas antigas não acha uso; o redirect de T7 continua cobrindo os endereços
-- [ ] A cobertura dos casos migrados é conferida caso a caso em uma lista no corpo do commit (nenhum caso some sem justificativa)
-- [ ] Gate check passes: `npx tsc --noEmit`, `npm test` e todos os e2e do gate Build
-- [ ] Test count: contagem final registrada; nenhum caso de teste que ainda vale removido
+- [x] Cada caso de `mandato-area`, `mandato-casca`, `mandato-equipe` e `mandato-perfil` que ainda vale está coberto por um teste em `e2e/area-*.spec.ts`; o que testava só a casca ou a tela antiga e deixou de existir sai, com a razão em cada commit (AMA-05.2)
+- [x] Saem `app/mandato/page.tsx`, `app/mandato/equipe/page.tsx`, `app/mandato/Casca.tsx` e `app/mandato/layout.tsx`; ficam só os componentes e os arquivos que as abas reaproveitam (AMA-05.1)
+- [x] A busca por `Casca` e pelas páginas antigas não acha uso; o redirect de T7 continua cobrindo os endereços
+- [x] A cobertura dos casos migrados é conferida caso a caso em uma lista no corpo do commit (nenhum caso some sem justificativa)
+- [x] Gate check passes: `npx tsc --noEmit`, `npm test` e todos os e2e do gate Build
+- [x] Test count: contagem final registrada; nenhum caso de teste que ainda vale removido
 
 **Tests**: e2e
 **Gate**: build
 
 **Commit**: `refactor(area-mandato): remove the old mandate pages and move their tests`
+
+**Status**: ✅ Done
 
 ---
 

@@ -35,7 +35,7 @@ export const Contexto = createContext<ContextoMandato | null>(null);
 
 export function useMandato(): ContextoMandato {
   const c = useContext(Contexto);
-  if (!c) throw new Error('useMandato só funciona dentro da casca de /mandato.');
+  if (!c) throw new Error('useMandato só funciona dentro da Área do mandato do Guia.');
   return c;
 }
 
