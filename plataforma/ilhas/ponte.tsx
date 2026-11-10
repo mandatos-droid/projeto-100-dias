@@ -31,6 +31,7 @@ import ResumoRetrato from './ResumoRetrato';
 import ResumoEquipe from './ResumoEquipe';
 import AreaVisao from './AreaVisao';
 import AreaEquipe from './AreaEquipe';
+import AreaConta from './AreaConta';
 import { criaRegistrador, funcionalidadeDe } from '@/lib/uso';
 
 /* ---------- acesso ao estado do Guia original (globais D e Store) ---------- */
@@ -132,6 +133,7 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   'capital-comunicacao': () => <Comunicacao />,
   'area-visao': () => <AreaVisao />,
   'area-equipe': () => <AreaEquipe />,
+  'area-conta': () => <AreaConta />,
 };
 const raizes = new Set<Root>();
 

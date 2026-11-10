@@ -49,6 +49,12 @@ export const evento = (id: number, tipo: string, ator_nome: string | null, alvo_
 
 export interface Nuvem { mandatos: LinhaMandato[]; membros: Membro[]; convites: Convite[]; eventos: Evento[] }
 
+/** Linha de `perfis` (o que a aba Minha conta lê). */
+export interface Perfil { nome: string; nascimento: string; genero: string; raca: string; telefone: string; atua: boolean; tempo: string | null }
+export const PERFIL_LIA: Perfil = {
+  nome: 'Lia Torres Almeida', nascimento: '1990-05-17', genero: 'mulher_cis', raca: 'parda', telefone: '11987654321', atua: true, tempo: '3_5',
+};
+
 /** Token (22 caracteres base64url) e validade do n-ésimo convite criado na nuvem em memória. */
 export const tokenDoConvite = (n: number) => `Xk9-2fQa_7LmPq3RsT8u${String(n).padStart(2, '0')}`;
 export const EXPIRA_NOVO = '2027-02-19T12:00:00Z';
@@ -70,6 +76,9 @@ export interface EstadoArea {
   eventos?: Evento[];
   /** Falha de leitura por chave: `rpc/<nome>` ou a tabela lida por GET (ex.: 'rpc/equipe_do_mandato', 'eventos_equipe'). */
   falha?: Record<string, Falha | undefined>;
+  /** Perfil de Lia em `perfis` (padrão: PERFIL_LIA). Com `legisla`, Lia é da equipe Legisla e não tem perfil. */
+  perfil?: Perfil;
+  legisla?: boolean;
   /** Linhas de membros que Store.abrir lê sem Lia (o papel dela não chega ao Guia). */
   semLiaNosMembros?: boolean;
   /** Funções extras (POST /rest/v1/rpc/<nome>). Recebe os argumentos e a nuvem, que pode alterar. */
@@ -159,12 +168,14 @@ export async function abreArea(page: Page, hash = '#/config', estado: EstadoArea
       if (tabela === 'membros' && u.searchParams.get('mandato_id'))
         return responde(200, nuvem.membros.filter((m) => m.mandato_id === eq(u, 'mandato_id') && !(estado.semLiaNosMembros && m.user_id === LIA.id)));
       if (tabela === 'eventos' && u.searchParams.get('mandato_id')) return responde(200, []);
-      if (tabela === 'equipe_legisla' && eq(u, 'user_id') === LIA.id) return responde(200, []);
-      if (tabela === 'perfis' && u.searchParams.get('select') === 'user_id' && eq(u, 'user_id') === LIA.id) return responde(200, [{ user_id: LIA.id }]);
+      if (tabela === 'equipe_legisla' && eq(u, 'user_id') === LIA.id) return responde(200, estado.legisla ? [{ user_id: LIA.id }] : []);
+      if (tabela === 'perfis' && u.searchParams.get('select') === 'user_id' && eq(u, 'user_id') === LIA.id) return responde(200, estado.legisla ? [] : [{ user_id: LIA.id }]);
       if (tabela === 'sugestoes' && u.searchParams.get('resolvida') === 'eq.false') return responde(200, []);
       const extra = estado.ler?.[tabela];
       if (extra) return resposta(extra(u, nuvem));
-      // o que as abas leem (lib/convites/api.ts)
+      // o que as abas leem (lib/convites/api.ts; lib/mandato/conta.ts só a linha da própria pessoa)
+      if (tabela === 'perfis' && u.searchParams.get('select') === 'nome,nascimento,genero,raca,telefone,atua,tempo' && eq(u, 'user_id') === LIA.id)
+        return responde(200, estado.legisla ? [] : [estado.perfil ?? PERFIL_LIA]);
       if (tabela === 'eventos_equipe' && u.searchParams.get('mandato_id'))
         return responde(200, nuvem.eventos.filter((x) => x.mandato_id === eq(u, 'mandato_id')).sort((x, y) => y.id - x.id).slice(0, 10)
           .map(({ mandato_id: _m, ...resto }) => resto));

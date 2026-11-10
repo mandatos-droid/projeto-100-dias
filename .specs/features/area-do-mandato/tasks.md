@@ -262,18 +262,20 @@ T6 → T7 → T8 → T9
 
 **Done when**:
 
-- [ ] `lib/mandato/conta.ts` formata o perfil para exibição (data `DD/MM/AAAA` sem passar por fuso, telefone `(11) 98765-4321`, rótulos de gênero, raça, UF e atuação) e é testada em `tests/mandato-conta.test.ts`
-- [ ] A aba mostra e-mail, nome, data de nascimento, gênero, raça, UF, telefone e atuação política em texto, sem campo editável, e "Para corrigir seus dados, escreva para contato@legislabrasil.org" (AMA-02.8)
-- [ ] Quem não tem perfil (equipe Legisla) vê só o e-mail (AMA-02.9)
-- [ ] A consulta lê só `perfis` da própria pessoa (`user_id=eq.<id>`), sem pedir telefone nem nascimento de outros
-- [ ] Falha da leitura mostra o erro da aba com "Tentar de novo" (AMA-02.10)
-- [ ] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/area-conta.spec.ts`
-- [ ] Test count: ao menos 6 testes unitários e 6 e2e novos, nenhum removido
+- [x] `lib/mandato/conta.ts` formata o perfil para exibição (data `DD/MM/AAAA` sem passar por fuso, telefone `(11) 98765-4321`, rótulos de gênero, raça, UF e atuação) e é testada em `tests/mandato-conta.test.ts` (sem UF: `perfis` não tem UF; SPEC_DEVIATION em `lib/mandato/conta.ts`)
+- [x] A aba mostra e-mail, nome, data de nascimento, gênero, raça, UF, telefone e atuação política em texto, sem campo editável, e "Para corrigir seus dados, escreva para contato@legislabrasil.org" (AMA-02.8) (sem UF, pelo mesmo motivo)
+- [x] Quem não tem perfil (equipe Legisla) vê só o e-mail (AMA-02.9)
+- [x] A consulta lê só `perfis` da própria pessoa (`user_id=eq.<id>`), sem pedir telefone nem nascimento de outros
+- [x] Falha da leitura mostra o erro da aba com "Tentar de novo" (AMA-02.10)
+- [x] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/area-conta.spec.ts`
+- [x] Test count: ao menos 6 testes unitários e 6 e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(area-mandato): add account tab with read-only profile`
+
+**Status**: ✅ Done
 
 ---
 

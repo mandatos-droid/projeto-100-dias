@@ -108,7 +108,7 @@ var ABAS_AREA=[
   {id:'visao',rot:'Visão geral',painel:'areaVisao',bt:'abaVisao',ilha:'area-visao'},
   {id:'dados',rot:'Dados do mandato',painel:'areaDados',bt:'abaDados'},
   {id:'equipe',rot:'Equipe e convites',painel:'areaEquipe',bt:'abaEquipe',ilha:'area-equipe'},
-  {id:'conta',rot:'Minha conta',painel:'areaConta',bt:'abaConta'}
+  {id:'conta',rot:'Minha conta',painel:'areaConta',bt:'abaConta',ilha:'area-conta'}
 ];
 function abaDoHash(h){
   var p=String(h||'').replace(/^#\/?/,'').split('/'),id=p[0]==='config'?p[1]:'';
