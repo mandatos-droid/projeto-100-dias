@@ -5,7 +5,7 @@ import { criaApi, ErroApi, type Api } from '../../../lib/admin/api.ts';
 import { carregaConfig, type Config } from '../../../lib/admin/config.ts';
 import { mensagemDe } from '../../../lib/admin/mensagens.ts';
 import {
-  CHAVE_SESSAO, entraComSenha, gravaSessao, lerRetornoGoogle, lerSessao, renova, urlGoogle, type Sessao as DadosSessao,
+  CHAVE_SESSAO, gravaSessao, lerRetornoGoogle, lerSessao, renova, urlGoogle, type Sessao as DadosSessao,
 } from '../../../lib/admin/sessao.ts';
 
 export type Papel = 'admin' | 'leitura';
@@ -27,6 +27,7 @@ type Estado =
   | { tipo: 'ok'; ctx: ContextoAdmin };
 
 const SESSAO_VENCIDA = 'Sua sessão venceu. Entre de novo.';
+const ERRO_GOOGLE = 'Não foi possível entrar com o Google. Tente de novo.'; // PAG-01.4
 
 // Quem é a pessoa do token. Fica aqui porque /auth/v1 não é do cliente REST (lib/admin/api.ts).
 async function lerUsuario(config: Config, token: string): Promise<{ id: string; email: string }> {
@@ -43,9 +44,6 @@ export default function Sessao({ children }: { children: React.ReactNode }) {
   const [estado, setEstado] = useState<Estado>({ tipo: 'carregando' });
   const config = useRef<Config | null>(null);
   const sessao = useRef<DadosSessao | null>(null);
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [enviando, setEnviando] = useState(false);
 
   function voltaEntrada(aviso?: string) {
     sessao.current = null;
@@ -112,7 +110,7 @@ export default function Sessao({ children }: { children: React.ReactNode }) {
     // Volta do login Google: o token chega em #access_token (ou o erro em #error_description).
     const retorno = lerRetornoGoogle(location.hash);
     if (retorno) history.replaceState(null, '', location.pathname);
-    if (retorno?.tipo === 'erro') { setEstado({ tipo: 'entrada', aviso: retorno.mensagem.replace(/\+/g, ' ') }); return; }
+    if (retorno?.tipo === 'erro') { setEstado({ tipo: 'entrada', aviso: ERRO_GOOGLE }); return; }
     if (retorno?.tipo === 'sessao') gravaSessao(localStorage, retorno.sessao);
 
     const s = lerSessao(localStorage);
@@ -121,21 +119,6 @@ export default function Sessao({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => { inicia(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  async function entrar(ev: React.FormEvent) {
-    ev.preventDefault();
-    if (!config.current || enviando) return;
-    if (!email.trim() || !senha) { setEstado({ tipo: 'entrada', aviso: 'Preencha e-mail e senha.' }); return; }
-    setEnviando(true);
-    try {
-      const s = await entraComSenha(config.current, email.trim(), senha);
-      gravaSessao(localStorage, s);
-      setSenha('');
-      await abre(config.current, s);
-    } catch (e) {
-      setEstado({ tipo: 'entrada', aviso: e instanceof Error && e.message ? e.message : 'Não deu certo. Tente de novo.' });
-    } finally { setEnviando(false); }
-  }
 
   if (estado.tipo === 'ok') return <Contexto.Provider value={estado.ctx}>{children}</Contexto.Provider>;
   if (estado.tipo === 'carregando') return <p className="carregando" role="status">Carregando…</p>;
@@ -159,17 +142,15 @@ export default function Sessao({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // Só o Google (PAG-01.1, 01.2): sem senha, sem e-mail.
   return (
-    <form className="entrada" onSubmit={entrar}>
+    <div className="entrada">
       <h1>Admin · Legisla Brasil</h1>
       <p>Entre com a conta da equipe Legisla.</p>
       {estado.aviso && <div className="aviso" role="alert">{estado.aviso}</div>}
       <button type="button" className="btn pri" onClick={() => { if (config.current) location.href = urlGoogle(config.current, `${location.origin}/admin`); }}>
         Entrar com Google
       </button>
-      <label>E-mail<input className="in" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
-      <label>Senha<input className="in" type="password" autoComplete="current-password" value={senha} onChange={(e) => setSenha(e.target.value)} /></label>
-      <button type="submit" className="btn" disabled={enviando}>Entrar com e-mail</button>
-    </form>
+    </div>
   );
 }

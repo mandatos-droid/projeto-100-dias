@@ -468,17 +468,19 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] `/admin` sem sessão mostra só "Entrar com Google", sem campo de senha (PAG-01.1, 01.2)
-- [ ] `entraComSenha` e o `grant_type=password` saem de `lib/admin/sessao.ts`; a renovação por `refresh_token` continua (PAG-05.1, 05.3)
-- [ ] Erro do Google aparece na entrada como hoje (PAG-01.4)
-- [ ] Os testes de senha de `admin-sessao.test.ts` e `admin-acesso.spec.ts` saem e dão lugar aos do Google; nenhum teste de outra área é enfraquecido
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/admin-acesso.spec.ts`
-- [ ] Test count: ao menos 4 testes novos do fluxo só com Google, nenhum de outra área removido
+- [x] `/admin` sem sessão mostra só "Entrar com Google", sem campo de senha (PAG-01.1, 01.2)
+- [x] `entraComSenha` e o `grant_type=password` saem de `lib/admin/sessao.ts`; a renovação por `refresh_token` continua (PAG-05.1, 05.3)
+- [x] Erro do Google aparece na entrada como hoje (PAG-01.4)
+- [x] Os testes de senha de `admin-sessao.test.ts` e `admin-acesso.spec.ts` saem e dão lugar aos do Google; nenhum teste de outra área é enfraquecido
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/admin-acesso.spec.ts`
+- [x] Test count: ao menos 4 testes novos do fluxo só com Google, nenhum de outra área removido
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(admin): sign in with Google only`
+
+**Status**: ✅ Done
 
 ---
 

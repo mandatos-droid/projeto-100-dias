@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { lerSessao, gravaSessao, lerRetornoGoogle, renova, entraComSenha, urlGoogle, CHAVE_SESSAO } from '../lib/admin/sessao.ts';
+import { lerSessao, gravaSessao, lerRetornoGoogle, renova, urlGoogle, CHAVE_SESSAO } from '../lib/admin/sessao.ts';
 
 const config = { url: 'https://x.supabase.co', key: 'CHAVE' };
 
@@ -83,17 +83,6 @@ test('renova sem refresh_token falha sem chamar a rede', async () => {
   await comFetch({ status: 200, corpo: {} }, async (chamadas) => {
     await assert.rejects(renova(config, { access_token: 'a' }));
     assert.equal(chamadas.length, 0);
-  });
-});
-
-test('entraComSenha envia e-mail e senha e devolve a sessão; erro traz a mensagem do servidor', async () => {
-  await comFetch({ status: 200, corpo: { access_token: 'a', refresh_token: 'r', user: {} } }, async (chamadas) => {
-    assert.deepEqual(await entraComSenha(config, 'p@legisla.org', 'segredo'), { access_token: 'a', refresh_token: 'r' });
-    assert.equal(chamadas[0].url, 'https://x.supabase.co/auth/v1/token?grant_type=password');
-    assert.deepEqual(JSON.parse(String(chamadas[0].init.body)), { email: 'p@legisla.org', password: 'segredo' });
-  });
-  await comFetch({ status: 400, corpo: { error_description: 'Invalid login credentials' } }, async () => {
-    await assert.rejects(entraComSenha(config, 'p@legisla.org', 'x'), /Invalid login credentials/);
   });
 });
 

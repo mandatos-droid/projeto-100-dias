@@ -48,10 +48,6 @@ export function renova(config: Config, s: Sessao): Promise<Sessao> {
   return pedeToken(config, 'refresh_token', { refresh_token: s.refresh_token });
 }
 
-export function entraComSenha(config: Config, email: string, senha: string): Promise<Sessao> {
-  return pedeToken(config, 'password', { email, password: senha });
-}
-
 export function urlGoogle(config: Config, destino: string): string {
   return `${config.url}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(destino)}`;
 }

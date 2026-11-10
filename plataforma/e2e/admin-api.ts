@@ -17,8 +17,6 @@ export interface EstadoMoca {
   views?: Record<string, unknown[]>;
   /** Respostas das funções, por nome (POST /rest/v1/rpc/<nome>). */
   rpc?: Record<string, (args: Record<string, unknown>) => RespostaRpc>;
-  /** E-mail e senha aceitos em /auth/v1/token?grant_type=password. */
-  senha?: { email: string; senha: string };
   /** O que /auth/v1/token?grant_type=refresh_token responde (padrão: ok). */
   renovacao?: 'ok' | 'falha';
   /** Toda leitura de view responde 401, mesmo com token novo. */
@@ -184,12 +182,6 @@ export async function moca(page: Page, estado: EstadoMoca = {}) {
         if (estado.renovacao === 'falha') return responde(rota, 400, { error_description: 'Invalid Refresh Token' }, alvo);
         const papel = papelDoToken(String(corpo.refresh_token));
         return responde(rota, 200, { access_token: `tok-novo-${papel}`, refresh_token: `ref-${papel}` }, alvo);
-      }
-      if (tipo === 'password') {
-        if (estado.senha && corpo.email === estado.senha.email && corpo.password === estado.senha.senha) {
-          return responde(rota, 200, { access_token: 'tok-admin', refresh_token: 'ref-admin' }, alvo);
-        }
-        return responde(rota, 400, { error_description: 'Invalid login credentials' }, alvo);
       }
       return naoMapeada();
     }
