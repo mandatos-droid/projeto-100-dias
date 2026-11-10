@@ -2,7 +2,8 @@
    CADASTRO DO MANDATO EM DUAS ETAPAS (escrito à mão, não gerado)
    Etapa 1: escolher o parlamentar (cartões com foto, dados do TSE)
    Etapa 2: quem está fazendo o cadastro (responsável pelo preenchimento)
-   Usado no primeiro acesso (#/ sem mandato) e em #/config (edição).
+   Usado no primeiro acesso (#/ sem mandato), em "Novo cadastro" (#/novo) e na edição, que a aba Dados do mandato
+   da Área do mandato (#/config/dados, acesso.js) desenha dentro dela.
    Também refaz a tela "Equipe e convites".
    Carregado depois de novos.js (usa Tse, Store, Telas, App, UFS, aviso, esc, v).
    ===================================================================== */
@@ -18,6 +19,8 @@ function pct(x){return Number(x||0).toLocaleString('pt-BR',{minimumFractionDigit
 function attr(s){return esc(s).replace(/"/g,'&quot;')}
 function norm(s){return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase()}
 function ini(nome){return String(nome||'?').trim().charAt(0).toUpperCase()||'?'}
+/* papel da própria pessoa no mandato aberto: a linha dela em Store.membros, como a trava de leitura de acesso.js */
+function meuPapel(){var u=Store.usuario,eu=u&&(Store.membros||[]).filter(function(x){return x.user_id===u.id})[0];return eu?eu.papel:null}
 
 var COR={PT:'#e5383b',PL:'#1d4ed8','UNIÃO':'#0891b2',PSD:'#eab308',PP:'#14b8a6',REPUBLICANOS:'#6366f1',MDB:'#15803d',
   PODE:'#84cc16',PSB:'#f97316',PSOL:'#a21caf',PSDB:'#60a5fa',PDT:'#7c3aed',NOVO:'#fb923c',PCDOB:'#9f1239',PV:'#4ade80',
@@ -67,10 +70,11 @@ var Cad={
   f:{},sel:null,manual:false,confirmado:false,
 
   /* ---------- início ---------- */
-  abrir:function(modo,dentro){
+  /* destino: o elemento onde o cadastro é desenhado (padrão: #tela, com o cabeçalho da tela) */
+  abrir:function(modo,dentro,destino){
     var m=modo==='editar'?(Store.mandato||{}):{};
     var t=(modo==='editar'&&window.D&&D.tse&&D.tse.sq)?D.tse:null;
-    this.modo=modo;this.dentro=!!dentro;this.passo=1;this.sujo=false;window.onbeforeunload=null;
+    this.modo=modo;this.dentro=!!dentro;this.alvo=destino||null;this.passo=1;this.sujo=false;window.onbeforeunload=null;
     this.cargo=m.cargo||'';this.uf=m.uf||'';this.cdi=(t&&t.cdi)||'';this.munNome=m.municipio||'';
     this.busca='';this.partido='';this.lista=null;this.muns=null;this.estado='';this.chave='';
     this.f={civil:m.nome_civil||'',nome:m.nome_parlamentar||'',partido:m.partido||'',casa:m.casa||'',posse:m.data_posse||(modo==='editar'?'':'2026-02-01'),
@@ -95,15 +99,15 @@ var Cad={
 
   /* ---------- estrutura ---------- */
   desenhar:function(){
-    var novo=this.modo==='novo',pri=novo&&!this.dentro&&!this.temMandatos(),t=document.getElementById('tela');
-    t.className='tela largo';
-    t.innerHTML=
+    var novo=this.modo==='novo',pri=novo&&!this.dentro&&!this.temMandatos(),t=this.alvo||document.getElementById('tela');
+    if(!this.alvo)t.className='tela largo';
+    t.innerHTML=(this.alvo?'':
       '<div class="etiqueta">'+(pri?'Primeiro acesso':novo?'Novo cadastro':'Mandato')+'</div>'+
       '<h1 class="largo">'+(pri?'Vamos cadastrar o mandato':novo?'Cadastrar outro mandato':'Configurações')+'</h1>'+
       '<p class="chamada">'+(pri
         ?'Este é o registro que organiza os 100 dias. São duas etapas rápidas: quem é o parlamentar e quem está fazendo o cadastro.'
         :novo?'Cadastre mais um parlamentar. Os mandatos que você já tem continuam na barra lateral, em Cadastros.'
-        :'Dados do mandato, equipe e convites em um só lugar. Mantenha atualizado quem é o parlamentar e quem responde pelo preenchimento.')+'</p>'+
+        :'Dados do mandato, equipe e convites em um só lugar. Mantenha atualizado quem é o parlamentar e quem responde pelo preenchimento.')+'</p>')+
       (novo?this.blocoCodigo():'')+
       '<nav aria-label="Etapas do cadastro" id="cadSteps"></nav>'+
       '<div id="cadPasso"></div>'+
@@ -112,12 +116,17 @@ var Cad={
           ?'<a class="bt fant" href="#/" style="margin-left:-10px">Cancelar e voltar ao painel</a>'
           :(NUVEM?'<button type="button" class="bt fant" onclick="App.sair()">Sair da conta</button>'
             :(this.temMandatos()?'<button type="button" class="bt fant" onclick="App.sair()" style="margin-left:-10px">← Voltar à seleção de mandatos</button>':'')))+'</div>'
-        :'<hr class="regra">'+Telas.equipeHtml()+'<hr class="regra"><h3>Seus dados</h3><p class="texto">'+(NUVEM?'Conta: '+esc((Store.usuario&&Store.usuario.email)||'')+'. ':'Os dados deste mandato ficam salvos apenas neste navegador. ')+
-          'Para solicitar acesso, correção, portabilidade ou eliminação dos seus dados, escreva para '+
-          '<a href="mailto:contato@legislabrasil.org">contato@legislabrasil.org</a>.</p>'+
-          '<hr class="regra"><h3>Excluir cadastro</h3><p class="texto">Apaga este mandato e tudo o que foi preenchido nele, para toda a equipe. Não dá para desfazer.</p>'+
-          '<div class="bts"><button type="button" class="bt sec" id="cadExcluir" style="color:var(--erro);border-color:var(--erro)" onclick="Cad.excluir(this)">Excluir cadastro</button></div>');
+        :this.zonaRisco());
     this.tela(false);
+  },
+  /* fim da edição: equipe e conta agora são abas da Área do mandato; aqui fica só a exclusão, num bloco à parte e só para
+     a coordenação (AMA-02.4, 02.5). Sem nuvem não há papéis: quem usa o navegador exclui, como antes. */
+  zonaRisco:function(){
+    if(NUVEM&&meuPapel()!=='coordenacao')return '';
+    return '<hr class="regra"><section class="zona-risco" aria-labelledby="cadRiscoTit" '+
+      'style="border:1px solid var(--erro);border-radius:8px;padding:4px 18px 18px">'+
+      '<h3 id="cadRiscoTit">Zona de risco</h3><p class="texto">Apaga este mandato e tudo o que foi preenchido nele, para toda a equipe. Não dá para desfazer.</p>'+
+      '<div class="bts"><button type="button" class="bt sec" id="cadExcluir" style="color:var(--erro);border-color:var(--erro)" onclick="Cad.excluir(this)">Excluir cadastro</button></div></section>';
   },
   blocoCodigo:function(){
     if(!NUVEM)return '';
@@ -482,7 +491,7 @@ var Cad={
         App.lateral();
         this.sujo=false;window.onbeforeunload=null;
         aviso('Dados do mandato salvos.');
-        this.abrir('editar');
+        this.abrir('editar',false,this.alvo);
       }
     }catch(err){
       aviso('Não foi possível salvar: '+(err&&err.message?err.message:'tente de novo')+'.');

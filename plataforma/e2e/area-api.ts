@@ -21,6 +21,7 @@ export const MARIANA = { id: 'uid-mariana', nome: 'Mariana Rocha', email: 'maria
 export interface LinhaMandato {
   id: string; codigo?: string; nome_parlamentar: string | null; nome_civil?: string | null; cargo: string | null; uf: string | null;
   casa?: string | null; partido: string | null; data_posse: string | null; dados?: Record<string, unknown>;
+  resp_nome?: string | null; resp_telefone?: string | null;
 }
 export const ANA: LinhaMandato = {
   id: MANDATO_A, codigo: 'KJ4TP9', nome_parlamentar: 'Ana Souza', nome_civil: 'Ana Souza Lima', cargo: 'Deputado(a) Estadual', uf: 'SP',
@@ -170,6 +171,12 @@ export async function abreArea(page: Page, hash = '#/config', estado: EstadoArea
       return semMapa();
     }
 
+    // a aba Dados grava pelo Store.atualizar do Guia (PATCH na linha do mandato)
+    if (req.method() === 'PATCH' && tabela === 'mandatos' && u.searchParams.get('id')) {
+      nuvem.mandatos = nuvem.mandatos.map((x) => (x.id === eq(u, 'id') ? { ...x, ...(corpo as Partial<LinhaMandato>) } : x));
+      return responde(204);
+    }
+
     if (req.method() === 'POST' && tabela.startsWith('rpc/')) {
       const nome = tabela.slice(4);
       const args = (corpo ?? {}) as Record<string, unknown>;
@@ -195,6 +202,11 @@ export async function abreArea(page: Page, hash = '#/config', estado: EstadoArea
       }
       if (nome === 'membro_remover') {
         nuvem.membros = nuvem.membros.filter((m) => !(m.mandato_id === args.p_mandato && m.user_id === args.p_user));
+        return responde(204);
+      }
+      if (nome === 'excluir_mandato') {
+        nuvem.mandatos = nuvem.mandatos.filter((x) => x.id !== args.p_id);
+        nuvem.membros = nuvem.membros.filter((m) => m.mandato_id !== args.p_id);
         return responde(204);
       }
       if (nome === 'membro_sair') {

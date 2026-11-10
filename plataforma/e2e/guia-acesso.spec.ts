@@ -101,6 +101,8 @@ async function abre(page: Page, hash: string, e: Estado = {}) {
       if (tabela === 'perfis' && q('user_id') === `eq.${LIA.id}`)
         return e.perfil === 'falha' ? responde(500, { message: 'boom' }) : responde(200, e.perfil === false ? [] : [{ user_id: LIA.id }]);
       if (tabela === 'sugestoes' && q('resolvida') === 'eq.false') return responde(200, []);
+      // abas da Área do mandato (ilhas): atividade da equipe
+      if (tabela === 'eventos_equipe' && q('mandato_id')) return responde(200, []);
       return semMapa();
     }
     // escritas: respondidas como o PostgREST, para os testes afirmarem o que saiu (ou não saiu)
@@ -109,6 +111,10 @@ async function abre(page: Page, hash: string, e: Estado = {}) {
     if (req.method() === 'POST' && tabela === 'eventos') return responde(201);
     if (req.method() === 'POST' && tabela === 'mandatos') { const novo = { ...dados, id: MANDATO_NOVO }; mandatos.push(novo); return responde(201, [novo]); }
     if (req.method() === 'POST' && tabela === 'membros') { membros.push(dados); return responde(201); }
+    // abas da Área do mandato (ilhas): pessoas e convites pendentes do mandato aberto
+    if (req.method() === 'POST' && tabela === 'rpc/equipe_do_mandato')
+      return responde(200, membros.filter((m) => m.mandato_id === dados.p_mandato).map((m) => ({ ...m, email: null, criado_em: '2027-02-01T12:00:00Z' })));
+    if (req.method() === 'POST' && tabela === 'rpc/convites_pendentes') return responde(200, []);
     return semMapa();
   });
 
@@ -151,21 +157,23 @@ test.describe('Código de convite fora do Guia (ACE-07.2, ACE-07.5)', () => {
     await expect(page.locator('#tela [onclick*="odigo"]')).toHaveCount(0); // Cad.codigo e Telas.usarCodigo
   });
 
-  test('Área do mandato mostra Equipe e convites como cartão com link para /mandato/equipe, sem o código do mandato', async ({ page }) => {
+  test('nenhuma aba da Área do mandato mostra o código do mandato; o antigo cartão Equipe e convites saiu do formulário (agora é a aba Equipe)', async ({ page }) => {
     await abre(page, '#/config');
-    const secao = page.locator('#cadEquipe');
-    await expect(secao.getByRole('heading', { name: 'Equipe e convites' })).toBeVisible();
-    await expect(secao.getByRole('link', { name: 'Abrir Equipe e convites' })).toHaveAttribute('href', '/mandato/equipe');
-    await expect(page.locator('#tela')).not.toContainText(CODIGO_DE_CONVITE);
-    await expect(page.locator('#app')).not.toContainText(CODIGO);
-    await expect(page.locator('#tela').getByRole('button', { name: /Copiar/ })).toHaveCount(0);
-    await expect(page.locator('#tela [onclick*="odigo"]')).toHaveCount(0);
+    for (const [hash, painel] of [['#/config', '#areaVisao .md-cartao'], ['#/config/dados', '#cadNome'], ['#/config/equipe', '#areaEquipe form'], ['#/config/conta', '#areaConta']]) {
+      await page.evaluate((h) => { location.hash = h; }, hash);
+      await expect(page.locator(painel), hash).toBeAttached();
+      await expect(page.locator('#tela'), hash).not.toContainText(CODIGO_DE_CONVITE);
+      await expect(page.locator('#app'), hash).not.toContainText(CODIGO);
+      await expect(page.locator('#tela').getByRole('button', { name: /Copiar/ }), hash).toHaveCount(0);
+      await expect(page.locator('#tela [onclick*="odigo"]'), hash).toHaveCount(0);
+      await expect(page.locator('#cadEquipe'), hash).toHaveCount(0);
+    }
   });
 
-  test('o endereço antigo #/equipe cai em Área do mandato, no mesmo cartão e sem código', async ({ page }) => {
+  test('o endereço antigo #/equipe cai em Área do mandato, sem código', async ({ page }) => {
     await abre(page, '#/equipe');
     await expect(page).toHaveURL(/#\/config$/);
-    await expect(page.locator('#cadEquipe').getByRole('link', { name: 'Abrir Equipe e convites' })).toHaveAttribute('href', '/mandato/equipe');
+    await expect(page.getByRole('tablist', { name: 'Área do mandato' })).toBeVisible();
     await expect(page.locator('#tela')).not.toContainText(CODIGO_DE_CONVITE);
   });
 });
@@ -214,14 +222,14 @@ test.describe('Modo somente leitura no Guia (ACE-03.2, ACE-03.3)', () => {
     await expect(page.getByRole('button', { name: 'Próximo exercício ›' })).toBeEnabled();
   });
 
-  test('em Área do mandato os campos e os botões Salvar alterações, trocar o parlamentar e Excluir cadastro ficam desabilitados', async ({ page }) => {
-    await abre(page, '#/config', { papel: 'leitura' });
+  test('em Área do mandato, aba Dados, os campos e os botões Salvar alterações e trocar o parlamentar ficam desabilitados, e Excluir cadastro não aparece', async ({ page }) => {
+    await abre(page, '#/config/dados', { papel: 'leitura' });
     await expect(page.locator('#cadNome')).toBeDisabled();
     await expect(page.locator('#cadPosse')).toBeDisabled();
     await expect(page.getByRole('button', { name: 'Salvar alterações' })).toBeDisabled();
     // mandato sem dados do TSE abre no preenchimento manual: o botão de trocar o parlamentar (Cad.trocar) é "Voltar para a lista"
     await expect(page.getByRole('button', { name: 'Voltar para a lista' })).toBeDisabled();
-    await expect(page.getByRole('button', { name: 'Excluir cadastro' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Excluir cadastro' })).toHaveCount(0); // a Zona de risco é só da coordenação (AMA-02.5)
   });
 
   test('digitar, concluir e salvar como leitura não manda nenhuma gravação nem mostra "Não foi possível salvar"', async ({ page }) => {
@@ -257,8 +265,8 @@ test.describe('Modo somente leitura no Guia (ACE-03.2, ACE-03.3)', () => {
     expect((patch.corpo as { dados: { campos: Record<string, string> } }).dados.campos['m1.q1']).toContain('resposta da assessoria');
   });
 
-  test('com coordenacao, Área do mandato segue editável e sem aviso', async ({ page }) => {
-    await abre(page, '#/config', { papel: 'coordenacao' });
+  test('com coordenacao, Área do mandato (aba Dados) segue editável e sem aviso', async ({ page }) => {
+    await abre(page, '#/config/dados', { papel: 'coordenacao' });
     await expect(page.locator('body')).not.toHaveClass(/\bso-leitura\b/);
     await expect(page.getByText(AVISO)).toHaveCount(0);
     await expect(page.locator('#cadNome')).toBeEnabled();

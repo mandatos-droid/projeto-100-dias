@@ -134,10 +134,13 @@ var Area={
     if(this.focar){this.focar=false;var b=document.getElementById(atual.bt);if(b&&b.focus)b.focus()}
     this.preencher(atual);
   },
-  /* só o painel da aba aberta recebe conteúdo: a ilha React (ilhas/ponte.tsx) lê o mandato aberto no Guia ao montar */
+  /* só o painel da aba aberta recebe conteúdo: a ilha React (ilhas/ponte.tsx) lê o mandato aberto no Guia ao montar;
+     a aba Dados é o formulário de edição do cadastro.js, desenhado dentro do painel */
   preencher:function(a){
     var p=document.getElementById(a.painel);
-    if(!p||!a.ilha)return;
+    if(!p)return;
+    if(a.id==='dados'){Cad.abrir('editar',false,p);return}
+    if(!a.ilha)return;
     p.innerHTML='<div class="ilha" data-ilha="'+a.ilha+'"></div>';
     if(window.Ilhas)Ilhas.ligar(p);
   },

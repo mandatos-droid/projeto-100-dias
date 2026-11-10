@@ -230,18 +230,20 @@ T6 → T7 → T8 → T9
 
 **Done when**:
 
-- [ ] `Cad.abrir` aceita um contêiner de destino (padrão `#tela`, sem mudar nenhum outro uso) e a aba Dados desenha o formulário de edição em `#areaDados` com as mesmas regras e o botão "Salvar alterações" (AMA-02.3)
-- [ ] O "Excluir cadastro" aparece só para `coordenacao`, em bloco separado "Zona de risco" no fim da aba, com a confirmação de hoje; `assessoria` e `leitura` não veem o bloco (AMA-02.4, 02.5)
-- [ ] O bloco "Equipe e convites" e o texto "Seus dados" saem do formulário legado (agora são abas); nenhuma regra do formulário muda
-- [ ] Para `leitura` o formulário fica só para leitura (AMA-02.11)
-- [ ] O primeiro acesso (`#/` sem mandato) e "Cadastrar outro mandato" (`#/novo`) seguem iguais
-- [ ] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/area-mandato.spec.ts e2e/guia-acesso.spec.ts`
-- [ ] Test count: ao menos 10 testes novos entre unitário (vm) e e2e, nenhum removido; os testes legados do formulário seguem passando
+- [x] `Cad.abrir` aceita um contêiner de destino (padrão `#tela`, sem mudar nenhum outro uso) e a aba Dados desenha o formulário de edição em `#areaDados` com as mesmas regras e o botão "Salvar alterações" (AMA-02.3)
+- [x] O "Excluir cadastro" aparece só para `coordenacao`, em bloco separado "Zona de risco" no fim da aba, com a confirmação de hoje; `assessoria` e `leitura` não veem o bloco (AMA-02.4, 02.5)
+- [x] O bloco "Equipe e convites" e o texto "Seus dados" saem do formulário legado (agora são abas); nenhuma regra do formulário muda
+- [x] Para `leitura` o formulário fica só para leitura (AMA-02.11)
+- [x] O primeiro acesso (`#/` sem mandato) e "Cadastrar outro mandato" (`#/novo`) seguem iguais
+- [x] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/area-mandato.spec.ts e2e/guia-acesso.spec.ts`
+- [x] Test count: ao menos 10 testes novos entre unitário (vm) e e2e, nenhum removido; os testes legados do formulário seguem passando
 
 **Tests**: unit
 **Gate**: full
 
 **Commit**: `feat(area-mandato): move mandate data form into its tab`
+
+**Status**: ✅ Done
 
 ---
 

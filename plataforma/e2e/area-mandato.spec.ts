@@ -16,6 +16,7 @@ const ABAS: { hash: string; nome: string; painel: string }[] = [
 const ABAS_NUVEM = ABAS.map((a) => (a.painel === 'areaEquipe' ? { ...a, nome: 'Equipe e convites (2)' } : a));
 
 const lista = (page: Page) => page.getByRole('tablist', { name: 'Área do mandato' });
+const visaoAviso = (page: Page) => page.locator('#areaVisao').getByRole('status').filter({ hasText: 'Informe a data de posse' });
 const aba = (page: Page, nome: string) => lista(page).getByRole('tab', { name: nome, exact: true });
 const itemDoMenu = (page: Page) => page.locator('#ladoNav .it[href="#/config"]');
 const vaiPara = (page: Page, hash: string) => page.evaluate((h) => { location.hash = h; }, hash);
@@ -318,5 +319,94 @@ test.describe('Visão geral', () => {
     await expect(resumo(page)).toContainText('2 pessoas');
     const sobra = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(sobra).toBe(0);
+  });
+});
+
+/* ---------- Aba Dados do mandato e Zona de risco (AMA-02.3, 02.4, 02.5, 02.11) ----------
+   O formulário é o de edição do Guia (cadastro.js), desenhado dentro da aba; Guia em modo nuvem (area-api.ts). */
+test.describe('Dados do mandato', () => {
+  const dados = (page: Page) => page.locator('#areaDados');
+  const salvar = (page: Page) => dados(page).getByRole('button', { name: 'Salvar alterações' });
+  const zona = (page: Page) => dados(page).getByRole('region', { name: 'Zona de risco' });
+  const CONFIRMA = 'Excluir o cadastro de Ana Souza?\n\nTudo o que foi preenchido nele será apagado, para toda a equipe. Não dá para desfazer.';
+
+  test.afterEach(() => {
+    expect(area.naoMapeadas()).toEqual([]);
+  });
+
+  test('#/config/dados mostra, dentro da aba, o formulário de edição com os dados do mandato e "Salvar alterações" (AMA-02.3)', async ({ page }) => {
+    await area.abreArea(page, '#/config/dados');
+    await expect(dados(page).locator('#cadNome')).toHaveValue('Ana Souza');
+    await expect(dados(page).locator('#cadCivil')).toHaveValue('Ana Souza Lima');
+    await expect(dados(page).locator('#cadPosse')).toHaveValue('2027-02-01');
+    await expect(salvar(page)).toBeEnabled();
+    await expect(dados(page).locator('#cadSteps')).toBeVisible();
+    await expect(page.locator('#tela h1')).toHaveText(['Área do mandato']); // o cabeçalho é o da Área, não o do formulário
+    await expect(lista(page)).toBeVisible();
+  });
+
+  test('a aba não traz mais Equipe e convites nem "Seus dados", que viraram abas', async ({ page }) => {
+    await area.abreArea(page, '#/config/dados');
+    await expect(salvar(page)).toBeVisible();
+    await expect(page.locator('#cadEquipe')).toHaveCount(0);
+    await expect(dados(page)).not.toContainText('Seus dados');
+    await expect(dados(page)).not.toContainText('Equipe e convites');
+  });
+
+  test('"Salvar alterações" grava os dados do mandato e a aba segue aberta com o formulário (AMA-02.3)', async ({ page }) => {
+    const nuvem = await area.abreArea(page, '#/config/dados', { mandato: { resp_nome: 'Lia Torres' } });
+    await dados(page).locator('#cadPosse').fill('2027-03-01');
+    await salvar(page).click();
+    await expect(page.locator('#toast')).toHaveText('Dados do mandato salvos.');
+    const patch = area.pedidos().filter((p) => p.metodo === 'PATCH');
+    expect(patch.map((p) => p.caminho)).toEqual([`mandatos?id=eq.${area.MANDATO_A}`]);
+    expect(patch[0].corpo).toMatchObject({ data_posse: '2027-03-01', nome_parlamentar: 'Ana Souza', resp_nome: 'Lia Torres' });
+    expect(nuvem.mandatos[0].data_posse).toBe('2027-03-01');
+    await expect(page).toHaveURL(fim('#/config/dados'));
+    await expect(dados(page).locator('#cadPosse')).toHaveValue('2027-03-01');
+    await ativa(page, ABAS_NUVEM[1]);
+  });
+
+  test('quem é coordenacao vê no fim da aba a Zona de risco; "Excluir cadastro" pede a confirmação de hoje e só então exclui (AMA-02.4)', async ({ page }) => {
+    await area.abreArea(page, '#/config/dados');
+    await expect(zona(page)).toBeVisible();
+    await expect(zona(page)).toContainText('Apaga este mandato e tudo o que foi preenchido nele, para toda a equipe. Não dá para desfazer.');
+    const fimDaAba = await dados(page).evaluate((el) => (el.lastElementChild as HTMLElement | null)?.getAttribute('aria-labelledby'));
+    expect(fimDaAba).toBe('cadRiscoTit');
+    const vistas: string[] = [];
+    page.once('dialog', (d) => { vistas.push(d.message()); return d.dismiss(); });
+    await zona(page).getByRole('button', { name: 'Excluir cadastro' }).click();
+    await expect.poll(() => vistas).toEqual([CONFIRMA]);
+    expect(area.rpcs('excluir_mandato')).toEqual([]);
+    page.once('dialog', (d) => d.accept());
+    await zona(page).getByRole('button', { name: 'Excluir cadastro' }).click();
+    await expect(page).toHaveURL(/\/primeiro-acesso$/); // era o único mandato de Lia
+    expect(area.rpcs('excluir_mandato').map((p) => p.corpo)).toEqual([{ p_id: area.MANDATO_A }]);
+  });
+
+  for (const papel of ['assessoria', 'leitura'] as const) {
+    test(`quem é ${papel} não vê a Zona de risco nem "Excluir cadastro" (AMA-02.5)`, async ({ page }) => {
+      await area.abreArea(page, '#/config/dados', { papel });
+      await expect(salvar(page)).toBeVisible();
+      await expect(dados(page).getByText('Zona de risco')).toHaveCount(0);
+      await expect(page.getByRole('button', { name: 'Excluir cadastro' })).toHaveCount(0);
+    });
+  }
+
+  test('quem é leitura vê o formulário só para leitura: campos e "Salvar alterações" desabilitados (AMA-02.11)', async ({ page }) => {
+    await area.abreArea(page, '#/config/dados', { papel: 'leitura' });
+    await expect(dados(page).locator('#cadNome')).toBeDisabled();
+    await expect(dados(page).locator('#cadPosse')).toBeDisabled();
+    await expect(salvar(page)).toBeDisabled();
+    await expect(dados(page).getByRole('button', { name: 'Voltar para a lista' })).toBeDisabled();
+    await expect(page.getByText('Você está com acesso somente leitura', { exact: true })).toBeVisible();
+  });
+
+  test('"Informar agora", na Visão geral sem data de posse, abre a aba Dados com o campo da data de posse vazio (AMA-02.2, 02.3)', async ({ page }) => {
+    await area.abreArea(page, '#/config', { mandato: { data_posse: null } });
+    await visaoAviso(page).getByRole('link', { name: 'Informar agora' }).click();
+    await expect(page).toHaveURL(fim('#/config/dados'));
+    await expect(dados(page).locator('#cadPosse')).toHaveValue('');
+    await expect(dados(page).locator('#cadPosse')).toBeEditable();
   });
 });

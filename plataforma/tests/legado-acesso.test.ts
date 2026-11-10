@@ -256,6 +256,78 @@ test('a lista de pessoas da aba Equipe acerta Store.membros e o rótulo "Equipe 
   assert.equal(j.w.Store.membros.length, 3);
 });
 
+/* ---------- aba Dados do mandato: o formulário de edição do cadastro.js dentro da aba (AMA-02.3, 02.4, 02.5) ---------- */
+/** #/config/dados real, com Lia logada e o papel dela em Store.membros (null = Lia fora da lista). */
+function dadosEm(papel: string | null, o: { nuvem?: boolean } = {}) {
+  const j = janela({ hash: '#/config/dados', nuvem: o.nuvem });
+  j.w.Store.usuario = { id: 'u1', nome: 'Lia', email: 'lia@x.test' };
+  j.w.Store.mandato = { ...MANDATO, casa: 'Assembleia Legislativa', data_posse: '2027-02-01' };
+  j.w.Store.membros = [...(papel ? [{ user_id: 'u1', nome: 'Lia', papel }] : []), { user_id: 'u2', nome: 'Mariana', papel: 'coordenacao' }];
+  j.w.Telas.config();
+  const html = (id: string) => j.document.getElementById(id).innerHTML;
+  return { ...j, dados: html('areaDados'), passo: html('cadPasso') };
+}
+const ZONA = /<section class="zona-risco"[^>]*aria-labelledby="cadRiscoTit"/;
+const EXCLUIR = '<button type="button" class="bt sec" id="cadExcluir" style="color:var(--erro);border-color:var(--erro)" onclick="Cad.excluir(this)">Excluir cadastro</button>';
+
+test('a aba Dados desenha o formulário de edição dentro de #areaDados, sem o cabeçalho de tela, com "Salvar alterações" (AMA-02.3)', () => {
+  const r = dadosEm('coordenacao');
+  assert.ok(r.dados.startsWith('<nav aria-label="Etapas do cadastro" id="cadSteps"></nav><div id="cadPasso"></div>'), r.dados.slice(0, 120));
+  assert.doesNotMatch(r.dados, /class="etiqueta"|<h1|class="chamada"/);
+  assert.equal((r.document.getElementById('areaDados') as unknown as { className?: string }).className, undefined); // o painel não vira "tela largo"
+  assert.match(r.passo, /<button type="button" class="bt sec" id="cadSalvar1" onclick="Cad\.enviar\(this\)">Salvar alterações<\/button>/);
+  assert.match(r.passo, /id="cadPosse"/);
+});
+
+test('o formulário da aba não traz mais o bloco Equipe e convites nem o texto "Seus dados", que viraram abas', () => {
+  const r = dadosEm('coordenacao');
+  for (const fora of ['cadEquipe', 'Equipe e convites', 'Seus dados', '/mandato/equipe']) assert.equal(r.dados.includes(fora), false, fora);
+});
+
+test('quem é coordenacao vê no fim da aba, em bloco separado "Zona de risco", o botão "Excluir cadastro" que chama Cad.excluir (AMA-02.4)', () => {
+  const r = dadosEm('coordenacao');
+  assert.match(r.dados, ZONA);
+  assert.ok(r.dados.includes('<h3 id="cadRiscoTit">Zona de risco</h3>'));
+  assert.ok(r.dados.includes(EXCLUIR));
+  assert.ok(r.dados.indexOf('zona-risco') > r.dados.indexOf('id="cadPasso"'), 'a Zona de risco fica depois do formulário');
+  assert.ok(r.dados.trimEnd().endsWith('</section>'), 'e é o fim da aba');
+});
+
+for (const papel of ['assessoria', 'leitura']) {
+  test(`quem é ${papel} não vê a Zona de risco nem "Excluir cadastro" (AMA-02.5)`, () => {
+    const r = dadosEm(papel);
+    assert.doesNotMatch(r.dados, ZONA);
+    assert.equal(r.dados.includes('Cad.excluir'), false);
+    assert.equal(r.dados.includes('Zona de risco'), false);
+    assert.match(r.passo, /Salvar alterações/); // o formulário segue lá
+  });
+}
+
+test('sem a linha da própria pessoa em membros (papel desconhecido), a Zona de risco não aparece (Edge Case: papel)', () => {
+  const r = dadosEm(null);
+  assert.equal(r.dados.includes('Cad.excluir'), false);
+});
+
+test('sem nuvem (modo local, sem contas nem papéis) a Zona de risco aparece, como o "Excluir cadastro" de antes', () => {
+  const r = dadosEm(null, { nuvem: false });
+  assert.match(r.dados, ZONA);
+  assert.ok(r.dados.includes(EXCLUIR));
+});
+
+test('Cad.abrir sem destino segue desenhando no #tela com o cabeçalho: primeiro acesso e "Cadastrar outro mandato" seguem iguais', () => {
+  const j = janela({ hash: '#/' });
+  j.w.Store.usuario = { id: 'u1', nome: 'Lia', email: 'lia@x.test' };
+  const cad = (j.w as unknown as { Cad: { abrir(modo: string, dentro?: boolean): void } }).Cad;
+  const tela = j.document.getElementById('tela');
+  cad.abrir('novo');
+  assert.equal((tela as unknown as { className?: string }).className, 'tela largo');
+  assert.match(tela.innerHTML, /^<div class="etiqueta">Primeiro acesso<\/div><h1 class="largo">Vamos cadastrar o mandato<\/h1>/);
+  assert.equal(tela.innerHTML.includes('Zona de risco'), false);
+  cad.abrir('novo', true);
+  assert.match(tela.innerHTML, /^<div class="etiqueta">Novo cadastro<\/div><h1 class="largo">Cadastrar outro mandato<\/h1>/);
+  assert.match(tela.innerHTML, /Cancelar e voltar ao painel/);
+});
+
 test('clicar numa aba (Area.ir) leva ao endereço dela: #/config para a Visão geral e #/config/<aba> para as outras (AMA-01.4)', () => {
   const { w } = areaEm('#/config');
   for (const [id, hash] of [['equipe', '#/config/equipe'], ['conta', '#/config/conta'], ['dados', '#/config/dados'], ['visao', '#/config']]) {
