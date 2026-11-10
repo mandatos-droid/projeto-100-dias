@@ -141,18 +141,20 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] `aceitar_convite` copia a versão de `20261106150000` sem mudar mais nada e devolve `{ok:false, erro:'perfil'}` logo depois da checagem de consentimento para quem não tem perfil nem está na equipe Legisla; o convite não é consumido (PAG-02.2)
-- [ ] A política `mandatos_criar` exige `private.tem_perfil()` além de `criado_por = auth.uid()`; quem não tem perfil recebe erro de permissão ao criar mandato (PAG-02.2)
-- [ ] `excluir_meus_dados` copia a versão de `20261106150000` e acrescenta a exclusão da linha de `perfis` da pessoa (PAG-03.10)
-- [ ] Excluir a conta (`delete` em `auth.users`) apaga o perfil em cascata (PAG-03.9)
-- [ ] `sql-ambiente.ts` ganha o helper `comPerfil(banco, userId)` e os testes de SQL existentes que criam mandato ou aceitam convite com conta sem perfil passam a usá-lo, sem remover nem enfraquecer nenhum teste
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 8 testes novos em `tests/sql-perfil-trava.test.ts`, nenhum removido; todos os testes de SQL antigos continuam passando
+- [x] `aceitar_convite` copia a versão de `20261106150000` sem mudar mais nada e devolve `{ok:false, erro:'perfil'}` logo depois da checagem de consentimento para quem não tem perfil nem está na equipe Legisla; o convite não é consumido (PAG-02.2). No banco a função se chama `public.convite_aceitar`; o `diff` com a versão de `20261106150000` mostra só as 3 linhas da checagem
+- [x] A política `mandatos_criar` exige `private.tem_perfil()` além de `criado_por = auth.uid()`; quem não tem perfil recebe erro de permissão ao criar mandato (PAG-02.2)
+- [x] `excluir_meus_dados` copia a versão de `20261106150000` e acrescenta a exclusão da linha de `perfis` da pessoa (PAG-03.10)
+- [x] Excluir a conta (`delete` em `auth.users`) apaga o perfil em cascata (PAG-03.9)
+- [x] `sql-ambiente.ts` ganha o helper `comPerfil(banco, userId)` e os testes de SQL existentes que criam mandato ou aceitam convite com conta sem perfil passam a usá-lo, sem remover nem enfraquecer nenhum teste (só a preparação mudou: `contas()` e `consentem()` em `sql-convites.test.ts`, e 3 testes de cadastro de mandato em `sql-convites.test.ts` e `sql-membros.test.ts`)
+- [x] Gate check passes: `npm test` (1010 testes, 0 falhas)
+- [x] Test count: 11 testes novos em `tests/sql-perfil-trava.test.ts`, nenhum removido (999 → 1010); todos os testes de SQL antigos continuam passando
 
 **Tests**: integration
 **Gate**: quick
 
 **Commit**: `feat(perfil): require profile to join a mandate`
+
+**Status**: ✅ Done
 
 ---
 

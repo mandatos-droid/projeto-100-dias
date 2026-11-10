@@ -70,6 +70,18 @@ export async function comoDono(banco: Banco): Promise<void> {
   await banco.query("select set_config('request.jwt.claim.sub', '', false)");
 }
 
+// Grava um perfil válido direto pelo dono, sem passar por perfil_salvar (não grava consentimento).
+// Criar mandato e aceitar convite exigem perfil (primeiro-acesso-google, PAG-02.2). Termina como dono.
+export async function comPerfil(banco: Banco, userId: string): Promise<void> {
+  await comoDono(banco);
+  await banco.query(
+    `insert into public.perfis (user_id, nome, nascimento, genero, raca, telefone, atua, tempo)
+     values ($1, 'Pessoa Com Perfil', '1990-01-01', 'nao_informar', 'nao_informar', '11987654321', false, null)
+     on conflict (user_id) do nothing`,
+    [userId],
+  );
+}
+
 // 2 mandatos, 1 admin, 1 leitura, 1 membro de gabinete (coordenação do mandato A) e 1 conta de fora.
 export async function semente(banco: Banco): Promise<typeof IDS> {
   await comoDono(banco);

@@ -1,7 +1,7 @@
 // Acesso, equipe e convites: funções de equipe do mandato (ACE-03, ACE-04, ACE-06), no PGlite.
 import { test, before, after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { criaBanco, como, comoDono, semente, IDS } from './sql-ambiente.ts';
+import { criaBanco, como, comoDono, comPerfil, semente, IDS } from './sql-ambiente.ts';
 import type { Banco } from './sql-ambiente.ts';
 
 // Mandato A: IDS.membro (coordenação), ASSESSORIA e LEITOR. Mandato B: COORD_B.
@@ -443,6 +443,7 @@ test('quem criou o mandato e saiu por conta própria também não volta direto (
 });
 
 test('cadastro novo, como o Guia faz: quem criou lê o mandato no RETURNING e entra direto só como a primeira pessoa, na coordenação (ACE-07.3)', async () => {
+  await comPerfil(banco, IDS.fora);
   await como(banco, IDS.fora);
   const [{ id }] = await q<{ id: string }>(
     `insert into public.mandatos (codigo, nome_parlamentar, cargo, uf, criado_por) values ('CCC333', 'Parlamentar Três', 'Vereadora', 'RJ', $1)
@@ -462,6 +463,7 @@ test('cadastro novo, como o Guia faz: quem criou lê o mandato no RETURNING e en
 });
 
 test('mutante B08: quem cria o mandato não inclui outra conta na primeira linha, nem como coordenação; só a si mesmo (ACE-07.3)', async () => {
+  await comPerfil(banco, IDS.fora);
   await como(banco, IDS.fora);
   const [{ id }] = await q<{ id: string }>(
     `insert into public.mandatos (codigo, nome_parlamentar, cargo, uf, criado_por) values ('DDD444', 'Parlamentar Quatro', 'Vereador', 'BA', $1)

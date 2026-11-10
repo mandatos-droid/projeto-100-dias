@@ -1,7 +1,7 @@
 // Acesso, equipe e convites: convites por link pessoal (ACE-01, ACE-02, ACE-04, ACE-06, ACE-07), no PGlite.
 import { test, before, after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { criaBanco, como, comoDono, semente, IDS } from './sql-ambiente.ts';
+import { criaBanco, como, comoDono, comPerfil, semente, IDS } from './sql-ambiente.ts';
 import type { Banco } from './sql-ambiente.ts';
 
 // Mandato A: IDS.membro (coordenação), ASSESSORIA e LEITOR. Mandato B: COORD_B.
@@ -672,7 +672,8 @@ test('nenhuma outra função desta feature é liberada a anon: fora de gatilhos,
 
 // ---------- T12: convite_aceitar ----------
 
-// Contas novas, fora de qualquer mandato: Carlos e Dora (com consentimento, salvo pedido).
+// Contas novas, fora de qualquer mandato: Carlos e Dora (com consentimento, salvo pedido, e com
+// perfil, que o aceite exige desde primeiro-acesso-google).
 const CARLOS = '00000000-0000-4000-8000-0000000000d1';
 const DORA = '00000000-0000-4000-8000-0000000000d2';
 async function contas(opc: { semConsentimento?: string[]; emailCarlos?: string } = {}) {
@@ -684,6 +685,7 @@ async function contas(opc: { semConsentimento?: string[]; emailCarlos?: string }
   );
   for (const id of [CARLOS, DORA]) {
     if (!opc.semConsentimento?.includes(id)) await banco.query(`insert into public.consentimentos (user_id, versao) values ($1, '2026-10')`, [id]);
+    await comPerfil(banco, id);
   }
 }
 const aceitar = async (token: string | null, nome: string | null = null) =>
@@ -861,10 +863,13 @@ const nomesListados = async (quem: string) => {
   return (await pendentes()).rows.map((x) => x.nome).sort();
 };
 const tiposNoHistorico = async () => (await historico()).map((x) => x.tipo);
-// quem entrou pelo cadastro do Guia já gravou o consentimento
+// quem entrou pelo cadastro do Guia já gravou o consentimento (e, desde primeiro-acesso-google, o perfil)
 const consentem = async (...ids: string[]) => {
   await comoDono(banco);
-  for (const id of ids) await banco.query(`insert into public.consentimentos (user_id, versao) values ($1, '2026-10')`, [id]);
+  for (const id of ids) {
+    await banco.query(`insert into public.consentimentos (user_id, versao) values ($1, '2026-10')`, [id]);
+    await comPerfil(banco, id);
+  }
 };
 
 test('sonda V-1: a coordenação rebaixada a leitura não volta à coordenação pelo convite que ela mesma criou, nem antes nem depois de sair, e não remove quem a rebaixou (ACE-02.16, ACE-03.6, ACE-03.12)', async () => {
@@ -1355,6 +1360,7 @@ test('entrar_com_codigo com código válido falha por falta de permissão para a
 
 test('cadastrar mandato novo, como o Guia faz, continua incluindo a pessoa como coordenação (ACE-07.3)', async () => {
   // nucleo.js criarMandato: POST mandatos com criado_por e return=representation, depois POST membros como coordenacao
+  await comPerfil(banco, IDS.fora);
   await como(banco, IDS.fora);
   const [{ id }] = await q<{ id: string }>(
     `insert into public.mandatos (codigo, nome_parlamentar, cargo, uf, criado_por) values ('CCC333', 'Parlamentar Três', 'Vereadora', 'RJ', $1)

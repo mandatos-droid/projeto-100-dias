@@ -111,3 +111,81 @@ $$;
 
 revoke execute on function public.perfil_salvar(text, text, text, text, text, boolean, text) from public, anon;
 grant  execute on function public.perfil_salvar(text, text, text, text, text, boolean, text) to authenticated;
+
+-- =====================================================================
+-- Trava nas duas portas de entrada em um mandato (PAG-02.2): aceitar convite e criar mandato.
+-- A tela manda ao perfil; quem pular a tela encontra a recusa aqui.
+-- =====================================================================
+
+-- ---------- criar mandato: só quem tem perfil (ou é da equipe Legisla) ----------
+-- Repete a de 20261016120000_schema_inicial.sql e acrescenta private.tem_perfil().
+drop policy if exists mandatos_criar on public.mandatos;
+create policy mandatos_criar on public.mandatos
+  for insert to authenticated
+  with check (criado_por = (select auth.uid()) and private.tem_perfil());
+
+-- ---------- convite_aceitar: sem perfil devolve {ok:false, erro:'perfil'} ----------
+-- Repete a de 20261106150000_convites_de_quem_sai.sql; só acrescenta a checagem de perfil logo
+-- depois da de consentimento. O convite não é consumido e a tela leva a pessoa ao perfil.
+create or replace function public.convite_aceitar(p_token text, p_nome text)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+declare
+  v_uid    uuid := (select auth.uid());
+  v_origem text := private.convite_origem();
+  v_c      public.convites%rowtype;
+begin
+  if v_uid is null then
+    raise exception 'Você não tem permissão para esta ação.' using errcode = '42501';
+  end if;
+  if private.convite_limite(v_origem) then
+    return jsonb_build_object('ok', false, 'erro', 'limite');
+  end if;
+  select * into v_c from public.convites c
+  where c.token_hash = sha256(convert_to(coalesce(p_token, ''), 'UTF8')) for update;
+  if not found or v_c.usado_em is not null or v_c.cancelado_em is not null or v_c.expira_em <= now()
+     or not private.convite_autorizado(v_c.mandato_id, v_c.criado_por, v_c.papel, v_c.papel_ao_sair) then
+    return private.convite_falha(v_origem);
+  end if;
+
+  if exists (select 1 from public.membros b where b.mandato_id = v_c.mandato_id and b.user_id = v_uid) then
+    return jsonb_build_object('ok', true, 'mandato_id', v_c.mandato_id, 'ja_membro', true);
+  end if;
+  if v_c.email is not null
+     and v_c.email is distinct from (select lower(btrim(u.email)) from auth.users u where u.id = v_uid) then
+    return jsonb_build_object('ok', false, 'erro', 'email');
+  end if;
+  if not exists (select 1 from public.consentimentos k where k.user_id = v_uid) then
+    return jsonb_build_object('ok', false, 'erro', 'consentimento');
+  end if;
+  if not private.tem_perfil() then
+    return jsonb_build_object('ok', false, 'erro', 'perfil');
+  end if;
+
+  -- sem nome no aceite (quem já tem sessão), vale o nome da conta
+  insert into public.membros (mandato_id, user_id, nome, papel)
+  values (v_c.mandato_id, v_uid, coalesce(nullif(btrim(p_nome), ''), private.nome_pessoa(v_c.mandato_id, v_uid)), v_c.papel);
+  update public.convites set usado_em = now(), usado_por = v_uid where id = v_c.id;
+  perform private.evento_equipe(v_c.mandato_id, 'convite_aceito', v_uid, private.nome_pessoa(v_c.mandato_id, v_uid), v_c.papel);
+  return jsonb_build_object('ok', true, 'mandato_id', v_c.mandato_id, 'ja_membro', false);
+end;
+$$;
+
+revoke execute on function public.convite_aceitar(text, text) from public, anon;
+grant  execute on function public.convite_aceitar(text, text) to authenticated;
+
+-- ---------- excluir_meus_dados: apaga também o perfil ----------
+-- Repete a de 20261106150000_convites_de_quem_sai.sql e acrescenta a linha de perfis.
+create or replace function public.excluir_meus_dados()
+returns void language plpgsql security definer set search_path = '' as $$
+begin
+  if (select auth.uid()) is null then raise exception 'Não autenticado.'; end if;
+  update public.eventos set user_id = null, autor = 'usuário removido' where user_id = (select auth.uid());
+  update public.convites set papel_ao_sair = null where criado_por = (select auth.uid());
+  delete from public.membros        where user_id = (select auth.uid());
+  delete from public.consentimentos where user_id = (select auth.uid());
+  delete from public.perfis         where user_id = (select auth.uid());
+end;
+$$;
+
+revoke execute on function public.excluir_meus_dados() from public, anon;
+grant  execute on function public.excluir_meus_dados() to authenticated;
