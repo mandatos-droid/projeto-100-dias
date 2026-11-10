@@ -81,7 +81,11 @@ App.entrou=async function(){
   if(!temPerfil){location.replace('/primeiro-acesso?volta=guia');return}
   var semEquipe=false;
   try{semEquipe=sessionStorage.getItem('legisla.semEquipe')==='1'}catch(e){}
-  if(!semEquipe&&!(await Store.meusMandatos()).length){location.replace('/primeiro-acesso');return}
+  if(!semEquipe){
+    var mandatos;
+    try{mandatos=await Store.meusMandatos()}catch(e){mostraErroPerfil();return} /* mesma caixa: sem ela o #app ficaria oculto */
+    if(!mandatos.length){location.replace('/primeiro-acesso');return}
+  }
   return _entrou.apply(this,arguments);
 };
 

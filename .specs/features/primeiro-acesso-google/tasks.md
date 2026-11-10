@@ -765,12 +765,14 @@ T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unidade e e2e: com a leitura de mandatos falhando aparece a caixa com o texto literal e o botão "Tentar de novo"; sem redirecionamento a `/primeiro-acesso`; o botão, com a leitura funcionando, abre o Guia
-- [ ] Mutante (tirar `meusMandatos` do tratamento) faz o teste falhar; aplicado e desfeito (hash igual)
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/guia-acesso.spec.ts`; gate de build da fase: `npx tsc --noEmit`, `npm test` e os specs `e2e/convite-*`, `e2e/mandato-*`, `e2e/guia-acesso*`, `e2e/primeiro-acesso*`, `e2e/admin-*`
-- [ ] Handoff do `STATE.md` atualizado (última task T21, próximo passo: re-verificação independente rodada 3)
+- [x] Unidade e e2e: com a leitura de mandatos falhando aparece a caixa com o texto literal e o botão "Tentar de novo"; sem redirecionamento a `/primeiro-acesso`; o botão, com a leitura funcionando, abre o Guia
+- [x] Mutante (aplicado nas duas camadas: o teste novo falhou; `acesso.js` voltou com o mesmo sha256) (tirar `meusMandatos` do tratamento) faz o teste falhar; aplicado e desfeito (hash igual)
+- [x] Gate check passes: `npm test` (1109 testes, 0 falhas) e `npx playwright test e2e/guia-acesso.spec.ts` (29 passaram); gate de build da fase: `npx tsc --noEmit`, `npm test` e os specs `e2e/convite-*`, `e2e/mandato-*`, `e2e/guia-acesso*`, `e2e/primeiro-acesso*`, `e2e/admin-*`: `tsc` sem erro, 1109/1109, e2e 349/349 (porta 3100, 4 workers)
+- [x] Handoff do `STATE.md` atualizado (última task T21, próximo passo: re-verificação independente rodada 3)
 
 **Tests**: unit, e2e
 **Gate**: build
 
 **Commit**: `fix(guia): show the retry box when the mandates read fails`
+
+**Status**: ✅ Done

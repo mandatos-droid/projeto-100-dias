@@ -406,6 +406,23 @@ test('falha na consulta de equipe_legisla mostra a mesma caixa "Não foi possív
   assert.equal(document.getElementById('app').classList.contains('oculto'), false);
 });
 
+test('falha na leitura dos mandatos da trava mostra a mesma caixa "Não foi possível carregar seus dados. Tente de novo." com "Tentar de novo", sem formulário; com a leitura funcionando o Guia abre', async () => {
+  const p: Pessoa = { falhaMandatos: true, perfil: true, mandatos: [{ ...MANDATO }] };
+  const { w, redirecionou, document, aberturaDoCadastro, leituras } = entrando(p);
+  await w.App.entrou();
+  assert.deepEqual(redirecionou, []);
+  assert.deepEqual(aberturaDoCadastro, []);
+  assert.ok(leituras().some((u) => u.startsWith('membros?select=papel')), 'a leitura dos mandatos foi tentada');
+  const { mensagem, botao } = caixaDeErro(document);
+  assert.equal(mensagem.textContent, ERRO_PERFIL);
+  assert.equal(botao.textContent, 'Tentar de novo');
+  p.falhaMandatos = false;
+  await Promise.resolve(botao.onclick()).catch(() => {}); // o resto da abertura usa telas que o documento simulado não tem
+  assert.deepEqual(caixasDeErro(document), []);
+  assert.deepEqual(redirecionou, []);
+  assert.equal(document.getElementById('app').classList.contains('oculto'), false);
+});
+
 test('com perfil, sem mandato e sem a marca "Ainda não", o Guia abre /primeiro-acesso para a pergunta (PAG-04.1)', async () => {
   const { w, redirecionou, aberturaDoCadastro } = entrando({ perfil: true, mandatos: [] });
   await w.App.entrou();

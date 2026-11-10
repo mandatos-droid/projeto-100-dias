@@ -93,10 +93,10 @@
 
 - **Feature**: `primeiro-acesso-google` (`.specs/features/primeiro-acesso-google/`)
 - **Branch**: `feat/primeiro-acesso-google`
-- **Phase / Task**: Fase 6 (correções do Verifier, rodada 1) concluída; T1 a T19 commitadas. Última task: T19 (Analytics com todas as categorias, este registro). T17 `d0080a5` (perfil antes do consentimento no aceite e perfil em `membros_criar`, editando a migration `20261109120000_perfis.sql`, ainda não aplicada), T18 `3055bdc` (caixa "Não foi possível carregar seus dados. Tente de novo." no Guia). Verifier rodada 1: FAIL em `validation.md` (GAP-1, GAP-2, SP-1 a SP-3), todos tratados em T17 a T19.
-- **Gate**: `npx tsc --noEmit` sem erro; `npm test` 1107/1107; e2e `convite-*`, `mandato-*`, `guia-acesso*`, `primeiro-acesso*` e `admin-*` no servidor próprio da porta 3100: 345/347 na rodada completa; as 2 falhas (tempo esgotado em `admin-equipe.spec.ts:245` e `admin-transversal.spec.ts:139`, telas fora desta feature) passaram na nova rodada desses dois specs (33/33).
+- **Phase / Task**: Fase 7 (correções do Verifier, rodada 2) concluída; T1 a T21 commitadas. Última task: T21 (leitura dos mandatos dentro da trava do Guia, este registro). T20 `208cad8` (testes da falha de `equipe_legisla` no Guia, GAP-R2-1). Verifier rodada 2: FAIL em `validation.md` (GAP-R2-1, SP-R2-1), tratados em T20 e T21.
+- **Gate**: `npx tsc --noEmit` sem erro; `npm test` 1109/1109; e2e `convite-*`, `mandato-*`, `guia-acesso*`, `primeiro-acesso*` e `admin-*` no servidor próprio da porta 3100: 349/349.
 - **In-progress**: nenhum
-- **Next step**: re-verificação independente, rodada 2 (author != verifier), sobre o intervalo `2bbd33d..HEAD` (T17 a T19) e os critérios PAG-02, PAG-04 e PAG-06, regravando `.specs/features/primeiro-acesso-google/validation.md`; depois `validate_state.py primeiro-acesso-google`. Push, migrations e deploy só com go-ahead explícito.
+- **Next step**: re-verificação independente, rodada 3 (author != verifier), sobre T20 e T21 e o PAG-02, regravando `.specs/features/primeiro-acesso-google/validation.md`; depois `validate_state.py primeiro-acesso-google`. Push, migrations e deploy só com go-ahead explícito.
 - **Blockers**: nenhum
 - **Nota sobre AD-013**: a linha "Categoria sem ninguém não aparece" foi substituída pela spec (Assumptions "Categorias sem ninguém no Analytics" e "Porcentagem no Analytics"): desde a T19 toda categoria aparece, mesmo com 0, e a soma das porcentagens pode dar 99 ou 101.
 - **Uncommitted files**: só arquivos de outras frentes (`plataforma/ilhas/`, `plataforma/public/data/`, `plataforma/public/legacy/ilhas.css`, `graphify-out/`, `.pw-out-tmp/`, `AJUSTES_GUIA_100_DIAS.md`, `supabase/` na raiz)

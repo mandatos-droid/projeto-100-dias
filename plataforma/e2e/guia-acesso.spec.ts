@@ -45,6 +45,8 @@ interface Estado {
   perfil?: boolean | 'falha';
   /** Lia está em `equipe_legisla` (padrão: não). */
   legisla?: boolean | 'falha';
+  /** 'falha' = a leitura dos mandatos de Lia (membros?select=papel,mandatos(*)) devolve 500. */
+  mandatos?: 'falha';
   /** Marca legisla.semEquipe no sessionStorage ("Ainda não"). Padrão: presente só para quem não tem mandato, para o cadastro abrir. */
   semEquipe?: boolean;
   /** Não espera a tela do Guia: o teste espera outra coisa (redirecionamento, erro). */
@@ -91,7 +93,7 @@ async function abre(page: Page, hash: string, e: Estado = {}) {
 
     if (req.method() === 'GET') {
       if (tabela === 'membros' && q('select') === 'papel,mandatos(*)' && q('user_id') === `eq.${LIA.id}`)
-        return responde(200, membros.filter((m) => m.user_id === LIA.id).map((m) => ({ papel: m.papel, mandatos: mandatos.find((x) => x.id === m.mandato_id) ?? null })));
+        return e.mandatos === 'falha' ? responde(500, { message: 'boom' }) : responde(200, membros.filter((m) => m.user_id === LIA.id).map((m) => ({ papel: m.papel, mandatos: mandatos.find((x) => x.id === m.mandato_id) ?? null })));
       if (tabela === 'mandatos' && q('id')) return responde(200, mandatos.filter((x) => q('id') === `eq.${x.id}`));
       if (tabela === 'membros' && q('mandato_id')) return responde(200, membros.filter((m) => q('mandato_id') === `eq.${m.mandato_id}`));
       if (tabela === 'eventos' && q('mandato_id')) return responde(200, []);
@@ -396,6 +398,22 @@ test.describe('Perfil antes do Guia', () => {
     expect(new URL(page.url()).pathname).toBe('/guia');
     expect(lerDe('membros?select=papel')).toBe(-1);
     e.legisla = false; // a próxima consulta responde
+    await page.getByRole('button', { name: 'Tentar de novo', exact: true }).click();
+    await expect(page.locator('#ladoNav .it').first()).toBeVisible();
+    await expect(page.getByText(ERRO_PERFIL)).toHaveCount(0);
+    expect(navegou.filter((p) => p !== '/guia')).toEqual([]);
+  });
+
+  test('falha na leitura dos mandatos (500) mostra a caixa "Não foi possível carregar seus dados. Tente de novo." e o botão "Tentar de novo", sem ir a /primeiro-acesso; o botão com a leitura funcionando abre o Guia', async ({ page }) => {
+    const navegou: string[] = [];
+    page.on('framenavigated', (f) => { if (f === page.mainFrame()) navegou.push(new URL(f.url()).pathname); });
+    const e: Estado = { mandatos: 'falha', semEquipe: false, semEspera: true };
+    await abre(page, '#/', e);
+    await expect(page.locator('#erroPerfil').getByRole('alert')).toHaveText(ERRO_PERFIL);
+    await expect(page.getByRole('button', { name: 'Tentar de novo', exact: true })).toBeVisible();
+    await page.waitForLoadState('networkidle');
+    expect(new URL(page.url()).pathname).toBe('/guia');
+    e.mandatos = undefined; // a próxima leitura responde
     await page.getByRole('button', { name: 'Tentar de novo', exact: true }).click();
     await expect(page.locator('#ladoNav .it').first()).toBeVisible();
     await expect(page.getByText(ERRO_PERFIL)).toHaveCount(0);
