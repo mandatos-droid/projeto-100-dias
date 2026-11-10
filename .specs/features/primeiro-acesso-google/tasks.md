@@ -532,19 +532,21 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] Cada distribuição vira categorias com rótulo da spec, quantidade e porcentagem inteira (arredondada), na ordem da spec (PAG-06.3)
-- [ ] `Prefiro não informar` é categoria própria em gênero e raça (PAG-06.4)
-- [ ] As faixas etárias saem na ordem `Até 24` a `65 ou mais` (PAG-06.5)
-- [ ] A soma das quantidades de cada distribuição é igual a `total` (PAG-06.12)
-- [ ] `total = 0` devolve o estado vazio "Ainda não há perfis cadastrados." (PAG-06.9)
-- [ ] `por_mes` vira rótulos `Mês/aa` como `rotuloMes` do Analytics (PAG-06.2)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 12 testes novos em `tests/admin-perfil.test.ts`, nenhum removido
+- [x] Cada distribuição vira categorias com rótulo da spec, quantidade e porcentagem inteira (arredondada), na ordem da spec (PAG-06.3)
+- [x] `Prefiro não informar` é categoria própria em gênero e raça (PAG-06.4)
+- [x] As faixas etárias saem na ordem `Até 24` a `65 ou mais` (PAG-06.5)
+- [x] A soma das quantidades de cada distribuição é igual a `total` (PAG-06.12)
+- [x] `total = 0` devolve o estado vazio "Ainda não há perfis cadastrados." (PAG-06.9)
+- [x] `por_mes` vira rótulos `Mês/aa` como `rotuloMes` do Analytics (PAG-06.2)
+- [x] Gate check passes: `npm test` (1098 testes, 0 falhas)
+- [x] Test count: 13 testes novos em `tests/admin-perfil.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(admin): add profile summary view model`
+
+**Status**: ✅ Done
 
 ---
 
