@@ -159,7 +159,7 @@ test('o limiar do scroll-spy é 160 px: missão com o topo a ~150 px é a ativa;
   await abreResumo(page, SEIS);
   await page.getByRole('button', { name: 'Expandir tudo' }).click();
   const naAltura = async (n: number, alvo: number) => {
-    await page.evaluate(([id, a]) => window.scrollTo({ top: document.getElementById(id)!.getBoundingClientRect().top + scrollY - (a as number), behavior: 'instant' }), [`res-m${n}`, alvo]);
+    await page.evaluate(({ id, a }) => window.scrollTo({ top: document.getElementById(id)!.getBoundingClientRect().top + scrollY - a, behavior: 'instant' }), { id: `res-m${n}`, a: alvo });
     await expect.poll(() => topo(page, n)).toBeGreaterThan(alvo - 4);
     await expect.poll(() => topo(page, n)).toBeLessThan(alvo + 4);
   };
