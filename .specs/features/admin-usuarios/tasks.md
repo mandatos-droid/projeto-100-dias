@@ -92,22 +92,24 @@ T6 → T7
 
 **Done when**:
 
-- [ ] `admin_usuarios` devolve `{ total, linhas }` com `id, nome, email, criado_em, ultimo_acesso, sem_perfil, equipe_papel, mandatos[{id,nome,papel,arquivado}]` e só esses campos (USR-01.2, USR-03.4)
-- [ ] Inclui toda conta de `auth.users`, a equipe Legisla e quem não tem perfil; `sem_perfil` é verdadeiro só para quem não tem perfil e não é da equipe (USR-01.3, 01.4, 01.5)
-- [ ] O nome sai do perfil, depois do cadastro da conta (`nome`, `full_name`, `name`) e por fim do e-mail; conta sem e-mail devolve `email` nulo (USR-01.6, Edge Cases)
-- [ ] Ordem por `last_sign_in_at` decrescente com nulos por último e desempate por e-mail (USR-01.8)
-- [ ] Limite fora de 1 a 100 vira 25; `total` conta as pessoas que atendem aos filtros, não só a página (USR-03.6, 03.7, USR-01.9)
-- [ ] Busca por nome ou e-mail sem diferenciar maiúsculas e acentos, cortada em 100 caracteres (USR-04.1, Edge Cases)
-- [ ] Filtros `p_papel` (`coordenacao`, `assessoria`, `leitura`, `legisla`), `p_mandato` e `p_sem_perfil`, aplicados juntos (USR-04.2 a 04.5)
-- [ ] Mandato arquivado aparece com `arquivado = true`; pessoa em dois mandatos aparece com os dois e o filtro por mandato a acha em qualquer um (Edge Cases, Assumptions)
-- [ ] Quem não está em `equipe_legisla` recebe "Você não tem permissão para esta ação." com erro 42501; `anon` não executa; a função é `stable` e não grava nada (USR-03.1, 03.2, 03.3, 03.5)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 20 testes novos em `tests/sql-admin-usuarios.test.ts`, nenhum removido; os testes de SQL existentes continuam passando
+- [x] `admin_usuarios` devolve `{ total, linhas }` com `id, nome, email, criado_em, ultimo_acesso, sem_perfil, equipe_papel, mandatos[{id,nome,papel,arquivado}]` e só esses campos (USR-01.2, USR-03.4)
+- [x] Inclui toda conta de `auth.users`, a equipe Legisla e quem não tem perfil; `sem_perfil` é verdadeiro só para quem não tem perfil e não é da equipe (USR-01.3, 01.4, 01.5)
+- [x] O nome sai do perfil, depois do cadastro da conta (`nome`, `full_name`, `name`) e por fim do e-mail; conta sem e-mail devolve `email` nulo (USR-01.6, Edge Cases)
+- [x] Ordem por `last_sign_in_at` decrescente com nulos por último e desempate por e-mail (USR-01.8)
+- [x] Limite fora de 1 a 100 vira 25; `total` conta as pessoas que atendem aos filtros, não só a página (USR-03.6, 03.7, USR-01.9)
+- [x] Busca por nome ou e-mail sem diferenciar maiúsculas e acentos, cortada em 100 caracteres (USR-04.1, Edge Cases)
+- [x] Filtros `p_papel` (`coordenacao`, `assessoria`, `leitura`, `legisla`), `p_mandato` e `p_sem_perfil`, aplicados juntos (USR-04.2 a 04.5)
+- [x] Mandato arquivado aparece com `arquivado = true`; pessoa em dois mandatos aparece com os dois e o filtro por mandato a acha em qualquer um (Edge Cases, Assumptions)
+- [x] Quem não está em `equipe_legisla` recebe "Você não tem permissão para esta ação." com erro 42501; `anon` não executa; a função é `stable` e não grava nada (USR-03.1, 03.2, 03.3, 03.5)
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 20 testes novos em `tests/sql-admin-usuarios.test.ts`, nenhum removido; os testes de SQL existentes continuam passando
 
 **Tests**: integration
 **Gate**: quick
 
 **Commit**: `feat(admin): add users list function`
+
+**Status**: ✅ Done
 
 ---
 
