@@ -60,6 +60,26 @@ function Foto({ mandato }: { mandato: MandatoDaPessoa }) {
   );
 }
 
+/** Cartão do mandato ativo: foto do TSE (iniciais de reserva), nome, cargo, UF, partido, posse e o papel da pessoa.
+    `nivel` é o do título com o nome (2 dentro do Guia, que já tem o h1 da tela); `children` entra no fim do cartão. */
+export function CartaoMandato({ nivel = 1, children }: { nivel?: 1 | 2; children?: React.ReactNode }) {
+  const { mandato, papel } = useMandato();
+  const info = [mandato.cargo, mandato.uf, mandato.partido, mandato.data_posse && `posse em ${dataBr(mandato.data_posse)}`].filter(Boolean).join(' · ');
+  const Titulo = nivel === 2 ? 'h2' : 'h1';
+  return (
+    <section className="md-card md-cartao" aria-label="Dados do mandato">
+      <Foto key={mandato.id} mandato={mandato} />
+      <div className="md-cresce">
+        <p className="md-rotulo">Mandato</p>
+        <Titulo>{nomeDoMandato(mandato)}</Titulo>
+        <p className="md-mut md-cartao-info">{info}</p>
+        <p className="md-mut">Seu papel: <strong data-testid="papel-ativo">{rotuloPapel(papel)}</strong></p>
+      </div>
+      {children}
+    </section>
+  );
+}
+
 export default function AreaMandato() {
   const { api, mandato, papel } = useMandato();
   const [catalogo, setCatalogo] = useState<ExercicioCatalogo[] | null>(null);
@@ -79,20 +99,12 @@ export default function AreaMandato() {
   const statusDe = (n: number): StatusMissao => status.find((s) => s.missao === n)?.status ?? 'A fazer';
   const concluidas = MISSOES.filter((m) => statusDe(m.n) === 'Concluída').length;
   const dia = textoDoDia(diaDoMandato(mandato.data_posse, new Date()), mandato.data_posse);
-  const info = [mandato.cargo, mandato.uf, mandato.partido, mandato.data_posse && `posse em ${dataBr(mandato.data_posse)}`].filter(Boolean).join(' · ');
 
   return (
     <>
-      <section className="md-card md-cartao" aria-label="Dados do mandato">
-        <Foto key={mandato.id} mandato={mandato} />
-        <div className="md-cresce">
-          <p className="md-rotulo">Mandato</p>
-          <h1>{nomeDoMandato(mandato)}</h1>
-          <p className="md-mut md-cartao-info">{info}</p>
-          <p className="md-mut">Seu papel: <strong data-testid="papel-ativo">{rotuloPapel(papel)}</strong></p>
-        </div>
+      <CartaoMandato>
         {podeEditar(papel) && <a className="md-bt md-bt--peq" href="/guia#/config">Editar dados</a>}
-      </section>
+      </CartaoMandato>
 
       <section className="md-card md-andamento" aria-label="Andamento dos 100 dias">
         <div className="md-linha">

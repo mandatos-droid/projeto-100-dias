@@ -51,6 +51,7 @@ export default function Atividade() {
   const { api, mandato } = useMandato();
   const [eventos, setEventos] = useState<EventoEquipe[] | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [tentativa, setTentativa] = useState(0);
 
   useEffect(() => {
     let vivo = true;
@@ -59,13 +60,16 @@ export default function Atividade() {
       (e) => { if (vivo) setErro(mensagemDe(e)); },
     );
     return () => { vivo = false; };
-  }, [api, mandato.id]);
+  }, [api, mandato.id, tentativa]);
 
   const agora = new Date();
   return (
     <section className="md-card md-atividade" aria-labelledby="md-atividade-t">
       <h2 id="md-atividade-t">Atividade recente</h2>
       {erro && <div className="md-aviso" role="alert">{erro}</div>}
+      {erro && (
+        <div><button type="button" className="md-bt" onClick={() => { setErro(null); setTentativa((n) => n + 1); }}>Tentar de novo</button></div>
+      )}
       {eventos && eventos.length === 0 && <p className="md-mut">Nenhuma atividade ainda.</p>}
       {eventos && eventos.length > 0 && (
         <ul className="md-lista">

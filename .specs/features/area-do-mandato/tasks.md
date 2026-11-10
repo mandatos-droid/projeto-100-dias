@@ -165,19 +165,21 @@ T6 → T7 → T8 → T9
 
 **Done when**:
 
-- [ ] A aba mostra o cartão do mandato (nome, cargo, UF, partido, posse, foto do TSE com iniciais de reserva), o papel da pessoa, o resumo da equipe e a atividade recente (AMA-02.1)
-- [ ] A aba NÃO mostra o andamento dos 100 dias nem as missões (AMA-02.1)
-- [ ] O botão "Convidar pessoa" do resumo abre a aba Equipe pelo hash `#/config/equipe` (sem recarregar)
-- [ ] Sem data de posse aparece "Informe a data de posse para acompanhar os prazos." com o link "Informar agora" para `#/config/dados` (AMA-02.2)
-- [ ] Falha da leitura mostra o erro da aba com "Tentar de novo" sem derrubar as outras abas (AMA-02.10)
-- [ ] O mock `e2e/area-api.ts` serve o Guia com nuvem em memória e os endpoints usados pelas abas; nenhuma chamada sem mapa (`naoMapeadas()`)
-- [ ] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/area-mandato.spec.ts`
-- [ ] Test count: ao menos 8 testes e2e novos, nenhum removido
+- [x] A aba mostra o cartão do mandato (nome, cargo, UF, partido, posse, foto do TSE com iniciais de reserva), o papel da pessoa, o resumo da equipe e a atividade recente (AMA-02.1)
+- [x] A aba NÃO mostra o andamento dos 100 dias nem as missões (AMA-02.1)
+- [x] O botão "Convidar pessoa" do resumo abre a aba Equipe pelo hash `#/config/equipe` (sem recarregar)
+- [x] Sem data de posse aparece "Informe a data de posse para acompanhar os prazos." com o link "Informar agora" para `#/config/dados` (AMA-02.2)
+- [x] Falha da leitura mostra o erro da aba com "Tentar de novo" sem derrubar as outras abas (AMA-02.10)
+- [x] O mock `e2e/area-api.ts` serve o Guia com nuvem em memória e os endpoints usados pelas abas; nenhuma chamada sem mapa (`naoMapeadas()`)
+- [x] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/area-mandato.spec.ts`
+- [x] Test count: ao menos 8 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(area-mandato): add overview tab`
+
+**Status**: ✅ Done
 
 ---
 

@@ -105,7 +105,7 @@ Telas.equipeHtml=function(){
    desconhecida abre a Visão geral. O item "Configurações" do menu passa a se chamar "Área do mandato". */
 var ROTULO_AREA='Área do mandato';
 var ABAS_AREA=[
-  {id:'visao',rot:'Visão geral',painel:'areaVisao',bt:'abaVisao'},
+  {id:'visao',rot:'Visão geral',painel:'areaVisao',bt:'abaVisao',ilha:'area-visao'},
   {id:'dados',rot:'Dados do mandato',painel:'areaDados',bt:'abaDados'},
   {id:'equipe',rot:'Equipe e convites',painel:'areaEquipe',bt:'abaEquipe'},
   {id:'conta',rot:'Minha conta',painel:'areaConta',bt:'abaConta'}
@@ -132,6 +132,14 @@ var Area={
         return '<section class="area-painel" role="tabpanel" id="'+a.painel+'" aria-labelledby="'+a.bt+'" tabindex="0"'+(a===atual?'':' hidden')+'></section>';
       }).join('');
     if(this.focar){this.focar=false;var b=document.getElementById(atual.bt);if(b&&b.focus)b.focus()}
+    this.preencher(atual);
+  },
+  /* só o painel da aba aberta recebe conteúdo: a ilha React (ilhas/ponte.tsx) lê o mandato aberto no Guia ao montar */
+  preencher:function(a){
+    var p=document.getElementById(a.painel);
+    if(!p||!a.ilha)return;
+    p.innerHTML='<div class="ilha" data-ilha="'+a.ilha+'"></div>';
+    if(window.Ilhas)Ilhas.ligar(p);
   },
   /* troca de aba = troca de hash; o hashchange redesenha (App.rotear). O foco volta à aba escolhida. */
   ir:function(id){
@@ -154,6 +162,21 @@ var Area={
 };
 window.Area=Area;
 Telas.config=function(){Area.desenhar()};
+
+/* trocar de mandato (Cadastros, na barra lateral) estando na Área do mandato redesenha a aba aberta já com o mandato novo,
+   em vez de voltar ao painel (Edge Case: troca de mandato). Fora da Área, a troca segue como era. */
+var _irSeletor=Seletor.ir;
+Seletor.ir=async function(id,recarregar){
+  if((location.hash||'').indexOf('#/config')!==0)return _irSeletor.apply(this,arguments);
+  if(!recarregar&&Store.mandato&&Store.mandato.id===id)return;
+  try{
+    localStorage.setItem('legisla.mandatoAtual',id);
+    await Store.abrir(id);
+    window.onbeforeunload=null;
+    App.rotear();
+    aviso('Você está em: '+(Store.mandato.nome_parlamentar||Store.mandato.nome_civil||'mandato')+'.');
+  }catch(e){aviso('Não foi possível abrir este cadastro: '+((e&&e.message)||'tente de novo')+'.')}
+};
 
 var _lateral=App.lateral;
 App.lateral=function(){

@@ -229,6 +229,17 @@ test('cada aba controla o seu painel, e cada painel nasce vazio (#areaVisao, #ar
   });
 });
 
+test('a Visão geral recebe no painel dela a ilha area-visao, ligada pelo Ilhas.ligar só nesse painel (AMA-02.1)', () => {
+  const ligou: string[] = [];
+  const j = janela({ hash: '#/config' });
+  j.w.Store.mandato = { ...MANDATO };
+  j.w.Store.membros = DOIS_MEMBROS;
+  (j.w as unknown as { Ilhas: { ligar(raiz: { id: string }): void } }).Ilhas = { ligar: (raiz) => { ligou.push(raiz.id); } };
+  j.w.Telas.config();
+  assert.equal(j.document.getElementById('areaVisao').innerHTML, '<div class="ilha" data-ilha="area-visao"></div>');
+  assert.deepEqual(ligou, ['areaVisao']);
+});
+
 test('clicar numa aba (Area.ir) leva ao endereço dela: #/config para a Visão geral e #/config/<aba> para as outras (AMA-01.4)', () => {
   const { w } = areaEm('#/config');
   for (const [id, hash] of [['equipe', '#/config/equipe'], ['conta', '#/config/conta'], ['dados', '#/config/dados'], ['visao', '#/config']]) {

@@ -12,11 +12,13 @@ const CORES = ['a', 'b', 'c', 'd'];
 const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um : varios}`;
 
 // Resumo da equipe na Área do mandato: até 3 avatares, total de pessoas, convites pendentes e atalho para convidar.
-export default function ResumoEquipe() {
+// `convidar`: destino do atalho dentro do Guia (a aba Equipe, por hash, sem recarregar); sem ele, a tela /mandato/equipe.
+export default function ResumoEquipe({ convidar }: { convidar?: string }) {
   const { api, mandato } = useMandato();
   const [pessoas, setPessoas] = useState<PessoaEquipe[] | null>(null);
   const [pendentes, setPendentes] = useState<number | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [tentativa, setTentativa] = useState(0);
 
   useEffect(() => {
     let vivo = true;
@@ -25,7 +27,7 @@ export default function ResumoEquipe() {
       (e) => { if (vivo) setErro(mensagemDe(e)); },
     );
     return () => { vivo = false; };
-  }, [api, mandato.id]);
+  }, [api, mandato.id, tentativa]);
 
   return (
     <section className="md-card md-resumo" aria-labelledby="md-resumo-t">
@@ -33,6 +35,9 @@ export default function ResumoEquipe() {
         <h2 id="md-resumo-t">Quem trabalha neste mandato</h2>
       </div>
       {erro && <div className="md-aviso" role="alert">{erro}</div>}
+      {erro && (
+        <div><button type="button" className="md-bt" onClick={() => { setErro(null); setTentativa((n) => n + 1); }}>Tentar de novo</button></div>
+      )}
       <div className="md-linha md-resumo-corpo">
         {pessoas && (
           <>
@@ -48,7 +53,9 @@ export default function ResumoEquipe() {
             </span>
           </>
         )}
-        <Link className="md-bt md-bt--pri md-bt--peq" href="/mandato/equipe">Convidar pessoa</Link>
+        {convidar
+          ? <a className="md-bt md-bt--pri md-bt--peq" href={convidar}>Convidar pessoa</a>
+          : <Link className="md-bt md-bt--pri md-bt--peq" href="/mandato/equipe">Convidar pessoa</Link>}
       </div>
     </section>
   );
