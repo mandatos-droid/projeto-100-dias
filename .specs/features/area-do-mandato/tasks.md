@@ -100,20 +100,22 @@ T6 → T7 → T8 → T9
 
 **Done when**:
 
-- [ ] O item do menu "Configurações" vira "Área do mandato", no mesmo grupo Mandato, e fica marcado como ativo em todas as abas (AMA-01.1, 01.7)
-- [ ] `#/config` mostra a casca com as abas `Visão geral`, `Dados do mandato`, `Equipe e convites` e `Minha conta`, com a Visão geral ativa; `#/config/dados`, `#/config/equipe` e `#/config/conta` abrem a aba correspondente; aba desconhecida abre a Visão geral (AMA-01.2, 01.3, 01.6)
-- [ ] Clicar em uma aba troca o conteúdo sem recarregar e atualiza o hash; o Voltar do navegador volta à aba anterior (AMA-01.4, 01.5)
-- [ ] A casca usa `tablist`, `tab` e `tabpanel`, `aria-selected` na aba ativa, setas esquerda e direita movem o foco e ativam a vizinha, Home e End vão à primeira e à última (AMA-04.1, 04.2)
-- [ ] A lista de abas rola dentro do próprio contêiner em 400 px, sem rolagem horizontal da página (AMA-04.3)
-- [ ] Cada aba tem um contêiner próprio vazio (`#areaVisao`, `#areaDados`, `#areaEquipe`, `#areaConta`) para as tasks seguintes; o texto "Equipe e convites (N)" já usa `Store.membros.length` (AMA-02.7)
-- [ ] `app.js`, `nucleo.js` e `lib/legacyBody.ts` seguem sem edição
-- [ ] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/area-mandato.spec.ts`
-- [ ] Test count: ao menos 10 testes novos entre `tests/legado-acesso.test.ts` (vm) e `e2e/area-mandato.spec.ts`, nenhum removido; os testes existentes que citam "Configurações" são atualizados só no texto do rótulo
+- [x] O item do menu "Configurações" vira "Área do mandato", no mesmo grupo Mandato, e fica marcado como ativo em todas as abas (AMA-01.1, 01.7)
+- [x] `#/config` mostra a casca com as abas `Visão geral`, `Dados do mandato`, `Equipe e convites` e `Minha conta`, com a Visão geral ativa; `#/config/dados`, `#/config/equipe` e `#/config/conta` abrem a aba correspondente; aba desconhecida abre a Visão geral (AMA-01.2, 01.3, 01.6)
+- [x] Clicar em uma aba troca o conteúdo sem recarregar e atualiza o hash; o Voltar do navegador volta à aba anterior (AMA-01.4, 01.5)
+- [x] A casca usa `tablist`, `tab` e `tabpanel`, `aria-selected` na aba ativa, setas esquerda e direita movem o foco e ativam a vizinha, Home e End vão à primeira e à última (AMA-04.1, 04.2)
+- [x] A lista de abas rola dentro do próprio contêiner em 400 px, sem rolagem horizontal da página (AMA-04.3)
+- [x] Cada aba tem um contêiner próprio vazio (`#areaVisao`, `#areaDados`, `#areaEquipe`, `#areaConta`) para as tasks seguintes; o texto "Equipe e convites (N)" já usa `Store.membros.length` (AMA-02.7)
+- [x] `app.js`, `nucleo.js` e `lib/legacyBody.ts` seguem sem edição
+- [x] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/area-mandato.spec.ts`
+- [x] Test count: ao menos 10 testes novos entre `tests/legado-acesso.test.ts` (vm) e `e2e/area-mandato.spec.ts`, nenhum removido; os testes existentes que citam "Configurações" são atualizados só no texto do rótulo
 
 **Tests**: unit
 **Gate**: full
 
 **Commit**: `feat(area-mandato): add tabbed shell to the Guia config screen`
+
+**Status**: ✅ Done
 
 ---
 

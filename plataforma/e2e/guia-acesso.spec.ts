@@ -151,7 +151,7 @@ test.describe('Código de convite fora do Guia (ACE-07.2, ACE-07.5)', () => {
     await expect(page.locator('#tela [onclick*="odigo"]')).toHaveCount(0); // Cad.codigo e Telas.usarCodigo
   });
 
-  test('Configurações mostra Equipe e convites como cartão com link para /mandato/equipe, sem o código do mandato', async ({ page }) => {
+  test('Área do mandato mostra Equipe e convites como cartão com link para /mandato/equipe, sem o código do mandato', async ({ page }) => {
     await abre(page, '#/config');
     const secao = page.locator('#cadEquipe');
     await expect(secao.getByRole('heading', { name: 'Equipe e convites' })).toBeVisible();
@@ -162,7 +162,7 @@ test.describe('Código de convite fora do Guia (ACE-07.2, ACE-07.5)', () => {
     await expect(page.locator('#tela [onclick*="odigo"]')).toHaveCount(0);
   });
 
-  test('o endereço antigo #/equipe cai em Configurações, no mesmo cartão e sem código', async ({ page }) => {
+  test('o endereço antigo #/equipe cai em Área do mandato, no mesmo cartão e sem código', async ({ page }) => {
     await abre(page, '#/equipe');
     await expect(page).toHaveURL(/#\/config$/);
     await expect(page.locator('#cadEquipe').getByRole('link', { name: 'Abrir Equipe e convites' })).toHaveAttribute('href', '/mandato/equipe');
@@ -214,7 +214,7 @@ test.describe('Modo somente leitura no Guia (ACE-03.2, ACE-03.3)', () => {
     await expect(page.getByRole('button', { name: 'Próximo exercício ›' })).toBeEnabled();
   });
 
-  test('em Configurações os campos e os botões Salvar alterações, trocar o parlamentar e Excluir cadastro ficam desabilitados', async ({ page }) => {
+  test('em Área do mandato os campos e os botões Salvar alterações, trocar o parlamentar e Excluir cadastro ficam desabilitados', async ({ page }) => {
     await abre(page, '#/config', { papel: 'leitura' });
     await expect(page.locator('#cadNome')).toBeDisabled();
     await expect(page.locator('#cadPosse')).toBeDisabled();
@@ -257,7 +257,7 @@ test.describe('Modo somente leitura no Guia (ACE-03.2, ACE-03.3)', () => {
     expect((patch.corpo as { dados: { campos: Record<string, string> } }).dados.campos['m1.q1']).toContain('resposta da assessoria');
   });
 
-  test('com coordenacao, Configurações segue editável e sem aviso', async ({ page }) => {
+  test('com coordenacao, Área do mandato segue editável e sem aviso', async ({ page }) => {
     await abre(page, '#/config', { papel: 'coordenacao' });
     await expect(page.locator('body')).not.toHaveClass(/\bso-leitura\b/);
     await expect(page.getByText(AVISO)).toHaveCount(0);

@@ -99,6 +99,70 @@ Telas.equipeHtml=function(){
   return '<section id="cadEquipe" aria-label="Equipe e convites">'+h+'</section>';
 };
 
+/* ---------- Área do mandato: tela única em #/config, com abas (AMA-01, AMA-04) ----------
+   O App.rotear do app.js já manda todo #/config/<aba> para Telas.config: aqui a tela desenha as abas e um painel por aba.
+   Cada aba tem o seu endereço; trocar de aba muda o hash, então o Voltar do navegador volta à aba anterior. Aba
+   desconhecida abre a Visão geral. O item "Configurações" do menu passa a se chamar "Área do mandato". */
+var ROTULO_AREA='Área do mandato';
+var ABAS_AREA=[
+  {id:'visao',rot:'Visão geral',painel:'areaVisao',bt:'abaVisao'},
+  {id:'dados',rot:'Dados do mandato',painel:'areaDados',bt:'abaDados'},
+  {id:'equipe',rot:'Equipe e convites',painel:'areaEquipe',bt:'abaEquipe'},
+  {id:'conta',rot:'Minha conta',painel:'areaConta',bt:'abaConta'}
+];
+function abaDoHash(h){
+  var p=String(h||'').replace(/^#\/?/,'').split('/'),id=p[0]==='config'?p[1]:'';
+  return ABAS_AREA.filter(function(a){return a.id===id})[0]||ABAS_AREA[0];
+}
+var Area={
+  focar:false,
+  hash:function(id){return id==='visao'?'#/config':'#/config/'+id},
+  rotulo:function(a){return a.id==='equipe'?a.rot+' ('+(Store.membros||[]).length+')':a.rot},
+  desenhar:function(){
+    var atual=abaDoHash(location.hash),t=document.getElementById('tela');
+    t.className='tela largo';
+    t.innerHTML='<div class="etiqueta">Mandato</div><h1 class="largo">'+ROTULO_AREA+'</h1>'+
+      '<div class="abas area-abas" role="tablist" aria-label="'+ROTULO_AREA+'" onkeydown="Area.tecla(event)">'+
+      ABAS_AREA.map(function(a){
+        var on=a===atual;
+        return '<button type="button" role="tab" id="'+a.bt+'" aria-controls="'+a.painel+'" aria-selected="'+on+'" tabindex="'+(on?'0':'-1')+'"'+
+          ' onclick="Area.ir(\''+a.id+'\')">'+esc(Area.rotulo(a))+'</button>';
+      }).join('')+'</div>'+
+      ABAS_AREA.map(function(a){
+        return '<section class="area-painel" role="tabpanel" id="'+a.painel+'" aria-labelledby="'+a.bt+'" tabindex="0"'+(a===atual?'':' hidden')+'></section>';
+      }).join('');
+    if(this.focar){this.focar=false;var b=document.getElementById(atual.bt);if(b&&b.focus)b.focus()}
+  },
+  /* troca de aba = troca de hash; o hashchange redesenha (App.rotear). O foco volta à aba escolhida. */
+  ir:function(id){
+    var h=this.hash(abaDoHash('#/config/'+id).id);
+    this.focar=true;
+    if(location.hash!==h)location.hash=h;
+    else this.desenhar();
+  },
+  /* setas esquerda e direita: aba vizinha (a lista é circular); Home e End: primeira e última (AMA-04.2) */
+  tecla:function(ev){
+    var i=ABAS_AREA.indexOf(abaDoHash(location.hash)),n=ABAS_AREA.length,j;
+    if(ev.key==='ArrowRight')j=(i+1)%n;
+    else if(ev.key==='ArrowLeft')j=(i+n-1)%n;
+    else if(ev.key==='Home')j=0;
+    else if(ev.key==='End')j=n-1;
+    else return;
+    ev.preventDefault();
+    this.ir(ABAS_AREA[j].id);
+  }
+};
+window.Area=Area;
+Telas.config=function(){Area.desenhar()};
+
+var _lateral=App.lateral;
+App.lateral=function(){
+  var r=_lateral.apply(this,arguments);
+  var tx=document.querySelector('#ladoNav .it[href="#/config"] .tx');
+  if(tx)tx.textContent=ROTULO_AREA;
+  return r;
+};
+
 /* ---------- modo somente leitura (ACE-03.2, ACE-03.3) ----------
    O papel vem da linha da própria pessoa em Store.membros, que o Store.abrir carrega a cada mandato aberto.
    O banco já recusa a escrita de quem é leitura; aqui o Guia não tenta gravar e trava os controles. */
@@ -150,7 +214,11 @@ var css=document.createElement('style');
 css.textContent='.aviso-leitura{margin:0;padding:.625rem 1.25rem;background:#FFF4D6;border-bottom:1px solid var(--linha);'+
   'color:var(--tinta);font-weight:700;font-size:.9375rem}'+
   '.so-leitura #tela :disabled,.so-leitura #tela [contenteditable="false"]{opacity:.6;cursor:not-allowed}'+
-  '.erro-perfil{max-width:32rem;margin:4rem auto;padding:0 1.25rem;display:grid;gap:1rem;justify-items:start}';
+  '.erro-perfil{max-width:32rem;margin:4rem auto;padding:0 1.25rem;display:grid;gap:1rem;justify-items:start}'+
+  /* abas da Área do mandato: em tela estreita a lista rola dentro dela, nunca a página (AMA-04.3) */
+  '.area-abas{margin:1.5rem 0 1.875rem;max-width:100%;overscroll-behavior-x:contain}'+
+  '.area-abas button{flex:0 0 auto}'+
+  '.area-painel{min-width:0}';
 document.head.appendChild(css);
 
 })();

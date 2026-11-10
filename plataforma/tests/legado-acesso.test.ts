@@ -75,9 +75,11 @@ interface Guia {
     criarConta(e: string, s: string, n: string): Promise<unknown>; entrar(e: string, s: string): Promise<unknown>;
     sessao(): Promise<{ id: string } | null>; erroOAuth?: string;
   };
-  Telas: { equipeHtml(): string; primeiroAcesso(): void };
+  Telas: { equipeHtml(): string; primeiroAcesso(): void; config(): void };
   Cad: { blocoCodigo(): string };
   App: { iniciar(): Promise<void>; entrou(): Promise<void> };
+  Area: { ir(id: string): void; tecla(ev: { key: string; preventDefault(): void }): void };
+  location: { hash: string };
 }
 
 /** Carrega nucleo.js, app.js, cadastro.js e acesso.js reais, na ordem do Guia. O atraso de 700 ms do Store.salvar some. */
@@ -140,7 +142,7 @@ test('o cadastro novo (primeiro acesso e "Novo cadastro") não traz mais o bloco
   assert.equal(w.Cad.blocoCodigo(), '');
 });
 
-test('Equipe e convites em Configurações vira um cartão com link para /mandato/equipe, sem código (ACE-07.2, ACE-07.5)', () => {
+test('Equipe e convites em Área do mandato vira um cartão com link para /mandato/equipe, sem código (ACE-07.2, ACE-07.5)', () => {
   const { w } = janela();
   w.Store.mandato = { ...MANDATO };
   w.Store.membros = [{ user_id: 'u1', nome: 'Lia', papel: 'coordenacao' }];
@@ -161,6 +163,95 @@ test('no modo local, Equipe e convites segue sem código e sem link para /mandat
   assert.equal(h.includes('KJ4TP9'), false);
   assert.equal(h.includes('/mandato/equipe'), false);
   assert.match(h, /Modo local/);
+});
+
+/* ---------- Área do mandato: casca com abas em #/config (AMA-01.2, 01.3, 01.6, 02.7, 04.1, 04.2) ---------- */
+const ABAS_AREA = ['Visão geral', 'Dados do mandato', 'Equipe e convites', 'Minha conta'];
+const PAINEIS_AREA = ['areaVisao', 'areaDados', 'areaEquipe', 'areaConta'];
+const DOIS_MEMBROS = [{ user_id: 'u1', nome: 'Lia', papel: 'coordenacao' }, { user_id: 'u2', nome: 'Mariana', papel: 'assessoria' }];
+
+function atributos(s: string): Record<string, string> {
+  const r: Record<string, string> = {};
+  for (const m of s.matchAll(/([\w-]+)(?:="([^"]*)")?/g)) r[m[1]] = m[2] ?? '';
+  return r;
+}
+/** Telas.config real no hash dado; devolve as abas e os painéis que ela escreveu no #tela (HTML do documento simulado). */
+function areaEm(hash: string, membros: unknown[] = DOIS_MEMBROS) {
+  const j = janela({ hash });
+  j.w.Store.mandato = { ...MANDATO };
+  j.w.Store.membros = membros;
+  j.w.Telas.config();
+  const html = j.document.getElementById('tela').innerHTML;
+  const lista = /<div ([^>]*role="tablist"[^>]*)>/.exec(html);
+  const abas = [...html.matchAll(/<button ([^>]*role="tab"[^>]*)>([^<]*)<\/button>/g)].map(([, a, rot]) => ({ rot, a: atributos(a) }));
+  const paineis = [...html.matchAll(/<section ([^>]*role="tabpanel"[^>]*)>([\s\S]*?)<\/section>/g)].map(([, a, corpo]) => ({ a: atributos(a), corpo }));
+  const ativa = abas.findIndex((x) => x.a['aria-selected'] === 'true');
+  const visivel = paineis.filter((p) => !('hidden' in p.a)).map((p) => p.a.id);
+  return { ...j, html, lista: lista ? atributos(lista[1]) : null, abas, paineis, ativa, visivel };
+}
+
+test('#/config desenha a Área do mandato: lista de abas com Visão geral, Dados do mandato, Equipe e convites e Minha conta, Visão geral ativa (AMA-01.2, AMA-04.1)', () => {
+  const r = areaEm('#/config');
+  assert.match(r.html, /<h1[^>]*>Área do mandato<\/h1>/);
+  assert.equal(r.lista?.role, 'tablist');
+  assert.deepEqual(r.abas.map((x) => x.rot), ['Visão geral', 'Dados do mandato', 'Equipe e convites (2)', 'Minha conta']);
+  assert.deepEqual(r.abas.map((x) => x.a['aria-selected']), ['true', 'false', 'false', 'false']);
+  assert.deepEqual(r.paineis.map((p) => p.a.id), PAINEIS_AREA);
+  assert.deepEqual(r.visivel, ['areaVisao']);
+});
+
+for (const [hash, i] of [['#/config/dados', 1], ['#/config/equipe', 2], ['#/config/conta', 3]] as const) {
+  test(`${hash} abre a aba ${ABAS_AREA[i]} ativa, com o painel dela à mostra (AMA-01.3)`, () => {
+    const r = areaEm(hash);
+    assert.equal(r.ativa, i);
+    assert.deepEqual(r.visivel, [PAINEIS_AREA[i]]);
+  });
+}
+
+test('aba desconhecida (#/config/xyz) abre a Visão geral (AMA-01.6)', () => {
+  const r = areaEm('#/config/xyz');
+  assert.equal(r.ativa, 0);
+  assert.deepEqual(r.visivel, ['areaVisao']);
+});
+
+test('o rótulo da aba Equipe traz o total de pessoas do mandato (Store.membros), no formato "Equipe e convites (N)" (AMA-02.7)', () => {
+  assert.equal(areaEm('#/config', DOIS_MEMBROS).abas[2].rot, 'Equipe e convites (2)');
+  assert.equal(areaEm('#/config', [...DOIS_MEMBROS, { user_id: 'u3', nome: 'Rui', papel: 'leitura' }]).abas[2].rot, 'Equipe e convites (3)');
+});
+
+test('cada aba controla o seu painel, e cada painel nasce vazio (#areaVisao, #areaDados, #areaEquipe, #areaConta) (AMA-04.1)', () => {
+  const r = areaEm('#/config/equipe');
+  r.abas.forEach((aba, i) => {
+    const painel = r.paineis[i];
+    assert.equal(aba.a['aria-controls'], painel.a.id);
+    assert.equal(painel.a['aria-labelledby'], aba.a.id);
+    assert.equal(painel.corpo, '');
+  });
+});
+
+test('clicar numa aba (Area.ir) leva ao endereço dela: #/config para a Visão geral e #/config/<aba> para as outras (AMA-01.4)', () => {
+  const { w } = areaEm('#/config');
+  for (const [id, hash] of [['equipe', '#/config/equipe'], ['conta', '#/config/conta'], ['dados', '#/config/dados'], ['visao', '#/config']]) {
+    w.Area.ir(id);
+    assert.equal(w.location.hash, hash, id);
+  }
+});
+
+test('na lista de abas, seta direita e esquerda vão à aba vizinha e Home e End à primeira e à última; outras teclas seguem livres (AMA-04.2)', () => {
+  const { w } = areaEm('#/config');
+  const tecla = (key: string) => { let impedida = false; w.Area.tecla({ key, preventDefault: () => { impedida = true; } }); return impedida; };
+  assert.equal(tecla('ArrowRight'), true);
+  assert.equal(w.location.hash, '#/config/dados');
+  tecla('ArrowRight');
+  assert.equal(w.location.hash, '#/config/equipe');
+  tecla('ArrowLeft');
+  assert.equal(w.location.hash, '#/config/dados');
+  tecla('End');
+  assert.equal(w.location.hash, '#/config/conta');
+  tecla('Home');
+  assert.equal(w.location.hash, '#/config');
+  assert.equal(tecla('Tab'), false);
+  assert.equal(w.location.hash, '#/config');
 });
 
 test('Store.entrarPorCodigo recusa sem nenhuma chamada ao banco e sem citar código (ACE-07.1, ACE-07.2)', async () => {
