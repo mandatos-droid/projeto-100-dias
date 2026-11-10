@@ -96,30 +96,39 @@
 - **Phase / Task**: Fase 7 (correções do Verifier, rodada 2) concluída; T1 a T21 commitadas. Última task: T21 (leitura dos mandatos dentro da trava do Guia, este registro). T20 `208cad8` (testes da falha de `equipe_legisla` no Guia, GAP-R2-1). Verifier rodada 2: FAIL em `validation.md` (GAP-R2-1, SP-R2-1), tratados em T20 e T21.
 - **Gate**: `npx tsc --noEmit` sem erro; `npm test` 1109/1109; e2e `convite-*`, `mandato-*`, `guia-acesso*`, `primeiro-acesso*` e `admin-*` no servidor próprio da porta 3100: 349/349.
 - **In-progress**: nenhum
-- **Next step**: re-verificação independente, rodada 3 (author != verifier), sobre T20 e T21 e o PAG-02, regravando `.specs/features/primeiro-acesso-google/validation.md`; depois `validate_state.py primeiro-acesso-google`. Push, migrations e deploy só com go-ahead explícito.
+- **Next step**: release preparado no branch `deploy/primeiro-acesso` (ver "Release" abaixo). Falta só o push na `main` (aplica as 6 migrations) e o deploy na Vercel, os dois só com go-ahead explícito do usuário.
 - **Blockers**: nenhum
 - **Nota sobre AD-013**: a linha "Categoria sem ninguém não aparece" foi substituída pela spec (Assumptions "Categorias sem ninguém no Analytics" e "Porcentagem no Analytics"): desde a T19 toda categoria aparece, mesmo com 0, e a soma das porcentagens pode dar 99 ou 101.
 - **Uncommitted files**: só arquivos de outras frentes (`plataforma/ilhas/`, `plataforma/public/data/`, `plataforma/public/legacy/ilhas.css`, `graphify-out/`, `.pw-out-tmp/`, `AJUSTES_GUIA_100_DIAS.md`, `supabase/` na raiz)
 
+**Release `deploy/primeiro-acesso` (2026-11-10):**
+
+- Branch `deploy/primeiro-acesso`, no worktree `Dev Apps/primeiro-acesso-deploy`, sobre `origin/main` `7df7417` (painel-admin publicado). Leva `acesso-equipe-convites` e `primeiro-acesso-google`, reaplicados por cherry-pick de `1a97fe1..feat/primeiro-acesso-google`, mais a atualização do Next e este registro. Nada foi enviado: sem push, deploy nem migration remota.
+- O merge `ac19a35` (`feat/painel-admin` em `feat/acesso-convites`) ficou de fora: foi limpo (`git show --remerge-diff` vazio) e o lado que ele trazia já está no `origin/main`. Os dois commits anteriores a ele, `3e33d47` e `e5bdaa9`, entraram. Juntos eles têm o mesmo conteúdo de `9057bcb` (sugestões 89 a 95, branch `fix/sugestoes-89-95`), então o release publica também a tabela de eleitos paginada, a caixa de informação sem corte, o fim da busca global e a Configurações unificada. A sugestão 91 (`dd84572`) não entra: está na base local do painel-admin, mas não no `origin/main`.
+- Conflito único: `plataforma/public/legacy/ilhas.css` no `e5bdaa9`. Ficou o arquivo do `origin/main`, sem o bloco "Relação em três categorias" da sugestão 91, mais as duas regras `.ass .paginacao` do commit.
+- Next de 16.4.0 para 16.4.6 (`chore(deps): update next to 16.4.6`): só o `next`, o `@next/env` e os `@next/swc-*` mudam no lockfile. `npm run build` passa na primeira tentativa, sem `SecurityFatalError`, e `npm audit` mostra 0 vulnerabilidades. **O advisory do Next 16.4 está resolvido**: o build volta a valer como gate, e as notas "advisory conhecido" dos `tasks.md` das features ficam históricas.
+- Gates no estado final: `npx tsc --noEmit` sem erro; `npm test` 1109/1109 (em duas rodadas anteriores, arquivos `sql-*` do PGlite abortaram com `Fatal process out of memory: Zone` porque a máquina estava com pouca memória livre; os mesmos arquivos passam sozinhos e a rodada final passou inteira); `npm run build` ok; e2e `convite-*`, `mandato-*`, `guia-acesso*`, `primeiro-acesso*` e `admin-*` no servidor próprio da porta 3100: 349/349.
+- Migrations que o push na `main` aplica (workflow `migrations.yml`), nenhuma ainda no remoto (`supabase migration list`): `20261106120000_convites_equipe.sql`, `20261106130000_papeis_blindagem.sql`, `20261106140000_convites_autoridade.sql`, `20261106150000_convites_de_quem_sai.sql`, `20261109120000_perfis.sql` e `20261109130000_perfil_resumo.sql`.
+
 **Pendências abertas de `primeiro-acesso-google`:**
 
 1. Revisão jurídica do texto do consentimento de dados sensíveis (versão `2026-11`) antes de produção.
-2. Conferir no banco, só leitura e com go-ahead do usuário, que não há contas com senha (o login por senha foi removido da tela, mas contas antigas podem existir).
+2. Resolvido em 2026-11-10: o banco remoto foi consultado só para leitura e tem 12 contas, todas Google, nenhuma com senha.
 3. `/painel` (`public/painel.html`) ainda tem login próprio (Google e e-mail); fora desta feature.
-4. Incluir `<domínio>/primeiro-acesso` e `<domínio>/convite` nas Redirect URLs do Supabase (ação manual; sem isso o retorno do Google cai na raiz).
+4. Resolvido em 2026-11-10: o usuário incluiu as Redirect URLs do Supabase (`<domínio>/primeiro-acesso` e `<domínio>/convite`).
 5. A sessão do primeiro acesso fica em `sessionStorage`: se a pessoa trocar de aba durante o perfil, o token do convite se perde e ela abre o link de novo.
 6. Tela de lista e exportação de perfis estão fora do escopo (o Analytics mostra só agregados).
 7. Resolvido na T18: a falha na consulta de perfil no Guia mostra a caixa "Não foi possível carregar seus dados. Tente de novo." com "Tentar de novo". O texto da caixa e as decisões da rodada 1 ainda não confirmadas na spec (categorias com 0 no Analytics, arredondamento por categoria) esperam confirmação do dono do produto.
 8. O override do Guia só vale com a nuvem ligada; o modo local não muda.
-9. As 2 migrations novas desta feature, `20261109120000_perfis.sql` e `20261109130000_perfil_resumo.sql`, só são aplicadas em produção quando a `main` receber push (workflow `migrations.yml`); isso exige go-ahead explícito do usuário.
+9. As 2 migrations novas desta feature, `20261109120000_perfis.sql` e `20261109130000_perfil_resumo.sql`, só são aplicadas em produção quando a `main` receber push (workflow `migrations.yml`); isso exige go-ahead explícito do usuário. Já estão no branch `deploy/primeiro-acesso`.
 10. As 6 decisões de execução dos workers (AD-013) esperam confirmação do dono do produto.
 
 **Pendências da feature anterior `acesso-equipe-convites` (branch `feat/acesso-convites`, ainda abertas):**
 
 1. Conferir "Confirmar e-mail" no Supabase (Authentication, Providers, Email). Ligado: quem é de fora pode não receber a confirmação (e-mail embutido) e o convite guardado no `sessionStorage` só vale na mesma aba; em outra aba ou aparelho a pessoa abre o link de novo.
-2. Incluir `<domínio>/convite` nas Redirect URLs do Supabase (sem isso o retorno do Google cai na raiz e é repassado).
+2. Resolvido em 2026-11-10: o usuário incluiu `<domínio>/convite` nas Redirect URLs do Supabase.
 3. Depois do primeiro uso em produção, conferir se o `x-forwarded-for` chega à função do banco e qual IP é confiável: o primeiro costuma ser controlado pelo cliente, e trocar o cabeçalho contorna o limite de tentativas.
-4. Aplicar `20261106120000_convites_equipe.sql`, `20261106130000_papeis_blindagem.sql`, `20261106140000_convites_autoridade.sql` e `20261106150000_convites_de_quem_sai.sql`, nessa ordem, só ao subir para a `main`, com go-ahead explícito.
+4. Aplicar `20261106120000_convites_equipe.sql`, `20261106130000_papeis_blindagem.sql`, `20261106140000_convites_autoridade.sql` e `20261106150000_convites_de_quem_sai.sql`, nessa ordem, só ao subir para a `main`, com go-ahead explícito. Já estão no branch `deploy/primeiro-acesso`.
 5. A tela de membros do `/admin` precisa aceitar o papel `leitura` (spec `painel-admin`).
 6. AD-011 confirmado com ajuste (AD-012): rebaixamento, remoção e conta apagada invalidam os convites; quem sai por conta própria os mantém até o papel que tinha ao sair.
 7. Decidir os três efeitos do AD-012 que seguem abertos: (a) quem sai por conta própria pode voltar pelos próprios convites pendentes, com a própria conta ou com outra, até o papel que tinha ao sair, até vencerem (7 dias) ou serem cancelados; (b) a coordenação vê esses convites em "Convites pendentes" e pode cancelá-los; (c) se a pessoa sai enquanto a coordenação tenta removê-la, a remoção falha com "Pessoa não encontrada." e os convites seguem valendo até alguém cancelar.
