@@ -134,17 +134,19 @@ T6 → T7 → T8 → T9
 
 **Done when**:
 
-- [ ] `lib/mandato/legado.ts` converte `Store.mandato` e `Store.membros` do Guia em `MandatoDaPessoa` com o papel da própria pessoa, e devolve erro tratável quando falta mandato, membros ou usuário (AMA-02.10)
-- [ ] `ProvedorLegado` monta `ContextoMandato` com `api` autenticada que renova a sessão no 401, `usuario` do Guia e o mandato ativo do Guia; `escolhe` não faz nada (o seletor de mandato é do Guia)
-- [ ] Ao trocar o mandato no Guia a ilha remonta e recarrega os dados do novo mandato, sem restos do anterior (Edge Case: troca de mandato)
-- [ ] Falha ao montar o contexto mostra "Não foi possível carregar. Tente de novo." com botão "Tentar de novo" e nunca libera botão de edição
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 8 testes novos em `tests/mandato-legado.test.ts`, nenhum removido
+- [x] `lib/mandato/legado.ts` converte `Store.mandato` e `Store.membros` do Guia em `MandatoDaPessoa` com o papel da própria pessoa, e devolve erro tratável quando falta mandato, membros ou usuário (AMA-02.10)
+- [x] `ProvedorLegado` monta `ContextoMandato` com `api` autenticada que renova a sessão no 401, `usuario` do Guia e o mandato ativo do Guia; `escolhe` não faz nada (o seletor de mandato é do Guia)
+- [x] Ao trocar o mandato no Guia a ilha remonta e recarrega os dados do novo mandato, sem restos do anterior (Edge Case: troca de mandato)
+- [x] Falha ao montar o contexto mostra "Não foi possível carregar. Tente de novo." com botão "Tentar de novo" e nunca libera botão de edição
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 8 testes novos em `tests/mandato-legado.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(area-mandato): add legacy-backed mandate context provider`
+
+**Status**: ✅ Done
 
 ---
 
