@@ -1,7 +1,8 @@
-// Primeiro acesso: o banco barra as duas portas de entrada em um mandato para quem não tem perfil
-// (convite_aceitar e a política mandatos_criar) e apaga o perfil com os dados da pessoa (PAG-02, PAG-03), no PGlite.
+// Primeiro acesso: o banco barra as portas de entrada em um mandato para quem não tem perfil
+// (convite_aceitar e as políticas mandatos_criar e membros_criar) e apaga o perfil com os dados da pessoa (PAG-02, PAG-03), no PGlite.
 import { test, before, after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { criaBanco, como, comoDono, semente, IDS } from './sql-ambiente.ts';
 import type { Banco } from './sql-ambiente.ts';
 
@@ -81,13 +82,13 @@ test('sem perfil e fora da equipe Legisla, o aceite devolve {ok:false, erro:"per
   assert.deepEqual(await historico(), []);
 });
 
-test('a checagem de perfil vem logo depois da de consentimento: já membro, e-mail diferente e falta de consentimento respondem antes (PAG-02.2)', async () => {
+test('a checagem de perfil vem antes da de consentimento: já membro e e-mail diferente respondem antes; sem perfil e sem consentimento responde perfil (PAG-02.1, 02.2)', async () => {
   await convite('com-email', 'outra.pessoa@exemplo.com');
   await convite('sem-email');
   await como(banco, CARLOS);
   assert.deepEqual(await aceitar('com-email'), { ok: false, erro: 'email' });
   await como(banco, CARLOS);
-  assert.deepEqual(await aceitar('sem-email'), { ok: false, erro: 'consentimento' });
+  assert.deepEqual(await aceitar('sem-email'), { ok: false, erro: 'perfil' });
   // quem já é membro e não tem perfil continua recebendo ja_membro, sem consumir o convite
   await como(banco, IDS.membro);
   assert.deepEqual(await aceitar('sem-email'), { ok: true, mandato_id: IDS.mandatoA, ja_membro: true });
@@ -95,10 +96,36 @@ test('a checagem de perfil vem logo depois da de consentimento: já membro, e-ma
   assert.equal(await usado('com-email'), false);
 });
 
+test('conta nova, sem consentimento e sem perfil, recebe {ok:false, erro:"perfil"} e não "consentimento": ninguém entra e o convite segue válido (PAG-02.1)', async () => {
+  await convite('para-carlos');
+  await como(banco, CARLOS);
+  assert.deepEqual(await aceitar('para-carlos'), { ok: false, erro: 'perfil' });
+  assert.deepEqual(await membrosA(), MEMBROS_A);
+  assert.equal(await usado('para-carlos'), false);
+  assert.deepEqual(await historico(), []);
+});
+
+test('com perfil e sem consentimento, a regra do consentimento continua valendo: consentimento apagado depois do perfil e equipe Legisla dispensada recebem "consentimento"', async () => {
+  await convite('para-carlos');
+  await convite('para-lia');
+  await como(banco, CARLOS);
+  assert.deepEqual(await salvarPerfil(), { ok: true });
+  await comoDono(banco);
+  await banco.query('delete from public.consentimentos where user_id = $1', [CARLOS]);
+  await como(banco, CARLOS);
+  assert.deepEqual(await aceitar('para-carlos'), { ok: false, erro: 'consentimento' });
+  // equipe Legisla: dispensada do perfil, não do consentimento
+  await como(banco, IDS.leitura);
+  assert.deepEqual(await aceitar('para-lia'), { ok: false, erro: 'consentimento' });
+  assert.deepEqual(await membrosA(), MEMBROS_A);
+  assert.equal(await usado('para-carlos'), false);
+  assert.equal(await usado('para-lia'), false);
+});
+
 test('gravado o perfil por perfil_salvar, o mesmo convite é aceito: o consentimento 2026-11 do perfil vale para o aceite (PAG-02.12, PAG-04.8)', async () => {
   await convite('para-carlos');
   await como(banco, CARLOS);
-  assert.deepEqual(await aceitar('para-carlos'), { ok: false, erro: 'consentimento' });
+  assert.deepEqual(await aceitar('para-carlos'), { ok: false, erro: 'perfil' });
   await como(banco, CARLOS);
   assert.deepEqual(await salvarPerfil(), { ok: true });
   await como(banco, CARLOS);
@@ -146,6 +173,67 @@ test('quem está na equipe Legisla cria mandato sem perfil (PAG-02.16)', async (
   await como(banco, IDS.admin);
   await criaMandato('DDD444', IDS.admin);
   assert.equal(await mandatosComCodigo('DDD444'), 1);
+});
+
+// ---------- política membros_criar ----------
+
+const entraComoCoordenacao = (mandato: string, quem: string) =>
+  banco.query(`insert into public.membros (mandato_id, user_id, papel, nome) values ($1, $2, 'coordenacao', 'Entrou direto')`, [mandato, quem]);
+const membrosDe = async (mandato: string) => {
+  await comoDono(banco);
+  return (await q<{ user_id: string; papel: string }>('select user_id, papel from public.membros where mandato_id = $1', [mandato]));
+};
+
+test('sonda S1: quem criou o mandato com perfil e usou excluir_meus_dados não volta sozinha como coordenação, sem perfil (PAG-02.2)', async () => {
+  await como(banco, IDS.fora);
+  assert.deepEqual(await salvarPerfil(), { ok: true });
+  await como(banco, IDS.fora);
+  const [{ id }] = await criaMandato('CCC333', IDS.fora);
+  await entraComoCoordenacao(id, IDS.fora);
+  await como(banco, IDS.fora);
+  await banco.query('select public.excluir_meus_dados()');
+  assert.deepEqual(await membrosDe(id), []);
+  // o mandato segue criado por ela e sem membros: só a falta do perfil barra a nova entrada
+  await como(banco, IDS.fora);
+  await assert.rejects(entraComoCoordenacao(id, IDS.fora), RLS);
+  assert.deepEqual(await membrosDe(id), []);
+});
+
+test('quem está na equipe Legisla segue dispensada em membros_criar: cria o mandato e entra como coordenação sem perfil (PAG-02.16)', async () => {
+  await como(banco, IDS.admin);
+  const [{ id }] = await criaMandato('DDD444', IDS.admin);
+  await entraComoCoordenacao(id, IDS.admin);
+  assert.deepEqual(await q('select private.papel_no_mandato($1) p', [id]), [{ p: 'coordenacao' }]);
+  assert.deepEqual(await perfisDe(IDS.admin), []);
+});
+
+// ---------- o que a migration repete das versões anteriores ----------
+
+const MIGRATIONS = new URL('../supabase/migrations/', import.meta.url);
+const fonte = (arq: string) => readFileSync(new URL(arq, MIGRATIONS), 'utf8').replace(/\r\n/g, '\n');
+const trecho = (texto: string, inicio: string, fim: string) => {
+  const i = texto.indexOf(inicio);
+  assert.ok(i >= 0, inicio);
+  return texto.slice(i, texto.indexOf(fim, i) + fim.length);
+};
+const CHECAGEM_PERFIL = "  if not private.tem_perfil() then\n    return jsonb_build_object('ok', false, 'erro', 'perfil');\n  end if;\n";
+
+test('convite_aceitar repete a de 20261106150000 e só acrescenta as 3 linhas do perfil, antes da de consentimento (PAG-02.1)', () => {
+  const inicio = 'create or replace function public.convite_aceitar';
+  const anterior = trecho(fonte('20261106150000_convites_de_quem_sai.sql'), inicio, '\n$$;');
+  const atual = trecho(fonte('20261109120000_perfis.sql'), inicio, '\n$$;');
+  const consentimento = atual.indexOf('  if not exists (select 1 from public.consentimentos');
+  assert.ok(consentimento > 0);
+  assert.equal(atual.indexOf(CHECAGEM_PERFIL) + CHECAGEM_PERFIL.length, consentimento);
+  assert.equal(atual.replace(CHECAGEM_PERFIL, ''), anterior);
+});
+
+test('membros_criar repete a de 20261106130000 e só acrescenta private.tem_perfil() (PAG-02.2)', () => {
+  const inicio = 'create policy membros_criar on public.membros';
+  const anterior = trecho(fonte('20261106130000_papeis_blindagem.sql'), inicio, '\n  );');
+  const atual = trecho(fonte('20261109120000_perfis.sql'), inicio, '\n  );');
+  assert.equal(atual.replace('\n    and private.tem_perfil()', ''), anterior);
+  assert.notEqual(atual, anterior);
 });
 
 // ---------- exclusão ----------

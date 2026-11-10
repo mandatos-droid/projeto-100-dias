@@ -1,8 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import corpoGuia from '../lib/legacyBody.ts';
 import {
-  MANDATO_ID, PREVIA, TOKEN, auth, chamadas, consentimentos, localDe, moca, naoMapeadas, ordemDe, rpcs, semeiaSessao,
-  type EstadoMoca, type RespostaRpc,
+  MANDATO_ID, PREVIA, TOKEN, aceiteComoBanco, auth, chamadas, consentimentos, localDe, moca, naoMapeadas, ordemDe, rpcs,
+  semeiaSessao, type EstadoMoca, type RespostaRpc,
 } from './convite-api';
 
 /* Página do convite só com Google (PAG-01.1, 01.2, 01.4, 01.5, PAG-05.1, 05.2), a etapa de consentimento das contas Google
@@ -19,9 +19,9 @@ const blocoLgpd = /<div class="lgpd oculto" id="blocoLgpd">([\s\S]*?)<\/div>/.ex
 const AVISO = blocoLgpd.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().replace('código de convite', 'link de convite');
 
 const ACEITE_OK: RespostaRpc = { corpo: { ok: true, mandato_id: MANDATO_ID, ja_membro: false } };
-// como o banco: o aceite só passa para quem já tem consentimento gravado
-const aceiteExigeConsentimento = (): RespostaRpc =>
-  consentimentos().length ? ACEITE_OK : { corpo: { ok: false, erro: 'consentimento' } };
+// como o banco: conta com perfil (ou da equipe Legisla, dispensada) e sem consentimento só passa depois de consentir;
+// conta sem perfil vai antes ao formulário de perfil (convite-perfil.spec.ts)
+const aceiteExigeConsentimento = aceiteComoBanco({ perfil: true, consentiu: false });
 const base = (aceite: () => RespostaRpc = () => ACEITE_OK): EstadoMoca['rpc'] => ({
   convite_previa: () => ({ corpo: PREVIA }),
   convite_aceitar: aceite,

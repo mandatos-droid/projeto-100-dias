@@ -113,8 +113,9 @@ revoke execute on function public.perfil_salvar(text, text, text, text, text, bo
 grant  execute on function public.perfil_salvar(text, text, text, text, text, boolean, text) to authenticated;
 
 -- =====================================================================
--- Trava nas duas portas de entrada em um mandato (PAG-02.2): aceitar convite e criar mandato.
--- A tela manda ao perfil; quem pular a tela encontra a recusa aqui.
+-- Trava nas portas de entrada em um mandato (PAG-02.2): aceitar convite, criar mandato e a
+-- entrada direta da primeira pessoa em membros. A tela manda ao perfil; quem pular a tela
+-- encontra a recusa aqui.
 -- =====================================================================
 
 -- ---------- criar mandato: só quem tem perfil (ou é da equipe Legisla) ----------
@@ -124,9 +125,26 @@ create policy mandatos_criar on public.mandatos
   for insert to authenticated
   with check (criado_por = (select auth.uid()) and private.tem_perfil());
 
+-- ---------- entrada direta em membros: também exige perfil ----------
+-- Repete a de 20261106130000_papeis_blindagem.sql e acrescenta private.tem_perfil(). Sem isso,
+-- quem criou um mandato e usou excluir_meus_dados (que apaga o perfil e a linha em membros)
+-- voltava sozinha como coordenacao, sem perfil.
+drop policy if exists membros_criar on public.membros;
+create policy membros_criar on public.membros
+  for insert to authenticated
+  with check (
+    user_id = (select auth.uid())
+    and papel = 'coordenacao'
+    and exists (select 1 from public.mandatos m
+                where m.id = mandato_id and m.criado_por = (select auth.uid()))
+    and private.mandato_sem_membros(mandato_id)
+    and private.tem_perfil()
+  );
+
 -- ---------- convite_aceitar: sem perfil devolve {ok:false, erro:'perfil'} ----------
 -- Repete a de 20261106150000_convites_de_quem_sai.sql; só acrescenta a checagem de perfil logo
--- depois da de consentimento. O convite não é consumido e a tela leva a pessoa ao perfil.
+-- antes da de consentimento: quem não tem perfil vai ao formulário, que grava o consentimento
+-- junto, sem ver a etapa de consentimento do convite. O convite não é consumido.
 create or replace function public.convite_aceitar(p_token text, p_nome text)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
@@ -154,11 +172,11 @@ begin
      and v_c.email is distinct from (select lower(btrim(u.email)) from auth.users u where u.id = v_uid) then
     return jsonb_build_object('ok', false, 'erro', 'email');
   end if;
-  if not exists (select 1 from public.consentimentos k where k.user_id = v_uid) then
-    return jsonb_build_object('ok', false, 'erro', 'consentimento');
-  end if;
   if not private.tem_perfil() then
     return jsonb_build_object('ok', false, 'erro', 'perfil');
+  end if;
+  if not exists (select 1 from public.consentimentos k where k.user_id = v_uid) then
+    return jsonb_build_object('ok', false, 'erro', 'consentimento');
   end if;
 
   -- sem nome no aceite (quem já tem sessão), vale o nome da conta

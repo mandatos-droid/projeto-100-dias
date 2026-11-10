@@ -376,6 +376,7 @@ const existe = async (mandato: string) => {
 };
 
 test('sonda S-1: assessoria não vira coordenação trocando criado_por, saindo e se reinserindo pela API (ACE-03.6)', async () => {
+  await comPerfil(banco, ASSESSORIA); // com perfil, a recusa vem das guardas deste teste, não da falta de perfil
   await como(banco, ASSESSORIA);
   await assert.rejects(trocaCriador(ASSESSORIA), SEM_PERMISSAO);
   await como(banco, ASSESSORIA);
@@ -403,6 +404,7 @@ test('ninguém troca mandatos.criado_por pela API, nem a coordenação; o resto 
 });
 
 test('sonda S-3: quem criou o mandato e foi removido pela coordenação não se reinsere direto, com nenhum papel, e deixa de ver o mandato (ACE-03.5, ACE-03.6)', async () => {
+  await comPerfil(banco, IDS.membro); // com perfil, a recusa vem do mandato já ter membros, não da falta de perfil
   // a coordenação passa a ser outra pessoa, que remove quem criou o mandato
   await como(banco, IDS.membro);
   await trocar(ASSESSORIA, 'coordenacao');
@@ -433,6 +435,7 @@ test('mutante B06: quem criou o mandato e está na equipe Legisla segue vendo o 
 });
 
 test('quem criou o mandato e saiu por conta própria também não volta direto (ACE-03.6)', async () => {
+  await comPerfil(banco, IDS.membro); // com perfil, a recusa vem do mandato já ter membros, não da falta de perfil
   await comoDono(banco);
   await banco.query(`update public.membros set papel = 'coordenacao' where user_id = $1`, [ASSESSORIA]);
   await como(banco, IDS.membro);
@@ -444,6 +447,7 @@ test('quem criou o mandato e saiu por conta própria também não volta direto (
 
 test('cadastro novo, como o Guia faz: quem criou lê o mandato no RETURNING e entra direto só como a primeira pessoa, na coordenação (ACE-07.3)', async () => {
   await comPerfil(banco, IDS.fora);
+  await comPerfil(banco, ASSESSORIA); // com perfil, a recusa da outra conta vem de não ter criado o mandato
   await como(banco, IDS.fora);
   const [{ id }] = await q<{ id: string }>(
     `insert into public.mandatos (codigo, nome_parlamentar, cargo, uf, criado_por) values ('CCC333', 'Parlamentar Três', 'Vereadora', 'RJ', $1)

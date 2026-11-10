@@ -50,6 +50,18 @@ export const consentimentos = (): Chamada[] => registro.chamadas.filter((c) => c
 /** Chamadas ao Supabase Auth cujo caminho começa com `auth/<prefixo>` (ex.: 'authorize', 'token?grant_type=refresh_token'). */
 export const auth = (prefixo: string): Chamada[] => registro.chamadas.filter((c) => c.caminho.startsWith(`auth/${prefixo}`));
 
+/** A conta como o aceite a vê no banco. `perfil`: tem perfil ou é da equipe Legisla (dispensada). `consentiu`: já tinha linha
+    em consentimentos antes desta página. Mutável: quando a pessoa grava o perfil, perfil_salvar grava os dois. */
+export interface ContaAceite { perfil: boolean; consentiu: boolean }
+
+/** convite_aceitar na ordem do banco (20261109120000_perfis.sql): sem perfil responde `perfil` antes de olhar o consentimento;
+    com perfil e sem consentimento (nem o POST em consentimentos feito nesta página) responde `consentimento`; senão aceita. */
+export const aceiteComoBanco = (conta: ContaAceite) => (): RespostaRpc => {
+  if (!conta.perfil) return { corpo: { ok: false, erro: 'perfil' } };
+  if (!conta.consentiu && consentimentos().length === 0) return { corpo: { ok: false, erro: 'consentimento' } };
+  return { corpo: { ok: true, mandato_id: MANDATO_ID, ja_membro: false } };
+};
+
 /** Para afirmar AUSÊNCIA de chamada: espera a rede ficar quieta e ao menos `ms`, e só então devolve os POSTs à função. */
 export async function esperaSemRpc(page: Page, nome: string, ms = 1200): Promise<Chamada[]> {
   await page.waitForLoadState('networkidle');

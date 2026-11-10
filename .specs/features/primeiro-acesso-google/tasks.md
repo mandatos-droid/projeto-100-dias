@@ -87,6 +87,12 @@ T10 → T11 → T12 → T13
 T13 → T14 → T15 → T16
 ```
 
+### Phase 6: Correções do Verifier (rodada 1)
+
+```
+T16 → T17 → T18 → T19
+```
+
 ---
 
 ## Task Breakdown
@@ -610,3 +616,102 @@ T13 → T14 → T15 → T16
 **Commit**: `docs(primeiro-acesso): record decisions and open items`
 
 **Status**: ✅ Done
+
+---
+
+### T17: Perfil antes do consentimento no aceite e perfil em `membros_criar`
+
+**What**: Corrigir GAP-1 e GAP-2 do Verifier: em `convite_aceitar` a checagem de perfil passa a vir antes da de consentimento, e a política `membros_criar` passa a exigir `private.tem_perfil()`.
+**Where**: `plataforma/supabase/migrations/20261109120000_perfis.sql` (modify), `plataforma/tests/sql-perfil-trava.test.ts` (modify), `plataforma/tests/sql-membros.test.ts` (modify, só preparação), `plataforma/e2e/convite-api.ts` (modify), `plataforma/e2e/convite-perfil.spec.ts` (modify), `plataforma/e2e/convite-conta.spec.ts` (modify, só o mock do aceite)
+**Depends on**: T16
+**Reuses**: `convite_aceitar` de `20261106150000_convites_de_quem_sai.sql`; política `membros_criar` de `20261106130000_papeis_blindagem.sql:46-54`; `comPerfil` de `sql-ambiente.ts`
+**Requirement**: PAG-02, PAG-04
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [x] A migration existente é editada (nenhuma migration desta feature foi aplicada; só vão ao banco com push na `main`): em `convite_aceitar` as 3 linhas do perfil (`private.tem_perfil()`, `erro:'perfil'`) vêm antes da checagem de consentimento; o resto da função é igual, linha a linha, à versão de `20261106150000` (Assumption "Ordem das checagens no aceite do convite", PAG-02.1). Um teste compara as duas versões pela fonte
+- [x] A política `membros_criar` é redefinida na migration do perfil igual à de `20261106130000_papeis_blindagem.sql:46-54`, com `and private.tem_perfil()` acrescentado e mais nada (PAG-02.2); um teste compara as duas pela fonte
+- [x] Conta nova sem consentimento e sem perfil recebe `{ok:false, erro:'perfil'}` (não `consentimento`) e o convite não é consumido (PAG-02.1)
+- [x] Com perfil e sem consentimento (consentimento apagado depois do perfil, ou equipe Legisla dispensada) o aceite segue devolvendo `{ok:false, erro:'consentimento'}`
+- [x] Sonda S1: com perfil, a pessoa cria o mandato, entra como `coordenacao`, chama `excluir_meus_dados()` e a nova inserção de si mesma em `membros` como `coordenacao` dá erro de RLS (PAG-02.2)
+- [x] `equipe_legisla` segue dispensada em `membros_criar`: cria o mandato e entra como `coordenacao` sem perfil (PAG-02.16)
+- [x] Testes de SQL antigos cujo resultado a nova ordem mudou (o primeiro aceite de Carlos sem consentimento e sem perfil, em 2 testes) passam a afirmar `perfil`; os 4 testes de `sql-membros.test.ts` que isolavam outra guarda de `membros_criar` ganham perfil na preparação (`comPerfil`), para a nova guarda não mascarar a antiga (L-019); nenhum teste removido
+- [x] O mock do aceite em `e2e/convite-api.ts` (`aceiteComoBanco`) segue a ordem do banco (sem perfil → `perfil`; com perfil e sem consentimento → `consentimento`) e é usado também por `convite-conta.spec.ts`; `e2e/convite-perfil.spec.ts` prova que a conta nova vai direto ao formulário de perfil, sem a etapa de consentimento do convite (observador do `.cv-lgpd`/`.cv-chk`), e conclui o aceite na volta sem gravar consentimento pelo convite
+- [x] Gate check passes: `npm test` (1104 testes, 0 falhas) e `npx playwright test e2e/convite-perfil.spec.ts e2e/convite-aceite.spec.ts e2e/convite-conta.spec.ts` (27 passaram, servidor na porta 3100). Sondas locais: devolver a ordem antiga no banco derruba 4 testes; tirar `tem_perfil()` de `membros_criar` derruba 2; devolver a ordem antiga no mock derruba 3 e2e
+- [x] Test count: 6 testes novos em `tests/sql-perfil-trava.test.ts` (1098 → 1104) e 1 em `e2e/convite-perfil.spec.ts`, nenhum removido
+
+**Tests**: integration
+**Gate**: full
+
+**Commit**: `fix(perfil): check profile before consent and on direct join`
+
+**Status**: ✅ Done
+
+---
+
+### T18: Caixa de erro no Guia quando a consulta de perfil falha
+
+**What**: Corrigir SP-3: no override de `App.entrou`, a falha da consulta de perfil mostra "Não foi possível carregar seus dados. Tente de novo." com o botão "Tentar de novo", que refaz `App.entrou`.
+**Where**: `plataforma/public/legacy/acesso.js` (modify), `plataforma/tests/legado-acesso.test.ts` (modify), `plataforma/e2e/guia-acesso.spec.ts` (modify)
+**Depends on**: T17
+**Reuses**: override de `App.entrou` (T10); classes `erro-cx` e `bt pri` do `legacy.css`; harness `entrando` de `legado-acesso.test.ts`
+**Requirement**: PAG-02
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Falha na consulta de `equipe_legisla` ou `perfis` mostra uma caixa com o texto literal "Não foi possível carregar seus dados. Tente de novo." e o botão "Tentar de novo" (Assumption "Falha ao consultar o perfil no Guia")
+- [ ] A falha nunca manda a `/primeiro-acesso` nem deixa a tela em branco; os mandatos não são lidos
+- [ ] "Tentar de novo" tira a caixa e refaz `App.entrou`: com a consulta funcionando o Guia abre; falhando de novo, a caixa volta
+- [ ] A caixa é criada por JS em `acesso.js`; `app.js`, `nucleo.js` e `lib/legacyBody.ts` seguem sem edição (AD-003)
+- [ ] O teste de unidade que afirmava que a falha propaga o erro passa a afirmar a caixa (a spec atualizada mudou o resultado esperado), mantendo as afirmações de não redirecionar e não ler os mandatos
+- [ ] Gate check passes: `npm test` e `npx playwright test e2e/guia-acesso.spec.ts`
+- [ ] Test count: testes novos em `tests/legado-acesso.test.ts` e `e2e/guia-acesso.spec.ts`, nenhum removido
+
+**Tests**: unit
+**Gate**: full
+
+**Commit**: `fix(guia): show a retry box when the profile lookup fails`
+
+**Status**: Pending
+
+---
+
+### T19: Analytics mostra todas as categorias
+
+**What**: Corrigir SP-1 e SP-2: `lib/admin/perfil.ts` devolve toda categoria da lista da spec, na ordem da spec, mesmo com 0 pessoas; a porcentagem segue arredondada por categoria.
+**Where**: `plataforma/lib/admin/perfil.ts` (modify), `plataforma/tests/admin-perfil.test.ts` (modify), `plataforma/e2e/admin-analytics-perfil.spec.ts` (modify), `.specs/features/primeiro-acesso-google/spec.md` (modify, rastreabilidade), `.specs/STATE.md` (modify, Handoff)
+**Depends on**: T18
+**Reuses**: `GENEROS`, `RACAS`, `ATUACOES` de `lib/perfil/opcoes.ts`; `FAIXAS`
+**Requirement**: PAG-06
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Gênero (8), raça (6), faixa etária (6) e atuação (6) trazem toda categoria da spec, na ordem da spec, mesmo com 0 pessoas, inclusive "Prefiro não informar" (PAG-06.3, 06.4; Assumption "Categorias sem ninguém no Analytics")
+- [ ] Chave desconhecida vinda do banco continua anexada ao fim, com a própria chave como rótulo; a soma das quantidades é igual ao total (PAG-06.12)
+- [ ] A porcentagem segue arredondada por categoria; um comentário e um teste afirmam que a soma pode não dar 100 (3 categorias de 1/3 somam 99), citando a Assumption "Porcentagem no Analytics"
+- [ ] Os testes de `tests/admin-perfil.test.ts` que afirmavam a omissão das categorias com 0 passam a afirmar o resultado da spec; `e2e/admin-analytics-perfil.spec.ts` prova as linhas "0 · 0%" na tela
+- [ ] Rastreabilidade de `spec.md` e Handoff do `STATE.md` atualizados (branch, última task T19, próximo passo: re-verificação independente rodada 2)
+- [ ] Gate check passes: `npm test` e `npx playwright test e2e/admin-analytics-perfil.spec.ts e2e/admin-analytics.spec.ts`; gate de build da fase: `npx tsc --noEmit`, `npm test` e os specs `e2e/convite-*`, `e2e/mandato-*`, `e2e/guia-acesso*`, `e2e/primeiro-acesso*`, `e2e/admin-*`
+- [ ] Test count: testes novos em `tests/admin-perfil.test.ts` e `e2e/admin-analytics-perfil.spec.ts`, nenhum removido
+
+**Tests**: unit
+**Gate**: build
+
+**Commit**: `fix(admin): list every profile category in analytics`
+
+**Status**: Pending
