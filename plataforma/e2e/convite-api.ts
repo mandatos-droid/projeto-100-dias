@@ -27,21 +27,11 @@ export interface RespostaRpc { status?: number; corpo?: unknown; rede?: boolean 
 export interface EstadoMoca {
   /** Respostas das funções, por nome (POST /rest/v1/rpc/<nome>). `token` é o Bearer recebido. */
   rpc?: Record<string, (args: Record<string, unknown>, token: string) => RespostaRpc>;
-  /** Resposta de POST /auth/v1/signup (padrão: conta criada já com sessão, como com a confirmação de e-mail desligada). */
-  cadastro?: (corpo: Record<string, unknown>) => RespostaRpc;
-  /** E-mail e senha aceitos em /auth/v1/token?grant_type=password (a conta é a de Carlos). */
-  senha?: { email: string; senha: string };
   /** O que /auth/v1/token?grant_type=refresh_token responde (padrão: ok, com `tok-novo-<quem>`). */
   renovacao?: 'ok' | 'falha';
   /** Nome da conta Google em `user_metadata.full_name` de GET /auth/v1/user (padrão: a conta vem sem nome). */
   nomeGoogle?: string;
 }
-
-/** Sessão que o GoTrue devolve no cadastro e no login de Carlos (formato do Supabase). */
-export const SESSAO_CARLOS = {
-  access_token: 'tok-carlos', refresh_token: 'ref-carlos', token_type: 'bearer', expires_in: 3600,
-  user: { id: 'uid-carlos', email: 'carlos@gabinete.test' },
-};
 
 export interface Chamada { metodo: string; caminho: string; token: string; corpo: unknown }
 
@@ -57,7 +47,7 @@ export const rpcs = (nome: string): Chamada[] => registro.chamadas.filter((c) =>
 export const ordemDe = (filtro: (c: Chamada) => boolean): number => registro.chamadas.findIndex(filtro);
 /** POSTs à tabela consentimentos. */
 export const consentimentos = (): Chamada[] => registro.chamadas.filter((c) => c.metodo === 'POST' && c.caminho.startsWith('consentimentos'));
-/** Chamadas ao Supabase Auth cujo caminho começa com `auth/<prefixo>` (ex.: 'signup', 'authorize', 'token?grant_type=password'). */
+/** Chamadas ao Supabase Auth cujo caminho começa com `auth/<prefixo>` (ex.: 'authorize', 'token?grant_type=refresh_token'). */
 export const auth = (prefixo: string): Chamada[] => registro.chamadas.filter((c) => c.caminho.startsWith(`auth/${prefixo}`));
 
 /** Para afirmar AUSÊNCIA de chamada: espera a rede ficar quieta e ao menos `ms`, e só então devolve os POSTs à função. */
@@ -129,16 +119,8 @@ export async function moca(page: Page, estado: EstadoMoca = {}) {
       const quem = quemDoToken(token);
       return responde(rota, 200, { id: `uid-${quem}`, email: `${quem}@gabinete.test`, ...(estado.nomeGoogle ? { user_metadata: { full_name: estado.nomeGoogle } } : {}) });
     }
-    if (u.pathname === '/auth/v1/signup' && req.method() === 'POST') {
-      const r = estado.cadastro?.(dados) ?? { corpo: { ...SESSAO_CARLOS, user: { ...SESSAO_CARLOS.user, email: dados.email } } };
-      return responde(rota, r.status ?? 200, r.corpo);
-    }
     if (u.pathname === '/auth/v1/token' && req.method() === 'POST') {
       const tipo = u.searchParams.get('grant_type');
-      if (tipo === 'password') {
-        if (estado.senha && dados.email === estado.senha.email && dados.password === estado.senha.senha) return responde(rota, 200, SESSAO_CARLOS);
-        return responde(rota, 400, { error: 'invalid_grant', error_description: 'Invalid login credentials' });
-      }
       if (tipo === 'refresh_token') {
         if (estado.renovacao === 'falha') return responde(rota, 400, { error: 'invalid_grant', error_description: 'Invalid Refresh Token: Refresh Token Not Found' });
         const quem = quemDoToken(String(dados.refresh_token));

@@ -10,14 +10,14 @@ import { tokenDoHash } from '../../lib/convites/link.ts';
 import { rotuloPapel } from '../../lib/convites/papeis.ts';
 import { guardaPendente, lePendente, limpaPendente } from '../../lib/convites/pendente.ts';
 import FormularioConta, {
-  AvisoConsentimento, CaixaConsentimento, gravaConsentimento, SEM_CONSENTIMENTO, type DadosEntrada,
+  AvisoConsentimento, CaixaConsentimento, gravaConsentimento, SEM_CONSENTIMENTO,
 } from './FormularioConta.tsx';
 
 type DadosPrevia = Extract<Previa, { ok: true }>;
 
-// sessao: aceitar com a conta deste navegador; conta: criar conta, entrar ou Google; consentimento: a conta ainda não consentiu.
+// sessao: aceitar com a conta deste navegador; conta: entrar com Google; consentimento: a conta ainda não consentiu.
 type Etapa = 'sessao' | 'conta' | 'consentimento';
-type EmPrevia = { tipo: 'previa'; token: string; previa: DadosPrevia; etapa: Etapa; aviso?: string; abaConta?: 'criar' | 'entrar' };
+type EmPrevia = { tipo: 'previa'; token: string; previa: DadosPrevia; etapa: Etapa; aviso?: string };
 
 type Estado =
   | { tipo: 'carregando' }
@@ -29,6 +29,7 @@ type Estado =
 
 const ESPERA_GUIA_MS = 1500; // tempo de ler "Você já está neste mandato" antes de abrir o Guia
 const SESSAO_VENCIDA = 'Sua sessão venceu. Entre de novo para aceitar o convite.';
+const ERRO_GOOGLE = 'Não foi possível entrar com o Google. Tente de novo.'; // PAG-01.4
 
 const armLocal = (): Storage | null => { try { return localStorage; } catch { return null; } };
 const armSessao = (): Storage | null => { try { return sessionStorage; } catch { return null; } };
@@ -87,29 +88,29 @@ export default function Convite() {
     }
   }
 
-  // Sessão que não renova: volta ao formulário (aba Entrar) com o mesmo convite, guardado também no navegador.
+  // Sessão que não renova: volta ao botão do Google com o mesmo convite, guardado também no navegador.
   function sessaoVencida(atual: EmPrevia) {
     apagaSessao();
     guardaPendente(armSessao(), atual.token);
-    setEstado({ ...atual, etapa: 'conta', abaConta: 'entrar', aviso: SESSAO_VENCIDA });
+    setEstado({ ...atual, etapa: 'conta', aviso: SESSAO_VENCIDA });
   }
 
   // Aceita com a sessão; um 401 tenta renovar uma vez com o refresh_token.
-  async function aceitaComSessao(atual: EmPrevia, s: Sessao, nome?: string) {
+  async function aceitaComSessao(atual: EmPrevia, s: Sessao) {
     const cfg = config.current!;
     setEnviando(true);
     let saindo = false;
     try {
       let r: Aceite;
       try {
-        r = await aceitaConvite(criaApi(cfg, s.access_token), atual.token, nome);
+        r = await aceitaConvite(criaApi(cfg, s.access_token), atual.token);
       } catch (e) {
         if (!(e instanceof ErroApi) || e.status !== 401) throw e;
         const nova = await renova(cfg, s).catch(() => null);
         if (!nova) { sessaoVencida(atual); return; }
         guardaSessao(nova);
         try {
-          r = await aceitaConvite(criaApi(cfg, nova.access_token), atual.token, nome);
+          r = await aceitaConvite(criaApi(cfg, nova.access_token), atual.token);
         } catch (e2) {
           if (e2 instanceof ErroApi && e2.status === 401) { sessaoVencida(atual); return; }
           throw e2;
@@ -145,7 +146,7 @@ export default function Convite() {
 
   useEffect(() => {
     (async () => {
-      // Volta do Google (ou do e-mail de confirmação): a sessão chega no fragmento; o convite foi guardado antes de sair.
+      // Volta do Google: a sessão chega no fragmento; o convite foi guardado antes de sair.
       const retorno = lerRetornoGoogle(location.hash);
       if (!retorno) {
         const token = tokenDoHash(location.hash);
@@ -160,7 +161,7 @@ export default function Convite() {
       history.replaceState(null, '', token ? `${location.pathname}#${token}` : location.pathname); // tira a sessão do endereço
       if (retorno.tipo === 'sessao') guardaSessao(retorno.sessao);
       if (!token) { setEstado({ tipo: 'colar' }); return; }
-      if (retorno.tipo === 'erro') { carregaPrevia(token, { etapa: 'conta', aviso: retorno.mensagem.replace(/\+/g, ' ') }); return; }
+      if (retorno.tipo === 'erro') { carregaPrevia(token, { etapa: 'conta', aviso: ERRO_GOOGLE }); return; }
       const atual = await carregaPrevia(token);
       if (atual) await aceitaComSessao(atual, retorno.sessao);
     })();
@@ -181,24 +182,7 @@ export default function Convite() {
     aceitaComSessao({ ...estado, aviso: undefined }, s);
   }
 
-  // Conta criada ou login feito no formulário: grava a sessão, o consentimento (no cadastro) e conclui o aceite.
-  async function entrou(s: Sessao, dados: DadosEntrada) {
-    if (estado.tipo !== 'previa' || !config.current) return;
-    const atual: EmPrevia = { ...estado, etapa: 'sessao', aviso: undefined };
-    guardaSessao(s);
-    if (dados.consentiu) {
-      try {
-        await gravaConsentimento(config.current, s, dados.userId);
-      } catch {
-        setConcordo(false);
-        setEstado({ ...atual, etapa: 'consentimento', aviso: DESCONHECIDO });
-        return;
-      }
-    }
-    await aceitaComSessao(atual, s, dados.nome);
-  }
-
-  // Conta sem consentimento gravado (ex.: entrou com Google): mostra o aviso, grava e tenta o aceite de novo.
+  // Conta sem consentimento gravado (ex.: primeiro acesso com Google): mostra o aviso, grava e tenta o aceite de novo.
   async function consentirEAceitar() {
     if (estado.tipo !== 'previa' || enviando || !config.current) return;
     const atual = estado;
@@ -219,7 +203,7 @@ export default function Convite() {
   function trocarConta() {
     if (estado.tipo !== 'previa') return;
     apagaSessao();
-    setEstado({ ...estado, etapa: 'conta', abaConta: 'entrar', aviso: undefined });
+    setEstado({ ...estado, etapa: 'conta', aviso: undefined });
   }
 
   if (estado.tipo === 'carregando') return <p className="cv-centro cv-mut" role="status">Carregando…</p>;
@@ -300,10 +284,7 @@ export default function Convite() {
           key={aviso ?? ''}
           config={config.current}
           token={token}
-          nomeInicial={previa.nome}
-          abaInicial={estado.abaConta}
           aviso={aviso}
-          onEntrou={entrou}
         />
       )}
     </div>

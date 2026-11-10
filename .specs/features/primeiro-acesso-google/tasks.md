@@ -436,18 +436,20 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] A página do convite sem sessão mostra só "Entrar com Google"; sem campos de nome, e-mail e senha, sem "Criar conta" e sem abas (PAG-01.1, 01.2)
-- [ ] Antes de sair para o Google o token é guardado; na volta o aceite conclui sem pedir o link de novo (PAG-01.5)
-- [ ] `criaConta`, `entrar`, `CONFIRME_EMAIL` e o tratamento de `email_not_confirmed` saem do app (PAG-05.1, 05.2)
-- [ ] `AvisoConsentimento` e `CaixaConsentimento` continuam exportados; a etapa `consentimento` do `Convite.tsx` continua funcionando para contas Google sem consentimento
-- [ ] Os mocks `/auth/v1/signup` e `grant_type=password` saem de `e2e/convite-api.ts`; nenhum teste afirma o comportamento removido
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/convite-*.spec.ts`
-- [ ] Test count: testes de formulário substituídos por ao menos 6 testes e2e do fluxo só com Google; nenhum teste de outra área removido
+- [x] A página do convite sem sessão mostra só "Entrar com Google"; sem campos de nome, e-mail e senha, sem "Criar conta" e sem abas (PAG-01.1, 01.2)
+- [x] Antes de sair para o Google o token é guardado; na volta o aceite conclui sem pedir o link de novo (PAG-01.5)
+- [x] `criaConta`, `entrar`, `CONFIRME_EMAIL` e o tratamento de `email_not_confirmed` saem do app (PAG-05.1, 05.2)
+- [x] `AvisoConsentimento` e `CaixaConsentimento` continuam exportados; a etapa `consentimento` do `Convite.tsx` continua funcionando para contas Google sem consentimento
+- [x] Os mocks `/auth/v1/signup` e `grant_type=password` saem de `e2e/convite-api.ts`; nenhum teste afirma o comportamento removido
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/convite-*.spec.ts`
+- [x] Test count: testes de formulário substituídos por ao menos 6 testes e2e do fluxo só com Google; nenhum teste de outra área removido
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(convite): sign in with Google only`
+
+**Status**: ✅ Done
 
 ---
 
