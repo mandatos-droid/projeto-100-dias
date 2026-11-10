@@ -228,19 +228,21 @@ T11 → T12 → T13
 
 **Done when**:
 
-- [ ] `fotoUrl` usa `ele2024/619` para prefeito e vereador e `ele2026/6259` nos demais, com `uf` em minúsculas e o `sq` como arquivo `.jpeg`; sem `sq` devolve `null` (RES-06.2, 06.3)
-- [ ] `inicial('Ângela')` devolve "Â"; nome vazio devolve "?"; emoji ou espaço inicial não quebra (RES-06.3, edge cases)
-- [ ] `abrevia(97335)` devolve "97.335" para o valor exato da votação e a abreviação de filiados devolve "112 mil+" para 112.340, "9.800" para 9.800 e "10 mil+" para 10.000 (RES-06.4, 06.6)
-- [ ] `legendaPos(57,'SP')` devolve "57º mais votado(a) · SP · TSE"; sem `pos`, sem legenda (RES-06.4)
-- [ ] `legendaVagas(1)` devolve "1 processo seletivo a abrir"; `legendaVagas(3)` devolve "3 processos seletivos a abrir"; 0 devolve vazio (RES-06.7)
-- [ ] `numeros()` omite cada número cuja fonte falta; com todas faltando devolve lista vazia (RES-06.8)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ≥ 14 testes novos em `tests/resumo-retrato.test.ts`, nenhum removido
+- [x] `fotoUrl` usa `ele2024/619` para prefeito e vereador e `ele2026/6259` nos demais, com `uf` em minúsculas e o `sq` como arquivo `.jpeg`; sem `sq` devolve `null` (RES-06.2, 06.3)
+- [x] `inicial('Ângela')` devolve "Â"; nome vazio devolve "?"; emoji ou espaço inicial não quebra (RES-06.3, edge cases)
+- [x] `abrevia(97335)` devolve "97.335" para o valor exato da votação e a abreviação de filiados devolve "112 mil+" para 112.340, "9.800" para 9.800 e "10 mil+" para 10.000 (RES-06.4, 06.6)
+- [x] `legendaPos(57,'SP')` devolve "57º mais votado(a) · SP · TSE"; sem `pos`, sem legenda (RES-06.4)
+- [x] `legendaVagas(1)` devolve "1 processo seletivo a abrir"; `legendaVagas(3)` devolve "3 processos seletivos a abrir"; 0 devolve vazio (RES-06.7)
+- [x] `numeros()` omite cada número cuja fonte falta; com todas faltando devolve lista vazia (RES-06.8)
+- [x] Gate check passes: `npm test`
+- [x] Test count: ≥ 14 testes novos em `tests/resumo-retrato.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(resumo): add pure helpers for the portrait header`
+
+**Status**: ✅ Done (`abrevia(n)` dá o valor exato; `abrevia(n, true)` é a abreviação dos filiados)
 
 ---
 

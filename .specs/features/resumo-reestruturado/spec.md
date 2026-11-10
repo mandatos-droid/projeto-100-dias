@@ -253,7 +253,7 @@ A aba "Resumo do preenchimento" (`#/resumo`) lista as 16 respostas do Guia como 
 | RES-03 | P1: Barra fixa com progresso e navegação (ação única) | Execute (T2, T3) | Implemented (aguarda o Verifier) |
 | RES-04 | P1: Missões e exercícios recolhíveis (ferramentas) | Execute (T2) | Implemented (aguarda o Verifier) |
 | RES-05 | P1: Impressão, teclado e movimento | Execute (T2, T3) | In progress |
-| RES-06 | P1: Retrato do mandato no cabeçalho | Tasks | Pending |
+| RES-06 | P1: Retrato do mandato no cabeçalho | Execute (T4) | In progress |
 | RES-07 | P2: Cartões de aliados, opositores e potenciais | Tasks | Pending |
 | RES-08 | P2: Problemas e potencialidades por território | Tasks | Pending |
 | RES-09 | P2: Organograma da equipe com vagas marcadas | Tasks | Pending |
