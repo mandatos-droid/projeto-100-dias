@@ -30,14 +30,15 @@ function elemento(): Record<string, unknown> {
   };
 }
 
-/** Janela do Guia com os dados `D`; `comTela` carrega o resumo-tela.js por cima, como a página faz. */
-function guia(D: Record<string, unknown>, comTela = true): Janela {
+/** Janela do Guia com os dados `D`; `comTela` carrega o resumo-tela.js por cima, como a página faz. `extra` troca globais. */
+function guia(D: Record<string, unknown>, comTela = true, extra: Record<string, unknown> = {}): Janela {
   const ctx: Record<string, unknown> = {
     console,
     location: { hostname: 'localhost', hash: '#/resumo' },
     document: { createElement: elemento, body: elemento(), getElementById: () => null, querySelector: () => null, querySelectorAll: () => [], addEventListener() {} },
     localStorage: { getItem: () => null, setItem() {} },
     history: { pushState() {} },
+    ...extra,
   };
   ctx.window = ctx;
   vm.createContext(ctx);
@@ -257,4 +258,101 @@ test('resumo-tela.js carrega sobre a cadeia real do Guia sem erro e expõe Resum
   assert.doesNotThrow(() => { w = guia({ campos: {} }); });
   assert.deepEqual(Object.keys(w!.ResumoTela).sort(), ['abreExercicio', 'abreMissao', 'html', 'previa']);
   assert.doesNotThrow(() => tela(w!));
+});
+
+/* ---------- barra fixa e ferramentas (RES-02, RES-03, RES-04) ---------- */
+const IDS = ['m1.persona', 'm1.conjuntura', 'm1.oportunidades', 'm1.frag', 'm2.funcoes', 'm2.gestao', 'm3.bandeiras', 'm3.legado',
+  'm3.preditores', 'm3.metas', 'm4.comissoes', 'm4.acoes', 'm4.metricas', 'm5.monit', 'm5.feedback', 'm5.imersao'];
+const SEIS = ['m1.persona', 'm1.conjuntura', 'm1.oportunidades', 'm2.funcoes', 'm3.bandeiras', 'm3.legado'];
+const feitos = (ids: string[]) => ({ campos: {}, feitos: Object.fromEntries(ids.map((id) => [id, true])) });
+const barraDe = (h: string) => h.slice(h.indexOf('<div class="barra">'), h.indexOf('<div class="ferr">'));
+const ferrDe = (h: string) => h.slice(h.indexOf('<div class="ferr">'), h.indexOf('<details class="missao"'));
+
+test('a barra mostra o percentual de progGeral e "N de 16 exercícios concluídos": 6 de 16 dá 38% (RES-02.1)', () => {
+  const b = barraDe(tela(guia(feitos(SEIS))));
+  assert.ok(b.includes('<div class="geral"><b>38%</b><span>6 de 16 exercícios concluídos</span></div>'));
+});
+
+test('sem nenhuma resposta a barra mostra 0% e "0 de 16" e o contador "16 exercícios ainda sem conclusão" (edge case)', () => {
+  const h = tela(guia({ campos: {} }));
+  assert.ok(barraDe(h).includes('<b>0%</b><span>0 de 16 exercícios concluídos</span>'));
+  assert.ok(ferrDe(h).includes('<span class="pend-total" aria-live="polite">16 exercícios ainda sem conclusão</span>'));
+});
+
+test('com tudo concluído a tela mostra 100% e "Todos os exercícios estão concluídos." (RES-02.1, RES-04.9, edge case)', () => {
+  const h = tela(guia(feitos(IDS)));
+  assert.ok(barraDe(h).includes('<b>100%</b><span>16 de 16 exercícios concluídos</span>'));
+  assert.ok(ferrDe(h).includes('<span class="pend-total" aria-live="polite">Todos os exercícios estão concluídos.</span>'));
+});
+
+test('o contador usa o singular com 1 pendente e fica em aria-live="polite" (RES-04.9)', () => {
+  const h = tela(guia(feitos(IDS.slice(0, 15))));
+  assert.ok(ferrDe(h).includes('<span class="pend-total" aria-live="polite">1 exercício ainda sem conclusão</span>'));
+  assert.ok(ferrDe(tela(guia(feitos(SEIS)))).includes('aria-live="polite">10 exercícios ainda sem conclusão</span>'));
+});
+
+test('cada segmento é um <button> com nome "Ir para a Missão n: título curto", "Mn · título", feitos/total e a barra em feitos/total (RES-02.2, RES-13.3)', () => {
+  const b = barraDe(tela(guia(feitos(SEIS))));
+  const segs = b.split('<button type="button" class="seg"').slice(1);
+  assert.equal(segs.length, 5);
+  const esperado = [['Prepare sua chegada', '3/4', 75], ['Estruture a equipe', '1/2', 50], ['Defina o rumo', '2/4', 50],
+    ['Construa capital político', '0/3', 0], ['Garanta o avanço', '0/3', 0]] as const;
+  esperado.forEach(([curto, conta, pct], i) => {
+    const n = i + 1;
+    assert.ok(segs[i].includes(` data-n="${n}" aria-current="false" aria-label="Ir para a Missão ${n}: ${curto}"`), curto);
+    assert.ok(segs[i].includes(`;--p:${pct}%"`), `--p ${curto}`);
+    assert.ok(segs[i].includes(`<span class="t"><span>M${n} · ${curto}</span><span>${conta}</span></span>`), conta);
+  });
+});
+
+test('a tela tem uma só ação, "Baixar resumo completo (HTML)", que chama Baixar.tudo(); sem "Gerar PDF" nem "Baixar dados (JSON)" (RES-03)', () => {
+  const h = tela(guia(feitos(SEIS)));
+  assert.ok(barraDe(h).includes('<div class="acoes"><button type="button" class="bt pri" onclick="Baixar.tudo()">Baixar resumo completo (HTML)</button></div>'));
+  assert.equal(h.split('class="bt').length - 1, 1);
+  for (const fora of ['Gerar PDF', 'Baixar dados (JSON)', 'window.print()', 'Baixar.json()']) assert.equal(h.includes(fora), false, fora);
+});
+
+test('as ferramentas trazem Expandir tudo, Recolher tudo, a chave "Mostrar só o que falta preencher" e o aviso escondido "Nenhum exercício pendente." (RES-04)', () => {
+  const f = ferrDe(tela(guia(feitos(IDS))));
+  assert.ok(f.includes('<button type="button" class="lk" data-acao="expandir">Expandir tudo</button>'));
+  assert.ok(f.includes('<button type="button" class="lk" data-acao="recolher">Recolher tudo</button>'));
+  assert.ok(f.includes('<label class="chave"><input type="checkbox" data-acao="so-falta"> Mostrar só o que falta preencher</label>'));
+  assert.ok(f.includes('<p class="sem-pend" data-pend="0" hidden>Nenhum exercício pendente.</p>'));
+});
+
+test('cada missão marca quantos exercícios faltam (data-pend) e cada exercício o seu estado (data-estado), para o filtro (RES-04.8)', () => {
+  const h = tela(guia(feitos([...SEIS, 'm1.frag'])));
+  assert.deepEqual(missoes(h).map((b) => /data-pend="(\d+)"/.exec(b)![1]), ['0', '1', '2', '3', '3']);
+  assert.equal(missoes(h).flatMap(exercicios).filter((b) => b.startsWith('<details class="ex" data-estado="ok"')).length, 7);
+});
+
+/** Janela com #tela, Ilhas e a janela que guarda os ouvintes ativos, para chamar a Telas.resumo como o roteador faz. */
+function guiaComTela(D: Record<string, unknown>) {
+  const telaEl = { innerHTML: '', className: 'tela', isConnected: true, querySelectorAll: () => [], querySelector: () => ({}) };
+  const ativos = new Map<string, Set<unknown>>();
+  const ligadas: unknown[] = [];
+  const w = guia(D, true, {
+    document: { createElement: elemento, body: elemento(), getElementById: (id: string) => (id === 'tela' ? telaEl : null), querySelector: () => null, querySelectorAll: () => [], addEventListener() {} },
+    addEventListener: (k: string, f: unknown) => { if (!ativos.has(k)) ativos.set(k, new Set()); ativos.get(k)!.add(f); },
+    removeEventListener: (k: string, f: unknown) => { ativos.get(k)?.delete(f); },
+    requestAnimationFrame: (f: () => void) => { f(); return 1; },
+    Ilhas: { ligar: (r: unknown) => ligadas.push(r) },
+  }) as Janela & { Telas: { resumo(): void } };
+  return { w, telaEl, ativos, ligadas };
+}
+
+test('Telas.resumo desenha a tela com Resumo.vivo ligado só durante a montagem, usa "tela largo" e liga as ilhas uma vez (design)', () => {
+  const { w, telaEl, ligadas } = guiaComTela({ campos: { 'm1.q5': 'Análise' } });
+  w.Telas.resumo();
+  assert.equal(telaEl.innerHTML, tela(w));
+  assert.ok(telaEl.innerHTML.includes('class="res-link"')); // links das perguntas só existem com Resumo.vivo
+  assert.equal(w.Resumo.vivo, false);
+  assert.equal(telaEl.className, 'tela largo');
+  assert.deepEqual(ligadas, [telaEl]);
+});
+
+test('voltar a #/resumo várias vezes deixa um só ouvinte de scroll, beforeprint e afterprint (edge case)', () => {
+  const { w, ativos } = guiaComTela({ campos: {} });
+  for (let i = 0; i < 3; i++) w.Telas.resumo();
+  for (const k of ['scroll', 'beforeprint', 'afterprint']) assert.equal(ativos.get(k)?.size, 1, k);
 });

@@ -159,21 +159,23 @@ T11 → T12 → T13
 
 **Done when**:
 
-- [ ] Barra mostra "38%" e "6 de 16 exercícios concluídos" com 6 de 16 feitos; "0%" e "0 de 16" sem respostas; "100%" e a frase "Todos os exercícios estão concluídos." com tudo feito (RES-02.1, edge cases)
-- [ ] Cada segmento mostra "M{n} · {curto}", "{feitos}/{total}" e a barra em `feitos/total`; é `<button>` com nome "Ir para a Missão {n}: {título curto}" (RES-02.2, RES-13.3)
-- [ ] Clique no segmento abre a missão, rola até ela e **não** altera `location.hash` (RES-02.3)
-- [ ] Rolagem marca `aria-current="true"` no segmento da última missão com topo ≤ 160 px (a 1ª se nenhuma) e `"false"` nos demais (RES-02.4)
-- [ ] A tela tem exatamente um botão de ação, "Baixar resumo completo (HTML)", que chama `Baixar.tudo()`; não existem "Gerar PDF" nem "Baixar dados (JSON)" (RES-03)
-- [ ] Expandir tudo e Recolher tudo abrem e fecham todos os blocos; "só o que falta" oculta exercícios concluídos e missões totalmente concluídas e restaura o estado ao desmarcar; contador com `aria-live="polite"` e as frases da spec, inclusive "1 exercício ainda sem conclusão" e "Nenhum exercício pendente." (RES-04)
-- [ ] `beforeprint` abre tudo e `afterprint` restaura o estado anterior de cada bloco (RES-05.1)
-- [ ] Voltar a `#/resumo` não duplica ouvintes de `scroll`, `beforeprint` e `afterprint` (um teste conta as chamadas)
-- [ ] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/resumo-estrutura.spec.ts`
-- [ ] Test count: ≥ 8 testes unitários novos e ≥ 8 e2e em `e2e/resumo-estrutura.spec.ts`, nenhum removido
+- [x] Barra mostra "38%" e "6 de 16 exercícios concluídos" com 6 de 16 feitos; "0%" e "0 de 16" sem respostas; "100%" e a frase "Todos os exercícios estão concluídos." com tudo feito (RES-02.1, edge cases)
+- [x] Cada segmento mostra "M{n} · {curto}", "{feitos}/{total}" e a barra em `feitos/total`; é `<button>` com nome "Ir para a Missão {n}: {título curto}" (RES-02.2, RES-13.3)
+- [x] Clique no segmento abre a missão, rola até ela e **não** altera `location.hash` (RES-02.3)
+- [x] Rolagem marca `aria-current="true"` no segmento da última missão com topo ≤ 160 px (a 1ª se nenhuma) e `"false"` nos demais (RES-02.4)
+- [x] A tela tem exatamente um botão de ação, "Baixar resumo completo (HTML)", que chama `Baixar.tudo()`; não existem "Gerar PDF" nem "Baixar dados (JSON)" (RES-03)
+- [x] Expandir tudo e Recolher tudo abrem e fecham todos os blocos; "só o que falta" oculta exercícios concluídos e missões totalmente concluídas e restaura o estado ao desmarcar; contador com `aria-live="polite"` e as frases da spec, inclusive "1 exercício ainda sem conclusão" e "Nenhum exercício pendente." (RES-04)
+- [x] `beforeprint` abre tudo e `afterprint` restaura o estado anterior de cada bloco (RES-05.1)
+- [x] Voltar a `#/resumo` não duplica ouvintes de `scroll`, `beforeprint` e `afterprint` (um teste conta as chamadas)
+- [x] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/resumo-estrutura.spec.ts`
+- [x] Test count: ≥ 8 testes unitários novos e ≥ 8 e2e em `e2e/resumo-estrutura.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(resumo): add fixed progress bar, tools and print handling`
+
+**Status**: ✅ Done
 
 ---
 
