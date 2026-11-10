@@ -11,6 +11,8 @@ const CURTOS = ['Prepare sua chegada', 'Estruture a equipe', 'Defina o rumo', 'C
 async function abreResumo(page: Page, feitos: string[]) {
   await abreGuia(page, '#/resumo', { dados: { campos: {}, feitos: Object.fromEntries(feitos.map((id) => [id, true])) } });
   await expect(page.locator('#tela .seg')).toHaveCount(5);
+  await expect(page.locator('#tela .retrato')).toBeVisible();
+  await page.waitForLoadState('networkidle'); // ilhas do Resumo (retrato, mapas) já carregaram: a página não muda mais de altura
 }
 const seg = (page: Page, n: number) => page.getByRole('button', { name: `Ir para a Missão ${n}: ${CURTOS[n - 1]}` });
 const missao = (page: Page, n: number) => page.locator(`#res-m${n}`);
@@ -59,6 +61,7 @@ test('clicar em um segmento abre a missão e a leva ao topo, sem mudar o endere�
   await seg(page, 4).click();
   await expect(missao(page, 4)).toHaveAttribute('open', '');
   await expect(missao(page, 4)).toBeInViewport();
+  await expect.poll(() => topo(page, 4)).toBeLessThan(200);
   await seg(page, 2).click();
   await expect.poll(() => topo(page, 2)).toBeGreaterThanOrEqual(0);
   await expect.poll(() => topo(page, 2)).toBeLessThan(200);

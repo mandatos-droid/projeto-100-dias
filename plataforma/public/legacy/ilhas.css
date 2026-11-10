@@ -945,3 +945,23 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
   #tela .res2 .missao{border:0;border-top:3px solid var(--c);break-inside:auto}
   #tela .res2 .ex{break-inside:avoid}
 }
+/* retrato do mandato no cabeçalho (ilha resumo-retrato): cartão vinho da parlamentar e os números-chave */
+#tela .res2 .retrato{display:grid;grid-template-columns:auto minmax(0,1fr);gap:1.2rem;align-items:stretch}
+#tela .res2 .retrato-num{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:.9rem}
+#tela .res2 .parl{display:flex;flex-direction:column;width:10.5rem;background:var(--vinho);color:#fff;border-radius:var(--r);overflow:hidden}
+#tela .res2 .parl .foto{position:relative;display:grid;place-items:center;flex:1;min-height:11rem;border-radius:0;background:#3f0f23;
+  font-family:'Anton',sans-serif;font-size:4.5rem;line-height:1;color:var(--turquesa)}
+#tela .res2 .parl .foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top}
+#tela .res2 .parl .id{padding:.65rem .8rem .75rem;border-top:4px solid var(--turquesa);min-width:0}
+#tela .res2 .parl .id strong{display:block;font-family:'Anton',sans-serif;font-weight:400;font-size:1.15rem;line-height:1.1;overflow-wrap:anywhere}
+#tela .res2 .parl .id span{display:block;margin-top:.15rem;font-size:.74rem;line-height:1.35;color:rgba(255,255,255,.72)}
+#tela .res2 .stat{background:var(--branco);border:1px solid var(--linha);border-left:5px solid var(--c);border-radius:var(--r);padding:.85rem 1rem .8rem}
+#tela .res2 .stat b{display:block;font-family:'Anton',sans-serif;font-weight:400;font-size:2.4rem;line-height:1;color:var(--tinta);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+#tela .res2 .stat span{display:block;margin-top:.35rem;font-size:.84rem;font-weight:600;line-height:1.3}
+#tela .res2 .stat em{display:block;margin-top:.15rem;font-style:normal;font-size:.72rem;color:var(--tinta-3)}
+@media(max-width:47.5rem){
+  #tela .res2 .retrato{grid-template-columns:minmax(0,1fr)}
+  #tela .res2 .parl{flex-direction:row;width:100%}
+  #tela .res2 .parl .foto{flex:none;width:6.5rem;min-height:7.5rem;font-size:3rem}
+  #tela .res2 .parl .id{flex:1;align-self:center;border-top:0;border-left:4px solid var(--turquesa)}
+}

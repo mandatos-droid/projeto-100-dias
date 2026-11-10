@@ -10,6 +10,8 @@ async function abreResumo(page: Page, largura: number, altura = 800) {
   await page.setViewportSize({ width: largura, height: altura });
   await abreGuia(page, '#/resumo', { dados: { campos: {}, feitos: Object.fromEntries(SEIS.map((id) => [id, true])) } });
   await expect(page.locator('#tela .res2 .seg')).toHaveCount(5);
+  await expect(page.locator('#tela .retrato')).toBeVisible();
+  await page.waitForLoadState('networkidle'); // ilhas do Resumo (retrato, mapas) já carregaram: a página não muda mais de altura
 }
 const caixa = (page: Page, sel: string) => page.locator(sel).first().evaluate((e) => {
   const r = e.getBoundingClientRect();

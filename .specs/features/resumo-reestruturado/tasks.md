@@ -261,20 +261,22 @@ T11 → T12 → T13
 
 **Done when**:
 
-- [ ] Com `D.tse` completo, o cabeçalho mostra o cartão e o número de votos em pt-BR com a legenda da posição (RES-06.1, 06.4)
-- [ ] Com `D.tse.sq`, a imagem aponta para a URL do TSE; com a foto bloqueada (rota abortada), aparece a inicial (RES-06.2, 06.3)
-- [ ] Cadeiras do partido e filiados aparecem quando as fontes carregam, com os rótulos "Cadeiras do {partido} na {Casa}" e "Filiados do {partido} em {UF}"; sem partido, os dois somem (RES-06.5, 06.6, 06.8)
-- [ ] "Cargos da equipe com nome" mostra "X/Y" e a legenda de vagas; sem linhas ativas, o número some (RES-06.7)
-- [ ] Sem nenhuma fonte, só o cartão da parlamentar aparece, sem traço nem caixa vazia (RES-06.8)
-- [ ] Falha de carga (`carregaUF` rejeitada por rota 500) omite o número e a tela segue funcionando (RES-06.9)
-- [ ] A 600 px o cartão fica acima dos números, em faixa horizontal (RES-06.10)
-- [ ] Gate check passes: `npx playwright test -c playwright.isolado.config.ts e2e/resumo-retrato.spec.ts` e `npm test`
-- [ ] Test count: ≥ 8 e2e novos em `e2e/resumo-retrato.spec.ts`, nenhum removido
+- [x] Com `D.tse` completo, o cabeçalho mostra o cartão e o número de votos em pt-BR com a legenda da posição (RES-06.1, 06.4)
+- [x] Com `D.tse.sq`, a imagem aponta para a URL do TSE; com a foto bloqueada (rota abortada), aparece a inicial (RES-06.2, 06.3)
+- [x] Cadeiras do partido e filiados aparecem quando as fontes carregam, com os rótulos "Cadeiras do {partido} na {Casa}" e "Filiados do {partido} em {UF}"; sem partido, os dois somem (RES-06.5, 06.6, 06.8)
+- [x] "Cargos da equipe com nome" mostra "X/Y" e a legenda de vagas; sem linhas ativas, o número some (RES-06.7)
+- [x] Sem nenhuma fonte, só o cartão da parlamentar aparece, sem traço nem caixa vazia (RES-06.8)
+- [x] Falha de carga (`carregaUF` rejeitada por rota 500) omite o número e a tela segue funcionando (RES-06.9)
+- [x] A 600 px o cartão fica acima dos números, em faixa horizontal (RES-06.10)
+- [x] Gate check passes: `npx playwright test -c playwright.isolado.config.ts e2e/resumo-retrato.spec.ts` e `npm test`
+- [x] Test count: ≥ 8 e2e novos em `e2e/resumo-retrato.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(resumo): add portrait header island with key numbers`
+
+**Status**: ✅ Done (SPEC_DEVIATION: deputado federal e senador leem as cadeiras da Casa inteira em `nacional.json`, não a bancada da UF; vereador fica sem o número)
 
 ---
 

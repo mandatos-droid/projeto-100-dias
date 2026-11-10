@@ -27,6 +27,7 @@ import QuadroRotinas from './equipe/QuadroRotinas';
 import PdfOrgRotinas from './equipe/PdfOrgRotinas';
 import SugestaoChecklist from './equipe/SugestaoChecklist';
 import { AssentosResumo, ConjunturaResumo, MunicipioResumo } from './Resumos';
+import ResumoRetrato from './ResumoRetrato';
 import { criaRegistrador, funcionalidadeDe } from '@/lib/uso';
 
 /* ---------- acesso ao estado do Guia original (globais D e Store) ---------- */
@@ -107,6 +108,7 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   'assentos-resumo': () => <AssentosResumo />,
   'calor-resumo': () => <ConjunturaResumo />,
   'municipio-resumo': () => <MunicipioResumo />,
+  'resumo-retrato': () => <ResumoRetrato />,
   'equipe-tabela': () => <TabelaEquipe />,
   'quadro-rotinas': () => <QuadroRotinas />,
   'pdf-org-rotinas': () => <PdfOrgRotinas />,
