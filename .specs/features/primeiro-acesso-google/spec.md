@@ -64,6 +64,10 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | Quem entra na conta | Só pessoas com linha em `perfis`; a equipe Legisla (dispensada) não aparece nos números | Os dispensados não têm perfil | y |
 | Quem vê a seção | `admin` e `leitura` da equipe Legisla, como o restante do Analytics | `painel-admin` já define que os dois papéis veem todas as telas | n |
 | Grupos pequenos | Os números aparecem exatos, sem ocultar grupos com poucas pessoas | Só a equipe Legisla vê, e ela já lê a tabela inteira pelo banco; esconder grupos atrapalharia o uso com poucos cadastros | n |
+| Categorias sem ninguém no Analytics | Toda categoria da lista da spec aparece, na ordem da spec, mesmo com 0 pessoas (inclusive "Prefiro não informar"); o gráfico fica estável entre consultas | Decisão do orquestrador na rodada 1 do Verifier (SP-1); o usuário pode preferir ocultar zeros | n |
+| Porcentagem no Analytics | Cada porcentagem é arredondada para inteiro por categoria; a soma pode ser 99 ou 101 e isso é aceito. A soma das quantidades é sempre igual ao total | Decisão do orquestrador na rodada 1 do Verifier (SP-2); o número exato está ao lado da porcentagem | n |
+| Falha ao consultar o perfil no Guia | Mostra uma caixa de erro "Não foi possível carregar seus dados. Tente de novo." com botão "Tentar de novo"; nunca manda ao formulário de perfil por causa da falha | Decisão do orquestrador na rodada 1 do Verifier (SP-3): sem isso o Guia fica em branco | n |
+| Ordem das checagens no aceite do convite | Perfil antes de consentimento: quem não tem perfil recebe `erro:'perfil'` e preenche o perfil (que já grava o consentimento) sem ver a tela de consentimento do convite | Verifier rodada 1 (GAP-1): a ordem inversa mostrava o consentimento duas vezes | y |
 | Tratamento de "Prefiro não informar" | Aparece como uma categoria própria, nunca somado a outra | Dado honesto sobre quem não quis responder | n |
 
 **Open questions:** none - all resolved or logged above (required before the spec is confirmed).
@@ -192,7 +196,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 1. WHEN uma pessoa com papel `admin` ou `leitura` abre Analytics THEN the painel SHALL mostrar a seção "Perfil de quem usa a plataforma". <!-- event-driven -->
 2. The seção SHALL mostrar o total de pessoas com perfil e o gráfico de cadastros de perfil por mês, no máximo 12 meses. <!-- ubiquitous -->
-3. The seção SHALL mostrar a distribuição em número e porcentagem inteira de cada categoria de gênero, de raça, de faixa etária e de atuação política (com `Não atuo na política` e as 5 faixas de tempo). <!-- ubiquitous -->
+3. The seção SHALL mostrar a distribuição em número e porcentagem inteira de toda categoria da lista da spec, mesmo com 0 pessoas, de gênero, de raça, de faixa etária e de atuação política (com `Não atuo na política` e as 5 faixas de tempo). <!-- ubiquitous -->
 4. The seção SHALL mostrar `Prefiro não informar` como categoria própria em gênero e em raça. <!-- ubiquitous -->
 5. The faixa etária SHALL ser calculada da data de nascimento na data da consulta, nas faixas `Até 24`, `25 a 34`, `35 a 44`, `45 a 54`, `55 a 64` e `65 ou mais`. <!-- ubiquitous -->
 6. The seção SHALL não mostrar nome, e-mail, telefone nem data de nascimento de nenhuma pessoa. <!-- ubiquitous -->
