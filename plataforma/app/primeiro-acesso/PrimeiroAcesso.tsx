@@ -6,6 +6,7 @@ import { carregaConfig, type Config } from '../../lib/admin/config.ts';
 import { CHAVE_SESSAO, gravaSessao, lerRetornoGoogle, lerSessao, urlGoogle } from '../../lib/admin/sessao.ts';
 import { DESCONHECIDO, mensagemDe } from '../../lib/convites/erros.ts';
 import { lePendente } from '../../lib/convites/pendente.ts';
+import { tokenDoLinkColado } from '../../lib/perfil/link.ts';
 import { ehEquipeLegisla, meuPerfil, perfilSalvar, ERRO_SALVAR, type ResultadoSalvar } from '../../lib/perfil/api.ts';
 import { proximoPasso, type Passo } from '../../lib/perfil/fluxo.ts';
 import { GENEROS, RACAS, TEMPOS } from '../../lib/perfil/opcoes.ts';
@@ -22,6 +23,8 @@ type Estado =
   | { tipo: 'carregando' }
   | { tipo: 'entrada'; aviso?: string }
   | { tipo: 'perfil'; nome: string }
+  | { tipo: 'pergunta' }
+  | { tipo: 'instrucoes' }
   | { tipo: 'erro'; mensagem: string };
 
 // O que a página sabe da pessoa depois de entrar: serve ao envio do perfil e ao passo seguinte.
@@ -68,9 +71,26 @@ export default function PrimeiroAcesso() {
     location.replace('/guia');
   }
 
+  // Quem chega por convite só conta como tal com o token guardado no navegador (PAG-04.8).
+  function situacao(temPerfil: boolean, ehLegisla: boolean, temMandato: boolean, volta: Volta) {
+    return {
+      temPerfil, ehLegisla, temMandato,
+      veioPorConvite: volta === 'convite' && lePendente(armSessao()) !== null,
+      semEquipe: armSessao()?.getItem(CHAVE_SEM_EQUIPE) === '1',
+    };
+  }
+
   function vai(passo: Passo, volta: Volta) {
-    // a pergunta sobre a equipe e o cadastro de mandato entram na tarefa seguinte; por ora segue ao ponto de partida
-    if (passo === 'seguir' || passo === 'pergunta' || passo === 'cadastroMandato') segue(volta);
+    if (passo === 'pergunta') { setEstado({ tipo: 'pergunta' }); return; }
+    // com a marca "Ainda não", o Guia abre o cadastro de mandato (override em acesso.js)
+    if (passo === 'cadastroMandato') { location.replace('/guia'); return; }
+    segue(volta);
+  }
+
+  // "Ainda não": a marca vale só nesta sessão do navegador e o Guia abre o cadastro do mandato (PAG-04.6).
+  function aindaNao() {
+    try { sessionStorage.setItem(CHAVE_SEM_EQUIPE, '1'); } catch { /* sem armazenamento: o Guia pergunta de novo */ }
+    location.replace('/guia');
   }
 
   async function carrega() {
@@ -98,10 +118,7 @@ export default function PrimeiroAcesso() {
       const membros = (await sessao.api.ler<LinhaMembro[] | null>(`membros?select=papel&user_id=eq.${encodeURIComponent(usuario.id)}`)) ?? [];
       const temMandato = membros.length > 0;
       ctx.current = { cfg, sessao, temMandato };
-      const passo = proximoPasso({
-        temPerfil, ehLegisla, temMandato, veioPorConvite: volta === 'convite',
-        semEquipe: armSessao()?.getItem(CHAVE_SEM_EQUIPE) === '1',
-      });
+      const passo = proximoPasso(situacao(temPerfil, ehLegisla, temMandato, volta));
       if (passo === 'perfil') { setEstado({ tipo: 'perfil', nome: await nomeDoGoogle(cfg) }); return; }
       vai(passo, volta);
     } catch (e) {
@@ -122,10 +139,7 @@ export default function PrimeiroAcesso() {
     const r = await perfilSalvar(c.sessao.api, dados);
     if (!r.ok) return r;
     const volta = voltaDaUrl();
-    vai(proximoPasso({
-      temPerfil: true, ehLegisla: false, temMandato: c.temMandato, veioPorConvite: volta === 'convite',
-      semEquipe: armSessao()?.getItem(CHAVE_SEM_EQUIPE) === '1',
-    }), volta);
+    vai(proximoPasso(situacao(true, false, c.temMandato, volta)), volta);
     return r;
   }
 
@@ -141,6 +155,18 @@ export default function PrimeiroAcesso() {
   }
 
   if (estado.tipo === 'entrada') return <Entrada aviso={estado.aviso} />;
+
+  if (estado.tipo === 'pergunta') {
+    return (
+      <section className="cv-centro" aria-labelledby="pa-pergunta">
+        <h1 id="pa-pergunta">A equipe do seu mandato já criou uma conta?</h1>
+        <button type="button" className="cv-bt cv-bt--pri" onClick={() => setEstado({ tipo: 'instrucoes' })}>Sim, já criou</button>
+        <button type="button" className="cv-bt" onClick={aindaNao}>Ainda não</button>
+      </section>
+    );
+  }
+
+  if (estado.tipo === 'instrucoes') return <Instrucoes volta={() => setEstado({ tipo: 'pergunta' })} />;
 
   return <FormularioPerfil nomeInicial={estado.nome} salva={salva} sessaoPerdida={() => setEstado({ tipo: 'entrada' })} />;
 }
@@ -274,3 +300,35 @@ const TEXTO_SENSIVEIS =
   'Gênero e raça são dados pessoais sensíveis. Usamos esses dados, junto com a data de nascimento, para conhecer o perfil de quem usa a plataforma e orientar o programa. Só a equipe da Legisla Brasil vê esses dados, e nenhum mandato tem acesso a eles.';
 // TEXTO PROVISÓRIO: revisão jurídica pendente
 const CONCORDO_SENSIVEIS = 'Concordo, de forma específica, com o tratamento dos meus dados de gênero, raça e data de nascimento para essa finalidade.';
+
+const NAO_E_LINK = 'Este não parece um link de convite. Peça a quem convidou para enviar de novo.';
+
+// Quem a equipe já cadastrou: como a equipe gera o link e onde colá-lo (PAG-04.2, 04.3, 04.4, 04.5, 04.10).
+function Instrucoes({ volta }: { volta: () => void }) {
+  const [colado, setColado] = useState('');
+  const [aviso, setAviso] = useState<string | null>(null);
+
+  function abre(ev: React.FormEvent) {
+    ev.preventDefault();
+    const token = tokenDoLinkColado(colado);
+    if (!token) { setAviso(NAO_E_LINK); return; }
+    location.assign(`/convite#${token}`);
+  }
+
+  return (
+    <form className="cv-centro" onSubmit={abre} noValidate aria-labelledby="pa-instrucoes">
+      <h1 id="pa-instrucoes">Peça o link de convite à sua equipe</h1>
+      <p className="cv-mut">Quem já criou a conta do mandato gera o link em 3 passos:</p>
+      <ol className="pa-passos">
+        <li>Abrir a Área do mandato.</li>
+        <li>Entrar em Equipe e convites.</li>
+        <li>Clicar em Gerar link de convite e enviar o link para você.</li>
+      </ol>
+      {aviso && <div className="cv-aviso" role="alert">{aviso}</div>}
+      <label className="cv-campo"><span>Cole o link do convite</span>
+        <input value={colado} onChange={(e) => setColado(e.target.value)} autoComplete="off" spellCheck={false} aria-invalid={aviso ? true : undefined} /></label>
+      <button type="submit" className="cv-bt cv-bt--pri">Abrir convite</button>
+      <button type="button" className="cv-link" onClick={volta}>Voltar à pergunta</button>
+    </form>
+  );
+}

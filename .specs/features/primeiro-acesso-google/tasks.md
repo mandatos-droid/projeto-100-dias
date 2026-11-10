@@ -338,19 +338,21 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] Depois do perfil, sem convite e sem mandato, a página pergunta "A equipe do seu mandato já criou uma conta?" com "Sim, já criou" e "Ainda não" (PAG-04.1)
-- [ ] "Sim, já criou" abre as instruções em 3 passos (Área do mandato, Equipe e convites, Gerar link de convite) com campo para colar o link e botão para voltar à pergunta (PAG-04.2, 04.3, 04.10)
-- [ ] Link válido colado abre `/convite#<token>`; texto que não é link mostra "Este não parece um link de convite. Peça a quem convidou para enviar de novo." (PAG-04.4, 04.5)
-- [ ] "Ainda não" grava `legisla.semEquipe=1` em `sessionStorage` e abre `/guia` (PAG-04.6)
-- [ ] Com `volta=convite` e token pendente, depois do perfil abre `/convite#<token>` sem mostrar a pergunta (PAG-04.8)
-- [ ] Com `volta=guia` ou `volta=mandato` e a pessoa já em algum mandato, não mostra a pergunta e volta ao ponto de partida (PAG-04.9)
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/primeiro-acesso.spec.ts`
-- [ ] Test count: ao menos 10 testes e2e novos em `e2e/primeiro-acesso.spec.ts`, nenhum removido
+- [x] Depois do perfil, sem convite e sem mandato, a página pergunta "A equipe do seu mandato já criou uma conta?" com "Sim, já criou" e "Ainda não" (PAG-04.1)
+- [x] "Sim, já criou" abre as instruções em 3 passos (Área do mandato, Equipe e convites, Gerar link de convite) com campo para colar o link e botão para voltar à pergunta (PAG-04.2, 04.3, 04.10)
+- [x] Link válido colado abre `/convite#<token>`; texto que não é link mostra "Este não parece um link de convite. Peça a quem convidou para enviar de novo." (PAG-04.4, 04.5)
+- [x] "Ainda não" grava `legisla.semEquipe=1` em `sessionStorage` e abre `/guia` (PAG-04.6)
+- [x] Com `volta=convite` e token pendente, depois do perfil abre `/convite#<token>` sem mostrar a pergunta (PAG-04.8)
+- [x] Com `volta=guia` ou `volta=mandato` e a pessoa já em algum mandato, não mostra a pergunta e volta ao ponto de partida (PAG-04.9)
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/primeiro-acesso.spec.ts`
+- [x] Test count: ao menos 10 testes e2e novos em `e2e/primeiro-acesso.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(primeiro-acesso): add team question and invite instructions`
+
+**Status**: ✅ Done
 
 ---
 

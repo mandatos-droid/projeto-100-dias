@@ -13,3 +13,4 @@
 .pa-grupo[data-invalido="true"], .pa-chk[data-invalido="true"] { padding: 6px 8px; border: 1.5px solid #B3261E; border-radius: 8px; background: #FDECEC; }
 .pa-ajuda { font-size: 13px; color: var(--tinta-2); }
 .pa-sensiveis { font-size: 13px; line-height: 1.5; color: var(--tinta-2); overflow-wrap: anywhere; }
+.pa-passos { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; }

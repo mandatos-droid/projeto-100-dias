@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
-import { auth, localDe, naoMapeadas, rpcs, semeiaSessao } from './convite-api';
+import { TOKEN, auth, localDe, naoMapeadas, rpcs, semeiaSessao } from './convite-api';
+import { ANA } from './mandato-api';
 import { PERFIL_VALIDO, argumentosSalvar, mocaPerfil, salvamentos, type EstadoPerfil } from './primeiro-acesso-api';
 
 /* /primeiro-acesso, estados entrada e perfil (PAG-01.1, 01.3, 01.4 e PAG-02.3 a 02.16). Supabase todo interceptado
@@ -19,7 +20,7 @@ const enviar = (page: Page) => page.getByRole('button', { name: 'Salvar e contin
 
 async function abreFormulario(page: Page, estado: EstadoPerfil = {}, url = '/primeiro-acesso?volta=guia') {
   await semeiaSessao(page);
-  await mocaPerfil(page, estado);
+  await mocaPerfil(page, { mandatos: [ANA], ...estado }); // com mandato, quem grava o perfil segue direto (sem a pergunta)
   await page.goto(url);
   await expect(page.getByRole('heading', { name: 'Conte um pouco sobre você' })).toBeVisible();
 }
@@ -263,7 +264,7 @@ test.describe('Envio (PAG-02.12 a 02.14)', () => {
 test.describe('Quem não vê o formulário (PAG-02.15, 02.16)', () => {
   test('quem já tem perfil não vê o formulário e segue ao ponto de partida (PAG-02.15)', async ({ page }) => {
     await semeiaSessao(page);
-    await mocaPerfil(page, { temPerfil: true });
+    await mocaPerfil(page, { temPerfil: true, mandatos: [ANA] });
     await page.goto('/primeiro-acesso?volta=mandato');
     await expect(page).toHaveURL(/\/mandato$/);
     expect(rpcs('perfil_salvar')).toHaveLength(0);
@@ -291,4 +292,134 @@ test('em 400 px de largura o formulário não rola na horizontal', async ({ page
   await abreFormulario(page);
   const [largura, visivel] = await page.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth]);
   expect(largura).toBeLessThanOrEqual(visivel);
+});
+
+/* Pergunta sobre a equipe e instruções do link (PAG-04.1 a 04.6, 04.8 a 04.10). */
+const NAO_E_LINK = 'Este não parece um link de convite. Peça a quem convidou para enviar de novo.';
+const PERGUNTA = 'A equipe do seu mandato já criou uma conta?';
+const pergunta = (page: Page) => page.getByRole('heading', { name: PERGUNTA });
+const sim = (page: Page) => page.getByRole('button', { name: 'Sim, já criou', exact: true });
+const ainda = (page: Page) => page.getByRole('button', { name: 'Ainda não', exact: true });
+const colar = (page: Page) => page.getByLabel('Cole o link do convite');
+
+// Pessoa com perfil, sem mandato (a menos que `mandatos` diga o contrário), no ponto de partida `volta`.
+async function abrePergunta(page: Page, estado: EstadoPerfil = {}, url = '/primeiro-acesso?volta=guia') {
+  await semeiaSessao(page);
+  await mocaPerfil(page, { temPerfil: true, ...estado });
+  await page.goto(url);
+}
+
+test.describe('Pergunta sobre a equipe (PAG-04.1)', () => {
+  test('com perfil, sem mandato e sem convite pergunta "A equipe do seu mandato já criou uma conta?" com as duas respostas', async ({ page }) => {
+    await abrePergunta(page);
+    await expect(pergunta(page)).toBeVisible();
+    await expect(sim(page)).toBeVisible();
+    await expect(ainda(page)).toBeVisible();
+    await expect(page.getByLabel('Nome completo', { exact: true })).toHaveCount(0);
+  });
+
+  test('depois de gravar o perfil, quem não tem mandato nem convite vê a pergunta', async ({ page }) => {
+    await abreFormulario(page, { mandatos: [] });
+    await preenche(page);
+    await enviar(page).click();
+    await expect(pergunta(page)).toBeVisible();
+    expect(salvamentos()).toHaveLength(1);
+  });
+});
+
+test.describe('Instruções do link (PAG-04.2 a 04.5, 04.10)', () => {
+  test('"Sim, já criou" abre as instruções em 3 passos e o campo para colar o link (PAG-04.2, 04.3)', async ({ page }) => {
+    await abrePergunta(page);
+    await sim(page).click();
+    await expect(page.locator('.pa-passos li')).toHaveText([
+      'Abrir a Área do mandato.',
+      'Entrar em Equipe e convites.',
+      'Clicar em Gerar link de convite e enviar o link para você.',
+    ]);
+    await expect(colar(page)).toBeVisible();
+    await expect(pergunta(page)).toHaveCount(0);
+  });
+
+  test('"Voltar à pergunta" volta à pergunta para trocar a resposta (PAG-04.10)', async ({ page }) => {
+    await abrePergunta(page);
+    await sim(page).click();
+    await page.getByRole('button', { name: 'Voltar à pergunta' }).click();
+    await expect(pergunta(page)).toBeVisible();
+    await expect(ainda(page)).toBeVisible();
+  });
+
+  test('link inteiro de convite abre /convite#<token> (PAG-04.4)', async ({ page }) => {
+    await abrePergunta(page);
+    await sim(page).click();
+    await colar(page).fill(`https://100dias.legislabrasil.org/convite#${TOKEN}`);
+    await page.getByRole('button', { name: 'Abrir convite' }).click();
+    await expect(page).toHaveURL(new RegExp(`/convite#${TOKEN}$`));
+  });
+
+  test('só o token também abre /convite#<token> (PAG-04.4)', async ({ page }) => {
+    await abrePergunta(page);
+    await sim(page).click();
+    await colar(page).fill(TOKEN);
+    await page.getByRole('button', { name: 'Abrir convite' }).click();
+    await expect(page).toHaveURL(new RegExp(`/convite#${TOKEN}$`));
+  });
+
+  test('texto que não é link de convite mostra a mensagem da spec e fica na página (PAG-04.5)', async ({ page }) => {
+    await abrePergunta(page);
+    await sim(page).click();
+    await colar(page).fill('oi, tudo bem?');
+    await page.getByRole('button', { name: 'Abrir convite' }).click();
+    await expect(alerta(page)).toHaveText(NAO_E_LINK);
+    expect(new URL(page.url()).pathname).toBe('/primeiro-acesso');
+  });
+
+  test('link de outra página com um token no fragmento também é recusado (PAG-04.5)', async ({ page }) => {
+    await abrePergunta(page);
+    await sim(page).click();
+    await colar(page).fill(`https://exemplo.org/outra#${TOKEN}`);
+    await page.getByRole('button', { name: 'Abrir convite' }).click();
+    await expect(alerta(page)).toHaveText(NAO_E_LINK);
+  });
+});
+
+test.describe('"Ainda não" e os pontos de partida (PAG-04.6, 04.8, 04.9)', () => {
+  test('"Ainda não" grava legisla.semEquipe=1 no sessionStorage e abre /guia (PAG-04.6)', async ({ page }) => {
+    await abrePergunta(page);
+    await ainda(page).click();
+    await expect(page).toHaveURL(/\/guia$/);
+    expect(await page.evaluate(() => sessionStorage.getItem('legisla.semEquipe'))).toBe('1');
+  });
+
+  test('com a marca "Ainda não" e sem mandato não repete a pergunta: abre /guia (PAG-04.6)', async ({ page }) => {
+    await page.addInitScript(() => sessionStorage.setItem('legisla.semEquipe', '1'));
+    await abrePergunta(page);
+    await expect(page).toHaveURL(/\/guia$/);
+  });
+
+  test('volta=convite com token pendente abre /convite#<token> sem mostrar a pergunta (PAG-04.8)', async ({ page }) => {
+    await page.addInitScript((t) => sessionStorage.setItem('legisla.convite', t), TOKEN);
+    await abrePergunta(page, {}, '/primeiro-acesso?volta=convite');
+    await expect(page).toHaveURL(new RegExp(`/convite#${TOKEN}$`));
+    await expect(pergunta(page)).toHaveCount(0);
+  });
+
+  test('perfil gravado agora, vindo de um convite, abre /convite#<token> sem pergunta (PAG-04.8)', async ({ page }) => {
+    await page.addInitScript((t) => sessionStorage.setItem('legisla.convite', t), TOKEN);
+    await abreFormulario(page, {}, '/primeiro-acesso?volta=convite');
+    await preenche(page);
+    await enviar(page).click();
+    await expect(page).toHaveURL(new RegExp(`/convite#${TOKEN}$`));
+  });
+
+  test('volta=guia com a pessoa já em um mandato não mostra a pergunta e volta ao Guia (PAG-04.9)', async ({ page }) => {
+    await abrePergunta(page, { mandatos: [ANA] }, '/primeiro-acesso?volta=guia');
+    await expect(page).toHaveURL(/\/guia$/);
+    await expect(pergunta(page)).toHaveCount(0);
+  });
+
+  test('volta=mandato com a pessoa já em um mandato não mostra a pergunta e volta a /mandato (PAG-04.9)', async ({ page }) => {
+    await abrePergunta(page, { mandatos: [ANA] }, '/primeiro-acesso?volta=mandato');
+    await expect(page).toHaveURL(/\/mandato$/);
+    await expect(pergunta(page)).toHaveCount(0);
+  });
 });
