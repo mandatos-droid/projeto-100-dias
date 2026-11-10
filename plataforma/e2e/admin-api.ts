@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import type { Page, Route } from '@playwright/test';
 import { lerConfig } from '../lib/admin/config.ts';
 import type { LinhaMandato } from '../lib/admin/mandatos.ts';
+import type { LinhaUsuario } from '../lib/admin/usuarios.ts';
 
 /* Apoio dos e2e do /admin. O app abre de verdade (nucleo.js real, mesma URL do Supabase), mas toda chamada ao Supabase é
    interceptada aqui: nada sai da máquina. Requisição sem mapa é abortada e registrada em `naoMapeadas()`; os specs afirmam
@@ -100,6 +101,37 @@ export function mandato(p: Partial<LinhaMandato> & { id: string }): LinhaMandato
     codigo: `COD${p.id}`, nome_parlamentar: `Parlamentar ${p.id}`, cargo: 'Deputado(a) Estadual', casa: 'Assembleia Legislativa', uf: 'SP',
     partido: 'ABC', data_posse: '2027-02-01', resp_nome: null, resp_cargo: null, criado_em: '2026-10-01T12:00:00Z',
     arquivado_em: null, membros: 1, ultima_atividade: new Date().toISOString(), exercicios_concluidos: 0, ...p,
+  };
+}
+
+/** Linha de `admin_usuarios` com valores padrão; só os campos que a função devolve. */
+export function usuario(p: Partial<LinhaUsuario> & { id: string }): LinhaUsuario {
+  return {
+    nome: `Pessoa ${p.id}`, email: `${p.id}@exemplo.org`, criado_em: '2026-10-01T12:00:00Z', ultimo_acesso: null,
+    sem_perfil: false, equipe_papel: null, mandatos: [], ...p,
+  };
+}
+
+/** Simula `public.admin_usuarios` sobre `pessoas` (já na ordem do banco): busca por nome ou e-mail sem acento nem
+ *  maiúsculas (cortada em 100), papel (em algum mandato; com mandato, naquele mandato), `legisla`, mandato, "sem perfil",
+ *  limite (fora de 1 a 100 vira 25) e posição. `pedidos` recebe os argumentos de cada chamada, na ordem. */
+export function servidorUsuarios(pessoas: LinhaUsuario[], pedidos: Record<string, unknown>[] = []) {
+  const chave = (s: string | null) => (s ?? '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+  return (args: Record<string, unknown>): RespostaRpc => {
+    pedidos.push(args);
+    const busca = chave(String(args.p_busca ?? '').trim().slice(0, 100));
+    const papel = typeof args.p_papel === 'string' ? args.p_papel : null;
+    const papelMandato = papel && ['coordenacao', 'assessoria', 'leitura'].includes(papel) ? papel : null;
+    const mandatoId = typeof args.p_mandato === 'string' ? args.p_mandato : null;
+    const filtradas = pessoas.filter((p) =>
+      (!busca || chave(p.nome).includes(busca) || chave(p.email).includes(busca))
+      && (!args.p_sem_perfil || p.sem_perfil)
+      && (papel !== 'legisla' || !!p.equipe_papel)
+      && ((!mandatoId && !papelMandato) || p.mandatos.some((m) => (!mandatoId || m.id === mandatoId) && (!papelMandato || m.papel === papelMandato))));
+    const lim = Number(args.p_limite);
+    const limite = Number.isInteger(lim) && lim >= 1 && lim <= 100 ? lim : 25;
+    const inicio = Math.max(0, Number(args.p_offset) || 0);
+    return { corpo: { total: filtradas.length, linhas: filtradas.slice(inicio, inicio + limite) } };
   };
 }
 

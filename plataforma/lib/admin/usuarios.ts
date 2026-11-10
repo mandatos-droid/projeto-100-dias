@@ -7,6 +7,14 @@ import { partesBrasilia } from './escala.ts';
 export const TAMANHO_PAGINA = 25;
 export const BUSCA_MAX = 100;
 
+// Retorno de public.admin_usuarios: nunca traz gênero, raça, nascimento nem telefone.
+export interface MandatoDaLinha { id: string; nome: string | null; papel: string; arquivado: boolean }
+export interface LinhaUsuario {
+  id: string; nome: string | null; email: string | null; criado_em: string; ultimo_acesso: string | null
+  sem_perfil: boolean; equipe_papel: string | null; mandatos: MandatoDaLinha[]
+}
+export interface ListaUsuarios { total: number; linhas: LinhaUsuario[] }
+
 export type FiltroPapel = 'todos' | Papel | 'legisla';
 export const FILTROS_PAPEL: readonly { valor: FiltroPapel; rotulo: string }[] = [
   { valor: 'todos', rotulo: 'Todos' },

@@ -3,11 +3,12 @@
 import Link from 'next/link';
 import { useAdmin } from './Sessao.tsx';
 
-export type Tela = 'equipe' | 'mandatos' | 'analytics' | 'logs';
+export type Tela = 'equipe' | 'mandatos' | 'usuarios' | 'analytics' | 'logs';
 
 const MENU: { tela: Tela; href: string; rotulo: string }[] = [
   { tela: 'equipe', href: '/admin/equipe', rotulo: 'Equipe' },
   { tela: 'mandatos', href: '/admin', rotulo: 'Mandatos' },
+  { tela: 'usuarios', href: '/admin/usuarios', rotulo: 'Usuários' },
   { tela: 'analytics', href: '/admin/analytics', rotulo: 'Analytics' },
   { tela: 'logs', href: '/admin/logs', rotulo: 'Logs' },
 ];

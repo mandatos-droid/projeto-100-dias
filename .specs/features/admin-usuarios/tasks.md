@@ -194,20 +194,22 @@ T6 → T7
 
 **Done when**:
 
-- [ ] O menu mostra "Usuários" entre "Mandatos" e "Analytics" e abre `/admin/usuarios` (USR-01.1)
-- [ ] A lista mostra nome, e-mail, mandatos com o papel, data de cadastro e último acesso, as marcas "Sem perfil" e o papel da equipe, e nunca gênero, raça, nascimento nem telefone (USR-01.2 a 01.7, 01.10)
-- [ ] A ordem, a paginação de 25 e o total vêm da função; a página lê `pagina` da URL (USR-01.8, 01.9)
-- [ ] Sem contas mostra "Nenhuma pessoa cadastrada." e nenhuma tabela; falha mostra a mensagem padrão e "Tentar de novo" sem afetar o menu (USR-01.11, 01.12)
-- [ ] Clique em uma linha abre `/admin/usuarios/<id>` levando a consulta da lista em `de=` (USR-02.1)
-- [ ] Layout legível em 400 px, sem rolagem horizontal
-- [ ] Os specs `e2e/admin-*.spec.ts` existentes continuam passando com o mock ajustado
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/admin-usuarios.spec.ts e2e/admin-`
-- [ ] Test count: ao menos 10 testes e2e novos, nenhum removido
+- [x] O menu mostra "Usuários" entre "Mandatos" e "Analytics" e abre `/admin/usuarios` (USR-01.1)
+- [x] A lista mostra nome, e-mail, mandatos com o papel, data de cadastro e último acesso, as marcas "Sem perfil" e o papel da equipe, e nunca gênero, raça, nascimento nem telefone (USR-01.2 a 01.7, 01.10)
+- [x] A ordem, a paginação de 25 e o total vêm da função; a página lê `pagina` da URL (USR-01.8, 01.9)
+- [x] Sem contas mostra "Nenhuma pessoa cadastrada." e nenhuma tabela; falha mostra a mensagem padrão e "Tentar de novo" sem afetar o menu (USR-01.11, 01.12)
+- [x] Clique em uma linha abre `/admin/usuarios/<id>` levando a consulta da lista em `de=` (USR-02.1)
+- [x] Layout legível em 400 px, sem rolagem horizontal
+- [x] Os specs `e2e/admin-*.spec.ts` existentes continuam passando com o mock ajustado
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/admin-usuarios.spec.ts e2e/admin-`
+- [x] Test count: ao menos 10 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(admin): add users tab with list`
+
+**Status**: ✅ Done
 
 ---
 
