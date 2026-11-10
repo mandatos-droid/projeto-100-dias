@@ -51,15 +51,31 @@ if(NUVEM){
 /* ---------- primeiro acesso: perfil antes do Guia (PAG-02, PAG-04) ----------
    Quem não está na equipe Legisla e não tem perfil vai a /primeiro-acesso; sem mandato, o cadastro do mandato só abre
    depois de "Ainda não" (marca legisla.semEquipe), senão a pergunta "sua equipe já criou?" vem primeiro. Uma consulta que
-   falha propaga o erro: nunca vira "sem perfil", para não mandar ao formulário quem já tem perfil. */
+   falha nunca vira "sem perfil" (não manda ao formulário quem já tem perfil): mostra uma caixa de erro com "Tentar de
+   novo", que refaz a entrada. Sem ela a tela ficaria em branco: #entrada e #app nascem ocultos. */
+var ERRO_PERFIL='Não foi possível carregar seus dados. Tente de novo.';
+var caixaErroPerfil=null;
+function mostraErroPerfil(){
+  if(caixaErroPerfil)caixaErroPerfil.remove();
+  var cx=document.createElement('div'),msg=document.createElement('div'),bt=document.createElement('button');
+  cx.id='erroPerfil';cx.className='erro-perfil';
+  msg.className='erro-cx';msg.setAttribute('role','alert');msg.textContent=ERRO_PERFIL;
+  bt.className='bt pri';bt.setAttribute('type','button');bt.textContent='Tentar de novo';
+  bt.onclick=function(){cx.remove();caixaErroPerfil=null;return App.entrou()};
+  cx.appendChild(msg);cx.appendChild(bt);
+  document.body.appendChild(cx);
+  caixaErroPerfil=cx;
+}
 var _entrou=App.entrou;
 App.entrou=async function(){
   if(!NUVEM)return _entrou.apply(this,arguments); /* modo local: não há perfil nem banco */
-  var uid=encodeURIComponent(Store.usuario.id);
-  var r=await Promise.all([
-    Nuvem.rest('equipe_legisla?select=user_id&user_id=eq.'+uid),
-    Nuvem.rest('perfis?select=user_id&user_id=eq.'+uid)
-  ]);
+  var uid=encodeURIComponent(Store.usuario.id),r;
+  try{
+    r=await Promise.all([
+      Nuvem.rest('equipe_legisla?select=user_id&user_id=eq.'+uid),
+      Nuvem.rest('perfis?select=user_id&user_id=eq.'+uid)
+    ]);
+  }catch(e){mostraErroPerfil();return}
   var ehLegisla=(r[0]||[]).length>0,temPerfil=(r[1]||[]).length>0;
   if(ehLegisla)return _entrou.apply(this,arguments);
   if(!temPerfil){location.replace('/primeiro-acesso?volta=guia');return}
@@ -129,7 +145,8 @@ if(tela&&window.MutationObserver)new MutationObserver(function(){trava(tela)}).o
 var css=document.createElement('style');
 css.textContent='.aviso-leitura{margin:0;padding:.625rem 1.25rem;background:#FFF4D6;border-bottom:1px solid var(--linha);'+
   'color:var(--tinta);font-weight:700;font-size:.9375rem}'+
-  '.so-leitura #tela :disabled,.so-leitura #tela [contenteditable="false"]{opacity:.6;cursor:not-allowed}';
+  '.so-leitura #tela :disabled,.so-leitura #tela [contenteditable="false"]{opacity:.6;cursor:not-allowed}'+
+  '.erro-perfil{max-width:32rem;margin:4rem auto;padding:0 1.25rem;display:grid;gap:1rem;justify-items:start}';
 document.head.appendChild(css);
 
 })();

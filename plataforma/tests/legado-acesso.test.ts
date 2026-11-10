@@ -346,11 +346,46 @@ test('quem é da equipe Legisla abre o Guia sem perfil e sem redirecionar (PAG-0
   assert.equal(document.getElementById('app').classList.contains('oculto'), false);
 });
 
-test('falha na consulta de perfil não manda ao formulário: o erro segue como em qualquer falha de leitura do Guia', async () => {
-  const { w, redirecionou, leituras } = entrando({ falhaPerfil: true, mandatos: [{ ...MANDATO }] });
-  await assert.rejects(w.App.entrou(), /rede/);
+/* Falha na consulta de perfil: caixa de erro com "Tentar de novo" (spec, Assumption "Falha ao consultar o perfil no Guia"). */
+const ERRO_PERFIL = 'Não foi possível carregar seus dados. Tente de novo.';
+type Botao = El & { onclick: () => unknown };
+const caixasDeErro = (d: ReturnType<typeof documento>) => d.body.filhos.filter((e) => e.id === 'erroPerfil' && !e.removido);
+function caixaDeErro(d: ReturnType<typeof documento>) {
+  const cx = caixasDeErro(d);
+  assert.equal(cx.length, 1, 'uma caixa de erro à mostra');
+  const [mensagem, botao] = cx[0].filhos;
+  return { caixa: cx[0], mensagem, botao: botao as Botao };
+}
+
+test('falha na consulta de perfil não manda ao formulário: mostra a caixa "Não foi possível carregar seus dados. Tente de novo." com o botão "Tentar de novo", sem ler os mandatos', async () => {
+  const { w, redirecionou, leituras, document, aberturaDoCadastro } = entrando({ falhaPerfil: true, mandatos: [{ ...MANDATO }] });
+  await w.App.entrou();
   assert.deepEqual(redirecionou, []);
+  assert.deepEqual(aberturaDoCadastro, []);
   assert.equal(leituras().some((u) => u.startsWith('membros?select=papel')), false);
+  const { mensagem, botao } = caixaDeErro(document);
+  assert.equal(mensagem.textContent, ERRO_PERFIL);
+  assert.equal(mensagem.atributos.role, 'alert');
+  assert.equal(botao.textContent, 'Tentar de novo');
+  assert.equal(botao.atributos.type, 'button');
+});
+
+test('"Tentar de novo" refaz a entrada: falhando de novo a caixa volta, sem formulário; com a consulta funcionando a caixa sai e o Guia abre', async () => {
+  const p: Pessoa = { falhaPerfil: true, perfil: true, mandatos: [{ ...MANDATO }] };
+  const { w, redirecionou, leituras, document } = entrando(p);
+  await w.App.entrou();
+  const primeira = caixaDeErro(document);
+  await primeira.botao.onclick();
+  assert.equal(primeira.caixa.removido, true);
+  const segunda = caixaDeErro(document); // continua falhando: uma caixa nova, nenhuma ida ao formulário
+  assert.equal(segunda.mensagem.textContent, ERRO_PERFIL);
+  assert.deepEqual(redirecionou, []);
+  p.falhaPerfil = false;
+  await Promise.resolve(segunda.botao.onclick()).catch(() => {}); // o resto da abertura usa telas que o documento simulado não tem
+  assert.deepEqual(caixasDeErro(document), []);
+  assert.deepEqual(redirecionou, []);
+  assert.ok(leituras().some((u) => u.startsWith('membros?select=papel')), 'com a consulta funcionando, o Guia lê os mandatos');
+  assert.equal(document.getElementById('app').classList.contains('oculto'), false);
 });
 
 test('com perfil, sem mandato e sem a marca "Ainda não", o Guia abre /primeiro-acesso para a pergunta (PAG-04.1)', async () => {

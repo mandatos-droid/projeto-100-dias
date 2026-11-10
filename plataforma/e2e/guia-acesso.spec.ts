@@ -338,6 +338,7 @@ test.describe('Entrada do Guia só com Google (PAG-01.1, 01.2, 01.4, PAG-05.1, 0
 
 /* ---------- primeiro acesso: perfil antes do Guia (PAG-02.1, 02.2, 02.15, 02.16, PAG-04.1, 04.6, 04.7) ---------- */
 const lerDe = (tabela: string) => registro.pedidos.findIndex((p) => p.metodo === 'GET' && p.caminho.startsWith(tabela));
+const ERRO_PERFIL = 'Não foi possível carregar seus dados. Tente de novo.';
 
 test.describe('Perfil antes do Guia', () => {
   test('sem perfil e fora da equipe Legisla, o Guia abre /primeiro-acesso?volta=guia sem ler os mandatos (PAG-02.1, 02.2)', async ({ page }) => {
@@ -360,11 +361,28 @@ test.describe('Perfil antes do Guia', () => {
     await expect(page.locator('#ladoNav .it').first()).toBeVisible();
   });
 
-  test('falha na consulta de perfil não manda ao formulário: o Guia fica em /guia', async ({ page }) => {
+  test('falha na consulta de perfil (500) não manda ao formulário: o Guia fica em /guia com a caixa "Não foi possível carregar seus dados. Tente de novo." e o botão "Tentar de novo"', async ({ page }) => {
     await abre(page, '#/', { perfil: 'falha', semEspera: true });
+    await expect(page.locator('#erroPerfil').getByRole('alert')).toHaveText(ERRO_PERFIL);
+    await expect(page.getByRole('button', { name: 'Tentar de novo', exact: true })).toBeVisible();
     await page.waitForLoadState('networkidle');
     expect(new URL(page.url()).pathname).toBe('/guia');
     expect(lerDe('membros?select=papel')).toBe(-1);
+  });
+
+  test('"Tentar de novo" com a consulta de perfil funcionando abre o Guia, sem nenhuma ida a /primeiro-acesso', async ({ page }) => {
+    const navegou: string[] = [];
+    page.on('framenavigated', (f) => { if (f === page.mainFrame()) navegou.push(new URL(f.url()).pathname); });
+    const e: Estado = { perfil: 'falha', semEspera: true };
+    await abre(page, '#/', e);
+    await expect(page.locator('#erroPerfil').getByRole('alert')).toHaveText(ERRO_PERFIL);
+    e.perfil = true; // a próxima consulta responde
+    await page.getByRole('button', { name: 'Tentar de novo', exact: true }).click();
+    await expect(page.locator('#ladoNav .it').first()).toBeVisible();
+    await expect(page.getByText(ERRO_PERFIL)).toHaveCount(0);
+    expect(new URL(page.url()).pathname).toBe('/guia');
+    expect(navegou.filter((p) => p !== '/guia')).toEqual([]);
+    expect(registro.pedidos.filter((p) => p.metodo === 'GET' && p.caminho.startsWith('perfis')).length).toBe(2);
   });
 
   test('com perfil, sem mandato e sem a marca "Ainda não", o Guia abre /primeiro-acesso para a pergunta (PAG-04.1)', async ({ page }) => {

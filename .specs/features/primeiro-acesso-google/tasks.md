@@ -669,20 +669,20 @@ T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Falha na consulta de `equipe_legisla` ou `perfis` mostra uma caixa com o texto literal "Não foi possível carregar seus dados. Tente de novo." e o botão "Tentar de novo" (Assumption "Falha ao consultar o perfil no Guia")
-- [ ] A falha nunca manda a `/primeiro-acesso` nem deixa a tela em branco; os mandatos não são lidos
-- [ ] "Tentar de novo" tira a caixa e refaz `App.entrou`: com a consulta funcionando o Guia abre; falhando de novo, a caixa volta
-- [ ] A caixa é criada por JS em `acesso.js`; `app.js`, `nucleo.js` e `lib/legacyBody.ts` seguem sem edição (AD-003)
-- [ ] O teste de unidade que afirmava que a falha propaga o erro passa a afirmar a caixa (a spec atualizada mudou o resultado esperado), mantendo as afirmações de não redirecionar e não ler os mandatos
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/guia-acesso.spec.ts`
-- [ ] Test count: testes novos em `tests/legado-acesso.test.ts` e `e2e/guia-acesso.spec.ts`, nenhum removido
+- [x] Falha na consulta de `equipe_legisla` ou `perfis` mostra uma caixa (`#erroPerfil`) com o texto literal "Não foi possível carregar seus dados. Tente de novo." (`role="alert"`) e o botão "Tentar de novo" (Assumption "Falha ao consultar o perfil no Guia")
+- [x] A falha nunca manda a `/primeiro-acesso` nem deixa a tela em branco; os mandatos não são lidos
+- [x] "Tentar de novo" tira a caixa e refaz `App.entrou`: com a consulta funcionando o Guia abre; falhando de novo, a caixa volta (uma só)
+- [x] A caixa é criada por JS em `acesso.js`; `app.js`, `nucleo.js` e `lib/legacyBody.ts` seguem sem edição (AD-003)
+- [x] O teste de unidade e o e2e que afirmavam só "não redireciona" (o de unidade afirmava também que o erro propaga) passam a afirmar a caixa, porque a spec atualizada mudou o resultado esperado; as afirmações de não redirecionar e não ler os mandatos ficam
+- [x] Gate check passes: `npm test` (1105 testes, 0 falhas) e `npx playwright test e2e/guia-acesso.spec.ts` (27 passaram; a primeira rodada teve 1 falha por tempo no primeiro `page.goto` de `/guia`, a compilação a frio do servidor novo, e a segunda rodada passou inteira). Sondas locais: tirar o `catch` derruba 2 testes de unidade; trocar o refazer por `location.reload()` derruba 1
+- [x] Test count: 1 teste novo em `tests/legado-acesso.test.ts` (1104 → 1105) e 1 em `e2e/guia-acesso.spec.ts` (26 → 27), nenhum removido
 
 **Tests**: unit
 **Gate**: full
 
 **Commit**: `fix(guia): show a retry box when the profile lookup fails`
 
-**Status**: Pending
+**Status**: ✅ Done
 
 ---
 
