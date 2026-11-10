@@ -125,20 +125,22 @@ T11 → T12 → T13
 
 **Done when**:
 
-- [ ] `ResumoTela.html()` devolve as 5 missões como `<details class="missao">` com "Missão {n}", título curto, `prazoTxt` e "{feitos}/{total}", e um `<details class="ex">` por exercício com título linkado a `#/m/{n}/{id}`, selo de `estadoEx` e texto de `Telas.estadoTxt` (RES-01.1, 01.2)
-- [ ] Missão aberta só se algum exercício tem estado diferente de "nao"; exercício "nao" fechado com a caixa "Nenhuma resposta registrada ainda." e o link "Começar este exercício →"; os demais abertos com o corpo `Resumo.ex(ex)` (RES-01.3, 01.4)
-- [ ] Exercício "andamento" termina com "Continuar este exercício →" para `#/m/{n}/{id}` (RES-10)
-- [ ] `previa()` devolve texto puro, sem tags, de até 160 caracteres, ou "não preenchido" sem resposta; texto longo sem espaços não vaza HTML (edge cases)
-- [ ] O corpo do exercício de tipo `funcoes` é o ponto de montagem `<div class="ilha" data-ilha="resumo-equipe">` e a tela traz `<div class="ilha" data-ilha="resumo-retrato">` no cabeçalho (design)
-- [ ] `Resumo.ex` e `Resumo.missao` devolvem o mesmo HTML de antes para os mesmos dados (RES-12.1): teste compara a saída com a de um `vm` que não carrega `resumo-tela.js`
-- [ ] `resumo-tela.js` carrega no Guia (entrada em `SCRIPTS` na posição do design) sem erro de console
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ≥ 12 testes novos em `tests/legado-resumo.test.ts`, nenhum removido
+- [x] `ResumoTela.html()` devolve as 5 missões como `<details class="missao">` com "Missão {n}", título curto, `prazoTxt` e "{feitos}/{total}", e um `<details class="ex">` por exercício com título linkado a `#/m/{n}/{id}`, selo de `estadoEx` e texto de `Telas.estadoTxt` (RES-01.1, 01.2)
+- [x] Missão aberta só se algum exercício tem estado diferente de "nao"; exercício "nao" fechado com a caixa "Nenhuma resposta registrada ainda." e o link "Começar este exercício →"; os demais abertos com o corpo `Resumo.ex(ex)` (RES-01.3, 01.4)
+- [x] Exercício "andamento" termina com "Continuar este exercício →" para `#/m/{n}/{id}` (RES-10)
+- [x] `previa()` devolve texto puro, sem tags, de até 160 caracteres, ou "não preenchido" sem resposta; texto longo sem espaços não vaza HTML (edge cases)
+- [x] O corpo do exercício de tipo `funcoes` é o ponto de montagem `<div class="ilha" data-ilha="resumo-equipe">` e a tela traz `<div class="ilha" data-ilha="resumo-retrato">` no cabeçalho (design)
+- [x] `Resumo.ex` e `Resumo.missao` devolvem o mesmo HTML de antes para os mesmos dados (RES-12.1): teste compara a saída com a de um `vm` que não carrega `resumo-tela.js`
+- [x] `resumo-tela.js` carrega no Guia (entrada em `SCRIPTS` na posição do design) sem erro de console
+- [x] Gate check passes: `npm test`
+- [x] Test count: ≥ 12 testes novos em `tests/legado-resumo.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(resumo): build the collapsible mission and exercise tree`
+
+**Status**: ✅ Done
 
 ---
 

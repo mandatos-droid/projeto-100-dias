@@ -248,7 +248,7 @@ A aba "Resumo do preenchimento" (`#/resumo`) lista as 16 respostas do Guia como 
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| RES-01 | P1: Missões e exercícios recolhíveis | Tasks | Pending |
+| RES-01 | P1: Missões e exercícios recolhíveis | Execute (T1) | In progress |
 | RES-02 | P1: Barra fixa com progresso e navegação | Tasks | Pending |
 | RES-03 | P1: Barra fixa com progresso e navegação (ação única) | Tasks | Pending |
 | RES-04 | P1: Missões e exercícios recolhíveis (ferramentas) | Tasks | Pending |
@@ -257,9 +257,9 @@ A aba "Resumo do preenchimento" (`#/resumo`) lista as 16 respostas do Guia como 
 | RES-07 | P2: Cartões de aliados, opositores e potenciais | Tasks | Pending |
 | RES-08 | P2: Problemas e potencialidades por território | Tasks | Pending |
 | RES-09 | P2: Organograma da equipe com vagas marcadas | Tasks | Pending |
-| RES-10 | P1: Missões e exercícios recolhíveis (saída do vazio) | Tasks | Pending |
+| RES-10 | P1: Missões e exercícios recolhíveis (saída do vazio) | Execute (T1) | Implemented (aguarda o Verifier) |
 | RES-11 | P3: Fragilidades com M e P em destaque | Tasks | Pending |
-| RES-12 | P1: Nada muda fora da tela | Tasks | Pending |
+| RES-12 | P1: Nada muda fora da tela | Execute (T1) | In progress |
 | RES-13 | P1: Impressão, teclado e movimento (acessibilidade) | Tasks | Pending |
 
 **Coverage:** 13 total, 13 mapped to tasks, 0 unmapped
