@@ -468,7 +468,7 @@ test('sem Resumo.vivo (download) a lista de texto sai idêntica à de antes, sem
   const arr = [{ k: 'a', status: 'aliado', nome: 'Ana Alves', partido: 'PSB', cargo: 'Dep.', uf: 'SP', votos: 1200 }];
   assert.equal(com.ResumoIlhas.lista(arr, 'assentos'), sem.ResumoIlhas.lista(arr, 'assentos'));
   assert.ok(com.ResumoIlhas.lista(arr, 'assentos').startsWith('<ul class="marcados">'));
-  assert.ok(sem.ResumoIlhas.html('assentos').includes('<strong>Parceiros (1)</strong>'));
+  assert.ok(sem.ResumoIlhas.html('assentos').includes('<strong>Aliados (1)</strong>'));
 });
 
 test('nome e partido com HTML saem escapados no cartão', () => {
