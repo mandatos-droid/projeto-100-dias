@@ -241,17 +241,19 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] `proximoPasso` devolve `seguir` para quem está na equipe Legisla, qualquer que seja o resto (PAG-02.16)
-- [ ] Devolve `perfil` para quem não tem perfil e não é da Legisla (PAG-02.1, 02.2)
-- [ ] Com perfil e mandato devolve `seguir`; com perfil, sem mandato e sem convite devolve `pergunta`, ou `cadastroMandato` se a marca `semEquipe` está presente; com convite devolve `seguir` (PAG-04.1, 04.8, 04.9)
-- [ ] `tokenDoLinkColado` aceita o link inteiro e só o token e devolve `null` para qualquer outro texto (PAG-04.4, 04.5)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 14 testes novos em `tests/perfil-fluxo.test.ts`, nenhum removido
+- [x] `proximoPasso` devolve `seguir` para quem está na equipe Legisla, qualquer que seja o resto (PAG-02.16)
+- [x] Devolve `perfil` para quem não tem perfil e não é da Legisla (PAG-02.1, 02.2)
+- [x] Com perfil e mandato devolve `seguir`; com perfil, sem mandato e sem convite devolve `pergunta`, ou `cadastroMandato` se a marca `semEquipe` está presente; com convite devolve `seguir` (PAG-04.1, 04.8, 04.9)
+- [x] `tokenDoLinkColado` aceita o link inteiro e só o token e devolve `null` para qualquer outro texto (PAG-04.4, 04.5). "Link inteiro" é o que termina em `/convite#<token>`; link de outra página com token no fragmento devolve `null`
+- [x] Gate check passes: `npm test` (1063 testes, 0 falhas)
+- [x] Test count: 14 testes novos em `tests/perfil-fluxo.test.ts`, nenhum removido (1049 → 1063)
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(perfil): add first access flow rules`
+
+**Status**: ✅ Done
 
 ---
 
