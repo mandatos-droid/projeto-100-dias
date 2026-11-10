@@ -485,20 +485,22 @@ T11 → T12 → T13
 
 **Done when**:
 
-- [ ] O arquivo baixado por "Baixar resumo completo (HTML)" tem os títulos das missões e as respostas e não contém a barra, os segmentos nem os cartões (RES-12.3)
-- [ ] "Ver o que foi preenchido" no Painel mostra o mesmo conteúdo de antes (RES-12.2)
-- [ ] Enter e Espaço abrem e fecham um `<summary>`; Tab chega aos segmentos e Enter leva à missão (RES-01.6, RES-13.3)
-- [ ] Mandato vazio mostra "0%", "0 de 16 exercícios concluídos" e todas as missões fechadas; mandato 100% mostra "100%" e a frase de conclusão (edge cases)
-- [ ] Sair e voltar a `#/resumo` mantém um único conjunto de ouvintes e redesenha com os dados atuais (edge cases)
-- [ ] A 375 px não há rolagem horizontal (RES-13.5) e os números usam pt-BR (RES-13.6)
-- [ ] Todos os testes existentes de Painel, Guia e Missões continuam passando (RES-12.2, 12.4)
-- [ ] Gate check passes: `npx tsc --noEmit`, `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/resumo- e2e/rumo-painel.spec.ts e2e/m1- e2e/m23-`
-- [ ] Test count: ≥ 9 e2e novos em `e2e/resumo-regressao.spec.ts`, nenhum removido
+- [x] O arquivo baixado por "Baixar resumo completo (HTML)" tem os títulos das missões e as respostas e não contém a barra, os segmentos nem os cartões (RES-12.3)
+- [x] "Ver o que foi preenchido" no Painel mostra o mesmo conteúdo de antes (RES-12.2)
+- [x] Enter e Espaço abrem e fecham um `<summary>`; Tab chega aos segmentos e Enter leva à missão (RES-01.6, RES-13.3)
+- [x] Mandato vazio mostra "0%", "0 de 16 exercícios concluídos" e todas as missões fechadas; mandato 100% mostra "100%" e a frase de conclusão (edge cases)
+- [x] Sair e voltar a `#/resumo` mantém um único conjunto de ouvintes e redesenha com os dados atuais (edge cases)
+- [x] A 375 px não há rolagem horizontal (RES-13.5) e os números usam pt-BR (RES-13.6)
+- [x] Todos os testes existentes de Painel, Guia e Missões continuam passando (RES-12.2, 12.4)
+- [x] Gate check passes: `npx tsc --noEmit`, `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/resumo- e2e/rumo-painel.spec.ts e2e/m1- e2e/m23-`
+- [x] Test count: ≥ 9 e2e novos em `e2e/resumo-regressao.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: build
 
 **Commit**: `test(resumo): cover regressions and accessibility of the summary screen`
+
+**Status**: ✅ Done
 
 ---
 

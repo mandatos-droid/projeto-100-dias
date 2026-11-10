@@ -248,11 +248,11 @@ A aba "Resumo do preenchimento" (`#/resumo`) lista as 16 respostas do Guia como 
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| RES-01 | P1: Missões e exercícios recolhíveis | Execute (T1, T2, T3) | In progress |
+| RES-01 | P1: Missões e exercícios recolhíveis | Execute (T1, T2, T3, T12) | Implemented (aguarda o Verifier) |
 | RES-02 | P1: Barra fixa com progresso e navegação | Execute (T2, T3) | Implemented (aguarda o Verifier) |
 | RES-03 | P1: Barra fixa com progresso e navegação (ação única) | Execute (T2, T3) | Implemented (aguarda o Verifier) |
 | RES-04 | P1: Missões e exercícios recolhíveis (ferramentas) | Execute (T2) | Implemented (aguarda o Verifier) |
-| RES-05 | P1: Impressão, teclado e movimento | Execute (T2, T3) | In progress |
+| RES-05 | P1: Impressão, teclado e movimento | Execute (T2, T3, T12) | Implemented (aguarda o Verifier) |
 | RES-06 | P1: Retrato do mandato no cabeçalho | Execute (T4, T5) | Implemented (aguarda o Verifier) |
 | RES-07 | P2: Cartões de aliados, opositores e potenciais | Execute (T8) | Implemented (aguarda o Verifier) |
 | RES-08 | P2: Problemas e potencialidades por território | Execute (T9, T10) | Implemented (aguarda o Verifier) |
@@ -260,7 +260,7 @@ A aba "Resumo do preenchimento" (`#/resumo`) lista as 16 respostas do Guia como 
 | RES-10 | P1: Missões e exercícios recolhíveis (saída do vazio) | Execute (T1) | Implemented (aguarda o Verifier) |
 | RES-11 | P3: Fragilidades com M e P em destaque | Execute (T11) | Implemented (aguarda o Verifier) |
 | RES-12 | P1: Nada muda fora da tela | Execute (T1) | In progress |
-| RES-13 | P1: Impressão, teclado e movimento (acessibilidade) | Execute (T2, T3) | In progress |
+| RES-13 | P1: Impressão, teclado e movimento (acessibilidade) | Execute (T2, T3, T12) | Implemented (aguarda o Verifier) |
 
 **Coverage:** 13 total, 13 mapped to tasks, 0 unmapped
 
