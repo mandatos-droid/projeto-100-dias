@@ -272,17 +272,19 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] `perfilSalvar` chama a rpc `perfil_salvar` com os argumentos `p_nome`, `p_nascimento`, `p_genero`, `p_raca`, `p_telefone`, `p_uf`, `p_atua`, `p_tempo` e traduz `{ok:false, erro}` na mensagem da spec (PAG-02.12)
-- [ ] Falha de rede ou 5xx vira "Não foi possível salvar. Tente de novo." (PAG-02.13)
-- [ ] `meuPerfil` consulta `perfis?select=user_id&user_id=eq.<id>` e devolve `true` ou `false`; erro de consulta propaga e nunca vira `false` (PAG-02.15)
-- [ ] `ehEquipeLegisla` consulta `equipe_legisla?select=user_id&user_id=eq.<id>` (PAG-02.16)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 8 testes novos em `tests/perfil-api.test.ts`, nenhum removido
+- [x] `perfilSalvar` chama a rpc `perfil_salvar` com os argumentos `p_nome`, `p_nascimento`, `p_genero`, `p_raca`, `p_telefone`, `p_atua`, `p_tempo` e traduz `{ok:false, erro}` na mensagem da spec (PAG-02.12). Sem `p_uf` (spec sem UF). `nome`, `nascimento` e `telefone` viram as mensagens de PAG-02.9 a 02.11; `genero`, `raca`, `atua` e `tempo` viram a de campo vazio (PAG-02.8), com o campo
+- [x] Falha de rede ou 5xx vira "Não foi possível salvar. Tente de novo." (PAG-02.13); 401 segue como `ErroApi`, para a sessão renovar
+- [x] `meuPerfil` consulta `perfis?select=user_id&user_id=eq.<id>` e devolve `true` ou `false`; erro de consulta propaga e nunca vira `false` (PAG-02.15)
+- [x] `ehEquipeLegisla` consulta `equipe_legisla?select=user_id&user_id=eq.<id>` (PAG-02.16)
+- [x] Gate check passes: `npm test` (1077 testes, 0 falhas); gate de build da fase 2: `npx tsc --noEmit` sem erro e 275 e2e de `convite-`, `mandato-`, `guia-acesso` e `admin-` passando (a primeira rodada teve 1 falha de tempo em `admin-menu-guia.spec.ts:23`, que passou sozinha e na segunda rodada completa)
+- [x] Test count: 14 testes novos em `tests/perfil-api.test.ts`, nenhum removido (1063 → 1077)
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(perfil): add profile data layer`
+
+**Status**: ✅ Done
 
 ---
 
