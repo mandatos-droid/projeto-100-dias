@@ -11,7 +11,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 **Design**: `.specs/features/resumo-reestruturado/design.md`
 **Spec**: `.specs/features/resumo-reestruturado/spec.md`
 **Referência visual**: `.specs/features/resumo-reestruturado/proposta.html`
-**Status**: Draft
+**Status**: Done (T1 a T13; aguarda o Verifier)
 **Branch**: `feat/resumo-reestruturado`, num worktree próprio, a partir de `origin/main`
 
 Regras que valem para todas as tasks:
@@ -519,15 +519,17 @@ T11 → T12 → T13
 
 **Done when**:
 
-- [ ] `plataforma/CLAUDE.md` descreve `public/legacy/resumo-tela.js`, as ilhas novas e a regra de não alterar `Resumo.ex`/`Resumo.missao` (RES-12)
-- [ ] `.specs/STATE.md` ganha AD-R1 a AD-R8 com data e motivo, e o Handoff aponta para o `validation.md` a gerar
-- [ ] Gate check passes: `npx tsc --noEmit` e `npm test`
-- [ ] Test count: todos os testes existentes passam, nenhum removido
+- [x] `plataforma/CLAUDE.md` descreve `public/legacy/resumo-tela.js`, as ilhas novas e a regra de não alterar `Resumo.ex`/`Resumo.missao` (RES-12)
+- [x] `.specs/STATE.md` ganha AD-R1 a AD-R8 com data e motivo, e o Handoff aponta para o `validation.md` a gerar
+- [x] Gate check passes: `npx tsc --noEmit` e `npm test`
+- [x] Test count: todos os testes existentes passam, nenhum removido
 
 **Tests**: none
 **Gate**: build
 
 **Commit**: `docs(resumo): document the restructured summary screen`
+
+**Status**: ✅ Done
 
 ---
 

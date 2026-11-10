@@ -259,7 +259,7 @@ A aba "Resumo do preenchimento" (`#/resumo`) lista as 16 respostas do Guia como 
 | RES-09 | P2: Organograma da equipe com vagas marcadas | Execute (T6, T7) | Implemented (aguarda o Verifier) |
 | RES-10 | P1: Missões e exercícios recolhíveis (saída do vazio) | Execute (T1) | Implemented (aguarda o Verifier) |
 | RES-11 | P3: Fragilidades com M e P em destaque | Execute (T11) | Implemented (aguarda o Verifier) |
-| RES-12 | P1: Nada muda fora da tela | Execute (T1) | In progress |
+| RES-12 | P1: Nada muda fora da tela | Execute (T1, T8, T11, T12, T13) | Implemented (aguarda o Verifier) |
 | RES-13 | P1: Impressão, teclado e movimento (acessibilidade) | Execute (T2, T3, T12) | Implemented (aguarda o Verifier) |
 
 **Coverage:** 13 total, 13 mapped to tasks, 0 unmapped

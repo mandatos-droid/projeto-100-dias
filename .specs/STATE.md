@@ -99,7 +99,60 @@
 - Decisões de execução do worker, para o dono do produto confirmar: (1) papel e mandato juntos acham quem tem aquele papel naquele mandato; (2) `p_papel` desconhecido não filtra; (3) a marca da equipe é "Equipe Legisla · admin" ou "Equipe Legisla · leitura"; (4) a opção padrão do filtro de mandato é "Todos os mandatos"; (5) id do detalhe que não é uuid mostra "Pessoa não encontrada." sem chamar o banco; (6) página além da última vai à última; (7) se as opções do filtro de mandato não carregam, o filtro fica só com "Todos os mandatos" e a lista segue; (8) a busca é enviada depois de 300 ms sem digitar; (9) no detalhe, quem não atua mostra tempo "—" e o consentimento mostra a data sem hora.
 - Motivo: decisão do usuário de 2026-11-10 (lista com último acesso; "quero ver no detalhe sim" para os dados sensíveis).
 
+### AD-R1: A tela nova sobrepõe `Telas.resumo`, não `Resumo.missao` (2026-11-10)
+
+- `Resumo.missao` alimenta o Painel ("Ver o que foi preenchido") e o download; mexer nele violaria a regra de que nada fora da tela muda (RES-12). A tela monta os próprios blocos e chama `Resumo.ex` por exercício.
+- Motivo: proteger Painel e download; um teste compara a saída com a de um `vm` sem `resumo-tela.js`.
+
+### AD-R2: Arquivo novo `resumo-tela.js` em vez de editar `novos.js` (2026-11-10)
+
+- `novos.js` já tem cerca de 500 linhas e várias responsabilidades; um arquivo por tela segue o padrão `m1.js` a `m5.js`. Custo: uma entrada em `SCRIPTS`, depois de `m1` e antes de `sugestoes`.
+- Motivo: `app.js`, `resumo.js` e `legacy.css` são regenerados pela extração; o arquivo escrito à mão não é sobrescrito.
+
+### AD-R3: Segmento ativo por `scroll` com `requestAnimationFrame` e `getBoundingClientRect` (2026-11-10)
+
+- A regra da spec é "topo passou de 160 px"; `getBoundingClientRect` a implementa literalmente e dispensa simular `IntersectionObserver` nos testes.
+- Motivo: regra simples, testável e sem dependência do navegador.
+
+### AD-R4: Segmentos são `<button>`, não `<a href="#...">` (2026-11-10)
+
+- O hash pertence ao roteador do Guia; o clique abre a missão e rola até ela sem mudar `location.hash`.
+- Motivo: evitar que o roteador desenhe outra tela ao clicar no segmento.
+
+### AD-R5: Abertura inicial derivada dos dados, sem `localStorage` (2026-11-10)
+
+- Só o vazio vem fechado; "Expandir tudo" e "Recolher tudo" cobrem o resto. Nada de estado novo no navegador.
+- Motivo: a regra de abertura resolve o caso comum e evita estado que diverge entre aparelhos.
+
+### AD-R6: Número do retrato sem fonte é omitido, não vira "—" (2026-11-10)
+
+- Sem TSE, partido, Casa, carga que falhou ou tabela vazia, o número some. Sem nenhuma fonte, só o cartão da parlamentar aparece.
+- Execução (T5): deputado federal e senador leem as cadeiras da Casa inteira em `nacional.json`, não a bancada da UF; vereador fica sem o número.
+- Motivo: "—" induz a achar que o dado é zero.
+
+### AD-R7: Exercício "não iniciado" sem resposta visível vira caixa; com resposta visível abre (2026-11-10)
+
+- Refinado após o T3: `temConteudo` não conta as caixas extras (como o próximo cargo da Persona, `m1-persona.spec.ts:29`), então `estadoEx` pode dar "nao" com resposta já visível; nesse caso o bloco abre com o corpo de `Resumo.ex`.
+- Motivo: evitar oito "não preenchido" seguidos sem esconder o que já existe.
+
+### AD-R8: `ResumoIlhas.lista`, `ResumoIlhas.html` e a saída de `frag` só mudam com `Resumo.vivo` (2026-11-10)
+
+- O download e o Painel rodam sem `vivo` e seguem com a lista de texto e a lista de fragilidades de antes (RES-07.6, RES-12.1, RES-12.3).
+- Execução (T8): "Potenciais" lê o status `potencial` de `D.relacoes`, que o Guia ainda não grava (só `aliado` e `concorrente`); o grupo aparece quando o dado existir. A sobreposição fica em `ResumoIlhas.html` para as perguntas de Casa e de município, que compõe os grupos e chama `ResumoIlhas.lista` por grupo.
+- Motivo: a spec pede três grupos, mas o modelo de dados só tem dois status; decisão do dono do produto pendente (gravar `potencial` no Guia ou trocar a regra).
+
 ## Handoff
+
+**Snapshot atual (`resumo-reestruturado`, 2026-11-10):**
+
+- **Feature**: `resumo-reestruturado` (`.specs/features/resumo-reestruturado/`), tela `#/resumo` com blocos recolhíveis, retrato, cartões, tabela por território e organograma. Decisões AD-R1 a AD-R8.
+- **Branch**: `feat/resumo-reestruturado`, no worktree `Dev Apps/Projeto 100 dias - resumo`, criado de `origin/main`. Nada foi enviado: sem push, deploy nem migration.
+- **Phase / Task**: T1 a T13 concluídas, um commit por task. Falta o Verifier, que escreve `.specs/features/resumo-reestruturado/validation.md` (máx. 3 rodadas), e então `validate_state.py resumo-reestruturado` e `graphify update .`.
+- **Gate**: 11 e2e do gate de build já falham sem a feature (`m1-etapas:26`, `m23-migracao:110`, `m23-pdf:39`, `m23-plano:64/92/148`, `m23-rotinas:31/42`, `rumo-painel:19/32/54`); nenhuma falha nova aceita.
+- **Pendência para o dono do produto**: o grupo "Potenciais" (RES-07) lê o status `potencial` de `D.relacoes`, que o Guia não grava hoje; sem esse dado o grupo nunca aparece.
+- **Blockers**: nenhum
+- **Portas**: 3100 é de outra sessão (`area-mandato-wt`); usar 3117 no `playwright.isolado.config.ts` (não versionado, nunca commitar).
+- **Uncommitted files**: `plataforma/playwright.isolado.config.ts` (nunca commitar) e `graphify-out/`.
 
 - **Feature**: `admin-usuarios` (`.specs/features/admin-usuarios/`), aba Usuários do `/admin`, só leitura (AD-014)
 - **Branch**: `feat/admin-usuarios`, no worktree `Dev Apps/admin-usuarios-wt`, criado de `origin/main`. Nada foi enviado: sem push, deploy nem migration remota.
