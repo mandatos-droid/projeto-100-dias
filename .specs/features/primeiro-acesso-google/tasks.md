@@ -208,19 +208,21 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] `opcoes.ts` exporta gênero (8), raça (6), UF (27), atuação (6) com chave interna e rótulo exatamente como a spec (PAG-02.4, 02.5, 02.6)
-- [ ] `validaPerfil` recusa campo vazio com "Preencha todos os campos e aceite o tratamento dos dados para continuar." e consentimento desmarcado com a mesma mensagem (PAG-02.8)
-- [ ] Recusa nome com menos de duas palavras ou fora de 2 a 120 caracteres com "Informe seu nome completo." (PAG-02.9)
-- [ ] Recusa data inexistente, futura ou anterior a 1900-01-01 com "Informe uma data de nascimento válida." (PAG-02.10)
-- [ ] Recusa telefone sem DDD de 11 a 99 mais 8 ou 9 dígitos com "Informe um telefone com DDD." e aceita parênteses, espaço e hífen, devolvendo só dígitos (PAG-02.11)
-- [ ] "Sim" exige tempo; "Não" grava `nao_atua` e ignora o tempo (PAG-02.4, 02.5)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 20 testes novos em `tests/perfil-validacao.test.ts`, nenhum removido
+- [x] `opcoes.ts` exporta gênero (8), raça (6), atuação (6) com chave interna e rótulo exatamente como a spec (PAG-02.4, 02.5, 02.6), e `TEMPOS` (as 5 faixas oferecidas a quem responde "Sim"). Sem UF: a spec decidiu o perfil sem UF
+- [x] `validaPerfil` recusa campo vazio com "Preencha todos os campos e aceite o tratamento dos dados para continuar." e consentimento desmarcado com a mesma mensagem (PAG-02.8). As duas caixas do design (geral e dados sensíveis) contam; o campo destacado é o primeiro vazio na ordem do formulário; gênero, raça ou tempo fora da lista contam como vazios
+- [x] Recusa nome com menos de duas palavras ou fora de 2 a 120 caracteres com "Informe seu nome completo." (PAG-02.9)
+- [x] Recusa data inexistente, futura ou anterior a 1900-01-01 com "Informe uma data de nascimento válida." (PAG-02.10), com "hoje" no fuso de Brasília
+- [x] Recusa telefone sem DDD de 11 a 99 mais 8 ou 9 dígitos com "Informe um telefone com DDD." e aceita parênteses, espaço e hífen, devolvendo só dígitos (PAG-02.11)
+- [x] "Sim" exige tempo; "Não" grava `nao_atua` e ignora o tempo (PAG-02.4, 02.5): o dado pronto leva `atua: false, tempo: null`, que é como `perfis` guarda "Não atuo na política"
+- [x] Gate check passes: `npm test` (1049 testes, 0 falhas) e `npx tsc --noEmit` sem erro
+- [x] Test count: 26 testes novos em `tests/perfil-validacao.test.ts`, nenhum removido (1023 → 1049)
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(perfil): add profile options and validation`
+
+**Status**: ✅ Done
 
 ---
 
