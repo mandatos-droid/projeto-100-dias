@@ -24,6 +24,27 @@ App.iniciar=function(){
   return r;
 };
 
+/* ---------- primeiro acesso: perfil antes do Guia (PAG-02, PAG-04) ----------
+   Quem não está na equipe Legisla e não tem perfil vai a /primeiro-acesso; sem mandato, o cadastro do mandato só abre
+   depois de "Ainda não" (marca legisla.semEquipe), senão a pergunta "sua equipe já criou?" vem primeiro. Uma consulta que
+   falha propaga o erro: nunca vira "sem perfil", para não mandar ao formulário quem já tem perfil. */
+var _entrou=App.entrou;
+App.entrou=async function(){
+  if(!NUVEM)return _entrou.apply(this,arguments); /* modo local: não há perfil nem banco */
+  var uid=encodeURIComponent(Store.usuario.id);
+  var r=await Promise.all([
+    Nuvem.rest('equipe_legisla?select=user_id&user_id=eq.'+uid),
+    Nuvem.rest('perfis?select=user_id&user_id=eq.'+uid)
+  ]);
+  var ehLegisla=(r[0]||[]).length>0,temPerfil=(r[1]||[]).length>0;
+  if(ehLegisla)return _entrou.apply(this,arguments);
+  if(!temPerfil){location.replace('/primeiro-acesso?volta=guia');return}
+  var semEquipe=false;
+  try{semEquipe=sessionStorage.getItem('legisla.semEquipe')==='1'}catch(e){}
+  if(!semEquipe&&!(await Store.meusMandatos()).length){location.replace('/primeiro-acesso');return}
+  return _entrou.apply(this,arguments);
+};
+
 /* ---------- Equipe e convites (seção de Configurações): atalho para a tela nova ---------- */
 Telas.equipeHtml=function(){
   var h='<h2 class="cad-h3" style="margin-top:0">Equipe e convites</h2>';

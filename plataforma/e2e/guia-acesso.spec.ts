@@ -40,6 +40,14 @@ interface Estado {
   /** Sem `legisla.tok`: a tela de entrada (login). */
   semSessao?: boolean;
   dados?: Record<string, unknown>;
+  /** Lia tem linha em `perfis` (padrão: sim); 'falha' = a consulta devolve 500. */
+  perfil?: boolean | 'falha';
+  /** Lia está em `equipe_legisla` (padrão: não). */
+  legisla?: boolean;
+  /** Marca legisla.semEquipe no sessionStorage ("Ainda não"). Padrão: presente só para quem não tem mandato, para o cadastro abrir. */
+  semEquipe?: boolean;
+  /** Não espera a tela do Guia: o teste espera outra coisa (redirecionamento, erro). */
+  semEspera?: boolean;
 }
 
 /** Abre o Guia real em `hash`, com Lia logada (salvo `semSessao`) e o Supabase simulado. */
@@ -80,7 +88,9 @@ async function abre(page: Page, hash: string, e: Estado = {}) {
       if (tabela === 'mandatos' && q('id')) return responde(200, mandatos.filter((x) => q('id') === `eq.${x.id}`));
       if (tabela === 'membros' && q('mandato_id')) return responde(200, membros.filter((m) => q('mandato_id') === `eq.${m.mandato_id}`));
       if (tabela === 'eventos' && q('mandato_id')) return responde(200, []);
-      if (tabela === 'equipe_legisla' && q('user_id') === `eq.${LIA.id}`) return responde(200, []);
+      if (tabela === 'equipe_legisla' && q('user_id') === `eq.${LIA.id}`) return responde(200, e.legisla ? [{ user_id: LIA.id }] : []);
+      if (tabela === 'perfis' && q('user_id') === `eq.${LIA.id}`)
+        return e.perfil === 'falha' ? responde(500, { message: 'boom' }) : responde(200, e.perfil === false ? [] : [{ user_id: LIA.id }]);
       if (tabela === 'sugestoes' && q('resolvida') === 'eq.false') return responde(200, []);
       return semMapa();
     }
@@ -93,14 +103,20 @@ async function abre(page: Page, hash: string, e: Estado = {}) {
     return semMapa();
   });
 
+  // /primeiro-acesso é outra página (testada à parte): aqui só prova que o Guia mandou a pessoa para lá
+  await page.route((u) => ['localhost', '127.0.0.1'].includes(u.hostname) && u.pathname === '/primeiro-acesso', (rota) =>
+    rota.fulfill({ status: 200, headers: { 'content-type': 'text/html' }, body: '<!doctype html><title>perfil</title><h1>Perfil aberto</h1>' }));
+
   if (!e.semSessao) {
-    await page.addInitScript((t) => {
+    await page.addInitScript(({ t, semEquipe }) => {
       if (sessionStorage.getItem('ga-semeado')) return;
       sessionStorage.setItem('ga-semeado', '1');
+      if (semEquipe) sessionStorage.setItem('legisla.semEquipe', '1');
       localStorage.setItem('legisla.tok', JSON.stringify({ access_token: t, refresh_token: 'ref-lia' }));
-    }, LIA.token);
+    }, { t: LIA.token, semEquipe: e.semEquipe ?? papel === null });
   }
   await page.goto(`/guia${hash}`);
+  if (e.semEspera) return;
   if (e.semSessao) await page.locator('#entrada').waitFor();
   else if (papel) await page.locator('#ladoNav .it').first().waitFor();
   else await page.getByRole('heading', { name: 'Vamos cadastrar o mandato' }).waitFor();
@@ -257,4 +273,47 @@ test('na tela de entrada, a aba Criar conta mostra o aviso com "link de convite"
   await expect(page.locator('#blocoLgpd')).toBeVisible();
   await expect(page.locator('#blocoLgpd')).toContainText('acessíveis a quem tiver o link de convite dele.');
   await expect(page.locator('#entrada')).not.toContainText(CODIGO_DE_CONVITE);
+});
+
+/* ---------- primeiro acesso: perfil antes do Guia (PAG-02.1, 02.2, 02.15, 02.16, PAG-04.1, 04.6, 04.7) ---------- */
+const lerDe = (tabela: string) => registro.pedidos.findIndex((p) => p.metodo === 'GET' && p.caminho.startsWith(tabela));
+
+test.describe('Perfil antes do Guia', () => {
+  test('sem perfil e fora da equipe Legisla, o Guia abre /primeiro-acesso?volta=guia sem ler os mandatos (PAG-02.1, 02.2)', async ({ page }) => {
+    await abre(page, '#/', { perfil: false, semEspera: true });
+    await expect(page).toHaveURL(/\/primeiro-acesso\?volta=guia$/);
+    expect(lerDe('membros?select=papel')).toBe(-1);
+  });
+
+  test('com perfil, o Guia consulta equipe_legisla e perfis antes dos mandatos e abre como hoje (PAG-02.15)', async ({ page }) => {
+    await abre(page, '#/');
+    expect(new URL(page.url()).pathname).toBe('/guia');
+    expect(lerDe('perfis')).toBeGreaterThanOrEqual(0);
+    expect(lerDe('perfis')).toBeLessThan(lerDe('membros?select=papel'));
+    expect(lerDe('equipe_legisla')).toBeLessThan(lerDe('membros?select=papel'));
+  });
+
+  test('quem é da equipe Legisla abre o Guia mesmo sem perfil (PAG-02.16)', async ({ page }) => {
+    await abre(page, '#/', { perfil: false, legisla: true });
+    expect(new URL(page.url()).pathname).toBe('/guia');
+    await expect(page.locator('#ladoNav .it').first()).toBeVisible();
+  });
+
+  test('falha na consulta de perfil não manda ao formulário: o Guia fica em /guia', async ({ page }) => {
+    await abre(page, '#/', { perfil: 'falha', semEspera: true });
+    await page.waitForLoadState('networkidle');
+    expect(new URL(page.url()).pathname).toBe('/guia');
+    expect(lerDe('membros?select=papel')).toBe(-1);
+  });
+
+  test('com perfil, sem mandato e sem a marca "Ainda não", o Guia abre /primeiro-acesso para a pergunta (PAG-04.1)', async ({ page }) => {
+    await abre(page, '#/', { papel: null, semEquipe: false, semEspera: true });
+    await expect(page).toHaveURL(/\/primeiro-acesso$/);
+  });
+
+  test('com perfil, sem mandato e com a marca "Ainda não", o Guia abre o cadastro do mandato (PAG-04.6)', async ({ page }) => {
+    await abre(page, '#/', { papel: null, semEquipe: true });
+    await expect(page.getByRole('heading', { name: 'Vamos cadastrar o mandato' })).toBeVisible();
+    expect(new URL(page.url()).pathname).toBe('/guia');
+  });
 });

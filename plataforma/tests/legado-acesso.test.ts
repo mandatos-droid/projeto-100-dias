@@ -73,24 +73,31 @@ interface Guia {
     registrar(m: number, e: string, t: string): Promise<void>; entrarPorCodigo(c: string): Promise<unknown>;
     criarMandato(c: Record<string, unknown>): Promise<{ id: string }>;
   };
-  Telas: { equipeHtml(): string };
+  Telas: { equipeHtml(): string; primeiroAcesso(): void };
   Cad: { blocoCodigo(): string };
-  App: { iniciar(): Promise<void> };
+  App: { iniciar(): Promise<void>; entrou(): Promise<void> };
 }
 
 /** Carrega nucleo.js, app.js, cadastro.js e acesso.js reais, na ordem do Guia. O atraso de 700 ms do Store.salvar some. */
 function janela(o: { nuvem?: boolean; responde?: Responde } = {}) {
   const pedidos: Pedido[] = [];
   const guardado = new Map<string, string>();
+  const guardadoSessao = new Map<string, string>();
+  const redirecionou: string[] = [];
   const document = documento();
   const ctx: Record<string, unknown> = {
     document, console, URLSearchParams,
-    location: { hostname: 'localhost', hash: '#/', origin: 'http://localhost:3000', pathname: '/guia', search: '' },
+    location: { hostname: 'localhost', hash: '#/', origin: 'http://localhost:3000', pathname: '/guia', search: '', replace: (u: string) => { redirecionou.push(u); } },
     history: { replaceState() {} },
     localStorage: {
       getItem: (k: string) => guardado.get(k) ?? null,
       setItem: (k: string, v: string) => { guardado.set(k, String(v)); },
       removeItem: (k: string) => { guardado.delete(k); },
+    },
+    sessionStorage: {
+      getItem: (k: string) => guardadoSessao.get(k) ?? null,
+      setItem: (k: string, v: string) => { guardadoSessao.set(k, String(v)); },
+      removeItem: (k: string) => { guardadoSessao.delete(k); },
     },
     setTimeout: (f: () => void) => { f(); return 0; },
     clearTimeout: () => {},
@@ -107,7 +114,7 @@ function janela(o: { nuvem?: boolean; responde?: Responde } = {}) {
   vm.runInContext(arquivo('nucleo'), ctx);
   if (o.nuvem === false) vm.runInContext('NUVEM=false;', ctx);
   for (const n of ['app', 'cadastro', 'acesso']) vm.runInContext(arquivo(n), ctx);
-  return { w: ctx as unknown as Guia, pedidos, document };
+  return { w: ctx as unknown as Guia, pedidos, document, redirecionou, guardadoSessao };
 }
 
 const MANDATO = { id: 'm-a', nome_parlamentar: 'Ana Souza', cargo: 'Deputado(a) Estadual', uf: 'SP', partido: 'PX', codigo: 'KJ4TP9', dados: {} };
@@ -274,4 +281,90 @@ test('o restante do aviso é idêntico ao texto original, palavra por palavra (A
 
 test('fora dessa expressão, o corpo do Guia não muda: desfazer a troca devolve o corpo original (ACE-07.4)', () => {
   assert.equal(createHash('sha256').update(CORPO.replace('link de convite', 'código de convite')).digest('hex'), HASH_CORPO_ORIGINAL);
+});
+
+/* ---------- primeiro acesso: perfil antes do Guia (PAG-02.1, 02.2, 02.15, 02.16, PAG-04.1, 04.6) ---------- */
+interface Pessoa { legisla?: boolean; perfil?: boolean; mandatos?: unknown[]; falhaPerfil?: boolean }
+
+/** App.entrou real, com a pessoa u1 e as respostas das consultas que o Guia faz (equipe_legisla, perfis, membros). */
+function entrando(p: Pessoa, semEquipe = false) {
+  const j = janela({
+    responde: (url, metodo) => {
+      if (metodo !== 'GET') return undefined;
+      if (url.includes('/rest/v1/equipe_legisla?')) return p.legisla ? [{ user_id: 'u1' }] : [];
+      if (url.includes('/rest/v1/perfis?')) { if (p.falhaPerfil) throw new Error('rede'); return p.perfil ? [{ user_id: 'u1' }] : []; }
+      if (url.includes('/rest/v1/membros?select=papel,mandatos(*)')) return (p.mandatos ?? []).map((m) => ({ papel: 'coordenacao', mandatos: m }));
+      if (url.includes('/rest/v1/mandatos?id=eq.')) return [{ ...MANDATO }];
+      if (url.includes('/rest/v1/membros?mandato_id=')) return [{ user_id: 'u1', nome: 'Lia', papel: 'coordenacao' }];
+      if (url.includes('/rest/v1/eventos?')) return [];
+      return undefined;
+    },
+  });
+  j.w.Store.usuario = { id: 'u1', nome: 'Lia', email: 'lia@gabinete.test' };
+  const aberturaDoCadastro: string[] = [];
+  j.w.Telas.primeiroAcesso = () => { aberturaDoCadastro.push('cadastro'); };
+  if (semEquipe) j.guardadoSessao.set('legisla.semEquipe', '1');
+  const leituras = () => j.pedidos.map((q) => q.url.replace(/^https:\/\/[^/]+\/rest\/v1\//, ''));
+  return { ...j, aberturaDoCadastro, leituras };
+}
+
+test('sem perfil e fora da equipe Legisla, o Guia abre /primeiro-acesso?volta=guia sem ler os mandatos (PAG-02.1, 02.2)', async () => {
+  const { w, redirecionou, leituras } = entrando({ mandatos: [{ ...MANDATO }] });
+  await w.App.entrou();
+  assert.deepEqual(redirecionou, ['/primeiro-acesso?volta=guia']);
+  assert.equal(leituras().some((u) => u.startsWith('membros?select=papel')), false);
+});
+
+test('antes de ler os mandatos, o Guia consulta equipe_legisla e perfis pela pessoa da sessão (PAG-02.1)', async () => {
+  const { w, leituras } = entrando({ perfil: true, mandatos: [{ ...MANDATO }] });
+  await w.App.entrou().catch(() => {}); // o resto da abertura usa telas que o documento simulado não tem
+  const l = leituras();
+  assert.ok(l.includes('equipe_legisla?select=user_id&user_id=eq.u1'));
+  assert.ok(l.includes('perfis?select=user_id&user_id=eq.u1'));
+  const iMembros = l.findIndex((u) => u.startsWith('membros?select=papel'));
+  assert.ok(iMembros > l.indexOf('equipe_legisla?select=user_id&user_id=eq.u1'));
+  assert.ok(iMembros > l.indexOf('perfis?select=user_id&user_id=eq.u1'));
+});
+
+test('com perfil e mandato, o Guia abre como hoje, sem redirecionar (PAG-02.15)', async () => {
+  const { w, redirecionou, aberturaDoCadastro, document } = entrando({ perfil: true, mandatos: [{ ...MANDATO }] });
+  await w.App.entrou().catch(() => {}); // o resto da abertura usa telas que o documento simulado não tem
+  assert.deepEqual(redirecionou, []);
+  assert.deepEqual(aberturaDoCadastro, []);
+  assert.equal(document.getElementById('app').classList.contains('oculto'), false);
+});
+
+test('quem é da equipe Legisla abre o Guia sem perfil e sem redirecionar (PAG-02.16)', async () => {
+  const { w, redirecionou, document } = entrando({ legisla: true, perfil: false, mandatos: [{ ...MANDATO }] });
+  await w.App.entrou().catch(() => {});
+  assert.deepEqual(redirecionou, []);
+  assert.equal(document.getElementById('app').classList.contains('oculto'), false);
+});
+
+test('falha na consulta de perfil não manda ao formulário: o erro segue como em qualquer falha de leitura do Guia', async () => {
+  const { w, redirecionou, leituras } = entrando({ falhaPerfil: true, mandatos: [{ ...MANDATO }] });
+  await assert.rejects(w.App.entrou(), /rede/);
+  assert.deepEqual(redirecionou, []);
+  assert.equal(leituras().some((u) => u.startsWith('membros?select=papel')), false);
+});
+
+test('com perfil, sem mandato e sem a marca "Ainda não", o Guia abre /primeiro-acesso para a pergunta (PAG-04.1)', async () => {
+  const { w, redirecionou, aberturaDoCadastro } = entrando({ perfil: true, mandatos: [] });
+  await w.App.entrou();
+  assert.deepEqual(redirecionou, ['/primeiro-acesso']);
+  assert.deepEqual(aberturaDoCadastro, []);
+});
+
+test('com perfil, sem mandato e com legisla.semEquipe, o Guia abre o cadastro do mandato (PAG-04.6)', async () => {
+  const { w, redirecionou, aberturaDoCadastro } = entrando({ perfil: true, mandatos: [] }, true);
+  await w.App.entrou();
+  assert.deepEqual(aberturaDoCadastro, ['cadastro']);
+  assert.deepEqual(redirecionou, []);
+});
+
+test('a marca "Ainda não" não vale sem perfil: continua indo ao formulário (PAG-02.1)', async () => {
+  const { w, redirecionou, aberturaDoCadastro } = entrando({ perfil: false, mandatos: [] }, true);
+  await w.App.entrou();
+  assert.deepEqual(redirecionou, ['/primeiro-acesso?volta=guia']);
+  assert.deepEqual(aberturaDoCadastro, []);
 });

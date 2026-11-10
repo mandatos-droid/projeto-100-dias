@@ -403,19 +403,21 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] Antes de `meusMandatos`, o Guia consulta `equipe_legisla` e `perfis`; sem perfil e fora da Legisla, `location.replace('/primeiro-acesso?volta=guia')` (PAG-02.1, 02.2)
-- [ ] Quem é da Legisla ou tem perfil abre o Guia como hoje (PAG-02.15, 02.16)
-- [ ] Falha na consulta de perfil não manda ao formulário: o Guia mostra o erro que já mostra (design: Error Handling)
-- [ ] Sem mandato: com `legisla.semEquipe` presente abre `Telas.primeiroAcesso()` (cadastro do mandato); sem a marca, `location.replace('/primeiro-acesso')` (PAG-04.6, 04.1)
-- [ ] Quem conclui o cadastro de mandato vira `coordenacao` e abre o Guia (PAG-04.7)
-- [ ] `app.js` e `nucleo.js` seguem sem edição
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/guia-acesso.spec.ts`
-- [ ] Test count: ao menos 8 testes novos entre `tests/legado-acesso.test.ts` e `e2e/guia-acesso.spec.ts`, nenhum removido
+- [x] Antes de `meusMandatos`, o Guia consulta `equipe_legisla` e `perfis`; sem perfil e fora da Legisla, `location.replace('/primeiro-acesso?volta=guia')` (PAG-02.1, 02.2)
+- [x] Quem é da Legisla ou tem perfil abre o Guia como hoje (PAG-02.15, 02.16)
+- [x] Falha na consulta de perfil não manda ao formulário: o Guia mostra o erro que já mostra (design: Error Handling)
+- [x] Sem mandato: com `legisla.semEquipe` presente abre `Telas.primeiroAcesso()` (cadastro do mandato); sem a marca, `location.replace('/primeiro-acesso')` (PAG-04.6, 04.1)
+- [x] Quem conclui o cadastro de mandato vira `coordenacao` e abre o Guia (PAG-04.7)
+- [x] `app.js` e `nucleo.js` seguem sem edição
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/guia-acesso.spec.ts`
+- [x] Test count: ao menos 8 testes novos entre `tests/legado-acesso.test.ts` e `e2e/guia-acesso.spec.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: full
 
 **Commit**: `feat(primeiro-acesso): gate the Guia on the profile`
+
+**Status**: ✅ Done
 
 ---
 
