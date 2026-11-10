@@ -173,21 +173,23 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] A função devolve `{total, por_mes, genero, raca, uf, faixa, atuacao}` só com contagens, sem nome, e-mail, telefone nem data de nascimento (PAG-06.6, 06.7)
-- [ ] A soma das categorias de cada distribuição é igual a `total` (PAG-06.12)
-- [ ] As faixas etárias são `Até 24`, `25 a 34`, `35 a 44`, `45 a 54`, `55 a 64` e `65 ou mais`, calculadas a partir de `nascimento` em `America/Sao_Paulo`, com os limites testados em 24/25, 34/35, 44/45, 54/55, 64/65 anos (PAG-06.5)
-- [ ] `atuacao` traz `nao_atua` e as 5 faixas de tempo; `nao_informar` aparece como categoria própria em gênero e raça (PAG-06.3, 06.4)
-- [ ] `por_mes` vai do mês do primeiro perfil ao atual, no máximo 12 meses (PAG-06.2)
-- [ ] Quem não está em `equipe_legisla` recebe erro de permissão; `admin` e `leitura` da Legisla executam (PAG-06.8, 06.1)
-- [ ] Sem nenhum perfil devolve `total = 0` e distribuições vazias
-- [ ] `anon` não executa a função
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 10 testes novos em `tests/sql-perfil-resumo.test.ts`, nenhum removido
+- [x] A função devolve `{total, por_mes, genero, raca, faixa, atuacao}` só com contagens, sem nome, e-mail, telefone nem data de nascimento (PAG-06.6, 06.7). Sem `uf`: a spec decidiu o perfil sem UF e PAG-06.3 não lista UF. Gênero, raça e atuação vêm pelas chaves internas; a faixa vem com o rótulo da spec; `por_mes` é `[{mes:'YYYY-MM', qtd}]`, como o `statusMensal` do Analytics
+- [x] A soma das categorias de cada distribuição é igual a `total` (PAG-06.12)
+- [x] As faixas etárias são `Até 24`, `25 a 34`, `35 a 44`, `45 a 54`, `55 a 64` e `65 ou mais`, calculadas a partir de `nascimento` em `America/Sao_Paulo`, com os limites testados em 24/25, 34/35, 44/45, 54/55, 64/65 anos (PAG-06.5)
+- [x] `atuacao` traz `nao_atua` e as 5 faixas de tempo; `nao_informar` aparece como categoria própria em gênero e raça (PAG-06.3, 06.4)
+- [x] `por_mes` vai do mês do primeiro perfil ao atual, no máximo 12 meses (PAG-06.2), com o mês contado em `America/Sao_Paulo`
+- [x] Quem não está em `equipe_legisla` recebe erro de permissão; `admin` e `leitura` da Legisla executam (PAG-06.8, 06.1)
+- [x] Sem nenhum perfil devolve `total = 0` e distribuições vazias
+- [x] `anon` não executa a função
+- [x] Gate check passes: `npm test` (1023 testes, 0 falhas); gate de build da fase 1: `npx tsc --noEmit` sem erro e 275 e2e de `convite-`, `mandato-`, `guia-acesso` e `admin-` passando (servidor na porta 3100)
+- [x] Test count: 13 testes novos em `tests/sql-perfil-resumo.test.ts`, nenhum removido (1010 → 1023)
 
 **Tests**: integration
 **Gate**: quick
 
 **Commit**: `feat(perfil): add admin profile summary function`
+
+**Status**: ✅ Done
 
 ---
 

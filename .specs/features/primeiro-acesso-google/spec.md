@@ -228,7 +228,7 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | PAG-03 | P1: Perfil protegido no banco | Execute (T1, T2, T6, T16) | In progress (T1, T2) |
 | PAG-04 | P1: Pergunta sobre a equipe e escolha do mandato | Tasks (T5, T8, T9, T10, T16) | Pending |
 | PAG-05 | P2: Remoção do login por senha no código | Tasks (T11, T12, T13, T16) | Pending |
-| PAG-06 | P2: Analytics do perfil no painel do admin | Tasks (T3, T14, T15, T16) | Pending |
+| PAG-06 | P2: Analytics do perfil no painel do admin | Execute (T3, T14, T15, T16) | In progress (T3) |
 
 **ID format:** `[CATEGORY]-[NUMBER]`; cada critério de aceite é citado como `PAG-02.8` (história, ponto).
 
