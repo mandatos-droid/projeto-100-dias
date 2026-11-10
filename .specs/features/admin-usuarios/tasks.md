@@ -161,19 +161,21 @@ T6 → T7
 
 **Done when**:
 
-- [ ] `lerConsulta` e `montaConsulta` fazem o caminho de ida e volta; `pagina` inválida vira 1, `papel` desconhecido vira "todos", busca é cortada em 100 caracteres (USR-04.6, Error Handling)
-- [ ] `rotuloUltimoAcesso` devolve `dd/mm/aaaa hh:mm` em Brasília e "Nunca" para nulo (USR-01.7)
-- [ ] `rotuloMandato` devolve nome, papel e "(arquivado)" quando for o caso (Edge Cases)
-- [ ] `marcaPessoa` devolve "Sem perfil", o papel na equipe Legisla ou nada (USR-01.4, 01.5)
-- [ ] `rotulosPerfil` devolve gênero, raça e atuação em texto, nascimento em `dd/mm/aaaa` e telefone formatado `(DD) NNNNN-NNNN` ou `(DD) NNNN-NNNN` (USR-02.3)
-- [ ] `paginas(total, pagina)` calcula o intervalo mostrado e o número de páginas de 25 (USR-01.9)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 18 testes novos em `tests/admin-usuarios.test.ts`, nenhum removido
+- [x] `lerConsulta` e `montaConsulta` fazem o caminho de ida e volta; `pagina` inválida vira 1, `papel` desconhecido vira "todos", busca é cortada em 100 caracteres (USR-04.6, Error Handling)
+- [x] `rotuloUltimoAcesso` devolve `dd/mm/aaaa hh:mm` em Brasília e "Nunca" para nulo (USR-01.7)
+- [x] `rotuloMandato` devolve nome, papel e "(arquivado)" quando for o caso (Edge Cases)
+- [x] `marcaPessoa` devolve "Sem perfil", o papel na equipe Legisla ou nada (USR-01.4, 01.5)
+- [x] `rotulosPerfil` devolve gênero, raça e atuação em texto, nascimento em `dd/mm/aaaa` e telefone formatado `(DD) NNNNN-NNNN` ou `(DD) NNNN-NNNN` (USR-02.3)
+- [x] `paginas(total, pagina)` calcula o intervalo mostrado e o número de páginas de 25 (USR-01.9)
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 18 testes novos em `tests/admin-usuarios.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(admin): add users view helpers`
+
+**Status**: ✅ Done
 
 ---
 
