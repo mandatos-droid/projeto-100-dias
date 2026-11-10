@@ -327,18 +327,20 @@ T11 → T12 → T13
 
 **Done when**:
 
-- [ ] Com 1 chefia, 2 pessoas, 1 linha com `*` e 1 vazia, a tela mostra 2 cartões comuns, 1 tracejado "Processo seletivo a abrir" e 1 apagado "Sem nome" (RES-09.3)
-- [ ] A legenda mostra os três estados (RES-09.4)
-- [ ] A 600 px os ramos ficam em coluna única e as linhas de ligação não aparecem (RES-09.6)
-- [ ] Sem linhas ativas, o corpo mostra "não preenchido" (RES-09.7)
-- [ ] Mandato em formato antigo mostra o mesmo organograma que a tabela da Missão 2 (RES-09.5)
-- [ ] Gate check passes: `npx playwright test -c playwright.isolado.config.ts e2e/resumo-equipe.spec.ts`, `npm test` e `npx tsc --noEmit`
-- [ ] Test count: ≥ 6 e2e novos em `e2e/resumo-equipe.spec.ts`, nenhum removido
+- [x] Com 1 chefia, 2 pessoas, 1 linha com `*` e 1 vazia, a tela mostra 2 cartões comuns, 1 tracejado "Processo seletivo a abrir" e 1 apagado "Sem nome" (RES-09.3)
+- [x] A legenda mostra os três estados (RES-09.4)
+- [x] A 600 px os ramos ficam em coluna única e as linhas de ligação não aparecem (RES-09.6)
+- [x] Sem linhas ativas, o corpo mostra "não preenchido" (RES-09.7)
+- [x] Mandato em formato antigo mostra o mesmo organograma que a tabela da Missão 2 (RES-09.5)
+- [x] Gate check passes: `npx playwright test -c playwright.isolado.config.ts e2e/resumo-equipe.spec.ts`, `npm test` e `npx tsc --noEmit`
+- [x] Test count: ≥ 6 e2e novos em `e2e/resumo-equipe.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: build
 
 **Commit**: `feat(resumo): add team org chart island with open seats marked`
+
+**Status**: ✅ Done (gate build: só as 11 falhas pré-existentes de `m1-etapas`, `m23-*` e `rumo-painel`)
 
 ---
 
