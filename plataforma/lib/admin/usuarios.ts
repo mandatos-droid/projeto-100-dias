@@ -15,6 +15,15 @@ export interface LinhaUsuario {
 }
 export interface ListaUsuarios { total: number; linhas: LinhaUsuario[] }
 
+// Retorno de public.admin_usuario_detalhe (null quando o id não existe).
+export interface DetalheUsuario {
+  id: string; nome: string | null; email: string | null; criado_em: string; ultimo_acesso: string | null
+  equipe_papel: string | null
+  perfil: PerfilDetalhe | null
+  consentimento: { versao: string; aceito_em: string } | null
+  mandatos: { id: string; nome: string | null; cargo: string | null; uf: string | null; papel: string; arquivado: boolean }[]
+}
+
 export type FiltroPapel = 'todos' | Papel | 'legisla';
 export const FILTROS_PAPEL: readonly { valor: FiltroPapel; rotulo: string }[] = [
   { valor: 'todos', rotulo: 'Todos' },
@@ -29,6 +38,7 @@ export interface Consulta { q: string; papel: FiltroPapel; mandato: string; semP
 export const CONSULTA_PADRAO: Consulta = { q: '', papel: 'todos', mandato: '', semPerfil: false, pagina: 1 };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const ehUuid = (s: string): boolean => UUID.test(s);
 const ehFiltroPapel = (p: string | null): p is FiltroPapel => FILTROS_PAPEL.some((f) => f.valor === p);
 
 // Valor inválido volta ao padrão: página que não é inteiro positivo vira 1, papel desconhecido vira "todos",
@@ -91,11 +101,12 @@ export function rotuloUltimoAcesso(iso: string | null): string {
   return `${rotuloData(iso)} ${p.hour}:${p.minute}`;
 }
 
-const rotuloDePapel = (p: string) => (['coordenacao', 'assessoria', 'leitura'].includes(p) ? rotuloPapel(p as Papel) : p);
+// Papel no mandato com o rótulo do painel (Coordenação, Assessoria, Somente leitura).
+export const rotuloPapelMandato = (p: string) => (['coordenacao', 'assessoria', 'leitura'].includes(p) ? rotuloPapel(p as Papel) : p);
 
 // Mandato na linha da lista: "Parlamentar · Papel", com "(arquivado)" quando for o caso.
 export function rotuloMandato(m: { nome: string | null; papel: string; arquivado: boolean }): string {
-  return `${m.nome ?? 'Sem nome'} · ${rotuloDePapel(m.papel)}${m.arquivado ? ' (arquivado)' : ''}`;
+  return `${m.nome ?? 'Sem nome'} · ${rotuloPapelMandato(m.papel)}${m.arquivado ? ' (arquivado)' : ''}`;
 }
 
 // Marca da pessoa na lista: "Sem perfil", o papel na equipe Legisla ou nada.

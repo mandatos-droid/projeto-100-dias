@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import type { Page, Route } from '@playwright/test';
 import { lerConfig } from '../lib/admin/config.ts';
 import type { LinhaMandato } from '../lib/admin/mandatos.ts';
-import type { LinhaUsuario } from '../lib/admin/usuarios.ts';
+import type { DetalheUsuario, LinhaUsuario } from '../lib/admin/usuarios.ts';
 
 /* Apoio dos e2e do /admin. O app abre de verdade (nucleo.js real, mesma URL do Supabase), mas toda chamada ao Supabase é
    interceptada aqui: nada sai da máquina. Requisição sem mapa é abortada e registrada em `naoMapeadas()`; os specs afirmam
@@ -109,6 +109,14 @@ export function usuario(p: Partial<LinhaUsuario> & { id: string }): LinhaUsuario
   return {
     nome: `Pessoa ${p.id}`, email: `${p.id}@exemplo.org`, criado_em: '2026-10-01T12:00:00Z', ultimo_acesso: null,
     sem_perfil: false, equipe_papel: null, mandatos: [], ...p,
+  };
+}
+
+/** Retorno de `admin_usuario_detalhe` com valores padrão: pessoa sem perfil, sem consentimento e sem mandato. */
+export function detalheUsuario(p: Partial<DetalheUsuario> & { id: string }): DetalheUsuario {
+  return {
+    nome: `Pessoa ${p.id}`, email: `${p.id}@exemplo.org`, criado_em: '2026-10-01T12:00:00Z', ultimo_acesso: null,
+    equipe_papel: null, perfil: null, consentimento: null, mandatos: [], ...p,
   };
 }
 

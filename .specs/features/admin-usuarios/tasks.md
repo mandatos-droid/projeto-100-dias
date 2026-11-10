@@ -260,21 +260,23 @@ T6 → T7
 
 **Done when**:
 
-- [ ] O detalhe mostra nome, e-mail, cadastro, último acesso e o papel na equipe Legisla, quando houver (USR-02.2)
-- [ ] Com perfil mostra nome completo, nascimento `dd/mm/aaaa`, gênero, raça, telefone, se atua e o tempo, em texto; sem perfil mostra "Esta pessoa ainda não preencheu o perfil." (USR-02.3, 02.4)
-- [ ] Mostra a versão e a data do consentimento ou "Sem consentimento registrado" (USR-02.5)
-- [ ] Lista os mandatos com parlamentar, cargo, UF e papel, cada um com link para `/admin/mandatos/<id>`; sem mandato mostra "Esta pessoa não está em nenhum mandato." (USR-02.6, 02.7)
-- [ ] "← Voltar para Usuários" reconstrói a lista com a busca, os filtros e a página de `de=` (USR-02.8)
-- [ ] Nenhum botão altera dado e não há exportação (USR-02.9)
-- [ ] Id inexistente mostra "Pessoa não encontrada." com o link para voltar; falha mostra a mensagem padrão e "Tentar de novo" (USR-02.10, 02.11)
-- [ ] Layout legível em 400 px; nenhuma chamada de rede fora de `admin_usuario_detalhe`
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/admin-usuarios-detalhe.spec.ts e2e/admin-usuarios.spec.ts`
-- [ ] Test count: ao menos 10 testes e2e novos, nenhum removido
+- [x] O detalhe mostra nome, e-mail, cadastro, último acesso e o papel na equipe Legisla, quando houver (USR-02.2)
+- [x] Com perfil mostra nome completo, nascimento `dd/mm/aaaa`, gênero, raça, telefone, se atua e o tempo, em texto; sem perfil mostra "Esta pessoa ainda não preencheu o perfil." (USR-02.3, 02.4)
+- [x] Mostra a versão e a data do consentimento ou "Sem consentimento registrado" (USR-02.5)
+- [x] Lista os mandatos com parlamentar, cargo, UF e papel, cada um com link para `/admin/mandatos/<id>`; sem mandato mostra "Esta pessoa não está em nenhum mandato." (USR-02.6, 02.7)
+- [x] "← Voltar para Usuários" reconstrói a lista com a busca, os filtros e a página de `de=` (USR-02.8)
+- [x] Nenhum botão altera dado e não há exportação (USR-02.9)
+- [x] Id inexistente mostra "Pessoa não encontrada." com o link para voltar; falha mostra a mensagem padrão e "Tentar de novo" (USR-02.10, 02.11)
+- [x] Layout legível em 400 px; nenhuma chamada de rede fora de `admin_usuario_detalhe`
+- [x] Gate check passes: `npm test` e `npx playwright test e2e/admin-usuarios-detalhe.spec.ts e2e/admin-usuarios.spec.ts`
+- [x] Test count: ao menos 10 testes e2e novos, nenhum removido
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(admin): add user detail page`
+
+**Status**: ✅ Done
 
 ---
 
