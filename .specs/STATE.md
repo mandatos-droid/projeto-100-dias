@@ -89,17 +89,37 @@
 - Decisões de execução dos workers: (1) perfil sem UF; (2) nomes de erro do banco como dado (`{ok:false, erro:<campo>}`); (3) `p_nascimento` como texto, para data inexistente voltar como erro de campo e não como exceção; (4) a função de entrada por convite se chama `convite_aceitar`, não `aceitar_convite`; (5) ao fim do perfil a pessoa volta ao convite pelo token guardado em `sessionStorage`; (6) `?volta=convite` sem token guardado cai na pergunta da equipe.
 - Motivo: decisão do usuário de 2026-11-09; o perfil agregado serve ao Analytics sem abrir dado individual.
 
+### AD-014: Aba Usuários do `/admin` só de leitura, com dados sensíveis só no detalhe (2026-11-10)
+
+- A aba é só leitura: nenhum botão altera dado e não há exportação. Mexer em membros continua nas telas de mandato.
+- Gênero, raça, nascimento e telefone aparecem só no detalhe da pessoa. A função da lista não devolve esses campos.
+- Último acesso é o último login (`auth.users.last_sign_in_at`), em Brasília; sem login, "Nunca". A renovação silenciosa da sessão não conta, então quem usa o Guia todo dia pode mostrar um acesso antigo.
+- Leitura por duas funções do banco (`supabase/migrations/20261110120000_admin_usuarios.sql`): `public.admin_usuarios` (busca, filtros, total, ordem e limite no servidor) e `public.admin_usuario_detalhe` (`null` para id inexistente). As duas são `security definer`, `stable`, com `search_path` vazio, leem `equipe_legisla` a cada chamada (erro 42501 com "Você não tem permissão para esta ação.") e não têm execute para `anon`. A busca sem acento usa `private.sem_acento` (`translate`), porque o PGlite dos testes não tem `unaccent`.
+- O estado da lista vive na URL (`q`, `papel`, `mandato`, `sem_perfil`, `pagina`). O detalhe recebe a consulta da lista em `de=` e o "← Voltar para Usuários" a relê e remonta: só busca, filtros e página válidos voltam.
+- Decisões de execução do worker, para o dono do produto confirmar: (1) papel e mandato juntos acham quem tem aquele papel naquele mandato; (2) `p_papel` desconhecido não filtra; (3) a marca da equipe é "Equipe Legisla · admin" ou "Equipe Legisla · leitura"; (4) a opção padrão do filtro de mandato é "Todos os mandatos"; (5) id do detalhe que não é uuid mostra "Pessoa não encontrada." sem chamar o banco; (6) página além da última vai à última; (7) se as opções do filtro de mandato não carregam, o filtro fica só com "Todos os mandatos" e a lista segue; (8) a busca é enviada depois de 300 ms sem digitar; (9) no detalhe, quem não atua mostra tempo "—" e o consentimento mostra a data sem hora.
+- Motivo: decisão do usuário de 2026-11-10 (lista com último acesso; "quero ver no detalhe sim" para os dados sensíveis).
+
 ## Handoff
 
-- **Feature**: `primeiro-acesso-google` (`.specs/features/primeiro-acesso-google/`)
-- **Branch**: `feat/primeiro-acesso-google`
-- **Phase / Task**: Fase 7 (correções do Verifier, rodada 2) concluída; T1 a T21 commitadas. Última task: T21 (leitura dos mandatos dentro da trava do Guia, este registro). T20 `208cad8` (testes da falha de `equipe_legisla` no Guia, GAP-R2-1). Verifier rodada 2: FAIL em `validation.md` (GAP-R2-1, SP-R2-1), tratados em T20 e T21.
-- **Gate**: `npx tsc --noEmit` sem erro; `npm test` 1109/1109; e2e `convite-*`, `mandato-*`, `guia-acesso*`, `primeiro-acesso*` e `admin-*` no servidor próprio da porta 3100: 349/349.
+- **Feature**: `admin-usuarios` (`.specs/features/admin-usuarios/`), aba Usuários do `/admin`, só leitura (AD-014)
+- **Branch**: `feat/admin-usuarios`, no worktree `Dev Apps/admin-usuarios-wt`, criado de `origin/main`. Nada foi enviado: sem push, deploy nem migration remota.
+- **Phase / Task**: T1 a T7 concluídas, um commit por task. Última task: T7 (este registro).
+- **Gate (fim da T6)**: `npx tsc --noEmit` sem erro; `npm test` 1190/1190 (com cerca de 3 GB livres, `npm test` abortou duas vezes arquivos `sql-*` do PGlite com `Fatal process out of memory: Zone`; os arquivos passaram sozinhos e a suíte inteira passou com `node --test --test-concurrency=3 "tests/**/*.test.ts"`); e2e `admin-*` no servidor próprio da porta 3100: 192/192 (`admin-menu-guia` falhou uma vez por tempo sob carga e passou sozinho). Testes novos: 34 de SQL da lista, 18 de SQL do detalhe, 29 de unidade, 31 e2e da lista e 20 e2e do detalhe.
 - **In-progress**: nenhum
-- **Next step**: release preparado no branch `deploy/primeiro-acesso` (ver "Release" abaixo). Falta só o push na `main` (aplica as 6 migrations) e o deploy na Vercel, os dois só com go-ahead explícito do usuário.
+- **Next step**: Verifier independente (spec-anchored check e sensor de mutantes) sobre `ff334b6..HEAD`, gravando `.specs/features/admin-usuarios/validation.md`. Depois, só com go-ahead explícito: push na `main` (aplica `20261110120000_admin_usuarios.sql` pelo workflow `migrations.yml`) e deploy.
 - **Blockers**: nenhum
-- **Nota sobre AD-013**: a linha "Categoria sem ninguém não aparece" foi substituída pela spec (Assumptions "Categorias sem ninguém no Analytics" e "Porcentagem no Analytics"): desde a T19 toda categoria aparece, mesmo com 0, e a soma das porcentagens pode dar 99 ou 101.
-- **Uncommitted files**: só arquivos de outras frentes (`plataforma/ilhas/`, `plataforma/public/data/`, `plataforma/public/legacy/ilhas.css`, `graphify-out/`, `.pw-out-tmp/`, `AJUSTES_GUIA_100_DIAS.md`, `supabase/` na raiz)
+- **Uncommitted files**: `graphify-out/` (atualização do grafo)
+
+**Pendências abertas de `admin-usuarios`:**
+
+1. LGPD: registrar no histórico quem abriu o detalhe de uma pessoa (hoje a abertura não fica registrada).
+2. Exportação da lista ou do detalhe segue fora do escopo; qualquer pedido novo passa pela revisão de LGPD.
+3. Revisão jurídica do texto de consentimento de dados sensíveis (versão `2026-11`), herdada de `primeiro-acesso-google`.
+4. A migration `20261110120000_admin_usuarios.sql` só vale em produção depois do push na `main`, com go-ahead explícito.
+5. As 9 decisões de execução do worker (AD-014) esperam confirmação do dono do produto.
+6. A busca usa `strpos` sem índice: revisar se as contas passarem de alguns milhares.
+
+**Snapshot anterior (`primeiro-acesso-google`, branch `feat/primeiro-acesso-google`):** T1 a T21 commitadas, Verifier rodada 3 PASS. Release preparado no branch `deploy/primeiro-acesso`; falta o push na `main` e o deploy, só com go-ahead. Nota sobre AD-013: desde a T19 toda categoria do Analytics aparece, mesmo com 0, e a soma das porcentagens pode dar 99 ou 101.
 
 **Release `deploy/primeiro-acesso` (2026-11-10):**
 

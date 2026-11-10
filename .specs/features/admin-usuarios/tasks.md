@@ -10,7 +10,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 
 **Design**: `.specs/features/admin-usuarios/design.md`
 **Spec**: `.specs/features/admin-usuarios/spec.md`
-**Status**: Draft
+**Status**: ✅ Done (T1 a T7); aguarda o Verifier independente
 **Branch**: `feat/admin-usuarios` (worktree `Dev Apps/admin-usuarios-wt`, criada a partir de `origin/main`)
 
 Regras que valem para todas as tasks:
@@ -295,13 +295,15 @@ T6 → T7
 
 **Done when**:
 
-- [ ] Decisão `AD-014` registra: aba só leitura, dados sensíveis só no detalhe, último acesso é o último login, funções de leitura no banco e estado da lista na URL
-- [ ] Pendências: registrar no histórico quem abriu o detalhe de uma pessoa (LGPD), exportação e a revisão jurídica do texto de consentimento seguem abertas
-- [ ] O Handoff aponta a branch, a última task e o próximo passo (Verifier independente)
-- [ ] Gate check passes: `npx tsc --noEmit` e `npm test`
-- [ ] Test count: sem teste novo; nenhum removido
+- [x] Decisão `AD-014` registra: aba só leitura, dados sensíveis só no detalhe, último acesso é o último login, funções de leitura no banco e estado da lista na URL
+- [x] Pendências: registrar no histórico quem abriu o detalhe de uma pessoa (LGPD), exportação e a revisão jurídica do texto de consentimento seguem abertas
+- [x] O Handoff aponta a branch, a última task e o próximo passo (Verifier independente)
+- [x] Gate check passes: `npx tsc --noEmit` e `npm test`
+- [x] Test count: sem teste novo; nenhum removido
 
 **Tests**: none
 **Gate**: build
 
 **Commit**: `docs(admin): record users tab decisions and open items`
+
+**Status**: ✅ Done

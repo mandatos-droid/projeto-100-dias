@@ -159,14 +159,14 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| USR-01 | P1: Ver a lista de usuários | Specify | Pending |
-| USR-02 | P1: Ver o detalhe da pessoa | Specify | Pending |
-| USR-03 | P1: Dados protegidos no banco | Specify | Pending |
-| USR-04 | P2: Buscar, filtrar e paginar | Specify | Pending |
+| USR-01 | P1: Ver a lista de usuários | Execute (T1, T3, T4) | Implemented (aguarda o Verifier) |
+| USR-02 | P1: Ver o detalhe da pessoa | Execute (T2, T3, T6) | Implemented (aguarda o Verifier) |
+| USR-03 | P1: Dados protegidos no banco | Execute (T1, T2) | Implemented (aguarda o Verifier) |
+| USR-04 | P2: Buscar, filtrar e paginar | Execute (T1, T3, T5) | Implemented (aguarda o Verifier) |
 
 **ID format:** `[CATEGORY]-[NUMBER]`; cada critério de aceite é citado como `USR-02.3` (história, ponto).
 
-**Coverage:** 4 total, 0 mapped to tasks, 4 unmapped ⚠️
+**Coverage:** 4 total, 4 mapped to tasks (T1 a T7), 0 unmapped. Verifier independente ainda não rodou.
 
 ---
 
