@@ -88,7 +88,7 @@ Nenhum dado novo; nenhuma migration; nenhuma chave nova em `D`.
 - **AD-R4: segmentos são `<button>`, não `<a href="#...">`.** O hash pertence ao roteador do Guia.
 - **AD-R5: abertura inicial derivada dos dados, sem `localStorage`.** Evita estado novo; o "Expandir/Recolher tudo" cobre o resto.
 - **AD-R6: números do retrato omitidos quando sem fonte.** Mostrar "—" induz a achar que o dado é zero.
-- **AD-R7: corpo "não iniciado" é uma caixa, não a saída de `Resumo.ex`.** Evita oito "não preenchido" seguidos; o título de cada pergunta continua a ser alcançável abrindo o exercício pelo link.
+- **AD-R7: corpo "não iniciado" e sem resposta visível é uma caixa, não a saída de `Resumo.ex`.** Refinado após o T3: `temConteudo` não conta as caixas extras (`caixas`), então `estadoEx` pode dar "nao" com resposta já visível (`m1-persona.spec.ts:29`); nesse caso o bloco abre com `Resumo.ex`. Evita oito "não preenchido" seguidos; o título de cada pergunta continua a ser alcançável abrindo o exercício pelo link.
 - **AD-R8: `ResumoIlhas.lista` só vira cartões com `Resumo.vivo`.** O download roda sem `vivo` e segue em texto (RES-07.6).
 
 ---

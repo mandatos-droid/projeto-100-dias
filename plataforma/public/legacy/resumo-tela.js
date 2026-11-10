@@ -22,16 +22,18 @@ function previa(h){
   return VAZIO;
 }
 
-/* abertura inicial: o que não foi iniciado vem fechado (RES-01.3, RES-01.4) */
-function abreExercicio(ex){return estadoEx(ex)!=='nao'}
+/* abertura inicial: só o vazio vem fechado (RES-01.3, RES-01.4). "Não iniciado" com resposta já visível no Resumo.ex
+   também abre: temConteudo não conta as caixas extras (ex.: o próximo cargo da Persona, m1.q3b). */
+function abre(e,rx){return e!=='nao'||previa(rx)!==VAZIO}
+function abreExercicio(ex){return abre(estadoEx(ex),Resumo.ex(ex))}
 function abreMissao(m){return m.exercicios.some(abreExercicio)}
 
 function exercicio(m,ex){
-  var e=estadoEx(ex),href='#/m/'+m.n+'/'+ex.id,rx=Resumo.ex(ex),corpo;
-  if(e==='nao')corpo='<div class="m-vazia"><span>Nenhuma resposta registrada ainda.</span><a class="ir" href="'+href+'">Começar este exercício →</a></div>';
+  var e=estadoEx(ex),href='#/m/'+m.n+'/'+ex.id,rx=Resumo.ex(ex),aberto=abre(e,rx),corpo;
+  if(!aberto)corpo='<div class="m-vazia"><span>Nenhuma resposta registrada ainda.</span><a class="ir" href="'+href+'">Começar este exercício →</a></div>';
   else corpo=(ex.tipo==='funcoes'?'<div class="ilha" data-ilha="resumo-equipe"></div>':rx)+
     (e==='andamento'?'<a class="ir" href="'+href+'">Continuar este exercício →</a>':'');
-  return '<details class="ex" data-estado="'+e+'"'+(abreExercicio(ex)?' open':'')+'><summary>'+
+  return '<details class="ex" data-estado="'+e+'"'+(aberto?' open':'')+'><summary>'+
     '<span class="ex-t"><i class="chev" aria-hidden="true"></i><a class="ex-link" href="'+href+'">'+esc(ex.t)+'</a>'+
     '<span class="selo '+e+'">'+SELO[e]+'</span></span>'+
     '<span class="ex-p">'+esc(previa(rx))+'</span>'+
@@ -76,11 +78,11 @@ function ferramentas(pend){
 function html(){
   var t=0,f=0;
   MISSOES.forEach(function(m){var p=progMissao(m);t+=p.total;f+=p.feitos});
-  return '<div class="etiqueta">Mandato</div><h1>Resumo do preenchimento</h1>'+
+  return '<div class="res2"><div class="etiqueta">Mandato</div><h1>Resumo do preenchimento</h1>'+
     '<p class="chamada">Tudo o que a equipe registrou, exercício por exercício. Use nas reuniões de alinhamento e na imersão de planejamento.</p>'+
     '<div class="ilha" data-ilha="resumo-retrato"></div>'+
     barra(f,t)+ferramentas(t-f)+
-    MISSOES.map(function(m){return missao(m)}).join('');
+    MISSOES.map(function(m){return missao(m)}).join('')+'</div>';
 }
 
 /* comportamentos: segmentos, ferramentas, scroll-spy e impressão. Os ouvintes da janela da visita anterior saem antes
@@ -91,7 +93,13 @@ function ligar(raiz){
   function todos(){return [].slice.call(raiz.querySelectorAll('details.missao,details.ex'))}
   var ms=[].slice.call(raiz.querySelectorAll('details.missao')),segs=[].slice.call(raiz.querySelectorAll('.seg'));
   var so=raiz.querySelector('[data-acao="so-falta"]'),semPend=raiz.querySelector('.sem-pend');
+  var r2=raiz.querySelector('.res2'),barraEl=raiz.querySelector('.barra'),topo=document.querySelector('.topo-movel');
 
+  /* alturas que o CSS usa: a barra fica abaixo do .topo-movel (celular) e o título da missão, abaixo da barra (RES-02.4, 02.5) */
+  function mede(){
+    r2.style.setProperty('--topo-movel',(topo?topo.offsetHeight:0)+'px');
+    r2.style.setProperty('--barra-alt',barraEl.offsetHeight+'px');
+  }
   /* segmento ativo: a última missão visível com o topo a 160 px ou menos do topo da janela; a 1ª se nenhuma (RES-02.4) */
   function marca(){
     var atual=ms[0];
@@ -102,6 +110,7 @@ function ligar(raiz){
     b.onclick=function(){
       var d=ms[i],reduz=w.matchMedia&&w.matchMedia('(prefers-reduced-motion: reduce)').matches;
       d.open=true;
+      mede();
       d.scrollIntoView({block:'start',behavior:reduz?'auto':'smooth'}); // sem location.hash: o hash é do roteador (AD-R4)
     };
   });
@@ -120,6 +129,8 @@ function ligar(raiz){
       if(quadro||!raiz.isConnected)return;
       quadro=w.requestAnimationFrame(function(){quadro=0;marca()});
     },
+    /* girar o celular ou redimensionar a janela muda a altura do .topo-movel e da barra */
+    resize:function(){if(raiz.isConnected)mede()},
     /* impressão: tudo aberto e, depois, cada bloco como estava (RES-05.1) */
     beforeprint:function(){
       if(!raiz.isConnected)return;
@@ -134,6 +145,7 @@ function ligar(raiz){
   };
   Object.keys(ouv).forEach(function(k){w.addEventListener(k,ouv[k])});
   w.__resumoOuvintes=ouv;
+  mede();
   marca();
 }
 

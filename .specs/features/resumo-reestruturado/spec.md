@@ -39,7 +39,7 @@ A aba "Resumo do preenchimento" (`#/resumo`) lista as 16 respostas do Guia como 
 | Quem imprime com Ctrl+P | Continua recebendo tudo aberto e sem barras | Com blocos fechados a página sairia vazia | n |
 | Índice lateral da sugestão | Vira 5 segmentos na barra fixa do topo | O Guia já tem menu lateral de 18,75rem; uma 2ª coluna espremeria o conteúdo e não serve no celular | y |
 | Cor das etiquetas de território | Por tipo (problema vermelho, potencialidade verde), não por tema | Há dezenas de agendas; cor por tema não escala | y |
-| Abertura inicial dos blocos | Missão abre se tem algum exercício com resposta; exercício abre se o estado não é "não iniciado" | Preserva o que a tela mostra hoje; só o vazio vem fechado | n |
+| Abertura inicial dos blocos | Missão abre se tem algum exercício que abre; exercício abre se o estado não é "não iniciado" ou se, mesmo "não iniciado", `Resumo.ex` já mostra alguma resposta (ex.: caixa extra da persona) | Preserva o que a tela mostra hoje; só o vazio vem fechado | n |
 | Corpo do exercício | É a saída de `Resumo.ex(ex)`, inclusive as sobreposições de `m1.js` a `m5.js` | Reaproveita todas as regras de texto sem duplicar | n |
 | Foto da parlamentar | Mesma URL do TSE que o Resumo já usa (`sq` da candidatura em `D.tse`); sem `sq` ou sem rede, a inicial do nome | Evita nova fonte de dados | n |
 | Número "cadeiras do partido" | Cadeiras do partido do mandato na Casa do mandato, da mesma fonte da tabela da Conjuntura (`carregaUF`); sem a fonte, o número é omitido | Evita número divergente do que o exercício mostra | n |
@@ -87,8 +87,8 @@ A aba "Resumo do preenchimento" (`#/resumo`) lista as 16 respostas do Guia como 
 
 1. WHEN o usuário abre `#/resumo` THEN a tela SHALL listar as 5 missões como blocos `<details>`, cada um com "Missão {n}", o título curto, o prazo (`prazoTxt`) e "{feitos}/{total}", e dentro de cada um um bloco `<details>` por exercício.  <!-- RES-01 -->
 2. Cada exercício SHALL mostrar no `<summary>` o título (link para `#/m/{n}/{id}`), o selo "concluído", "em andamento" ou "não iniciado" (de `estadoEx`) e o texto de `Telas.estadoTxt(ex, estado)`; fechado, SHALL mostrar também a primeira resposta preenchida em texto puro, de até 160 caracteres, em uma linha.
-3. WHEN a missão não tem nenhum exercício com estado diferente de "não iniciado" THEN o bloco da missão SHALL vir fechado; caso contrário, aberto.
-4. WHEN o exercício está "não iniciado" THEN o bloco SHALL vir fechado e o corpo SHALL ser a caixa "Nenhuma resposta registrada ainda." com o link "Começar este exercício →"; caso contrário SHALL vir aberto e o corpo SHALL ser a saída de `Resumo.ex(ex)`.
+3. WHEN a missão não tem nenhum exercício que abre (ver 01.4) THEN o bloco da missão SHALL vir fechado; caso contrário, aberto.
+4. WHEN o exercício está "não iniciado" E `Resumo.ex(ex)` não mostra nenhuma resposta THEN o bloco SHALL vir fechado e o corpo SHALL ser a caixa "Nenhuma resposta registrada ainda." com o link "Começar este exercício →"; caso contrário (estado diferente de "não iniciado", ou "não iniciado" com resposta já visível em `Resumo.ex`) SHALL vir aberto e o corpo SHALL ser a saída de `Resumo.ex(ex)`.
 5. WHERE o exercício está "em andamento" THEN o corpo SHALL terminar com o link "Continuar este exercício →" para `#/m/{n}/{id}`.  <!-- RES-10 -->
 6. WHEN o usuário aciona um `<summary>` por mouse, Enter ou Espaço THEN o bloco SHALL abrir ou fechar.
 7. WHEN o usuário clica em "Expandir tudo" THEN todas as missões e exercícios SHALL abrir; WHEN clica em "Recolher tudo" THEN todos SHALL fechar.  <!-- RES-04 -->
@@ -248,11 +248,11 @@ A aba "Resumo do preenchimento" (`#/resumo`) lista as 16 respostas do Guia como 
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| RES-01 | P1: Missões e exercícios recolhíveis | Execute (T1, T2) | In progress |
-| RES-02 | P1: Barra fixa com progresso e navegação | Execute (T2) | In progress |
-| RES-03 | P1: Barra fixa com progresso e navegação (ação única) | Execute (T2) | In progress |
+| RES-01 | P1: Missões e exercícios recolhíveis | Execute (T1, T2, T3) | In progress |
+| RES-02 | P1: Barra fixa com progresso e navegação | Execute (T2, T3) | Implemented (aguarda o Verifier) |
+| RES-03 | P1: Barra fixa com progresso e navegação (ação única) | Execute (T2, T3) | Implemented (aguarda o Verifier) |
 | RES-04 | P1: Missões e exercícios recolhíveis (ferramentas) | Execute (T2) | Implemented (aguarda o Verifier) |
-| RES-05 | P1: Impressão, teclado e movimento | Execute (T2) | In progress |
+| RES-05 | P1: Impressão, teclado e movimento | Execute (T2, T3) | In progress |
 | RES-06 | P1: Retrato do mandato no cabeçalho | Tasks | Pending |
 | RES-07 | P2: Cartões de aliados, opositores e potenciais | Tasks | Pending |
 | RES-08 | P2: Problemas e potencialidades por território | Tasks | Pending |
@@ -260,7 +260,7 @@ A aba "Resumo do preenchimento" (`#/resumo`) lista as 16 respostas do Guia como 
 | RES-10 | P1: Missões e exercícios recolhíveis (saída do vazio) | Execute (T1) | Implemented (aguarda o Verifier) |
 | RES-11 | P3: Fragilidades com M e P em destaque | Tasks | Pending |
 | RES-12 | P1: Nada muda fora da tela | Execute (T1) | In progress |
-| RES-13 | P1: Impressão, teclado e movimento (acessibilidade) | Execute (T2) | In progress |
+| RES-13 | P1: Impressão, teclado e movimento (acessibilidade) | Execute (T2, T3) | In progress |
 
 **Coverage:** 13 total, 13 mapped to tasks, 0 unmapped
 

@@ -126,7 +126,7 @@ T11 → T12 → T13
 **Done when**:
 
 - [x] `ResumoTela.html()` devolve as 5 missões como `<details class="missao">` com "Missão {n}", título curto, `prazoTxt` e "{feitos}/{total}", e um `<details class="ex">` por exercício com título linkado a `#/m/{n}/{id}`, selo de `estadoEx` e texto de `Telas.estadoTxt` (RES-01.1, 01.2)
-- [x] Missão aberta só se algum exercício tem estado diferente de "nao"; exercício "nao" fechado com a caixa "Nenhuma resposta registrada ainda." e o link "Começar este exercício →"; os demais abertos com o corpo `Resumo.ex(ex)` (RES-01.3, 01.4)
+- [x] Missão aberta só se algum exercício tem estado diferente de "nao"; exercício "nao" cujo `Resumo.ex` não mostra resposta fica fechado com a caixa "Nenhuma resposta registrada ainda." e o link "Começar este exercício →"; os demais (inclusive "nao" com resposta visível em `Resumo.ex`) abertos com o corpo `Resumo.ex(ex)` (RES-01.3, 01.4)
 - [x] Exercício "andamento" termina com "Continuar este exercício →" para `#/m/{n}/{id}` (RES-10)
 - [x] `previa()` devolve texto puro, sem tags, de até 160 caracteres, ou "não preenchido" sem resposta; texto longo sem espaços não vaza HTML (edge cases)
 - [x] O corpo do exercício de tipo `funcoes` é o ponto de montagem `<div class="ilha" data-ilha="resumo-equipe">` e a tela traz `<div class="ilha" data-ilha="resumo-retrato">` no cabeçalho (design)
@@ -194,20 +194,22 @@ T11 → T12 → T13
 
 **Done when**:
 
-- [ ] A barra permanece visível no topo depois de rolar 1.500 px (posição `top` ≈ 0 no desktop e abaixo do `.topo-movel` no celular) (RES-02.4)
-- [ ] Depois de clicar em um segmento, o título da missão fica visível abaixo da barra (`top` do título ≥ altura da barra) (RES-02.5)
-- [ ] A 800 px de largura o botão de download fica fixo no rodapé, na largura toda; a 1.280 px fica na barra (RES-03, RES-01.8)
-- [ ] A 375 px `document.documentElement.scrollWidth <= clientWidth` e os segmentos rolam na horizontal dentro da barra (RES-13.5)
-- [ ] Com `emulateMedia({ media: 'print' })` a barra e as ferramentas não são visíveis e, após `beforeprint`, todos os `<details>` estão abertos (RES-05.2)
-- [ ] Com `reducedMotion: 'reduce'` o `scroll-behavior` calculado é `auto` (RES-13.4)
-- [ ] Todo botão e `<summary>` mostra anel de foco ao receber Tab (RES-13.3)
-- [ ] Gate check passes: `npx playwright test -c playwright.isolado.config.ts e2e/resumo-layout.spec.ts` e `npx tsc --noEmit`
-- [ ] Test count: ≥ 7 e2e novos em `e2e/resumo-layout.spec.ts`, nenhum removido
+- [x] A barra permanece visível no topo depois de rolar 1.500 px (posição `top` ≈ 0 no desktop e abaixo do `.topo-movel` no celular) (RES-02.4)
+- [x] Depois de clicar em um segmento, o título da missão fica visível abaixo da barra (`top` do título ≥ altura da barra) (RES-02.5)
+- [x] A 800 px de largura o botão de download fica fixo no rodapé, na largura toda; a 1.280 px fica na barra (RES-03, RES-01.8)
+- [x] A 375 px `document.documentElement.scrollWidth <= clientWidth` e os segmentos rolam na horizontal dentro da barra (RES-13.5)
+- [x] Com `emulateMedia({ media: 'print' })` a barra e as ferramentas não são visíveis e, após `beforeprint`, todos os `<details>` estão abertos (RES-05.2)
+- [x] Com `reducedMotion: 'reduce'` o `scroll-behavior` calculado é `auto` (RES-13.4)
+- [x] Todo botão e `<summary>` mostra anel de foco ao receber Tab (RES-13.3)
+- [x] Gate check passes: `npx playwright test -c playwright.isolado.config.ts e2e/resumo-layout.spec.ts` e `npx tsc --noEmit`
+- [x] Test count: ≥ 7 e2e novos em `e2e/resumo-layout.spec.ts`, nenhum removido
 
 **Tests**: e2e
 **Gate**: build
 
 **Commit**: `feat(resumo): style the restructured summary screen`
+
+**Status**: ✅ Done (gate build: as 11 falhas de `m1-etapas`, `m23-*` e `rumo-painel` já falham sem a feature, conferido com `resumo-tela` fora de `SCRIPTS`; `m1-persona.spec.ts:29` passa com RES-01.4 refinado)
 
 ---
 

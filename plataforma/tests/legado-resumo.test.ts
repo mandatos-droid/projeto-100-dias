@@ -328,7 +328,7 @@ test('cada missão marca quantos exercícios faltam (data-pend) e cada exercíci
 
 /** Janela com #tela, Ilhas e a janela que guarda os ouvintes ativos, para chamar a Telas.resumo como o roteador faz. */
 function guiaComTela(D: Record<string, unknown>) {
-  const telaEl = { innerHTML: '', className: 'tela', isConnected: true, querySelectorAll: () => [], querySelector: () => ({}) };
+  const telaEl = { innerHTML: '', className: 'tela', isConnected: true, querySelectorAll: () => [], querySelector: () => ({ style: { setProperty() {} } }) };
   const ativos = new Map<string, Set<unknown>>();
   const ligadas: unknown[] = [];
   const w = guia(D, true, {
@@ -355,4 +355,37 @@ test('voltar a #/resumo várias vezes deixa um só ouvinte de scroll, beforeprin
   const { w, ativos } = guiaComTela({ campos: {} });
   for (let i = 0; i < 3; i++) w.Telas.resumo();
   for (const k of ['scroll', 'beforeprint', 'afterprint']) assert.equal(ativos.get(k)?.size, 1, k);
+});
+
+/* ---------- abertura com resposta visível em exercício "não iniciado" (RES-01.3, RES-01.4 refinados) ---------- */
+/* temConteudo não conta as caixas extras: só o próximo cargo da Persona (m1.q3b) deixa o exercício "não iniciado" */
+const SO_Q3B = () => ({ campos: { 'm1.q3b': 'Senado da República' } });
+
+test('exercício "não iniciado" cujo Resumo.ex já mostra resposta vem aberto, com o corpo de Resumo.ex e sem a caixa de vazio (RES-01.4)', () => {
+  const w = guia(SO_Q3B());
+  const ex = exDe(w, 'm1.persona');
+  assert.equal(w.estadoEx(ex), 'nao');
+  const b = blocoEx(tela(w), 'm1.persona');
+  assert.equal(aberto(b), true);
+  assert.equal(w.ResumoTela.abreExercicio(ex), true);
+  assert.ok(sumario(b).includes('<span class="selo nao">não iniciado</span>'));
+  assert.ok(b.includes(`<div class="ex-corpo">${rx(w, ex)}</div></details>`));
+  assert.ok(rx(w, ex).includes('<dt>Próximo cargo que a liderança deseja ocupar</dt><dd>Senado da República</dd>'));
+  assert.equal(b.includes('Nenhuma resposta registrada ainda.'), false);
+});
+
+test('exercício "não iniciado" sem nenhuma resposta no Resumo.ex continua fechado com a caixa de vazio (RES-01.4)', () => {
+  const w = guia(SO_Q3B());
+  const b = blocoEx(tela(w), 'm1.conjuntura');
+  assert.equal(aberto(b), false);
+  assert.equal(w.ResumoTela.abreExercicio(exDe(w, 'm1.conjuntura')), false);
+  assert.ok(b.includes('<div class="ex-corpo"><div class="m-vazia"><span>Nenhuma resposta registrada ainda.</span>' +
+    '<a class="ir" href="#/m/1/m1.conjuntura">Começar este exercício →</a></div></div></details>'));
+});
+
+test('a missão abre quando o único exercício que abre é um "não iniciado" com resposta visível (RES-01.3)', () => {
+  const w = guia(SO_Q3B());
+  assert.ok(Array.from(w.MISSOES[0].exercicios).every((ex) => w.estadoEx(ex) === 'nao'));
+  assert.deepEqual(missoes(tela(w)).map(aberto), [true, false, false, false, false]);
+  assert.deepEqual(Array.from(w.MISSOES, (m) => w.ResumoTela.abreMissao(m)), [true, false, false, false, false]);
 });

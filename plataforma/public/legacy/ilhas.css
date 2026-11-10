@@ -865,3 +865,83 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 @media(max-width:40rem){.ml-resp{margin-left:0}}
 .ass .paginacao{display:flex;align-items:center;justify-content:center;gap:0.875rem;flex-wrap:wrap;margin-top:0.75rem}
 .ass .paginacao .bt[disabled]{opacity:.45;cursor:default}
+
+/* ===== Resumo reestruturado ===== */
+/* #/resumo (public/legacy/resumo-tela.js): barra fixa, blocos recolhíveis de missão e exercício. Tudo sob #tela .res2. */
+#tela .res2 [hidden]{display:none!important}
+#tela .res2>.ilha{margin:0 0 2rem}
+#tela .res2 :is(button,summary,a,input):focus-visible{outline:2.5px solid var(--verde);outline-offset:3px}
+/* barra fixa: progresso, ação e segmentos */
+#tela .res2 .barra{position:sticky;top:0;z-index:30;margin:0 -2.5rem 1.6rem;padding:.55rem 2.5rem .6rem;background:var(--papel);border-bottom:1px solid var(--linha)}
+#tela .res2 .barra-l1{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;justify-content:space-between}
+#tela .res2 .geral{display:flex;align-items:baseline;gap:.6rem;font-variant-numeric:tabular-nums}
+#tela .res2 .geral b{font-family:'Anton',sans-serif;font-weight:400;font-size:1.9rem;line-height:1;color:var(--vinho)}
+#tela .res2 .geral span{font-size:.82rem;color:var(--tinta-2)}
+#tela .res2 .acoes{display:flex;gap:.5rem}
+#tela .res2 .segs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.5rem;margin-top:.55rem}
+#tela .res2 .seg{text-align:left;background:none;border:0;border-top:3px solid transparent;padding:.3rem .1rem 0;min-width:0;border-radius:0;font:inherit;color:inherit;cursor:pointer}
+#tela .res2 .seg .t{display:flex;justify-content:space-between;gap:.4rem;font-size:.74rem;font-weight:700;color:var(--tinta-2)}
+#tela .res2 .seg .t span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tela .res2 .seg .t span:last-child{font-variant-numeric:tabular-nums;color:var(--tinta-3)}
+#tela .res2 .seg .f{display:block;height:6px;background:var(--linha);border-radius:3px;margin-top:.3rem;overflow:hidden}
+#tela .res2 .seg .f i{display:block;height:100%;background:var(--c);width:var(--p);transition:width .4s}
+#tela .res2 .seg:hover .t span:first-child,#tela .res2 .seg[aria-current="true"] .t span:first-child{color:var(--tinta)}
+#tela .res2 .seg[aria-current="true"]{border-top-color:var(--c)}
+/* ferramentas da lista */
+#tela .res2 .ferr{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;align-items:center;margin:0 0 1.2rem;font-size:.86rem}
+#tela .res2 .lk{background:none;border:0;padding:.2rem 0;font:inherit;font-weight:700;color:var(--verde);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+#tela .res2 .chave{display:inline-flex;align-items:center;gap:.5rem;font-weight:600;color:var(--tinta-2);cursor:pointer}
+#tela .res2 .chave input{width:1.05rem;height:1.05rem;margin:0;accent-color:var(--verde)}
+#tela .res2 .pend-total{margin-left:auto;color:var(--tinta-3);font-variant-numeric:tabular-nums}
+#tela .res2 .sem-pend{margin:0 0 1.2rem;padding:.8rem 1rem;background:var(--linha-2);border-radius:var(--r);color:var(--tinta-2)}
+/* missão (1º nível) */
+#tela .res2 .missao{margin:0 0 1.6rem;background:var(--branco);border:1px solid var(--linha);border-top:4px solid var(--c);border-radius:var(--r);
+  scroll-margin-top:calc(var(--topo-movel,0px) + var(--barra-alt,6.5rem) + .75rem)}
+#tela .res2 summary{list-style:none;cursor:pointer}
+#tela .res2 summary::-webkit-details-marker{display:none}
+#tela .res2 .missao>summary{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:.3rem 1.2rem;align-items:center;padding:1rem 1.3rem}
+#tela .res2 .m-eb{grid-column:1;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ct)}
+#tela .res2 .m-tit{grid-column:1;font-family:'Anton',sans-serif;font-size:1.55rem;line-height:1.05}
+#tela .res2 .missao>summary:hover .m-tit{color:var(--ct)}
+#tela .res2 .m-prazo{grid-column:2;grid-row:1/3;font-size:.78rem;color:var(--tinta-3);text-align:right}
+#tela .res2 .m-cont{grid-column:3;grid-row:1/3;display:flex;align-items:center;gap:.7rem}
+#tela .res2 .m-cont b{font-family:'Anton',sans-serif;font-weight:400;font-size:1.3rem;font-variant-numeric:tabular-nums}
+#tela .res2 .chev{display:inline-block;flex:none;width:.7rem;height:.7rem;border-right:2.5px solid var(--tinta-2);border-bottom:2.5px solid var(--tinta-2);transform:rotate(-45deg);transition:transform .2s}
+#tela .res2 details[open]>summary .chev{transform:rotate(45deg)}
+#tela .res2 .m-corpo{padding:0 1.3rem 1.2rem}
+#tela .res2 .m-vazia{margin:0 0 .6rem;padding:.8rem 1rem;background:var(--linha-2);border-radius:var(--r);font-size:.9rem;color:var(--tinta-2);
+  display:flex;justify-content:space-between;gap:1rem;align-items:center;flex-wrap:wrap}
+/* exercício (2º nível) */
+#tela .res2 .ex{border-top:1px solid var(--linha)}
+#tela .res2 .ex>summary{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.15rem 1rem;align-items:center;padding:.85rem 0}
+#tela .res2 .ex-t{display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;min-width:0;font-weight:700;font-size:1rem}
+#tela .res2 .ex-t .chev{width:.55rem;height:.55rem}
+#tela .res2 .ex-link{color:inherit;text-decoration:none}
+#tela .res2 .ex-link:hover{color:var(--vinho);text-decoration:underline}
+#tela .res2 .ex-p{grid-column:1;padding-left:1.25rem;font-size:.84rem;color:var(--tinta-3);overflow-wrap:anywhere;
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+#tela .res2 .ex[open] .ex-p{display:none}
+#tela .res2 .ex-n{grid-column:2;grid-row:1/3;font-size:.78rem;color:var(--tinta-3);font-variant-numeric:tabular-nums;text-align:right}
+#tela .res2 .ex-corpo{padding:.2rem 0 1.2rem 1.25rem;min-width:0;overflow-wrap:anywhere}
+#tela .res2 a.ir{display:inline-block;font-size:.8rem;font-weight:700;color:var(--verde)}
+#tela .res2 .ex-corpo>a.ir{margin-top:.4rem}
+/* celular: barra abaixo do .topo-movel, ação fixa no rodapé, segmentos com rolagem horizontal */
+@media(max-width:61.25rem){
+  #tela .res2 .barra{top:var(--topo-movel,0px);margin:0 -1.25rem 1.3rem;padding:.5rem 1.25rem}
+  #tela .res2 .acoes{position:fixed;left:0;right:0;bottom:0;z-index:35;display:grid;grid-template-columns:1fr;background:var(--papel);
+    border-top:1px solid var(--linha);padding:.6rem 1rem calc(.6rem + env(safe-area-inset-bottom))}
+  #tela .res2 .segs{display:flex;overflow-x:auto;gap:.9rem;scrollbar-width:none;padding-bottom:.1rem}
+  #tela .res2 .segs::-webkit-scrollbar{display:none}
+  #tela .res2 .seg{flex:none;width:7.2rem}
+  #tela .res2 .m-prazo{display:none}
+  #tela .res2 .m-tit{font-size:1.3rem}
+}
+@media(prefers-reduced-motion:reduce){#tela .res2 *{transition:none!important}}
+/* impressão: tudo aberto (resumo-tela.js), sem barra, ferramentas nem setas. O equipe.css esconde tudo na impressão
+   (body *{visibility:hidden}, para o PDF da Missão 2); aqui o Resumo volta a ficar visível. */
+@media print{
+  #tela .res2,#tela .res2 *{visibility:visible}
+  #tela .res2 .barra,#tela .res2 .ferr,#tela .res2 .sem-pend,#tela .res2 .chev,#tela .res2 .ex-p{display:none!important}
+  #tela .res2 .missao{border:0;border-top:3px solid var(--c);break-inside:auto}
+  #tela .res2 .ex{break-inside:avoid}
+}
