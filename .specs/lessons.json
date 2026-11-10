@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 38,
+  "next_id": 40,
   "lessons": [
     {
       "id": "L-001",
@@ -677,6 +677,42 @@
       ],
       "created": "2026-11-10T03:08:54Z",
       "last_seen": "2026-11-10T11:18:09Z"
+    },
+    {
+      "id": "L-038",
+      "key": "surviving_mutant::test that an unrecognized filter value is ignored and returns the unfiltered set not only that recognized values filter",
+      "text": "Test that an unrecognized filter value is ignored and returns the unfiltered set, not only that recognized values filter",
+      "signal": "surviving_mutant",
+      "scope": "sql",
+      "status": "candidate",
+      "features": [
+        "admin-usuarios"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M9 plataforma/supabase/migrations/20261110120000_admin_usuarios.sql:41 (USR-04.2) (sql)"
+      ],
+      "created": "2026-11-10T15:57:35Z",
+      "last_seen": "2026-11-10T15:57:35Z"
+    },
+    {
+      "id": "L-039",
+      "key": "spec_precision_gap::state in the spec whether combined filters must hold on the same related row or on any related row",
+      "text": "State in the spec whether combined filters must hold on the same related row or on any related row",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "admin-usuarios"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "SP-1 USR-04.5 spec.md (spec)"
+      ],
+      "created": "2026-11-10T15:57:35Z",
+      "last_seen": "2026-11-10T15:57:35Z"
     }
   ]
 }

@@ -234,6 +234,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: PAG-02.1 SP-3; plataforma/public/legacy/acesso.js:56-60 (spec) (+1 more)
 - last seen: 2026-11-10T11:18:09Z
 
+### L-038 - Test that an unrecognized filter value is ignored and returns the unfiltered set, not only that recognized values filter
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `sql` · harmful: 0
+- features: admin-usuarios
+- evidence: M9 plataforma/supabase/migrations/20261110120000_admin_usuarios.sql:41 (USR-04.2) (sql)
+- last seen: 2026-11-10T15:57:35Z
+
+### L-039 - State in the spec whether combined filters must hold on the same related row or on any related row
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: admin-usuarios
+- evidence: SP-1 USR-04.5 spec.md (spec)
+- last seen: 2026-11-10T15:57:35Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
