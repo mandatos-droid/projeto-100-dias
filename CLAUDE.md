@@ -17,3 +17,11 @@ Rules:
 - A CLI envia a pasta de trabalho, incluindo alterações sem commit. Confira `git status` antes se isso importar.
 - Se der erro de login: `vercel whoami` (esperado: `pedrobrandine-5642`) e, se preciso, `vercel login`.
 - Para conferir o resultado: `vercel inspect <url-do-deploy>` (status esperado: Ready).
+
+### Regra de deploy (obrigatória, vale para toda sessão)
+
+Em 2026-11-10 um deploy feito sem push no `main` fez a produção voltar a um dado já corrigido (505 em vez de 513 cadeiras). Para isso nunca mais acontecer:
+
+1. **Antes do deploy**, rode `git fetch` e `git cherry origin/main <branch>`. Linhas com `+` são commits que ainda não estão no `main`; confira se algo publicado antes ou em outra branch seria sobrescrito.
+2. **Termine todo deploy com push no `main`**: `git push origin deploy/<x>:main`. `vercel --prod` publica a pasta do worktree, não o `main`; sem o push, o próximo deploy apaga a correção.
+3. Publique sempre de um worktree limpo, criado a partir de `origin/main` (nunca da pasta compartilhada) e trazendo só os commits da feature por cherry-pick. Como o cherry-pick muda o hash, use `git cherry` (compara por conteúdo), não `main..branch`.
