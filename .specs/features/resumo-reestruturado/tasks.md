@@ -559,6 +559,19 @@ T11 → T12 → T13
 
 ---
 
+### T16: Estabilizar specs lentos e reforçar a borda da vaga
+
+**What**: test.slow() nos dois specs que estouravam 30 s sob carga; assertiva de border-left tracejado na vaga (C3).
+
+**Tests**: e2e/unit
+**Gate**: full
+
+**Commit**: `test(resumo): stabilize slow layout and regression specs`
+
+**Status**: ✅ Done (correção da rodada 1 do Verifier)
+
+---
+
 ## Phase Execution Map
 
 ```

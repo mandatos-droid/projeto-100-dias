@@ -30,6 +30,7 @@ test('com 1 chefia, 2 pessoas, 1 vaga com "*" e 1 linha vazia: 2 cartões comuns
   await expect(vaga).toHaveCount(1);
   await expect(vaga.locator('strong')).toHaveText('Processo seletivo a abrir');
   await expect(vaga).toHaveCSS('border-top-style', 'dashed');
+  await expect(vaga).toHaveCSS('border-left-style', 'dashed');
   const aberto = ram.locator('.car.aberto');
   await expect(aberto).toHaveCount(1);
   await expect(aberto.locator('strong')).toHaveText('Sem nome');

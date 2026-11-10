@@ -82,6 +82,7 @@ test('a 375 px a página não rola na horizontal e os segmentos rolam dentro da 
 });
 
 test('na impressão a barra e as ferramentas somem e, após beforeprint, todos os blocos estão abertos (RES-05.2)', async ({ page }) => {
+  test.slow(); // sob carga a página e as ilhas demoram: triplica o tempo, sem afrouxar as asserções
   await abreResumo(page, 1280);
   await expect(page.locator('#tela details.missao:not([open])')).not.toHaveCount(0);
   await page.emulateMedia({ media: 'print' });

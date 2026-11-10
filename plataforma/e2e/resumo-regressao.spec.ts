@@ -110,6 +110,7 @@ test('Tab chega aos segmentos, em ordem, e Enter leva à missão sem mudar o end
 });
 
 test('todo controle da barra e das ferramentas tem nome acessível (RES-13.3)', async ({ page }) => {
+  test.slow(); // sob carga a página e as ilhas demoram: triplica o tempo, sem afrouxar as asserções
   await abreResumo(page, RICO);
   const nomes = await page.locator('#tela .barra button, #tela .ferr button, #tela .ferr input').evaluateAll((els) =>
     els.map((e) => (e.getAttribute('aria-label') || (e as HTMLElement).innerText || e.closest('label')?.textContent || '').trim()));
