@@ -701,17 +701,18 @@ T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Gênero (8), raça (6), faixa etária (6) e atuação (6) trazem toda categoria da spec, na ordem da spec, mesmo com 0 pessoas, inclusive "Prefiro não informar" (PAG-06.3, 06.4; Assumption "Categorias sem ninguém no Analytics")
-- [ ] Chave desconhecida vinda do banco continua anexada ao fim, com a própria chave como rótulo; a soma das quantidades é igual ao total (PAG-06.12)
-- [ ] A porcentagem segue arredondada por categoria; um comentário e um teste afirmam que a soma pode não dar 100 (3 categorias de 1/3 somam 99), citando a Assumption "Porcentagem no Analytics"
-- [ ] Os testes de `tests/admin-perfil.test.ts` que afirmavam a omissão das categorias com 0 passam a afirmar o resultado da spec; `e2e/admin-analytics-perfil.spec.ts` prova as linhas "0 · 0%" na tela
-- [ ] Rastreabilidade de `spec.md` e Handoff do `STATE.md` atualizados (branch, última task T19, próximo passo: re-verificação independente rodada 2)
-- [ ] Gate check passes: `npm test` e `npx playwright test e2e/admin-analytics-perfil.spec.ts e2e/admin-analytics.spec.ts`; gate de build da fase: `npx tsc --noEmit`, `npm test` e os specs `e2e/convite-*`, `e2e/mandato-*`, `e2e/guia-acesso*`, `e2e/primeiro-acesso*`, `e2e/admin-*`
-- [ ] Test count: testes novos em `tests/admin-perfil.test.ts` e `e2e/admin-analytics-perfil.spec.ts`, nenhum removido
+- [x] Gênero (8), raça (6), faixa etária (6) e atuação (6) trazem toda categoria da spec, na ordem da spec, mesmo com 0 pessoas, inclusive "Prefiro não informar" (PAG-06.3, 06.4; Assumption "Categorias sem ninguém no Analytics")
+- [x] Chave desconhecida vinda do banco continua anexada ao fim, com a própria chave como rótulo; a soma das quantidades é igual ao total (PAG-06.12)
+- [x] A porcentagem segue arredondada por categoria; um comentário e um teste afirmam que a soma pode não dar 100 (3 categorias de 1/3 somam 99), citando a Assumption "Porcentagem no Analytics"
+- [x] Os testes de `tests/admin-perfil.test.ts` que afirmavam a omissão das categorias com 0 (4 testes, entre eles o antigo "categoria que não veio do banco não aparece") passam a afirmar o resultado da spec; `e2e/admin-analytics-perfil.spec.ts` prova a ordem das categorias e as linhas "0 · 0%" na tela
+- [x] Rastreabilidade de `spec.md` e Handoff do `STATE.md` atualizados (branch, última task T19, próximo passo: re-verificação independente rodada 2)
+- [x] O gate de build achou um erro de tipo da T17 em `e2e/convite-perfil.spec.ts` (o helper `abre` pedia `() => { corpo: unknown }` e recebia `() => RespostaRpc`); corrigido aqui, sem mudar nenhuma afirmação
+- [x] Gate check passes: `npm test` (1107 testes, 0 falhas) e `npx playwright test e2e/admin-analytics-perfil.spec.ts e2e/admin-analytics.spec.ts` (24 passaram); gate de build da fase: `npx tsc --noEmit` sem erro, `npm test` 1107/1107 e os specs `e2e/convite-*`, `e2e/mandato-*`, `e2e/guia-acesso*`, `e2e/primeiro-acesso*`, `e2e/admin-*`: 345 de 347 na rodada completa (4 workers, porta 3100); as 2 falhas foram tempo esgotado em telas fora desta feature (`admin-equipe.spec.ts:245`, `admin-transversal.spec.ts:139`) e os dois specs passaram inteiros na nova rodada (33/33)
+- [x] Test count: 2 testes novos em `tests/admin-perfil.test.ts` (13 → 15; 1105 → 1107) e 1 em `e2e/admin-analytics-perfil.spec.ts` (9 → 10), nenhum removido
 
 **Tests**: unit
 **Gate**: build
 
 **Commit**: `fix(admin): list every profile category in analytics`
 
-**Status**: Pending
+**Status**: ✅ Done

@@ -79,6 +79,28 @@ test('gênero, raça, faixa etária e atuação mostram número e porcentagem in
   await expect(linha(page, 'Atuação política de quem tem perfil', '6 a 10 anos')).toContainText('1 · 25%');
 });
 
+test('toda categoria da spec aparece, na ordem da spec, e a que não tem ninguém mostra "0 · 0%" (PAG-06.3; spec, Assumption "Categorias sem ninguém no Analytics")', async ({ page }) => {
+  await abre(page);
+  const rotulos = (titulo: string) => grafico(page, titulo).locator('.fr > span');
+  await expect(rotulos('Gênero de quem tem perfil')).toHaveText([
+    'Mulher cisgênero', 'Homem cisgênero', 'Mulher transgênero', 'Homem transgênero', 'Travesti', 'Pessoa não binária', 'Outra identidade', 'Prefiro não informar',
+  ]);
+  await expect(rotulos('Raça ou cor de quem tem perfil')).toHaveText(['Branca', 'Preta', 'Parda', 'Amarela', 'Indígena', 'Prefiro não informar']);
+  await expect(rotulos('Faixa etária de quem tem perfil')).toHaveText(['Até 24', '25 a 34', '35 a 44', '45 a 54', '55 a 64', '65 ou mais']);
+  await expect(rotulos('Atuação política de quem tem perfil')).toHaveText([
+    'Não atuo na política', 'Menos de 1 ano', '1 a 2 anos', '3 a 5 anos', '6 a 10 anos', 'Mais de 10 anos',
+  ]);
+  // a fixture não tem ninguém nestas categorias
+  await expect(linha(page, 'Gênero de quem tem perfil', 'Mulher transgênero')).toContainText('0 · 0%');
+  await expect(linha(page, 'Gênero de quem tem perfil', 'Travesti')).toContainText('0 · 0%');
+  await expect(linha(page, 'Raça ou cor de quem tem perfil', 'Branca')).toContainText('0 · 0%');
+  await expect(linha(page, 'Raça ou cor de quem tem perfil', 'Indígena')).toContainText('0 · 0%');
+  await expect(linha(page, 'Faixa etária de quem tem perfil', 'Até 24')).toContainText('0 · 0%');
+  await expect(linha(page, 'Faixa etária de quem tem perfil', '65 ou mais')).toContainText('0 · 0%');
+  await expect(linha(page, 'Atuação política de quem tem perfil', 'Menos de 1 ano')).toContainText('0 · 0%');
+  await expect(linha(page, 'Atuação política de quem tem perfil', 'Mais de 10 anos')).toContainText('0 · 0%');
+});
+
 test('"Prefiro não informar" aparece como categoria própria em gênero e em raça (PAG-06.4)', async ({ page }) => {
   await abre(page);
   await expect(linha(page, 'Gênero de quem tem perfil', 'Prefiro não informar')).toContainText('1 · 25%');

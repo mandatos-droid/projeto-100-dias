@@ -93,11 +93,12 @@
 
 - **Feature**: `primeiro-acesso-google` (`.specs/features/primeiro-acesso-google/`)
 - **Branch**: `feat/primeiro-acesso-google`
-- **Phase / Task**: Fase 5 concluída; T1 a T16 commitadas. Última task: T16 (este registro). T14 `cd6b172` (lógica de `lib/admin/perfil.ts`), T15 `cdb7525` (seção no Analytics). Fases 1 a 4 entre `62b1a5e` e `589e107`.
-- **Gate**: `npx tsc --noEmit` sem erro; `npm test` 1098/1098; e2e `convite-*`, `mandato-*`, `guia-acesso*`, `primeiro-acesso*` e `admin-*` 344/344.
+- **Phase / Task**: Fase 6 (correções do Verifier, rodada 1) concluída; T1 a T19 commitadas. Última task: T19 (Analytics com todas as categorias, este registro). T17 `d0080a5` (perfil antes do consentimento no aceite e perfil em `membros_criar`, editando a migration `20261109120000_perfis.sql`, ainda não aplicada), T18 `3055bdc` (caixa "Não foi possível carregar seus dados. Tente de novo." no Guia). Verifier rodada 1: FAIL em `validation.md` (GAP-1, GAP-2, SP-1 a SP-3), todos tratados em T17 a T19.
+- **Gate**: `npx tsc --noEmit` sem erro; `npm test` 1107/1107; e2e `convite-*`, `mandato-*`, `guia-acesso*`, `primeiro-acesso*` e `admin-*` no servidor próprio da porta 3100: 345/347 na rodada completa; as 2 falhas (tempo esgotado em `admin-equipe.spec.ts:245` e `admin-transversal.spec.ts:139`, telas fora desta feature) passaram na nova rodada desses dois specs (33/33).
 - **In-progress**: nenhum
-- **Next step**: Verifier independente (author != verifier) sobre o intervalo `246f853..HEAD` da branch, gravando `.specs/features/primeiro-acesso-google/validation.md`; depois `validate_state.py primeiro-acesso-google`. Push, migrations e deploy só com go-ahead explícito.
+- **Next step**: re-verificação independente, rodada 2 (author != verifier), sobre o intervalo `2bbd33d..HEAD` (T17 a T19) e os critérios PAG-02, PAG-04 e PAG-06, regravando `.specs/features/primeiro-acesso-google/validation.md`; depois `validate_state.py primeiro-acesso-google`. Push, migrations e deploy só com go-ahead explícito.
 - **Blockers**: nenhum
+- **Nota sobre AD-013**: a linha "Categoria sem ninguém não aparece" foi substituída pela spec (Assumptions "Categorias sem ninguém no Analytics" e "Porcentagem no Analytics"): desde a T19 toda categoria aparece, mesmo com 0, e a soma das porcentagens pode dar 99 ou 101.
 - **Uncommitted files**: só arquivos de outras frentes (`plataforma/ilhas/`, `plataforma/public/data/`, `plataforma/public/legacy/ilhas.css`, `graphify-out/`, `.pw-out-tmp/`, `AJUSTES_GUIA_100_DIAS.md`, `supabase/` na raiz)
 
 **Pendências abertas de `primeiro-acesso-google`:**
@@ -108,7 +109,7 @@
 4. Incluir `<domínio>/primeiro-acesso` e `<domínio>/convite` nas Redirect URLs do Supabase (ação manual; sem isso o retorno do Google cai na raiz).
 5. A sessão do primeiro acesso fica em `sessionStorage`: se a pessoa trocar de aba durante o perfil, o token do convite se perde e ela abre o link de novo.
 6. Tela de lista e exportação de perfis estão fora do escopo (o Analytics mostra só agregados).
-7. A falha na consulta de perfil no Guia não é tratada: a exceção segue como a de `meusMandatos`.
+7. Resolvido na T18: a falha na consulta de perfil no Guia mostra a caixa "Não foi possível carregar seus dados. Tente de novo." com "Tentar de novo". O texto da caixa e as decisões da rodada 1 ainda não confirmadas na spec (categorias com 0 no Analytics, arredondamento por categoria) esperam confirmação do dono do produto.
 8. O override do Guia só vale com a nuvem ligada; o modo local não muda.
 9. As 2 migrations novas desta feature, `20261109120000_perfis.sql` e `20261109130000_perfil_resumo.sql`, só são aplicadas em produção quando a `main` receber push (workflow `migrations.yml`); isso exige go-ahead explícito do usuário.
 10. As 6 decisões de execução dos workers (AD-013) esperam confirmação do dono do produto.

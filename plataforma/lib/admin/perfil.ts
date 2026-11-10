@@ -2,7 +2,8 @@ import { ATUACOES, GENEROS, RACAS } from '../perfil/opcoes.ts';
 import type { Opcao } from '../perfil/opcoes.ts';
 
 // Retorno de public.admin_perfil_resumo(): só contagens. Gênero, raça e atuação vêm pelas chaves internas;
-// a faixa etária vem com o rótulo da spec. Categoria sem ninguém não vem; `por_mes` traz meses vazios em zero.
+// a faixa etária vem com o rótulo da spec. Categoria sem ninguém não vem do banco (viewPerfil a completa com 0);
+// `por_mes` traz meses vazios em zero.
 export interface ResumoPerfil {
   total: number;
   por_mes: { mes: string; qtd: number }[];
@@ -28,12 +29,15 @@ export const FAIXAS = ['Até 24', '25 a 34', '35 a 44', '45 a 54', '55 a 64', '6
 const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 export const rotuloMes = (m: string) => `${MESES[Number(m.slice(5, 7)) - 1]}/${m.slice(2, 4)}`; // '2026-11' -> 'Nov/26'
 
-// Categorias na ordem de `ordem`, só as que vieram com quantidade; chave fora da lista entra no fim, com a própria chave
-// como rótulo, para a soma continuar igual ao total (PAG-06.12). Porcentagem inteira arredondada sobre o total.
+// Toda categoria de `ordem`, na ordem da spec, mesmo com 0 pessoas (inclusive "Prefiro não informar"): o gráfico fica estável
+// entre consultas (spec, Assumption "Categorias sem ninguém no Analytics"; PAG-06.3). Chave fora da lista entra no fim, com a
+// própria chave como rótulo, para a soma continuar igual ao total (PAG-06.12).
+// Porcentagem inteira arredondada por categoria sobre o total: a soma das porcentagens pode dar 99 ou 101 (3 categorias de 1/3
+// dão 33 + 33 + 33 = 99), e a spec aceita (Assumption "Porcentagem no Analytics"); o número exato fica ao lado.
 function categorias(contagem: Record<string, number>, ordem: readonly Opcao[], total: number): CategoriaPerfil[] {
   const conhecidas = new Set(ordem.map((o) => o.chave));
   const lista = [
-    ...ordem.filter((o) => (contagem[o.chave] ?? 0) > 0).map((o) => ({ rotulo: o.rotulo, qtd: contagem[o.chave] })),
+    ...ordem.map((o) => ({ rotulo: o.rotulo, qtd: contagem[o.chave] ?? 0 })),
     ...Object.keys(contagem).filter((k) => !conhecidas.has(k) && contagem[k] > 0).map((k) => ({ rotulo: k, qtd: contagem[k] })),
   ];
   return lista.map((c) => ({ ...c, pct: Math.round((c.qtd * 100) / total) }));

@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import {
   MANDATO_ID, PREVIA, TOKEN, aceiteComoBanco, consentimentos, esperaSemRpc, moca, naoMapeadas, rpcs, semeiaSessao,
-  type ContaAceite, type EstadoMoca,
+  type ContaAceite, type EstadoMoca, type RespostaRpc,
 } from './convite-api';
 
 /* Convite sem perfil: o aceite devolve erro:'perfil', o token fica guardado e a pessoa vai a /primeiro-acesso; na volta o aceite
@@ -17,7 +17,7 @@ const pendente = (page: Page) => page.evaluate(() => sessionStorage.getItem('leg
 /** Se a etapa de consentimento do convite (aviso da LGPD .cv-lgpd e a caixa .cv-chk) chegou a aparecer nesta aba. */
 const viuConsentimento = (page: Page) => page.evaluate(() => sessionStorage.getItem('viu-consentimento'));
 
-async function abre(page: Page, aceite: () => { corpo: unknown }, url: string, opcoes: { pendente?: boolean } = {}) {
+async function abre(page: Page, aceite: () => RespostaRpc, url: string, opcoes: { pendente?: boolean } = {}) {
   const rpc: EstadoMoca['rpc'] = { convite_previa: () => ({ corpo: PREVIA }), convite_aceitar: aceite };
   await semeiaSessao(page);
   await moca(page, { rpc });

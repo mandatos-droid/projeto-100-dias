@@ -227,16 +227,16 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| PAG-01 | P1: Entrar só com Google | Tasks (T7, T9, T11, T12, T13, T16) | Pending |
-| PAG-02 | P1: Cadastro de perfil no primeiro acesso | Execute (T1 a T10, T16) | In progress (T1, T2, T4, T5, T6) |
-| PAG-03 | P1: Perfil protegido no banco | Execute (T1, T2, T6, T16) | In progress (T1, T2, T6) |
-| PAG-04 | P1: Pergunta sobre a equipe e escolha do mandato | Execute (T5, T8, T9, T10, T16) | In progress (T5) |
-| PAG-05 | P2: Remoção do login por senha no código | Tasks (T11, T12, T13, T16) | Pending |
-| PAG-06 | P2: Analytics do perfil no painel do admin | Execute (T3, T14, T15, T16) | In progress (T3) |
+| PAG-01 | P1: Entrar só com Google | Execute (T7, T9, T11, T12, T13, T16) | Verified (Verifier rodada 1) |
+| PAG-02 | P1: Cadastro de perfil no primeiro acesso | Execute (T1 a T10, T16, T17, T18) | Implemented: GAP-1 e GAP-2 corrigidos na T17, SP-3 na T18; aguarda a re-verificação (rodada 2) |
+| PAG-03 | P1: Perfil protegido no banco | Execute (T1, T2, T6, T16) | Verified (Verifier rodada 1) |
+| PAG-04 | P1: Pergunta sobre a equipe e escolha do mandato | Execute (T5, T8, T9, T10, T16, T17) | Verified (Verifier rodada 1); a ordem do aceite mudou na T17, re-verificar na rodada 2 |
+| PAG-05 | P2: Remoção do login por senha no código | Execute (T11, T12, T13, T16) | Verified (Verifier rodada 1) |
+| PAG-06 | P2: Analytics do perfil no painel do admin | Execute (T3, T14, T15, T16, T19) | Implemented: SP-1 e SP-2 resolvidos na T19; aguarda a re-verificação (rodada 2) |
 
 **ID format:** `[CATEGORY]-[NUMBER]`; cada critério de aceite é citado como `PAG-02.8` (história, ponto).
 
-**Coverage:** 6 total, 6 mapped to tasks, 0 unmapped
+**Coverage:** 6 total, 6 mapped to tasks, 0 unmapped. Verifier rodada 1: FAIL (GAP-1, GAP-2, SP-1 a SP-3), corrigido em T17 a T19.
 
 ---
 
