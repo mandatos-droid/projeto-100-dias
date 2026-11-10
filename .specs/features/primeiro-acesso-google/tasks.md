@@ -10,7 +10,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 
 **Design**: `.specs/features/primeiro-acesso-google/design.md`
 **Spec**: `.specs/features/primeiro-acesso-google/spec.md`
-**Status**: In progress (Execute)
+**Status**: ✅ Verified (T1 a T21; Verifier final PASS na rodada 3, `validation.md`)
 **Branch**: `feat/primeiro-acesso-google` (criada a partir de `feat/acesso-convites`)
 
 Regras que valem para todas as tasks:
