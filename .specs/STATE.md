@@ -78,22 +78,42 @@
 - Regra para código novo: caminho novo de saída voluntária grava `papel_ao_sair`; caminho novo de remoção não grava; entrada nova em `membros` já passa pelo gatilho.
 - Motivo: decisão do usuário de 2026-11-09. A regra proposta sem a trava de conta apagada e sem o gatilho reabria a V-1 em dois casos, provados por sonda antes da implementação: sair e depois ter a conta apagada; sair, voltar por outro convite e ser removida.
 
+### AD-013: Login só com Google, perfil de 7 campos e `/primeiro-acesso` como porta única (2026-11-09)
+
+- Entrada só com Google no Guia, no `/convite` e no `/admin`. `Store.criarConta` e `Store.entrar` lançam `Error('Entre com o Google.')` sem chamada de rede; a renovação por `refresh_token` segue. O erro do Google é o literal de PAG-01.4 em todas as entradas.
+- O perfil tem 7 campos e **não tem UF**: nome, nascimento, telefone, gênero, raça, atua na política e tempo de atuação (`public.perfis`, `lib/perfil/opcoes.ts`). Só `perfil_salvar` escreve (`security definer`, `user_id` da sessão); `authenticated` só lê o próprio perfil e a equipe Legisla lê todos. O resumo do Analytics não tem distribuição por UF.
+- O consentimento de dados sensíveis é gravado na versão `2026-11`, na mesma transação do perfil: falhou um, desfaz o outro.
+- `/primeiro-acesso` é a página única: perfil primeiro, depois a pergunta sobre a equipe (código ou convite). Quem não tem perfil é enviado para lá pelo Guia e pelo `/convite`.
+- Trava no banco, não só na tela: `convite_aceitar` e `mandatos_criar` exigem `private.tem_perfil()` (perfil gravado ou linha em `equipe_legisla`). `excluir_meus_dados` apaga `perfis`.
+- Analytics: seção "Perfil de quem usa a plataforma" lê só `public.admin_perfil_resumo()` (contagens, exige equipe Legisla); lógica pura em `lib/admin/perfil.ts`. Categoria sem ninguém não aparece e a porcentagem é inteira arredondada, então a soma das porcentagens pode não dar 100.
+- Decisões de execução dos workers: (1) perfil sem UF; (2) nomes de erro do banco como dado (`{ok:false, erro:<campo>}`); (3) `p_nascimento` como texto, para data inexistente voltar como erro de campo e não como exceção; (4) a função de entrada por convite se chama `convite_aceitar`, não `aceitar_convite`; (5) ao fim do perfil a pessoa volta ao convite pelo token guardado em `sessionStorage`; (6) `?volta=convite` sem token guardado cai na pergunta da equipe.
+- Motivo: decisão do usuário de 2026-11-09; o perfil agregado serve ao Analytics sem abrir dado individual.
+
 ## Handoff
 
-- **Feature**: `acesso-equipe-convites` (`.specs/features/acesso-equipe-convites/`)
-- **Phase / Task**: Fase 6 concluída; T1 a T37 e as correções das iterações 1 a 4 do Verifier commitadas (até `ab6d5b3`). Em 2026-11-09 o usuário decidiu três pontos, entregues em três commits:
-  - `a594caf`: AD-012. Quem sai por conta própria mantém os convites até o papel que tinha ao sair. Migration `20261106150000_convites_de_quem_sai.sql` (coluna `convites.papel_ao_sair`, `private.convite_autorizado` com 4 argumentos, gatilho `membros_reentrada`, `membro_sair` e `excluir_meus_dados` redefinidas). Spec: ACE-02.16 e ACE-03.12 reescritos, ACE-02.17 e ACE-02.18 novos. 13 testes SQL; os 20 mutantes das guardas novas morrem, aplicados numa cópia das migrations fora do repositório (migrations anteriores idênticas ao HEAD; a nova reaplicada 2 vezes sem erro).
-  - `1ed70ab`: botão "Sair do mandato" na tela Equipe e convites, para qualquer papel (`app/mandato/equipe/SairDoMandato.tsx`, ACE-04.14 a 04.18). 10 e2e novos em `e2e/mandato-equipe.spec.ts`.
-  - Este commit: telemetria `uso_funcionalidades` por `leitura` aceita pelo usuário, sem mudança de código (premissa na spec); handoff.
-  - Gate: tsc 0 erros; `npm test` 981/981 (968 + 13); e2e `mandato-*`, `convite-*` e `guia-acesso` 147/147. O gate da tarefa do botão rodou num worktree isolado (porta 3100, `next dev --webpack`), com os arquivos idênticos aos commitados: a pasta compartilhada tinha edições em andamento de outra sessão em `ilhas/` (`pecas.tsx` não compila) e a porta 3000 estava parada.
-- **Completed**: T1 a T37; correções 1 a 11 das iterações 1 a 4; decisões A (botão sair), B (AD-012) e C (telemetria aceita) de 2026-11-09
+- **Feature**: `primeiro-acesso-google` (`.specs/features/primeiro-acesso-google/`)
+- **Branch**: `feat/primeiro-acesso-google`
+- **Phase / Task**: Fase 5 concluída; T1 a T16 commitadas. Última task: T16 (este registro). T14 `cd6b172` (lógica de `lib/admin/perfil.ts`), T15 `cdb7525` (seção no Analytics). Fases 1 a 4 entre `62b1a5e` e `589e107`.
+- **Gate**: `npx tsc --noEmit` sem erro; `npm test` 1098/1098; e2e `convite-*`, `mandato-*`, `guia-acesso*`, `primeiro-acesso*` e `admin-*` 344/344.
 - **In-progress**: nenhum
-- **Next step**: Verifier final da feature, com foco no intervalo `ab6d5b3..HEAD` (AD-012 e botão sair), depois entrega ao usuário com a pendência 7. Depois, com go-ahead explícito, `git push`, migrations e deploy
-- **Blockers**: nenhum desta feature. Fora dela, 8 e2e do Guia já falhavam antes da fase 6 e falham igual com `acesso.js` vazio (`capital-acoes` 4, `rumo-painel` 3, `m1-etapas` 1)
-- **Uncommitted files**: `.specs/features/acesso-equipe-convites/validation.md` (rascunho do Verifier parado, fora dos commits) e arquivos de outras frentes (`.pw-out-tmp/`, `AJUSTES_GUIA_100_DIAS.md`, `supabase/` na raiz, `graphify-out/`, `plataforma/public/data/*.json`, `plataforma/ilhas/*` e `plataforma/public/legacy/ilhas.css`)
-- **Branch**: `feat/acesso-convites`
+- **Next step**: Verifier independente (author != verifier) sobre o intervalo `246f853..HEAD` da branch, gravando `.specs/features/primeiro-acesso-google/validation.md`; depois `validate_state.py primeiro-acesso-google`. Push, migrations e deploy só com go-ahead explícito.
+- **Blockers**: nenhum
+- **Uncommitted files**: só arquivos de outras frentes (`plataforma/ilhas/`, `plataforma/public/data/`, `plataforma/public/legacy/ilhas.css`, `graphify-out/`, `.pw-out-tmp/`, `AJUSTES_GUIA_100_DIAS.md`, `supabase/` na raiz)
 
-**Pendências manuais (dependem do dono do projeto):**
+**Pendências abertas de `primeiro-acesso-google`:**
+
+1. Revisão jurídica do texto do consentimento de dados sensíveis (versão `2026-11`) antes de produção.
+2. Conferir no banco, só leitura e com go-ahead do usuário, que não há contas com senha (o login por senha foi removido da tela, mas contas antigas podem existir).
+3. `/painel` (`public/painel.html`) ainda tem login próprio (Google e e-mail); fora desta feature.
+4. Incluir `<domínio>/primeiro-acesso` e `<domínio>/convite` nas Redirect URLs do Supabase (ação manual; sem isso o retorno do Google cai na raiz).
+5. A sessão do primeiro acesso fica em `sessionStorage`: se a pessoa trocar de aba durante o perfil, o token do convite se perde e ela abre o link de novo.
+6. Tela de lista e exportação de perfis estão fora do escopo (o Analytics mostra só agregados).
+7. A falha na consulta de perfil no Guia não é tratada: a exceção segue como a de `meusMandatos`.
+8. O override do Guia só vale com a nuvem ligada; o modo local não muda.
+9. As 2 migrations novas desta feature, `20261109120000_perfis.sql` e `20261109130000_perfil_resumo.sql`, só são aplicadas em produção quando a `main` receber push (workflow `migrations.yml`); isso exige go-ahead explícito do usuário.
+10. As 6 decisões de execução dos workers (AD-013) esperam confirmação do dono do produto.
+
+**Pendências da feature anterior `acesso-equipe-convites` (branch `feat/acesso-convites`, ainda abertas):**
 
 1. Conferir "Confirmar e-mail" no Supabase (Authentication, Providers, Email). Ligado: quem é de fora pode não receber a confirmação (e-mail embutido) e o convite guardado no `sessionStorage` só vale na mesma aba; em outra aba ou aparelho a pessoa abre o link de novo.
 2. Incluir `<domínio>/convite` nas Redirect URLs do Supabase (sem isso o retorno do Google cai na raiz e é repassado).

@@ -598,13 +598,15 @@ T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] Decisão `AD-013` registra: login só com Google, perfil de 7 campos, consentimento da versão `2026-11`, `/primeiro-acesso` como página única e trava do banco nas duas portas
-- [ ] Pendências listadas: revisão jurídica do texto do consentimento, conferir no banco que não há contas com senha, `/painel` (`painel.html`) ainda tem login próprio, `/primeiro-acesso` e `/convite` nas Redirect URLs do Supabase, sessão por `sessionStorage` perde o token se a pessoa trocar de aba, tela de lista e exportação de perfis fora do escopo
-- [ ] A seção Handoff aponta a branch, a última task e o próximo passo
-- [ ] Gate check passes: `npx tsc --noEmit` e `npm test`
-- [ ] Test count: sem teste novo; nenhum removido
+- [x] Decisão `AD-013` registra: login só com Google, perfil de 7 campos, consentimento da versão `2026-11`, `/primeiro-acesso` como página única e trava do banco nas duas portas
+- [x] Pendências listadas: revisão jurídica do texto do consentimento, conferir no banco que não há contas com senha, `/painel` (`painel.html`) ainda tem login próprio, `/primeiro-acesso` e `/convite` nas Redirect URLs do Supabase, sessão por `sessionStorage` perde o token se a pessoa trocar de aba, tela de lista e exportação de perfis fora do escopo
+- [x] A seção Handoff aponta a branch, a última task e o próximo passo
+- [x] Gate check passes: `npx tsc --noEmit` e `npm test` (1098 testes, 0 falhas)
+- [x] Test count: sem teste novo; nenhum removido
 
 **Tests**: none
 **Gate**: build
 
 **Commit**: `docs(primeiro-acesso): record decisions and open items`
+
+**Status**: ✅ Done
