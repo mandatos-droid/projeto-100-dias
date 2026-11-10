@@ -1,6 +1,6 @@
 /* =====================================================================
    ACESSO E EQUIPE (escrito à mão, não gerado) · feature acesso-equipe-convites
-   O convite agora é um link pessoal (/convite#<token>) e a equipe é gerida em /mandato/equipe.
+   O convite agora é um link pessoal (/convite#<token>) e a equipe é gerida na aba Equipe e convites da Área do mandato.
    Aqui o Guia perde o código de convite antigo, por override (AD-003: app.js e nucleo.js são
    extraídos e sobrescritos). Carregado depois de cadastro.js (usa Store, Telas, Cad, App, NUVEM).
    ===================================================================== */
@@ -89,14 +89,31 @@ App.entrou=async function(){
   return _entrou.apply(this,arguments);
 };
 
-/* ---------- Equipe e convites (seção de Configurações): atalho para a tela nova ---------- */
+/* ---------- Equipe e convites (seção de Configurações): atalho para a aba da Área do mandato ---------- */
 Telas.equipeHtml=function(){
   var h='<h2 class="cad-h3" style="margin-top:0">Equipe e convites</h2>';
   h+=NUVEM
     ?'<div class="apoio"><p class="texto" style="margin-top:0">Convide pessoas por link, acompanhe os convites pendentes e veja quem está no mandato.</p>'+
-      '<div class="bts"><a class="bt pri" href="/mandato/equipe">Abrir Equipe e convites</a></div></div>'
+      '<div class="bts"><a class="bt pri" href="#/config/equipe">Abrir Equipe e convites</a></div></div>'
     :'<div class="apoio atencao"><span class="tag">Modo local</span>O convite por link só funciona com o banco na nuvem configurado.</div>';
   return '<section id="cadEquipe" aria-label="Equipe e convites">'+h+'</section>';
+};
+
+/* ---------- volta do login Google na aba pedida (AMA-03.5) ----------
+   Nuvem.google manda a pessoa de volta a origin + pathname, sem o hash: quem abriu /guia#/config/equipe sem sessão
+   voltaria ao painel. O hash fica no sessionStorage antes de sair e é restaurado na entrada seguinte. */
+var CHAVE_VOLTA='legisla.hashVolta';
+var _google=Nuvem.google;
+Nuvem.google=function(){
+  try{if(/^#\/config(\/[a-z]+)?$/.test(location.hash))sessionStorage.setItem(CHAVE_VOLTA,location.hash)}catch(e){}
+  return _google.apply(this,arguments);
+};
+var _entrouArea=App.entrou;
+App.entrou=async function(){
+  var h=null;
+  try{h=sessionStorage.getItem(CHAVE_VOLTA);sessionStorage.removeItem(CHAVE_VOLTA)}catch(e){}
+  if(h&&/^#\/config(\/[a-z]+)?$/.test(h)&&!/^#\/./.test(location.hash||''))location.hash=h;
+  return _entrouArea.apply(this,arguments);
 };
 
 /* ---------- Área do mandato: tela única em #/config, com abas (AMA-01, AMA-04) ----------
@@ -210,7 +227,7 @@ function leitura(){
   return !!eu&&eu.papel==='leitura';
 }
 /* desabilita o que grava dentro do #tela; o cadastro de outro mandato (#/novo) fica livre. A aba Equipe e convites também:
-   lá o banco decide (quem é leitura convida como Somente leitura e sai do mandato, como em /mandato/equipe) */
+   lá o banco decide (quem é leitura convida como Somente leitura e sai do mandato, como antes na tela de equipe) */
 function trava(raiz){
   if(!raiz||!leitura()||(location.hash||'').indexOf('#/novo')===0)return;
   var cada=function(sel,f){Array.prototype.forEach.call(raiz.querySelectorAll(sel),f)};

@@ -170,6 +170,8 @@ export async function abreArea(page: Page, hash = '#/config', estado: EstadoArea
       if (tabela === 'eventos' && u.searchParams.get('mandato_id')) return responde(200, []);
       if (tabela === 'equipe_legisla' && eq(u, 'user_id') === LIA.id) return responde(200, estado.legisla ? [{ user_id: LIA.id }] : []);
       if (tabela === 'perfis' && u.searchParams.get('select') === 'user_id' && eq(u, 'user_id') === LIA.id) return responde(200, estado.legisla ? [] : [{ user_id: LIA.id }]);
+      // consentimento já registrado: a volta do login Google (App.entrou) consulta antes de abrir o Guia
+      if (tabela === 'consentimentos' && eq(u, 'user_id') === LIA.id) return responde(200, [{ id: 'consentimento-lia' }]);
       if (tabela === 'sugestoes' && u.searchParams.get('resolvida') === 'eq.false') return responde(200, []);
       const extra = estado.ler?.[tabela];
       if (extra) return resposta(extra(u, nuvem));

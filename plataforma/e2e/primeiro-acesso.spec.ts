@@ -313,7 +313,7 @@ test.describe('Quem não vê o formulário (PAG-02.15, 02.16)', () => {
     await semeiaSessao(page);
     await mocaPerfil(page, { temPerfil: true, mandatos: [ANA] });
     await page.goto('/primeiro-acesso?volta=mandato');
-    await expect(page).toHaveURL(/\/mandato$/);
+    await expect(page).toHaveURL(/\/guia#\/config$/);
     expect(rpcs('perfil_salvar')).toHaveLength(0);
   });
 
@@ -464,9 +464,9 @@ test.describe('"Ainda não" e os pontos de partida (PAG-04.6, 04.8, 04.9)', () =
     await expect(pergunta(page)).toHaveCount(0);
   });
 
-  test('volta=mandato com a pessoa já em um mandato não mostra a pergunta e volta a /mandato (PAG-04.9)', async ({ page }) => {
+  test('volta=mandato com a pessoa já em um mandato não mostra a pergunta e volta a /guia#/config (PAG-04.9, AMA-03.3)', async ({ page }) => {
     await abrePergunta(page, { mandatos: [ANA] }, '/primeiro-acesso?volta=mandato');
-    await expect(page).toHaveURL(/\/mandato$/);
+    await expect(page).toHaveURL(/\/guia#\/config$/);
     await expect(pergunta(page)).toHaveCount(0);
   });
 });

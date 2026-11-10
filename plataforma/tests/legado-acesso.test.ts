@@ -142,27 +142,74 @@ test('o cadastro novo (primeiro acesso e "Novo cadastro") não traz mais o bloco
   assert.equal(w.Cad.blocoCodigo(), '');
 });
 
-test('Equipe e convites em Área do mandato vira um cartão com link para /mandato/equipe, sem código (ACE-07.2, ACE-07.5)', () => {
+test('nenhum script do Guia tem link para /mandato nem /mandato/equipe, e Telas.equipeHtml não leva mais ao endereço antigo (AMA-03.4)', () => {
+  const lista = /const SCRIPTS = \[([^\]]*)\]/.exec(PAGINA)![1].replace(/['\s]/g, '').split(',');
+  for (const n of lista) assert.doesNotMatch(arquivo(n), /["'`(=]\/mandato(\/equipe)?["'`)\s]/, `${n}.js`);
   const { w } = janela();
   w.Store.mandato = { ...MANDATO };
-  w.Store.membros = [{ user_id: 'u1', nome: 'Lia', papel: 'coordenacao' }];
   const h = w.Telas.equipeHtml();
-  assert.match(h, /<a [^>]*href="\/mandato\/equipe"[^>]*>/);
-  assert.match(h, /id="cadEquipe"/);
+  assert.doesNotMatch(h, /href="\/mandato/);
+  assert.match(h, /<a [^>]*href="#\/config\/equipe"[^>]*>/);
   assert.doesNotMatch(h, CODIGO_DE_CONVITE);
   assert.equal(h.includes('KJ4TP9'), false);
-  assert.equal(h.includes('Equipe.copiar'), false);
-  assert.equal(h.includes('Cad.codigo'), false);
 });
 
-test('no modo local, Equipe e convites segue sem código e sem link para /mandato, que exige a nuvem (ACE-07.2)', () => {
+test('no modo local, Equipe e convites segue sem código e sem link para /mandato (ACE-07.2, AMA-03.4)', () => {
   const { w } = janela({ nuvem: false });
   w.Store.mandato = { ...MANDATO };
   const h = w.Telas.equipeHtml();
   assert.doesNotMatch(h, CODIGO_DE_CONVITE);
   assert.equal(h.includes('KJ4TP9'), false);
-  assert.equal(h.includes('/mandato/equipe'), false);
-  assert.match(h, /Modo local/);
+  assert.equal(h.includes('/mandato'), false);
+});
+
+/* ---------- volta do login Google na aba pedida (AMA-03.5) ---------- */
+const sair = (j: ReturnType<typeof janela>) => (j.w as unknown as { Nuvem: { google(): void } }).Nuvem.google();
+
+test('entrar com o Google em #/config/equipe guarda o hash antes de sair (AMA-03.5)', () => {
+  for (const hash of ['#/config', '#/config/equipe', '#/config/dados', '#/config/conta']) {
+    const j = janela({ hash });
+    sair(j);
+    assert.equal(j.guardadoSessao.get('legisla.hashVolta'), hash, hash);
+  }
+});
+
+test('fora da Área do mandato o hash não é guardado, e um hash antigo não sobra (AMA-03.5)', () => {
+  for (const hash of ['#/', '#/rumo', '#/config/../x', '']) {
+    const j = janela({ hash });
+    sair(j);
+    assert.equal(j.guardadoSessao.has('legisla.hashVolta'), false, hash);
+  }
+});
+
+function voltaCom(guardado: string | null, hash: string, nuvem = true) {
+  const j = janela({ hash, nuvem, responde: (url) => (url.includes('equipe_legisla') ? [{ user_id: 'u1' }] : url.includes('perfis') ? [{ user_id: 'u1' }] : undefined) });
+  if (guardado !== null) j.guardadoSessao.set('legisla.hashVolta', guardado);
+  j.w.Store.usuario = { id: 'u1', nome: 'Lia' };
+  return j;
+}
+
+test('na volta sem hash, a entrada abre a aba pedida e apaga o que guardou (AMA-03.5)', async () => {
+  const j = voltaCom('#/config/equipe', '');
+  await j.w.App.entrou().catch(() => {});
+  assert.equal(j.w.location.hash, '#/config/equipe');
+  assert.equal(j.guardadoSessao.has('legisla.hashVolta'), false);
+});
+
+test('na volta, um hash que não é da Área do mandato guardado não é restaurado; hash já presente vence (AMA-03.5)', async () => {
+  const a = voltaCom('#/rumo', '');
+  await a.w.App.entrou().catch(() => {});
+  assert.equal(a.w.location.hash, '');
+  const b = voltaCom('#/config/equipe', '#/novo');
+  await b.w.App.entrou().catch(() => {});
+  assert.equal(b.w.location.hash, '#/novo');
+  assert.equal(b.guardadoSessao.has('legisla.hashVolta'), false);
+});
+
+test('sem nada guardado a entrada não mexe no hash (AMA-03.5)', async () => {
+  const j = voltaCom(null, '');
+  await j.w.App.entrou().catch(() => {});
+  assert.equal(j.w.location.hash, '');
 });
 
 /* ---------- Área do mandato: casca com abas em #/config (AMA-01.2, 01.3, 01.6, 02.7, 04.1, 04.2) ---------- */

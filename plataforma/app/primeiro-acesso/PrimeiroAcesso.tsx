@@ -63,7 +63,7 @@ export default function PrimeiroAcesso() {
 
   // Para onde vai quem já pode seguir: o ponto de partida (`volta`) ou o Guia.
   function segue(volta: Volta) {
-    if (volta === 'mandato') { location.replace('/mandato'); return; }
+    if (volta === 'mandato') { location.replace('/guia#/config'); return; }
     if (volta === 'convite') {
       const token = lePendente(armSessao());
       location.replace(token ? `/convite#${token}` : '/convite');

@@ -294,17 +294,21 @@ T6 → T7 → T8 → T9
 
 **Done when**:
 
-- [ ] `/mandato` redireciona para `/guia#/config` e `/mandato/equipe` para `/guia#/config/equipe`, com redirect permanente do Next (AMA-03.1, 03.2)
-- [ ] O primeiro acesso com `volta=mandato` abre `/guia#/config` (AMA-03.3)
-- [ ] O Guia não tem mais link para `/mandato` nem `/mandato/equipe` (o botão "Abrir Equipe e convites" de `acesso.js` e qualquer outro) (AMA-03.4)
-- [ ] Sem sessão, o endereço antigo mostra a entrada com Google; o override guarda o hash em `sessionStorage` antes de sair para o Google e o restaura na volta, abrindo a aba pedida (AMA-03.5)
-- [ ] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/area-redirects.spec.ts e2e/primeiro-acesso.spec.ts e2e/guia-acesso.spec.ts`
-- [ ] Test count: ao menos 8 testes novos (e2e e vm), nenhum removido
+- [x] `/mandato` redireciona para `/guia#/config` e `/mandato/equipe` para `/guia#/config/equipe`, com redirect permanente do Next (AMA-03.1, 03.2)
+- [x] O primeiro acesso com `volta=mandato` abre `/guia#/config` (AMA-03.3)
+- [x] O Guia não tem mais link para `/mandato` nem `/mandato/equipe` (o botão "Abrir Equipe e convites" de `acesso.js` e qualquer outro) (AMA-03.4)
+- [x] Sem sessão, o endereço antigo mostra a entrada com Google; o override guarda o hash em `sessionStorage` antes de sair para o Google e o restaura na volta, abrindo a aba pedida (AMA-03.5)
+- [x] Gate check passes: `npm test` e `npx playwright test -c playwright.isolado.config.ts e2e/area-redirects.spec.ts e2e/primeiro-acesso.spec.ts e2e/guia-acesso.spec.ts`
+- [x] Test count: ao menos 8 testes novos (e2e e vm), nenhum removido
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(area-mandato): redirect old mandate addresses to the Guia`
+
+---
+
+**Status**: ✅ Done
 
 ---
 
