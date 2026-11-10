@@ -246,6 +246,36 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: SP-1 USR-04.5 spec.md (spec)
 - last seen: 2026-11-10T15:57:35Z
 
+### L-040 - Test numeric thresholds at both sides of the spec boundary, not at a point far from it
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `legacy-screen` · harmful: 0
+- features: resumo-reestruturado
+- evidence: W2/W3 resumo-tela.js:106 e2e/resumo-estrutura.spec.ts:71 (legacy-screen)
+- last seen: 2026-11-10T19:53:31Z
+
+### L-041 - Cover every fallback branch the spec names, not only the primary source
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `islands` · harmful: 0
+- features: resumo-reestruturado
+- evidence: I4 ilhas/ResumoRetrato.tsx:50 RES-06.1 (islands)
+- last seen: 2026-11-10T19:53:31Z
+
+### L-042 - Assert the stored items of grouped rows, not only the row labels, and test inputs with missing optional fields
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `lib` · harmful: 0
+- features: resumo-reestruturado
+- evidence: S3/S4 lib/resumoSocial.ts:115-116 RES-08.2 (lib)
+- last seen: 2026-11-10T19:53:32Z
+
+### L-043 - Update spec.md when implementation deviates from a stated data source, not only tasks.md
+- signal: `spec_deviation` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: resumo-reestruturado
+- evidence: SPEC_DEVIATION ilhas/ResumoRetrato.tsx:13 (T5) (spec)
+- last seen: 2026-11-10T19:53:32Z
+
+### L-044 - Do not specify UI groups whose data the product cannot yet write; name the data source in the spec
+- signal: `spec_deviation` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: resumo-reestruturado
+- evidence: SPEC_DEVIATION tasks.md T8 lib/types.ts:37 (spec)
+- last seen: 2026-11-10T19:53:32Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

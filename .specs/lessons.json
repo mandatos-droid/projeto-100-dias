@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 40,
+  "next_id": 45,
   "lessons": [
     {
       "id": "L-001",
@@ -713,6 +713,96 @@
       ],
       "created": "2026-11-10T15:57:35Z",
       "last_seen": "2026-11-10T15:57:35Z"
+    },
+    {
+      "id": "L-040",
+      "key": "surviving_mutant::test numeric thresholds at both sides of the spec boundary not at a point far from it",
+      "text": "Test numeric thresholds at both sides of the spec boundary, not at a point far from it",
+      "signal": "surviving_mutant",
+      "scope": "legacy-screen",
+      "status": "candidate",
+      "features": [
+        "resumo-reestruturado"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "W2/W3 resumo-tela.js:106 e2e/resumo-estrutura.spec.ts:71 (legacy-screen)"
+      ],
+      "created": "2026-11-10T19:53:31Z",
+      "last_seen": "2026-11-10T19:53:31Z"
+    },
+    {
+      "id": "L-041",
+      "key": "surviving_mutant::cover every fallback branch the spec names not only the primary source",
+      "text": "Cover every fallback branch the spec names, not only the primary source",
+      "signal": "surviving_mutant",
+      "scope": "islands",
+      "status": "candidate",
+      "features": [
+        "resumo-reestruturado"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "I4 ilhas/ResumoRetrato.tsx:50 RES-06.1 (islands)"
+      ],
+      "created": "2026-11-10T19:53:31Z",
+      "last_seen": "2026-11-10T19:53:31Z"
+    },
+    {
+      "id": "L-042",
+      "key": "surviving_mutant::assert the stored items of grouped rows not only the row labels and test inputs with missing optional fields",
+      "text": "Assert the stored items of grouped rows, not only the row labels, and test inputs with missing optional fields",
+      "signal": "surviving_mutant",
+      "scope": "lib",
+      "status": "candidate",
+      "features": [
+        "resumo-reestruturado"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "S3/S4 lib/resumoSocial.ts:115-116 RES-08.2 (lib)"
+      ],
+      "created": "2026-11-10T19:53:32Z",
+      "last_seen": "2026-11-10T19:53:32Z"
+    },
+    {
+      "id": "L-043",
+      "key": "spec_deviation::update spec md when implementation deviates from a stated data source not only tasks md",
+      "text": "Update spec.md when implementation deviates from a stated data source, not only tasks.md",
+      "signal": "spec_deviation",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "resumo-reestruturado"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "SPEC_DEVIATION ilhas/ResumoRetrato.tsx:13 (T5) (spec)"
+      ],
+      "created": "2026-11-10T19:53:32Z",
+      "last_seen": "2026-11-10T19:53:32Z"
+    },
+    {
+      "id": "L-044",
+      "key": "spec_deviation::do not specify ui groups whose data the product cannot yet write name the data source in the spec",
+      "text": "Do not specify UI groups whose data the product cannot yet write; name the data source in the spec",
+      "signal": "spec_deviation",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "resumo-reestruturado"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "SPEC_DEVIATION tasks.md T8 lib/types.ts:37 (spec)"
+      ],
+      "created": "2026-11-10T19:53:32Z",
+      "last_seen": "2026-11-10T19:53:32Z"
     }
   ]
 }
