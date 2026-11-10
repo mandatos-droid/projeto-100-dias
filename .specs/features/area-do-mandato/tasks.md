@@ -356,13 +356,15 @@ T6 → T7 → T8 → T9
 
 **Done when**:
 
-- [ ] Decisão `AD-014` registra: Área do mandato como tela única em `#/config` com 4 abas, ilhas reaproveitando os componentes de `app/mandato/`, redirects dos endereços antigos e hash guardado na volta do Google
-- [ ] Pendências listadas: editar o perfil pessoal, contador de convites pendentes na aba, seletor de mandato dentro da área
-- [ ] O Handoff aponta a branch, a última task e o próximo passo (Verifier independente)
-- [ ] Gate check passes: `npx tsc --noEmit` e `npm test`
-- [ ] Test count: sem teste novo; nenhum removido
+- [x] Decisão `AD-015` registra: Área do mandato como tela única em `#/config` com 4 abas, ilhas reaproveitando os componentes de `app/mandato/`, redirects dos endereços antigos e hash guardado na volta do Google
+- [x] Pendências listadas: editar o perfil pessoal, contador de convites pendentes na aba, seletor de mandato dentro da área
+- [x] O Handoff aponta a branch, a última task e o próximo passo (Verifier independente)
+- [x] Gate check passes: `npx tsc --noEmit` e `npm test`
+- [x] Test count: sem teste novo; nenhum removido
 
 **Tests**: none
 **Gate**: build
 
 **Commit**: `docs(area-mandato): record decisions and open items`
+
+**Status**: ✅ Done

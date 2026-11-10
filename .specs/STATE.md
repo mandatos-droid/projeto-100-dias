@@ -141,6 +141,14 @@
 - Execução (T8): "Potenciais" lê o status `potencial` de `D.relacoes`, que o Guia ainda não grava (só `aliado` e `concorrente`); o grupo aparece quando o dado existir. A sobreposição fica em `ResumoIlhas.html` para as perguntas de Casa e de município, que compõe os grupos e chama `ResumoIlhas.lista` por grupo.
 - Motivo: a spec pede três grupos, mas o modelo de dados só tem dois status; decisão do dono do produto pendente (gravar `potencial` no Guia ou trocar a regra).
 
+### AD-015: Área do mandato é uma tela única em `#/config`, com 4 abas dentro do Guia (2026-11-10)
+
+- `#/config` do Guia vira a "Área do mandato" (item do menu no lugar de "Configurações"), com as abas Visão geral (`#/config`), Dados do mandato (`#/config/dados`), Equipe e convites (`#/config/equipe`) e Minha conta (`#/config/conta`). Aba desconhecida abre a Visão geral. O Guia roteia por hash; a casca com abas entra por override em `public/legacy/acesso.js` (`Telas.config`, `App.lateral`), sem editar os arquivos extraídos (AD-003).
+- Visão geral, Equipe e Minha conta são ilhas React (`ilhas/AreaVisao.tsx`, `AreaEquipe.tsx`, `AreaConta.tsx`) que reaproveitam os componentes de `app/mandato/` (`CartaoMandato`, `ResumoEquipe`, `Atividade`, `equipe/*`). `ProvedorLegado` entrega o `useMandato()` a partir do estado do Guia (`Store.mandato`, `Store.membros`, `Store.usuario`, sessão `legisla.tok`), com a conversão pura em `lib/mandato/legado.ts` e a renovação de sessão no 401 em `app/mandato/sessaoApi.ts`. A aba Dados é o formulário legado `Cad.abrir('editar')` desenhado em `#areaDados`, com "Excluir cadastro" em bloco "Zona de risco" só para `coordenacao`. Nenhuma regra de papel mudou.
+- `/mandato` e `/mandato/equipe` viram redirects permanentes em `next.config.mjs` (`/guia#/config`, `/guia#/config/equipe`); o primeiro acesso com `volta=mandato` abre `/guia#/config`. A volta do login Google perdia o hash (`Nuvem.google` usa `origin + pathname`): o override guarda o hash em `sessionStorage` e o restaura na volta.
+- As páginas `/mandato`, a casca (`Casca.tsx`, `layout.tsx`) e `e2e/mandato-{area,casca,equipe,perfil}.spec.ts` saíram (T8); a cobertura migrou para `e2e/area-*.spec.ts` e `tests/mandato-sessao-api.test.ts`. O andamento dos 100 dias e as missões deixaram de existir fora do Painel do mandato do Guia; `lib/convites/{dias,missoes}.ts` e `catalogoExercicios` ficaram sem uso na tela, com os testes unitários.
+- Motivo: pedido do usuário de 2026-11-10; gestão do mandato em três lugares (Configurações, `/mandato`, `/mandato/equipe`) levava a pessoa de um sistema a outro.
+
 ## Handoff
 
 **Snapshot atual (`resumo-reestruturado`, 2026-11-10):**
@@ -150,6 +158,9 @@
 - **Phase / Task**: T1 a T17 concluídas, um commit por task. Verifier PASS na rodada 2 (`.specs/features/resumo-reestruturado/validation.md`); `validate_state.py` com 0 erros. Spec encerrada (Done).
 - **Gate**: 11 e2e do gate de build já falham sem a feature (`m1-etapas:26`, `m23-migracao:110`, `m23-pdf:39`, `m23-plano:64/92/148`, `m23-rotinas:31/42`, `rumo-painel:19/32/54`); nenhuma falha nova aceita.
 - **Pendência para o dono do produto**: o grupo "Potenciais" (RES-07) lê o status `potencial` de `D.relacoes`, que o Guia não grava hoje; sem esse dado o grupo nunca aparece.
+
+- **Feature `area-do-mandato`** (`.specs/features/area-do-mandato/`): branch `feat/area-do-mandato`, worktree `Dev Apps/area-mandato-wt`. T1 a T9 commitadas; última task: T9 (este registro; T8 `afe257d` removeu o código antigo e migrou os testes). Gate da T8: `npx tsc --noEmit` limpo, `npm test` 1158/1158, e2e `area-*`, `convite-*`, `guia-acesso*`, `primeiro-acesso*` e `admin-*` 381/381 na porta 3100. **Próximo passo: Verifier independente** (autor diferente, spec-anchored, sensor de discriminação, até 3 rodadas), que escreve `validation.md`. Depois: apagar `plataforma/playwright.isolado.config.ts` (não versionado) e parar o servidor da porta 3100. Sem push, deploy ou banco sem "pode" específico do usuário.
+- **Pendências de `area-do-mandato`** (fora do escopo, na spec): (1) editar o perfil pessoal na aba Minha conta (hoje só leitura; correção por contato@legislabrasil.org); (2) contador de convites pendentes no rótulo da aba Equipe (hoje só o total de pessoas); (3) seletor de mandato dentro da Área do mandato (hoje o seletor é o do Guia). Limpeza possível: `lib/convites/{dias,missoes}.ts` e `catalogoExercicios` sem uso na tela; CSS de `app/mandato/mandato.css` da casca e das missões (`.md-barra`, `.md-corpo`, `.md-seletor`, `.md-andamento`, `.md-missao*`) sem uso.
 - **Blockers**: nenhum
 - **Portas**: 3100 é de outra sessão (`area-mandato-wt`); usar 3117 no `playwright.isolado.config.ts` (não versionado, nunca commitar).
 - **Uncommitted files**: `plataforma/playwright.isolado.config.ts` (nunca commitar) e `graphify-out/`.
