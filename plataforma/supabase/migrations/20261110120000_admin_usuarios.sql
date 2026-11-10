@@ -7,6 +7,8 @@
 --    servidor. Devolve {total, linhas:[{id, nome, email, criado_em, ultimo_acesso, sem_perfil,
 --    equipe_papel, mandatos:[{id, nome, papel, arquivado}]}]}. Nunca devolve gênero, raça,
 --    nascimento nem telefone.
+-- 3. public.admin_usuario_detalhe: uma pessoa, com perfil completo, consentimento mais recente e
+--    mandatos. Só aqui aparecem os dados sensíveis do perfil.
 --
 -- Padrão do painel: security definer, search_path vazio, checagem de equipe_legisla a cada
 -- chamada (erro 42501), sem execute para anon. Funções stable: não gravam nada.
@@ -98,3 +100,52 @@ $$;
 
 revoke execute on function public.admin_usuarios(text, text, uuid, boolean, int, int) from public, anon;
 grant  execute on function public.admin_usuarios(text, text, uuid, boolean, int, int) to authenticated;
+
+-- ---------- detalhe da pessoa ----------
+-- {id, nome, email, criado_em, ultimo_acesso, equipe_papel,
+--  perfil: {nome, nascimento, genero, raca, telefone, atua, tempo} | null (valores internos),
+--  consentimento: {versao, aceito_em} | null (o mais recente),
+--  mandatos: [{id, nome, cargo, uf, papel, arquivado}]}
+-- Id inexistente devolve null (dado, não exceção).
+create or replace function public.admin_usuario_detalhe(p_user uuid)
+returns jsonb language plpgsql security definer set search_path = '' stable as $$
+declare
+  v_r jsonb;
+begin
+  if not private.eh_legisla() then
+    raise exception 'Você não tem permissão para esta ação.' using errcode = '42501';
+  end if;
+
+  select jsonb_build_object(
+    'id', u.id,
+    'nome', coalesce(nullif(p.nome, ''), nullif(u.raw_user_meta_data->>'nome', ''),
+                     nullif(u.raw_user_meta_data->>'full_name', ''), nullif(u.raw_user_meta_data->>'name', ''),
+                     u.email)::text,
+    'email', u.email::text,
+    'criado_em', u.created_at,
+    'ultimo_acesso', u.last_sign_in_at,
+    'equipe_papel', e.papel,
+    'perfil', case when p.user_id is null then null else jsonb_build_object(
+      'nome', p.nome, 'nascimento', p.nascimento, 'genero', p.genero, 'raca', p.raca,
+      'telefone', p.telefone, 'atua', p.atua, 'tempo', p.tempo) end,
+    'consentimento', (
+      select jsonb_build_object('versao', k.versao, 'aceito_em', k.aceito_em)
+      from public.consentimentos k where k.user_id = u.id
+      order by k.aceito_em desc, k.id desc limit 1),
+    'mandatos', coalesce((
+      select jsonb_agg(jsonb_build_object('id', m.id, 'nome', m.nome_parlamentar, 'cargo', m.cargo, 'uf', m.uf,
+                                          'papel', b.papel, 'arquivado', m.arquivado_em is not null)
+                       order by m.nome_parlamentar, m.id)
+      from public.membros b join public.mandatos m on m.id = b.mandato_id
+      where b.user_id = u.id), '[]'::jsonb)
+  ) into v_r
+  from auth.users u
+  left join public.perfis p on p.user_id = u.id
+  left join public.equipe_legisla e on e.user_id = u.id
+  where u.id = p_user;
+  return v_r;
+end;
+$$;
+
+revoke execute on function public.admin_usuario_detalhe(uuid) from public, anon;
+grant  execute on function public.admin_usuario_detalhe(uuid) to authenticated;

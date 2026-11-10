@@ -128,19 +128,21 @@ T6 → T7
 
 **Done when**:
 
-- [ ] Devolve `{ id, nome, email, criado_em, ultimo_acesso, equipe_papel, perfil, consentimento, mandatos }` e só esses campos (USR-02.2, USR-03.4)
-- [ ] `perfil` traz nome completo, nascimento, gênero, raça, telefone, atua e tempo com os valores internos; é nulo sem perfil (USR-02.3, 02.4)
-- [ ] `consentimento` traz a versão e a data do mais recente; nulo sem consentimento (USR-02.5)
-- [ ] `mandatos` traz id, nome do parlamentar, cargo, UF, papel e `arquivado` (USR-02.6, 02.7)
-- [ ] Id inexistente devolve `null` (USR-02.10)
-- [ ] Quem não está em `equipe_legisla` recebe "Você não tem permissão para esta ação." com erro 42501; `anon` não executa; não grava nada (USR-03.1, 03.2, 03.3, 03.5)
-- [ ] Gate check passes: `npm test`
-- [ ] Test count: ao menos 12 testes novos em `tests/sql-admin-usuarios-detalhe.test.ts`, nenhum removido
+- [x] Devolve `{ id, nome, email, criado_em, ultimo_acesso, equipe_papel, perfil, consentimento, mandatos }` e só esses campos (USR-02.2, USR-03.4)
+- [x] `perfil` traz nome completo, nascimento, gênero, raça, telefone, atua e tempo com os valores internos; é nulo sem perfil (USR-02.3, 02.4)
+- [x] `consentimento` traz a versão e a data do mais recente; nulo sem consentimento (USR-02.5)
+- [x] `mandatos` traz id, nome do parlamentar, cargo, UF, papel e `arquivado` (USR-02.6, 02.7)
+- [x] Id inexistente devolve `null` (USR-02.10)
+- [x] Quem não está em `equipe_legisla` recebe "Você não tem permissão para esta ação." com erro 42501; `anon` não executa; não grava nada (USR-03.1, 03.2, 03.3, 03.5)
+- [x] Gate check passes: `npm test`
+- [x] Test count: ao menos 12 testes novos em `tests/sql-admin-usuarios-detalhe.test.ts`, nenhum removido
 
 **Tests**: integration
 **Gate**: quick
 
 **Commit**: `feat(admin): add user detail function`
+
+**Status**: ✅ Done
 
 ---
 
