@@ -1,13 +1,13 @@
-# Resumo do Preenchimento Reestruturado Validation: FAIL
+# Resumo do Preenchimento Reestruturado Validation: PASS
 
-**Date**: 2026-11-10
+**Date**: 2026-11-10 (rodada 2 de re-verificação; a rodada 1 terminou em FAIL)
 **Spec**: `.specs/features/resumo-reestruturado/spec.md`
-**Diff range**: `e2b3b0c~1..f4d5906` (branch `feat/resumo-reestruturado`; `docs(resumo): add spec, design and tasks` até HEAD `f4d5906`)
+**Diff range**: `e2b3b0c~1..9998022` (branch `feat/resumo-reestruturado`; `docs(resumo): add spec, design and tasks` até HEAD `9998022`). Rodada 2: `20ede58..9998022` (`cc69686`, `b88b421`, `277e5f6`, `4d4002d`, `9998022`).
 **Verifier**: independent sub-agent (author ≠ verifier)
 
-## Verdict: FAIL
+## Verdict: PASS
 
-Todos os 13 RES têm teste com `arquivo:linha` e os gates passam (exceto flakiness de timeout descrita abaixo). O FAIL vem do discrimination sensor: 2 mutantes relevantes sobreviveram (regra de 160 px do scroll-spy, RES-02.4, e fallback do nome civil, RES-06.1) e 2 mutantes menores de `lib/resumoSocial.ts`. Veja "Fix Plans".
+**Rodada 2.** Os 3 gaps de teste da rodada 1 (limiar de 160 px, `nome_civil`, `porTerritorio`) foram corrigidos e re-verificados por mutação: W2, W3, I4, S3, S4 e o cosmético C3 agora são mortos, e 4 mutantes novos nas áreas alteradas também. Gates: `tsc` 0 erros, `npm test` 1282/0, Playwright com somente as 11 falhas pré-existentes aceitas (157 passed; as 2 flaky da rodada 1 passaram). Único sobrevivente: E4, quase equivalente e sem impacto na spec. Pendências de produto e pontos finos de precisão ficam ao fim; nenhum contradiz um critério de aceitação.
 
 ---
 
@@ -30,7 +30,7 @@ Todos os 13 RES têm teste com `arquivo:linha` e os gates passam (exceto flakine
 | RES-02.1 barra | "38%" e "6 de 16 exercícios concluídos"; 0%/0 de 16; 100% | `tests/legado-resumo.test.ts:271` (`includes('<b>38%</b><span>6 de 16 exercícios concluídos</span>')`), `:276`, `:282`; `e2e/resumo-estrutura.spec.ts:22` (`toHaveText('38%')`) | ✅ PASS |
 | RES-02.2 segmentos | "M{n} · curto", "feitos/total", barra `--p` = feitos/total | `tests/legado-resumo.test.ts:294` (`;--p:75%`, `M1 · Prepare sua chegada`, `3/4`); `e2e/resumo-estrutura.spec.ts:22` | ✅ PASS |
 | RES-02.3 clique abre/rola sem mudar hash | missão aberta, topo na janela, `location.hash === '#/resumo'` | `e2e/resumo-estrutura.spec.ts:58` (`expect(location.hash).toBe('#/resumo')`) | ✅ PASS |
-| RES-02.4 scroll-spy 160 px + `aria-current` | última missão com topo ≤ 160 px; 1ª se nenhuma; demais "false" | `e2e/resumo-estrutura.spec.ts:71` (rola para topo da M3 = 100 px; `aria-current` true/false) ; barra sticky `e2e/resumo-layout.spec.ts:22` | ⚠️ Cobertura frouxa: o limiar 160 não é discriminado (mutantes W2 `<=120` e W3 `<=260` sobreviveram) |
+| RES-02.4 scroll-spy 160 px + `aria-current` | última missão com topo ≤ 160 px; 1ª se nenhuma; demais "false" | `e2e/resumo-estrutura.spec.ts:71` (rola para topo da M3 = 100 px; `aria-current` true/false) ; barra sticky `e2e/resumo-layout.spec.ts:22` | ✅ PASS (rodada 2): `e2e/resumo-estrutura.spec.ts:158` posiciona a M3 a ~150 px (`aria-current` true) e a ~170 px (M3 false, M2 true); W2, W3, W9, W10 mortos. Tolerância de 10 px: 159/161 não são distinguidos |
 | RES-02.5 barra não cobre o título | `top` do título ≥ `bottom` da barra | `e2e/resumo-layout.spec.ts:39` (`toBeGreaterThanOrEqual(0)`) | ✅ PASS |
 | RES-02.8 / RES-03 celular | botão fixo no rodapé, largura toda, `env(safe-area-inset-bottom)`, segmentos rolam | `e2e/resumo-layout.spec.ts:50` (`position fixed`, `width 800`, `contain('env(safe-area-inset-bottom)')`), `:73` (`overflow-x auto`) | ✅ PASS (só 800 px e 375 px; a borda 61,25rem não é testada) |
 | RES-03.6 ação única | 1 botão; sem "Gerar PDF"/"JSON" | `tests/legado-resumo.test.ts:308` (`split('class="bt').length - 1 === 1`); `e2e/resumo-estrutura.spec.ts:82` | ✅ PASS |
@@ -45,11 +45,11 @@ Todos os 13 RES têm teste com `arquivo:linha` e os gates passam (exceto flakine
 | RES-01.8 só o que falta | oculta concluídos e missões totalmente concluídas; ao desmarcar restaura o estado | `e2e/resumo-estrutura.spec.ts:101` (`expect(await abertos(page)).toEqual(antes)`) | ✅ PASS |
 | RES-01.9 contador | "{N} exercícios ainda sem conclusão"; singular; "Todos os exercícios estão concluídos." | `tests/legado-resumo.test.ts:288`; `e2e/resumo-estrutura.spec.ts:117` | ✅ PASS |
 | RES-01.10 "Nenhum exercício pendente." | visível só com filtro e N = 0 | `e2e/resumo-estrutura.spec.ts:47` | ✅ PASS |
-| RES-06.1 cartão da parlamentar | nome parlamentar (ou **civil**), "cargo · UF", partido | `e2e/resumo-retrato.spec.ts:20` (`toHaveText('Ana Souza')`, `Deputado(a) Estadual · SP`) | ⚠️ Gap: o fallback para `nome_civil` não tem teste (mutante I4 sobreviveu) |
+| RES-06.1 cartão da parlamentar | nome parlamentar (ou **civil**), "cargo · UF", partido | `e2e/resumo-retrato.spec.ts:20` (`toHaveText('Ana Souza')`, `Deputado(a) Estadual · SP`) | ✅ PASS (rodada 2): `e2e/resumo-retrato.spec.ts:107` (`nome_parlamentar: ''`, `nome_civil: 'Maria Oliveira'` → `toHaveText('Maria Oliveira')`, `.foto` contém `'M'`); I4 e I8 mortos |
 | RES-06.2 foto TSE | URL `ele2026/6259` / `ele2024/619` | `tests/resumo-retrato.test.ts:8`, `:14`; `e2e/resumo-retrato.spec.ts:32` (`toHaveAttribute('src', ...)`) | ✅ PASS |
 | RES-06.3 inicial | sem `sq` ou foto bloqueada: 1ª letra maiúscula | `tests/resumo-retrato.test.ts:24`, `:34`; `e2e/resumo-retrato.spec.ts:40` (`'A'`, `'Â'`) | ✅ PASS |
 | RES-06.4 votos pt-BR + legenda | "97.335", "57º mais votado(a) · SP · TSE" | `tests/resumo-retrato.test.ts:42`, `:54`; `e2e/resumo-retrato.spec.ts:20` | ✅ PASS |
-| RES-06.5 cadeiras do partido | "Cadeiras do {partido} na {Casa}" | `e2e/resumo-retrato.spec.ts:50` (`'16'`, `'Cadeiras do PT na Assembleia Legislativa de São Paulo'`) | ⚠️ Só deputado estadual; federal/senador diferem da spec (SPEC_DEVIATION T5) e não têm teste e2e |
+| RES-06.5 cadeiras do partido | "Cadeiras do {partido} na {Casa}" | `e2e/resumo-retrato.spec.ts:50` (`'16'`, `'Cadeiras do PT na Assembleia Legislativa de São Paulo'`) | ✅ PASS para estadual; a spec (T17) agora descreve federal/senador (Casa inteira em `nacional.json`) e vereador sem número, mas esses casos seguem sem e2e (pendência de teste) |
 | RES-06.6 filiados | "112 mil+"; "9.800" | `tests/resumo-retrato.test.ts:47`; `e2e/resumo-retrato.spec.ts:50` (`'374 mil+'`) | ✅ PASS |
 | RES-06.7 equipe X/Y e legenda | "{X}/{Y}", "1 processo seletivo a abrir" | `tests/resumo-retrato.test.ts:60`, `:72`; `e2e/resumo-retrato.spec.ts:66` (`'2/4'`, `'1 processo seletivo a abrir'`) | ✅ PASS |
 | RES-06.8 fonte indisponível omitida | sem traço nem caixa vazia | `tests/resumo-retrato.test.ts:85`, `:97`; `e2e/resumo-retrato.spec.ts:77` | ✅ PASS |
@@ -61,14 +61,14 @@ Todos os 13 RES têm teste com `arquivo:linha` e os gates passam (exceto flakine
 | RES-07.4, 07.5 | grupo vazio omitido; sem relações "não preenchido" | `tests/legado-resumo.test.ts:443`, `:450`; `e2e/resumo-cartoes.spec.ts:47`, `:56` | ✅ PASS |
 | RES-07.6 download sem cartões | lista de texto igual à de antes | `tests/legado-resumo.test.ts:459`; `e2e/resumo-regressao.spec.ts:45` | ✅ PASS |
 | RES-08.1, 08.5 tabela | colunas e 2 linhas; "—" em célula sem itens | `e2e/resumo-territorio.spec.ts:21` (`toHaveText(['Território','Problemas','Potencialidades'])`, `rj.nth(1) toHaveText('—')`); `tests/resumo-social.test.ts:59` | ✅ PASS |
-| RES-08.2 território | "Brasil"; "Campinas (SP)"; uma linha por nome | `tests/resumo-social.test.ts:16`, `:26`, `:30` | ✅ PASS (ver gap S3/S4) |
+| RES-08.2 território | "Brasil"; "Campinas (SP)"; uma linha por nome | `tests/resumo-social.test.ts:16`, `:26`, `:30` | ✅ PASS (rodada 2): `tests/resumo-social.test.ts:77-79` (`repetido[0].problemas.length === 1`), `:83` (MUN sem `uf` → `['Campinas']`); S3 e S4 mortos. A decisão "sem `uf`, sem sufixo" está só no comentário do teste (`:82`), não na spec |
 | RES-08.3 ordem | Brasil, UFs, municípios; pt-BR | `tests/resumo-social.test.ts:37`, `:44`; `e2e/resumo-territorio.spec.ts:51` | ✅ PASS |
 | RES-08.4 etiquetas | vermelha/verde com agenda e texto menor | `e2e/resumo-territorio.spec.ts:34` (`rgb(163, 42, 32)`, `rgb(3, 82, 82)`) | ✅ PASS |
 | RES-08.6 vazio | "Nada registrado ainda." | `e2e/resumo-territorio.spec.ts:59` | ✅ PASS |
 | RES-08.7 rolagem horizontal do quadro | quadro rola, página não | `e2e/resumo-territorio.spec.ts:66` (`{ rola: true, overflow: 'auto' }`) | ✅ PASS |
 | RES-09.1 estrutura do organograma | chefia no topo; ramos na ordem de `COORDENACOES` | `tests/resumo-equipe.test.ts:28`, `:32`; `e2e/resumo-equipe.spec.ts:40` | ✅ PASS |
 | RES-09.2 ordem no ramo | Chefia, Coordenação, Especialista, Executora | `tests/resumo-equipe.test.ts:39`, `:49`, `:57` | ✅ PASS |
-| RES-09.3 três estados | cartão comum, "Processo seletivo a abrir" tracejado, "Sem nome" apagado | `e2e/resumo-equipe.spec.ts:23` (`border-top-style dashed`, `Sem nome`, `rgb(147, 135, 128)`); `tests/resumo-equipe.test.ts:62` | ✅ PASS |
+| RES-09.3 três estados | cartão comum, "Processo seletivo a abrir" tracejado, "Sem nome" apagado | `e2e/resumo-equipe.spec.ts:23` (`border-top-style dashed`, `:33` `border-left-style dashed`, `Sem nome`, `rgb(147, 135, 128)`); `tests/resumo-equipe.test.ts:62` | ✅ PASS |
 | RES-09.4 legenda | três estados | `e2e/resumo-equipe.spec.ts:50` | ✅ PASS |
 | RES-09.5 formato antigo | vista derivada | `tests/resumo-equipe.test.ts:72`; `e2e/resumo-equipe.spec.ts:82` | ✅ PASS |
 | RES-09.6 ≤ 47,5rem | coluna única, sem ligações | `e2e/resumo-equipe.spec.ts:65` (`display none`) | ✅ PASS |
@@ -80,13 +80,13 @@ Todos os 13 RES têm teste com `arquivo:linha` e os gates passam (exceto flakine
 | RES-12.3 download | sem barra, segmentos nem cartões; mesmos títulos | `e2e/resumo-regressao.spec.ts:45` | ✅ PASS |
 | RES-12.4 `conteudo.js` idêntico | testes de hash seguem verdes | `npm test` 1281/0 (inclui `legado-m*.test.ts`); `conteudo.js` fora do diff | ✅ PASS |
 | RES-05 (`beforeprint`/`afterprint`) | abre tudo e restaura | `e2e/resumo-estrutura.spec.ts:122` (`toEqual(antes)`); `tests/legado-resumo.test.ts:354` | ✅ PASS |
-| RES-05.2 mídia de impressão | barra, ferramentas, setas ocultas | `e2e/resumo-layout.spec.ts:84` | ✅ PASS (flaky por timeout sob carga; passa isolado) |
+| RES-05.2 mídia de impressão | barra, ferramentas, setas ocultas | `e2e/resumo-layout.spec.ts:84` | ✅ PASS (estabilizado com `test.slow()` em `e2e/resumo-layout.spec.ts:85`; passou no gate completo) |
 | RES-13.3 `<button>` com nome acessível e foco | "Ir para a Missão n: curto"; anel ≥ 2 px | `e2e/resumo-regressao.spec.ts:96`, `:112`; `e2e/resumo-layout.spec.ts:109` | ✅ PASS |
 | RES-13.4 movimento reduzido | `scroll-behavior: auto`, `transition 0s` | `e2e/resumo-layout.spec.ts:96`; mutante W8 morto | ✅ PASS |
 | RES-13.5 375 px | `scrollWidth <= clientWidth` | `e2e/resumo-layout.spec.ts:73`; `e2e/resumo-regressao.spec.ts:176` | ✅ PASS |
 | RES-13.6 pt-BR e tabulares | "97.335", `tabular-nums` | `e2e/resumo-regressao.spec.ts:188` | ✅ PASS |
 
-**Status**: ⚠️ cobertura completa por RES, com 2 lacunas de precisão (RES-02.4 limiar 160 px; RES-06.1 `nome_civil`) e 1 cobertura parcial (RES-06.5 só estadual).
+**Status**: ✅ 13/13 RES com evidência e valores assertados batendo com a spec (spec ajustada em T17: RES-02.4, 02.8, 06.5, 07.1, 09.1, 12.1 agora definem o que o código entrega).
 
 ### Edge cases
 
@@ -124,8 +124,8 @@ Scratch descartável fora do repositório (cópia de `plataforma/` em `%TEMP%`, 
 | U17 | `resumo-tela.js:49` | contador `feitos/total` invertido | ✅ |
 | U18 | `resumo-tela.js:46` | `data-pend` = feitos | ✅ |
 | W1 | `resumo-tela.js:106` | scroll-spy `<=160` → `<=60` | ✅ |
-| **W2** | `resumo-tela.js:106` | scroll-spy `<=160` → `<=120` | ❌ **Survived** |
-| **W3** | `resumo-tela.js:106` | scroll-spy `<=160` → `<=260` | ❌ **Survived** |
+| W2 | `resumo-tela.js:106` | scroll-spy `<=160` → `<=120` | ❌ R1, ✅ morto na R2 |
+| W3 | `resumo-tela.js:106` | scroll-spy `<=160` → `<=260` | ❌ R1, ✅ morto na R2 |
 | W4 | `resumo-tela.js:142` | `afterprint` restaura tudo fechado | ✅ |
 | W5 | `resumo-tela.js:121` | filtro não oculta missão toda concluída | ✅ |
 | W6 | `resumo-tela.js:112` | clique no segmento não abre a missão | ✅ |
@@ -139,27 +139,31 @@ Scratch descartável fora do repositório (cópia de `plataforma/` em `%TEMP%`, 
 | E1 | `lib/resumoEquipe.ts:76` | estado "aberto" colapsado em "ok" | ✅ |
 | E2 | `lib/resumoEquipe.ts:86` | ordem por categoria removida | ✅ |
 | E3 | `lib/resumoEquipe.ts:91` | área vazia vai para "Logística" | ✅ |
-| E4 | `lib/resumoEquipe.ts:85` | `arvore` sem `migrada(c)` | ❌ Survived (quase equivalente: `vistaDaTabela` já materializa `m2.n`; ramo defensivo sem teste direto) |
+| E4 | `lib/resumoEquipe.ts:85` | `arvore` sem `migrada(c)` | ❌ Survived nas duas rodadas (quase equivalente: `vistaDaTabela` já materializa `m2.n`; ramo defensivo; sem impacto em AC) |
+| W9 | `resumo-tela.js:106` | scroll-spy `<=160` → `<=145` (novo, R2) | ✅ |
+| W10 | `resumo-tela.js:106` | scroll-spy `<=160` → `<=175` (novo, R2) | ✅ |
+| I8 | `ilhas/ResumoRetrato.tsx:58` | inicial calculada só do nome parlamentar (novo, R2) | ✅ |
+| C6 | `ilhas.css` (`.car.vaga`) | borda esquerda sólida, outra forma (novo, R2) | ✅ |
 | S1 | `lib/resumoSocial.ts:109` | ordem UF/MUN trocada | ✅ |
 | S2 | `lib/resumoSocial.ts:130` | `localeCompare('pt-BR')` → `<` | ✅ |
-| **S3** | `lib/resumoSocial.ts:116` | nome repetido no mesmo item não é deduplicado (`new Set` removido) | ❌ **Survived** |
-| **S4** | `lib/resumoSocial.ts:115` | MUN sem `uf` vira "Nome (undefined)" | ❌ **Survived** |
+| S3 | `lib/resumoSocial.ts:116` | nome repetido no mesmo item não é deduplicado (`new Set` removido) | ❌ R1, ✅ morto na R2 |
+| S4 | `lib/resumoSocial.ts:115` | MUN sem `uf` vira "Nome (undefined)" | ❌ R1, ✅ morto na R2 |
 | S5 | `lib/resumoSocial.ts:127` | tipos problema/potencialidade trocados | ✅ |
 | C1 | `public/legacy/ilhas.css` | barra `sticky` → `static` | ✅ |
 | C2 | `ilhas.css` (print) | barra não oculta na impressão | ✅ |
-| C3 | `ilhas.css` (`.car.vaga`) | borda esquerda tracejada → sólida | ❌ Survived (cosmético: `border-top-style` ainda tracejado e é o único assertado) |
+| C3 | `ilhas.css` (`.car.vaga`) | borda esquerda tracejada → sólida | ❌ R1, ✅ morto na R2 (`e2e/resumo-equipe.spec.ts:33`) |
 | C4 | `ilhas.css` (`ul.frag b.M`) | selo M vinho em vez de verde | ✅ |
 | C5 | `ilhas.css` (`.cards.op`) | anel do opositor verde | ✅ |
 | I1 | `ilhas/ResumoEquipe.tsx:87` | texto da vaga = "Sem nome" | ✅ |
 | I2 | `ilhas/Social.tsx` | célula vazia sem "—" | ✅ |
 | I3 | `ilhas/ResumoRetrato.tsx:47` | "com nome" conta linhas com `*` | ✅ |
-| **I4** | `ilhas/ResumoRetrato.tsx:50` | sem fallback para `nome_civil` | ❌ **Survived** |
+| I4 | `ilhas/ResumoRetrato.tsx:50` | sem fallback para `nome_civil` | ❌ R1, ✅ morto na R2 |
 | I5 | `ilhas/ResumoRetrato.tsx:57` | `onError` da foto removido | ✅ |
 | I6 | `ilhas/ResumoRetrato.tsx:37` | filiados lê o índice errado | ✅ |
 | I7 | `ilhas/ResumoRetrato.tsx:45` | cadeiras sempre 0 | ✅ |
 
-**Sensor depth**: lightweight ampliado (52 mutantes: 32 unit + 20 e2e)
-**Result**: 45/52 killed, 7 sobreviventes (4 relevantes: W2, W3, I4, S3/S4 menores; E4 e C3 quase equivalentes) - FAIL ❌
+**Sensor depth**: lightweight ampliado. Rodada 1: 52 mutantes. Rodada 2: reinjetados W2, W3, I4, S3, S4, C3, E4 (mais S1, S5, W1 de controle) e 4 novos (W9, W10, I8, C6) em scratch descartável (cópia de `plataforma/` em `%TEMP%`, `next dev` na 3118, removidos ao final; `git status --short` do worktree real igual ao baseline).
+**Result**: 56 mutantes distintos, 55 mortos, 1 sobrevivente (E4, quase equivalente) - PASS ✅
 
 ---
 
@@ -180,57 +184,34 @@ Restrições: nenhum de `public/legacy/app.js`, `resumo.js`, `legacy.css`, `cont
 
 ---
 
-## Gate Check
+## Gate Check (rodada 2, HEAD `9998022`)
 
 - **`npx tsc --noEmit`**: exit 0.
-- **`npm test`** (isolado, sem Playwright em paralelo): **1281 passed, 0 failed, 0 skipped** (58 s). Não houve flakiness. A rodada com 3 falhas relatada pelo Worker não se reproduziu (provável contenção com o Playwright concorrente).
-- **Playwright** (`resumo-`, `rumo-painel`, `m1-`, `m23-`, servidor na 3117): **153 passed, 13 failed**.
-  - 11 falhas pré-existentes aceitas: `m1-etapas:26`, `m23-migracao:110`, `m23-pdf:39`, `m23-plano:64/92/148`, `m23-rotinas:31/42`, `rumo-painel:19/32/54`.
-  - 2 falhas novas, ambas **timeout de 30 s** (`page.emulateMedia` e espera do spec), não de asserção: `resumo-layout.spec.ts:84` e `resumo-regressao.spec.ts:112`. Reexecutadas isoladas: **2 passed**. Classificadas como flakiness de carga do `next dev` (compilação sob 4 workers), não regressão. Risco de CI: ver Fix 4.
-- **Test count**: antes da feature 1200 unit; depois 1281 (+81: 44 `legado-resumo`, 15 `resumo-retrato`, 11 `resumo-equipe`, 11 `resumo-social`). E2E novos: 58 em 7 arquivos `resumo-*.spec.ts`. Nenhum teste removido; nenhuma asserção enfraquecida.
-- **Skipped**: nenhum.
+- **`npm test`** (isolado): **1282 passed, 0 failed, 0 skipped** (+1 teste novo de `resumo-social` sobre a rodada 1: 1281). Sem flakiness.
+- **Playwright** (`resumo-`, `rumo-painel`, `m1-`, `m23-`, porta 3117): **157 passed, 11 failed**, as 11 pré-existentes aceitas (`m1-etapas:26`, `m23-migracao:110`, `m23-pdf:39`, `m23-plano:64/92/148`, `m23-rotinas:31/42`, `rumo-painel:19/32/54`). Nenhuma falha nova; `resumo-layout:84` e `resumo-regressao:112` (timeouts da rodada 1) passaram.
+- **Test count**: antes da feature 1200 unit; agora 1282 (+82). E2E novos: 60 (58 + 2 da rodada 2, mais 1 asserção em `resumo-equipe`). Nenhum teste removido nem asserção enfraquecida: o diff da rodada 2 só adiciona asserções, 3 testes e `test.slow()`.
+- **Skipped**: nenhum. Servidores 3117 e 3118 derrubados.
 
 ---
 
 ## Fix Plans
 
-### Fix 1: Limiar de 160 px do scroll-spy não é discriminado (Major) - RES-02.4
+Rodada 1 (FAIL) para rodada 2 (PASS): Fix 1 (`cc69686`, limiar 160 px), Fix 2 e 3 (`b88b421`, `nome_civil` e `porTerritorio`), Fix 4 (`277e5f6`, `test.slow()` nos dois e2e lentos), spec (`4d4002d`) e tipo (`9998022`) confirmados. Nenhuma correção pendente.
 
-- **Root cause**: `e2e/resumo-estrutura.spec.ts:71` posiciona a missão a 100 px do topo, longe das duas bordas; limiares 120 e 260 passam.
-- **Fix task**: no e2e, posicionar a M3 em 150 px (deve estar ativa) e em 170 px (M2 ativa, M3 não), ou extrair a regra em função pura testada por unidade com limites 160/161.
-- **Where**: `e2e/resumo-estrutura.spec.ts` (ou `tests/legado-resumo.test.ts` + export).
-- **Done when**: mutantes W2 e W3 morrem.
-
-### Fix 2: Fallback para o nome civil sem teste (Minor) - RES-06.1
-
-- **Root cause**: o e2e sempre usa `MANDATO_REAL` com `nome_parlamentar`.
-- **Fix task**: e2e (ou teste de ilha) com `nome_parlamentar: ''` e `nome_civil: 'Maria da Silva'` esperando o nome civil e a inicial "M".
-- **Where**: `e2e/resumo-retrato.spec.ts`.
-- **Done when**: mutante I4 morre.
-
-### Fix 3: Asserções fracas em `porTerritorio` (Minor) - RES-08.2
-
-- **Root cause**: `tests/resumo-social.test.ts:74` só confere os nomes das linhas, não que o item entra uma vez; não há caso de município sem `uf`.
-- **Fix task**: no caso de "Bahia","Bahia" afirmar `problemas.length === 1`; novo caso MUN sem `uf` esperando o rótulo sem "(undefined)" (decidir o comportamento, a spec é omissa).
-- **Done when**: mutantes S3 e S4 morrem.
-
-### Fix 4: Estabilizar dois e2e (Minor, não bloqueia)
-
-- `resumo-layout.spec.ts:84` (`emulateMedia`) e `resumo-regressao.spec.ts:112` estouram 30 s sob carga. Avaliar `test.setTimeout`/espera de `networkidle` mais robusta.
-
-### Opcional (não bloqueia)
-
+Opcional, não bloqueia:
 - E4: teste direto de `arvore()` com campos do formato antigo, sem passar por `vistaDaTabela`.
-- C3: asserir `border-left-style: dashed` do cartão de vaga.
-- RES-02.8: testar a borda de 61,25rem (980 px vs 981 px).
+- RES-02.4: a spec agora diz "160 px exatos contam; 161 não", mas o e2e fixa 150/170 (10 px de tolerância); um teste em 160/161 fecharia a borda exata.
+- RES-02.8: testar a borda 980/981 px.
+- RES-06.5: e2e para deputado federal/senador (Casa inteira) e vereador (sem número).
+- RES-08.2: levar a decisão "município sem `uf` fica só com o nome" para a spec.
 
 ---
 
 ## Pendências de produto (não são falhas)
 
-1. **Grupo "Potenciais" (SPEC_DEVIATION T8)**: `Status` em `lib/types.ts:37` é `aliado | concorrente | neutro`; nada no Guia grava `potencial`. O código e os testes (`tests/legado-resumo.test.ts:401`, `e2e/resumo-cartoes.spec.ts:20`) usam um fixture que o produto ainda não produz. A deviation está registrada em `tasks.md` (T8) mas **a spec RES-07.1 continua afirmando três grupos** e não explica a origem de "potencial". Recomenda-se ajustar a spec (ou criar a fonte de dados). Não contradiz um AC verificável: com a fonte ausente o grupo é omitido (RES-07.4).
-2. **Cadeiras da Casa (SPEC_DEVIATION T5)**: federal e senador usam a Casa inteira (`nacional.json`), vereador fica sem o número; `spec.md` Assumptions diz "mesma fonte da Conjuntura (`carregaUF`)". A deviation é honesta no código e em `tasks.md`, mas a spec não foi atualizada, e só o caso estadual tem e2e. RES-06.8 (omitir sem fonte) cobre o vereador.
-3. **Imprecisões da spec**: RES-09.1 diz "Chefia de gabinete" mas a regra implementada é a linha da área "Chefia de área"; RES-02.4 e RES-02.8 fixam limiares (160 px, 61,25rem) sem definir a tolerância dos testes; RES-12.1 diz que `Resumo.ex` não muda, mas há sobreposição para `frag` sob `Resumo.vivo` (consistente com o design, e RES-12.2/12.3 a protegem).
+1. **Grupo "Potenciais"**: o Guia ainda não grava `status:'potencial'` (`lib/types.ts:37`). A spec (T17, RES-07.1) agora diz isso e que o grupo vazio é omitido, então spec e testes estão honestos; falta a fonte de dados (decisão de produto).
+2. **Cadeiras da Casa**: spec RES-06.5 atualizada (estadual, federal/senador e vereador). Federal/senador seguem sem e2e.
+3. **Spec**: RES-09.1 ("Chefia de área"), RES-12.1 (exceção `frag`/listas de pessoas sob `Resumo.vivo`), RES-02.4 e RES-02.8 foram alinhadas ao código em T17. A decisão sobre município sem `uf` ainda não está na spec.
 
 ---
 
@@ -238,20 +219,18 @@ Restrições: nenhum de `public/legacy/app.js`, `resumo.js`, `legacy.css`, `cont
 
 | Requirement | Previous Status | New Status |
 | ----------- | --------------- | ---------- |
-| RES-01, RES-03, RES-04, RES-05, RES-07, RES-08, RES-09, RES-10, RES-11, RES-12, RES-13 | Implemented | ✅ Verified (com a ressalva de mutantes menores em RES-08) |
-| RES-02 | Implemented | ❌ Needs Fix (Fix 1) |
-| RES-06 | Implemented | ❌ Needs Fix (Fix 2; cadeiras federal/senador conforme deviation) |
+| RES-01 a RES-13 | Implemented | ✅ Verified (rodada 2) |
 
 ---
 
 ## Summary
 
-**Overall**: ❌ Not Ready (3 correções de teste, nenhuma de código de produção)
+**Overall**: ✅ Ready
 
-**Spec-anchored check**: 13/13 RES com evidência; 2 lacunas de precisão (RES-02.4, RES-06.1), 1 cobertura parcial (RES-06.5)
-**Sensor**: 45/52 mutantes mortos
-**Gate**: tsc 0 erros; `npm test` 1281/0; Playwright 153 passed, 13 failed (11 pré-existentes + 2 timeouts flaky que passam isolados)
+**Spec-anchored check**: 13/13 RES com `arquivo:linha` e assertivas batendo com a spec ajustada
+**Sensor**: 55/56 mutantes mortos (E4 quase equivalente)
+**Gate**: tsc 0 erros; `npm test` 1282/0; Playwright 157 passed, só as 11 pré-existentes
 
-**What works**: toda a feature se comporta conforme a spec; regressões (Painel, download, `Resumo.ex`/`Resumo.missao`) protegidas.
+**What works**: toda a feature conforme a spec; regressões (Painel, download, `Resumo.ex`/`Resumo.missao`) protegidas; os gaps da rodada 1 foram fechados por testes que agora matam os mutantes.
 
-**Next steps**: executar Fix 1 a 3 (só testes) e re-verificar (rodada 2 de no máximo 3).
+**Next steps**: decisão de produto sobre a fonte do status `potencial` e os itens opcionais de precisão acima.
