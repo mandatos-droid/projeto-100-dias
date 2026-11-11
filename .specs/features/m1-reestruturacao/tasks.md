@@ -1074,9 +1074,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] `window.Ilhas.ligar` monta `agendas-sociais` e `prioritarias`
-- [ ] `D.agendasPrio?: string[]` tipado
-- [ ] `npx tsc --noEmit` passa
+- [x] `window.Ilhas.ligar` monta `agendas-sociais` e `prioritarias`
+- [x] `D.agendasPrio?: string[]` tipado
+- [x] `npx tsc --noEmit` passa
 
 **Tests**: none
 **Gate**: build

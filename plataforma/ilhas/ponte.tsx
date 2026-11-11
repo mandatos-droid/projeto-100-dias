@@ -8,6 +8,8 @@ import Conjuntura from './Conjuntura';
 import Municipio from './Municipio';
 import EleitoradoIlha, { EleitoradoResumo } from './Eleitorado';
 import SocialIlha, { SocialResumo } from './Social';
+import AgendasSociais from './AgendasSociais';
+import Prioritarias from './Prioritarias';
 import { Ficha } from './Equipe';
 import Bandeiras from './rumo/Bandeiras';
 import Legado from './rumo/Legado';
@@ -47,6 +49,7 @@ type Legado = {
     conj2?: Conj2;      // conjuntura partidária (pergunta m1.q5)
     eleitorado?: Eleitorado;
     social?: ConjSocial;
+    agendasPrio?: string[]; // 3 agendas prioritárias (pergunta m1.q9)
     /* Missão 3: estado estruturado e listas do Guia (formato em lib/rumo.ts) */
     rumo?: unknown; metas?: unknown; preditores?: unknown; comissoesDesejadas?: unknown;
     /* Missão 4: comissões escolhidas e ações dos 100 dias (formato do Guia, lib/capital.ts) */
@@ -108,6 +111,8 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   eleitorado: () => <EleitoradoIlha />,
   'eleitorado-resumo': () => <EleitoradoResumo />,
   social: () => <SocialIlha />,
+  'agendas-sociais': () => <AgendasSociais />,
+  prioritarias: () => <Prioritarias />,
   'social-resumo': () => <SocialResumo />,
   'assentos-resumo': () => <AssentosResumo />,
   'calor-resumo': () => <ConjunturaResumo />,
