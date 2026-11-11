@@ -1042,3 +1042,11 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .ilha-corpo .ass-main table.tb .st button:not(:first-child){border-left-width:2px}
 .ass .paginacao{display:flex;align-items:center;justify-content:center;gap:0.875rem;flex-wrap:wrap;margin-top:0.75rem}
 .ass .paginacao .bt[disabled]{opacity:.45;cursor:default}
+/* 5 municípios mais votados (pergunta 1.2) */
+.ilha-corpo .mv5{margin:1.25rem 0 0.5rem}
+.ilha-corpo .mv5-lista{list-style:none;margin:0.5rem 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:0.625rem}
+.ilha-corpo .mv5-cartao{display:grid;gap:0.125rem;padding:0.75rem 0.875rem;background:#fff;border:1.5px solid var(--linha);border-radius:var(--r);min-width:0}
+.ilha-corpo .mv5-pos{font-family:'Anton',sans-serif;font-size:1.5rem;line-height:1;color:var(--vinho)}
+.ilha-corpo .mv5-nome{overflow-wrap:anywhere}
+.ilha-corpo .mv5-votos{font-variant-numeric:tabular-nums;font-weight:700}
+.ilha-corpo .mv5-pct{margin:0}

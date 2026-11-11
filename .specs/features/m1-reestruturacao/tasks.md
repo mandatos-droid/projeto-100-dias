@@ -514,14 +514,16 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Mostra 5 cartões com posição, município, votos e % dos válidos
-- [ ] Não renderiza para liderança sem candidatura 2026
-- [ ] Com falha da consulta mostra "Não foi possível carregar os municípios mais votados agora."
-- [ ] `npx tsc --noEmit` passa
+- [x] Mostra 5 cartões com posição, município, votos e % dos válidos
+- [x] Não renderiza para liderança sem candidatura 2026
+- [x] Com falha da consulta mostra "Não foi possível carregar os municípios mais votados agora."
+- [x] `npx tsc --noEmit` passa
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(m1): cartões dos municípios mais votados`
+
+**Status**: ✅ Done
 
 ---
 
