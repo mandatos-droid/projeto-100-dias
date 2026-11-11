@@ -139,6 +139,14 @@ test('2.1 não traz a pergunta das pontes não óbvias nem caixa de texto, e m1.
   assert.equal(campos['m1.q4b'], 'Vereadora do interior');
 });
 
+test('2.1 mostra "Categorias de classificação:" e não promete um botão "i" que não existe (CJ-01)', () => {
+  const h = pergunta(janela(), 'm1.conjuntura', 0);
+  assert.ok(h.includes('<strong>Categorias de classificação:</strong>'));
+  assert.equal(h.includes('o botão'), false);
+  assert.equal(h.includes('também explica cada uma'), false);
+  assert.ok(h.includes('categorias-relacao')); // as 5 definições seguem no texto
+});
+
 /* ---------- PAR-01 e PAR-09: pergunta 2.2 ---------- */
 const COMANDO = 'A partir dos dados apresentados acima, e de outros que você possa ter pesquisado, faça uma análise destacando o que mais te chama a atenção e como o mandato deve agir a partir desta conjuntura.';
 const PAR09A = 'Identifique que tipo de relação com o partido a liderança parlamentar deseja ter, à luz destes dados, refletindo como o mandato pode contribuir para o fortalecimento do partido e como pode se posicionar diante do poder Executivo.';

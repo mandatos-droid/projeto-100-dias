@@ -48,7 +48,7 @@
     '<p>Siga as seguintes orientações para realizar a análise:</p>'+
     '<ol><li>Crie categorias iniciais de análise, por meio do filtro, para iniciar sua avaliação.</li>'+
     '<li>A partir dos nomes filtrados, classifique como é a relação atual da liderança parlamentar com os perfis dos colegas parlamentares listados. Caso tenha necessidade, mude o filtro e faça novas classificações. Não é necessário esgotar este processo com todas as cadeiras da Casa.</li></ol>'+
-    '<p><strong>Categorias de classificação</strong> (o botão “i” também explica cada uma):</p>'+
+    '<p><strong>Categorias de classificação:</strong></p>'+
     '<ul class="categorias-relacao">'+
     '<li><strong>Aliado:</strong> para aqueles com quem já tem uma boa relação e o mandato sabe que pode contar durante votações, por exemplo.</li>'+
     '<li><strong>Aliado, mas concorrente:</strong> para aqueles com quem já tem uma boa relação, mas cujas agendas defendidas ou o território da base de apoio lhes impõem uma competição direta.</li>'+

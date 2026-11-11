@@ -123,10 +123,10 @@ T19
 
 **Done when**:
 
-- [ ] O título fica “Categorias de classificação:”
-- [ ] `tests/legado-m1.test.ts` afirma que a frase antiga não existe mais
-- [ ] Gate quick passa
-- [ ] Contagem de testes não diminui
+- [x] O título fica “Categorias de classificação:”
+- [x] `tests/legado-m1.test.ts` afirma que a frase antiga não existe mais
+- [x] Gate quick passa
+- [x] Contagem de testes não diminui
 
 **Tests**: unit
 **Gate**: quick
