@@ -622,3 +622,57 @@ test('aberto num DOM sem rede, "Próximo" troca o slide e o filtro esconde as li
     assert.equal(await cartao.locator('[data-vazio]').isVisible(), true);
   } finally { await nav.close(); }
 });
+
+/* ---------- ELE-11, GER-02: o Resumo mostra eleitorado, agendas e reações ---------- */
+type JanelaRes = JanelaMapa & { Resumo: { ex(ex: Ex): string; vivo?: boolean }; ResumoIlhas: { html(i: string): string; AGENDAS: Record<string, string> } };
+const el = (id: string, tipo: string, texto: string, muns: string[] = []) => ({ id, tipo, texto, muns });
+
+test('o Resumo lista os itens do eleitorado nas 3 colunas, sem município e sem mapa (ELE-11)', () => {
+  const w = janelaMapa({ eleitorado: { itens: [el('1', 'promessa', 'Transporte escolar', ['5208707']), el('2', 'apoio', 'Professoras'), el('3', 'potencial', 'Jovens'), el('4', 'promessa', 'Saneamento')] } }) as JanelaRes;
+  for (const vivo of [false, true]) {
+    w.Resumo.vivo = vivo;
+    const h = w.ResumoIlhas.html('eleitorado');
+    assert.ok(h.includes('Promessas de Campanha (2)') && h.includes('Grupos que Apoiaram (1)') && h.includes('Grupos com Potencial (1)'));
+    for (const t of ['Transporte escolar', 'Saneamento', 'Professoras', 'Jovens']) assert.ok(h.includes(`<li><strong>${t}</strong></li>`), t);
+    assert.equal(h.includes('5208707') || h.includes('data-ilha'), false);
+  }
+});
+
+test('sem dado o Resumo mostra "Nada registrado ainda." no eleitorado, nas agendas e nas reações (ELE-11, GER-02)', () => {
+  const w = janelaMapa({ conj2: { muns: {}, relacao: '', relacaoPq: '', desafios: [], oportunidades: [] } }) as JanelaRes;
+  assert.ok(w.ResumoIlhas.html('eleitorado').includes('Nada registrado ainda.'));
+  assert.ok(w.ResumoIlhas.html('prioritarias').includes('Nada registrado ainda.'));
+  assert.ok(w.ResumoIlhas.html('calor').includes('Nada registrado ainda.'));
+});
+
+test('o Resumo lista as 3 agendas prioritárias e as 2 reações com a frase completa (GER-02, PAR-11)', () => {
+  const w = janelaMapa({
+    agendasPrio: ['saude', 'cultura', 'raca'],
+    conj2: { muns: {}, relacao: '', relacaoPq: '', desafios: [], oportunidades: [], reacoes: [
+      { dado: 'vereadores', valor: '12 no estado, 400 no Brasil', texto: 'ampliar a bancada' },
+      { dado: 'mun:5208707:filiados', valor: '340', texto: 'filiar mais gente' }] },
+  }) as JanelaRes;
+  const op = w.Resumo.ex(ex1(w, 'm1.oportunidades'));
+  for (const n of ['Saúde', 'Cultura e esporte', 'Igualdade racial e povos tradicionais']) assert.ok(op.includes(`<li><strong>${n}</strong></li>`), n);
+  /* m1.q7 e m1.q9 não têm caixa de texto: depois do título vem direto o bloco do módulo, sem linha "não preenchido" */
+  assert.ok(/eleitorado\?<\/dt><dt/.test(op) && /prioritárias\?<\/dt><dt/.test(op));
+  const co = w.Resumo.ex(ex1(w, 'm1.conjuntura'));
+  assert.ok(co.includes('Considerando Vereadores do partido: 12 no estado, 400 no Brasil, o mandato deve… ampliar a bancada'));
+  assert.ok(co.includes('Considerando 340, o mandato deve… filiar mais gente')); // município sem nome conhecido
+});
+
+test('no Resumo vivo a pergunta 3.3 e a 3.2 trazem o link e não repetem "não preenchido" (GER-02)', () => {
+  const w = janelaMapa({ agendasPrio: ['saude'] }) as JanelaRes;
+  w.Resumo.vivo = true;
+  const op = w.Resumo.ex(ex1(w, 'm1.oportunidades'));
+  assert.ok(op.includes('class="res-link"'));
+  assert.ok(op.includes('<li><strong>Saúde</strong></li>'));
+  assert.ok(op.includes('data-ilha="agendas-sociais-resumo"'));
+  assert.ok(/prioritárias\?<\/a><\/dt><dt/.test(op));
+});
+
+test('os nomes das 13 agendas do Resumo são os de lib/agendas.ts (ELE-11, GER-02)', async () => {
+  const { AGENDAS } = await import('../lib/agendas.ts');
+  const w = janelaMapa() as JanelaRes;
+  assert.deepEqual(JSON.parse(JSON.stringify(w.ResumoIlhas.AGENDAS)), Object.fromEntries(AGENDAS.map((a: { id: string; rot: string }) => [a.id, a.rot])));
+});

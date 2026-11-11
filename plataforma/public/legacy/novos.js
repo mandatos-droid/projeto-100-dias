@@ -180,6 +180,39 @@ window.ResumoIlhas={
       return '<li class="com-foto">'+(Resumo.vivo?ResumoIlhas.foto(x.k,x.uf,x.cargo,x.nome):'')+'<span><strong>'+esc(titulo(x.nome))+'</strong> ('+esc(x.partido)+') — '+esc(x.cargo)+
         (x.mun&&grupo==='municipio'?', '+esc(x.mun):'')+(x.votos!=null?' · '+fmt(x.votos)+' votos':'')+'</span></li>'}).join('')+'</ul>';
   },
+  /* Nomes das 13 agendas da pergunta 3.3 (iguais aos de lib/agendas.ts; tests/legado-m1.test.ts confere) e dos dados do Placar. */
+  AGENDAS:{saude:'Saúde',educacao:'Educação',seguranca:'Segurança pública',moradia:'Moradia e saneamento',trabalho:'Trabalho e renda',
+    assistencia:'Assistência social e fome','meio-ambiente':'Meio ambiente e clima',mobilidade:'Mobilidade e infraestrutura',
+    campo:'Campo e agricultura familiar',mulheres:'Mulheres',juventude:'Juventude',raca:'Igualdade racial e povos tradicionais',cultura:'Cultura e esporte'},
+  DADOS_PLACAR:{parlamentares:'Parlamentares do partido',vereadores:'Vereadores do partido',prefeituras:'Prefeituras do partido',
+    filiados:'Filiados do partido',executivos:'Posição do partido nos Executivos'},
+  COLUNAS_ELEITORADO:[['promessa','Promessas de Campanha'],['apoio','Grupos que Apoiaram'],['potencial','Grupos com Potencial']],
+  /* 3.1: os itens nas 3 colunas, sem município e sem mapa (ELE-11) */
+  eleitorado:function(){
+    var itens=((D.eleitorado||{}).itens)||[];
+    var h='<dt style="color:var(--tinta)">Expectativas do eleitorado</dt>';
+    if(!itens.length)return h+'<dd>Nada registrado ainda.</dd>';
+    return h+'<dd>'+this.COLUNAS_ELEITORADO.map(function(c){
+      var l=itens.filter(function(i){return i.tipo===c[0]});
+      return '<strong>'+c[1]+' ('+l.length+')</strong>'+(l.length?'<ul class="marcados">'+l.map(function(i){return '<li><strong>'+esc(i.texto)+'</strong></li>'}).join('')+'</ul>':'<p class="sem">Nada registrado ainda.</p>')}).join('')+'</dd>';
+  },
+  /* 3.3: as agendas prioritárias escolhidas (AGE-02) */
+  prioritarias:function(){
+    var ids=(D.agendasPrio||[]).filter(function(id){return ResumoIlhas.AGENDAS[id]});
+    return '<dt style="color:var(--tinta)">Agendas prioritárias</dt><dd>'+(ids.length?'<ul class="marcados">'+ids.map(function(id){return '<li><strong>'+esc(ResumoIlhas.AGENDAS[id])+'</strong></li>'}).join('')+'</ul>':'Nada registrado ainda.')+'</dd>';
+  },
+  /* 2.2: as 2 reações a dados do partido, com a frase que a pessoa completou (PAR-11, PAR-12) */
+  reacoes:function(){
+    var re=(((D.conj2||{}).reacoes)||[]).filter(function(r){return r&&(r.dado||r.texto)}).slice(0,2);
+    var nomes=(typeof Baixar!=='undefined'&&Baixar.extras&&Baixar.extras.municipios&&Baixar.extras.municipios.nomes)||{};
+    var h='<dt style="color:var(--tinta)">Como o mandato deve reagir a 2 dados do partido</dt>';
+    if(!re.length)return h+'<dd>Nada registrado ainda.</dd>';
+    return h+'<dd><ul class="marcados">'+re.map(function(r){
+      var nome=ResumoIlhas.DADOS_PLACAR[r.dado],p=String(r.dado||'').split(':');
+      if(!nome&&p[0]==='mun'&&nomes[p[1]])nome=({vereadores:'Vereadores do partido',filiados:'Filiados do partido',pct:'% de votos do partido'})[p[2]]+' em '+nomes[p[1]];
+      var ini=nome?'Considerando '+nome+': '+r.valor+', o mandato deve':'Considerando '+(r.valor||'')+', o mandato deve';
+      return '<li><span>'+esc(ini)+'… '+(r.texto?rich(r.texto):'<span class="sem">não completada</span>')+'</span></li>'}).join('')+'</ul></dd>';
+  },
   /* mapa interativo-somente-leitura (ilha React) montado depois que o Resumo é desenhado */
   mapa:function(ilha,rot){
     return Resumo.vivo?'<dt style="color:var(--tinta)">'+rot+'</dt><dd class="res-mapa"><div class="ilha" data-ilha="'+ilha+'-resumo"></div></dd>':'';
@@ -187,14 +220,18 @@ window.ResumoIlhas={
   html:function(ilha){
     var h='',t=D.tse||{};
     if(ilha==='social')return this.mapa('social','Problemas e potencialidades por agenda e território');
-    if(ilha==='eleitorado')return this.mapa('eleitorado','Promessas e grupos sociais por município');
+    if(ilha==='eleitorado')return this.eleitorado();
+    if(ilha==='prioritarias')return this.prioritarias();
     var ex=(typeof Baixar!=='undefined'&&Baixar.extras)||null; /* só no HTML do Mapa Político (m1.js): cartões em HTML estático */
     if(ilha==='calor'){
       h=this.mapa('calor','Cadeiras, filiados e posição do partido diante do Executivo');
       if(ex&&ex.municipios&&Baixar.cartoesMunicipio){var cm=Baixar.cartoesMunicipio(ex.municipios);if(cm)h+='<dt style="color:var(--tinta)">Os municípios mais votados da liderança</dt>'+cm}
-      return h;
+      return h+this.reacoes();
     }
-    if(ilha==='agendas-sociais'&&ex&&Baixar.cartoesAgenda)return '<dt style="color:var(--tinta)">Indicadores por agenda temática</dt>'+Baixar.cartoesAgenda(ex.agendas);
+    if(ilha==='agendas-sociais'){
+      if(ex&&Baixar.cartoesAgenda)return '<dt style="color:var(--tinta)">Indicadores por agenda temática</dt>'+Baixar.cartoesAgenda(ex.agendas);
+      return this.mapa('agendas-sociais','Indicadores por agenda temática');
+    }
     if(ilha==='persona-tse'){
       h+='<dt style="color:var(--tinta)">Desempenho eleitoral'+(t.ano?' em '+t.ano:' em 2026')+' (dados do TSE)</dt>';
       var pl=(D.pleitos||[]).slice().sort(function(a,b){return b.ano-a.ano});

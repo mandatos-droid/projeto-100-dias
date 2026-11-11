@@ -114,6 +114,7 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   social: () => <SocialIlha />,
   'agendas-sociais': () => <AgendasSociais />,
   prioritarias: () => <Prioritarias />,
+  'agendas-sociais-resumo': () => <AgendasSociais />,
   'social-resumo': () => <SocialResumo />,
   'assentos-resumo': () => <AssentosResumo />,
   'calor-resumo': () => <ConjunturaResumo />,

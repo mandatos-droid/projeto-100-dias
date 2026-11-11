@@ -1178,9 +1178,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] O Resumo lista as 3 colunas, as 3 agendas prioritárias e as 2 reações com a frase
-- [ ] Sem dado mostra "Nada registrado ainda."
-- [ ] Caso novo em `tests/legado-m1.test.ts` passa
+- [x] O Resumo lista as 3 colunas, as 3 agendas prioritárias e as 2 reações com a frase
+- [x] Sem dado mostra "Nada registrado ainda."
+- [x] Caso novo em `tests/legado-m1.test.ts` passa
 
 **Tests**: unit
 **Gate**: quick
