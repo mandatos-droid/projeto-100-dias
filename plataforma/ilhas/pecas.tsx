@@ -2,6 +2,7 @@
 import { memo, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { corPartido, posEspectro } from '@/lib/partidos';
 import type { GeoUF, Relacao, Status } from '@/lib/types';
+import { CATEGORIAS, ajudaTexto, type Categoria } from '@/lib/relacoes';
 import { marca, statusDe } from './ponte';
 import { RotulosMun, useLarguraPx } from './RotulosMun';
 
@@ -79,38 +80,40 @@ export function Chip({ p }: { p: string }) {
   return <span className="chip"><i className="ponto" style={{ background: corPartido(p) }} />{p}</span>;
 }
 
-/** Formas geométricas das relações: aliado = losango, opositor = triângulo, potencial relacionamento = anel, esta liderança = estrela.
+/** Formas geométricas das relações: aliado = losango cheio, aliado mas concorrente = losango vazado, oponente = triângulo cheio,
+ *  oponente e concorrente = triângulo vazado, indefinida = anel, esta liderança = estrela.
  *  A forma repete a cor, então a leitura não depende só do verde e do vermelho (WCAG 1.4.1). */
 export const COR_REL = { aliado: '#1B6B4F', aliado_concorrente: '#1B6B4F', concorrente: '#C93636', oponente_concorrente: '#C93636', potencial: '#2F6F82', proprio: '#E0A526' } as const;
 export function Marca({ tipo, tam = 14 }: { tipo: keyof typeof COR_REL; tam?: number }) {
   const c = COR_REL[tipo];
-  const f = tipo === 'aliado' || tipo === 'aliado_concorrente' ? <path d="M8 1.2 14.8 8 8 14.8 1.2 8Z" />
-    : tipo === 'concorrente' || tipo === 'oponente_concorrente' ? <path d="M8 1.6 15 14H1Z" />
-    : tipo === 'potencial' ? <path fillRule="evenodd" d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13Zm0 3.4a3.1 3.1 0 1 1 0 6.2 3.1 3.1 0 0 1 0-6.2Z" />
+  const oco = 'evenodd';
+  const f = tipo === 'aliado' ? <path d="M8 1.2 14.8 8 8 14.8 1.2 8Z" />
+    : tipo === 'aliado_concorrente' ? <path fillRule={oco} d="M8 1.2 14.8 8 8 14.8 1.2 8ZM8 5 11 8 8 11 5 8Z" />
+    : tipo === 'concorrente' ? <path d="M8 1.6 15 14H1Z" />
+    : tipo === 'oponente_concorrente' ? <path fillRule={oco} d="M8 1.6 15 14H1ZM8 6.2 11.3 12H4.7Z" />
+    : tipo === 'potencial' ? <path fillRule={oco} d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13Zm0 3.4a3.1 3.1 0 1 1 0 6.2 3.1 3.1 0 0 1 0-6.2Z" />
     : <path d="M8 1 9.9 5.8 15 6.1 11 9.3 12.4 14.4 8 11.6 3.6 14.4 5 9.3 1 6.1 6.1 5.8Z" />;
   return <svg className="marca" width={tam} height={tam} viewBox="0 0 16 16" fill={c} aria-hidden="true" focusable="false">{f}</svg>;
 }
-/** rótulo curto (botões) e completo (legendas, filtros, dicas) de cada relação, no singular e no plural */
-export const ROT_REL = { aliado: 'Aliado', aliado_concorrente: 'Aliado, mas concorrente', concorrente: 'Opositor', oponente_concorrente: 'Oponente e concorrente', potencial: 'Potencial' } as const;
-export const ROT_REL_LONGO = { aliado: 'Aliado', aliado_concorrente: 'Aliado, mas concorrente', concorrente: 'Opositor', oponente_concorrente: 'Oponente e concorrente', potencial: 'Potencial relacionamento' } as const;
-export const ROT_REL_PLURAL = { aliado: 'Aliados', aliado_concorrente: 'Aliados, mas concorrentes', concorrente: 'Opositores', oponente_concorrente: 'Oponentes e concorrentes', potencial: 'Potenciais relacionamentos' } as const;
-export const AJUDA_REL = [
-  'Aliado: quem tende a caminhar com a liderança, por dividir base, pauta ou partido. É com quem se pode contar para assinar, relatar e apoiar propostas.',
-  'Opositor: quem tende a se posicionar contra, por disputar a mesma base ou pauta ou estar em campo político contrário. Não é inimigo: é quem a equipe precisa antecipar e acompanhar.',
-  'Potencial relacionamento: quem ainda não é aliado nem opositor, mas vale cultivar. São as pontes não óbvias: pautas em comum, consensos mínimos, um primeiro café. Marque para a equipe lembrar de abrir o diálogo.',
-].join(' ');
+/** Rótulos das 5 categorias, lidos de lib/relacoes.ts (a ordem é a da Alana). `ROT_REL` é o curto dos botões, `ROT_REL_LONGO` o das legendas, `ROT_REL_PLURAL` o dos filtros. */
+const porChave = <T,>(f: (c: (typeof CATEGORIAS)[number]) => T) => Object.fromEntries(CATEGORIAS.map((c) => [c.k, f(c)])) as Record<Categoria['k'], T>;
+export const ROT_REL = porChave((c) => c.rot);
+export const ROT_REL_LONGO = ROT_REL;
+export const ROT_REL_PLURAL = porChave((c) => c.plural);
+export const AJUDA_REL = ajudaTexto();
 export function InfoRelacao() {
-  return <Info texto={AJUDA_REL} rotulo="O que significam aliado, opositor e potencial relacionamento?" />;
+  return <Info texto={AJUDA_REL} rotulo="O que significa cada categoria de relação?" />;
 }
 
+/** Os 5 botões de categoria, na ordem da Alana; clicar na categoria já marcada tira a marcação. */
 export function StatusBotoes({ chave, rel }: { chave: string; rel: Omit<Relacao, 'status'> }) {
   const atual = statusDe(chave);
   return (
     <span className="st">
-      {(['aliado', 'concorrente', 'potencial'] as const).map((t) => (
+      {CATEGORIAS.map(({ k: t, rot }) => (
         <button key={t} type="button" className={t} aria-pressed={atual === t}
           onClick={() => marca(chave, rel, atual, t)}>
-          <Marca tipo={t} tam={11} />{ROT_REL[t]}
+          <Marca tipo={t} tam={11} />{rot}
         </button>
       ))}
     </span>
@@ -183,9 +186,9 @@ export function Hemiciclo({ membros, partidos, filtroStatus, visivel, selecionad
         const lw = Math.max(1.2, r * 0.32);
         const contorno = sel ? '#571730' : st === 'neutro' ? 'none' : COR_REL[st];
         const k = r * 1.28;
-        const forma = st === 'aliado' ? `${p.x},${p.y - k} ${p.x + k},${p.y} ${p.x},${p.y + k} ${p.x - k},${p.y}`
-          : st === 'concorrente' ? `${p.x},${p.y - k * 1.05} ${p.x + k * 1.05},${p.y + k * 0.8} ${p.x - k * 1.05},${p.y + k * 0.8}` : '';
-        const props = { className: 'as', fill: cor, opacity: ativo ? 1 : 0.13, stroke: contorno, strokeWidth: contorno === 'none' ? 0 : lw, strokeLinejoin: 'round' as const };
+        const forma = st === 'aliado' || st === 'aliado_concorrente' ? `${p.x},${p.y - k} ${p.x + k},${p.y} ${p.x},${p.y + k} ${p.x - k},${p.y}`
+          : st === 'concorrente' || st === 'oponente_concorrente' ? `${p.x},${p.y - k * 1.05} ${p.x + k * 1.05},${p.y + k * 0.8} ${p.x - k * 1.05},${p.y + k * 0.8}` : '';
+        const props = { className: 'as', fill: cor, opacity: ativo ? 1 : 0.13, stroke: contorno, strokeWidth: contorno === 'none' ? 0 : lw, strokeLinejoin: 'round' as const, strokeDasharray: st === 'aliado_concorrente' || st === 'oponente_concorrente' ? `${lw * 1.6} ${lw}` : undefined };
         return (
           <g key={m.key} onClick={() => onSelecionar(m.key)}>
             <title>{`${m.nome} · ${m.partido} · ${m.votos.toLocaleString('pt-BR')} votos${st !== 'neutro' ? ` · ${ROT_REL_LONGO[st]}` : ''}`}</title>

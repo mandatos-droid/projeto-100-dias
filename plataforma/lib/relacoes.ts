@@ -7,16 +7,19 @@ export type Categoria = { k: Exclude<Status, 'neutro'>; rot: string; plural: str
 
 export const CATEGORIAS: Categoria[] = [
   { k: 'aliado', rot: 'Aliado', plural: 'Aliados',
-    def: 'quem tende a caminhar com a liderança parlamentar, por dividir base, pauta ou partido, e não disputa o mesmo eleitorado. É com quem se pode contar para assinar, relatar e apoiar propostas.' },
+    def: 'para aqueles com quem já tem uma boa relação e o mandato sabe que pode contar durante votações, por exemplo.' },
   { k: 'aliado_concorrente', rot: 'Aliado, mas concorrente', plural: 'Aliados, mas concorrentes',
-    def: 'quem costuma apoiar a liderança parlamentar, mas disputa a mesma base eleitoral ou o mesmo espaço político. A aliança existe, com cuidado para não perder território.' },
+    def: 'para aqueles com quem já tem uma boa relação, mas cujas agendas defendidas ou o território da base de apoio lhes impõem uma competição direta.' },
   { k: 'concorrente', rot: 'Oponente', plural: 'Oponentes',
-    def: 'quem tende a se posicionar contra, por estar em campo político contrário ou defender pautas opostas. Não é inimigo: é quem a equipe precisa antecipar e acompanhar.' },
+    def: 'para as lideranças com quem a liderança parlamentar já teve algum embate ou cujos posicionamentos são contrários ao que defende.' },
   { k: 'oponente_concorrente', rot: 'Oponente e concorrente', plural: 'Oponentes e concorrentes',
-    def: 'quem se opõe à liderança parlamentar e ainda disputa a mesma base eleitoral. É a relação mais sensível: pede atenção redobrada ao território e às pautas em comum.' },
+    def: 'para colegas com quem a relação é ou tende a ser desafiadora, e ainda existe uma disputa direta de agendas ou território.' },
   { k: 'potencial', rot: 'Indefinida', plural: 'Indefinidas',
-    def: 'quem ainda não é aliado nem oponente: a relação não está definida e vale cultivar. Marque para a equipe lembrar de abrir o diálogo.' },
+    def: 'para perfis com quem haja potencial de construção de espaços de convergência e que pode ser aliado ou oponente, a depender da pauta debatida, e cuja relação ainda precisa ser desenvolvida.' },
 ];
+
+/** Texto do balão de ajuda: as 5 definições da Alana (as mesmas listadas em public/legacy/m1.js, conferidas em tests/relacoes.test.ts). */
+export const ajudaTexto = (): string => CATEGORIAS.map((c) => `${c.rot}: ${c.def}`).join(' ');
 
 /** Rótulo de uma categoria; vazio para `neutro` (sem classificação). */
 export const rotulo = (k: Status): string => CATEGORIAS.find((c) => c.k === k)?.rot ?? '';

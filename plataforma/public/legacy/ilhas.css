@@ -1058,3 +1058,9 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .ilha-corpo .rk-pos{font-variant-numeric:tabular-nums;color:var(--tinta-3)}
 .ilha-corpo .rk-nome{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem;min-width:0}
 .ilha-corpo .rk-v{text-align:right;font-variant-numeric:tabular-nums}
+
+/* Relações: 5 categorias (T19). As duas "concorrente" repetem a cor do par e ganham borda tracejada ao marcar; com 5 botões a fila pode quebrar. */
+.ilha-corpo .st{flex-wrap:wrap;gap:0.25rem}
+.ilha-corpo .st button,.ilha-corpo .st button:not(:first-child),.ilha-corpo .st button:first-child,.ilha-corpo .st button:last-child{border-radius:var(--r);border-left-width:2px}
+.ilha-corpo .st button.aliado_concorrente[aria-pressed=true]{background:var(--verde);border-color:var(--verde);border-style:dashed;color:#fff}
+.ilha-corpo .st button.oponente_concorrente[aria-pressed=true]{background:#C93636;border-color:#C93636;border-style:dashed;color:#fff}

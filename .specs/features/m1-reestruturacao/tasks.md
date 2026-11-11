@@ -126,7 +126,8 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Tests**: none
 **Gate**: build
-**Commit**: `feat(m1): tipos das 5 categorias de relação e das reações`
+**Commit**: `feat(m1): tipos das 5 categorias de relação e das reações`
+
 
 **Status**: ✅ Done
 
@@ -154,7 +155,8 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(m1): categorias de relação e resumo em texto`
+**Commit**: `feat(m1): categorias de relação e resumo em texto`
+
 
 **Status**: ✅ Done
 
@@ -182,7 +184,8 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(m1): regras puras do registro de eleitorado`
+**Commit**: `feat(m1): regras puras do registro de eleitorado`
+
 
 **Status**: ✅ Done
 
@@ -209,7 +212,8 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(m1): lógica dos 5 municípios mais votados`
+**Commit**: `feat(m1): lógica dos 5 municípios mais votados`
+
 
 **Status**: ✅ Done
 
@@ -237,7 +241,8 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(m1): cartões de indicador por agenda e faixa`
+**Commit**: `feat(m1): cartões de indicador por agenda e faixa`
+
 
 **Status**: ✅ Done
 
@@ -265,7 +270,8 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(m1): regra das 3 agendas prioritárias`
+**Commit**: `feat(m1): regra das 3 agendas prioritárias`
+
 
 **Status**: ✅ Done
 
@@ -293,7 +299,8 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(m1): dados escolhíveis do partido e frase de reação`
+**Commit**: `feat(m1): dados escolhíveis do partido e frase de reação`
+
 
 **Status**: ✅ Done
 
@@ -626,14 +633,16 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] `StatusBotoes` mostra as 5 categorias na ordem da Alana
-- [ ] `Marca` tem forma própria para `aliado_concorrente` e `oponente_concorrente`
-- [ ] O balão de ajuda traz as 5 definições
-- [ ] `npx tsc --noEmit` passa
+- [x] `StatusBotoes` mostra as 5 categorias na ordem da Alana
+- [x] `Marca` tem forma própria para `aliado_concorrente` e `oponente_concorrente`
+- [x] O balão de ajuda traz as 5 definições
+- [x] `npx tsc --noEmit` passa
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(m1): peças de relação com as 5 categorias`
+
+**Status**: ✅ Done
 
 ---
 

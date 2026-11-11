@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CATEGORIAS, rotulo, contagem, resumoTexto } from '../lib/relacoes.ts';
+import { CATEGORIAS, ajudaTexto, rotulo, contagem, resumoTexto } from '../lib/relacoes.ts';
 import type { Relacao, Status } from '../lib/types.ts';
 
 const rel = (status: Status): Relacao => ({ status, nome: 'X', partido: 'P', cargo: 'Deputado', uf: 'DF' });
@@ -41,4 +41,11 @@ test('resumoTexto no formato da spec, só com categorias de contagem ≥ 1 (LEG-
 test('resumoTexto devolve string vazia sem classificação (LEG-12)', () => {
   assert.equal(resumoTexto({}), '');
   assert.equal(resumoTexto(lote(['neutro', 3])), '');
+});
+
+test('as definições do balão são as mesmas listadas na pergunta 2.1 do legado (LEG-04, sem duas versões)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const m1 = readFileSync(new URL('../public/legacy/m1.js', import.meta.url), 'utf8');
+  for (const c of CATEGORIAS) assert.ok(m1.includes(`<strong>${c.rot}:</strong> ${c.def}`), `m1.js sem a definição de ${c.rot}`);
+  assert.ok(ajudaTexto().startsWith('Aliado: para aqueles'));
 });
