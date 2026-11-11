@@ -746,13 +746,15 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Mostra "Você tem 20 Aliados; …" no formato da spec
-- [ ] Os KPIs de aliados/opositores/potenciais viram as 5 categorias
-- [ ] `npx tsc --noEmit` passa
+- [x] Mostra "Você tem 20 Aliados; …" no formato da spec
+- [x] Os KPIs de aliados/opositores/potenciais viram as 5 categorias
+- [x] `npx tsc --noEmit` passa
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(m1): resumo dos eleitos com as 5 categorias`
+
+**Status**: ✅ Done
 
 ---
 

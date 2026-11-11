@@ -8,7 +8,8 @@ import type { CasaChave, EsferaExec, ExecEleito, FilAcum } from '@/lib/types';
 import { NIVEIS } from './cargos';
 import { ROT_POS, sugere } from './Conjuntura';
 import { dadosGuia, statusDe, useLegado } from './ponte';
-import { BarrasPartido, Hemiciclo, Marca, MapaMunicipios, useCarga, type Membro } from './pecas';
+import { CATEGORIAS, resumoTexto } from '@/lib/relacoes';
+import { BarrasPartido, Hemiciclo, Marca, MapaMunicipios, ROT_REL, ROT_REL_PLURAL, useCarga, type Membro } from './pecas';
 
 const semUF = (
   <p className="sem">Informe a UF em “Dados do mandato” para ver o mapa.</p>
@@ -153,13 +154,13 @@ export function AssentosResumo() {
     return Object.entries(c).sort((a, b) => b[1] - a[1]);
   }, [eleitos]);
 
-  const parceiros = eleitos.filter((e) => statusDe(e.s) === 'aliado').length;
-  const concorrentes = eleitos.filter((e) => statusDe(e.s) === 'concorrente').length;
-  const potenciais = eleitos.filter((e) => statusDe(e.s) === 'potencial').length;
+  const porCategoria = (st: string) => eleitos.filter((e) => statusDe(e.s) === st).length;
+  const resumo = resumoTexto(D.relacoes ?? {});
 
   return (
     <div className="ilha-corpo">
-      <h4>{ROT_CASA[casa]} · {escopo === 'BR' ? 'Brasil' : escopo}</h4>
+      <h4>{casa === 'estadual' && escopo === 'DF' ? 'Câmara Legislativa' : ROT_CASA[casa]} · {escopo === 'BR' ? 'Brasil' : escopo}</h4>
+      {resumo && <p data-testid="resumo-relacoes"><strong>{resumo}.</strong></p>}
       {carregando && <p className="sem">Carregando…</p>}
       {erro && <div className="erro-cx">Não foi possível carregar os parlamentares eleitos.</div>}
       {eleitos.length > 0 && (
@@ -168,17 +169,17 @@ export function AssentosResumo() {
             <Hemiciclo membros={membros} partidos={new Set()} filtroStatus="todos" selecionado={null}
               proprio={(D.tse as { sq?: string }).sq} onSelecionar={nada} />
             <ul className="legenda">
-              <li><Marca tipo="aliado" tam={13} /> aliado</li>
-              <li><Marca tipo="concorrente" tam={13} /> opositor</li>
-              <li><Marca tipo="potencial" tam={13} /> potencial relacionamento</li>
+              {CATEGORIAS.map((c) => <li key={c.k}><Marca tipo={c.k} tam={13} /> {ROT_REL[c.k].toLowerCase()}</li>)}
               <li><Marca tipo="proprio" tam={13} /> esta liderança</li>
             </ul>
           </div>
           <div>
-            <div className="kpis" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
-              <div className="kp ok"><b><Marca tipo="aliado" tam={18} /> {parceiros}</b><span>aliados</span></div>
-              <div className="kp coral"><b><Marca tipo="concorrente" tam={18} /> {concorrentes}</b><span>opositores</span></div>
-              <div className="kp"><b><Marca tipo="potencial" tam={18} /> {potenciais}</b><span>potenciais relacionamentos</span></div>
+            <div className="kpis">
+              {CATEGORIAS.map((c) => (
+                <div key={c.k} className={`kp${c.k === 'aliado' ? ' ok' : c.k === 'concorrente' ? ' coral' : ''}`}>
+                  <b><Marca tipo={c.k} tam={18} /> {porCategoria(c.k)}</b><span>{ROT_REL_PLURAL[c.k].toLowerCase()}</span>
+                </div>
+              ))}
             </div>
             <BarrasPartido dados={contagem.slice(0, 10)} destaque={(m.partido || '').toUpperCase()} />
           </div>
