@@ -89,6 +89,12 @@ T20 → T21
 T23
 ```
 
+### Phase 9: Cartões da pergunta 2 capturáveis
+
+```
+T24
+```
+
 ---
 
 ## Task Breakdown
@@ -726,10 +732,37 @@ T23
 
 ---
 
+### T24: Cartões da pergunta 2 capturáveis (sugestão #144)
+
+**What**: Cada cartão de "Cadeiras do partido" ganha `.capturable-data` (id `cadeiras:<k>`, valor com o par Brasil/UF) e entra na lista de dados das reações.
+**Where**: `plataforma/ilhas/Conjuntura.tsx`
+**Depends on**: None
+**Reuses**: `capturavel` (`lib/selecaoDados.ts`); e2e de `m1-conjuntura-partido.spec.ts`
+**Requirement**: SEL-02
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [x] Os 3 cartões são capturáveis inteiros; clicar num número interno captura o cartão
+- [x] Dois cartões capturados viram os chips e as frases das reações
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
+
+**Tests**: e2e
+**Gate**: full
+
+**Commit**: `feat(m1): make the seat cards of question 2 selectable in capture mode`
+
+---
+
 ## Phase Execution Map
 
 ```
-Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7 → Phase 8
+Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7 → Phase 8 → Phase 9
 
 Phase 1:  T1 ------→ T2 ------→ T3 ------→ T4
 Phase 2:  T5 ------→ T6
@@ -739,4 +772,5 @@ Phase 5:  T14 ------→ T15 ------→ T16 ------→ T17 ------→ T18
 Phase 6:  T19 ------→ T22
 Phase 7:  T20 ------→ T21
 Phase 8:  T23
+Phase 9:  T24
 ```

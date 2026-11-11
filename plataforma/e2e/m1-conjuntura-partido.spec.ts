@@ -151,7 +151,7 @@ test.describe('Conjuntura do partido · dados capturáveis na página (SEL-01)',
     const esperados = [...PLACAR_IDS, ...CDIS.flatMap((c) => [`mun:${c}:vereadores`, `mun:${c}:filiados`])];
     for (const id of esperados) expect(ids).toContain(id);
     expect(ids.filter((i) => i.startsWith('mun:') && i.endsWith(':pct')).length).toBeGreaterThan(0);
-    expect(ids.length).toBeLessThanOrEqual(PLACAR_IDS.length + CDIS.length * 3);
+    expect(ids.length).toBeLessThanOrEqual(PLACAR_IDS.length + 3 + CDIS.length * 3);
     for (const id of PLACAR_IDS) await expect(page.locator(`.v2-grande.capturable-data[data-dado-id="${id}"]`)).toHaveCount(1);
     for (const cdi of CDIS) { // cada cartão de município carrega os seus
       const el = capturavel(page, `mun:${cdi}:vereadores`);
@@ -163,6 +163,25 @@ test.describe('Conjuntura do partido · dados capturáveis na página (SEL-01)',
     const filiados = capturavel(page, 'filiados');
     const [br, uf] = await filiados.locator('b').allTextContents();
     await expect.poll(async () => filiados.getAttribute('data-dado-valor')).toBe(`${uf} no estado, ${br} no Brasil`);
+  });
+});
+
+test.describe('Conjuntura do partido · cartões da pergunta 2 capturáveis (SEL-02, sugestão #144)', () => {
+  test('cada cartão de cadeiras (Câmara, Senado, Assembleia) é capturável inteiro e grava o par Brasil/UF', async ({ page }) => {
+    await abre(page);
+    await expect(page.getByTestId('cartao-municipio')).toHaveCount(5, { timeout: 30_000 });
+    for (const k of ['federal', 'senado', 'estadual']) {
+      const el = capturavel(page, `cadeiras:${k}`);
+      await expect(el).toHaveCount(1);
+      await expect(el).toHaveClass(/v2-grande/);
+      expect(await el.getAttribute('data-dado-valor')).toMatch(/^\d[\d.]* no Brasil.*, \d[\d.]* em [A-Z]{2}/);
+    }
+    await iniciar(page);
+    await capturavel(page, 'cadeiras:federal').locator('b.uf').click(); // clicar no número interno captura o cartão inteiro
+    await capturavel(page, 'cadeiras:senado').locator('.rot').click();
+    await expect(page.locator('.rea-chip')).toHaveCount(2);
+    await expect(page.locator('.rea-linha').nth(0)).toContainText('Cadeiras do partido · Câmara dos Deputados');
+    await expect(page.locator('.rea-linha').nth(1)).toContainText('Cadeiras do partido · Senado');
   });
 });
 

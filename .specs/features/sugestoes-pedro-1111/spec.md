@@ -100,6 +100,7 @@ Open questions: #138.4 (textos de conceito dos indicadores). Resolvidas pelo Ped
 3. WHEN a pessoa remove um chip, THE SYSTEM SHALL limpar só aquele dado e permitir reabrir a seleção.
 4. IF a pessoa clica duas vezes no mesmo dado, THEN THE SYSTEM SHALL ignorar o segundo clique e avisar no banner.
 5. WHEN a pessoa aciona [Cancelar] ou Esc no meio da captura, THE SYSTEM SHALL fechar o banner sem gravar dado pela metade.
+6. WHEN o modo de captura está ativo na pergunta 2 (Cadeiras do partido), THE SYSTEM SHALL permitir escolher cada cartão inteiro (Câmara, Senado, Assembleia Legislativa), com o par Brasil/UF como valor, destacando o cartão todo ao passar o mouse. (SEL-02, sugestão #144)
 
 **Independent Test**: Capturar dois indicadores, conferir os chips e o Resumo; repetir cancelando no meio.
 
@@ -131,6 +132,7 @@ Open questions: #138.4 (textos de conceito dos indicadores). Resolvidas pelo Ped
 | SEL-01 | P2: Selecionar 2 dados | Tasks | Pending |
 | CFG-01 | P1: Corrigir o que está quebrado | Tasks | Pending |
 | TERM-01 | P1: Corrigir o que está quebrado | Tasks | Pending |
+| SEL-02 | P2: Selecionar 2 dados | Tasks | Done |
 
 ## Success Criteria
 

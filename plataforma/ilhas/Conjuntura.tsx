@@ -14,7 +14,7 @@ import { CartoesMunicipio, useAlvoMun } from './CartoesMunicipio';
 import { numerosMun, pctEstado } from '@/lib/forcaMunicipio';
 import { POSICOES, ROT_POS, sugere } from './posicoes';
 import { Reacoes } from './Reacoes';
-import { dadosSelecionaveis } from '@/lib/dadosPartido';
+import { dadosSelecionaveis, type DadoPartido } from '@/lib/dadosPartido';
 import { capturavel } from '@/lib/selecaoDados';
 import { useLegado } from './ponte';
 import { BarrasPartido, Chip, useCarga } from './pecas';
@@ -275,8 +275,14 @@ export default function Conjuntura() {
     },
     alvo.itens.map((it) => numerosMun(it, mun.dados, fil.dados, alvo.casa, partido)),
   );
+  /* pergunta 2: cada cartão de cadeiras (Brasil e UF juntos) também pode ser escolhido clicando (SEL-02) */
+  const dadosCadeiras: DadoPartido[] = NIVEIS.slice(0, 3).map(({ k, rot }) => {
+    const b = cad(k, 'br'), a = cad(k, 'uf');
+    return { id: `cadeiras:${k}`, nome: `Cadeiras do partido · ${rot}`, valor: `${nf.format(b.n)} no Brasil${b.t ? ` (${pct((b.n / b.t) * 100, 1)} de ${nf.format(b.t)})` : ''}, ${nf.format(a.n)} em ${m.uf}${a.t ? ` (${pct((a.n / a.t) * 100, 1)} de ${nf.format(a.t)})` : ''}` };
+  });
+  const dadosCapturaveis = [...dadosDoPartido, ...dadosCadeiras];
 
-  const dadoPorId = (id: string) => dadosDoPartido.find((d) => d.id === id)!;
+  const dadoPorId = (id: string) => dadosCapturaveis.find((d) => d.id === id)!;
 
   return (
     <div className="ilha-corpo v2">
@@ -324,7 +330,7 @@ export default function Conjuntura() {
         {NIVEIS.slice(0, 3).map(({ k, rot }) => { // vereadores e prefeituras já estão no placar
           const b = cad(k, 'br'), a = cad(k, 'uf');
           return (
-            <div className="v2-grande" key={k}>
+            <div key={k} {...capturavel(dadosCadeiras.find((d) => d.id === `cadeiras:${k}`)!, 'v2-grande')}>
               <span className="rot">{rot}</span>
               <b>{nf.format(b.n)}</b>
               <span>no Brasil{lbl(b.n, b.t)}</span>
@@ -421,7 +427,7 @@ export default function Conjuntura() {
       )}
 
       {/* depois dos dados: as 2 reações do mandato (PAR-09 a PAR-12); os cartões de município ficam no tópico 3 (CJ-02) */}
-      <Reacoes dados={dadosDoPartido} />
+      <Reacoes dados={dadosCapturaveis} />
 
       {/* As seções 5 (relação desejada com o partido) e 6 (desafios e oportunidades) saíram da tela por decisão sobre a sugestão #20:
           fica só a pergunta abrangente, no Guia. Os valores já salvos (c.relacao, c.relacaoPq, c.desafios, c.oportunidades) seguem gravados. */}
