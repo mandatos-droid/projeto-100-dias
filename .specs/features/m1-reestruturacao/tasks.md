@@ -286,14 +286,16 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] `dadosSelecionaveis` lista parlamentares, vereadores, prefeituras, filiados, posição nos Executivos e, por município, vereadores do partido, filiados e % de votos, cada um com valor formatado
-- [ ] `frase` devolve "Considerando {nome}: {valor}, o mandato deve"
-- [ ] `defineReacao` grava no máximo 2 linhas e ignora índice 2
-- [ ] Teste novo `tests/dadosPartido.test.ts` passa
+- [x] `dadosSelecionaveis` lista parlamentares, vereadores, prefeituras, filiados, posição nos Executivos e, por município, vereadores do partido, filiados e % de votos, cada um com valor formatado
+- [x] `frase` devolve "Considerando {nome}: {valor}, o mandato deve"
+- [x] `defineReacao` grava no máximo 2 linhas e ignora índice 2
+- [x] Teste novo `tests/dadosPartido.test.ts` passa
 
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(m1): dados escolhíveis do partido e frase de reação`
+**Commit**: `feat(m1): dados escolhíveis do partido e frase de reação`
+
+**Status**: ✅ Done
 
 ---
 
