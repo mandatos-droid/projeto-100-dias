@@ -622,11 +622,11 @@ T20 → T21
 
 **Done when**:
 
-- [ ] A ficha não renderiza os 5 botões de relação; mostra a relação atual uma vez, o `select` com as 5 categorias e “Remover classificação”
-- [ ] Trocar pelo `select` e remover gravam no mesmo campo de hoje (`D.relacoes[sq].status`) e as contagens acompanham
-- [ ] A linha da tabela continua com os 5 botões (e2e existente segue passando)
-- [ ] Gate full passa
-- [ ] Contagem de testes não diminui
+- [x] A ficha não renderiza os 5 botões de relação; mostra a relação atual uma vez, o `select` com as 5 categorias e “Remover classificação”
+- [x] Trocar pelo `select` e remover gravam no mesmo campo de hoje (`D.relacoes[sq].status`) e as contagens acompanham
+- [x] A linha da tabela continua com os 5 botões (e2e existente segue passando)
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
 
 **Tests**: e2e
 **Gate**: full

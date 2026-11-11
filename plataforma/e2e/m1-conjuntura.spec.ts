@@ -361,3 +361,33 @@ test.describe('Botão do menu não cobre o cabeçalho (PAR-03)', () => {
     expect(a!.x).toBeGreaterThanOrEqual(b!.x + b!.width);
   });
 });
+
+test.describe('Conjuntura · ficha de detalhe com relação única (PAR-05)', () => {
+  test('a ficha mostra a relação uma vez, troca por select e remove; a linha da tabela mantém os 5 botões', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO, dados: { escopoSel: 'MG', casaSel: 'estadual' } });
+    const ilha = page.locator('[data-ilha="assentos"]');
+    const linha = ilha.locator('table.tb tbody tr', { hasText: 'Marli Ribeiro' });
+    await ilha.getByLabel('Buscar nesta lista').fill('Marli Ribeiro');
+    await expect(linha.first()).toBeVisible({ timeout: 30_000 });
+    // a linha da tabela segue com os 5 botões de relação
+    await expect(linha.first().locator('.st button')).toHaveCount(5);
+    await linha.first().click();
+    const ficha = ilha.locator('.ficha-sel');
+    await expect(ficha.locator('.st')).toHaveCount(0);
+    await expect(ficha.getByRole('button', { name: /^(Aliado|Oponente|Indefinida)/ })).toHaveCount(0);
+    // sem classificação: só o select, sem "Remover"
+    await expect(ficha.getByRole('button', { name: /Remover classificação/ })).toHaveCount(0);
+    const troca = ficha.getByRole('combobox', { name: /Trocar a relação de/ });
+    await troca.selectOption('concorrente');
+    await expect(ficha.locator('.cartao-class-cat')).toHaveCount(1);
+    await expect(ficha.locator('.cartao-class-cat')).toHaveText(/Oponente/);
+    await expect(troca.locator('option')).toHaveText(['Aliado', 'Aliado, mas concorrente', 'Oponente', 'Oponente e concorrente', 'Indefinida']);
+    await expect.poll(async () => Object.values(((await salvoDe(page)).dados as { relacoes?: Record<string, { status: string }> }).relacoes ?? {}).map((r) => r.status)).toEqual(['concorrente']);
+    await troca.selectOption('aliado');
+    await expect(ficha.locator('.cartao-class-cat')).toHaveText(/Aliado/);
+    await ficha.getByRole('button', { name: /Remover classificação/ }).click();
+    await expect(ficha.locator('.cartao-class-cat')).toHaveCount(0);
+    await expect.poll(async () => Object.keys(((await salvoDe(page)).dados as { relacoes?: object }).relacoes ?? {}).length).toBe(0);
+  });
+});

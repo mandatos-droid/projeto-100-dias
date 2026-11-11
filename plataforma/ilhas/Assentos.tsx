@@ -4,7 +4,7 @@ import { carregaEleitos } from '@/lib/dados';
 import { corPartido, posEspectro } from '@/lib/partidos';
 import { nf, pct, semAcento } from '@/lib/format';
 import type { CasaChave, Eleito, Status } from '@/lib/types';
-import { salva, statusDe, useLegado } from './ponte';
+import { marca, salva, statusDe, useLegado } from './ponte';
 import { CATEGORIAS } from '@/lib/relacoes';
 import { cargoEleito } from '@/lib/cargoEleito';
 import { Chip, Foto, Hemiciclo, InfoRelacao, Marca, ROT_REL, ROT_REL_PLURAL, StatusBotoes, useCarga, type Membro } from './pecas';
@@ -315,7 +315,24 @@ export default function Assentos() {
                   {atual.a === 2026 && (
                     <p style={{ margin: '4px 0 10px' }}><strong>{nf.format(atual.v)}</strong> votos · <strong>{pct(atual.x)}</strong> dos válidos em {atual.uf}</p>
                   )}
-                  {meuSq !== atual.s && <StatusBotoes chave={atual.s} rel={relDe(atual)} />}
+                  {meuSq !== atual.s && (() => {
+                    // PAR-05: na ficha a relação aparece uma vez, com troca compacta e remoção (a linha da tabela mantém os 5 botões)
+                    const st = statusDe(atual.s);
+                    const cat = CATEGORIAS.find((c) => c.k === st);
+                    return (
+                      <div className="ficha-relacao">
+                        {cat && <p className="cartao-class-cat"><Marca tipo={cat.k} tam={13} /> {cat.rot}</p>}
+                        <select className="cartao-class-troca" aria-label={`Trocar a relação de ${atual.u}`} value={cat ? st : ''}
+                          onChange={(ev) => marca(atual.s, relDe(atual), st, ev.target.value as Status)}>
+                          {!cat && <option value="" disabled>Sem classificação</option>}
+                          {CATEGORIAS.map((c) => <option key={c.k} value={c.k}>{c.rot}</option>)}
+                        </select>
+                        {cat && <button type="button" className="link-bt" onClick={() => marca(atual.s, relDe(atual), st, st)}>
+                          Remover classificação<span className="so-leitor"> de {atual.u}</span>
+                        </button>}
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
             </div>
