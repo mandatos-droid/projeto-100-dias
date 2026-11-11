@@ -14,17 +14,31 @@
   function item(ex,k){return ex.itens.filter(function(i){return i.k===k})[0]}
   function exDe(id){return M1.exercicios.filter(function(e){return e.id===id})[0]}
 
-  /* ---- Persona · pergunta 3: o desejo para o futuro vira duas perguntas (SUG-16) ---- */
+  /* ---- Persona · pergunta 3: até 3 conquistas em cartões próprios, e o próximo cargo (PER-07 a PER-09) ----
+     A caixa única antiga (m1.q3) deixa de ser editável, mas o texto segue gravado e aparece como "Resposta anterior". */
   var q3=item(exDe('m1.persona'),'m1.q3');
+  q3.d='<em>Elenque</em> quais são as principais conquistas ou grandes entregas que o mandato deseja ter alcançado antes do fim da legislatura. Registre até 3:';
+  function respostaAnterior(){
+    var v=D.campos&&D.campos['m1.q3'];
+    if(!v||(typeof richVazio==='function'&&richVazio(v)))return '';
+    return '<div class="apoio resposta-anterior"><span class="tag">Resposta anterior</span><div class="texto">'+(typeof rich==='function'?rich(v):esc(v))+'</div></div>';
+  }
   q3.caixas=[
-    {k:'m1.q3',rot:'Elenque quais são as 4 principais conquistas e entregas que o mandato deseja ter alcançado antes do fim da legislatura?'},
-    {k:'m1.q3b',resumo:'Próximo cargo que a liderança deseja ocupar',rot:'Qual é o próximo cargo que a liderança parlamentar deseja ocupar?',
+    {k:'m1.q3c1',resumo:'Conquista/Grande Entrega almejada 1',rot:'Conquista/Grande Entrega almejada 1',get antes(){return respostaAnterior()}},
+    {k:'m1.q3c2',resumo:'Conquista/Grande Entrega almejada 2',rot:'Conquista/Grande Entrega almejada 2'},
+    {k:'m1.q3c3',resumo:'Conquista/Grande Entrega almejada 3',rot:'Conquista/Grande Entrega almejada 3'},
+    {k:'m1.q3b',resumo:'Próximo cargo que a liderança deseja ocupar',rot:'Qual é o próximo cargo que a liderança parlamentar gostaria de ocupar?',
       grupos:[['Legislativo',['Vereador(a)','Deputado(a) estadual/distrital','Deputado(a) federal','Senador(a)']],
-        ['Executivo',['Secretário(a) municipal','Vice-prefeito(a)','Prefeito(a)','Secretário(a) estadual','Vice-governador(a)','Governador(a)','Ministro(a) de Estado','Vice-presidente','Presidente da República']]]}];
+        ['Executivo',['Secretário(a) municipal','Vice-prefeito(a)','Prefeito(a)','Secretário(a) estadual','Vice-governador(a)','Governador(a)','Ministro(a) de Estado','Vice-presidente','Presidente da República']]],
+      extra:['Não sei / não desejo registrar']}];
 
   /* ---- Persona · pergunta 2: os pleitos já vêm preenchidos (TSE), então o comando é de análise, não de levantamento (SUG-87) ---- */
   var q2=item(exDe('m1.persona'),'m1.q2');
   q2.d='<em>Analise</em> as campanhas eleitorais que a liderança percorreu, a partir dos pleitos apresentados abaixo, já preenchidos com os dados do TSE: os cargos disputados, a quantidade de votos e o(s) partido(s) escolhido(s). Procure compreender a história política, as estratégias de campanha, as aproximações e distanciamentos que o/a fizeram chegar ao cargo que conquistou hoje. Se faltar algum pleito, lance-o à mão pelo “+”.';
+  /* PER-06: logo abaixo dos dados (pleitos), o texto do papel da assessoria e só então a caixa de análise (mesma chave m1.q2) */
+  q2.depois=true;
+  q2.caixas=[{k:'m1.q2',rot:'Registre a sua análise da trajetória política',
+    antes:'<div class="orienta"><p>Seu papel agora é registrar a história política que traz sentido aos dados. O que justifica esta trajetória? O que os demais assessores precisam saber para compreender o caminho percorrido?</p></div>'}];
 
   /* ---- Conjuntura · pergunta 1: os dados primeiro, depois a análise (SUG-17) ----
      Aliados, opositores e potenciais relacionamentos são marcados na tabela (seleção tabula melhor que texto livre); a caixa é só das pontes não óbvias. */
@@ -49,7 +63,7 @@
   /* ---------- mecanismo ---------- */
   function caixa(c){
     if(c.grupos)return (c.antes||'')+'<label class="campo"><span class="rot">'+esc(c.rot)+'</span><select data-k="'+c.k+'"><option value="">Selecione um cargo</option>'+
-      c.grupos.map(function(g){return '<optgroup label="'+g[0]+'">'+g[1].map(function(o){return '<option value="'+esc(o)+'">'+esc(o)+'</option>'}).join('')+'</optgroup>'}).join('')+'</select></label>';
+      c.grupos.map(function(g){return '<optgroup label="'+g[0]+'">'+g[1].map(function(o){return '<option value="'+esc(o)+'">'+esc(o)+'</option>'}).join('')+'</optgroup>'}).join('')+(c.extra||[]).map(function(o){return '<option value="'+esc(o)+'">'+esc(o)+'</option>'}).join('')+'</select></label>';
     return (c.antes||'')+'<label class="campo"><span class="rot">'+esc(c.rot)+'</span>'+
       '<textarea data-k="'+c.k+'" placeholder="Escreva aqui a resposta da equipe"></textarea></label>';
   }

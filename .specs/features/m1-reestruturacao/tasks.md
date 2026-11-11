@@ -344,15 +344,17 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] 3 caixas com os rótulos "Conquista/Grande Entrega almejada 1/2/3" e o texto "Registre até 3:"
-- [ ] Com `D.campos['m1.q3']` preenchido aparece "Resposta anterior" e o valor segue gravado
-- [ ] O select de cargo traz a opção "Não sei / não desejo registrar"
-- [ ] O texto "Seu papel agora é registrar a história política…" fica logo abaixo dos dados de 1.2
-- [ ] Casos novos em `tests/legado-m1.test.ts` passam
+- [x] 3 caixas com os rótulos "Conquista/Grande Entrega almejada 1/2/3" e o texto "Registre até 3:"
+- [x] Com `D.campos['m1.q3']` preenchido aparece "Resposta anterior" e o valor segue gravado
+- [x] O select de cargo traz a opção "Não sei / não desejo registrar"
+- [x] O texto "Seu papel agora é registrar a história política…" fica logo abaixo dos dados de 1.2
+- [x] Casos novos em `tests/legado-m1.test.ts` passam
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(m1): persona com 3 conquistas e cargo opcional`
+
+**Status**: ✅ Done
 
 ---
 

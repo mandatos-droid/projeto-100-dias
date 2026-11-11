@@ -41,25 +41,59 @@ function pergunta(w: Janela, id: string, n: number) {
 }
 const chaves = (h: string) => [...h.matchAll(/<(?:textarea|select) data-k="([^"]+)"/g)].map((m) => m[1]);
 
-/* ---------- SUG-16: pergunta 3 da Persona ---------- */
-test('m1.q3 mostra duas caixas, conquistas e próximo cargo, e não a caixa única antiga (SUG-16)', () => {
+/* ---------- PER-07 a PER-09 (antes SUG-16): pergunta 3 da Persona ---------- */
+const CONQUISTAS = ['m1.q3c1', 'm1.q3c2', 'm1.q3c3'];
+test('1.3 mostra o texto "Registre até 3:" e 3 caixas de conquista mais o próximo cargo, sem a caixa única antiga (PER-07)', () => {
   const h = pergunta(janela(), 'm1.persona', 2);
-  assert.deepEqual(chaves(h), ['m1.q3', 'm1.q3b']);
-  assert.ok(h.includes('Elenque quais são as 4 principais conquistas e entregas que o mandato deseja ter alcançado antes do fim da legislatura?'));
-  assert.ok(h.includes('Qual é o próximo cargo que a liderança parlamentar deseja ocupar?'));
+  assert.deepEqual(chaves(h), [...CONQUISTAS, 'm1.q3b']);
+  assert.ok(h.includes('Elenque</em> quais são as principais conquistas ou grandes entregas que o mandato deseja ter alcançado antes do fim da legislatura. Registre até 3:'));
+  for (const n of [1, 2, 3]) assert.ok(h.includes(`Conquista/Grande Entrega almejada ${n}`));
+  assert.ok(h.includes('Qual é o próximo cargo que a liderança parlamentar gostaria de ocupar?'));
+  assert.equal(h.includes('as 4 principais'), false);
 });
 
-test('as caixas de m1.q3 vêm depois do texto "Mapeie" (SUG-16)', () => {
+test('as caixas de 1.3 vêm depois do texto "Registre até 3:" (PER-07)', () => {
   const h = pergunta(janela(), 'm1.persona', 2);
-  assert.ok(h.indexOf('Mapeie') > 0 && h.indexOf('Mapeie') < h.indexOf('data-k="m1.q3"'));
+  assert.ok(h.indexOf('Registre até 3:') > 0 && h.indexOf('Registre até 3:') < h.indexOf('data-k="m1.q3c1"'));
   assert.equal(h.includes('<label class="campo"></label>'), false);
 });
 
-test('no modo "ver tudo" Comp.perguntas também traz as duas caixas de m1.q3 (SUG-16)', () => {
+test('o select de cargo traz os cargos de hoje e a opção "Não sei / não desejo registrar" (PER-08)', () => {
+  const h = pergunta(janela(), 'm1.persona', 2);
+  const sel = h.slice(h.indexOf('<select data-k="m1.q3b"'), h.indexOf('</select>'));
+  for (const o of ['Vereador(a)', 'Deputado(a) federal', 'Senador(a)', 'Governador(a)', 'Presidente da República', 'Não sei / não desejo registrar']) {
+    assert.ok(sel.includes(`<option value="${o}">`), o);
+  }
+});
+
+test('com resposta antiga em m1.q3 aparece "Resposta anterior" e o valor segue gravado (PER-09)', () => {
+  const w = janela();
+  (w as unknown as { D: { campos: Record<string, string> } }).D.campos['m1.q3'] = 'Aprovar a lei do saneamento';
+  const h = pergunta(w, 'm1.persona', 2);
+  assert.ok(h.includes('Resposta anterior'));
+  assert.ok(h.includes('Aprovar a lei do saneamento'));
+  assert.equal((w as unknown as { D: { campos: Record<string, string> } }).D.campos['m1.q3'], 'Aprovar a lei do saneamento');
+  assert.equal(chaves(h).includes('m1.q3'), false);
+});
+
+test('sem resposta antiga em m1.q3 não aparece "Resposta anterior" (PER-09)', () => {
+  assert.equal(pergunta(janela(), 'm1.persona', 2).includes('Resposta anterior'), false);
+});
+
+test('no modo "ver tudo" Comp.perguntas também traz as 3 caixas de conquista e o cargo (PER-07)', () => {
   const w = janela();
   const h = w.Comp.perguntas(ex1(w, 'm1.persona'));
-  assert.deepEqual(chaves(h).filter((k) => k.startsWith('m1.q3')), ['m1.q3', 'm1.q3b']);
-  assert.equal(chaves(h).filter((k) => k === 'm1.q3').length, 1);
+  assert.deepEqual(chaves(h).filter((k) => k.startsWith('m1.q3')), [...CONQUISTAS, 'm1.q3b']);
+});
+
+/* ---------- PER-06: texto e caixa de análise logo abaixo dos dados de 1.2 ---------- */
+test('1.2 mostra, logo abaixo dos dados, o texto "Seu papel agora é registrar…" e depois a caixa de análise (PER-06)', () => {
+  const h = pergunta(janela(), 'm1.persona', 1);
+  const ilha = h.indexOf('data-ilha="persona-tse"');
+  const texto = h.indexOf('Seu papel agora é registrar a história política que traz sentido aos dados. O que justifica esta trajetória? O que os demais assessores precisam saber para compreender o caminho percorrido?');
+  const caixa = h.indexOf('data-k="m1.q2"');
+  assert.ok(ilha > 0 && texto > ilha && caixa > texto);
+  assert.deepEqual(chaves(h), ['m1.q2']);
 });
 
 test('perguntas sem caixas novas seguem com a caixa única (SUG-16)', () => {
