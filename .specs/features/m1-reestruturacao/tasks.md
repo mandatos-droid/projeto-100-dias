@@ -1123,10 +1123,10 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Sem mapa; 3 colunas; adicionar por texto e por tag; repetido barrado; remover
-- [ ] Slide 1 de 4 cartões, avançar e filtrar por "Baixo"
-- [ ] Marcar 3 agendas e barrar a 4ª
-- [ ] Passa: `npx playwright test e2e/m1-oportunidades`
+- [x] Sem mapa; 3 colunas; adicionar por texto e por tag; repetido barrado; remover
+- [x] Slide 1 de 4 cartões, avançar e filtrar por "Baixo"
+- [x] Marcar 3 agendas e barrar a 4ª
+- [x] Passa: `npx playwright test e2e/m1-oportunidades`
 
 **Tests**: e2e
 **Gate**: full

@@ -60,7 +60,7 @@ test.describe('Conjuntura · partido, atores e social (PAR-01, PAR-09, PAR-13, S
   test('m1.q8a traz a caixa de análise depois dos dados sociais', async ({ page }) => {
     await abreGuia(page, '#/m/1/m1.oportunidades');
     await expect(page.getByText(COMANDO)).toBeVisible();
-    await depoisDosDados(page, 'social', 'm1.q8a');
+    await depoisDosDados(page, 'agendas-sociais', 'm1.q8a');
   });
 });
 
