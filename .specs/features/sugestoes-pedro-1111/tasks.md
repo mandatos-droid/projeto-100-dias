@@ -594,10 +594,10 @@ T20 → T21
 
 **Done when**:
 
-- [ ] Teste unitário cobre posse futura (inclusive 1 dia, singular), dia 1, dia 99, dia 100, dia 101, 283 e sem posse
-- [ ] Nenhuma saída contém “undefined” nem “null”
-- [ ] Gate quick passa
-- [ ] Contagem de testes não diminui
+- [x] Teste unitário cobre posse futura (inclusive 1 dia, singular), dia 1, dia 99, dia 100, dia 101, 283 e sem posse
+- [x] Nenhuma saída contém “undefined” nem “null”
+- [x] Gate quick passa
+- [x] Contagem de testes não diminui
 
 **Tests**: unit
 **Gate**: quick
