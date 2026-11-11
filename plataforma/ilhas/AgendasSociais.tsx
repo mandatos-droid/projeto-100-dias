@@ -23,9 +23,9 @@ function idsNecessarios(cat: Catalogo): string[] {
   return [...ids];
 }
 
-async function carregaTudo(): Promise<{ cat: Catalogo; dados: Record<string, DadosIndicador | null> } | null> {
+async function carregaTudo(): Promise<{ cat: Catalogo; dados: Record<string, DadosIndicador | null> }> {
   const cat = await carregaCatalogo();
-  if (!cat) return null;
+  if (!cat) throw new Error('sem catálogo'); // vira `erro` em useCarga e mostra a mensagem de SOC-08
   const ids = idsNecessarios(cat);
   const arqs = await Promise.all(ids.map((id) => carregaIndicador(id)));
   return { cat, dados: Object.fromEntries(ids.map((id, k) => [id, arqs[k]])) };
@@ -46,7 +46,7 @@ export default function AgendasSociais() {
 
   if (!uf) return <div className="apoio atencao"><span className="tag">Atenção</span>Informe a UF em “Dados do mandato” para ver os indicadores do seu estado.</div>;
   if (carga.carregando) return <p className="sem" role="status">Carregando indicadores de {uf}…</p>;
-  if (!cartoes || cartoes.every((c) => !c.linhas.length)) return <div className="erro-cx" role="status">{MSG_SEM_INDICADORES}</div>;
+  if (carga.erro || !cartoes || cartoes.every((c) => !c.linhas.length)) return <div className="erro-cx" role="status">{MSG_SEM_INDICADORES}</div>;
 
   const cartao = ({ a, linhas }: { a: Agenda; linhas: ReturnType<typeof linhasDaAgenda> }) => {
     const faixa = faixas[a.id] ?? 'todas';
