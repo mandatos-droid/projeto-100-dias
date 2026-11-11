@@ -800,13 +800,15 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Sem cartograma; abas com os nomes novos; 5 botões de categoria
-- [ ] Classificar 3 parlamentares, filtrar o carrossel e ver o resumo na aba Resumo
-- [ ] Passa: `npx playwright test e2e/m1-conjuntura`
+- [x] Sem cartograma; abas com os nomes novos; 5 botões de categoria
+- [x] Classificar 3 parlamentares, filtrar o carrossel e ver o resumo na aba Resumo
+- [x] Passa: `npx playwright test e2e/m1-conjuntura`
 
 **Tests**: e2e
 **Gate**: full
 **Commit**: `test(m1): e2e das relações com 5 categorias`
+
+**Status**: ✅ Done
 
 ---
 

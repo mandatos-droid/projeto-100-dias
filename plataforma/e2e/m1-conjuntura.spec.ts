@@ -104,3 +104,73 @@ test.describe('Conjuntura · tabela de eleitos paginada (sugestão 92)', () => {
     await expect(page.getByText('Procurar qualquer parlamentar eleito no Brasil')).toHaveCount(0);
   });
 });
+
+test.describe('Conjuntura · relações com os parlamentares (LEG-01, LEG-02, LEG-03, LEG-07 a LEG-10, LEG-12)', () => {
+  const linhas = (page: Page) => page.locator('[data-ilha="assentos"] table.tb tbody tr');
+  const CATS = ['Aliado', 'Aliado, mas concorrente', 'Oponente', 'Oponente e concorrente', 'Indefinida'];
+
+  test('sem cartograma de UFs; seletor de escopo e abas com os nomes novos; 5 botões de categoria', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO });
+    const ilha = page.locator('[data-ilha="assentos"]');
+    await expect.poll(() => linhas(page).count(), { timeout: 30_000 }).toBe(15);
+    await expect(ilha.locator('.mapa-br')).toHaveCount(0);
+    await expect(ilha.getByLabel('Território')).toBeVisible();
+    await expect(ilha.getByRole('tab', { name: /^Assembleia Legislativa/ })).toBeVisible();
+    await expect(ilha.getByRole('tab', { name: /^Câmara dos Deputados/ })).toBeVisible();
+    await expect(ilha.getByRole('tab', { name: /^Senado/ })).toBeVisible();
+    const botoes = linhas(page).first().locator('.st button');
+    await expect(botoes).toHaveCount(5);
+    for (let i = 0; i < 5; i++) await expect(botoes.nth(i)).toHaveText(CATS[i]);
+  });
+
+  test('o seletor de escopo grava D.escopoSel; no DF a aba se chama Câmara Legislativa', async ({ page }) => {
+    await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO });
+    const ilha = page.locator('[data-ilha="assentos"]');
+    await expect.poll(() => linhas(page).count(), { timeout: 30_000 }).toBe(15);
+    await ilha.getByLabel('Território').selectOption('DF');
+    await expect(ilha.getByRole('tab', { name: /^Câmara Legislativa/ })).toBeVisible();
+    await expect.poll(async () => ((await salvoDe(page)).dados as { escopoSel?: string }).escopoSel).toBe('DF');
+  });
+
+  test('a linha da própria liderança tem o selo "Esta liderança" e não tem botões de classificação', async ({ page, request }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    const todos = (await (await request.get('/data/eleitos.json')).json()) as { s: string; k: string; uf: string; v: number; u: string }[];
+    const meu = todos.filter((e) => e.k === 'e' && e.uf === 'SP').sort((x, y) => y.v - x.v)[0];
+    await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO, dados: { tse: { sq: meu.s } } });
+    await expect.poll(() => linhas(page).count(), { timeout: 30_000 }).toBe(15);
+    const minha = linhas(page).first();
+    await expect(minha).toContainText(meu.u);
+    await expect(minha).toContainText('Esta liderança');
+    await expect(minha.locator('.st button')).toHaveCount(0);
+    await expect(linhas(page).nth(1).locator('.st button')).toHaveCount(5);
+  });
+
+  test('classificar 3 parlamentares, filtrar o carrossel e ver o resumo na aba Resumo', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO });
+    await expect.poll(() => linhas(page).count(), { timeout: 30_000 }).toBe(15);
+    const marca = (i: number, cat: string) => linhas(page).nth(i).getByRole('button', { name: cat, exact: true }).click();
+    await expect(page.getByTestId('classificados-vazio')).toBeVisible();
+    await marca(0, 'Aliado');
+    await marca(1, 'Aliado');
+    await marca(2, 'Oponente e concorrente');
+    const car = page.getByTestId('classificados');
+    await expect(car.locator('article')).toHaveCount(3);
+    await expect(car.getByRole('button', { name: /^Todas/ })).toContainText('3');
+    await expect(car.getByRole('button', { name: /^Aliado\s*2/ })).toBeVisible();
+    await expect(car.getByRole('button', { name: /^Oponente e concorrente\s*1/ })).toBeVisible();
+    await expect(car.getByText('Slide 1 de 1')).toBeVisible();
+    await car.getByRole('button', { name: /^Aliado\s*2/ }).click();
+    await expect(car.locator('article')).toHaveCount(2);
+    // reclassificar pelo cartão atualiza cartões e contagens na hora
+    await car.locator('article').first().getByRole('button', { name: 'Indefinida', exact: true }).click();
+    await expect(car.locator('article')).toHaveCount(1);
+    await expect(car.getByRole('button', { name: /^Indefinida\s*1/ })).toBeVisible();
+    // remover
+    await car.locator('article').first().getByRole('button', { name: /Remover classificação/ }).click();
+    await expect(car.getByRole('button', { name: /^Todas/ })).toContainText('2');
+    await page.evaluate(() => { location.hash = '#/resumo'; });
+    await expect(page.locator('#tela')).toContainText('Você tem 1 Oponente e concorrente; 1 Indefinida', { timeout: 20_000 });
+  });
+});
