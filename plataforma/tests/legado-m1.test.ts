@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import vm from 'node:vm';
 
 /* m1.js é o arquivo de ganchos da Missão 1 sobre o Guia legado. Aqui ele roda sobre o conteudo.js e o guia.js reais,
@@ -438,9 +438,26 @@ test('depois da lista vem o texto "Caso sinta falta de algum outro tema, suba na
   assert.ok(caso < html.indexOf('Tornando fragilidades em fortalezas!'));
 });
 
-test('nenhum texto da Missão 1 escrito à mão usa "o parlamentar" ou "a parlamentar" para a pessoa do mandato (GER-01)', () => {
-  const achados = CODIGO.match(/(?<![\p{L}\p{N}])(?:o|a|do|da|ao|à|pelo|pela) parlamentar(?![\p{L}\p{N}])/giu) ?? [];
-  assert.deepEqual([...achados], []);
+/* "a pessoa do mandato" é a liderança parlamentar; "o parlamentar" fica fora dos textos novos ou reescritos da Missão 1 (GER-01).
+   Varre o m1.js, o novos.js e todas as ilhas. A única ocorrência é o "Selecione o parlamentar…" do formulário de cadastro do
+   mandato (novos.js), que é da Missão 0, não da Missão 1, e a spec não pede para reescrevê-lo. */
+const ESCRITO_A_MAO = [
+  ['m1.js', CODIGO],
+  ['novos.js', ler('novos.js').replace('Selecione o parlamentar…', 'Selecione a liderança…')],
+  ...readdirSync(new URL('../ilhas/', import.meta.url)).filter((f) => /\.tsx?$/.test(f))
+    .map((f) => [`ilhas/${f}`, readFileSync(new URL(`../ilhas/${f}`, import.meta.url), 'utf8')]),
+];
+test('nenhum texto da Missão 1 escrito à mão (m1.js, novos.js e ilhas) usa "o parlamentar" ou "a parlamentar" para a pessoa do mandato (GER-01)', () => {
+  assert.ok(ESCRITO_A_MAO.length > 20);
+  const achados = ESCRITO_A_MAO.flatMap(([nome, codigo]) =>
+    (codigo.match(/(?<![\p{L}\p{N}])(?:o|a|do|da|ao|à|pelo|pela) parlamentar(?![\p{L}\p{N}])/giu) ?? []).map((t) => `${nome}: ${t}`));
+  assert.deepEqual(achados, []);
+});
+
+test('a varredura de GER-01 pega "o parlamentar" quando ele aparece (GER-01)', () => {
+  const re = /(?<![\p{L}\p{N}])(?:o|a|do|da|ao|à|pelo|pela) parlamentar(?![\p{L}\p{N}])/giu;
+  assert.equal(('Registre o parlamentar eleito').match(re)?.length, 1);
+  assert.equal(('a liderança parlamentar e o parlamentarismo').match(re), null);
 });
 
 /* ---------- GER-02 e GER-03: Resumo e andamento ---------- */
