@@ -1049,9 +1049,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] 13 botões `aria-pressed` com os rótulos de `AGENDAS` e o contador "faltam N"
-- [ ] A 4ª marcação não entra e mostra "Você já escolheu 3 agendas. Desmarque uma para trocar."
-- [ ] `npx tsc --noEmit` passa
+- [x] 13 botões `aria-pressed` com os rótulos de `AGENDAS` e o contador "faltam N"
+- [x] A 4ª marcação não entra e mostra "Você já escolheu 3 agendas. Desmarque uma para trocar."
+- [x] `npx tsc --noEmit` passa
 
 **Tests**: none
 **Gate**: build
