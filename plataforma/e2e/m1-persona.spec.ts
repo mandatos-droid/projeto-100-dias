@@ -56,7 +56,13 @@ test.describe('Persona · ranking em lista e municípios mais votados (PER-01 a 
     await abreGuia(page, '#/m/1/m1.persona', { dados: { tse: TSE } });
     await expect(page.getByText('Posição no ranking de votos')).toBeVisible();
     await expect(page.getByText('Onde estão os votos')).toHaveCount(0);
-    await expect(page.locator('.rk-linha').first().locator('.chip')).toBeVisible();
+    const linhas = page.locator('.rk-linha');
+    await expect(linhas.first().locator('.rk-pos')).toHaveText('1º');
+    await expect(linhas.first().locator('.rk-nome')).toContainText('EDUARDA CAMPOPIANO');
+    await expect(linhas.first().locator('.rk-nome .chip')).toHaveText('PL'); // partido ao lado do nome
+    await expect(linhas.nth(1).locator('.rk-pos')).toHaveText('2º');
+    await expect(linhas.nth(1).locator('.rk-nome')).toContainText('EDUARDO SUPLICY');
+    await expect(linhas.nth(1).locator('.rk-nome .chip')).toHaveText('PT');
     await expect(page.locator('.barra-p')).toHaveCount(0);
     const cartoes = page.locator('.mv5-cartao');
     await expect(cartoes).toHaveCount(5);
@@ -73,6 +79,18 @@ test.describe('Persona · ranking em lista e municípios mais votados (PER-01 a 
     await expect(page.getByText('Não foi possível carregar os municípios mais votados agora.')).toBeVisible();
     await expect(page.locator('.mv5-cartao')).toHaveCount(0);
     await expect(page.getByText('Posição no ranking de votos')).toBeVisible();
+  });
+
+  test('em pleito anterior a 2026 lançado à mão não há cartões de município (PER-04)', async ({ page }) => {
+    await page.route('**/api/votos-mun**', (r) => r.fulfill({ json: MUN }));
+    const pleito = { id: 'p2022', ano: 2022, cargo: 'Deputado Estadual', uf: 'SP', partido: 'PT', votos: 120000, situacao: 'Eleito por QP' };
+    await abreGuia(page, '#/m/1/m1.persona', { dados: { tse: TSE, pleitos: [pleito] } });
+    await expect(page.locator('.mv5-cartao')).toHaveCount(5); // só o cartão de 2026
+    const anterior = page.locator('.pl-cartao', { hasText: '2022' });
+    await anterior.getByRole('button', { expanded: false }).first().click();
+    await expect(anterior).toContainText('Lançado manualmente.');
+    await expect(anterior.locator('.mv5, .mv5-cartao')).toHaveCount(0);
+    await expect(page.locator('.pl-cartao', { hasText: 'Posição no ranking de votos' }).locator('.mv5-cartao')).toHaveCount(5);
   });
 
   test('sem candidatura 2026 não há cartões nem consulta', async ({ page }) => {
