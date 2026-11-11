@@ -532,12 +532,12 @@ T19
 
 **Done when**:
 
-- [ ] Fluxo completo: botão → 1º clique → 2º clique → banner fecha → chips no formulário (e2e)
-- [ ] Remover chip limpa só aquele dado e permite reabrir (SEL-01b)
-- [ ] `D.conj2.reacoes` e o Resumo continuam iguais
-- [ ] `Esc` cancela sem gravar pela metade
-- [ ] Gate full passa
-- [ ] Contagem de testes não diminui
+- [x] Fluxo completo: botão → 1º clique → 2º clique → banner fecha → chips no formulário (e2e)
+- [x] Remover chip limpa só aquele dado e permite reabrir (SEL-01b)
+- [x] `D.conj2.reacoes` e o Resumo continuam iguais
+- [x] `Esc` cancela sem gravar pela metade
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
 
 **Tests**: e2e
 **Gate**: full

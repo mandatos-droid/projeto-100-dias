@@ -136,71 +136,149 @@ test.describe('Conjuntura do partido · sem mapa, com cartões (PAR-02 a PAR-05,
   });
 });
 
-test.describe('Conjuntura do partido · reação a 2 dados (PAR-09 a PAR-12)', () => {
-  test('todo dado oferecido no seletor tem um elemento capturável na página, com o mesmo texto (SEL-01)', async ({ page }) => {
+const PLACAR_IDS = ['parlamentares', 'vereadores', 'prefeituras', 'filiados', 'executivos'];
+const CDIS = ['3500204', '3500303', '3500501', '3500402', '3500105']; // os 5 mais votados de MUN, em ordem
+const capturavel = (page: Page, id: string) => page.locator(`.capturable-data[data-dado-id="${id}"]`);
+const banner = (page: Page) => page.locator('.rea-banner');
+const iniciar = (page: Page) => page.getByRole('button', { name: 'Selecionar 2 dados na tela' }).click();
+
+test.describe('Conjuntura do partido · dados capturáveis na página (SEL-01)', () => {
+  test('todo dado que o seletor oferecia tem um elemento capturável, e só um, com nome e valor do que se vê', async ({ page }) => {
     await abre(page);
     await expect(page.getByTestId('cartao-municipio')).toHaveCount(5, { timeout: 30_000 });
-    const opcoes = await page.locator('#rea-sel-0 option:not([value=""])').evaluateAll((os) => os.map((o) => ({ id: (o as HTMLOptionElement).value, texto: o.textContent ?? '' })));
-    const capturaveis = await page.locator('.capturable-data').evaluateAll((es) => es.map((e) => e.getAttribute('data-dado-id')));
-    expect(opcoes.map((o) => o.id).sort()).toEqual([...capturaveis].sort()); // mesma lista de ids, sem repetição
-    for (const id of ['parlamentares', 'vereadores', 'prefeituras', 'filiados', 'executivos']) {
-      const el = page.locator(`.v2-grande.capturable-data[data-dado-id="${id}"]`);
+    const ids = await page.locator('.capturable-data').evaluateAll((es) => es.map((e) => e.getAttribute('data-dado-id')!));
+    expect(new Set(ids).size).toBe(ids.length); // sem repetição
+    const esperados = [...PLACAR_IDS, ...CDIS.flatMap((c) => [`mun:${c}:vereadores`, `mun:${c}:filiados`])];
+    for (const id of esperados) expect(ids).toContain(id);
+    expect(ids.filter((i) => i.startsWith('mun:') && i.endsWith(':pct')).length).toBeGreaterThan(0);
+    expect(ids.length).toBeLessThanOrEqual(PLACAR_IDS.length + CDIS.length * 3);
+    for (const id of PLACAR_IDS) await expect(page.locator(`.v2-grande.capturable-data[data-dado-id="${id}"]`)).toHaveCount(1);
+    for (const cdi of CDIS) { // cada cartão de município carrega os seus
+      const el = capturavel(page, `mun:${cdi}:vereadores`);
       await expect(el).toHaveCount(1);
-      const texto = opcoes.find((o) => o.id === id)!.texto;
-      expect(`${await el.getAttribute('data-dado-nome')}: ${await el.getAttribute('data-dado-valor')}`).toBe(texto);
+      await expect(el).toHaveText((await el.getAttribute('data-dado-valor'))!); // o número visível é o capturado
+      expect(await el.getAttribute('data-dado-nome')).toMatch(/^Vereadores do partido em /);
+      await expect(el.locator('xpath=ancestor::*[@data-testid="cartao-municipio"]')).toHaveCount(1);
     }
-    // o valor capturado do Placar é o número que o cartão mostra (UF e Brasil)
-    const filiados = page.locator('.capturable-data[data-dado-id="filiados"]');
+    const filiados = capturavel(page, 'filiados');
     const [br, uf] = await filiados.locator('b').allTextContents();
     await expect.poll(async () => filiados.getAttribute('data-dado-valor')).toBe(`${uf} no estado, ${br} no Brasil`);
   });
+});
 
-  test('os valores dos 5 cartões de município são capturáveis e batem com os dados oferecidos (SEL-01)', async ({ page }) => {
-    await abre(page);
-    const cartoes = page.getByTestId('cartao-municipio');
-    await expect(cartoes).toHaveCount(5, { timeout: 30_000 });
-    const opcoes = await page.locator('#rea-sel-0 option[value^="mun:"]').evaluateAll((os) => os.map((o) => ({ id: (o as HTMLOptionElement).value, texto: o.textContent ?? '' })));
-    expect(opcoes.length).toBeGreaterThanOrEqual(10);
-    for (let i = 0; i < 5; i++) {
-      const caps = cartoes.nth(i).locator('.capturable-data');
-      expect(await caps.count()).toBeGreaterThanOrEqual(2);
-    }
-    for (const o of opcoes) {
-      const el = page.locator(`.cm5-cartao .capturable-data[data-dado-id="${o.id}"]`);
-      await expect(el).toHaveCount(1);
-      const nome = await el.getAttribute('data-dado-nome'), valor = await el.getAttribute('data-dado-valor');
-      expect(`${nome}: ${valor}`).toBe(o.texto); // o mesmo nome e valor que o seletor mostra
-      await expect(el).toHaveText(valor!); // o número visível é o capturado
-    }
-  });
-
-  test('escolher 2 dados completa as frases e grava; não há 3ª linha', async ({ page }) => {
+test.describe('Conjuntura do partido · reação a 2 dados (PAR-09 a PAR-12, SEL-01)', () => {
+  test('o botão abre o banner, 2 cliques fecham e viram chips; as frases completam e gravam; não há 3ª linha', async ({ page }) => {
     await abre(page);
     await expect(page.getByTestId('cartao-municipio')).toHaveCount(5, { timeout: 30_000 });
-    const sel0 = page.locator('#rea-sel-0'), sel1 = page.locator('#rea-sel-1');
-    await expect(sel0.locator('option', { hasText: 'Filiados do partido' }).first()).toBeAttached();
+    await expect(page.locator('.rea select')).toHaveCount(0); // sem os selects de Dado 1 e 2
     await expect(page.locator('.rea textarea')).toHaveCount(0); // a caixa só abre depois da escolha
-    await sel0.selectOption('filiados');
-    const caixa0 = page.locator('.rea-linha').nth(0).locator('textarea');
+    await expect(banner(page)).toHaveCount(0);
+    await iniciar(page);
+    await expect(banner(page)).toContainText('1º');
+    await expect(banner(page).getByRole('button', { name: 'Cancelar' })).toBeVisible();
+    await capturavel(page, 'filiados').click();
+    await expect(banner(page)).toContainText('2º');
+    await expect(capturavel(page, 'filiados')).toHaveAttribute('data-captura-tag', '1️⃣');
+    expect((await dadosDe(page)).conj2?.reacoes ?? []).toHaveLength(0); // nada gravado pela metade
+    await capturavel(page, 'parlamentares').click();
+    await expect(banner(page)).toHaveCount(0);
+    await expect(page.locator('[data-captura-tag]')).toHaveCount(0);
+    await expect(page.locator('.rea-chip')).toHaveCount(2);
     await expect(page.locator('.rea-linha').nth(0)).toContainText('Considerando Filiados do partido:');
     await expect(page.locator('.rea-linha').nth(0)).toContainText(', o mandato deve');
-    await caixa0.fill('ampliar a filiação no interior');
-    await sel1.selectOption('parlamentares');
+    await page.locator('.rea-linha').nth(0).locator('textarea').fill('ampliar a filiação no interior');
     await page.locator('.rea-linha').nth(1).locator('textarea').fill('buscar a presidência da bancada');
-    await expect.poll(async () => (await dadosDe(page)).conj2?.reacoes?.length).toBe(2);
+    await expect.poll(async () => (await dadosDe(page)).conj2?.reacoes?.[1]?.texto).toBe('buscar a presidência da bancada');
     const r = (await dadosDe(page)).conj2!.reacoes!;
+    expect(r).toHaveLength(2);
     expect(r[0]).toMatchObject({ dado: 'filiados', texto: 'ampliar a filiação no interior' });
     expect(r[1]).toMatchObject({ dado: 'parlamentares', texto: 'buscar a presidência da bancada' });
-    expect(r[0].valor).toMatch(/no estado, .* no Brasil/);
+    expect(r[0].valor).toMatch(/no estado, .* no Brasil/); // mesmo formato de antes
     await expect(page.locator('.rea-linha')).toHaveCount(2);
+    await expect(page.getByRole('button', { name: 'Selecionar 2 dados na tela' })).toBeDisabled(); // sem vaga: remova um chip
+    await page.evaluate(() => { location.hash = '#/resumo'; }); // o Resumo lê o mesmo dado
+    await expect(page.locator('#tela')).toContainText('Considerando Filiados do partido', { timeout: 20_000 });
+    await expect(page.locator('#tela')).toContainText('ampliar a filiação no interior');
   });
 
-  test('os dados do seletor batem com o número mostrado no Placar', async ({ page }) => {
+  test('o dado gravado é o número que o Placar mostra', async ({ page }) => {
     await abre(page);
     const lePlacar = () => page.locator('.v2-grande').filter({ hasText: 'Filiados' }).first().locator('b').allTextContents();
     await expect.poll(async () => (await lePlacar())[1]).not.toBe('0'); // espera os filiados carregarem
-    await page.locator('#rea-sel-0').selectOption('filiados');
+    await iniciar(page);
+    await capturavel(page, 'filiados').click();
+    await capturavel(page, 'vereadores').click();
     await expect.poll(async () => { const p = await lePlacar(); return p[1] === '0' ? null : (await dadosDe(page)).conj2?.reacoes?.[0]?.valor === `${p[1]} no estado, ${p[0]} no Brasil`; }).toBe(true);
+  });
+
+  test('clicar duas vezes no mesmo dado avisa e segue esperando o 2º (AC4)', async ({ page }) => {
+    await abre(page);
+    await iniciar(page);
+    await capturavel(page, 'filiados').click();
+    await capturavel(page, 'filiados').click();
+    await expect(banner(page)).toContainText('Escolha um indicador diferente.');
+    await expect(page.locator('.rea-chip')).toHaveCount(0);
+    await capturavel(page, 'vereadores').click();
+    await expect(page.locator('.rea-chip')).toHaveCount(2);
+  });
+
+  test('Cancelar e Esc no meio fecham o banner sem gravar nada (AC5)', async ({ page }) => {
+    await abre(page);
+    await iniciar(page);
+    await capturavel(page, 'filiados').click();
+    await banner(page).getByRole('button', { name: 'Cancelar' }).click();
+    await expect(banner(page)).toHaveCount(0);
+    await iniciar(page);
+    await capturavel(page, 'filiados').click();
+    await page.keyboard.press('Escape');
+    await expect(banner(page)).toHaveCount(0);
+    await expect(page.locator('[data-captura-tag]')).toHaveCount(0);
+    await expect(page.locator('.rea-chip')).toHaveCount(0);
+    await page.waitForTimeout(600); // a gravação é com atraso: nada pode aparecer
+    expect((await dadosDe(page)).conj2?.reacoes ?? []).toHaveLength(0);
+    // fora do modo, clicar no dado não captura
+    await capturavel(page, 'filiados').click();
+    await expect(banner(page)).toHaveCount(0);
+    await expect(page.locator('.rea-chip')).toHaveCount(0);
+  });
+
+  test('remover um chip limpa só aquele dado e permite escolher outro (AC3)', async ({ page }) => {
+    await abre(page);
+    await iniciar(page);
+    await capturavel(page, 'filiados').click();
+    await capturavel(page, 'parlamentares').click();
+    await page.locator('.rea-linha').nth(1).locator('textarea').fill('texto do dado 2');
+    await page.getByRole('button', { name: 'Remover o dado 1' }).click();
+    await expect(page.locator('.rea-chip')).toHaveCount(1);
+    await expect(page.locator('.rea-linha').nth(1)).toContainText('Parlamentares do partido');
+    await expect(page.locator('.rea-linha').nth(1).locator('textarea')).toHaveValue('texto do dado 2');
+    await iniciar(page);
+    await expect(banner(page)).toContainText('1º'); // só falta o dado 1
+    await capturavel(page, 'parlamentares').click(); // já está no dado 2: ignorado
+    await expect(banner(page)).toContainText('Escolha um indicador diferente.');
+    await capturavel(page, 'vereadores').click();
+    await expect(banner(page)).toHaveCount(0);
+    await expect(page.locator('.rea-linha').nth(0)).toContainText('Considerando Vereadores do partido:');
+    await expect.poll(async () => (await dadosDe(page)).conj2?.reacoes?.map((x) => x.dado)).toEqual(['vereadores', 'parlamentares']);
+  });
+
+  test('durante a captura, botão dentro do dado conta como captura e não age', async ({ page }) => {
+    await abre(page);
+    await expect(page.getByTestId('cartao-municipio')).toHaveCount(5, { timeout: 30_000 });
+    await iniciar(page);
+    const dd = page.getByTestId('cartao-municipio').first().locator('.capturable-data').first();
+    // um botão dentro do valor capturável: o clique vira captura e o botão não dispara
+    await dd.evaluate((el) => {
+      const w = window as unknown as { __b: number };
+      w.__b = 0;
+      const b = document.createElement('button');
+      b.id = 'bt-teste'; b.textContent = 'x';
+      b.addEventListener('click', () => { w.__b++; });
+      el.appendChild(b);
+    });
+    await page.locator('#bt-teste').click();
+    await expect(banner(page)).toContainText('2º');
+    expect(await page.evaluate(() => (window as unknown as { __b: number }).__b)).toBe(0);
   });
 });
 
@@ -223,8 +301,10 @@ test.describe('Conjuntura do partido · fim da página (PAR-01, PAR-09, PAR-13)'
   test('valores antigos de conj2 seguem gravados (PAR-14)', async ({ page }) => {
     const CONJ2 = { muns: { 3500105: { tag: 'base', nota: 'x' } }, posicao: {}, relacao: 'lideranca', relacaoPq: 'quer', desafios: ['Poucos filiados'], oportunidades: ['Eleição'] };
     await abre(page, { tse: TSE, conj2: CONJ2 });
-    await page.locator('#rea-sel-0').selectOption('vereadores');
-    await expect.poll(async () => (await dadosDe(page)).conj2?.reacoes?.length).toBe(1);
+    await iniciar(page);
+    await capturavel(page, 'vereadores').click();
+    await capturavel(page, 'filiados').click();
+    await expect.poll(async () => (await dadosDe(page)).conj2?.reacoes?.length).toBe(2);
     const c = (await dadosDe(page)).conj2 as Record<string, unknown>;
     expect(c.muns).toEqual(CONJ2.muns);
     expect(c.relacao).toBe('lideranca');
