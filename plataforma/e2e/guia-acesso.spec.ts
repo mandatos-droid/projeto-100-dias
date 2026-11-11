@@ -27,7 +27,8 @@ const LINHA_MANDATO = {
 interface Pedido { metodo: string; caminho: string; corpo: unknown }
 const registro = { pedidos: [] as Pedido[], naoMapeadas: [] as string[] };
 /** Toda requisição ao banco que não é leitura (POST, PATCH, DELETE), na ordem. */
-const gravacoes = () => registro.pedidos.filter((p) => p.metodo !== 'GET');
+// o registro de uso do Guia (uso_funcionalidades) é telemetria sem texto do mandato e roda a cada abertura de ilha, em qualquer papel: não conta como gravação do mandato
+const gravacoes = () => registro.pedidos.filter((p) => p.metodo !== 'GET' && p.caminho !== 'uso_funcionalidades');
 
 const PERMITE = {
   'access-control-allow-origin': '*',
@@ -109,6 +110,8 @@ async function abre(page: Page, hash: string, e: Estado = {}) {
     const dados = (corpo ?? {}) as Record<string, unknown>;
     if (req.method() === 'PATCH' && tabela === 'mandatos' && q('id')) return responde(204);
     if (req.method() === 'POST' && tabela === 'eventos') return responde(201);
+    // registro de uso do Guia: a Persona (Missão 1) monta a ilha ao abrir, sem passo intermediário
+    if (req.method() === 'POST' && tabela === 'uso_funcionalidades') return responde(201);
     if (req.method() === 'POST' && tabela === 'mandatos') { const novo = { ...dados, id: MANDATO_NOVO }; mandatos.push(novo); return responde(201, [novo]); }
     if (req.method() === 'POST' && tabela === 'membros') { membros.push(dados); return responde(201); }
     // abas da Área do mandato (ilhas): pessoas e convites pendentes do mandato aberto
@@ -205,14 +208,13 @@ test.describe('Modo somente leitura no Guia (ACE-03.2, ACE-03.3)', () => {
 
   test('no exercício, o campo de resposta e a barra de formatação ficam desabilitados; navegar segue livre', async ({ page }) => {
     await abre(page, '#/m/1/m1.persona', { papel: 'leitura' });
-    await page.getByRole('button', { name: 'Avançar' }).click();
-    await expect(editor(page)).toHaveAttribute('contenteditable', 'false');
+    await expect(editor(page).first()).toHaveAttribute('contenteditable', 'false');
     await expect(page.locator('#tela textarea[data-k="m1.q1"]')).toBeDisabled();
     const barra = page.locator('#tela .rico-barra button');
     expect(await barra.count()).toBeGreaterThan(0);
     for (const b of await barra.all()) await expect(b).toBeDisabled();
-    await expect(page.getByRole('button', { name: 'Anterior' })).toBeEnabled();
-    await expect(page.getByRole('button', { name: 'Avançar' })).toBeEnabled();
+    // navegar segue livre: o botão para o próximo exercício continua habilitado
+    await expect(page.getByRole('button', { name: /Próximo exercício/ })).toBeEnabled();
   });
 
   test('nas Fragilidades, classificar e "Marcar como concluído" ficam desabilitados; "Próximo exercício" segue livre', async ({ page }) => {
@@ -234,11 +236,10 @@ test.describe('Modo somente leitura no Guia (ACE-03.2, ACE-03.3)', () => {
 
   test('digitar, concluir e salvar como leitura não manda nenhuma gravação nem mostra "Não foi possível salvar"', async ({ page }) => {
     await abre(page, '#/m/1/m1.persona', { papel: 'leitura' });
-    await page.getByRole('button', { name: 'Avançar' }).click();
     // o editor fica num <label> cujo controle é o textarea desabilitado: o Playwright segue o label e recusa o clique; a pessoa clica normalmente
-    await editor(page).click({ force: true });
+    await editor(page).first().click({ force: true });
     await page.keyboard.type('texto de quem só lê');
-    await expect(editor(page)).not.toContainText('texto de quem só lê');
+    await expect(editor(page).first()).not.toContainText('texto de quem só lê');
     // mesmo que algum controle escape da trava (ilha, atalho de teclado), o Store não grava
     await page.evaluate(() => {
       const w = window as unknown as { D: { campos: Record<string, string> }; Store: { salvar(): void; atualizar(c: Record<string, string>): Promise<void> }; Guia: { concluir(): void } };
@@ -256,9 +257,8 @@ test.describe('Modo somente leitura no Guia (ACE-03.2, ACE-03.3)', () => {
     await abre(page, '#/m/1/m1.persona', { papel: 'assessoria' });
     await expect(page.locator('body')).not.toHaveClass(/\bso-leitura\b/);
     await expect(page.getByText(AVISO)).toHaveCount(0);
-    await page.getByRole('button', { name: 'Avançar' }).click();
-    await expect(editor(page)).toHaveAttribute('contenteditable', 'true');
-    await editor(page).click();
+    await expect(editor(page).first()).toHaveAttribute('contenteditable', 'true');
+    await editor(page).first().click();
     await page.keyboard.type('resposta da assessoria');
     await expect.poll(() => gravacoes().map((p) => `${p.metodo} ${p.caminho}`)).toContain(`PATCH mandatos?id=eq.${MANDATO}`);
     const patch = gravacoes().find((p) => p.metodo === 'PATCH')!;
