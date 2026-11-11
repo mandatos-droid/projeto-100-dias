@@ -175,14 +175,16 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] `adiciona` apara o texto, grava `muns: []` e devolve `erro: 'vazio'` para texto em branco
-- [ ] Repetido (sem acento, sem maiúscula, mesmo tipo) devolve `erro: 'repetido'`; o mesmo texto em outro tipo entra
-- [ ] `GRUPOS` tem as 16 tags na ordem da tela de hoje
-- [ ] Teste novo `tests/eleitorado.test.ts` passa
+- [x] `adiciona` apara o texto, grava `muns: []` e devolve `erro: 'vazio'` para texto em branco
+- [x] Repetido (sem acento, sem maiúscula, mesmo tipo) devolve `erro: 'repetido'`; o mesmo texto em outro tipo entra
+- [x] `GRUPOS` tem as 16 tags na ordem da tela de hoje
+- [x] Teste novo `tests/eleitorado.test.ts` passa
 
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(m1): regras puras do registro de eleitorado`
+**Commit**: `feat(m1): regras puras do registro de eleitorado`
+
+**Status**: ✅ Done
 
 ---
 
