@@ -316,14 +316,16 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] `m1.persona`, `m1.conjuntura`, `m1.oportunidades` e `m1.frag` renderizam todos os passos de uma vez
-- [ ] Não há botão "Anterior"/"Avançar" entre perguntas nem "Ver tudo de uma vez" na Missão 1; as Missões 2 a 5 não mudam
-- [ ] `#/m/1/m1.conjuntura/1` abre a página única da etapa
-- [ ] Casos novos em `tests/legado-m1.test.ts` passam
+- [x] `m1.persona`, `m1.conjuntura`, `m1.oportunidades` e `m1.frag` renderizam todos os passos de uma vez
+- [x] Não há botão "Anterior"/"Avançar" entre perguntas nem "Ver tudo de uma vez" na Missão 1; as Missões 2 a 5 não mudam
+- [x] `#/m/1/m1.conjuntura/1` abre a página única da etapa
+- [x] Casos novos em `tests/legado-m1.test.ts` passam
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(m1): cada etapa abre numa página só`
+
+**Status**: ✅ Done
 
 ---
 

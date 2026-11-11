@@ -19,7 +19,7 @@ type Janela = {
   Comp: { perguntas(ex: Ex): string };
 };
 
-function janela(): Janela {
+function janela(antesM1 = ''): Janela {
   const ctx: Record<string, unknown> = {
     esc: (s: string) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'),
     D: { campos: {}, frags: [] },
@@ -27,6 +27,7 @@ function janela(): Janela {
   vm.createContext(ctx);
   vm.runInContext(`${CONTEUDO};this.MISSOES=MISSOES;`, ctx);
   vm.runInContext(`${GUIA};this.Guia=Guia;this.Comp=Comp;`, ctx);
+  if (antesM1) vm.runInContext(antesM1, ctx);
   vm.runInContext(CODIGO, ctx);
   return ctx as unknown as Janela;
 }
@@ -216,4 +217,97 @@ test('m1.q2 pede análise dos pleitos já preenchidos, sem o comando "Levante" (
   assert.ok(h.includes('<em>Analise</em>'));
   assert.ok(h.includes('já preenchidos com os dados do TSE'));
   assert.ok(!h.includes('Levante'));
+});
+
+/* ---------- PAG-01, PAG-03, PAG-04: página única por etapa ---------- */
+type Tela = { innerHTML: string; className: string; querySelector(s: string): unknown };
+/** Janela com o mínimo de DOM para o Guia.render, que escreve o HTML numa `#tela` falsa. */
+function janelaPagina(hash = '#/m/1/m1.conjuntura') {
+  /* os ganchos reais de endereço do novos.js (abrir com passo e ir com pushState) entram antes do m1.js, como no Guia */
+  const NOVOS = ler('novos.js');
+  const ini = NOVOS.indexOf('var _ga=Guia.abrir;');
+  const FIM = 'App.ultima=h;App.marcar();';
+  const fim = NOVOS.indexOf(FIM, ini);
+  assert.ok(ini >= 0 && fim > ini);
+  const w = janela(NOVOS.slice(ini, fim + FIM.length + 3)) as Janela & { Guia: Record<string, unknown> };
+  const tela: Tela = {
+    innerHTML: '', className: '',
+    querySelector(s: string) {
+      if (s === '[data-ilha]') return null;
+      if (s === 'button[onclick="Guia.alternarModo()"]') {
+        const m = /<button class="bt fant peq"[^>]*onclick="Guia\.alternarModo\(\)">[^<]*<\/button>/.exec(this.innerHTML);
+        return m ? { parentNode: { removeChild: () => { this.innerHTML = this.innerHTML.replace(m[0], ''); } } } : null;
+      }
+      return null;
+    },
+  };
+  const ctx = w as unknown as Record<string, unknown>;
+  const trocas: string[] = [];
+  ctx.document = { getElementById: () => tela };
+  ctx.window = { Ilhas: undefined };
+  ctx.location = { hash };
+  ctx.history = { replaceState: (_a: unknown, _b: unknown, h: string) => { (ctx.location as { hash: string }).hash = h; trocas.push(h); } };
+  ctx.estadoEx = () => 'nao';
+  ctx.achaEx = (id: string) => {
+    for (const m of w.MISSOES) { const e = m.exercicios.find((x) => x.id === id); if (e) return { m, ex: e }; }
+    return null;
+  };
+  ctx.App = { ultima: '', marcar() {} };
+  (ctx.history as { pushState: (a: unknown, b: unknown, h: string) => void }).pushState = (_a, _b, h) => { (ctx.location as { hash: string }).hash = h; trocas.push('push ' + h); };
+  ctx.Campos = { ligar() {} };
+  ctx.D = { campos: {}, frags: [], feitos: {} };
+  return { w, tela, trocas, ctx };
+}
+const titulo = (it: Item) => it.t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+function abre(w: Janela, nm: number, id: string) {
+  const g = w.Guia as unknown as { abrir(nm: number, id: string): void; ex: Ex };
+  g.abrir(nm, id);
+}
+
+test('as 4 etapas da Missão 1 renderizam todas as perguntas na mesma página (PAG-01)', () => {
+  for (const id of ['m1.persona', 'm1.conjuntura', 'm1.oportunidades']) {
+    const { w, tela } = janelaPagina(`#/m/1/${id}`);
+    abre(w, 1, id);
+    for (const it of ex1(w, id).itens!) {
+      assert.ok(tela.innerHTML.includes(titulo(it)), `${id}: ${it.k}`);
+    }
+    assert.ok(tela.innerHTML.includes('class="passo-corpo"'));
+  }
+  const { w, tela } = janelaPagina('#/m/1/m1.frag');
+  abre(w, 1, 'm1.frag');
+  assert.ok(tela.innerHTML.includes('frag-l'));
+});
+
+test('na Missão 1 não há "Anterior", "Avançar" nem "Ver tudo de uma vez" (PAG-03)', () => {
+  for (const id of ['m1.persona', 'm1.conjuntura', 'm1.oportunidades', 'm1.frag']) {
+    const { w, tela } = janelaPagina(`#/m/1/${id}`);
+    abre(w, 1, id);
+    for (const t of ['>Anterior<', '>Avançar<', 'Ver tudo de uma vez', 'Voltar ao passo a passo', 'passos-barra']) {
+      assert.equal(tela.innerHTML.includes(t), false, `${id}: ${t}`);
+    }
+    assert.ok(tela.innerHTML.includes('Próximo exercício'));
+  }
+});
+
+test('endereço antigo de passo abre a página única da etapa (PAG-04)', () => {
+  for (const [id, n] of [['m1.conjuntura', 1], ['m1.oportunidades', 1]] as const) {
+    const { w, tela, trocas } = janelaPagina(`#/m/1/${id}/${n}`);
+    abre(w, 1, id);
+    assert.ok(tela.innerHTML.includes('class="passo-corpo"'));
+    for (const it of ex1(w, id).itens!) assert.ok(tela.innerHTML.includes(titulo(it)), `${id}: ${it.k}`);
+    assert.equal(tela.innerHTML.includes('Avançar'), false);
+    assert.deepEqual(trocas, [`#/m/1/${id}`]);
+  }
+});
+
+test('as Missões 2 a 5 não mudam: seguem no passo a passo com o botão de alternar modo (PAG-03)', () => {
+  const { w, tela } = janelaPagina('#/m/1/m1.persona');
+  abre(w, 1, 'm1.persona');
+  const g = w.Guia as unknown as { modo: string };
+  assert.equal(g.modo, 'tudo');
+  const m2 = w.MISSOES.find((m) => m.n === 2)!;
+  (w as unknown as Record<string, unknown>).location = { hash: `#/m/2/${m2.exercicios[0].id}` };
+  abre(w, 2, m2.exercicios[0].id);
+  assert.equal(g.modo, 'guiado');
+  assert.ok(tela.innerHTML.includes('Ver tudo de uma vez'));
 });

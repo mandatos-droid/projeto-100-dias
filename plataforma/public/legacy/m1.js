@@ -131,6 +131,39 @@
   };
 })();
 
+/* ---------- Página única por etapa (PAG-01, PAG-03, PAG-04) ----------
+   Na Missão 1 cada etapa mostra todas as perguntas de uma vez (modo "tudo" do Guia), sem o botão de alternar modo e sem
+   "Anterior"/"Avançar" entre perguntas. Um endereço antigo de passo (#/m/1/etapa/N) abre a página única da etapa.
+   As Missões 2 a 5 seguem no passo a passo: o modo anterior é devolvido ao sair da Missão 1. */
+(function(){
+  if(typeof Guia==='undefined')return;
+  var forcou=false,antes='guiado';
+  var _r=Guia.render;
+  Guia.render=function(){
+    var m1=!!(this.m&&this.m.n===1);
+    if(m1){
+      if(!forcou){antes=this.modo;forcou=true}
+      this.modo='tudo';this.i=0;
+    }else if(forcou){this.modo=antes;forcou=false}
+    _r.apply(this,arguments);
+    if(!m1)return;
+    var tl=document.getElementById('tela'),bt=tl&&tl.querySelector('button[onclick="Guia.alternarModo()"]');
+    if(bt&&bt.parentNode)bt.parentNode.removeChild(bt);
+  };
+  var _ir=Guia.ir;
+  Guia.ir=function(n){
+    if(this.m&&this.m.n===1){this.render();return}
+    return _ir.call(this,n);
+  };
+  var _ab=Guia.abrir;
+  Guia.abrir=function(nm,id){
+    _ab.call(this,nm,id);
+    if(!this.m||this.m.n!==1)return;
+    var h=location.hash||'',base='#/m/1/'+this.ex.id;
+    if(h!==base&&h.indexOf(base+'/')===0&&history.replaceState)history.replaceState(null,'',base);
+  };
+})();
+
 /* ---------- Resumo: as respostas das caixas novas (m1.q3b, m1.q4b, m1.q8a) aparecem junto das da Missão 1 ---------- */
 (function(){
   if(typeof Resumo==='undefined'||typeof MISSOES==='undefined')return;
