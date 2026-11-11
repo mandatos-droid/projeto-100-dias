@@ -76,7 +76,16 @@
 
   /* ---- Oportunidades (social): a caixa de análise vai para depois dos dados (SUG-19) ---- */
   var ANALISE='A partir dos dados apresentados acima, e de outros que você possa ter pesquisado, faça uma análise destacando o que mais te chama a atenção e como o mandato deve agir a partir desta conjuntura.';
-  var q8=item(exDe('m1.oportunidades'),'m1.q8');
+  var opo=exDe('m1.oportunidades');
+  opo.d='Três perguntas sobre as expectativas do eleitorado, a conjuntura social do território e as agendas prioritárias.';
+  /* 3.1: o texto da Alana já era o do Guia original (SOC-01); fica aqui conferido, antes das colunas de registro */
+  item(opo,'m1.q7').d='<em>Elenque</em> quais foram os posicionamentos públicos e as promessas mais relevantes da sua campanha. Identifique também as regiões e os grupos sociais que mais apoiaram a candidatura e eleição, e também aqueles com potencial para maior aproximação ao longo dos anos que seguem.';
+  /* 3.2: texto novo, dados e só então a caixa de análise (SOC-02, SOC-07) */
+  var q8=item(opo,'m1.q8');
+  q8.d='Inspire-se nos dados públicos oficiais apresentados abaixo, acerca do seu estado, e faça uma análise da conjuntura social do território da liderança parlamentar.';
+  /* 3.3: as 3 agendas prioritárias, escolhidas na ilha (AGE-01); a pergunta é nova e não tem caixa de texto */
+  opo.itens.push({k:'m1.q9',ilha:'prioritarias',t:'Quais são as agendas prioritárias?',
+    d:'Considerando os dados acima e as promessas de campanha, selecione quais são as 3 Agendas que serão trabalhadas prioritariamente pela liderança parlamentar ao longo dos 100 Primeiros dias, mas também ao longo deste primeiro ano:',caixas:[]});
   q8.depois=true;
   q8.caixas=[{k:'m1.q8a',rot:ANALISE,resumo:'Análise da conjuntura social'}];
 

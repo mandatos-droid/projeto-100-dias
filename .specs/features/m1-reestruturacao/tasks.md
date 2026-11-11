@@ -402,13 +402,15 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] 3.1 e 3.2 mostram os textos exatos da spec; 3.2 traz a caixa `m1.q8a` depois dos dados
-- [ ] 3.3 mostra o texto "Considerando os dados acima e as promessas de campanha, selecione quais são as 3 Agendas…"
-- [ ] Casos novos em `tests/legado-m1.test.ts` passam
+- [x] 3.1 e 3.2 mostram os textos exatos da spec; 3.2 traz a caixa `m1.q8a` depois dos dados
+- [x] 3.3 mostra o texto "Considerando os dados acima e as promessas de campanha, selecione quais são as 3 Agendas…"
+- [x] Casos novos em `tests/legado-m1.test.ts` passam
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(m1): textos das oportunidades e pergunta das agendas prioritárias`
+
+**Status**: ✅ Done
 
 ---
 

@@ -370,3 +370,37 @@ test('as Missões 2 a 5 não mudam: seguem no passo a passo com o botão de alte
   assert.equal(g.modo, 'guiado');
   assert.ok(tela.innerHTML.includes('Ver tudo de uma vez'));
 });
+
+/* ---------- SOC-01, SOC-02, SOC-07, AGE-01: textos das Oportunidades e pergunta das agendas ---------- */
+test('3.1 mostra o texto exato antes da ilha das colunas de registro (SOC-01)', () => {
+  const h = pergunta(janela(), 'm1.oportunidades', 0);
+  const texto = h.indexOf('Elenque</em> quais foram os posicionamentos públicos e as promessas mais relevantes da sua campanha. Identifique também as regiões e os grupos sociais que mais apoiaram a candidatura e eleição, e também aqueles com potencial para maior aproximação ao longo dos anos que seguem.');
+  assert.ok(texto > 0 && texto < h.indexOf('data-ilha="eleitorado"'));
+});
+
+test('3.2 mostra o texto novo e a caixa m1.q8a só depois dos dados (SOC-02, SOC-07)', () => {
+  const h = pergunta(janela(), 'm1.oportunidades', 1);
+  const texto = h.indexOf('Inspire-se nos dados públicos oficiais apresentados abaixo, acerca do seu estado, e faça uma análise da conjuntura social do território da liderança parlamentar.');
+  assert.ok(texto > 0);
+  assert.ok(texto < h.indexOf('data-ilha="social"') && h.indexOf('data-ilha="social"') < h.indexOf('data-k="m1.q8a"'));
+  assert.equal(h.includes('Consulte'), false);
+});
+
+test('3.3 é a pergunta m1.q9 com o texto das 3 agendas prioritárias e a ilha de seleção, sem caixa de texto (AGE-01)', () => {
+  const w = janela();
+  const ex = ex1(w, 'm1.oportunidades');
+  assert.deepEqual([...ex.itens!.map((i) => i.k)], ['m1.q7', 'm1.q8', 'm1.q9']);
+  const h = pergunta(w, 'm1.oportunidades', 2);
+  assert.ok(h.includes('Considerando os dados acima e as promessas de campanha, selecione quais são as 3 Agendas que serão trabalhadas prioritariamente pela liderança parlamentar ao longo dos 100 Primeiros dias, mas também ao longo deste primeiro ano:'));
+  assert.ok(h.includes('data-ilha="prioritarias"'));
+  assert.deepEqual(chaves(h), []);
+});
+
+test('na página única das Oportunidades as 3 perguntas aparecem na ordem 3.1, 3.2, 3.3 (AGE-01)', () => {
+  const { w, tela } = janelaPagina('#/m/1/m1.oportunidades');
+  abre(w, 1, 'm1.oportunidades');
+  const h = tela.innerHTML;
+  const ordem = ['data-ilha="eleitorado"', 'data-ilha="social"', 'data-k="m1.q8a"', 'data-ilha="prioritarias"'].map((t) => h.indexOf(t));
+  assert.ok(ordem.every((i) => i > 0));
+  assert.deepEqual([...ordem].sort((a, b) => a - b), ordem);
+});
