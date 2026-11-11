@@ -1105,3 +1105,17 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .ilha-corpo .rea{margin:1.25rem 0 0.5rem}
 .ilha-corpo .rea-linha{display:grid;gap:0.5rem;margin:0.75rem 0 1rem;padding:0.875rem 1rem;background:#fff;border:1.5px solid var(--linha);border-radius:var(--r)}
 .ilha-corpo .rea-linha select{max-width:100%}
+
+/* Cartões de agenda social (T33) */
+.ilha-corpo .as-slides .slides-lista{grid-template-columns:repeat(auto-fit,minmax(min(100%,21rem),1fr))}
+.ilha-corpo .as-cartao{display:flex;flex-direction:column;gap:0.5rem;height:100%;min-width:0;padding:0.75rem 0.875rem;background:#fff;border:1.5px solid var(--linha);border-top:5px solid var(--c);border-radius:var(--r)}
+.ilha-corpo .as-cartao h4{margin:0}
+.ilha-corpo .as-faixa{display:flex;align-items:center;gap:0.5rem;margin:0}
+.ilha-corpo .as-faixa select{font:inherit;font-size:0.8125rem;padding:0.25rem 0.5rem}
+.ilha-corpo .as-tab{width:100%;border-collapse:collapse;font-size:0.8125rem}
+.ilha-corpo .as-tab caption{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ilha-corpo .as-tab th{text-align:left;font-size:0.7188rem;letter-spacing:.05em;text-transform:uppercase;color:var(--tinta-3);padding:0.25rem 0.375rem 0.25rem 0;border-bottom:1.5px solid var(--linha)}
+.ilha-corpo .as-tab td{padding:0.3125rem 0.375rem 0.3125rem 0;border-bottom:1px solid var(--linha-2);vertical-align:top}
+.ilha-corpo .as-tab td:last-child{white-space:nowrap;font-variant-numeric:tabular-nums}
+.ilha-corpo .as-fx{display:inline-block;margin-left:0.25rem;padding:0 0.375rem;border-radius:999px;border:1.5px solid var(--f);font-size:0.6875rem;font-weight:700}
+.ilha-corpo .as-cartao select:focus-visible{outline:3px solid var(--vinho);outline-offset:2px}

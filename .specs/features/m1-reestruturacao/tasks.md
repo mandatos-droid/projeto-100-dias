@@ -1023,10 +1023,10 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] 13 cartões em slides de 4, cada um com seletor "Todas/Muito baixo/…/Muito alto" e tabela indicador × ODS × nota da UF
-- [ ] Sem catálogo ou sem arquivo da UF mostra "Não foi possível carregar os indicadores do seu estado agora."
-- [ ] `D.social` não é lido nem alterado
-- [ ] `npx tsc --noEmit` passa
+- [x] 13 cartões em slides de 4, cada um com seletor "Todas/Muito baixo/…/Muito alto" e tabela indicador × ODS × nota da UF
+- [x] Sem catálogo ou sem arquivo da UF mostra "Não foi possível carregar os indicadores do seu estado agora."
+- [x] `D.social` não é lido nem alterado
+- [x] `npx tsc --noEmit` passa
 
 **Tests**: none
 **Gate**: build
