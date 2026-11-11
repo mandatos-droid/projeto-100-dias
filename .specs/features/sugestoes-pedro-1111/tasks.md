@@ -77,6 +77,12 @@ T14 → T15 → T16 → T17 → T18
 T19
 ```
 
+### Phase 7: Ficha de detalhe e carrossel fluido
+
+```
+T20 → T21
+```
+
 ---
 
 ## Task Breakdown
@@ -235,7 +241,7 @@ T19
 
 - [x] Repro documentada (viewport + seletor culpado) no corpo do commit
 - [x] Botão de navegação não intersecta o texto do cabeçalho em 1280px e 390px (e2e com `boundingBox`)
-- [ ] Último bloco fica inteiro ao fim da rolagem (PAR-04): não reproduzido em 1280, 1500 e 390px; devolvido ao Pedro (precisa de nova captura)
+- [x] Último bloco fica inteiro ao fim da rolagem (PAR-04): recorte de captura, sem defeito (confirmado pelo dono: na nova captura a caixa branca é o topo do bloco seguinte cortado pela borda do print; margem inferior medida em 1280, 1600 e 390px: 87 a 125px, último bloco inteiro)
 - [x] Gate full passa
 - [x] Contagem de testes não diminui
 
@@ -573,9 +579,9 @@ T19
 
 ---
 
-### T19: Contador de dias não passa de 100 (após confirmar a leitura do #141)
+### T19: Contador de dias não passa de 100
 
-**What**: Override do contador em `novos.js` (sem tocar `app.js`): acima de 100, mostrar “100+” e “100 dias concluídos”.
+**What**: Override do contador em `novos.js` (sem tocar `app.js`): acima de 100, mostrar “100+” e “100 dias concluídos” (leitura do #141 confirmada pelo Pedro). Trata todos os lugares que mostram o número: contador do menu lateral, “Dia N/100” do cabeçalho móvel e a linha “dia N de 100” do cabeçalho do Resumo (HTML do Resumo/download).
 **Where**: `plataforma/public/legacy/novos.js`
 **Depends on**: None
 **Reuses**: `app.js:93`, `diaAtual()` em `nucleo.js:226`
@@ -601,10 +607,67 @@ T19
 
 ---
 
+### T20: Ficha de detalhe do parlamentar com relação única e remover
+
+**What**: Na ficha de detalhe, trocar os 5 botões de relação por: relação atual uma vez + `select` nativo compacto (`aria-label` análogo ao do cartão do carrossel) + “Remover classificação”. A linha da tabela mantém os 5 botões.
+**Where**: `plataforma/ilhas/Assentos.tsx`
+**Depends on**: None
+**Reuses**: padrão de `ilhas/Classificados.tsx` (T5); `marca`, `CATEGORIAS`
+**Requirement**: PAR-05
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] A ficha não renderiza os 5 botões de relação; mostra a relação atual uma vez, o `select` com as 5 categorias e “Remover classificação”
+- [ ] Trocar pelo `select` e remover gravam no mesmo campo de hoje (`D.relacoes[sq].status`) e as contagens acompanham
+- [ ] A linha da tabela continua com os 5 botões (e2e existente segue passando)
+- [ ] Gate full passa
+- [ ] Contagem de testes não diminui
+
+**Tests**: e2e
+**Gate**: full
+
+**Commit**: `refactor(m1): single relation and compact picker on the parliamentarian detail card`
+
+---
+
+### T21: Cartões do carrossel de parlamentares com largura fluida
+
+**What**: Interpretação do dono do produto para o #139 item 4 (“layout rígido / dimensionamento incorreto”, sem texto): os cartões do carrossel de classificados passam a dividir a largura disponível (até 3 por slide, menos quando não cabem), sem espaço vazio à direita em telas largas e sem cortar em 390px. Slide continua com 3 cartões; Anterior/Próximo e contagens inalterados. SPEC_DEVIATION-free: o requisito PAR-06 é novo e confirmado pelo Pedro.
+**Where**: `plataforma/public/legacy/ilhas.css`
+**Depends on**: T20
+**Reuses**: `.classificados`, `.slides-lista` (`ilhas.css`); e2e de largura de `e2e/m1-conjuntura.spec.ts`
+**Requirement**: PAR-06
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Em 1600px e 1280px os 3 cartões do slide ocupam toda a largura da lista (borda direita do 3º cartão encosta na da lista) e têm a mesma largura
+- [ ] Slide com menos de 3 cartões mantém a largura dos cartões cheios
+- [ ] Em 390px os cartões não passam da largura da lista nem geram rolagem horizontal da página
+- [ ] Anterior/Próximo e contagens por categoria seguem funcionando (e2e existentes passam)
+- [ ] Gate full passa
+- [ ] Contagem de testes não diminui
+
+**Tests**: e2e
+**Gate**: full
+
+**Commit**: `fix(m1): fluid card width on the classified parliamentarians carousel`
+
+---
+
 ## Phase Execution Map
 
 ```
-Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6
+Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7
 
 Phase 1:  T1 ------→ T2 ------→ T3 ------→ T4
 Phase 2:  T5 ------→ T6
@@ -612,4 +675,5 @@ Phase 3:  T7 ------→ T8
 Phase 4:  T9 ------→ T10 ------→ T11 ------→ T12 ------→ T13
 Phase 5:  T14 ------→ T15 ------→ T16 ------→ T17 ------→ T18
 Phase 6:  T19
+Phase 7:  T20 ------→ T21
 ```

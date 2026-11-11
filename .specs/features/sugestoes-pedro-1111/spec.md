@@ -18,22 +18,23 @@ Em 11/11/2026 o Pedro registrou 10 sugestões revisando a Missão 1 (Conjuntura,
 | ------- | ------ |
 | Mudar schema do banco | Nenhuma sugestão exige; `D.conj2.reacoes` e `prefExtra` mantêm o formato. |
 | Editar arquivos extraídos do Guia (`conteudo.js`, `app.js`, `legacy.css`) | Seriam sobrescritos na próxima extração (CLAUDE.md); correções vão em `ilhas.css`, `novos.js` e `m1.js`. |
-| #139 item 4 ("Layout rígido / dimensionamento incorreto") | Veio sem descrição. |
 | Texto de conceito por indicador no tooltip | O catálogo não traz conceito; só se o Pedro enviar os textos. |
 
 ## Assumptions & Open Questions
 
 | Assumption / decision | Chosen default | Rationale | Confirmed? |
 | --------------------- | -------------- | --------- | ---------- |
-| #141 "a contagem aqui está errada" | Lido como o contador "283 dia de 100" (posse 01/02/2026): acima de 100 mostra "100+" | A captura mostra só esse contador e a data de posse; outra leitura muda só CFG-01 | n |
-| #139 item 1: caixa cortada no rodapé | A T6 reproduz em 1280px e 390px antes de corrigir; sem repro, devolve ao Pedro | A captura mostra só o cabeçalho; corrigir sem causa seria chute | n |
+| #141 "a contagem aqui está errada" | Lido como o contador "283 dia de 100" (posse 01/02/2026): acima de 100 mostra "100+" | A captura mostra só esse contador e a data de posse; outra leitura muda só CFG-01 | y (Pedro, 11/11) |
+| #139 item 1: caixa cortada no rodapé | A T6 reproduz em 1280px e 390px antes de corrigir; sem repro, devolve ao Pedro. A nova captura do Pedro mostra o topo do bloco seguinte cortado pela borda do print: recorte de captura, sem defeito | A captura mostra só o cabeçalho; corrigir sem causa seria chute | y (Pedro, 11/11) |
 | #133/#135: onde ficam os 5 municípios | Os cartões "Os 5 municípios mais votados" passam a ocupar o tópico "Prefeituras que a liderança acompanha"; some a escolha manual de municípios | #135 diz que "isso" deve estar no tópico do #133 | n |
 | `prefExtra` já salvo | Preservado no banco, só deixa de ser exibido | Apagar perderia respostas de quem já preencheu | y |
 | #138.4 conteúdo do tooltip | Fonte, ano e sentido do catálogo | O catálogo não tem conceito por indicador | n |
 | #137 `.capturable-data` | A classe é criada nos números do Placar, grandes números e cartões de município | Não existe no código hoje | y |
-| #136 "Remover Prefeitura" | Remove a linha "Prefeitura · a definir" do Placar | A captura mostra essa linha; a prefeitura passa a ser classificada nos 5 cartões | n |
+| #136 "Remover Prefeitura" | Remove a linha "Prefeitura · a definir" do Placar | A captura mostra essa linha; a prefeitura passa a ser classificada nos 5 cartões. A prefeitura do domicílio só é classificável se o município estiver entre os 5 cartões | y (Pedro, 11/11) |
+| #139 item 4 "layout rígido / dimensionamento incorreto" (veio sem texto) | Lido como cartões do carrossel de parlamentares com largura fixa que deixam a direita vazia em telas largas: passam a dividir a largura disponível (PAR-06). Interpretação do dono do produto | O item 4 não tem texto; a captura mostra 3 cartões estreitos e espaço vazio à direita | y (Pedro, 11/11) |
+| Ficha de detalhe do parlamentar | Segue o mesmo padrão do cartão do carrossel (PAR-05): relação atual uma vez, `select` e "Remover classificação"; a linha da tabela mantém os 5 botões | O dono confirmou que PAR-02 vale também para a ficha | y (Pedro, 11/11) |
 
-Open questions: #141 (qual contagem?), #139 item 1 (onde a caixa aparece cortada?), #139 item 4 (texto ausente), #138.4 (textos de conceito dos indicadores).
+Open questions: #138.4 (textos de conceito dos indicadores). Resolvidas pelo Pedro em 11/11: #141 (contador), #139 item 1 (recorte de captura) e item 4 (layout fluido), #136 e a ficha de detalhe.
 
 ## User Stories
 
@@ -65,6 +66,8 @@ Open questions: #141 (qual contagem?), #139 item 1 (onde a caixa aparece cortada
 3. WHEN a rolagem chega ao fim da página, THE SYSTEM SHALL mostrar o último bloco inteiro, com margem inferior.
 4. WHEN a Conjuntura 2.2 é exibida com partido e UF definidos, THE SYSTEM SHALL mostrar os 5 cartões de município mais votado dentro do tópico de municípios e SHALL NOT mostrar "Adicionar município" nem "Adicionar todos os municípios com prefeito".
 5. WHEN o Placar é exibido, THE SYSTEM SHALL NOT mostrar a linha "Prefeitura".
+6. WHEN a ficha de detalhe de um parlamentar é exibida, THE SYSTEM SHALL mostrar a relação atual uma única vez, um controle compacto com as 5 categorias para trocá-la e "Remover classificação", sem os 5 botões de relação. (PAR-05)
+7. WHEN o carrossel de parlamentares classificados é exibido em qualquer largura de 390px a 1600px, THE SYSTEM SHALL dividir a largura disponível entre os cartões do slide, sem espaço vazio à direita e sem cortar o conteúdo, mantendo Anterior/Próximo e as contagens por categoria. (PAR-06)
 
 **Independent Test**: Classificar um parlamentar e um município e conferir que o Resumo mostra as mesmas respostas.
 
@@ -118,6 +121,8 @@ Open questions: #141 (qual contagem?), #139 item 1 (onde a caixa aparece cortada
 | PAR-02 | P1: Parlamentares e municípios | Tasks | Pending |
 | PAR-03 | P1: Parlamentares e municípios | Tasks | Pending |
 | PAR-04 | P1: Parlamentares e municípios | Tasks | Pending |
+| PAR-05 | P1: Parlamentares e municípios | Tasks | Pending |
+| PAR-06 | P1: Parlamentares e municípios | Tasks | Pending |
 | OP-01 | P2: Cartões de agenda | Tasks | Pending |
 | OP-02 | P2: Cartões de agenda | Tasks | Pending |
 | OP-03 | P2: Cartões de agenda | Tasks | Pending |
