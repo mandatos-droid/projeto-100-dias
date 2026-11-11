@@ -36,7 +36,8 @@ test.describe('Conjuntura do partido · sem mapa, com cartões (PAR-02 a PAR-05,
     }
     for (let i = 0; i < 4; i++) await expect(cartoesPlacar.nth(i).locator('b')).toHaveText([/^\d{1,3}(\.\d{3})*$/, /^\d{1,3}(\.\d{3})*$/]); // Brasil e UF
     await expect(cartoesPlacar.nth(4).locator('li strong').first()).toBeVisible(); // posição em cada Executivo
-    await expect(cartoesPlacar.nth(4).locator('li span')).toHaveText(['Presidência', 'Governo SP', 'Prefeitura']);
+    await expect(cartoesPlacar.nth(4).locator('li span')).toHaveText(['Presidência', 'Governo SP']); // CJ-03: sem a linha Prefeitura
+    await expect(cartoesPlacar.nth(4)).not.toContainText(/Prefeitura/);
   });
 
   test('5 cartões de município, cada um com Placar, Força e Executivo', async ({ page }) => {

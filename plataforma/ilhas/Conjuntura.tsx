@@ -334,7 +334,7 @@ export default function Conjuntura() {
     {
       parlamentares: { uf: parlUF.n, br: parlBR.n }, vereadores: { uf: verUF.n, br: verBR.n },
       prefeituras: { uf: prefUFn.n, br: prefBR.n }, filiados: { uf: filUFn.n, br: filBRn.n },
-      executivos: esferas.map((e) => { const x = posEfetiva(e.k, e.eleito); return `${e.k === 'pres' ? 'Presidência' : e.k === 'gov' ? `Governo ${m.uf}` : 'Prefeitura'}: ${x ? ROT_POS[x] : 'a definir'}`; }).join(' · '),
+      executivos: esferas.filter((e) => e.k !== 'pref').map((e) => { const x = posEfetiva(e.k, e.eleito); return `${e.k === 'pres' ? 'Presidência' : e.k === 'gov' ? `Governo ${m.uf}` : 'Prefeitura'}: ${x ? ROT_POS[x] : 'a definir'}`; }).join(' · '),
     },
     alvo.itens.map((it) => numerosMun(it, mun.dados, fil.dados, alvo.casa, partido)),
   );
@@ -367,7 +367,7 @@ export default function Conjuntura() {
         <div className="v2-grande">
           <span className="rot">Posição nos Executivos</span>
           <ul className="v2-pos-lista">
-            {esferas.map((e) => {
+            {esferas.filter((e) => e.k !== 'pref').map((e) => { // a prefeitura é classificada nos cartões de município (CJ-03)
               const p = posEfetiva(e.k, e.eleito);
               return <li key={e.k}><span>{e.k === 'pres' ? 'Presidência' : e.k === 'gov' ? `Governo ${m.uf}` : 'Prefeitura'}</span><strong>{p ? ROT_POS[p] : 'a definir'}</strong></li>;
             })}

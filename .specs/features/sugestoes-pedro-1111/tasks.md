@@ -261,10 +261,10 @@ T19
 
 **Done when**:
 
-- [ ] Placar não mostra “Prefeitura”
-- [ ] Resumo da Missão 1 não quebra (e2e `m1-fechamento`)
-- [ ] Gate full passa
-- [ ] Contagem de testes não diminui
+- [x] Placar não mostra “Prefeitura”
+- [x] Resumo da Missão 1 não quebra (e2e `m1-fechamento`)
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
 
 **Tests**: e2e
 **Gate**: full
