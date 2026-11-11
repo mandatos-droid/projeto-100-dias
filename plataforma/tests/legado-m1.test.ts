@@ -189,7 +189,7 @@ test('a pergunta "Qual é a conjuntura política do seu estado ou município de 
 
 test('m1.q8 mostra a caixa de análise depois dos dados, com o comando da análise (SUG-19)', () => {
   const q8 = pergunta(janela(), 'm1.oportunidades', 1);
-  assert.ok(q8.indexOf('data-ilha="social"') < q8.indexOf('data-k="m1.q8a"'));
+  assert.ok(q8.indexOf('data-ilha="agendas-sociais"') < q8.indexOf('data-k="m1.q8a"'));
   assert.ok(q8.includes(COMANDO));
 });
 
@@ -382,8 +382,15 @@ test('3.2 mostra o texto novo e a caixa m1.q8a só depois dos dados (SOC-02, SOC
   const h = pergunta(janela(), 'm1.oportunidades', 1);
   const texto = h.indexOf('Inspire-se nos dados públicos oficiais apresentados abaixo, acerca do seu estado, e faça uma análise da conjuntura social do território da liderança parlamentar.');
   assert.ok(texto > 0);
-  assert.ok(texto < h.indexOf('data-ilha="social"') && h.indexOf('data-ilha="social"') < h.indexOf('data-k="m1.q8a"'));
+  assert.ok(texto < h.indexOf('data-ilha="agendas-sociais"') && h.indexOf('data-ilha="agendas-sociais"') < h.indexOf('data-k="m1.q8a"'));
   assert.equal(h.includes('Consulte'), false);
+});
+
+test('m1.oportunidades emite as ilhas eleitorado, agendas-sociais e prioritarias, nessa ordem, e não emite social (ELE-01, SOC-02, AGE-01)', () => {
+  const w = janela();
+  const ilhas = [0, 1, 2].flatMap((n) => [...pergunta(w, 'm1.oportunidades', n).matchAll(/data-ilha="([^"]+)"/g)].map((r) => r[1]));
+  assert.deepEqual(ilhas, ['eleitorado', 'agendas-sociais', 'prioritarias']);
+  assert.equal(ilhas.includes('social'), false);
 });
 
 test('3.3 é a pergunta m1.q9 com o texto das 3 agendas prioritárias e a ilha de seleção, sem caixa de texto (AGE-01)', () => {
@@ -400,7 +407,7 @@ test('na página única das Oportunidades as 3 perguntas aparecem na ordem 3.1, 
   const { w, tela } = janelaPagina('#/m/1/m1.oportunidades');
   abre(w, 1, 'm1.oportunidades');
   const h = tela.innerHTML;
-  const ordem = ['data-ilha="eleitorado"', 'data-ilha="social"', 'data-k="m1.q8a"', 'data-ilha="prioritarias"'].map((t) => h.indexOf(t));
+  const ordem = ['data-ilha="eleitorado"', 'data-ilha="agendas-sociais"', 'data-k="m1.q8a"', 'data-ilha="prioritarias"'].map((t) => h.indexOf(t));
   assert.ok(ordem.every((i) => i > 0));
   assert.deepEqual([...ordem].sort((a, b) => a - b), ordem);
 });

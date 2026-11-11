@@ -1099,8 +1099,8 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] A página `m1.oportunidades` emite as 3 ilhas nessa ordem e não emite `social`
-- [ ] Caso novo em `tests/legado-m1.test.ts` passa
+- [x] A página `m1.oportunidades` emite as 3 ilhas nessa ordem e não emite `social`
+- [x] Caso novo em `tests/legado-m1.test.ts` passa
 
 **Tests**: unit
 **Gate**: quick
