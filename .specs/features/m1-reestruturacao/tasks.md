@@ -688,14 +688,16 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Um cartão por parlamentar classificado, com foto, nome, partido, Casa/UF e categoria
-- [ ] Filtro "Todas" + 5 categorias com contagem; escolher uma mostra só os cartões dela
-- [ ] Reclassificar ou remover atualiza cartão e contagens na hora
-- [ ] `npx tsc --noEmit` passa
+- [x] Um cartão por parlamentar classificado, com foto, nome, partido, Casa/UF e categoria
+- [x] Filtro "Todas" + 5 categorias com contagem; escolher uma mostra só os cartões dela
+- [x] Reclassificar ou remover atualiza cartão e contagens na hora
+- [x] `npx tsc --noEmit` passa
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(m1): carrossel dos parlamentares classificados`
+
+**Status**: ✅ Done
 
 ---
 
