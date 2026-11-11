@@ -552,3 +552,48 @@ Guia.ir=function(n){
     });
   };
 })();
+
+/* ---------- contador de dias: quantos dias faltam (CFG-01) ----------
+   app.js (barra lateral e cabeçalho móvel) e resumo.js (HTML baixado) são extraídos, então a regra nova entra aqui, depois
+   que o original desenha. A função abaixo é cópia de lib/contadorDias.ts (o Guia não importa TypeScript);
+   tests/contador-dias-legado.test.ts carrega os dois e exige o mesmo resultado. Se mudar uma, mude a outra. */
+/* contadorDias:inicio */
+function contadorDias(d){
+  if(d===null||d===undefined||!isFinite(d))return null;
+  function monta(pre,num,pos){
+    var partes=[];
+    if(pre!=='')partes.push(pre);
+    if(num!==null)partes.push(num);
+    if(pos!=='')partes.push(pos);
+    return {pre:pre,num:num,pos:pos,texto:partes.join(' ').replace(/\n/g,' ')};
+  }
+  function dias(n){return n===1?'dia':'dias'}
+  function faltam(n){return n===1?'falta':'faltam'}
+  var n;
+  if(d<=0){n=1-d;return monta(faltam(n),n,dias(n)+'\npara a posse')}
+  if(d<100){n=100-d;return monta(faltam(n),n,dias(n))}
+  if(d===100)return monta('',null,'último dia\ndos 100');
+  return monta('',100,'dias\nconcluídos');
+}
+/* contadorDias:fim */
+(function(){
+  if(typeof App==='undefined'||typeof diaAtual!=='function')return;
+  var _lat=App.lateral;
+  App.lateral=function(){
+    _lat.apply(this,arguments);
+    var c=contadorDias(diaAtual());
+    if(!c)return;
+    var cont=document.querySelector('#ladoMandato .contador-dia');
+    if(cont)cont.innerHTML=(c.pre?'<span>'+c.pre+'</span> ':'')+(c.num!==null?'<b>'+c.num+'</b> ':'')+
+      (c.pos?'<span>'+c.pos.replace(/\n/g,' <br>')+'</span>':'');
+    var movel=document.getElementById('diaMovel');
+    if(movel)movel.textContent=c.texto;
+  };
+  if(typeof Baixar!=='undefined'&&typeof Baixar.pagina==='function'){
+    var _pag=Baixar.pagina;
+    Baixar.pagina=function(){
+      var h=_pag.apply(this,arguments),d=diaAtual(),c=contadorDias(d);
+      return c&&d>0?h.replace(' · dia '+d+' de 100',' · '+c.texto):h;
+    };
+  }
+})();

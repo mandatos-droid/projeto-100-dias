@@ -621,11 +621,11 @@ T20 → T21
 
 **Done when**:
 
-- [ ] Teste unitário carrega a lib e o espelho de `novos.js` (vm) e prova resultado igual nos mesmos casos
-- [ ] e2e com relógio controlado: posse há 283 dias mostra “100 dias concluídos” nos três lugares; há 30 dias, “faltam 70 dias”; daqui a 5 dias, “faltam 5 dias para a posse”
-- [ ] A barra lateral não quebra com o texto mais longo em 390px e 1280px
-- [ ] Gate full passa
-- [ ] Contagem de testes não diminui
+- [x] Teste unitário carrega a lib e o espelho de `novos.js` (vm) e prova resultado igual nos mesmos casos
+- [x] e2e com relógio controlado: posse há 283 dias mostra “100 dias concluídos” nos três lugares; há 30 dias, “faltam 70 dias”; daqui a 5 dias, “faltam 5 dias para a posse”
+- [x] A barra lateral não quebra com o texto mais longo em 390px e 1280px
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
 
 **Tests**: unit + e2e
 **Gate**: full
