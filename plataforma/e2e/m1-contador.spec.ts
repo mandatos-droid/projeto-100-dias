@@ -41,6 +41,16 @@ test.describe('Contador de dias mostra quanto falta (CFG-01)', () => {
     expect(await resumoBaixado(page)).toContain(' · faltam 5 dias para a posse');
   });
 
+  for (const [desde, texto] of [[282, '100 dias concluídos'], [29, 'Faltam 70 dias'], [-5, 'Faltam 5 dias']] as const) {
+    test(`Painel do mandato (posse há ${desde} dias): "${texto}"`, async ({ page }) => {
+      await abre(page, desde);
+      await page.evaluate(() => (window as unknown as { Telas: { painel: () => void } }).Telas.painel());
+      const cab = page.locator('#tela .linha100 .cab b');
+      await expect(cab).toHaveText(texto);
+      await expect(cab).not.toContainText('283');
+    });
+  }
+
   test('dia 99 no singular ("falta 1 dia")', async ({ page }) => {
     await abre(page, 98);
     await expect(lateral(page)).toContainText('falta 1 dia');

@@ -598,3 +598,17 @@ function contadorDias(d){
     };
   }
 })();
+/* Painel do mandato: a linha dos 100 dias segue a mesma regra do contador (CFG-01). Antes da posse o Guia já mostra quanto falta. */
+(function(){
+  if(typeof Telas==='undefined'||typeof contadorDias!=='function'||typeof diaAtual!=='function')return;
+  var _pn2=Telas.painel;
+  Telas.painel=function(){
+    _pn2.apply(this,arguments);
+    var d=diaAtual(),c=d===null?null:contadorDias(d);
+    var cab=document.querySelector('#tela .linha100 .cab');
+    if(!c||d<1||!cab)return;
+    var b=cab.querySelector('b'),sp=cab.querySelector('span');
+    if(b)b.textContent=c.texto.charAt(0).toUpperCase()+c.texto.slice(1);
+    if(sp&&d<=100)sp.textContent=sp.textContent.replace(/^faltam \d+ dias? · /,'Dia '+d+' de 100 · ');
+  };
+})();
