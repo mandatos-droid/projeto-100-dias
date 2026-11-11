@@ -1064,3 +1064,8 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .ilha-corpo .st button,.ilha-corpo .st button:not(:first-child),.ilha-corpo .st button:first-child,.ilha-corpo .st button:last-child{border-radius:var(--r);border-left-width:2px}
 .ilha-corpo .st button.aliado_concorrente[aria-pressed=true]{background:var(--verde);border-color:var(--verde);border-style:dashed;color:#fff}
 .ilha-corpo .st button.oponente_concorrente[aria-pressed=true]{background:#C93636;border-color:#C93636;border-style:dashed;color:#fff}
+
+/* Carrossel (T20) */
+.ilha-corpo .slides-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:0.75rem}
+.ilha-corpo .slides-nav{display:flex;align-items:center;justify-content:center;gap:0.875rem;flex-wrap:wrap;margin-top:0.75rem}
+.ilha-corpo .slides-nav .bt[disabled]{opacity:.45;cursor:default}

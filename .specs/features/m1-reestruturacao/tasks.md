@@ -661,13 +661,15 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Mostra `tam` itens por slide e desabilita as pontas
-- [ ] Anterior e Próximo são botões com nome acessível e o indicador "Slide X de Y" fica em `aria-live`
-- [ ] `npx tsc --noEmit` passa
+- [x] Mostra `tam` itens por slide e desabilita as pontas
+- [x] Anterior e Próximo são botões com nome acessível e o indicador "Slide X de Y" fica em `aria-live`
+- [x] `npx tsc --noEmit` passa
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(m1): componente de carrossel`
+
+**Status**: ✅ Done
 
 ---
 
