@@ -50,6 +50,7 @@ Open questions: #138.4 (textos de conceito dos indicadores). Resolvidas pelo Ped
 2. WHEN qualquer `.abas` é exibida, THE SYSTEM SHALL NOT mostrar barra de rolagem vertical.
 3. WHEN um cartão de parlamentar mulher é exibido, THE SYSTEM SHALL escrever o cargo no feminino (Deputada Estadual, Deputada Federal, Deputada Distrital, Senadora).
 4. WHEN o contador de dias é exibido (barra lateral, cabeçalho móvel e resumo baixado), THE SYSTEM SHALL mostrar: com posse futura, "faltam N dias para a posse" ("falta 1 dia para a posse" no singular); com a posse já ocorrida e o dia entre 1 e 99, "faltam N dias" com N = 100 menos o dia ("falta 1 dia" no singular); no dia 100, "último dia dos 100"; acima de 100, "100 dias concluídos"; e SHALL NOT mostrar um número maior que 100. (CFG-01)
+5. WHEN um texto da Missão 1 se refere à pessoa de forma genérica, THE SYSTEM SHALL usar “liderança parlamentar” em vez de formas flexionadas (“parlamentar”, “eleito(a)”, “Deputado(a)”), e SHALL manter o cargo flexionado no cartão de uma pessoa específica (PAR-01) e as listas de opções de cargo. (TERM-01, sugestão #97 da Alana)
 
 **Independent Test**: Abrir o Guia com a posse há 283, 30 e -5 dias e conferir o contador nos três lugares.
 
@@ -129,6 +130,7 @@ Open questions: #138.4 (textos de conceito dos indicadores). Resolvidas pelo Ped
 | OP-04 | P2: Cartões de agenda | Tasks | Pending |
 | SEL-01 | P2: Selecionar 2 dados | Tasks | Pending |
 | CFG-01 | P1: Corrigir o que está quebrado | Tasks | Pending |
+| TERM-01 | P1: Corrigir o que está quebrado | Tasks | Pending |
 
 ## Success Criteria
 

@@ -83,6 +83,12 @@ T19 → T22
 T20 → T21
 ```
 
+### Phase 8: Termo neutro “liderança parlamentar”
+
+```
+T23
+```
+
 ---
 
 ## Task Breakdown
@@ -691,10 +697,39 @@ T20 → T21
 
 ---
 
+### T23: Termo neutro “liderança parlamentar” nos textos genéricos (sugestão #97, Alana)
+
+**What**: Varredura dos textos que o Guia mostra na Missão 1 (`m1.js`, ilhas `Conjuntura`, `Classificados`, `Reacoes`, `Assentos`, `Resumos`/`ResumoRetrato`) e troca, onde o texto fala da pessoa em geral, de formas que exigem flexão de gênero (“o(a) parlamentar”, “eleito(a)”, “Deputado(a)” fora de listas de opções) por “liderança parlamentar”. Não muda o cargo do cartão de uma pessoa específica (T3/T4 seguem: “Deputada Estadual”), nem listas de opções de cargo (“Vereador(a)”). Texto só existente em arquivos extraídos (`conteudo.js`, `app.js`) não é editado: vai listado no relatório da tarefa para a coordenação decidir.
+**Where**: `plataforma/public/legacy/m1.js`, `plataforma/ilhas/*.tsx` da Missão 1, `plataforma/tests/rotulos-m1.test.ts`
+**Depends on**: None
+**Reuses**: `tests/rotulos-m1.test.ts` (já barra termos antigos); `lib/cargoEleito.ts` (T3)
+**Requirement**: TERM-01
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] A varredura lista cada trecho encontrado com arquivo e linha, e separa “editável” de “arquivo extraído”
+- [ ] Nenhum texto genérico editável da Missão 1 usa “parlamentar”, “eleito(a)” ou “Deputado(a)” como forma flexionada da pessoa; a troca usa “liderança parlamentar”
+- [ ] O cargo de cartão de pessoa específica segue flexionado (teste da T3 continua passando) e as listas de opções de cargo ficam como estão
+- [ ] `rotulos-m1.test.ts` falha se um termo trocado voltar (verificado revertendo uma troca)
+- [ ] Gate quick passa
+- [ ] Contagem de testes não diminui
+
+**Tests**: unit
+**Gate**: quick
+
+**Commit**: `fix(m1): use the gender-neutral term liderança parlamentar in generic texts`
+
+---
+
 ## Phase Execution Map
 
 ```
-Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7
+Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7 → Phase 8
 
 Phase 1:  T1 ------→ T2 ------→ T3 ------→ T4
 Phase 2:  T5 ------→ T6
@@ -703,4 +738,5 @@ Phase 4:  T9 ------→ T10 ------→ T11 ------→ T12 ------→ T13
 Phase 5:  T14 ------→ T15 ------→ T16 ------→ T17 ------→ T18
 Phase 6:  T19 ------→ T22
 Phase 7:  T20 ------→ T21
+Phase 8:  T23
 ```
