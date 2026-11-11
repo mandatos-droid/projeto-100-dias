@@ -1,11 +1,13 @@
 'use client';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { carregaEleitos, carregaMapaBR } from '@/lib/dados';
-import { corPartido, mistura, posEspectro } from '@/lib/partidos';
+import { carregaEleitos } from '@/lib/dados';
+import { corPartido, posEspectro } from '@/lib/partidos';
 import { nf, pct, semAcento } from '@/lib/format';
 import type { CasaChave, Eleito, Status } from '@/lib/types';
 import { salva, statusDe, useLegado } from './ponte';
-import { Chip, Foto, Hemiciclo, InfoRelacao, Marca, ROT_REL_PLURAL, StatusBotoes, SvgZoom, useCarga, type Membro } from './pecas';
+import { CATEGORIAS } from '@/lib/relacoes';
+import { Chip, Foto, Hemiciclo, InfoRelacao, Marca, ROT_REL, ROT_REL_PLURAL, StatusBotoes, useCarga, type Membro } from './pecas';
+import Classificados from './Classificados';
 
 const CASA_K: Record<Eleito['k'], CasaChave> = { f: 'federal', e: 'estadual', s: 'senado' };
 const K_CASA: Record<CasaChave, Eleito['k']> = { federal: 'f', estadual: 'e', senado: 's' };
@@ -20,7 +22,7 @@ const cargoDe = (e: Eleito) =>
 const GENERO: [string, string][] = [['F', 'Mulheres'], ['M', 'Homens']];
 const RACA: [string, string][] = [['B', 'Branca'], ['P', 'Parda'], ['N', 'Preta'], ['I', 'Indígena'], ['A', 'Amarela']];
 const MANDATO: [string, string][] = [['r', 'Reeleição'], ['n', 'Primeiro mandato']];
-const RELACAO: [string, string][] = [['aliado', ROT_REL_PLURAL.aliado], ['concorrente', ROT_REL_PLURAL.concorrente], ['potencial', ROT_REL_PLURAL.potencial], ['neutro', 'Sem marcação']];
+const RELACAO: [string, string][] = [...CATEGORIAS.map((c): [string, string] => [c.k, c.plural]), ['neutro', 'Sem marcação']];
 const COR_RACA: Record<string, string> = { B: '#d9c7a3', P: '#a8734a', N: '#3b2a26', I: '#b9473a', A: '#d6b43a', '': '#cfc8bd' };
 const COR_GEN: Record<string, string> = { F: '#8a2d5c', M: '#6f8a9a' };
 const COR_MAND: Record<string, string> = { r: '#571730', n: '#e0a526', '?': '#cfc8bd' };
@@ -106,7 +108,6 @@ function Pilha({ titulo, partes }: { titulo: string; partes: { id: string; rot: 
 export default function Assentos() {
   const { D, m } = useLegado();
   const { dados: todos, erro, carregando } = useCarga(carregaEleitos, 'eleitos');
-  const { dados: mapaBR } = useCarga(carregaMapaBR, 'mapa-br');
   const casaIni: CasaChave = (D.casaSel as CasaChave | undefined) ?? (D.tse as { casa?: CasaChave }).casa
     ?? (/Federal/.test(m.cargo) ? 'federal' : /Senador/.test(m.cargo) ? 'senado' : 'estadual');
   const [casa, setCasaL] = useState<CasaChave>(casaIni);
@@ -148,16 +149,6 @@ export default function Assentos() {
   const rotuloFiltro = (f: Faceta, id: string) =>
     f === 'partido' ? id : (({ genero: GENERO, raca: RACA, mandato: MANDATO, relacao: RELACAO })[f].find(([k]) => k === id)?.[1] ?? id);
 
-  // contagem por UF para o cartograma (respeita casa e filtros)
-  const porUF: Record<string, number> = {};
-  daCasa.forEach((e) => { if (passa(e, fl)) porUF[e.uf] = (porUF[e.uf] ?? 0) + 1; });
-  const totalUF = useMemo(() => {
-    const c: Record<string, number> = {};
-    daCasa.forEach((e) => { c[e.uf] = (c[e.uf] ?? 0) + 1; });
-    return c;
-  }, [daCasa]);
-  const maxUF = Math.max(1, ...Object.values(porUF));
-
   const q = semAcento(busca);
   const tabela = visiveis.filter((e) => !q || semAcento(e.u).includes(q) || semAcento(e.c).includes(q))
     .sort((a, b) => {
@@ -182,9 +173,7 @@ export default function Assentos() {
   const meuSq = (D.tse as { sq?: string }).sq;
   const relDe = (e: Eleito) => ({ nome: e.u, partido: e.p, cargo: cargoDe(e), uf: e.uf, votos: e.v || undefined });
 
-  const parceiros = visiveis.filter((e) => statusDe(e.s) === 'aliado').length;
-  const concorrentes = visiveis.filter((e) => statusDe(e.s) === 'concorrente').length;
-  const potenciais = visiveis.filter((e) => statusDe(e.s) === 'potencial').length;
+  const porCategoria = (k: Status) => visiveis.filter((e) => statusDe(e.s) === k).length;
   const nPartidos = new Set(visiveis.map((e) => e.p)).size;
   const cont = (fn: (e: Eleito) => string) => {
     const c: Record<string, number> = {};
@@ -198,12 +187,23 @@ export default function Assentos() {
     <div className="ilha-corpo ass">
       <h4>Parlamentares eleitos · {nomeEscopo} · {rotuloCasa(casa, escopo)}</h4>
 
+      <div className="escopo-sel">
+        <label htmlFor="ass-escopo">Território</label>
+        <select id="ass-escopo" value={escopo} onChange={(ev) => setEscopo(ev.target.value)}>
+          <option value="BR">Brasil inteiro</option>
+          {Object.entries(NOME_UF).map(([uf, nome]) => <option key={uf} value={uf}>{nome}</option>)}
+        </select>
+        {m.uf && escopo !== m.uf && (
+          <button type="button" className="link-bt" onClick={() => setEscopo(m.uf)}>Voltar ao estado do mandato ({m.uf})</button>
+        )}
+      </div>
+
       <div className="abas" role="tablist">
         {(['estadual', 'federal', 'senado'] as CasaChave[]).map((c) => {
           const n = (todos ?? []).filter((e) => e.k === K_CASA[c] && (escopo === 'BR' || e.uf === escopo)).length;
           return (
             <button key={c} type="button" role="tab" aria-selected={casa === c} onClick={() => setCasa(c)}>
-              {rotuloCasa(c, escopo, true)} <span className="n-aba">{nf.format(n)}</span>
+              {rotuloCasa(c, escopo)} <span className="n-aba">{nf.format(n)}</span>
             </button>
           );
         })}
@@ -265,9 +265,11 @@ export default function Assentos() {
         <div className="kpis">
           <div className="kp"><b>{nf.format(visiveis.length)}</b><span>{filtrando ? `de ${nf.format(base.length)} parlamentares` : 'parlamentares eleitos'}</span></div>
           <div className="kp"><b>{nPartidos}</b><span>partidos</span></div>
-          <div className="kp ok"><b><Marca tipo="aliado" tam={18} /> {parceiros}</b><span>aliados</span></div>
-          <div className="kp coral"><b><Marca tipo="concorrente" tam={18} /> {concorrentes}</b><span>opositores</span></div>
-          <div className="kp"><b><Marca tipo="potencial" tam={18} /> {potenciais}</b><span>potenciais relacionamentos</span></div>
+          {CATEGORIAS.map((c) => (
+            <div key={c.k} className={`kp${c.k === 'aliado' ? ' ok' : c.k === 'concorrente' ? ' coral' : ''}`}>
+              <b><Marca tipo={c.k} tam={18} /> {porCategoria(c.k)}</b><span>{ROT_REL_PLURAL[c.k].toLowerCase()}</span>
+            </div>
+          ))}
         </div>
 
         {visiveis.length > 0 && (
@@ -280,43 +282,6 @@ export default function Assentos() {
 
           </div>
 
-          <div className="ass-grid">
-            <aside className="ass-lado" aria-label="Território">
-            <div className="bloco">
-              <div className="bloco-t">
-                <span>Território</span>
-                {escopo !== 'BR' && <button type="button" className="link-bt" onClick={() => setEscopo('BR')}>← ver o Brasil</button>}
-              </div>
-              {mapaBR && (
-                <SvgZoom w={mapaBR.w} h={mapaBR.h} className="mapa-br" role="group" rotulo="Mapa do Brasil por estado">
-                  {mapaBR.uf.map((u) => {
-                    const n = porUF[u.id] ?? 0, tot = totalUF[u.id] ?? 0;
-                    const ativo = escopo === u.id;
-                    const t = escopo === 'BR' ? 0.12 + 0.88 * (n / maxUF) : 0.12;
-                    return (
-                      <g key={u.id} className={`uf${ativo ? ' ativo' : ''}${tot ? '' : ' vazio'}`} role="button" tabIndex={tot ? 0 : -1}
-                        aria-pressed={ativo} aria-label={`${NOME_UF[u.id]}: ${n} de ${tot} parlamentares`}
-                        onClick={() => tot && setEscopo(ativo ? 'BR' : u.id)}
-                        onKeyDown={(ev) => { if (tot && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); setEscopo(ativo ? 'BR' : u.id); } }}>
-                        <title>{`${NOME_UF[u.id]} · ${n}${filtrando ? ` de ${tot}` : ''} parlamentares`}</title>
-                        <path d={u.d} fill={ativo ? '#571730' : mistura('#571730', t)} />
-                        <text x={u.cx} y={u.cy} textAnchor="middle" className={t > 0.5 || ativo ? 'claro' : ''}>
-                          <tspan x={u.cx} dy="-0.2em" className="sg">{u.id}</tspan><tspan x={u.cx} dy="1.15em" className="qt">{n}</tspan>
-                        </text>
-                      </g>
-                    );
-                  })}
-                </SvgZoom>
-              )}
-              <button type="button" className="bt fant peq br-bt" aria-pressed={escopo === 'BR'} onClick={() => setEscopo('BR')}>
-                Brasil inteiro
-              </button>
-              {m.uf && escopo !== m.uf && (
-                <button type="button" className="link-bt" onClick={() => setEscopo(m.uf)}>Voltar ao estado do mandato ({m.uf})</button>
-              )}
-            </div>
-            </aside>
-
           <section className="ass-main">
             {base.length > 0 && (
               <>
@@ -324,14 +289,12 @@ export default function Assentos() {
                   proprio={meuSq} onSelecionar={(k) => { setSel(k === sel ? null : k); }} />
                 <ul className="legenda" aria-label="Legenda das formas">
                   <li><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="#9a8f86" /></svg> sem marcação</li>
-                  <li><Marca tipo="aliado" tam={13} /> aliado</li>
-                  <li><Marca tipo="concorrente" tam={13} /> opositor</li>
-                  <li><Marca tipo="potencial" tam={13} /> potencial relacionamento</li>
+                  {CATEGORIAS.map((c) => <li key={c.k}><Marca tipo={c.k} tam={13} /> {ROT_REL[c.k].toLowerCase()}</li>)}
                   <li><Marca tipo="proprio" tam={13} /> esta liderança</li>
                   <li>cor = partido · esmaecido = fora do filtro</li>
                 </ul>
                 {escopo === 'BR' && casa === 'estadual' && (
-                  <p className="peq-t" style={{ textAlign: 'center' }}>Visão nacional das assembleias: passe o mouse nas cadeiras ou clique num estado no mapa para detalhar.</p>
+                  <p className="peq-t" style={{ textAlign: 'center' }}>Visão nacional das assembleias: passe o mouse nas cadeiras ou escolha um estado no seletor de território para detalhar.</p>
                 )}
               </>
             )}
@@ -345,7 +308,7 @@ export default function Assentos() {
                   </div>
                   <p className="peq-t">{atual.c}</p>
                   <p><Chip p={atual.p} /> <span className="selo ok">{cargoDe(atual)} · {atual.uf}</span>
-                    {meuSq === atual.s && <span className="selo ok" style={{ marginLeft: 6 }}><Marca tipo="proprio" tam={11} /> esta liderança</span>}</p>
+                    {meuSq === atual.s && <span className="selo ok" style={{ marginLeft: 6 }}><Marca tipo="proprio" tam={11} /> Esta liderança</span>}</p>
                   <p className="peq-t">
                     {atual.g === 'F' ? 'Mulher' : 'Homem'}{atual.r && ` · ${RACA.find(([k]) => k === atual.r)?.[1]}`}
                     {' · '}{atual.m === 'r' ? 'reeleição' : atual.m === '?' ? 'eleito(a) em 2022, mandato até 2031' : 'primeiro mandato no cargo'}
@@ -353,12 +316,13 @@ export default function Assentos() {
                   {atual.a === 2026 && (
                     <p style={{ margin: '4px 0 10px' }}><strong>{nf.format(atual.v)}</strong> votos · <strong>{pct(atual.x)}</strong> dos válidos em {atual.uf}</p>
                   )}
-                  <StatusBotoes chave={atual.s} rel={relDe(atual)} />
+                  {meuSq !== atual.s && <StatusBotoes chave={atual.s} rel={relDe(atual)} />}
                 </div>
               )}
             </div>
           </section>
-          </div>
+
+          <Classificados />
 
           <section className="ass-main ass-tabela">
             <div className="ilha-filtros">
@@ -375,12 +339,12 @@ export default function Assentos() {
                       <tr key={e.s} className={sel === e.s ? 'sel' : ''} onClick={() => setSel(e.s)}>
                         <td><span className="com-foto"><Foto sq={e.s} uf={e.uf} ano={2026} nome={e.u} />
                           <span>{st !== 'neutro' && <Marca tipo={st} tam={12} />} <strong>{e.u}</strong>
-                            {meuSq === e.s && <span className="selo ok" style={{ marginLeft: 6 }}>esta liderança</span>}</span></span></td>
+                            {meuSq === e.s && <span className="selo ok" style={{ marginLeft: 6 }}>Esta liderança</span>}</span></span></td>
                         <td><Chip p={e.p} /></td>
                         {escopo === 'BR' && <td>{e.uf}</td>}
                         <td className="peq-t">{e.g === 'F' ? 'Mulher' : 'Homem'} · {RACA.find(([k]) => k === e.r)?.[1] ?? '—'} · {e.m === 'r' ? 'reeleição' : e.m === '?' ? '2022' : '1º mandato'}</td>
                         <td>{e.a === 2022 ? '—' : nf.format(e.v)}</td>
-                        <td onClick={(ev) => ev.stopPropagation()}><StatusBotoes chave={e.s} rel={relDe(e)} /></td>
+                        <td onClick={(ev) => ev.stopPropagation()}>{meuSq === e.s ? <span className="peq-t" aria-hidden="true">—</span> : <StatusBotoes chave={e.s} rel={relDe(e)} />}</td>
                       </tr>
                     );
                   })}

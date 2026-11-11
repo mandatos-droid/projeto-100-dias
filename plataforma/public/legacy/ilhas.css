@@ -1080,3 +1080,9 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .ilha-corpo .cartao-class-cat{margin:0;font-weight:700}
 .ilha-corpo .cartao-class .st{flex-direction:column;align-items:stretch}
 .ilha-corpo .classificados-f .chip:focus-visible,.ilha-corpo .cartao-class button:focus-visible,.ilha-corpo .slides-nav .bt:focus-visible{outline:3px solid var(--vinho);outline-offset:2px}
+
+/* Seletor de território no lugar do cartograma (T22) */
+.ass .escopo-sel{display:flex;align-items:center;gap:0.625rem;flex-wrap:wrap;margin:0.5rem 0}
+.ass .escopo-sel label{font-weight:700}
+.ass .escopo-sel select{border:2px solid var(--linha);border-radius:var(--r);padding:0.3125rem 0.5rem;background:#fff;font:inherit}
+.ass .escopo-sel select:focus-visible{outline:3px solid var(--vinho);outline-offset:2px}

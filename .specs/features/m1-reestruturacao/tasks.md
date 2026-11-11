@@ -716,16 +716,18 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Não há cartograma de UFs; o `<select>` de escopo grava `D.escopoSel`
-- [ ] As abas são "Câmara Legislativa" (DF) ou "Assembleia Legislativa", "Câmara dos Deputados" e "Senado"
-- [ ] Grandes números e perfis ficam logo abaixo dos filtros
-- [ ] A linha da própria liderança tem o selo "Esta liderança" e nenhum botão de classificação
-- [ ] A paginação de 15 linhas continua
-- [ ] `npx tsc --noEmit` passa
+- [x] Não há cartograma de UFs; o `<select>` de escopo grava `D.escopoSel`
+- [x] As abas são "Câmara Legislativa" (DF) ou "Assembleia Legislativa", "Câmara dos Deputados" e "Senado"
+- [x] Grandes números e perfis ficam logo abaixo dos filtros
+- [x] A linha da própria liderança tem o selo "Esta liderança" e nenhum botão de classificação
+- [x] A paginação de 15 linhas continua
+- [x] `npx tsc --noEmit` passa
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(m1): legislatura sem mapa e com classificados em carrossel`
+
+**Status**: ✅ Done
 
 ---
 
