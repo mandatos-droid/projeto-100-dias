@@ -581,6 +581,27 @@ test('o HTML do Mapa Político traz as respostas da Missão 1 na ordem do Resumo
   assert.equal(h.includes('Missão 1'), true);
 });
 
+test('o HTML baixado traz as categorias de relação, o resumo "Você tem…" e as 2 reações a dados (FEC-02, LEG-12, PAR-11)', () => {
+  const w = janelaMapa({
+    campos: { 'm1.q1': 'RESP-Q1' },
+    relacoes: {
+      a1: pessoa('aliado', 'Ana Aliada'), a2: pessoa('aliado', 'Bia Aliada'), c1: pessoa('aliado_concorrente', 'Caio Misto'),
+      o1: pessoa('concorrente', 'Dani Oponente'), x1: pessoa('potencial', 'Eva Indefinida'),
+    },
+    agendasPrio: ['saude', 'cultura'],
+    conj2: { muns: {}, relacao: '', relacaoPq: '', desafios: [], oportunidades: [], reacoes: [
+      { dado: 'vereadores', valor: '12 no estado, 400 no Brasil', texto: 'ampliar a bancada' },
+      { dado: 'filiados', valor: '9.000 no estado, 1.500.000 no Brasil', texto: 'filiar mais gente' }] },
+  });
+  const h = w.Baixar.htmlMapaPolitico(EXTRAS);
+  assert.ok(h.includes('Você tem 2 Aliados; 1 Aliado, mas concorrente; 1 Oponente; 1 Indefinida'));
+  for (const t of ['Aliados (2)', 'Aliados, mas concorrentes (1)', 'Oponentes (1)', 'Indefinidas (1)', 'Ana Aliada', 'Bia Aliada', 'Caio Misto', 'Dani Oponente', 'Eva Indefinida']) assert.ok(h.includes(t), t);
+  assert.ok(h.indexOf('Você tem') < h.indexOf('Aliados (2)'));
+  assert.ok(h.includes('Considerando Vereadores do partido: 12 no estado, 400 no Brasil, o mandato deve… ampliar a bancada'));
+  assert.ok(h.includes('Considerando Filiados do partido: 9.000 no estado, 1.500.000 no Brasil, o mandato deve… filiar mais gente'));
+  for (const n of ['Saúde', 'Cultura e esporte']) assert.ok(h.includes(`<li><strong>${n}</strong></li>`), n); // agendas prioritárias
+});
+
 test('pergunta sem resposta aparece como "Não respondida" e não trava a geração (FEC-05)', () => {
   const h = janelaMapa().Baixar.htmlMapaPolitico();
   assert.ok(h.includes('Não respondida'));
