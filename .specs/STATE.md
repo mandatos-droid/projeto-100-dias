@@ -149,6 +149,14 @@
 - As páginas `/mandato`, a casca (`Casca.tsx`, `layout.tsx`) e `e2e/mandato-{area,casca,equipe,perfil}.spec.ts` saíram (T8); a cobertura migrou para `e2e/area-*.spec.ts` e `tests/mandato-sessao-api.test.ts`. O andamento dos 100 dias e as missões deixaram de existir fora do Painel do mandato do Guia; `lib/convites/{dias,missoes}.ts` e `catalogoExercicios` ficaram sem uso na tela, com os testes unitários.
 - Motivo: pedido do usuário de 2026-11-10; gestão do mandato em três lugares (Configurações, `/mandato`, `/mandato/equipe`) levava a pessoa de um sistema a outro.
 
+### AD-016: Missão 1 abre em página única e dados de município aparecem só em cartões dos 5 mais votados, sem mapas (2026-11-11)
+
+- Cada etapa da Missão 1 abre numa página só (o modo `tudo` do Guia, sem "Avançar" entre perguntas) e dados por município aparecem em cartões dos 5 municípios mais votados da liderança (ou só o de domicílio, sem votação 2026), nunca em mapa coroplético. Vale para telas futuras que pensarem em mapa dentro de exercício: a pessoa **analisa dados prontos**, e o mapa não faz parte do exercício.
+- Respostas já salvas (`D.campos`, `D.relacoes`, `D.conj2`, `D.social`, `D.eleitorado`, `D.pleitos`) seguem gravadas; `ItemEl.muns` e `D.social` ficam só como dado antigo.
+- O fechamento gera o HTML do Mapa Político (`Baixar.mapaPolitico`, em `public/legacy/m1.js`, por AD-003: `resumo.js` é extraído e seria sobrescrito) com o mesmo conteúdo do Resumo, os cartões de município e de agenda em HTML estático e um `<script>` inline para o carrossel e o filtro.
+- Motivo: pedido da Alana e decisões do Pedro (leitura de 2026-11-10 e 2026-11-11), em `.specs/features/m1-reestruturacao/spec.md`.
+- **Lacunas registradas, sem requisito na spec:** (1) `ilhas/Resumos.tsx` (`MunicipioResumo`, mapa por município) só reconhece `aliado`/`concorrente` e ignora `aliado_concorrente` e `oponente_concorrente`; a ilha deixou de ser montada na Missão 1 (pergunta 2.3 removida), então não aparece ao usuário; (2) o RECAP da Missão 3 (`public/legacy/novos.js`) ainda lê `m1.q3`, não `m1.q3c1..c3`, e não lê `D.agendasPrio` (a spec deixa as Missões 2 a 5 inalteradas); (3) o Resumo da aba mostra reações a dados de município sem o nome do município (só `dado` e `valor` ficam gravados, PAR-12); o HTML exportado traz o nome; (4) o Resumo da aba não mostra os cartões de município (só o HTML exportado), o que FEC-04 pede "como aparece no Resumo"; (5) `m1.q2` (análise dos pleitos) passou a aparecer no Resumo e no HTML.
+
 ## Handoff
 
 **Snapshot atual (`resumo-reestruturado`, 2026-11-10):**

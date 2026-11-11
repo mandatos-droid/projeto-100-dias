@@ -258,81 +258,81 @@ Todas as decisões foram aprovadas pelo Pedro em 2026-11-11 (as que estavam sem 
 
 | Requirement ID | Story | Tasks | Status |
 | -------------- | ----- | ----- | ------ |
-| PAG-01 | P1: Cada etapa numa página só | T8, T14, T43 | In Tasks |
-| PAG-02 | P1: Cada etapa numa página só | T14 | In Tasks |
-| PAG-03 | P1: Cada etapa numa página só | T8, T14 | In Tasks |
-| PAG-04 | P1: Cada etapa numa página só | T8, T14 | In Tasks |
-| PER-01 | P1: Persona | T16, T17, T18 | In Tasks |
-| PER-02 | P1: Persona | T16, T18 | In Tasks |
-| PER-03 | P1: Persona | T4, T15, T18 | In Tasks |
-| PER-04 | P1: Persona | T15, T16 | In Tasks |
-| PER-05 | P1: Persona | T15, T18 | In Tasks |
-| PER-06 | P1: Persona | T9 | In Tasks |
-| PER-07 | P1: Persona | T9, T18 | In Tasks |
-| PER-08 | P1: Persona | T9, T18 | In Tasks |
-| PER-09 | P1: Persona | T9, T18 | In Tasks |
-| LEG-01 | P1: Conjuntura, relações | T22, T25 | In Tasks |
-| LEG-02 | P1: Conjuntura, relações | T22, T25, T41 | In Tasks |
-| LEG-03 | P1: Conjuntura, relações | T1, T2, T19, T25 | In Tasks |
-| LEG-04 | P1: Conjuntura, relações | T10, T19 | In Tasks |
-| LEG-05 | P1: Conjuntura, relações | T10 | In Tasks |
-| LEG-06 | P1: Conjuntura, relações | T22 | In Tasks |
-| LEG-07 | P1: Conjuntura, relações | T22, T25 | In Tasks |
-| LEG-08 | P1: Conjuntura, relações | T20, T21, T25 | In Tasks |
-| LEG-09 | P1: Conjuntura, relações | T21, T25 | In Tasks |
-| LEG-10 | P1: Conjuntura, relações | T21, T25 | In Tasks |
-| LEG-11 | P1: Conjuntura, relações | T2, T19, T41 | In Tasks |
-| LEG-12 | P1: Conjuntura, relações | T2, T23, T25 | In Tasks |
-| LEG-13 | P1: Conjuntura, relações | T23, T24 | In Tasks |
-| PAR-01 | P1: Conjuntura, partido | T10, T30 | In Tasks |
-| PAR-02 | P1: Conjuntura, partido | T26, T30 | In Tasks |
-| PAR-03 | P1: Conjuntura, partido | T26, T30 | In Tasks |
-| PAR-04 | P1: Conjuntura, partido | T27, T29, T30 | In Tasks |
-| PAR-05 | P1: Conjuntura, partido | T27, T30 | In Tasks |
-| PAR-06 | P1: Conjuntura, partido | T27 | In Tasks |
-| PAR-07 | P1: Conjuntura, partido | T27 | In Tasks |
-| PAR-08 | P1: Conjuntura, partido | T15, T27 | In Tasks |
-| PAR-09 | P1: Conjuntura, partido | T10, T29, T30 | In Tasks |
-| PAR-10 | P1: Conjuntura, partido | T7, T28, T29 | In Tasks |
-| PAR-11 | P1: Conjuntura, partido | T7, T28, T30 | In Tasks |
-| PAR-12 | P1: Conjuntura, partido | T1, T7, T28, T30 | In Tasks |
-| PAR-13 | P1: Conjuntura, partido | T10, T30 | In Tasks |
-| PAR-14 | P1: Conjuntura, partido | T26, T30 | In Tasks |
-| SOC-01 | P1: Oportunidades e ameaças | T11 | In Tasks |
-| SOC-02 | P1: Oportunidades e ameaças | T11, T33, T36 | In Tasks |
-| SOC-03 | P1: Oportunidades e ameaças | T5, T33, T35 | In Tasks |
-| SOC-04 | P1: Oportunidades e ameaças | T5, T33 | In Tasks |
-| SOC-05 | P1: Oportunidades e ameaças | T5, T33, T37 | In Tasks |
-| SOC-06 | P1: Oportunidades e ameaças | T5, T20, T33, T37 | In Tasks |
-| SOC-07 | P1: Oportunidades e ameaças | T11 | In Tasks |
-| SOC-08 | P1: Oportunidades e ameaças | T33 | In Tasks |
-| SOC-09 | P1: Oportunidades e ameaças | T33 | In Tasks |
-| ELE-01 | P1: Oportunidades e ameaças | T31, T36, T37 | In Tasks |
-| ELE-02 | P1: Oportunidades e ameaças | T31, T37 | In Tasks |
-| ELE-03 | P1: Oportunidades e ameaças | T31, T37 | In Tasks |
-| ELE-04 | P1: Oportunidades e ameaças | T3, T31, T37 | In Tasks |
-| ELE-05 | P1: Oportunidades e ameaças | T3, T31, T37 | In Tasks |
-| ELE-06 | P1: Oportunidades e ameaças | T31, T37 | In Tasks |
-| ELE-07 | P1: Oportunidades e ameaças | T3, T31, T37 | In Tasks |
-| ELE-08 | P1: Oportunidades e ameaças | T3, T31, T37 | In Tasks |
-| ELE-09 | P1: Oportunidades e ameaças | T3, T31, T37 | In Tasks |
-| ELE-10 | P1: Oportunidades e ameaças | T31 | In Tasks |
-| ELE-11 | P1: Oportunidades e ameaças | T32, T39 | In Tasks |
-| AGE-01 | P1: Oportunidades e ameaças | T11, T34, T36 | In Tasks |
-| AGE-02 | P1: Oportunidades e ameaças | T6, T34, T35, T37 | In Tasks |
-| AGE-03 | P1: Oportunidades e ameaças | T6, T34, T37 | In Tasks |
-| AGE-04 | P1: Oportunidades e ameaças | T6, T34 | In Tasks |
-| FRA-01 | P2: Fragilidades | T12 | In Tasks |
-| FRA-02 | P2: Fragilidades | T12 | In Tasks |
-| FRA-03 | P2: Fragilidades | T12 | In Tasks |
-| FEC-01 | P1: Fechamento | T40, T42 | In Tasks |
-| FEC-02 | P1: Fechamento | T38, T40, T42 | In Tasks |
-| FEC-03 | P1: Fechamento | T38 | In Tasks |
-| FEC-04 | P1: Fechamento | T40, T42 | In Tasks |
-| FEC-05 | P1: Fechamento | T38, T42 | In Tasks |
-| GER-01 | P2: Linguagem e resumo | T12, T41 | In Tasks |
-| GER-02 | P2: Linguagem e resumo | T13, T39, T42 | In Tasks |
-| GER-03 | P2: Linguagem e resumo | T13, T42 | In Tasks |
+| PAG-01 | P1: Cada etapa numa página só | T8, T14, T43 | Implementing |
+| PAG-02 | P1: Cada etapa numa página só | T14 | Implementing |
+| PAG-03 | P1: Cada etapa numa página só | T8, T14 | Implementing |
+| PAG-04 | P1: Cada etapa numa página só | T8, T14 | Implementing |
+| PER-01 | P1: Persona | T16, T17, T18 | Implementing |
+| PER-02 | P1: Persona | T16, T18 | Implementing |
+| PER-03 | P1: Persona | T4, T15, T18 | Implementing |
+| PER-04 | P1: Persona | T15, T16 | Implementing |
+| PER-05 | P1: Persona | T15, T18 | Implementing |
+| PER-06 | P1: Persona | T9 | Implementing |
+| PER-07 | P1: Persona | T9, T18 | Implementing |
+| PER-08 | P1: Persona | T9, T18 | Implementing |
+| PER-09 | P1: Persona | T9, T18 | Implementing |
+| LEG-01 | P1: Conjuntura, relações | T22, T25 | Implementing |
+| LEG-02 | P1: Conjuntura, relações | T22, T25, T41 | Implementing |
+| LEG-03 | P1: Conjuntura, relações | T1, T2, T19, T25 | Implementing |
+| LEG-04 | P1: Conjuntura, relações | T10, T19 | Implementing |
+| LEG-05 | P1: Conjuntura, relações | T10 | Implementing |
+| LEG-06 | P1: Conjuntura, relações | T22 | Implementing |
+| LEG-07 | P1: Conjuntura, relações | T22, T25 | Implementing |
+| LEG-08 | P1: Conjuntura, relações | T20, T21, T25 | Implementing |
+| LEG-09 | P1: Conjuntura, relações | T21, T25 | Implementing |
+| LEG-10 | P1: Conjuntura, relações | T21, T25 | Implementing |
+| LEG-11 | P1: Conjuntura, relações | T2, T19, T41 | Implementing |
+| LEG-12 | P1: Conjuntura, relações | T2, T23, T25 | Implementing |
+| LEG-13 | P1: Conjuntura, relações | T23, T24 | Implementing |
+| PAR-01 | P1: Conjuntura, partido | T10, T30 | Implementing |
+| PAR-02 | P1: Conjuntura, partido | T26, T30 | Implementing |
+| PAR-03 | P1: Conjuntura, partido | T26, T30 | Implementing |
+| PAR-04 | P1: Conjuntura, partido | T27, T29, T30 | Implementing |
+| PAR-05 | P1: Conjuntura, partido | T27, T30 | Implementing |
+| PAR-06 | P1: Conjuntura, partido | T27 | Implementing |
+| PAR-07 | P1: Conjuntura, partido | T27 | Implementing |
+| PAR-08 | P1: Conjuntura, partido | T15, T27 | Implementing |
+| PAR-09 | P1: Conjuntura, partido | T10, T29, T30 | Implementing |
+| PAR-10 | P1: Conjuntura, partido | T7, T28, T29 | Implementing |
+| PAR-11 | P1: Conjuntura, partido | T7, T28, T30 | Implementing |
+| PAR-12 | P1: Conjuntura, partido | T1, T7, T28, T30 | Implementing |
+| PAR-13 | P1: Conjuntura, partido | T10, T30 | Implementing |
+| PAR-14 | P1: Conjuntura, partido | T26, T30 | Implementing |
+| SOC-01 | P1: Oportunidades e ameaças | T11 | Implementing |
+| SOC-02 | P1: Oportunidades e ameaças | T11, T33, T36 | Implementing |
+| SOC-03 | P1: Oportunidades e ameaças | T5, T33, T35 | Implementing |
+| SOC-04 | P1: Oportunidades e ameaças | T5, T33 | Implementing |
+| SOC-05 | P1: Oportunidades e ameaças | T5, T33, T37 | Implementing |
+| SOC-06 | P1: Oportunidades e ameaças | T5, T20, T33, T37 | Implementing |
+| SOC-07 | P1: Oportunidades e ameaças | T11 | Implementing |
+| SOC-08 | P1: Oportunidades e ameaças | T33 | Implementing |
+| SOC-09 | P1: Oportunidades e ameaças | T33 | Implementing |
+| ELE-01 | P1: Oportunidades e ameaças | T31, T36, T37 | Implementing |
+| ELE-02 | P1: Oportunidades e ameaças | T31, T37 | Implementing |
+| ELE-03 | P1: Oportunidades e ameaças | T31, T37 | Implementing |
+| ELE-04 | P1: Oportunidades e ameaças | T3, T31, T37 | Implementing |
+| ELE-05 | P1: Oportunidades e ameaças | T3, T31, T37 | Implementing |
+| ELE-06 | P1: Oportunidades e ameaças | T31, T37 | Implementing |
+| ELE-07 | P1: Oportunidades e ameaças | T3, T31, T37 | Implementing |
+| ELE-08 | P1: Oportunidades e ameaças | T3, T31, T37 | Implementing |
+| ELE-09 | P1: Oportunidades e ameaças | T3, T31, T37 | Implementing |
+| ELE-10 | P1: Oportunidades e ameaças | T31 | Implementing |
+| ELE-11 | P1: Oportunidades e ameaças | T32, T39 | Implementing |
+| AGE-01 | P1: Oportunidades e ameaças | T11, T34, T36 | Implementing |
+| AGE-02 | P1: Oportunidades e ameaças | T6, T34, T35, T37 | Implementing |
+| AGE-03 | P1: Oportunidades e ameaças | T6, T34, T37 | Implementing |
+| AGE-04 | P1: Oportunidades e ameaças | T6, T34 | Implementing |
+| FRA-01 | P2: Fragilidades | T12 | Implementing |
+| FRA-02 | P2: Fragilidades | T12 | Implementing |
+| FRA-03 | P2: Fragilidades | T12 | Implementing |
+| FEC-01 | P1: Fechamento | T40, T42 | Implementing |
+| FEC-02 | P1: Fechamento | T38, T40, T42 | Implementing |
+| FEC-03 | P1: Fechamento | T38 | Implementing |
+| FEC-04 | P1: Fechamento | T40, T42 | Implementing |
+| FEC-05 | P1: Fechamento | T38, T42 | Implementing |
+| GER-01 | P2: Linguagem e resumo | T12, T41 | Implementing |
+| GER-02 | P2: Linguagem e resumo | T13, T39, T42 | Implementing |
+| GER-03 | P2: Linguagem e resumo | T13, T42 | Implementing |
 
 **Coverage:** 75 requisitos, 75 mapeados a tasks, 0 sem task.
 

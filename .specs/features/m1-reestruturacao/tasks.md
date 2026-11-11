@@ -1278,8 +1278,8 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] AD-014 escrito com data e motivo
-- [ ] Nenhum código muda nesta tarefa
+- [x] AD-014 escrito com data e motivo
+- [x] Nenhum código muda nesta tarefa
 
 **Tests**: none
 **Gate**: build
