@@ -915,13 +915,15 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Os 5 cartões e as 2 linhas de reação aparecem depois dos dados da 2.2
-- [ ] Os dados do seletor batem com os números mostrados no Placar
-- [ ] `npx tsc --noEmit` passa
+- [x] Os 5 cartões e as 2 linhas de reação aparecem depois dos dados da 2.2
+- [x] Os dados do seletor batem com os números mostrados no Placar
+- [x] `npx tsc --noEmit` passa
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(m1): conjuntura monta cartões de município e reações`
+
+**Status**: ✅ Done
 
 ---
 

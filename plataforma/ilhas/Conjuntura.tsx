@@ -10,7 +10,10 @@ import { corPartido } from '@/lib/partidos';
 import { nf, pct } from '@/lib/format';
 import type { Conj2, EsferaExec, ExecEleito, FilAcum, Mun, PosExec, RegExec } from '@/lib/types';
 import { CARGOS, NIVEIS } from './cargos';
+import { CartoesMunicipio, numerosMun, pctEstado, useAlvoMun } from './CartoesMunicipio';
 import { POSICOES, ROT_POS, sugere } from './posicoes';
+import { Reacoes } from './Reacoes';
+import { dadosSelecionaveis } from '@/lib/dadosPartido';
 import { useLegado } from './ponte';
 import { BarrasPartido, Chip, useCarga } from './pecas';
 
@@ -90,6 +93,7 @@ export default function Conjuntura() {
   const filBR = useCarga(() => carregaFiliadosBR(), 'filbr');
   const exUF = useCarga(() => carregaExecUF(m.uf), m.uf);
   const exBR = useCarga(() => carregaExecBR(), 'exbr');
+  const alvo = useAlvoMun(mun.dados);
 
   if (!D.conj2) D.conj2 = vazio();
   const c = D.conj2;
@@ -324,6 +328,16 @@ export default function Conjuntura() {
   const prefBR = cad('prefeitos', 'br'), prefUFn = cad('prefeitos', 'uf');
   const lbl = (n: number, t: number) => (t ? ` · ${pct((n / t) * 100, 1)} de ${nf.format(t)}` : '');
 
+  /* os mesmos números do Placar e dos cartões, para o seletor das reações (PAR-10) */
+  const dadosDoPartido = dadosSelecionaveis(
+    {
+      parlamentares: { uf: parlUF.n, br: parlBR.n }, vereadores: { uf: verUF.n, br: verBR.n },
+      prefeituras: { uf: prefUFn.n, br: prefBR.n }, filiados: { uf: filUFn.n, br: filBRn.n },
+      executivos: esferas.map((e) => { const x = posEfetiva(e.k, e.eleito); return `${e.k === 'pres' ? 'Presidência' : e.k === 'gov' ? `Governo ${m.uf}` : 'Prefeitura'}: ${x ? ROT_POS[x] : 'a definir'}`; }).join(' · '),
+    },
+    alvo.itens.map((it) => numerosMun(it, mun.dados, fil.dados, alvo.casa, partido)),
+  );
+
   return (
     <div className="ilha-corpo v2">
       <h4 className="v2-titulo">Conjuntura do {partido} em {nomeUF} e no Brasil</h4>
@@ -463,6 +477,11 @@ export default function Conjuntura() {
       ) : (
         !carregando && <p className="sem">O {partido} não tem filiados registrados em {rotEscopo}.</p>
       )}
+
+      {/* depois dos dados: um cartão por município e as 2 reações do mandato (PAR-04, PAR-09 a PAR-12) */}
+      <CartoesMunicipio alvo={alvo} partido={partido} uf={m.uf} c={c} munUF={mun.dados} fil={fil.dados} exUF={exUF.dados}
+        pctUF={pctEstado(mun.dados?.mun, alvo.casa, partido)} nomeUF={nomeUF} />
+      <Reacoes dados={dadosDoPartido} />
 
       {/* As seções 5 (relação desejada com o partido) e 6 (desafios e oportunidades) saíram da tela por decisão sobre a sugestão #20:
           fica só a pergunta abrangente, no Guia. Os valores já salvos (c.relacao, c.relacaoPq, c.desafios, c.oportunidades) seguem gravados. */}

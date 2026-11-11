@@ -1099,7 +1099,7 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .ilha-corpo .cm5-dl dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums}
 .ilha-corpo .cm5-camara{margin-top:0.5rem;font-size:0.875rem}
 .ilha-corpo .cm5-camara summary{cursor:pointer;color:var(--tinta-2)}
-.ilha-corpo .cm5-bloco .v2-seg{flex-wrap:wrap}
+.ilha-corpo .cm5-bloco .v2-seg{flex-wrap:wrap;justify-content:flex-start}
 
 /* reação do mandato a 2 dados do partido (Conjuntura 2.2) */
 .ilha-corpo .rea{margin:1.25rem 0 0.5rem}
