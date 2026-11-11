@@ -64,6 +64,7 @@ export default function AgendasSociais() {
         {vistas.length === 0 ? (
           <p className="sem">{linhas.length ? 'Nenhum indicador nesta classificação.' : `Sem notas de ${uf} para esta agenda.`}</p>
         ) : (
+          <div className="as-lista" role="region" tabIndex={0} aria-label={`Lista de indicadores de ${a.rot}`}>
           <table className="as-tab">
             <caption>Indicadores de {a.rot} em {uf}</caption>
             <thead><tr><th scope="col">Indicador</th><th scope="col">ODS relacionada</th><th scope="col">Nota</th></tr></thead>
@@ -77,6 +78,7 @@ export default function AgendasSociais() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </article>
     );

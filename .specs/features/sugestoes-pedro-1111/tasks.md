@@ -317,10 +317,10 @@ T19
 
 **Done when**:
 
-- [ ] Cartão com mais indicadores que 420px rola só a lista
-- [ ] Título e filtro permanecem visíveis durante a rolagem (e2e em `e2e/m1-oportunidades.spec.ts`)
-- [ ] Gate full passa
-- [ ] Contagem de testes não diminui
+- [x] Cartão com mais indicadores que 420px rola só a lista
+- [x] Título e filtro permanecem visíveis durante a rolagem (e2e em `e2e/m1-oportunidades.spec.ts`)
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
 
 **Tests**: e2e
 **Gate**: full
