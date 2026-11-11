@@ -87,6 +87,27 @@ test.describe('Conjuntura do partido · sem mapa, com cartões (PAR-02 a PAR-05,
     await expect(valor(franca.getByRole('group', { name: /^Força de/ }), 'Votos do PSOL em Franca')).toHaveText('5,23%');
   });
 
+  test('os cartões ficam no tópico de municípios, sem os botões de adicionar (CJ-02)', async ({ page }) => {
+    await abre(page, { tse: TSE, conj2: { prefExtra: { 3550308: 'base' } } });
+    const ilha = page.locator('[data-ilha="calor"]');
+    await expect(page.getByTestId('cartao-municipio')).toHaveCount(5, { timeout: 30_000 });
+    await expect(ilha.getByRole('button', { name: /Adicionar município/ })).toHaveCount(0);
+    await expect(ilha.getByRole('button', { name: /Adicionar todos os municípios/ })).toHaveCount(0);
+    await expect(ilha.locator('.v2-extras')).toHaveCount(0);
+    // os cartões estão entre o tópico "Prefeituras que a liderança acompanha" e a seção 4 (filiados)
+    const topico = await ilha.getByRole('heading', { name: 'Prefeituras que a liderança acompanha' }).boundingBox();
+    const filiados = await ilha.getByRole('heading', { name: /Filiados: quem compõe a base do partido/ }).boundingBox();
+    const primeiro = await page.getByTestId('cartao-municipio').first().boundingBox();
+    const ultimo = await page.getByTestId('cartao-municipio').last().boundingBox();
+    expect(topico && filiados && primeiro && ultimo).toBeTruthy();
+    expect(primeiro!.y).toBeGreaterThan(topico!.y);
+    expect(ultimo!.y).toBeLessThan(filiados!.y);
+    // o dado antigo de uma prefeitura que não aparece mais continua gravado depois de editar a tela
+    await page.getByTestId('cartao-municipio').first().getByRole('radio', { name: 'Oposição' }).click();
+    await expect.poll(async () => (await dadosDe(page)).conj2?.prefExtra?.[3500204]).toBe('oposicao');
+    expect((await dadosDe(page)).conj2?.prefExtra?.[3550308]).toBe('base');
+  });
+
   test('a posição do Executivo no cartão grava em D.conj2', async ({ page }) => {
     await abre(page);
     const c = page.getByTestId('cartao-municipio').first();

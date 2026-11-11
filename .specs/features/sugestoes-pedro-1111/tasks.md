@@ -288,12 +288,12 @@ T19
 
 **Done when**:
 
-- [ ] Os dois botões de adicionar não existem mais
-- [ ] 5 cartões aparecem dentro do tópico, com classificação do Executivo
-- [ ] Dado antigo em `D.conj2.prefExtra` não é apagado
-- [ ] e2e atualizado em `e2e/m1-conjuntura-partido.spec.ts`
-- [ ] Gate full passa
-- [ ] Contagem de testes não diminui
+- [x] Os dois botões de adicionar não existem mais
+- [x] 5 cartões aparecem dentro do tópico, com classificação do Executivo
+- [x] Dado antigo em `D.conj2.prefExtra` não é apagado
+- [x] e2e atualizado em `e2e/m1-conjuntura-partido.spec.ts`
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
 
 **Tests**: e2e
 **Gate**: full
