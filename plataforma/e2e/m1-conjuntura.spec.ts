@@ -199,7 +199,7 @@ test.describe('Conjuntura · relações com os parlamentares (LEG-01, LEG-02, LE
     await car.getByRole('button', { name: /^Aliado\s*2/ }).click();
     await expect(car.locator('article')).toHaveCount(2);
     // reclassificar pelo cartão atualiza cartões e contagens na hora
-    await car.locator('article').first().getByRole('button', { name: 'Indefinida', exact: true }).click();
+    await car.locator('article').first().getByRole('combobox').selectOption({ label: 'Indefinida' });
     await expect(car.locator('article')).toHaveCount(1);
     await expect(car.getByRole('button', { name: /^Indefinida\s*1/ })).toBeVisible();
     // remover
@@ -306,5 +306,39 @@ test.describe('Conjuntura · cargo no gênero da pessoa eleita (PAR-01)', () => 
     await escolhe(page, 'Marli Ribeiro');
     await ilha.locator('table.tb tbody tr', { hasText: 'MARLI RIBEIRO' }).getByRole('button', { name: 'Aliado', exact: true }).click();
     await expect(page.getByTestId('classificados').locator('article')).toContainText('Deputada Estadual · MG');
+  });
+});
+
+test.describe('Conjuntura · cartão de parlamentar com relação única (PAR-02)', () => {
+  const CATS = ['Aliado', 'Aliado, mas concorrente', 'Oponente', 'Oponente e concorrente', 'Indefinida'];
+  test('o cartão mostra a relação uma vez, troca por select com as 5 categorias e grava no mesmo campo', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO });
+    const linhas = page.locator('[data-ilha="assentos"] table.tb tbody tr');
+    await expect.poll(() => linhas.count(), { timeout: 30_000 }).toBe(15);
+    await linhas.nth(0).getByRole('button', { name: 'Aliado', exact: true }).click();
+    await linhas.nth(1).getByRole('button', { name: 'Oponente', exact: true }).click();
+    const car = page.getByTestId('classificados');
+    const cartao = car.locator('article').first();
+    // sem os 5 botões de relação; só o select e "Remover classificação"
+    await expect(cartao.locator('.st')).toHaveCount(0);
+    await expect(cartao.getByRole('button', { name: /^(Aliado|Oponente|Indefinida)/ })).toHaveCount(0);
+    await expect(cartao.getByRole('button', { name: /Remover classificação/ })).toBeVisible();
+    // a relação atual aparece uma única vez como texto do cartão
+    await expect(cartao.locator('.cartao-class-cat')).toHaveCount(1);
+    await expect(cartao.locator('.cartao-class-cat')).toHaveText(/Aliado/);
+    const troca = cartao.getByRole('combobox');
+    await expect(troca.locator('option')).toHaveText(CATS);
+    await expect(troca).toHaveValue('aliado');
+    await troca.selectOption('aliado_concorrente');
+    // grava no mesmo campo de hoje (D.relacoes[sq].status) e as contagens do filtro acompanham
+    await expect.poll(async () => Object.values(((await salvoDe(page)).dados as { relacoes?: Record<string, { status: string }> }).relacoes ?? {}).map((r) => r.status).sort())
+      .toEqual(['aliado_concorrente', 'concorrente']);
+    await expect(car.getByRole('button', { name: /^Todas/ })).toContainText('2');
+    await expect(car.getByRole('button', { name: /^Aliado, mas concorrente\s*1/ })).toBeVisible();
+    await expect(car.getByRole('button', { name: /^Aliado\s*0/ })).toBeVisible();
+    // "Remover classificação" continua funcionando
+    await car.locator('article').filter({ has: page.getByRole('combobox') }).first().getByRole('button', { name: /Remover classificação/ }).click();
+    await expect(car.getByRole('button', { name: /^Todas/ })).toContainText('1');
   });
 });

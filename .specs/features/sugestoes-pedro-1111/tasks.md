@@ -204,12 +204,12 @@ T19
 
 **Done when**:
 
-- [ ] Cartão não renderiza mais 5 botões de relação
-- [ ] `select` lista as 5 categorias e grava no mesmo campo de hoje
-- [ ] Contagens por categoria no filtro seguem corretas
-- [ ] e2e atualizado em `e2e/m1-conjuntura.spec.ts`
-- [ ] Gate full passa
-- [ ] Contagem de testes não diminui
+- [x] Cartão não renderiza mais 5 botões de relação
+- [x] `select` lista as 5 categorias e grava no mesmo campo de hoje
+- [x] Contagens por categoria no filtro seguem corretas
+- [x] e2e atualizado em `e2e/m1-conjuntura.spec.ts`
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
 
 **Tests**: e2e
 **Gate**: full

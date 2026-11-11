@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { CATEGORIAS, contagem } from '@/lib/relacoes';
 import type { Status } from '@/lib/types';
 import { marca, useLegado } from './ponte';
-import { Chip, Foto, Marca, StatusBotoes, anoDoCargo } from './pecas';
+import { Chip, Foto, Marca, anoDoCargo } from './pecas';
 import Slides from './Slides';
 
 type Filtro = 'todos' | Exclude<Status, 'neutro'>;
@@ -47,7 +47,10 @@ export default function Classificados() {
                 </div>
               </div>
               <p className="cartao-class-cat"><Marca tipo={st as Exclude<Status, 'neutro'>} tam={13} /> {CATEGORIAS.find((c) => c.k === st)?.rot}</p>
-              <StatusBotoes chave={sq} rel={rel} />
+              <select className="cartao-class-troca" aria-label={`Trocar a relação de ${r.nome}`} value={st}
+                onChange={(ev) => marca(sq, rel, st, ev.target.value as Status)}>
+                {CATEGORIAS.map((c) => <option key={c.k} value={c.k}>{c.rot}</option>)}
+              </select>
               <button type="button" className="link-bt" onClick={() => marca(sq, rel, st, st)}>
                 Remover classificação<span className="so-leitor"> de {r.nome}</span>
               </button>
