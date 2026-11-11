@@ -6,6 +6,7 @@ import { nf, pct, semAcento } from '@/lib/format';
 import type { CasaChave, Eleito, Status } from '@/lib/types';
 import { salva, statusDe, useLegado } from './ponte';
 import { CATEGORIAS } from '@/lib/relacoes';
+import { cargoEleito } from '@/lib/cargoEleito';
 import { Chip, Foto, Hemiciclo, InfoRelacao, Marca, ROT_REL, ROT_REL_PLURAL, StatusBotoes, useCarga, type Membro } from './pecas';
 import Classificados from './Classificados';
 
@@ -16,8 +17,6 @@ const rotuloCasa = (c: CasaChave, uf: string) =>
     : c === 'senado' ? 'Senado'
     : uf === 'DF' ? 'Câmara Legislativa'
     : uf === 'BR' ? 'Assembleias Legislativas' : 'Assembleia Legislativa';
-const cargoDe = (e: Eleito) =>
-  e.k === 'f' ? 'Deputado Federal' : e.k === 's' ? 'Senador' : e.uf === 'DF' ? 'Deputado Distrital' : 'Deputado Estadual';
 
 const GENERO: [string, string][] = [['F', 'Mulheres'], ['M', 'Homens']];
 const RACA: [string, string][] = [['B', 'Branca'], ['P', 'Parda'], ['N', 'Preta'], ['I', 'Indígena'], ['A', 'Amarela']];
@@ -171,7 +170,7 @@ export default function Assentos() {
   const daPagina = tabela.slice(pg * POR_PAGINA, (pg + 1) * POR_PAGINA);
   const atual = (todos ?? []).find((e) => e.s === sel);
   const meuSq = (D.tse as { sq?: string }).sq;
-  const relDe = (e: Eleito) => ({ nome: e.u, partido: e.p, cargo: cargoDe(e), uf: e.uf, votos: e.v || undefined });
+  const relDe = (e: Eleito) => ({ nome: e.u, partido: e.p, cargo: cargoEleito(e), uf: e.uf, votos: e.v || undefined });
 
   const porCategoria = (k: Status) => visiveis.filter((e) => statusDe(e.s) === k).length;
   const nPartidos = new Set(visiveis.map((e) => e.p)).size;
@@ -307,7 +306,7 @@ export default function Assentos() {
                     <button type="button" className="rm" onClick={() => setSel(null)} aria-label="Fechar">×</button>
                   </div>
                   <p className="peq-t">{atual.c}</p>
-                  <p><Chip p={atual.p} /> <span className="selo ok">{cargoDe(atual)} · {atual.uf}</span>
+                  <p><Chip p={atual.p} /> <span className="selo ok">{cargoEleito(atual)} · {atual.uf}</span>
                     {meuSq === atual.s && <span className="selo ok" style={{ marginLeft: 6 }}><Marca tipo="proprio" tam={11} /> Esta liderança</span>}</p>
                   <p className="peq-t">
                     {atual.g === 'F' ? 'Mulher' : 'Homem'}{atual.r && ` · ${RACA.find(([k]) => k === atual.r)?.[1]}`}

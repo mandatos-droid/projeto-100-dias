@@ -270,3 +270,41 @@ test.describe('Abas sem barra de rolagem vertical (UI-01)', () => {
     await semRolagemVertical(page, '#tela .abas');
   });
 });
+
+test.describe('Conjuntura · cargo no gênero da pessoa eleita (PAR-01)', () => {
+  const abreMG = async (page: Page) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO, dados: { escopoSel: 'MG', casaSel: 'estadual' } });
+    const ilha = page.locator('[data-ilha="assentos"]');
+    await expect(ilha.locator('table.tb tbody tr').first()).toBeVisible({ timeout: 30_000 });
+    return ilha;
+  };
+  const escolhe = async (page: Page, nome: string) => {
+    const ilha = page.locator('[data-ilha="assentos"]');
+    await ilha.getByLabel('Buscar nesta lista').fill(nome);
+    await ilha.locator('table.tb tbody tr', { hasText: nome }).first().click();
+    return ilha.locator('.ficha-sel');
+  };
+
+  test('Marli Ribeiro e Delegada Sheila aparecem como Deputada Estadual', async ({ page }) => {
+    await abreMG(page);
+    for (const nome of ['Marli Ribeiro', 'Delegada Sheila']) {
+      const ficha = await escolhe(page, nome);
+      await expect(ficha).toContainText('Deputada Estadual · MG');
+    }
+  });
+
+  test('um deputado continua como Deputado Estadual', async ({ page }) => {
+    await abreMG(page);
+    const ficha = await escolhe(page, 'Bruno Engler');
+    await expect(ficha).toContainText('Deputado Estadual · MG');
+    await expect(ficha).not.toContainText('Deputada');
+  });
+
+  test('o cargo gravado ao classificar uma deputada já sai no feminino no cartão do carrossel', async ({ page }) => {
+    const ilha = await abreMG(page);
+    await escolhe(page, 'Marli Ribeiro');
+    await ilha.locator('table.tb tbody tr', { hasText: 'MARLI RIBEIRO' }).getByRole('button', { name: 'Aliado', exact: true }).click();
+    await expect(page.getByTestId('classificados').locator('article')).toContainText('Deputada Estadual · MG');
+  });
+});

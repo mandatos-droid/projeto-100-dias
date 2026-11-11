@@ -177,10 +177,10 @@ T19
 
 **Done when**:
 
-- [ ] Marli Ribeiro e Delegada Sheila aparecem como “Deputada Estadual” no e2e
-- [ ] Cartão masculino continua “Deputado Estadual”
-- [ ] Gate full passa
-- [ ] Contagem de testes não diminui
+- [x] Marli Ribeiro e Delegada Sheila aparecem como “Deputada Estadual” no e2e
+- [x] Cartão masculino continua “Deputado Estadual”
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
 
 **Tests**: e2e
 **Gate**: full
