@@ -982,6 +982,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 **Gate**: build
 **Commit**: `feat(m1): expectativas do eleitorado em 3 colunas sem mapa`
 
+
+**Status**: ✅ Done
+
 ---
 
 ### T32: Resumo do eleitorado
@@ -1005,6 +1008,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(m1): resumo do eleitorado sem município`
+
+
+**Status**: ✅ Done
 
 ---
 
@@ -1032,6 +1038,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 **Gate**: build
 **Commit**: `feat(m1): cartões de indicadores sociais por agenda`
 
+
+**Status**: ✅ Done
+
 ---
 
 ### T34: Agendas prioritárias
@@ -1056,6 +1065,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(m1): escolha das 3 agendas prioritárias`
+
+
+**Status**: ✅ Done
 
 ---
 
@@ -1082,6 +1094,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 **Gate**: build
 **Commit**: `feat(m1): registra as ilhas de agendas na ponte`
 
+
+**Status**: ✅ Done
+
 ---
 
 ### T36: Ligar as ilhas de oportunidades no Guia
@@ -1105,6 +1120,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(m1): oportunidades usam as ilhas novas`
+
+
+**Status**: ✅ Done
 
 ---
 
@@ -1131,6 +1149,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 **Tests**: e2e
 **Gate**: full
 **Commit**: `test(m1): e2e das oportunidades e ameaças`
+
+
+**Status**: ✅ Done
 
 ---
 
@@ -1161,6 +1182,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 **Gate**: quick
 **Commit**: `feat(m1): html do mapa político com carrosséis`
 
+
+**Status**: ✅ Done
+
 ---
 
 ### T39: Resumo do preenchimento: eleitorado, agendas e reações
@@ -1185,6 +1209,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(m1): resumo com eleitorado, agendas e reações`
+
+
+**Status**: ✅ Done
 
 ---
 
@@ -1212,6 +1239,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 **Gate**: quick
 **Commit**: `feat(m1): fechamento da missão com html do mapa político`
 
+
+**Status**: ✅ Done
+
 ---
 
 ### T41: Varredura de rótulos antigos
@@ -1235,6 +1265,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 **Tests**: unit
 **Gate**: quick
 **Commit**: `test(m1): varredura de rótulos antigos`
+
+
+**Status**: ✅ Done
 
 ---
 
@@ -1261,6 +1294,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 **Gate**: full
 **Commit**: `test(m1): e2e do fechamento da missão`
 
+
+**Status**: ✅ Done
+
 ---
 
 ### T43: Registrar a decisão AD-014
@@ -1284,6 +1320,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 **Tests**: none
 **Gate**: build
 **Commit**: `docs(m1): registra a decisão de página única e cartões`
+
+
+**Status**: ✅ Done
 
 ---
 

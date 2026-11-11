@@ -258,81 +258,81 @@ Todas as decisões foram aprovadas pelo Pedro em 2026-11-11 (as que estavam sem 
 
 | Requirement ID | Story | Tasks | Status |
 | -------------- | ----- | ----- | ------ |
-| PAG-01 | P1: Cada etapa numa página só | T8, T14, T43 | Implementing |
-| PAG-02 | P1: Cada etapa numa página só | T14 | Implementing |
-| PAG-03 | P1: Cada etapa numa página só | T8, T14 | Implementing |
-| PAG-04 | P1: Cada etapa numa página só | T8, T14 | Implementing |
-| PER-01 | P1: Persona | T16, T17, T18 | Implementing |
+| PAG-01 | P1: Cada etapa numa página só | T8, T14, T43 | Verified |
+| PAG-02 | P1: Cada etapa numa página só | T14 | Verified |
+| PAG-03 | P1: Cada etapa numa página só | T8, T14 | Verified |
+| PAG-04 | P1: Cada etapa numa página só | T8, T14 | Verified |
+| PER-01 | P1: Persona | T16, T17, T18 | Verified |
 | PER-02 | P1: Persona | T16, T18 | Implementing |
-| PER-03 | P1: Persona | T4, T15, T18 | Implementing |
+| PER-03 | P1: Persona | T4, T15, T18 | Verified |
 | PER-04 | P1: Persona | T15, T16 | Implementing |
-| PER-05 | P1: Persona | T15, T18 | Implementing |
-| PER-06 | P1: Persona | T9 | Implementing |
-| PER-07 | P1: Persona | T9, T18 | Implementing |
-| PER-08 | P1: Persona | T9, T18 | Implementing |
-| PER-09 | P1: Persona | T9, T18 | Implementing |
+| PER-05 | P1: Persona | T15, T18 | Verified |
+| PER-06 | P1: Persona | T9 | Verified |
+| PER-07 | P1: Persona | T9, T18 | Verified |
+| PER-08 | P1: Persona | T9, T18 | Verified |
+| PER-09 | P1: Persona | T9, T18 | Verified |
 | LEG-01 | P1: Conjuntura, relações | T22, T25 | Implementing |
 | LEG-02 | P1: Conjuntura, relações | T22, T25, T41 | Implementing |
-| LEG-03 | P1: Conjuntura, relações | T1, T2, T19, T25 | Implementing |
-| LEG-04 | P1: Conjuntura, relações | T10, T19 | Implementing |
-| LEG-05 | P1: Conjuntura, relações | T10 | Implementing |
+| LEG-03 | P1: Conjuntura, relações | T1, T2, T19, T25 | Verified |
+| LEG-04 | P1: Conjuntura, relações | T10, T19 | Verified |
+| LEG-05 | P1: Conjuntura, relações | T10 | Verified |
 | LEG-06 | P1: Conjuntura, relações | T22 | Implementing |
-| LEG-07 | P1: Conjuntura, relações | T22, T25 | Implementing |
-| LEG-08 | P1: Conjuntura, relações | T20, T21, T25 | Implementing |
-| LEG-09 | P1: Conjuntura, relações | T21, T25 | Implementing |
-| LEG-10 | P1: Conjuntura, relações | T21, T25 | Implementing |
-| LEG-11 | P1: Conjuntura, relações | T2, T19, T41 | Implementing |
-| LEG-12 | P1: Conjuntura, relações | T2, T23, T25 | Implementing |
-| LEG-13 | P1: Conjuntura, relações | T23, T24 | Implementing |
-| PAR-01 | P1: Conjuntura, partido | T10, T30 | Implementing |
+| LEG-07 | P1: Conjuntura, relações | T22, T25 | Verified |
+| LEG-08 | P1: Conjuntura, relações | T20, T21, T25 | Verified |
+| LEG-09 | P1: Conjuntura, relações | T21, T25 | Verified |
+| LEG-10 | P1: Conjuntura, relações | T21, T25 | Verified |
+| LEG-11 | P1: Conjuntura, relações | T2, T19, T41 | Verified |
+| LEG-12 | P1: Conjuntura, relações | T2, T23, T25 | Verified |
+| LEG-13 | P1: Conjuntura, relações | T23, T24 | Verified |
+| PAR-01 | P1: Conjuntura, partido | T10, T30 | Verified |
 | PAR-02 | P1: Conjuntura, partido | T26, T30 | Implementing |
-| PAR-03 | P1: Conjuntura, partido | T26, T30 | Implementing |
-| PAR-04 | P1: Conjuntura, partido | T27, T29, T30 | Implementing |
+| PAR-03 | P1: Conjuntura, partido | T26, T30 | Verified |
+| PAR-04 | P1: Conjuntura, partido | T27, T29, T30 | Verified |
 | PAR-05 | P1: Conjuntura, partido | T27, T30 | Implementing |
 | PAR-06 | P1: Conjuntura, partido | T27 | Implementing |
 | PAR-07 | P1: Conjuntura, partido | T27 | Implementing |
 | PAR-08 | P1: Conjuntura, partido | T15, T27 | Implementing |
-| PAR-09 | P1: Conjuntura, partido | T10, T29, T30 | Implementing |
-| PAR-10 | P1: Conjuntura, partido | T7, T28, T29 | Implementing |
-| PAR-11 | P1: Conjuntura, partido | T7, T28, T30 | Implementing |
-| PAR-12 | P1: Conjuntura, partido | T1, T7, T28, T30 | Implementing |
-| PAR-13 | P1: Conjuntura, partido | T10, T30 | Implementing |
-| PAR-14 | P1: Conjuntura, partido | T26, T30 | Implementing |
-| SOC-01 | P1: Oportunidades e ameaças | T11 | Implementing |
-| SOC-02 | P1: Oportunidades e ameaças | T11, T33, T36 | Implementing |
-| SOC-03 | P1: Oportunidades e ameaças | T5, T33, T35 | Implementing |
-| SOC-04 | P1: Oportunidades e ameaças | T5, T33 | Implementing |
-| SOC-05 | P1: Oportunidades e ameaças | T5, T33, T37 | Implementing |
-| SOC-06 | P1: Oportunidades e ameaças | T5, T20, T33, T37 | Implementing |
-| SOC-07 | P1: Oportunidades e ameaças | T11 | Implementing |
-| SOC-08 | P1: Oportunidades e ameaças | T33 | Implementing |
+| PAR-09 | P1: Conjuntura, partido | T10, T29, T30 | Verified |
+| PAR-10 | P1: Conjuntura, partido | T7, T28, T29 | Verified |
+| PAR-11 | P1: Conjuntura, partido | T7, T28, T30 | Verified |
+| PAR-12 | P1: Conjuntura, partido | T1, T7, T28, T30 | Verified |
+| PAR-13 | P1: Conjuntura, partido | T10, T30 | Verified |
+| PAR-14 | P1: Conjuntura, partido | T26, T30 | Verified |
+| SOC-01 | P1: Oportunidades e ameaças | T11 | Verified |
+| SOC-02 | P1: Oportunidades e ameaças | T11, T33, T36 | Verified |
+| SOC-03 | P1: Oportunidades e ameaças | T5, T33, T35 | Verified |
+| SOC-04 | P1: Oportunidades e ameaças | T5, T33 | Verified |
+| SOC-05 | P1: Oportunidades e ameaças | T5, T33, T37 | Verified |
+| SOC-06 | P1: Oportunidades e ameaças | T5, T20, T33, T37 | Verified |
+| SOC-07 | P1: Oportunidades e ameaças | T11 | Verified |
+| SOC-08 | P1: Oportunidades e ameaças | T33 | Verified |
 | SOC-09 | P1: Oportunidades e ameaças | T33 | Implementing |
-| ELE-01 | P1: Oportunidades e ameaças | T31, T36, T37 | Implementing |
-| ELE-02 | P1: Oportunidades e ameaças | T31, T37 | Implementing |
-| ELE-03 | P1: Oportunidades e ameaças | T31, T37 | Implementing |
-| ELE-04 | P1: Oportunidades e ameaças | T3, T31, T37 | Implementing |
-| ELE-05 | P1: Oportunidades e ameaças | T3, T31, T37 | Implementing |
-| ELE-06 | P1: Oportunidades e ameaças | T31, T37 | Implementing |
-| ELE-07 | P1: Oportunidades e ameaças | T3, T31, T37 | Implementing |
-| ELE-08 | P1: Oportunidades e ameaças | T3, T31, T37 | Implementing |
-| ELE-09 | P1: Oportunidades e ameaças | T3, T31, T37 | Implementing |
-| ELE-10 | P1: Oportunidades e ameaças | T31 | Implementing |
-| ELE-11 | P1: Oportunidades e ameaças | T32, T39 | Implementing |
-| AGE-01 | P1: Oportunidades e ameaças | T11, T34, T36 | Implementing |
-| AGE-02 | P1: Oportunidades e ameaças | T6, T34, T35, T37 | Implementing |
-| AGE-03 | P1: Oportunidades e ameaças | T6, T34, T37 | Implementing |
-| AGE-04 | P1: Oportunidades e ameaças | T6, T34 | Implementing |
-| FRA-01 | P2: Fragilidades | T12 | Implementing |
-| FRA-02 | P2: Fragilidades | T12 | Implementing |
-| FRA-03 | P2: Fragilidades | T12 | Implementing |
-| FEC-01 | P1: Fechamento | T40, T42 | Implementing |
+| ELE-01 | P1: Oportunidades e ameaças | T31, T36, T37 | Verified |
+| ELE-02 | P1: Oportunidades e ameaças | T31, T37 | Verified |
+| ELE-03 | P1: Oportunidades e ameaças | T31, T37 | Verified |
+| ELE-04 | P1: Oportunidades e ameaças | T3, T31, T37 | Verified |
+| ELE-05 | P1: Oportunidades e ameaças | T3, T31, T37 | Verified |
+| ELE-06 | P1: Oportunidades e ameaças | T31, T37 | Verified |
+| ELE-07 | P1: Oportunidades e ameaças | T3, T31, T37 | Verified |
+| ELE-08 | P1: Oportunidades e ameaças | T3, T31, T37 | Verified |
+| ELE-09 | P1: Oportunidades e ameaças | T3, T31, T37 | Verified |
+| ELE-10 | P1: Oportunidades e ameaças | T31 | Verified |
+| ELE-11 | P1: Oportunidades e ameaças | T32, T39 | Verified |
+| AGE-01 | P1: Oportunidades e ameaças | T11, T34, T36 | Verified |
+| AGE-02 | P1: Oportunidades e ameaças | T6, T34, T35, T37 | Verified |
+| AGE-03 | P1: Oportunidades e ameaças | T6, T34, T37 | Verified |
+| AGE-04 | P1: Oportunidades e ameaças | T6, T34 | Verified |
+| FRA-01 | P2: Fragilidades | T12 | Verified |
+| FRA-02 | P2: Fragilidades | T12 | Verified |
+| FRA-03 | P2: Fragilidades | T12 | Verified |
+| FEC-01 | P1: Fechamento | T40, T42 | Verified |
 | FEC-02 | P1: Fechamento | T38, T40, T42 | Implementing |
-| FEC-03 | P1: Fechamento | T38 | Implementing |
-| FEC-04 | P1: Fechamento | T40, T42 | Implementing |
-| FEC-05 | P1: Fechamento | T38, T42 | Implementing |
+| FEC-03 | P1: Fechamento | T38 | Verified |
+| FEC-04 | P1: Fechamento | T40, T42 | Verified |
+| FEC-05 | P1: Fechamento | T38, T42 | Verified |
 | GER-01 | P2: Linguagem e resumo | T12, T41 | Implementing |
-| GER-02 | P2: Linguagem e resumo | T13, T39, T42 | Implementing |
-| GER-03 | P2: Linguagem e resumo | T13, T42 | Implementing |
+| GER-02 | P2: Linguagem e resumo | T13, T39, T42 | Verified |
+| GER-03 | P2: Linguagem e resumo | T13, T42 | Verified |
 
 **Coverage:** 75 requisitos, 75 mapeados a tasks, 0 sem task.
 
