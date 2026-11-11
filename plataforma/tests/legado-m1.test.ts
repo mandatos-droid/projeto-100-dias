@@ -435,3 +435,62 @@ test('nenhum texto da Missão 1 escrito à mão usa "o parlamentar" ou "a parlam
   const achados = CODIGO.match(/(?<![\p{L}\p{N}])(?:o|a|do|da|ao|à|pelo|pela) parlamentar(?![\p{L}\p{N}])/giu) ?? [];
   assert.deepEqual([...achados], []);
 });
+
+/* ---------- GER-02 e GER-03: Resumo e andamento ---------- */
+test('o Resumo lista as 3 conquistas, o próximo cargo, os atores (m1.q6) e a análise social (m1.q8a) (GER-02)', () => {
+  const w = janelaResumo({
+    'm1.q3c1': 'Aprovar o plano de saneamento', 'm1.q3c2': 'Criar a frente parlamentar', 'm1.q3c3': 'Relatar o orçamento',
+    'm1.q3b': 'Senador(a)', 'm1.q6': 'Prefeito da capital', 'm1.q8a': 'Desigualdade no interior',
+  });
+  const persona = w.Resumo.ex(ex1(w, 'm1.persona'));
+  for (const n of [1, 2, 3]) assert.ok(persona.includes(`<dt>Conquista/Grande Entrega almejada ${n}</dt>`), `conquista ${n}`);
+  assert.ok(persona.includes('<dd>Aprovar o plano de saneamento</dd>') && persona.includes('<dd>Relatar o orçamento</dd>'));
+  assert.ok(persona.includes('<dd>Senador(a)</dd>'));
+  assert.ok(w.Resumo.ex(ex1(w, 'm1.conjuntura')).includes('<dd>Prefeito da capital</dd>'));
+  assert.ok(w.Resumo.ex(ex1(w, 'm1.oportunidades')).includes('<dd>Desigualdade no interior</dd>'));
+});
+
+/** Janela com o temConteudo real do nucleo.js carregado antes do m1.js, como no Guia. */
+function janelaAndamento(D: Record<string, unknown>) {
+  const NUCLEO = ler('nucleo.js');
+  const ini = NUCLEO.indexOf('function temConteudo(ex){');
+  const fim = NUCLEO.indexOf('function estadoEx(ex)');
+  assert.ok(ini >= 0 && fim > ini);
+  const w = janela(NUCLEO.slice(ini, fim)) as Janela & { temConteudo(ex: Ex): boolean };
+  (w as unknown as { D: unknown }).D = { campos: {}, frags: [], ...D };
+  return w;
+}
+
+test('uma etapa sem nenhuma resposta não conta como em andamento (GER-03)', () => {
+  const w = janelaAndamento({});
+  for (const id of ['m1.persona', 'm1.conjuntura', 'm1.oportunidades']) assert.equal(w.temConteudo(ex1(w, id)), false, id);
+});
+
+test('responder só em D.eleitorado marca as Oportunidades como em andamento (GER-03)', () => {
+  const w = janelaAndamento({ eleitorado: { itens: [{ id: 'a', tipo: 'promessa', texto: 'x', muns: [] }] } });
+  assert.equal(w.temConteudo(ex1(w, 'm1.oportunidades')), true);
+  assert.equal(w.temConteudo(ex1(w, 'm1.conjuntura')), false);
+});
+
+test('responder só em D.agendasPrio marca as Oportunidades como em andamento (GER-03)', () => {
+  const w = janelaAndamento({ agendasPrio: ['saude'] });
+  assert.equal(w.temConteudo(ex1(w, 'm1.oportunidades')), true);
+});
+
+test('responder só em D.conj2.reacoes marca a Conjuntura como em andamento (GER-03)', () => {
+  const w = janelaAndamento({ conj2: { muns: {}, relacao: '', relacaoPq: '', desafios: [], oportunidades: [], reacoes: [{ dado: 'vereadores', valor: '12', texto: '' }] } });
+  assert.equal(w.temConteudo(ex1(w, 'm1.conjuntura')), true);
+  assert.equal(w.temConteudo(ex1(w, 'm1.oportunidades')), false);
+});
+
+test('responder só nas conquistas ou em m1.q6 marca a etapa como em andamento (GER-03)', () => {
+  const p = janelaAndamento({ campos: { 'm1.q3c2': 'algo' } });
+  assert.equal(p.temConteudo(ex1(p, 'm1.persona')), true);
+  const c = janelaAndamento({ campos: { 'm1.q6': 'atores' } });
+  assert.equal(c.temConteudo(ex1(c, 'm1.conjuntura')), true);
+});
+
+test('as Missões 2 a 5 não ganham regra nova de andamento (GER-03)', () => {
+  const w = janelaAndamento({ eleitorado: { itens: [{ id: 'a' }] }, agendasPrio: ['saude'] });
+  for (const m of w.MISSOES.filter((x) => x.n !== 1)) for (const e of m.exercicios) assert.equal(w.temConteudo(e), false, e.id);
+});

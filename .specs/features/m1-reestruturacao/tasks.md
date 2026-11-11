@@ -457,13 +457,15 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] O Resumo lista `m1.q3c1..c3`, `m1.q3b`, `m1.q6` e `m1.q8a`
-- [ ] Responder só em `D.eleitorado`, `D.agendasPrio` ou `D.conj2.reacoes` marca a etapa como "em andamento"
-- [ ] Casos novos em `tests/legado-m1.test.ts` passam
+- [x] O Resumo lista `m1.q3c1..c3`, `m1.q3b`, `m1.q6` e `m1.q8a`
+- [x] Responder só em `D.eleitorado`, `D.agendasPrio` ou `D.conj2.reacoes` marca a etapa como "em andamento"
+- [x] Casos novos em `tests/legado-m1.test.ts` passam
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(m1): resumo e andamento com os campos novos`
+
+**Status**: ✅ Done
 
 ---
 

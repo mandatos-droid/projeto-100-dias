@@ -226,6 +226,28 @@
   };
 })();
 
+/* ---------- Andamento: cartões, carrosséis e seletores novos também contam como "em andamento" (GER-03) ----------
+   O temConteudo do núcleo olha só as caixas de texto (D.campos). Aqui, responder só em D.eleitorado, D.agendasPrio,
+   D.conj2.reacoes, nas conquistas (m1.q3c1..c3, m1.q3b) ou em m1.q6 já marca a etapa. nucleo.js não é editado (AD-003). */
+(function(){
+  if(typeof temConteudo==='undefined')return;
+  var _tc=temConteudo;
+  function cheio(k){return String((D.campos||{})[k]||'').trim()!==''}
+  function algum(ks){return ks.some(cheio)}
+  temConteudo=function(ex){
+    if(_tc.apply(this,arguments))return true;
+    if(!ex||String(ex.id).indexOf('m1.')!==0)return false;
+    if(ex.id==='m1.persona')return algum(['m1.q3c1','m1.q3c2','m1.q3c3','m1.q3b']);
+    if(ex.id==='m1.conjuntura'){
+      var re=(D.conj2&&D.conj2.reacoes)||[];
+      return cheio('m1.q6')||re.some(function(r){return r&&(String(r.dado||'').trim()||String(r.texto||'').trim())});
+    }
+    if(ex.id==='m1.oportunidades')
+      return !!(D.eleitorado&&(D.eleitorado.itens||[]).length)||(D.agendasPrio||[]).length>0||cheio('m1.q8a');
+    return false;
+  };
+})();
+
 /* ---------- Resumo: as respostas das caixas novas (m1.q3b, m1.q4b, m1.q8a) aparecem junto das da Missão 1 ---------- */
 (function(){
   if(typeof Resumo==='undefined'||typeof MISSOES==='undefined')return;
