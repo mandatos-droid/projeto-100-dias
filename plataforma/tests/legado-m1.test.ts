@@ -539,11 +539,14 @@ const pessoa = (status: string, nome: string, mun?: string) => ({ status, nome, 
 test('o Resumo mostra "Você tem N Aliados; …" e as listas por categoria, só com as que têm alguém (LEG-12, LEG-13)', () => {
   const h = resumoIlhas({
     a1: pessoa('aliado', 'Ana'), a2: pessoa('aliado', 'Bia'), c1: pessoa('aliado_concorrente', 'Caio'),
-    o1: pessoa('concorrente', 'Dani'), x1: pessoa('potencial', 'Eva'), m1: pessoa('aliado', 'Prefeito', 'Taguatinga'),
+    o1: pessoa('concorrente', 'Dani'), oc1: pessoa('oponente_concorrente', 'Fabi'), x1: pessoa('potencial', 'Eva'),
+    m1: pessoa('aliado', 'Prefeito', 'Taguatinga'),
   });
-  assert.ok(h.includes('Você tem 2 Aliados; 1 Aliado, mas concorrente; 1 Oponente; 1 Indefinida'));
-  assert.equal(h.includes('Oponente e concorrente'), false);
-  assert.ok(h.includes('Aliados (2)') && h.includes('Aliados, mas concorrentes (1)') && h.includes('Oponentes (1)') && h.includes('Indefinidas (1)'));
+  assert.ok(h.includes('Você tem 2 Aliados; 1 Aliado, mas concorrente; 1 Oponente; 1 Oponente e concorrente; 1 Indefinida'));
+  const tit = ['Aliados (2)', 'Aliados, mas concorrentes (1)', 'Oponentes (1)', 'Oponentes e concorrentes (1)', 'Indefinidas (1)'];
+  for (const t of tit) assert.ok(h.includes(t), t);
+  const pos = tit.map((t) => h.indexOf(t));
+  assert.deepEqual([...pos].sort((a, b) => a - b), pos); // ordem da Alana (LEG-13)
   assert.equal(h.includes('Prefeito'), false);
   assert.equal(h.includes('Potenciais relacionamentos'), false);
   assert.ok(h.indexOf('Você tem') < h.indexOf('Aliados (2)'));
@@ -603,7 +606,7 @@ test('o HTML baixado traz as categorias de relação, o resumo "Você tem…" e 
     campos: { 'm1.q1': 'RESP-Q1' },
     relacoes: {
       a1: pessoa('aliado', 'Ana Aliada'), a2: pessoa('aliado', 'Bia Aliada'), c1: pessoa('aliado_concorrente', 'Caio Misto'),
-      o1: pessoa('concorrente', 'Dani Oponente'), x1: pessoa('potencial', 'Eva Indefinida'),
+      o1: pessoa('concorrente', 'Dani Oponente'), oc1: pessoa('oponente_concorrente', 'Fabi Dupla'), x1: pessoa('potencial', 'Eva Indefinida'),
     },
     agendasPrio: ['saude', 'cultura'],
     conj2: { muns: {}, relacao: '', relacaoPq: '', desafios: [], oportunidades: [], reacoes: [
@@ -611,8 +614,11 @@ test('o HTML baixado traz as categorias de relação, o resumo "Você tem…" e 
       { dado: 'filiados', valor: '9.000 no estado, 1.500.000 no Brasil', texto: 'filiar mais gente' }] },
   });
   const h = w.Baixar.htmlMapaPolitico(EXTRAS);
-  assert.ok(h.includes('Você tem 2 Aliados; 1 Aliado, mas concorrente; 1 Oponente; 1 Indefinida'));
-  for (const t of ['Aliados (2)', 'Aliados, mas concorrentes (1)', 'Oponentes (1)', 'Indefinidas (1)', 'Ana Aliada', 'Bia Aliada', 'Caio Misto', 'Dani Oponente', 'Eva Indefinida']) assert.ok(h.includes(t), t);
+  assert.ok(h.includes('Você tem 2 Aliados; 1 Aliado, mas concorrente; 1 Oponente; 1 Oponente e concorrente; 1 Indefinida'));
+  const tit = ['Aliados (2)', 'Aliados, mas concorrentes (1)', 'Oponentes (1)', 'Oponentes e concorrentes (1)', 'Indefinidas (1)'];
+  for (const t of [...tit, 'Ana Aliada', 'Bia Aliada', 'Caio Misto', 'Dani Oponente', 'Fabi Dupla', 'Eva Indefinida']) assert.ok(h.includes(t), t);
+  const pos = tit.map((t) => h.indexOf(t));
+  assert.deepEqual([...pos].sort((a, b) => a - b), pos);
   assert.ok(h.indexOf('Você tem') < h.indexOf('Aliados (2)'));
   assert.ok(h.includes('Considerando Vereadores do partido: 12 no estado, 400 no Brasil, o mandato deve… ampliar a bancada'));
   assert.ok(h.includes('Considerando Filiados do partido: 9.000 no estado, 1.500.000 no Brasil, o mandato deve… filiar mais gente'));
