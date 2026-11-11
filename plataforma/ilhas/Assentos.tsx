@@ -11,11 +11,11 @@ import Classificados from './Classificados';
 
 const CASA_K: Record<Eleito['k'], CasaChave> = { f: 'federal', e: 'estadual', s: 'senado' };
 const K_CASA: Record<CasaChave, Eleito['k']> = { federal: 'f', estadual: 'e', senado: 's' };
-const rotuloCasa = (c: CasaChave, uf: string, curto = false) =>
-  c === 'federal' ? (curto ? 'Câmara' : 'Câmara dos Deputados')
+const rotuloCasa = (c: CasaChave, uf: string) =>
+  c === 'federal' ? 'Câmara dos Deputados'
     : c === 'senado' ? 'Senado'
     : uf === 'DF' ? 'Câmara Legislativa'
-    : uf === 'BR' ? (curto ? 'Assembleias' : 'Assembleias Legislativas') : (curto ? 'Assembleia' : 'Assembleia Legislativa');
+    : uf === 'BR' ? 'Assembleias Legislativas' : 'Assembleia Legislativa';
 const cargoDe = (e: Eleito) =>
   e.k === 'f' ? 'Deputado Federal' : e.k === 's' ? 'Senador' : e.uf === 'DF' ? 'Deputado Distrital' : 'Deputado Estadual';
 

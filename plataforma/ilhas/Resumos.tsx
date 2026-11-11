@@ -125,11 +125,11 @@ export function MunicipioResumo() {
             titulo={(_, nm) => nm} />
           <p className="peq-t">
             <span className="ponto" style={{ background: '#1B6B4F', display: 'inline-block' }} /> município com aliado ·{' '}
-            <span className="ponto" style={{ background: '#EB5454', display: 'inline-block' }} /> com opositor ·{' '}
-            <span className="ponto" style={{ background: '#2F6F82', display: 'inline-block' }} /> com potencial relacionamento ·{' '}
+            <span className="ponto" style={{ background: '#EB5454', display: 'inline-block' }} /> com oponente ·{' '}
+            <span className="ponto" style={{ background: '#2F6F82', display: 'inline-block' }} /> com indefinida ·{' '}
             <span className="ponto" style={{ background: '#8a6d3b', display: 'inline-block' }} /> com ambos ·{' '}
             <span className="ponto" style={{ background: '#ffd278', display: 'inline-block' }} /> em foco
-            {marcados === 0 && ' · nenhum aliado, opositor ou potencial relacionamento marcado por município ainda'}
+            {marcados === 0 && ' · nenhum aliado, oponente ou indefinida marcado por município ainda'}
           </p>
         </>
       )}

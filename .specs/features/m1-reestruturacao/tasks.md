@@ -1229,8 +1229,8 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Falha se um rótulo antigo ressurgir
-- [ ] `npm test` passa
+- [x] Falha se um rótulo antigo ressurgir
+- [x] `npm test` passa
 
 **Tests**: unit
 **Gate**: quick

@@ -350,7 +350,7 @@ export default function Conjuntura() {
       <h4><span className="v2-n">1</span> Placar do partido</h4>
       <div className="v2-grandes">
         {[
-          { rot: 'Parlamentares (Câmara, Senado e Assembleia)', br: parlBR, uf: parlUF },
+          { rot: 'Parlamentares (Câmara dos Deputados, Senado e Assembleia)', br: parlBR, uf: parlUF },
           { rot: 'Vereadores (2024)', br: verBR, uf: verUF },
           { rot: 'Prefeituras (2024)', br: prefBR, uf: prefUFn },
           { rot: 'Filiados', br: filBRn, uf: filUFn },

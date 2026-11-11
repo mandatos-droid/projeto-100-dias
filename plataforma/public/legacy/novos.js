@@ -249,7 +249,7 @@ window.ResumoIlhas={
     if(ilha==='assentos'||ilha==='municipio'){
       var g=this.rel(ilha),rot=ilha==='assentos'?'na Casa Legislativa':'no município';
       var cats=this.CATS.filter(function(c){return g[c[0]].length});
-      h+='<dt style="color:var(--tinta)">'+(ilha==='assentos'?'Relação com os parlamentares':'Aliados, opositores e potenciais relacionamentos '+rot)+'</dt>';
+      h+='<dt style="color:var(--tinta)">'+(ilha==='assentos'?'Relação com os parlamentares':'Aliados, oponentes e indefinidas '+rot)+'</dt>';
       var mapa=this.mapa(ilha,ilha==='assentos'?'Hemiciclo da Casa':'Mapa político do estado');
       if(!cats.length)return h+'<dd>'+(ilha==='assentos'?'Nada classificado ainda.':Resumo.sem)+'</dd>'+mapa;
       h+='<dd>'+(ilha==='assentos'?'<p><strong>Você tem '+cats.map(function(c){var n=g[c[0]].length;return n+' '+(n===1?c[1]:c[2])}).join('; ')+'</strong></p>':'')+

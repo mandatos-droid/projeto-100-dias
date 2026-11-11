@@ -78,7 +78,7 @@ export default function Municipio() {
     return o;
   }, [camadaInfo]);
 
-  /* aliados, opositores e potenciais relacionamentos já marcados em algum município deste estado */
+  /* aliados, oponentes e indefinidas já marcados em algum município deste estado */
   const marcas = useMemo(() => {
     const out: Marcas = {};
     if (!mun.dados) return out;
@@ -166,7 +166,7 @@ export default function Municipio() {
                 )}
                 <label className="cj-chk">
                   <input type="checkbox" checked={mostraMarcas} onChange={(e) => setMostraMarcas(e.target.checked)} />
-                  <Marca tipo="aliado" tam={12} /><Marca tipo="concorrente" tam={12} /><Marca tipo="potencial" tam={12} /> aliados, opositores e potenciais relacionamentos marcados
+                  <Marca tipo="aliado" tam={12} /><Marca tipo="concorrente" tam={12} /><Marca tipo="potencial" tam={12} /> aliados, oponentes e indefinidas marcados
                   {casaId && <><Marca tipo="proprio" tam={13} /> município de origem</>}
                 </label>
               </div>
@@ -234,7 +234,7 @@ export default function Municipio() {
           </div>
         </>
       )}
-      <p className="peq-t">Aliados, opositores e potenciais relacionamentos marcados aqui aparecem no resumo do preenchimento e no próprio mapa.</p>
+      <p className="peq-t">Aliados, oponentes e indefinidas marcados aqui aparecem no resumo do preenchimento e no próprio mapa.</p>
     </div>
   );
 }
