@@ -942,10 +942,10 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Sem mapa nem painel; 5 cartões com Placar, Força e Executivo
-- [ ] Escolher 2 dados completa as frases e grava; uma 3ª linha não existe
-- [ ] O texto final e a caixa `m1.q6` aparecem no fim da página
-- [ ] Passa: `npx playwright test e2e/m1-conjuntura-partido`
+- [x] Sem mapa nem painel; 5 cartões com Placar, Força e Executivo
+- [x] Escolher 2 dados completa as frases e grava; uma 3ª linha não existe
+- [x] O texto final e a caixa `m1.q6` aparecem no fim da página
+- [x] Passa: `npx playwright test e2e/m1-conjuntura-partido`
 
 **Tests**: e2e
 **Gate**: full
