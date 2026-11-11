@@ -34,8 +34,9 @@ export type GeoUF = { w: number; h: number; mun: { id: string; nm: string; d: st
 export type UFIdx = { uf: string; nome: string; cadeiras: Record<string, number>; vagas: Record<CasaChave, number> };
 export type Nacional = Record<'federal' | 'senado' | 'estadual' | 'prefeitos' | 'vereadores', Record<string, number>>;
 
-/** chaves antigas mantidas (aliado, concorrente) para não perder marcações salvas; os rótulos é que mudaram (ROT_REL) */
-export type Status = 'aliado' | 'concorrente' | 'potencial' | 'neutro';
+/** chaves antigas mantidas (aliado, concorrente, potencial) para não perder marcações salvas; os rótulos é que mudaram (lib/relacoes.ts):
+ *  concorrente = Oponente, potencial = Indefinida; as duas chaves com `_concorrente` são as categorias novas */
+export type Status = 'aliado' | 'aliado_concorrente' | 'concorrente' | 'oponente_concorrente' | 'potencial' | 'neutro';
 export type Relacao = {
   status: Status; nome: string; partido: string; cargo: string; uf: string; mun?: string; votos?: number;
 };
@@ -92,6 +93,8 @@ export type ConjSocial = { itens: ItemSoc[] };
 export type TagMun = 'base' | 'expansao' | 'risco';
 export type EsferaExec = 'pres' | 'gov' | 'pref';
 export type PosExec = 'governo' | 'base' | 'oposicao' | 'independente';
+/** Reação do mandato a um dado do partido (2.2): `dado` é o id do dado, `valor` o texto mostrado na hora da escolha. */
+export type Reacao = { dado: string; valor: string; texto: string };
 export type Conj2 = {
   muns: Record<string, { tag: TagMun; nota: string }>;
   posicao?: Partial<Record<EsferaExec, PosExec>>; // escolha da equipe; sem ela vale a sugestão pela coligação
@@ -100,6 +103,7 @@ export type Conj2 = {
   relacaoPq: string;
   desafios: string[];
   oportunidades: string[];
+  reacoes?: Reacao[];                             // no máximo 2 (lib/dadosPartido.ts)
 };
 
 /** Filiados (public/data/filiados, gerado por scripts/build_filiados.py a partir do TSE).

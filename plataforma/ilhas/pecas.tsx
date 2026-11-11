@@ -81,19 +81,19 @@ export function Chip({ p }: { p: string }) {
 
 /** Formas geométricas das relações: aliado = losango, opositor = triângulo, potencial relacionamento = anel, esta liderança = estrela.
  *  A forma repete a cor, então a leitura não depende só do verde e do vermelho (WCAG 1.4.1). */
-export const COR_REL = { aliado: '#1B6B4F', concorrente: '#C93636', potencial: '#2F6F82', proprio: '#E0A526' } as const;
-export function Marca({ tipo, tam = 14 }: { tipo: 'aliado' | 'concorrente' | 'potencial' | 'proprio'; tam?: number }) {
+export const COR_REL = { aliado: '#1B6B4F', aliado_concorrente: '#1B6B4F', concorrente: '#C93636', oponente_concorrente: '#C93636', potencial: '#2F6F82', proprio: '#E0A526' } as const;
+export function Marca({ tipo, tam = 14 }: { tipo: keyof typeof COR_REL; tam?: number }) {
   const c = COR_REL[tipo];
-  const f = tipo === 'aliado' ? <path d="M8 1.2 14.8 8 8 14.8 1.2 8Z" />
-    : tipo === 'concorrente' ? <path d="M8 1.6 15 14H1Z" />
+  const f = tipo === 'aliado' || tipo === 'aliado_concorrente' ? <path d="M8 1.2 14.8 8 8 14.8 1.2 8Z" />
+    : tipo === 'concorrente' || tipo === 'oponente_concorrente' ? <path d="M8 1.6 15 14H1Z" />
     : tipo === 'potencial' ? <path fillRule="evenodd" d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13Zm0 3.4a3.1 3.1 0 1 1 0 6.2 3.1 3.1 0 0 1 0-6.2Z" />
     : <path d="M8 1 9.9 5.8 15 6.1 11 9.3 12.4 14.4 8 11.6 3.6 14.4 5 9.3 1 6.1 6.1 5.8Z" />;
   return <svg className="marca" width={tam} height={tam} viewBox="0 0 16 16" fill={c} aria-hidden="true" focusable="false">{f}</svg>;
 }
 /** rótulo curto (botões) e completo (legendas, filtros, dicas) de cada relação, no singular e no plural */
-export const ROT_REL = { aliado: 'Aliado', concorrente: 'Opositor', potencial: 'Potencial' } as const;
-export const ROT_REL_LONGO = { aliado: 'Aliado', concorrente: 'Opositor', potencial: 'Potencial relacionamento' } as const;
-export const ROT_REL_PLURAL = { aliado: 'Aliados', concorrente: 'Opositores', potencial: 'Potenciais relacionamentos' } as const;
+export const ROT_REL = { aliado: 'Aliado', aliado_concorrente: 'Aliado, mas concorrente', concorrente: 'Opositor', oponente_concorrente: 'Oponente e concorrente', potencial: 'Potencial' } as const;
+export const ROT_REL_LONGO = { aliado: 'Aliado', aliado_concorrente: 'Aliado, mas concorrente', concorrente: 'Opositor', oponente_concorrente: 'Oponente e concorrente', potencial: 'Potencial relacionamento' } as const;
+export const ROT_REL_PLURAL = { aliado: 'Aliados', aliado_concorrente: 'Aliados, mas concorrentes', concorrente: 'Opositores', oponente_concorrente: 'Oponentes e concorrentes', potencial: 'Potenciais relacionamentos' } as const;
 export const AJUDA_REL = [
   'Aliado: quem tende a caminhar com a liderança, por dividir base, pauta ou partido. É com quem se pode contar para assinar, relatar e apoiar propostas.',
   'Opositor: quem tende a se posicionar contra, por disputar a mesma base ou pauta ou estar em campo político contrário. Não é inimigo: é quem a equipe precisa antecipar e acompanhar.',

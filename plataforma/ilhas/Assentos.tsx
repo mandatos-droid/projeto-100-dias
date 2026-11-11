@@ -33,7 +33,7 @@ const NOME_UF: Record<string, string> = {
 };
 
 type Coluna = 'nome' | 'partido' | 'uf' | 'votos' | 'relacao';
-const ORD_REL: Record<Status, number> = { aliado: 0, concorrente: 1, potencial: 2, neutro: 3 };
+const ORD_REL: Record<Status, number> = { aliado: 0, aliado_concorrente: 1, concorrente: 2, oponente_concorrente: 3, potencial: 4, neutro: 5 };
 type Filtros = Record<'partido' | 'genero' | 'raca' | 'mandato' | 'relacao', Set<string>>;
 type Faceta = keyof Filtros;
 const POR_PAGINA = 15;

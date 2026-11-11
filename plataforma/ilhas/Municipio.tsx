@@ -87,7 +87,7 @@ export default function Municipio() {
       if (r.uf !== m.uf || !r.mun || r.status === 'neutro') continue;
       const id = idPorNome.get(semAcento(r.mun));
       if (!id) continue;
-      (out[id] ??= { aliado: 0, concorrente: 0, potencial: 0 })[r.status]++;
+      (out[id] ??= { aliado: 0, concorrente: 0, potencial: 0 })[r.status === 'aliado_concorrente' ? 'aliado' : r.status === 'oponente_concorrente' ? 'concorrente' : r.status]++; // as 2 categorias novas contam no balde mais próximo até o T19
     }
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
