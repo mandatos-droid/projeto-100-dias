@@ -1112,6 +1112,8 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .ilha-corpo .as-slides .slides-lista{grid-template-columns:repeat(auto-fit,minmax(min(100%,21rem),1fr))}
 .ilha-corpo .as-cartao{display:flex;flex-direction:column;gap:0.5rem;height:100%;min-width:0;padding:0.75rem 0.875rem;background:#fff;border:1.5px solid var(--linha);border-top:5px solid var(--c);border-radius:var(--r)}
 .ilha-corpo .as-cartao h4{margin:0}
+/* cabeçalho em faixa colorida na cor da agenda, separado do corpo (OP-03) */
+.ilha-corpo .as-topo{display:flex;flex-direction:column;gap:0.5rem;margin:-0.75rem -0.875rem 0;padding:0.75rem 0.875rem;background:color-mix(in srgb,var(--c) 14%,#fff);border-bottom:3px solid var(--c)}
 /* altura máxima do cartão (OP-01): título e filtro ficam fixos e só a lista rola */
 .ilha-corpo .as-cartao{max-height:420px;overflow:hidden}
 .ilha-corpo .as-lista{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}

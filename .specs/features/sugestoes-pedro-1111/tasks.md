@@ -371,9 +371,9 @@ T19
 
 **Done when**:
 
-- [ ] Cabeçalho de cada cartão tem faixa ou fundo suave (e2e confere `border-top`/`background`)
-- [ ] Gate full passa
-- [ ] Contagem de testes não diminui
+- [x] Cabeçalho de cada cartão tem faixa ou fundo suave (e2e confere `border-top`/`background`)
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
 
 **Tests**: e2e
 **Gate**: full

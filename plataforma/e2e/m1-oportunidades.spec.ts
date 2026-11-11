@@ -174,6 +174,29 @@ test.describe('Agendas sociais · cartões em slides com filtro (SOC-02 a SOC-06
     expect(await c.evaluate((e) => e.scrollHeight <= e.clientHeight + 1)).toBe(true); // o cartão em si não rola
   });
 
+  test('o cabeçalho de cada cartão é uma faixa na cor da agenda e os selos de faixa são preenchidos (OP-02, OP-03)', async ({ page }) => {
+    await abre(page);
+    const cartoes = page.locator('[data-ilha="agendas-sociais"] article');
+    await expect(cartoes).toHaveCount(4, { timeout: 30_000 });
+    for (let i = 0; i < 4; i++) {
+      const r = await cartoes.nth(i).evaluate((art) => {
+        const topo = art.querySelector('.as-topo') as HTMLElement, cs = getComputedStyle(topo), cor = getComputedStyle(art).getPropertyValue('--c').trim();
+        const sel = document.createElement('i'); sel.style.color = cor; art.appendChild(sel); const rgb = getComputedStyle(sel).color; sel.remove();
+        return { fundo: cs.backgroundColor, borda: cs.borderBottomColor, larg: parseFloat(cs.borderBottomWidth), rgb, temTitulo: !!topo.querySelector('h4'), temFiltro: !!topo.querySelector('select') };
+      });
+      expect(r.temTitulo && r.temFiltro).toBe(true);
+      expect(r.borda).toBe(r.rgb);       // a faixa usa a cor da agenda
+      expect(r.larg).toBeGreaterThanOrEqual(3);
+      expect(r.fundo).not.toBe('rgba(0, 0, 0, 0)'); // fundo suave, não transparente
+    }
+    // selos preenchidos e em negrito
+    const selo = cartoes.first().locator('.as-fx').first();
+    await expect(selo).toBeVisible();
+    const e = await selo.evaluate((x) => { const cs = getComputedStyle(x); return { fundo: cs.backgroundColor, peso: parseInt(cs.fontWeight, 10) }; });
+    expect(e.fundo).not.toBe('rgba(0, 0, 0, 0)');
+    expect(e.peso).toBeGreaterThanOrEqual(700);
+  });
+
   test('a caixa m1.q8a continua depois dos cartões', async ({ page }) => {
     await abre(page);
     const d = await page.locator('[data-ilha="agendas-sociais"]').boundingBox();

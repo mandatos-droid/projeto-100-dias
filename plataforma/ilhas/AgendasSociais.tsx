@@ -54,13 +54,15 @@ export default function AgendasSociais() {
     const idSel = `${base}-${a.id}`;
     return (
       <article className="as-cartao" style={{ ['--c' as string]: a.cor }} aria-labelledby={`${idSel}-t`}>
-        <h4 id={`${idSel}-t`}>{a.rot}</h4>
+        <header className="as-topo">
+          <h4 id={`${idSel}-t`}>{a.rot}</h4>
         <label className="peq-t as-faixa" htmlFor={idSel}>
           <span>Classificação</span>
           <select id={idSel} value={faixa} onChange={(e) => setFaixas((f) => ({ ...f, [a.id]: e.target.value }))}>
             {FAIXA_OPCOES.map((o) => <option key={o.v} value={o.v}>{o.rot}</option>)}
           </select>
         </label>
+        </header>
         {vistas.length === 0 ? (
           <p className="sem">{linhas.length ? 'Nenhum indicador nesta classificação.' : `Sem notas de ${uf} para esta agenda.`}</p>
         ) : (
