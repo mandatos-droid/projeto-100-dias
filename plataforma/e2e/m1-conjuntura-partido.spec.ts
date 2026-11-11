@@ -10,7 +10,7 @@ const MUN = { atualizado: '2026-10-05', mun: { 3500105: [900, 10000], 3500204: [
 const editor = (page: Page, k: string) => page.locator(`.campo:has(textarea[data-k="${k}"]) .rico-area`);
 const dadosDe = async (page: Page) => (await salvoDe(page)).dados as { conj2?: { reacoes?: { dado: string; valor: string; texto: string }[]; prefExtra?: Record<string, string> } };
 
-async function abre(page: Page, dados: Record<string, unknown> = { tse: TSE }, votos: unknown = MUN, mandato = MANDATO) {
+async function abre(page: Page, dados: Record<string, unknown> = { tse: TSE }, votos: unknown = MUN, mandato: Record<string, string> = MANDATO) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.route('**/api/votos-mun**', (r) => r.fulfill({ json: votos }));
   await abreGuia(page, '#/m/1/m1.conjuntura', { mandato, dados });
@@ -27,6 +27,16 @@ test.describe('Conjuntura do partido · sem mapa, com cartões (PAR-02 a PAR-05,
     const cartao = ilha.locator('.v2-grande').first();
     await expect(cartao).toBeVisible();
     expect(await cartao.evaluate((e) => parseFloat(getComputedStyle(e).borderTopWidth))).toBeGreaterThan(0);
+    // PAR-02: os 5 indicadores, cada um num cartão com borda
+    const cartoesPlacar = ilha.locator('.v2-grandes').first().locator('.v2-grande');
+    await expect(cartoesPlacar).toHaveCount(5);
+    await expect(cartoesPlacar.locator('.rot')).toHaveText([/^Parlamentares/, 'Vereadores (2024)', 'Prefeituras (2024)', 'Filiados', 'Posição nos Executivos']);
+    for (let i = 0; i < 5; i++) {
+      expect(await cartoesPlacar.nth(i).evaluate((e) => parseFloat(getComputedStyle(e).borderTopWidth))).toBeGreaterThan(0);
+    }
+    for (let i = 0; i < 4; i++) await expect(cartoesPlacar.nth(i).locator('b')).toHaveText([/^\d{1,3}(\.\d{3})*$/, /^\d{1,3}(\.\d{3})*$/]); // Brasil e UF
+    await expect(cartoesPlacar.nth(4).locator('li strong').first()).toBeVisible(); // posição em cada Executivo
+    await expect(cartoesPlacar.nth(4).locator('li span')).toHaveText(['Presidência', 'Governo SP', 'Prefeitura']);
   });
 
   test('5 cartões de município, cada um com Placar, Força e Executivo', async ({ page }) => {
@@ -40,7 +50,7 @@ test.describe('Conjuntura do partido · sem mapa, com cartões (PAR-02 a PAR-05,
       await expect(c.getByRole('heading', { name: 'Executivo' })).toBeVisible();
       await expect(c.getByText('Vereadores no município')).toBeVisible();
       await expect(c.getByText('Filiados do PSOL')).toBeVisible();
-      await expect(c.getByRole('radio')).toHaveCount(4);
+      await expect(c.getByRole('radio')).toHaveText([/^Partido do governo/, /^Base aliada/, /^Oposição/, /^Independente/]);
     }
     await expect(cartoes.first().locator('.mv5-pos')).toHaveText('1º');
     await expect(cartoes.first()).toContainText('4.000 votos');
@@ -82,6 +92,19 @@ test.describe('Conjuntura do partido · sem mapa, com cartões (PAR-02 a PAR-05,
     await c.getByRole('radio', { name: 'Oposição' }).click();
     await expect(c.getByRole('radio', { name: 'Oposição' })).toHaveAttribute('aria-checked', 'true');
     await expect.poll(async () => Object.values((await dadosDe(page)).conj2?.prefExtra ?? {})).toContain('oposicao');
+  });
+
+  test('sem votação 2026 mas com domicílio: um cartão só do município, e a posição grava em posicao.pref (PAR-07, PAR-08)', async ({ page }) => {
+    await abre(page, {}, MUN, { ...MANDATO, municipio: '3509502' });
+    const cartoes = page.getByTestId('cartao-municipio');
+    await expect(cartoes).toHaveCount(1, { timeout: 30_000 });
+    await expect(page.getByRole('heading', { name: 'Município da liderança' })).toBeVisible();
+    await expect(cartoes.first()).toContainText('Campinas');
+    await expect(cartoes.first().locator('.mv5-pos')).toHaveCount(0); // sem ranking de votos
+    await expect(page.locator('[data-ilha="calor"]')).not.toContainText('Informe o município de domicílio');
+    await expect(cartoes.first().getByRole('radio')).toHaveText([/^Partido do governo/, /^Base aliada/, /^Oposição/, /^Independente/]);
+    await cartoes.first().getByRole('radio', { name: /^Base aliada/ }).click();
+    await expect.poll(async () => ((await salvoDe(page)).dados as { conj2?: { posicao?: { pref?: string } } }).conj2?.posicao?.pref).toBe('base');
   });
 
   test('sem votação 2026 e sem domicílio: mensagem de PAR-08, sem cartões', async ({ page }) => {
