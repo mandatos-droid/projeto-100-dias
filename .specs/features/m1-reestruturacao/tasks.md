@@ -147,14 +147,16 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Ordem e rótulos exatos: Aliado, Aliado, mas concorrente, Oponente, Oponente e concorrente, Indefinida
-- [ ] `concorrente` mostra "Oponente" e `potencial` mostra "Indefinida" (LEG-11)
-- [ ] `resumoTexto` devolve "Você tem 20 Aliados; 5 Aliados, mas concorrentes" só com categorias de contagem ≥ 1 e string vazia sem classificação
-- [ ] Teste novo `tests/relacoes.test.ts` cobre os 3 itens e passa
+- [x] Ordem e rótulos exatos: Aliado, Aliado, mas concorrente, Oponente, Oponente e concorrente, Indefinida
+- [x] `concorrente` mostra "Oponente" e `potencial` mostra "Indefinida" (LEG-11)
+- [x] `resumoTexto` devolve "Você tem 20 Aliados; 5 Aliados, mas concorrentes" só com categorias de contagem ≥ 1 e string vazia sem classificação
+- [x] Teste novo `tests/relacoes.test.ts` cobre os 3 itens e passa
 
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(m1): categorias de relação e resumo em texto`
+**Commit**: `feat(m1): categorias de relação e resumo em texto`
+
+**Status**: ✅ Done
 
 ---
 
