@@ -391,3 +391,41 @@ test.describe('Conjuntura · ficha de detalhe com relação única (PAR-05)', ()
     await expect.poll(async () => Object.keys(((await salvoDe(page)).dados as { relacoes?: object }).relacoes ?? {}).length).toBe(0);
   });
 });
+
+test.describe('Carrossel de classificados com largura fluida (PAR-06)', () => {
+  for (const largura of [1600, 1280, 390]) {
+    test(`os cartões dividem a largura da lista, sem vazio à direita nem corte (${largura}px)`, async ({ page }) => {
+      await page.setViewportSize({ width: largura, height: 900 });
+      await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO });
+      const linhas = page.locator('[data-ilha="assentos"] table.tb tbody tr');
+      await expect.poll(() => linhas.count(), { timeout: 30_000 }).toBe(15);
+      for (let i = 0; i < 4; i++) await linhas.nth(i).getByRole('button', { name: 'Aliado', exact: true }).click();
+      const car = page.getByTestId('classificados');
+      await expect(car.getByText('Slide 1 de 2')).toBeVisible();
+      const caixas = () => car.locator('article').evaluateAll((els) => els.map((el) => {
+        const r = el.getBoundingClientRect();
+        return { x: r.x, w: r.width, dir: r.right };
+      }));
+      const lista = async () => car.locator('.slides-lista').evaluate((el) => { const r = el.getBoundingClientRect(); return { x: r.x, dir: r.right }; });
+      const cheio = await caixas();
+      const l = await lista();
+      expect(cheio).toHaveLength(3);
+      // a borda direita do último cartão da linha encosta na da lista (sem espaço vazio à direita) e nada passa dela
+      const direita = Math.max(...cheio.map((c) => c.dir));
+      expect(Math.abs(direita - l.dir)).toBeLessThanOrEqual(2);
+      expect(Math.min(...cheio.map((c) => c.x))).toBeGreaterThanOrEqual(l.x - 1);
+      // mesma largura entre os cartões do slide
+      const largs = cheio.map((c) => c.w);
+      expect(Math.max(...largs) - Math.min(...largs)).toBeLessThanOrEqual(2);
+      // 3 colunas em tela larga (cada cartão ~1/3 da lista); 390px empilha, sem cortar
+      if (largura >= 1280) expect(new Set(cheio.map((c) => Math.round(c.x))).size).toBe(3);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+      // slide com 1 cartão mantém a largura dos cartões cheios e a navegação segue
+      await car.getByRole('button', { name: /^Próximo/ }).click();
+      await expect(car.getByText('Slide 2 de 2')).toBeVisible();
+      const [ultimo] = await caixas();
+      expect(Math.abs(ultimo.w - largs[0])).toBeLessThanOrEqual(2);
+      await expect(car.getByRole('button', { name: /^Todas/ })).toContainText('4');
+    });
+  }
+});

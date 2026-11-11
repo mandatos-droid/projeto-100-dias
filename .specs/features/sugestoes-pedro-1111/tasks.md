@@ -650,12 +650,12 @@ T20 → T21
 
 **Done when**:
 
-- [ ] Em 1600px e 1280px os 3 cartões do slide ocupam toda a largura da lista (borda direita do 3º cartão encosta na da lista) e têm a mesma largura
-- [ ] Slide com menos de 3 cartões mantém a largura dos cartões cheios
-- [ ] Em 390px os cartões não passam da largura da lista nem geram rolagem horizontal da página
-- [ ] Anterior/Próximo e contagens por categoria seguem funcionando (e2e existentes passam)
-- [ ] Gate full passa
-- [ ] Contagem de testes não diminui
+- [x] Em 1600px e 1280px os 3 cartões do slide ocupam toda a largura da lista (borda direita do 3º cartão encosta na da lista) e têm a mesma largura
+- [x] Slide com menos de 3 cartões mantém a largura dos cartões cheios
+- [x] Em 390px os cartões não passam da largura da lista nem geram rolagem horizontal da página
+- [x] Anterior/Próximo e contagens por categoria seguem funcionando (e2e existentes passam)
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
 
 **Tests**: e2e
 **Gate**: full
