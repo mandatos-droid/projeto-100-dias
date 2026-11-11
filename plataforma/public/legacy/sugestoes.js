@@ -436,7 +436,7 @@ App.lateral=function(){
   /* a Biblioteca de Mandatos sai do rodapé e vai para o grupo Mandato, logo após o Resumo do preenchimento */
   var resumo=nav.querySelector('a[href="#/resumo"]'),pe=document.getElementById('linkBiblio');
   if(resumo&&pe){
-    resumo.insertAdjacentHTML('afterend','<a class="it" id="itemBiblioMandatos" href="'+pe.getAttribute('href')+'" target="_blank" rel="noopener">'+
+    resumo.insertAdjacentHTML('afterend','<a class="it" id="itemBiblioMandatos" href="#/biblioteca">'+
       '<span class="nn">◇</span><span class="tx">Biblioteca de Mandatos</span></a>');
     pe.style.display='none';
   }

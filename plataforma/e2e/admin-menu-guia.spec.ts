@@ -8,8 +8,8 @@ test('Biblioteca de Mandatos fica logo após o Resumo do preenchimento e sai do 
   await abreGuia(page);
   const lista = await nomes(page);
   expect(lista.indexOf('Biblioteca de Mandatos')).toBe(lista.indexOf('Resumo do preenchimento') + 1);
-  await expect(page.locator('#itemBiblioMandatos')).toHaveAttribute('href', /legislabrasil\.org\/biblioteca/);
-  await expect(page.locator('#itemBiblioMandatos')).toHaveAttribute('target', '_blank');
+  await expect(page.locator('#itemBiblioMandatos')).toHaveAttribute('href', '#/biblioteca');
+  await expect(page.locator('#itemBiblioMandatos')).not.toHaveAttribute('target', '_blank');
   await expect(page.locator('#linkBiblio')).toBeHidden();
   await expect(page.locator('#ladoNav a[href="#/resumo"] + a')).toHaveCount(1);
 });
