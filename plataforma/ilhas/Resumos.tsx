@@ -98,7 +98,9 @@ export function MunicipioResumo() {
   Object.values(dadosGuia().relacoes).forEach((r) => {
     if (!r.mun || r.status === 'neutro') return;
     const k = semAcento(r.mun);
-    porNome.set(k, (porNome.get(k) ?? new Set()).add(r.status));
+    // as 2 categorias combinadas caem no balde mais próximo, como em Municipio.tsx
+    const st = r.status === 'aliado_concorrente' ? 'aliado' : r.status === 'oponente_concorrente' ? 'concorrente' : r.status;
+    porNome.set(k, (porNome.get(k) ?? new Set()).add(st));
     marcados++;
   });
 
