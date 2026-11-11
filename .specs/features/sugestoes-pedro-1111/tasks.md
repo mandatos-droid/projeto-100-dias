@@ -233,11 +233,11 @@ T19
 
 **Done when**:
 
-- [ ] Repro documentada (viewport + seletor culpado) no corpo do commit
-- [ ] Botão de navegação não intersecta o texto do cabeçalho em 1280px e 390px (e2e com `boundingBox`)
-- [ ] Último bloco fica inteiro ao fim da rolagem (PAR-04)
-- [ ] Gate full passa
-- [ ] Contagem de testes não diminui
+- [x] Repro documentada (viewport + seletor culpado) no corpo do commit
+- [x] Botão de navegação não intersecta o texto do cabeçalho em 1280px e 390px (e2e com `boundingBox`)
+- [ ] Último bloco fica inteiro ao fim da rolagem (PAR-04): não reproduzido em 1280, 1500 e 390px; devolvido ao Pedro (precisa de nova captura)
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
 
 **Tests**: e2e
 **Gate**: full

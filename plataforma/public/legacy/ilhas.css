@@ -395,6 +395,8 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
   body.lado-fechado .lado-alterna{left:12px}
   body.lado-fechado .lado-alterna svg{transform:rotate(180deg)}
   body.lado-fechado .tela.largo{max-width:85rem}
+  /* o botão fixo (12 a 44px) não pode cobrir o início do conteúdo: a .tela encostava em 38px (sugestão 139) */
+  body.lado-fechado .tela{padding-left:max(2.5rem,3.5rem)}
 }
 @media(max-width:61.25rem){.lado-alterna{display:none}}
 

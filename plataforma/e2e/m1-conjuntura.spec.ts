@@ -342,3 +342,22 @@ test.describe('Conjuntura · cartão de parlamentar com relação única (PAR-02
     await expect(car.getByRole('button', { name: /^Todas/ })).toContainText('1');
   });
 });
+
+test.describe('Botão do menu não cobre o cabeçalho (PAR-03)', () => {
+  test('com o menu recolhido a 1280px, o botão e a 1ª aba da Conjuntura não se sobrepõem', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO });
+    const botao = page.locator('.lado-alterna');
+    await expect(botao).toBeVisible({ timeout: 30_000 });
+    await botao.click();
+    await expect(page.locator('body')).toHaveClass(/lado-fechado/);
+    const aba = page.locator('#tela .abas button').first();
+    await expect(aba).toBeVisible({ timeout: 30_000 });
+    await page.waitForTimeout(500); // a transição do menu dura .25s
+    const b = await botao.boundingBox();
+    const a = await aba.boundingBox();
+    expect(b && a).toBeTruthy();
+    // PAR-03: a caixa da aba começa à direita da borda direita do botão
+    expect(a!.x).toBeGreaterThanOrEqual(b!.x + b!.width);
+  });
+});
