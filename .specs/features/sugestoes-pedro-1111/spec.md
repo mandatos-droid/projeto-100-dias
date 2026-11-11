@@ -24,7 +24,7 @@ Em 11/11/2026 o Pedro registrou 10 sugestões revisando a Missão 1 (Conjuntura,
 
 | Assumption / decision | Chosen default | Rationale | Confirmed? |
 | --------------------- | -------------- | --------- | ---------- |
-| #141 "a contagem aqui está errada" | Lido como o contador "283 dia de 100" (posse 01/02/2026): acima de 100 mostra "100+" | A captura mostra só esse contador e a data de posse; outra leitura muda só CFG-01 | y (Pedro, 11/11) |
+| #141 "a contagem aqui está errada" (regra do contador, opção 2 do Pedro) | O contador mostra quanto falta: posse futura "faltam N dias para a posse"; dias 1 a 99 "faltam N dias" (N = 100 - dia); dia 100 "último dia dos 100"; acima de 100 "100 dias concluídos"; sem posse, sem contador | Pedro: "o contador deve mostrar quantos dias faltam para a posse"; escolheu a opção 2 em 11/11 | y (Pedro, 11/11); o texto do dia 100 é decisão da coordenação e o Pedro ainda deve confirmar |
 | #139 item 1: caixa cortada no rodapé | A T6 reproduz em 1280px e 390px antes de corrigir; sem repro, devolve ao Pedro. A nova captura do Pedro mostra o topo do bloco seguinte cortado pela borda do print: recorte de captura, sem defeito | A captura mostra só o cabeçalho; corrigir sem causa seria chute | y (Pedro, 11/11) |
 | #133/#135: onde ficam os 5 municípios | Os cartões "Os 5 municípios mais votados" passam a ocupar o tópico "Prefeituras que a liderança acompanha"; some a escolha manual de municípios | #135 diz que "isso" deve estar no tópico do #133 | n |
 | `prefExtra` já salvo | Preservado no banco, só deixa de ser exibido | Apagar perderia respostas de quem já preencheu | y |
@@ -49,9 +49,9 @@ Open questions: #138.4 (textos de conceito dos indicadores). Resolvidas pelo Ped
 1. WHEN a Conjuntura 2.1 é exibida, THE SYSTEM SHALL mostrar o título "Categorias de classificação" sem o trecho "o botão “i” também explica cada uma".
 2. WHEN qualquer `.abas` é exibida, THE SYSTEM SHALL NOT mostrar barra de rolagem vertical.
 3. WHEN um cartão de parlamentar mulher é exibido, THE SYSTEM SHALL escrever o cargo no feminino (Deputada Estadual, Deputada Federal, Deputada Distrital, Senadora).
-4. WHEN a data de posse é anterior a hoje há mais de 100 dias, THE SYSTEM SHALL NOT mostrar um número maior que 100 sobre "dia de 100".
+4. WHEN o contador de dias é exibido (barra lateral, cabeçalho móvel e resumo baixado), THE SYSTEM SHALL mostrar: com posse futura, "faltam N dias para a posse" ("falta 1 dia para a posse" no singular); com a posse já ocorrida e o dia entre 1 e 99, "faltam N dias" com N = 100 menos o dia ("falta 1 dia" no singular); no dia 100, "último dia dos 100"; acima de 100, "100 dias concluídos"; e SHALL NOT mostrar um número maior que 100. (CFG-01)
 
-**Independent Test**: Abrir a Conjuntura e `/config/dados` com a posse de 01/02/2026 e conferir os quatro pontos.
+**Independent Test**: Abrir o Guia com a posse há 283, 30 e -5 dias e conferir o contador nos três lugares.
 
 ### P1: Parlamentares e municípios classificáveis sem ruído ⭐ MVP
 

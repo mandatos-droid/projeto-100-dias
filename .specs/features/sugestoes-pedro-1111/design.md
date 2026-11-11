@@ -107,5 +107,5 @@ Sem modelo novo. `Reacao { dado, valor, texto }` e `D.conj2.prefExtra` permanece
 |---|---|---|
 | Seleção visual | Delegação de clique + classe `.capturable-data` com `data-dado-*` | Não obriga cada card a conhecer o modo de captura. |
 | Troca de relação | `select` nativo no cartão | Resolve o ruído visual (PAR-02) sem popover novo. |
-| Contador > 100 | Mostrar `100+` com texto "dia de 100" trocado por "100 dias concluídos" | A data é correta; o rótulo é que não faz sentido. Confirmar (Assumption 1). |
+| Contador de dias | Função pura `lib/contadorDias.ts` (espelhada em `novos.js` e provada igual por teste): quantos dias faltam (posse futura, dias 1 a 99), "último dia dos 100" no dia 100 e "100 dias concluídos" acima | Regra escolhida pelo Pedro (opção 2); AD-004 manda a regra em `lib/`, e o legado não importa TS. |
 | Tooltip | Conteúdo derivado do catálogo | Evita inventar conceito por indicador. |

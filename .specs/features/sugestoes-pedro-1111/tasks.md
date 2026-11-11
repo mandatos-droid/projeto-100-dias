@@ -74,7 +74,7 @@ T14 → T15 → T16 → T17 → T18
 ### Phase 6: Contador de dias
 
 ```
-T19
+T19 → T22
 ```
 
 ### Phase 7: Ficha de detalhe e carrossel fluido
@@ -579,12 +579,12 @@ T20 → T21
 
 ---
 
-### T19: Contador de dias não passa de 100
+### T19: Regra pura do contador de dias
 
-**What**: Override do contador em `novos.js` (sem tocar `app.js`): acima de 100, mostrar “100+” e “100 dias concluídos” (leitura do #141 confirmada pelo Pedro). Trata todos os lugares que mostram o número: contador do menu lateral, “Dia N/100” do cabeçalho móvel e a linha “dia N de 100” do cabeçalho do Resumo (HTML do Resumo/download).
-**Where**: `plataforma/public/legacy/novos.js`
+**What**: Criar `contadorDias(d: number | null)` pura: com posse futura, "faltam N dias para a posse"; dias 1 a 99, "faltam 100 - d dias"; dia 100, "último dia dos 100"; acima de 100, "100 dias concluídos"; sem posse, `null`. Singular em "falta 1 dia". Devolve as partes (`pre`, `num`, `pos`) e o `texto` corrido.
+**Where**: `plataforma/lib/contadorDias.ts`
 **Depends on**: None
-**Reuses**: `app.js:93`, `diaAtual()` em `nucleo.js:226`
+**Reuses**: `diaAtual()` em `nucleo.js:226` (d = dias desde a posse + 1)
 **Requirement**: CFG-01
 
 **Tools**:
@@ -594,16 +594,43 @@ T20 → T21
 
 **Done when**:
 
-- [ ] Posse há 283 dias mostra “100+” e não “283”
-- [ ] Posse há 30 dias continua mostrando 30
-- [ ] e2e cobre os dois casos
+- [ ] Teste unitário cobre posse futura (inclusive 1 dia, singular), dia 1, dia 99, dia 100, dia 101, 283 e sem posse
+- [ ] Nenhuma saída contém “undefined” nem “null”
+- [ ] Gate quick passa
+- [ ] Contagem de testes não diminui
+
+**Tests**: unit
+**Gate**: quick
+
+**Commit**: `feat(lib): add day counter rule for the 100-day period`
+
+---
+
+### T22: Contador de dias do Guia usa a regra nova
+
+**What**: Override em `novos.js` (sem tocar `app.js` nem `resumo.js`, extraídos) que espelha `contadorDias` e atualiza a barra lateral `.contador-dia`, o cabeçalho móvel `#diaMovel` e o HTML baixado do Resumo (`Baixar.pagina`). O `painel()` fica como está.
+**Where**: `plataforma/public/legacy/novos.js`
+**Depends on**: T19
+**Reuses**: `lib/contadorDias.ts` (espelhada); `app.js:93`, `app.js:95`, `resumo.js:118`
+**Requirement**: CFG-01
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Teste unitário carrega a lib e o espelho de `novos.js` (vm) e prova resultado igual nos mesmos casos
+- [ ] e2e com relógio controlado: posse há 283 dias mostra “100 dias concluídos” nos três lugares; há 30 dias, “faltam 70 dias”; daqui a 5 dias, “faltam 5 dias para a posse”
+- [ ] A barra lateral não quebra com o texto mais longo em 390px e 1280px
 - [ ] Gate full passa
 - [ ] Contagem de testes não diminui
 
-**Tests**: e2e
+**Tests**: unit + e2e
 **Gate**: full
 
-**Commit**: `fix(guia): cap the 100-day counter once the period is over`
+**Commit**: `fix(guia): show how many days remain in the day counter`
 
 ---
 
@@ -674,6 +701,6 @@ Phase 2:  T5 ------→ T6
 Phase 3:  T7 ------→ T8
 Phase 4:  T9 ------→ T10 ------→ T11 ------→ T12 ------→ T13
 Phase 5:  T14 ------→ T15 ------→ T16 ------→ T17 ------→ T18
-Phase 6:  T19
+Phase 6:  T19 ------→ T22
 Phase 7:  T20 ------→ T21
 ```
