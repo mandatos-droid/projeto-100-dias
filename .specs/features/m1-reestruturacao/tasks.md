@@ -203,13 +203,15 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Devolve no máximo 5, em ordem decrescente de votos, desempate por nome
-- [ ] `pct` = votos / válidos × 100; município com válidos 0 fica fora
-- [ ] Teste novo `tests/maisVotados.test.ts` cobre 7 municípios, empate e entrada vazia
+- [x] Devolve no máximo 5, em ordem decrescente de votos, desempate por nome
+- [x] `pct` = votos / válidos × 100; município com válidos 0 fica fora
+- [x] Teste novo `tests/maisVotados.test.ts` cobre 7 municípios, empate e entrada vazia
 
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(m1): lógica dos 5 municípios mais votados`
+**Commit**: `feat(m1): lógica dos 5 municípios mais votados`
+
+**Status**: ✅ Done
 
 ---
 
