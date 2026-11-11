@@ -195,6 +195,16 @@ test.describe('Agendas sociais · cartões em slides com filtro (SOC-02 a SOC-06
     const e = await selo.evaluate((x) => { const cs = getComputedStyle(x); return { fundo: cs.backgroundColor, peso: parseInt(cs.fontWeight, 10) }; });
     expect(e.fundo).not.toBe('rgba(0, 0, 0, 0)');
     expect(e.peso).toBeGreaterThanOrEqual(700);
+    // OP-02: contraste mínimo de 4,5:1 entre texto e fundo de TODO selo na tela (fórmula WCAG, independente da lib)
+    const razoes = await page.locator('[data-ilha="agendas-sociais"] .as-fx').evaluateAll((els) => {
+      const lum = (rgb: string) => {
+        const [r, g, b] = (rgb.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number).map((v) => { const c = v / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; });
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      };
+      return els.map((x) => { const cs = getComputedStyle(x); const [a, b] = [lum(cs.color), lum(cs.backgroundColor)].sort((p, q) => q - p); return (a + 0.05) / (b + 0.05); });
+    });
+    expect(razoes.length).toBeGreaterThan(0);
+    for (const z of razoes) expect(z).toBeGreaterThanOrEqual(4.5);
   });
 
   test('o ⓘ do IDEB (anos finais) mostra fonte, ano e sentido por hover e por foco, e o Esc fecha (OP-04)', async ({ page }) => {

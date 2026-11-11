@@ -184,6 +184,7 @@ test.describe('Conjuntura do partido · reação a 2 dados (PAR-09 a PAR-12, SEL
     await expect(banner(page)).toHaveCount(0);
     await expect(page.locator('[data-captura-tag]')).toHaveCount(0);
     await expect(page.locator('.rea-chip')).toHaveCount(2);
+    await expect(page.locator('section.rea')).toBeInViewport(); // SEL-01: a página rolou de volta ao formulário
     await expect(page.locator('.rea-linha').nth(0)).toContainText('Considerando Filiados do partido:');
     await expect(page.locator('.rea-linha').nth(0)).toContainText(', o mandato deve');
     await page.locator('.rea-linha').nth(0).locator('textarea').fill('ampliar a filiação no interior');
@@ -194,6 +195,8 @@ test.describe('Conjuntura do partido · reação a 2 dados (PAR-09 a PAR-12, SEL
     expect(r[0]).toMatchObject({ dado: 'filiados', texto: 'ampliar a filiação no interior' });
     expect(r[1]).toMatchObject({ dado: 'parlamentares', texto: 'buscar a presidência da bancada' });
     expect(r[0].valor).toMatch(/no estado, .* no Brasil/); // mesmo formato de antes
+    expect(r[1].valor).toBeTruthy(); // a 2ª reação grava o valor do dado, não só o id
+    expect(r[1].valor).toMatch(/^\d/);
     await expect(page.locator('.rea-linha')).toHaveCount(2);
     await expect(page.getByRole('button', { name: 'Selecionar 2 dados na tela' })).toBeDisabled(); // sem vaga: remova um chip
     await page.evaluate(() => { location.hash = '#/resumo'; }); // o Resumo lê o mesmo dado
