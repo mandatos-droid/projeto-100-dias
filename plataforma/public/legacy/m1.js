@@ -40,28 +40,49 @@
   q2.caixas=[{k:'m1.q2',rot:'Registre a sua análise da trajetória política',
     antes:'<div class="orienta"><p>Seu papel agora é registrar a história política que traz sentido aos dados. O que justifica esta trajetória? O que os demais assessores precisam saber para compreender o caminho percorrido?</p></div>'}];
 
-  /* ---- Conjuntura · pergunta 1: os dados primeiro, depois a análise (SUG-17) ----
-     Aliados, opositores e potenciais relacionamentos são marcados na tabela (seleção tabula melhor que texto livre); a caixa é só das pontes não óbvias. */
+  /* ---- Conjuntura · 2.1: texto, 2 orientações e as 5 categorias; sem a pergunta das "pontes" (LEG-04, LEG-05) ----
+     Aliados, oponentes e indefinidos são marcados na tabela (ilha), então a pergunta não tem caixa de texto: m1.q4 e m1.q4b
+     continuam gravadas, só deixam de ser mostradas. As definições são as do documento da Alana. */
   var q4=item(exDe('m1.conjuntura'),'m1.q4');
-  q4.d='<em>Identifique</em> quem são os/as parlamentares eleitos(as) nesta legislatura, a partir dos dados expostos abaixo. Em seguida, faça uma análise sobre o que esperar dos colegas e das possíveis alianças.';
+  q4.d='Analise qual é o tipo de relação que a liderança parlamentar tem com as pessoas eleitas, a partir dos dados expostos abaixo.</p>'+
+    '<p>Siga as seguintes orientações para realizar a análise:</p>'+
+    '<ol><li>Crie categorias iniciais de análise, por meio do filtro, para iniciar sua avaliação.</li>'+
+    '<li>A partir dos nomes filtrados, classifique como é a relação atual da liderança parlamentar com os perfis dos colegas parlamentares listados. Caso tenha necessidade, mude o filtro e faça novas classificações. Não é necessário esgotar este processo com todas as cadeiras da Casa.</li></ol>'+
+    '<p><strong>Categorias de classificação</strong> (o botão “i” também explica cada uma):</p>'+
+    '<ul class="categorias-relacao">'+
+    '<li><strong>Aliado:</strong> para aqueles com quem já tem uma boa relação e o mandato sabe que pode contar durante votações, por exemplo.</li>'+
+    '<li><strong>Aliado, mas concorrente:</strong> para aqueles com quem já tem uma boa relação, mas cujas agendas defendidas ou o território da base de apoio lhes impõem uma competição direta.</li>'+
+    '<li><strong>Oponente:</strong> para as lideranças com quem a liderança parlamentar já teve algum embate ou cujos posicionamentos são contrários ao que defende.</li>'+
+    '<li><strong>Oponente e concorrente:</strong> para colegas com quem a relação é ou tende a ser desafiadora, e ainda existe uma disputa direta de agendas ou território.</li>'+
+    '<li><strong>Indefinida:</strong> para perfis com quem haja potencial de construção de espaços de convergência e que pode ser aliado ou oponente, a depender da pauta debatida, e cuja relação ainda precisa ser desenvolvida.</li></ul>'+
+    '<p>Os dados abaixo são a base da sua análise.';
   q4.depois=true;
-  q4.caixas=[{k:'m1.q4b',resumo:'Pontes não óbvias',
-    antes:'<div class="orienta"><p>Marque na tabela acima quem é <strong>Aliado</strong>, quem é <strong>Opositor</strong> e quem é um <strong>Potencial relacionamento</strong> para a liderança parlamentar, considerando a região, o perfil pessoal e a disputa partidária. O botão “i” explica cada categoria.</p></div>',
-    rot:'E quais são as pontes não óbvias que podem ser construídas, a partir da criação de espaços de convergência que se baseiem em consensos mínimos e não necessariamente alinhamento completo? Elenque agora os nomes não óbvios, e que serão necessários para que as agendas e pautas avancem.'}];
+  q4.caixas=[];
 
-  /* ---- Conjuntura (partido e território) e Oportunidades (social): texto, dados, caixa de análise (SUG-19) ----
-     A pessoa não pesquisa mais: analisa o que está na tela. A caixa vai para depois dos dados e usa o comando da Alana. */
-  var ANALISE='A partir dos dados apresentados acima, e de outros que você possa ter pesquisado, faça uma análise destacando o que mais te chama a atenção e como o mandato deve agir a partir desta conjuntura.';
+  /* ---- Conjuntura · 2.2: contexto antes dos dados; depois deles, os dois textos de PAR-09 (PAR-01, PAR-09) ---- */
   var q5=item(exDe('m1.conjuntura'),'m1.q5');
   q5.d='A análise da quantidade de cargos ocupados pelo partido na sua Casa Legislativa, no território nacional e em seu domicílio eleitoral, dos setoriais e diretórios de que a liderança parlamentar pode passar a fazer parte, do tipo de relação que deseja ter com o partido e dos desafios e oportunidades de expansão da relevância partidária da liderança parlamentar é fundamental para a compreensão da conjuntura política em que a liderança parlamentar está inserida.';
-  [['m1.conjuntura','m1.q5','m1.q5'],['m1.conjuntura','m1.q6','m1.q6'],['m1.oportunidades','m1.q8','m1.q8a']].forEach(function(c){
-    var it=item(exDe(c[0]),c[1]);
-    it.depois=true;
-    it.caixas=[{k:c[2],rot:ANALISE,resumo:c[2]==='m1.q8a'?'Análise da conjuntura social':undefined}];
-  });
+  q5.depois=true;
+  q5.caixas=[{k:'m1.q5',rot:'Identifique que tipo de relação com o partido a liderança parlamentar deseja ter, à luz destes dados, refletindo como o mandato pode contribuir para o fortalecimento do partido e como pode se posicionar diante do poder Executivo.'},
+    {texto:'Selecione 2 dados e registre como a liderança parlamentar deseja que o mandato reaja a eles.'}];
+
+  /* ---- Conjuntura · fim da página: some a pergunta 2.3 e seu mapa; fica o texto e a caixa m1.q6 (PAR-13) ----
+     A resposta antiga continua em m1.q6; a caixa vem num passo próprio, depois das perguntas, sem título de pergunta. */
+  var conj=exDe('m1.conjuntura');
+  conj.itens=conj.itens.filter(function(i){return i.k!=='m1.q6'});
+  conj.d='Duas perguntas sobre a legislatura e o partido, e o cenário político do entorno da liderança parlamentar.';
+  var ATORES={k:'m1.q6',resumo:'Principais atores políticos do entorno',rot:'Principais atores políticos do entorno',
+    antes:'<div class="orienta"><p>Registre quais são os principais atores políticos do entorno da liderança parlamentar. Leve em consideração os diversos poderes, e monte o cenário político instalado a partir de quem são seus aliados e concorrentes em potencial.</p></div>'};
+
+  /* ---- Oportunidades (social): a caixa de análise vai para depois dos dados (SUG-19) ---- */
+  var ANALISE='A partir dos dados apresentados acima, e de outros que você possa ter pesquisado, faça uma análise destacando o que mais te chama a atenção e como o mandato deve agir a partir desta conjuntura.';
+  var q8=item(exDe('m1.oportunidades'),'m1.q8');
+  q8.depois=true;
+  q8.caixas=[{k:'m1.q8a',rot:ANALISE,resumo:'Análise da conjuntura social'}];
 
   /* ---------- mecanismo ---------- */
   function caixa(c){
+    if(c.texto)return '<div class="orienta"><p>'+c.texto+'</p></div>';
     if(c.grupos)return (c.antes||'')+'<label class="campo"><span class="rot">'+esc(c.rot)+'</span><select data-k="'+c.k+'"><option value="">Selecione um cargo</option>'+
       c.grupos.map(function(g){return '<optgroup label="'+g[0]+'">'+g[1].map(function(o){return '<option value="'+esc(o)+'">'+esc(o)+'</option>'}).join('')+'</optgroup>'}).join('')+(c.extra||[]).map(function(o){return '<option value="'+esc(o)+'">'+esc(o)+'</option>'}).join('')+'</select></label>';
     return (c.antes||'')+'<label class="campo"><span class="rot">'+esc(c.rot)+'</span>'+
@@ -85,6 +106,18 @@
       if(it&&it.caixas)return injeta(h,it);
     }
     return h;
+  };
+  /* passo final da Conjuntura (texto + caixa m1.q6); no modo "tudo" vem depois das perguntas */
+  var _mt=Guia.montar;
+  Guia.montar=function(e){
+    var p=_mt.call(this,e);
+    if(e&&e.id==='m1.conjuntura')p.push({k:'m1.atores'});
+    return p;
+  };
+  var _gb2=Guia.bloco;
+  Guia.bloco=function(p,n){
+    if(p&&p.k==='m1.atores')return caixa(ATORES);
+    return _gb2.call(this,p,n);
   };
   var _cp=Comp.perguntas;
   Comp.perguntas=function(ex){
@@ -186,6 +219,7 @@
     var h=_ex.apply(this,arguments);
     if(!ex||ex.tipo!=='perguntas'||!ex.itens)return h;
     var extra='';
+    if(ex.id==='m1.conjuntura')extra+='<dt>Principais atores políticos do entorno</dt><dd>'+Resumo.v('m1.q6')+'</dd>';
     ex.itens.forEach(function(it){
       (it.caixas||[]).forEach(function(c){
         if(c.resumo)extra+='<dt>'+esc(c.resumo)+'</dt><dd>'+Resumo.v(c.k)+'</dd>';

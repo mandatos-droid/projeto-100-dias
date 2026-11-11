@@ -101,57 +101,94 @@ test('perguntas sem caixas novas seguem com a caixa única (SUG-16)', () => {
   assert.deepEqual(chaves(h), ['m1.q1']);
 });
 
-/* ---------- SUG-17: pergunta 1 da Conjuntura ---------- */
-test('m1.q4 pede a análise a partir dos dados abaixo e não traz o trecho dos 100 primeiros dias (SUG-17)', () => {
-  const h = pergunta(janela(), 'm1.conjuntura', 0);
-  assert.ok(h.includes('nesta legislatura, a partir dos dados expostos abaixo. Em seguida, faça uma análise sobre o que esperar dos colegas e das possíveis alianças.'));
-  assert.equal(h.includes('100 primeiros'), false);
-  assert.equal(h.includes('agendas similares'), false);
-});
-
-test('m1.q4 abre depois do mapa a orientação de marcar Aliado, Opositor e Potencial relacionamento e a caixa das pontes não óbvias (SUG-17)', () => {
+/* ---------- LEG-04 e LEG-05: pergunta 2.1 ---------- */
+const DEFINICOES = [
+  'Aliado:</strong> para aqueles com quem já tem uma boa relação e o mandato sabe que pode contar durante votações, por exemplo.',
+  'Aliado, mas concorrente:</strong> para aqueles com quem já tem uma boa relação, mas cujas agendas defendidas ou o território da base de apoio lhes impõem uma competição direta.',
+  'Oponente:</strong> para as lideranças com quem a liderança parlamentar já teve algum embate ou cujos posicionamentos são contrários ao que defende.',
+  'Oponente e concorrente:</strong> para colegas com quem a relação é ou tende a ser desafiadora, e ainda existe uma disputa direta de agendas ou território.',
+  'Indefinida:</strong> para perfis com quem haja potencial de construção de espaços de convergência e que pode ser aliado ou oponente, a depender da pauta debatida, e cuja relação ainda precisa ser desenvolvida.',
+];
+test('2.1 mostra o texto de análise, as 2 orientações numeradas e as 5 definições, antes dos dados (LEG-04)', () => {
   const h = pergunta(janela(), 'm1.conjuntura', 0);
   const ilha = h.indexOf('data-ilha="assentos"');
-  assert.ok(ilha > 0);
-  assert.ok(h.indexOf('Marque na tabela acima') > ilha);
-  assert.ok(h.indexOf('data-k="m1.q4b"') > h.indexOf('Marque na tabela acima'));
-  assert.ok(h.includes('E quais são as pontes não óbvias que podem ser construídas'));
-  assert.deepEqual(chaves(h), ['m1.q4b']);
+  assert.ok(h.includes('Analise qual é o tipo de relação que a liderança parlamentar tem com as pessoas eleitas, a partir dos dados expostos abaixo.'));
+  assert.ok(h.includes('Siga as seguintes orientações para realizar a análise:'));
+  const ol = h.slice(h.indexOf('<ol>'), h.indexOf('</ol>'));
+  assert.equal((ol.match(/<li>/g) ?? []).length, 2);
+  assert.ok(ol.includes('Crie categorias iniciais de análise, por meio do filtro, para iniciar sua avaliação.'));
+  assert.ok(ol.includes('Não é necessário esgotar este processo com todas as cadeiras da Casa.'));
+  let pos = h.indexOf('</ol>');
+  for (const d of DEFINICOES) {
+    const i = h.indexOf(d);
+    assert.ok(i > pos, d);
+    pos = i;
+  }
+  assert.ok(ilha > pos);
+  assert.equal(h.includes('100 primeiros'), false);
 });
 
-test('m1.q4 não ganha caixa de parceiros e concorrentes: a marcação é na tabela (SUG-17)', () => {
-  const h = pergunta(janela(), 'm1.conjuntura', 0);
-  assert.equal(h.includes('potenciais parcerias'), false);
+test('2.1 não traz a pergunta das pontes não óbvias nem caixa de texto, e m1.q4b segue gravada (LEG-05)', () => {
+  const w = janela();
+  const campos = (w as unknown as { D: { campos: Record<string, string> } }).D.campos;
+  campos['m1.q4b'] = 'Vereadora do interior';
+  const h = pergunta(w, 'm1.conjuntura', 0);
+  assert.deepEqual(chaves(h), []);
+  assert.equal(h.includes('pontes não óbvias'), false);
+  assert.equal(h.includes('Marque na tabela acima'), false);
+  assert.equal(campos['m1.q4b'], 'Vereadora do interior');
 });
 
-/* ---------- SUG-19: texto, dados, caixa de análise ---------- */
+/* ---------- PAR-01 e PAR-09: pergunta 2.2 ---------- */
 const COMANDO = 'A partir dos dados apresentados acima, e de outros que você possa ter pesquisado, faça uma análise destacando o que mais te chama a atenção e como o mandato deve agir a partir desta conjuntura.';
+const PAR09A = 'Identifique que tipo de relação com o partido a liderança parlamentar deseja ter, à luz destes dados, refletindo como o mandato pode contribuir para o fortalecimento do partido e como pode se posicionar diante do poder Executivo.';
+const PAR09B = 'Selecione 2 dados e registre como a liderança parlamentar deseja que o mandato reaja a eles.';
 
-test('m1.q5 mostra título, texto novo, dados e só então a caixa com o comando da análise (SUG-19)', () => {
+test('2.2 mostra o texto de contexto antes dos dados e os dois textos de PAR-09 depois deles (PAR-01, PAR-09)', () => {
   const h = pergunta(janela(), 'm1.conjuntura', 1);
   const texto = h.indexOf('é fundamental para a compreensão da conjuntura política em que a liderança parlamentar está inserida.');
   const ilha = h.indexOf('data-ilha="calor"');
-  const caixa = h.indexOf('data-k="m1.q5"');
   assert.ok(h.indexOf('Qual é a conjuntura política regional e nacional de seu partido?') < texto);
-  assert.ok(texto > 0 && texto < ilha && ilha < caixa);
-  assert.ok(h.includes(COMANDO));
+  assert.ok(texto > 0 && texto < ilha);
+  const a = h.indexOf(PAR09A), b = h.indexOf(PAR09B);
+  assert.ok(ilha < a && a < b);
   assert.equal(h.includes('Contabilize'), false);
-  assert.deepEqual(chaves(h), ['m1.q5']);
+  assert.equal(h.includes(COMANDO), false);
 });
 
-test('o texto novo de m1.q5 mantém os temas do original (SUG-19)', () => {
+test('o texto de contexto de 2.2 mantém os temas do original (PAR-01)', () => {
   const h = pergunta(janela(), 'm1.conjuntura', 1);
   for (const tema of ['Casa Legislativa', 'território nacional', 'domicílio eleitoral', 'setoriais e diretórios', 'relação que deseja ter com o partido', 'desafios e oportunidades de expansão da relevância partidária']) {
     assert.ok(h.includes(tema), tema);
   }
 });
 
-test('m1.q6 e m1.q8 mostram a caixa de análise depois dos dados, com o mesmo comando (SUG-19)', () => {
-  const w = janela();
-  const q6 = pergunta(w, 'm1.conjuntura', 2);
-  assert.ok(q6.indexOf('data-ilha="municipio"') < q6.indexOf('data-k="m1.q6"'));
-  assert.ok(q6.includes(COMANDO));
-  const q8 = pergunta(w, 'm1.oportunidades', 1);
+/* ---------- PAR-13: fim da página da Conjuntura ---------- */
+function paginaConj() {
+  const w = janela() as Janela;
+  const ex = ex1(w, 'm1.conjuntura');
+  w.Guia.m = w.MISSOES[0];
+  w.Guia.ex = ex;
+  w.Guia.passos = w.Guia.montar(ex);
+  return { w, ex, html: w.Guia.passos.map((p, n) => w.Guia.bloco(p, n)).join('') };
+}
+test('o fim da Conjuntura traz o texto dos atores políticos e a caixa m1.q6, depois dos dados de 2.2 (PAR-13)', () => {
+  const { html } = paginaConj();
+  const texto = html.indexOf('Registre quais são os principais atores políticos do entorno da liderança parlamentar. Leve em consideração os diversos poderes, e monte o cenário político instalado a partir de quem são seus aliados e concorrentes em potencial.');
+  assert.ok(texto > html.indexOf(PAR09B));
+  assert.ok(html.indexOf('data-k="m1.q6"') > texto);
+  assert.equal((html.match(/data-k="m1\.q6"/g) ?? []).length, 1);
+});
+
+test('a pergunta "Qual é a conjuntura política do seu estado ou município de origem?" e o mapa dela não aparecem (PAR-13)', () => {
+  const { ex, html } = paginaConj();
+  assert.equal(html.includes('conjuntura política do seu estado ou município de origem'), false);
+  assert.equal(html.includes('data-ilha="municipio"'), false);
+  assert.equal(ex.itens!.some((i) => i.k === 'm1.q6'), false);
+});
+
+test('m1.q8 mostra a caixa de análise depois dos dados, com o comando da análise (SUG-19)', () => {
+  const q8 = pergunta(janela(), 'm1.oportunidades', 1);
   assert.ok(q8.indexOf('data-ilha="social"') < q8.indexOf('data-k="m1.q8a"'));
   assert.ok(q8.includes(COMANDO));
 });
@@ -217,13 +254,13 @@ function janelaResumo(campos: Record<string, string>) {
   return w;
 }
 
-test('o Resumo da Persona mostra o próximo cargo (m1.q3b) e o da Conjuntura mostra as pontes (m1.q4b)', () => {
-  const w = janelaResumo({ 'm1.q3b': 'Senado', 'm1.q4b': 'Vereadora do interior' });
+test('o Resumo da Persona mostra o próximo cargo (m1.q3b) e o da Conjuntura mostra os atores políticos (m1.q6)', () => {
+  const w = janelaResumo({ 'm1.q3b': 'Senado', 'm1.q6': 'Prefeito da capital' });
   const persona = w.Resumo.ex(ex1(w, 'm1.persona'));
   assert.ok(persona.includes('<dt>Próximo cargo que a liderança deseja ocupar</dt><dd>Senado</dd>'));
   const conj = w.Resumo.ex(ex1(w, 'm1.conjuntura'));
-  assert.ok(conj.includes('<dt>Pontes não óbvias</dt><dd>Vereadora do interior</dd>'));
-  assert.equal(persona.includes('Pontes não óbvias'), false);
+  assert.ok(conj.includes('<dt>Principais atores políticos do entorno</dt><dd>Prefeito da capital</dd>'));
+  assert.equal(persona.includes('Principais atores'), false);
 });
 
 test('o Resumo continua com um só </dl> final e sem repetir o texto de m1.q5 (mesma chave de antes)', () => {
@@ -231,18 +268,6 @@ test('o Resumo continua com um só </dl> final e sem repetir o texto de m1.q5 (m
   const conj = w.Resumo.ex(ex1(w, 'm1.conjuntura'));
   assert.equal(conj.split('análise do partido').length - 1, 1);
   assert.ok(conj.endsWith('</dl>'));
-});
-
-/* ---------- lacunas apontadas pelo Verifier ---------- */
-test('a orientação de m1.q4 manda marcar Aliado, Opositor e Potencial relacionamento considerando região, perfil pessoal e disputa partidária (SUG-17)', () => {
-  const h = pergunta(janela(), 'm1.conjuntura', 0);
-  assert.ok(h.includes('Marque na tabela acima quem é <strong>Aliado</strong>, quem é <strong>Opositor</strong> e quem é um <strong>Potencial relacionamento</strong> para a liderança parlamentar, considerando a região, o perfil pessoal e a disputa partidária. O botão “i” explica cada categoria.'));
-});
-
-test('a caixa de m1.q6 usa a mesma chave de antes, então a resposta antiga continua nela (edge case)', () => {
-  const h = pergunta(janela(), 'm1.conjuntura', 2);
-  assert.deepEqual(chaves(h), ['m1.q6']);
-  assert.equal(h.split('data-k="m1.q6"').length - 1, 1);
 });
 
 /* ---------- SUG-87: pergunta 2 da Persona é de análise, não de levantamento ---------- */

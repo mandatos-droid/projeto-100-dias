@@ -373,15 +373,17 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] 2.1 mostra o texto "Analise qual é o tipo de relação…", as 2 orientações e as 5 definições
-- [ ] `m1.q4b` não é renderizada e o valor salvo permanece
-- [ ] 2.2 mostra o contexto, e depois dos dados os dois textos de PAR-09
-- [ ] O fim da página traz o texto de PAR-13 e a caixa `m1.q6`; a pergunta "Qual é a conjuntura política do seu estado ou município de origem?" não aparece
-- [ ] Casos novos em `tests/legado-m1.test.ts` passam
+- [x] 2.1 mostra o texto "Analise qual é o tipo de relação…", as 2 orientações e as 5 definições
+- [x] `m1.q4b` não é renderizada e o valor salvo permanece
+- [x] 2.2 mostra o contexto, e depois dos dados os dois textos de PAR-09
+- [x] O fim da página traz o texto de PAR-13 e a caixa `m1.q6`; a pergunta "Qual é a conjuntura política do seu estado ou município de origem?" não aparece
+- [x] Casos novos em `tests/legado-m1.test.ts` passam
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(m1): textos da conjuntura sem pontes nem mapa municipal`
+
+**Status**: ✅ Done
 
 ---
 
