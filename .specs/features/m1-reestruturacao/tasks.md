@@ -230,14 +230,16 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] `linhasDaAgenda` usa `dados.uf[UF]`, inclui notas de ODS e indicadores da agenda (ods e extras) e omite indicador sem dado
-- [ ] `filtraFaixa` respeita 39,9 → Muito baixo, 40 → Baixo, 59,9 → Médio, 60 → Alto, 80 → Muito alto
-- [ ] `emSlides` divide em grupos de 4 e o último grupo pode ser menor
-- [ ] Teste novo `tests/indicadoresSociais.test.ts` passa
+- [x] `linhasDaAgenda` usa `dados.uf[UF]`, inclui notas de ODS e indicadores da agenda (ods e extras) e omite indicador sem dado
+- [x] `filtraFaixa` respeita 39,9 → Muito baixo, 40 → Baixo, 59,9 → Médio, 60 → Alto, 80 → Muito alto
+- [x] `emSlides` divide em grupos de 4 e o último grupo pode ser menor
+- [x] Teste novo `tests/indicadoresSociais.test.ts` passa
 
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(m1): cartões de indicador por agenda e faixa`
+**Commit**: `feat(m1): cartões de indicador por agenda e faixa`
+
+**Status**: ✅ Done
 
 ---
 
