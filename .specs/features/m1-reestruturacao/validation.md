@@ -1,9 +1,9 @@
 # Reestruturação da Missão 1 Validation
 
-**Verdict**: FAIL (iteração 2 de no máximo 3: 73/75 requisitos com PASS ancorado no valor da spec; 2 requisitos, FEC-02 e LEG-13, com mutante sobrevivente na categoria "Oponente e concorrente" da cópia JS do Resumo/HTML baixado; gates verdes)
+**Verdict**: PASS (iteração 3 de no máximo 3: 75/75 requisitos com PASS ancorado no valor da spec; mutantes N8 e N12 agora mortos; 12/12 mutações da iteração 3 mortas; gates verdes)
 **Date**: 2026-11-11
 **Spec**: `.specs/features/m1-reestruturacao/spec.md` (75 requisitos EARS)
-**Diff range**: `8bbd641..703e4f7` (62 commits na branch `feat/m1-reestruturacao`, worktree `m1-reestruturacao-wt`; a volta de correção é `4bb78a2..703e4f7`)
+**Diff range**: `8bbd641..2ed2b49` (65 commits na branch `feat/m1-reestruturacao`, worktree `m1-reestruturacao-wt`; a volta de correção da iteração 2 foi `2ed2b49`, que só toca `tests/legado-m1.test.ts`)
 **Verifier**: independent sub-agent (author ≠ verifier). Nada de produto foi alterado; só este arquivo e a coluna Status da tabela de rastreabilidade do `spec.md` foram escritos.
 
 Convenção: `tests/` e `e2e/` são `plataforma/tests/` e `plataforma/e2e/`. Citações de `tests/legado-m1.test.ts` com linha >= 440 já estão com a numeração atual (a edição da varredura GER-01 deslocou +17 linhas).
@@ -37,7 +37,7 @@ Regra payload/conjunção aplicada: cada valor da spec é afirmado como valor (t
 | PAR-07 | 4 posições, escolher uma, gravar em `D.conj2` como hoje | `e2e/m1-conjuntura-partido.spec.ts:53` radios `[/^Partido do governo/,/^Base aliada/,/^Oposição/,/^Independente/]`; `:89-95` grava `prefExtra` `'oposicao'`; `:97-108` domicílio: clique em "Base aliada" → `conj2.posicao.pref == 'base'` | ✅ PASS |
 | PAR-08 | sem votação 2026: cartão só do domicílio, ou a mensagem | `e2e/m1-conjuntura-partido.spec.ts:97-108` 1 cartão `'Campinas'`, heading `'Município da liderança'`, `.mv5-pos` count 0, sem a mensagem; `:110-114` sem domicílio: mensagem "Informe o município de domicílio em Dados do mandato" e 0 cartões | ✅ PASS |
 | SOC-09 | `D.social` segue gravado, sem apagar | `e2e/m1-oportunidades.spec.ts:192-201` semeia `D.social.itens`, marca "Saúde", espera `agendasPrio == ['saude']`, `social toEqual(SOCIAL)`, recarrega e repete | ✅ PASS |
-| FEC-02 | HTML baixado com respostas na ordem do Resumo, incluindo categorias de relação, resumo LEG-12, cartões de município, reação a 2 dados, agendas prioritárias e cartões de agenda | `tests/legado-m1.test.ts:601-620` `'Você tem 2 Aliados; 1 Aliado, mas concorrente; 1 Oponente; 1 Indefinida'`, cabeçalhos `Aliados (2)`, `Aliados, mas concorrentes (1)`, `Oponentes (1)`, `Indefinidas (1)` e nomes, 2 frases `Considerando …: …, o mandato deve… …`, agendas `Saúde`/`Cultura e esporte`; `:591-599` ordem, município e agenda; `e2e/m1-fechamento.spec.ts:42-44` | ❌ GAP: a 4ª categoria (`oponente_concorrente`) nunca é semeada nas relações do HTML; mutantes N8 e N12 sobreviveram |
+| FEC-02 | HTML baixado na ordem do Resumo, com categorias de relação, resumo LEG-12, cartões, 2 reações, agendas prioritárias e cartões de agenda | `tests/legado-m1.test.ts:617` `'… 1 Oponente; 1 Oponente e concorrente; 1 Indefinida'`; `:618-620` os 5 cabeçalhos e os 6 nomes (`'Fabi Dupla'` semeada como `oponente_concorrente` em `:609`), `deepEqual` da ordem (`:621-622`); `:623-625` reações "Considerando … o mandato deve… ampliar a bancada"; agendas e cartões já afirmados na iteração 2 | ✅ PASS (re-derivado na iteração 3) |
 | GER-01 | usa "liderança parlamentar"; sem "o/a parlamentar" para a pessoa | `tests/legado-m1.test.ts:450-455` varre `m1.js`, `novos.js` (exceto o "Selecione o parlamentar…" do cadastro da Missão 0) e todas as `ilhas/*.ts(x)` (`ESCRITO_A_MAO.length > 20`), `deepEqual(achados, [])`; `:457-461` a regex pega "o parlamentar" e ignora "liderança parlamentar"/"parlamentarismo"; mutantes N9 e N10 mortos | ✅ PASS |
 
 ### Os demais 62 (mantidos da iteração 1, reconferidos nos arquivos atuais)
@@ -63,8 +63,8 @@ Regra payload/conjunção aplicada: cada valor da spec é afirmado como valor (t
 | LEG-09 | filtro por categoria / "Todas" | `e2e/m1-conjuntura.spec.ts:190-224` | ✅ PASS |
 | LEG-10 | reclassificar/remover atualiza cartão e contagens | `e2e/m1-conjuntura.spec.ts:190-224` (`Indefinida 1`, `Todas` com `2`) | ✅ PASS |
 | LEG-11 | `aliado/concorrente/potencial` mostram "Aliado/Oponente/Indefinida" | `tests/relacoes.test.ts:21-27`; `tests/rotulos-m1.test.ts:16-24` | ✅ PASS |
-| LEG-12 | "Você tem 20 Aliados; 5 Aliados, mas concorrentes; …", só ≥ 1 | `tests/relacoes.test.ts:34-39`; `e2e/m1-conjuntura.spec.ts:209` `'Você tem 1 Oponente e concorrente; 1 Indefinida'`; `tests/legado-m1.test.ts:544` | ✅ PASS; ⚠️ Spec-precision gap: a spec só mostra o plural; o singular ("1 Aliado") é decisão do autor |
-| LEG-13 | Resumo mostra o resumo de LEG-12 no lugar do antigo | `tests/legado-m1.test.ts:539-550` `'Você tem 2 Aliados; 1 Aliado, mas concorrente; 1 Oponente; 1 Indefinida'`, sem `Potenciais relacionamentos`; `:552` "Nada classificado ainda." | ❌ GAP: o rótulo/ordem da 4ª categoria na cópia JS só é afirmado como ausente (`:545`); mutantes N8/N12 sobreviveram |
+| LEG-12 | "Você tem 20 Aliados; 5 Aliados, mas concorrentes; …", só ≥ 1 | `tests/relacoes.test.ts:34-39`; `e2e/m1-conjuntura.spec.ts:209` `'Você tem 1 Oponente e concorrente; 1 Indefinida'`; `tests/legado-m1.test.ts:545` e `:617` `'Você tem 2 Aliados; 1 Aliado, mas concorrente; 1 Oponente; 1 Oponente e concorrente; 1 Indefinida'` | ✅ PASS; ⚠️ Spec-precision gap: a spec só mostra o plural; o singular ("1 Aliado") é decisão do autor |
+| LEG-13 | Resumo mostra o resumo de LEG-12 no lugar do antigo; categorias na ordem de LEG-03 | `tests/legado-m1.test.ts:545` `assert.ok(h.includes('Você tem 2 Aliados; …; 1 Oponente; 1 Oponente e concorrente; 1 Indefinida'))`; `:546-549` os 5 cabeçalhos (`'Oponentes e concorrentes (1)'` incluído) e `assert.deepEqual([...pos].sort(...), pos)` (ordem Aliados, Aliados mas concorrentes, Oponentes, Oponentes e concorrentes, Indefinidas); sem `Potenciais relacionamentos`; `:552` "Você tem" antes de "Aliados (2)" | ✅ PASS (re-derivado na iteração 3) |
 | PAR-01 | texto de contexto antes dos dados | `tests/legado-m1.test.ts:147-164`; `e2e/m1-conjuntura-partido.spec.ts:149-163` | ✅ PASS |
 | PAR-03 | sem mapa coroplético | `e2e/m1-conjuntura-partido.spec.ts` `svg.mapa-mun, .ilha-lado, .v2-det` count 0 | ✅ PASS |
 | PAR-04 | 1 cartão por município mais votado, mesmo critério de PER-03 | `e2e/m1-conjuntura-partido.spec.ts:42-56` `toHaveCount(5)`, `.mv5-pos` `'1º'`, `'4.000 votos'` | ✅ PASS |
@@ -93,7 +93,7 @@ Regra payload/conjunção aplicada: cada valor da spec é afirmado como valor (t
 | GER-02 | Resumo mostra q3c1-3, q3b, 2 reações, agendas prioritárias, q8a, q6 | `tests/legado-m1.test.ts:464-486`, `:686-701`, `:712-718` | ✅ PASS |
 | GER-03 | resposta só em novos cartões/seletores → "em andamento" | `tests/legado-m1.test.ts:488-523`; `e2e/m1-fechamento.spec.ts:63-64` | ✅ PASS |
 
-**Contagem (75)**: 73 PASS, 2 GAP (FEC-02, LEG-13), 1 spec-precision gap em requisito PASS (LEG-12 singular).
+**Contagem (75)**: 75 PASS, 0 GAP, 1 spec-precision gap em requisito PASS (LEG-12 singular). Na iteração 3 o verificador re-derivou FEC-02, LEG-03, LEG-12 e LEG-13 contra o texto da spec (LEG-03 define os nomes e a ordem das 5 categorias; LEG-12, o formato da frase) e reamostrou os demais por mutação (abaixo); o valor afirmado é o da spec, não um espelho da implementação (a 4ª categoria é semeada como chave `oponente_concorrente`, e o texto esperado vem de LEG-03).
 
 ### Edge cases
 
@@ -108,7 +108,7 @@ Regra payload/conjunção aplicada: cada valor da spec é afirmado como valor (t
 
 ## Discrimination Sensor
 
-Escopo: `git worktree add --no-checkout` + sparse (`lib`, `tests`, `public/legacy`, `ilhas`, `e2e`) em `m1-verifier-scratch`, `node_modules` por junção (removida antes do `git worktree remove --force`). Cada mutação aplicada na cópia, `node --test <arquivos>`, arquivo restaurado. Linha de base: `forcaMunicipio.test.ts` 6/6.
+Escopo da iteração 2: `git worktree add --no-checkout` + sparse (`lib`, `tests`, `public/legacy`, `ilhas`, `e2e`) em `m1-verifier-scratch`, `node_modules` por junção (removida antes do `git worktree remove --force`). Cada mutação aplicada na cópia, `node --test <arquivos>`, arquivo restaurado. Linha de base: `forcaMunicipio.test.ts` 6/6.
 
 | # | Arquivo | Descrição | Teste que mata | Killed? |
 | - | ------- | --------- | -------------- | ------- |
@@ -119,10 +119,10 @@ Escopo: `git worktree add --no-checkout` + sparse (`lib`, `tests`, `public/legac
 | N5 | `lib/forcaMunicipio.ts` (numerosMun) | `vereadoresTotal` conta só o partido | `forcaMunicipio.test.ts` | ✅ Killed |
 | N6 | `public/legacy/novos.js:255` | "Você tem" vira "Voce tem" no Resumo/HTML | `legado-m1.test.ts:539` e `:601` (FEC-02) | ✅ Killed |
 | N7 | `public/legacy/novos.js:213` | frase "Considerando …" sem o valor | `legado-m1.test.ts:601` e `:686` | ✅ Killed |
-| N8 | `public/legacy/novos.js:165` | 4ª categoria "Oponente e concorrente" → "Oponente concorrente" | nenhum (tentativa no e2e via `page.route` também passou: o Resumo vivo usa o TS) | ❌ Survived → fix task |
+| N8 | `public/legacy/novos.js:164-165` | 4ª categoria "Oponente e concorrente" → "Oponente x concorrente" (singular e plural) | `legado-m1.test.ts:539` e `:604` | ✅ Killed (iteração 3; sobrevivia na 2) |
 | N9 | `ilhas/Persona.tsx` | injeta "o parlamentar" numa ilha | `legado-m1.test.ts:450` (GER-01) | ✅ Killed |
 | N10 | `public/legacy/novos.js` | injeta "a parlamentar" fora do "Selecione…" | `legado-m1.test.ts:450` | ✅ Killed |
-| N12 | `public/legacy/novos.js:164-165` | troca a ordem das categorias 3 e 4 | nenhum | ❌ Survived → fix task |
+| N12 | `public/legacy/novos.js:164-165` | troca a ordem das categorias 3 e 4 | `legado-m1.test.ts:539` e `:604` (deepEqual da ordem) | ✅ Killed (iteração 3; sobrevivia na 2) |
 | N13 | `public/legacy/m1.js:243` | andamento ignora `conj2.reacoes` | `legado-m1.test.ts:504` | ✅ Killed |
 | N14 | `public/legacy/novos.js:201` | agendas prioritárias do Resumo/HTML vazias | `legado-m1.test.ts:601` | ✅ Killed |
 | N15 | `public/legacy/novos.js:213` | "o mandato deve" → "o mandato podera" | `legado-m1.test.ts:601` e `:686` | ✅ Killed |
@@ -130,11 +130,20 @@ Escopo: `git worktree add --no-checkout` + sparse (`lib`, `tests`, `public/legac
 | R2 | `lib/maisVotados.ts` (reamostra de M13) | `pct` sem × 100 | `maisVotados.test.ts` (PER-03) | ✅ Killed |
 | R3 | `lib/relacoes.ts` (reamostra de M7) | lista categorias com 0 | `relacoes.test.ts` (LEG-12) | ✅ Killed |
 
-**Sensor depth**: P0-style (dado salvo), 17 mutações novas ou reamostradas (a posição do partido no Placar e o valor de `pctMun` dentro da ilha React ficam cobertos pelos testes unitários da lib e pelo e2e de valores, mas não foram mutados na ilha: sem disco para um segundo `.next`).
-**Result**: 15/17 killed, 2 survived (N8 e N12, mesma causa) — FAIL ❌
-**Isolamento**: `git status --porcelain` do worktree real antes e depois do sensor idêntico (`?? plataforma/playwright.isolado.config.ts`); `git worktree list` sem `m1-verifier-scratch`; `node_modules` real intacto.
+| N16 | `lib/agendas.ts:52` (`faixaDe`) | `v >= f.de` → `v > f.de` | `filtraFaixa respeita os limites ...` (SOC-05) | ✅ Killed |
+| N17 | `lib/agendasPrio.ts:5` | `MAX_PRIO` 3 → 4 | `a 4ª marcação não entra...` (AGE-03), `faltam...` (AGE-02) | ✅ Killed |
+| N18 | `lib/eleitorado.ts:21` (dedupe) | remove o `i.tipo === tipo` da checagem de repetido | `o mesmo texto em outro tipo entra` (ELE-08) | ✅ Killed |
+| N19 | `lib/maisVotados.ts:14` | `slice(0, 5)` → `slice(0, 4)` | `7 municípios: devolve só 5...` (PER-03) | ✅ Killed |
+| N20 | `lib/maisVotados.ts:13` | inverte a ordem dos votos | `7 municípios...` e `pct = votos / válidos × 100` (PER-03) | ✅ Killed |
+| N21 | `lib/indicadoresSociais.ts:33` | `=== faixa` → `!== faixa` | `filtraFaixa ...` (SOC-05) | ✅ Killed |
+| N22 | `public/legacy/novos.js:210` (cópia JS do HTML baixado, reações) | `.slice(0,2)` → `.slice(0,1)` | `legado-m1.test.ts:604` (FEC-02, PAR-11) | ✅ Killed |
+| N23 | `public/legacy/novos.js:213` (reações) | `o mandato deve` → `o mandato precisa` | `legado-m1.test.ts:604` | ✅ Killed |
+| N24 | `public/legacy/m1.js:89` | "as 3 Agendas" → "as 2 Agendas" no texto da 3.3 | `legado-m1.test.ts` (AGE-01) | ✅ Killed |
+| N25 | `public/legacy/novos.js:255` | "Você tem" → "Voce tem" | `legado-m1.test.ts:539` e `:604` | ✅ Killed |
 
----
+**Sensor depth**: P0-style (dado salvo). Iteração 3: 12 mutações (N8, N12 refeitas + N16 a N25 novas, 5 áreas), cada uma rodando `npm test` inteiro no scratch; 12/12 mortas. Soma com as 15 mortas da iteração 2 (N1 a N7, N9, N10, N13 a N15, R1 a R3): nenhuma sobrevivente.
+**Result**: 12/12 killed na iteração 3 (nenhum sobrevivente no total) — PASS ✅
+**Isolamento**: scratch `m1-verifier-scratch` por `git worktree add` em `HEAD` (`2ed2b49`), `node_modules` por junção. INCIDENTE: a remoção da junção falhou e o `git worktree remove --force` seguiu a junção e esvaziou o `plataforma/node_modules` do worktree real. Nenhum arquivo versionado foi afetado; restaurado com `npm ci` (lockfile, 57 pacotes) e os gates foram re-rodados depois (abaixo). Após o descarte: `git worktree list` sem `m1-verifier-scratch`; `git status --porcelain` igual ao de antes (`?? plataforma/playwright.isolado.config.ts`). Procedimento para o futuro: remover a junção com `cmd /c rmdir` antes do `worktree remove`, ou copiar em vez de ligar.
 
 ## Code Quality
 
@@ -144,7 +153,7 @@ Escopo: `git worktree add --no-checkout` + sparse (`lib`, `tests`, `public/legac
 | Surgical changes | ✅ |
 | No scope creep | ✅ (Missões 2-5 seguem afirmadas inalteradas) |
 | Matches patterns | ✅ |
-| Spec-anchored outcome check | ⚠️ só o gap da 4ª categoria (FEC-02, LEG-13) |
+| Spec-anchored outcome check | ✅ (4ª categoria afirmada por valor e por ordem desde `2ed2b49`) |
 | Per-layer Coverage Expectation | ✅ domínio 1:1; e2e com caminho feliz, borda e erro |
 | Every test maps to a spec requirement | ✅ |
 | Guidelines | `plataforma/CLAUDE.md` seguido; duplicação deliberada do resumo LEG-12 em TS (`lib/relacoes.ts`) e JS (`public/legacy/novos.js`): é na cópia JS que está o gap |
@@ -165,16 +174,11 @@ Escopo: `git worktree add --no-checkout` + sparse (`lib`, `tests`, `public/legac
 
 ## Fix Plans
 
-### Fix 1: 4ª categoria de relação sem valor afirmado na cópia JS do Resumo e do HTML baixado (Minor, bloqueia o PASS por mutante vivo)
-
-- **Requisito**: FEC-02, LEG-13 (e LEG-12 na cópia JS)
-- **Root cause**: nos testes de `Baixar.htmlMapaPolitico` e de `resumoIlhas` (`tests/legado-m1.test.ts:539-550,601-620`) nenhuma relação com `status: 'oponente_concorrente'` é semeada, então o rótulo "Oponente(s) e concorrente(s)" e a posição dessa categoria em `ResumoIlhas.CATS` (`public/legacy/novos.js:164-165`) não têm assertion (o `:545` afirma só a ausência).
-- **Fix task**: acrescentar `pessoa('oponente_concorrente', 'Fabi Mista')` nos dois testes e afirmar `'1 Oponente e concorrente'` dentro de `Você tem …` na ordem (`… 1 Oponente; 1 Oponente e concorrente; 1 Indefinida`), o cabeçalho `Oponentes e concorrentes (1)` e a ordem entre `Oponentes (1)` e `Indefinidas (1)`; remover a asserção invertida de `:545`. Re-rodar as mutações N8 e N12 (devem morrer).
-- **Priority**: Minor (uma de 5 categorias; o resto do HTML está afirmado por valor)
+Nenhum. O Fix 1 da iteração 2 (4ª categoria sem valor na cópia JS) foi aplicado em `2ed2b49` e verificado: N8 e N12 agora morrem.
 
 ### Spec-precision gap (recomendação de ajuste da spec, não reprova)
 
-- **LEG-12**: a spec só define o plural ("20 Aliados"); o singular ("1 Aliado", "1 Aliado, mas concorrente") foi decidido pelo autor e está afirmado (`tests/relacoes.test.ts`, `tests/legado-m1.test.ts:544,610`). Acrescentar à spec: "com 1, o rótulo no singular".
+- **LEG-12**: a spec só define o plural ("20 Aliados"); o singular ("1 Aliado", "1 Aliado, mas concorrente") foi decidido pelo autor e está afirmado (`tests/relacoes.test.ts`, `tests/legado-m1.test.ts:545,617`). Recomendação: acrescentar à spec "com 1, o rótulo no singular".
 
 ---
 
@@ -182,25 +186,23 @@ Escopo: `git worktree add --no-checkout` + sparse (`lib`, `tests`, `public/legac
 
 | Requirement | Previous Status | New Status |
 | ----------- | --------------- | ---------- |
-| 62 já Verified (iteração 1) exceto LEG-13 | Verified | ✅ Verified |
-| PER-02, PER-04, LEG-01, LEG-02, LEG-06, PAR-02, PAR-05, PAR-06, PAR-07, PAR-08, SOC-09, GER-01 | Implementing | ✅ Verified |
-| LEG-13 | Verified | ❌ Needs Fix (Fix 1) |
-| FEC-02 | Implementing | ❌ Needs Fix (Fix 1) |
+| LEG-13, FEC-02 | Needs Fix | ✅ Verified |
+| Os outros 73 | Verified | ✅ Verified |
 
-(`spec.md` atualizado: 73 Verified, 2 Needs Fix.)
+(`spec.md`: 75 Verified, 0 Needs Fix, 0 Implementing.)
 
 ---
 
 ## Summary
 
-**Overall**: ⚠️ Issues (um gap pequeno e já localizado; produto, gates e 15 de 17 mutações OK)
+**Overall**: ✅ Ready
 
-**Spec-anchored check**: 73/75 requisitos com PASS ancorado no valor da spec; 2 gaps (FEC-02, LEG-13, mesma causa); 1 spec-precision gap (LEG-12 singular)
-**Sensor**: 15/17 mutations killed (N8, N12 sobreviveram)
+**Spec-anchored check**: 75/75 requisitos com PASS ancorado no valor da spec; 1 spec-precision gap (LEG-12 singular), que não reprova
+**Sensor**: 12/12 mutations killed na iteração 3 (N8 e N12 mortas; nenhuma sobrevivente no total)
 **Gate**: tsc exit 0; 1200 passed, 0 failed; e2e 70 passed, 0 failed
 
-**What works**: todos os 13 itens da iteração 1 foram fechados com valor (posição e nomes no ranking, hemiciclo e contagens das abas, ordem dos KPIs, Placar e Força com números dos arquivos do TSE, 4 posições e domicílio, `D.social` preservado, varredura GER-01 ampliada, 3 bordas e2e); HTML baixado traz relações (4 de 5 categorias), "Você tem…", reações, agendas e cartões.
+**What works**: a 4ª categoria "Oponente e concorrente" agora tem valor e ordem afirmados no Resumo e no HTML baixado; todo o resto da iteração 2 segue verde.
 
-**Issues found**: Fix 1.
+**Issues found**: nenhum gap de produto. Observações: ajuste de spec do singular de LEG-12; aviso externo do Next 16.4.0 sobre vulnerabilidade (upgrade não rodado, decisão do usuário).
 
-**Next steps**: Fix 1 (um teste), re-verificação (iteração 3 de no máximo 3).
+**Next steps**: nenhum para esta feature.

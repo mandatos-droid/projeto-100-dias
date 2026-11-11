@@ -283,7 +283,7 @@ Todas as decisões foram aprovadas pelo Pedro em 2026-11-11 (as que estavam sem 
 | LEG-10 | P1: Conjuntura, relações | T21, T25 | Verified |
 | LEG-11 | P1: Conjuntura, relações | T2, T19, T41 | Verified |
 | LEG-12 | P1: Conjuntura, relações | T2, T23, T25 | Verified |
-| LEG-13 | P1: Conjuntura, relações | T23, T24 | Needs Fix |
+| LEG-13 | P1: Conjuntura, relações | T23, T24 | Verified |
 | PAR-01 | P1: Conjuntura, partido | T10, T30 | Verified |
 | PAR-02 | P1: Conjuntura, partido | T26, T30 | Verified |
 | PAR-03 | P1: Conjuntura, partido | T26, T30 | Verified |
@@ -326,7 +326,7 @@ Todas as decisões foram aprovadas pelo Pedro em 2026-11-11 (as que estavam sem 
 | FRA-02 | P2: Fragilidades | T12 | Verified |
 | FRA-03 | P2: Fragilidades | T12 | Verified |
 | FEC-01 | P1: Fechamento | T40, T42 | Verified |
-| FEC-02 | P1: Fechamento | T38, T40, T42 | Needs Fix |
+| FEC-02 | P1: Fechamento | T38, T40, T42 | Verified |
 | FEC-03 | P1: Fechamento | T38 | Verified |
 | FEC-04 | P1: Fechamento | T40, T42 | Verified |
 | FEC-05 | P1: Fechamento | T38, T42 | Verified |
