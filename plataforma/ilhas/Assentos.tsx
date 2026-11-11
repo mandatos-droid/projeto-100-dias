@@ -232,7 +232,7 @@ export default function Assentos() {
               </Menu>
               <Menu id="mandato" titulo="Mandato" qtd={fl.mandato.size} aberta={menu} setAberta={setMenu}>
                 {MANDATO.map(([id, r]) => <Ck key={id} ativo={fl.mandato.has(id)} n={cMandato.get(id) ?? 0} onClick={() => alterna('mandato', id)}>{r}</Ck>)}
-                <p className="nota-f">Reeleição = já eleito(a) antes (2006–2022) para o mesmo cargo, pelo título eleitoral. Primeiro mandato = sem eleição anterior nesse cargo nos dados do TSE.</p>
+                <p className="nota-f">Reeleição = eleição anterior (2006–2022) para o mesmo cargo, pelo título eleitoral. Primeiro mandato = sem eleição anterior nesse cargo nos dados do TSE.</p>
               </Menu>
               <Menu id="relacao" titulo="Relação" qtd={fl.relacao.size} aberta={menu} setAberta={setMenu}>
                 {RELACAO.map(([id, r]) => (
@@ -310,7 +310,7 @@ export default function Assentos() {
                     {meuSq === atual.s && <span className="selo ok" style={{ marginLeft: 6 }}><Marca tipo="proprio" tam={11} /> Esta liderança</span>}</p>
                   <p className="peq-t">
                     {atual.g === 'F' ? 'Mulher' : 'Homem'}{atual.r && ` · ${RACA.find(([k]) => k === atual.r)?.[1]}`}
-                    {' · '}{atual.m === 'r' ? 'reeleição' : atual.m === '?' ? 'eleito(a) em 2022, mandato até 2031' : 'primeiro mandato no cargo'}
+                    {' · '}{atual.m === 'r' ? 'reeleição' : atual.m === '?' ? 'eleição em 2022, mandato até 2031' : 'primeiro mandato no cargo'}
                   </p>
                   {atual.a === 2026 && (
                     <p style={{ margin: '4px 0 10px' }}><strong>{nf.format(atual.v)}</strong> votos · <strong>{pct(atual.x)}</strong> dos válidos em {atual.uf}</p>
@@ -366,7 +366,7 @@ export default function Assentos() {
                   })}
                 </tbody>
               </table>
-              {tabela.length === 0 && <p className="sem">Nenhum parlamentar com esses filtros.</p>}
+              {tabela.length === 0 && <p className="sem">Nenhuma liderança parlamentar com esses filtros.</p>}
             </div>
             {tabela.length > POR_PAGINA && (
               <nav className="paginacao" aria-label="Paginação da tabela">

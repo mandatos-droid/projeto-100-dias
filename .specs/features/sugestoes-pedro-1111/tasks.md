@@ -718,12 +718,12 @@ T24
 
 **Done when**:
 
-- [ ] A varredura lista cada trecho encontrado com arquivo e linha, e separa “editável” de “arquivo extraído”
-- [ ] Nenhum texto genérico editável da Missão 1 usa “parlamentar”, “eleito(a)” ou “Deputado(a)” como forma flexionada da pessoa; a troca usa “liderança parlamentar”
-- [ ] O cargo de cartão de pessoa específica segue flexionado (teste da T3 continua passando) e as listas de opções de cargo ficam como estão
-- [ ] `rotulos-m1.test.ts` falha se um termo trocado voltar (verificado revertendo uma troca)
-- [ ] Gate quick passa
-- [ ] Contagem de testes não diminui
+- [x] A varredura lista cada trecho encontrado com arquivo e linha, e separa “editável” de “arquivo extraído”
+- [x] Nenhum texto genérico editável da Missão 1 usa “parlamentar”, “eleito(a)” ou “Deputado(a)” como forma flexionada da pessoa; a troca usa “liderança parlamentar”
+- [x] O cargo de cartão de pessoa específica segue flexionado (teste da T3 continua passando) e as listas de opções de cargo ficam como estão
+- [x] `rotulos-m1.test.ts` falha se um termo trocado voltar (verificado revertendo uma troca)
+- [x] Gate quick passa
+- [x] Contagem de testes não diminui
 
 **Tests**: unit
 **Gate**: quick

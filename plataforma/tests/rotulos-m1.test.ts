@@ -49,3 +49,13 @@ test('o texto montado das 4 etapas da Missão 1 não tem "Opositor", "Potencial 
   const achados = textos.match(/Opositor|Potencial relacionamento|Potenciais relacionamentos|[Pp]ontes|Pergunta \d+ de \d+/g) ?? [];
   assert.deepEqual([...achados], []);
 });
+
+test('textos genéricos da Missão 1 não usam formas que exigem flexão de gênero: "eleito(a)", "Nenhum parlamentar" (TERM-01, sugestão #97)', () => {
+  const achados: string[] = [];
+  for (const f of FONTES) {
+    ler(f).split('\n').forEach((l, i) => {
+      if (/eleit[oa]\(a\)|nenhum parlamentar|o\(a\) parlamentar/i.test(l)) achados.push(`${f}:${i + 1}: ${l.trim().slice(0, 90)}`);
+    });
+  }
+  assert.deepEqual(achados, []);
+});

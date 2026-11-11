@@ -18,7 +18,7 @@ export default function Classificados() {
   const n = contagem(D.relacoes ?? {});
   const lista = filtro === 'todos' ? todos : todos.filter(([, r]) => r.status === filtro);
   if (!todos.length) {
-    return <p className="sem" data-testid="classificados-vazio">Nenhum parlamentar classificado ainda. Classifique na tabela e o cartão aparece aqui.</p>;
+    return <p className="sem" data-testid="classificados-vazio">Nenhuma liderança parlamentar classificada ainda. Classifique na tabela e o cartão aparece aqui.</p>;
   }
   return (
     <div className="classificados" data-testid="classificados">
@@ -34,7 +34,7 @@ export default function Classificados() {
         ))}
       </div>
       <Slides key={filtro} itens={lista} tam={CARTOES_POR_SLIDE} rotulo="Parlamentares classificados" chave={([sq]) => sq}
-        vazio={<p className="sem">Nenhum parlamentar nesta categoria.</p>}
+        vazio={<p className="sem">Nenhuma liderança parlamentar nesta categoria.</p>}
         render={([sq, r]) => {
           const { status: st, ...rel } = r;
           return (

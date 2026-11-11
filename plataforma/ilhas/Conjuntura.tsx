@@ -405,7 +405,7 @@ export default function Conjuntura() {
                   </>
                 ) : (
                   <>
-                    <p><Chip p={ef.p} /> <strong>{ef.n}</strong> · eleito(a) em {e.ano}</p>
+                    <p><Chip p={ef.p} /> <strong>{ef.n}</strong> · resultado da eleição de {e.ano}</p>
                     <p className="peq-t">Coligação da eleição: {ef.c.join(', ')}.</p>
                     <p className="peq-t">
                       {sug === 'governo' ? 'Seu partido é o do eleito.' : sug === 'base' ? 'Seu partido está na coligação do eleito.' : 'Seu partido ficou fora da coligação do eleito: defina se é oposição ou independente.'}

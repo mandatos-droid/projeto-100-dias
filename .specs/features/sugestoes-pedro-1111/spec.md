@@ -131,7 +131,7 @@ Open questions: #138.4 (textos de conceito dos indicadores). Resolvidas pelo Ped
 | OP-04 | P2: Cartões de agenda | Tasks | Pending |
 | SEL-01 | P2: Selecionar 2 dados | Tasks | Pending |
 | CFG-01 | P1: Corrigir o que está quebrado | Tasks | Pending |
-| TERM-01 | P1: Corrigir o que está quebrado | Tasks | Pending |
+| TERM-01 | P1: Corrigir o que está quebrado | Tasks | Done |
 | SEL-02 | P2: Selecionar 2 dados | Tasks | Done |
 
 ## Success Criteria

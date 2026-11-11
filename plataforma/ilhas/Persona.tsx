@@ -267,7 +267,7 @@ export default function Persona() {
               {c.f && <p className="peq-t">Federação: {c.f}</p>}
               {menor > 0 && (
                 <p style={{ fontSize: 15 }}>
-                  O(a) eleito(a) com menos votos teve <strong>{nf.format(menor)}</strong>.{' '}
+                  A menor votação entre as lideranças eleitas foi de <strong>{nf.format(menor)}</strong>.{' '}
                   {c.v >= menor
                     ? `A liderança ficou ${nf.format(c.v - menor)} votos acima dessa marca.`
                     : `A liderança ficou ${nf.format(menor - c.v)} votos abaixo dessa marca.`}
