@@ -41,14 +41,14 @@ test('sem nenhuma resposta: 0%, "0 de 16 exercícios concluídos", todas as miss
   await expect(page.locator('#tela .geral b')).toHaveText('0%');
   await expect(page.getByText('0 de 16 exercícios concluídos', { exact: true })).toBeVisible();
   await expect(page.locator('#tela details.missao[open]')).toHaveCount(0);
-  await expect(page.locator('#tela [aria-live="polite"]')).toHaveText('16 exercícios ainda sem conclusão');
+  await expect(page.locator('#tela .pend-total')).toHaveText('16 exercícios ainda sem conclusão');
 });
 
 test('com tudo concluído: 100% e "Todos os exercícios estão concluídos."; com o filtro, "Nenhum exercício pendente." (RES-04.9, RES-04.10)', async ({ page }) => {
   await abreResumo(page, IDS);
   await expect(page.locator('#tela .geral b')).toHaveText('100%');
   await expect(page.getByText('16 de 16 exercícios concluídos', { exact: true })).toBeVisible();
-  await expect(page.locator('#tela [aria-live="polite"]')).toHaveText('Todos os exercícios estão concluídos.');
+  await expect(page.locator('#tela .pend-total')).toHaveText('Todos os exercícios estão concluídos.');
   await expect(page.getByText('Nenhum exercício pendente.')).toBeHidden();
   await page.getByLabel('Mostrar só o que falta preencher').check();
   await expect(page.getByText('Nenhum exercício pendente.')).toBeVisible();
@@ -100,7 +100,7 @@ test('"Expandir tudo" abre todas as missões e exercícios; "Recolher tudo" fech
 
 test('"Mostrar só o que falta preencher" oculta exercícios concluídos e missões todas concluídas e, desmarcada, devolve tudo como estava (RES-04.8)', async ({ page }) => {
   await abreResumo(page, [...SEIS, 'm1.frag']);
-  await expect(page.locator('#tela [aria-live="polite"]')).toHaveText('9 exercícios ainda sem conclusão');
+  await expect(page.locator('#tela .pend-total')).toHaveText('9 exercícios ainda sem conclusão');
   await missao(page, 4).evaluate((d) => { (d as HTMLDetailsElement).open = true; }); // abre uma missão à mão
   const antes = await abertos(page);
   await page.getByLabel('Mostrar só o que falta preencher').check();
@@ -116,7 +116,7 @@ test('"Mostrar só o que falta preencher" oculta exercícios concluídos e miss�
 
 test('com 15 de 16 concluídos o contador diz "1 exercício ainda sem conclusão" (RES-04.9)', async ({ page }) => {
   await abreResumo(page, IDS.slice(0, 15));
-  await expect(page.locator('#tela [aria-live="polite"]')).toHaveText('1 exercício ainda sem conclusão');
+  await expect(page.locator('#tela .pend-total')).toHaveText('1 exercício ainda sem conclusão');
 });
 
 test('beforeprint abre todos os blocos e afterprint devolve cada um ao estado anterior (RES-05.1)', async ({ page }) => {

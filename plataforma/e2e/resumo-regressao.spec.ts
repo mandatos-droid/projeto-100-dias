@@ -20,10 +20,11 @@ type Legado = {
 const rel = (status: string, nome: string, votos?: number) => ({ status, nome, partido: 'PSB', cargo: 'Deputado(a) Estadual', uf: 'SP', ...(votos ? { votos } : {}) });
 const RICO = {
   campos: {
-    'm1.q1': 'Professora da rede pública e sindicalista', 'm1.q7': 'Expectativas do eleitorado de São Paulo',
+    'm1.q1': 'Professora da rede pública e sindicalista',
     'm2.on': '0|1', 'm2.n': '2', 'm2.f1': 'Paulo Ribeiro', 'm2.p1.nome_cargo': 'Chefe de gabinete', 'm2.p1.cat': 'Chefia', 'm2.p1.coord': 'Chefia de área',
     'm2.f2': 'Ana Furtado', 'm2.p2.nome_cargo': 'Coord. Legislativo', 'm2.p2.cat': 'Coordenação', 'm2.p2.coord': 'Legislativo',
   },
+  eleitorado: { itens: [{ id: 'e1', tipo: 'promessa', texto: 'Expectativas do eleitorado de São Paulo', muns: [] }] }, // a 3.1 agora é de 3 colunas, não mais a caixa m1.q7
   feitos: { 'm1.persona': true },
   frags: [{ t: 'Oratória em plenário', mp: 'P' }, { t: 'Gestão de emendas', mp: 'M' }],
   relacoes: { 1: rel('aliado', 'ANA ALVES', 97335), 2: rel('concorrente', 'DAVI DIAS', 54332) },
@@ -54,7 +55,7 @@ test('o arquivo baixado tem os títulos das missões e as respostas, e não tem 
   for (const c of CURTOS) expect(html, c).toContain('Missão');
   expect(html).toContain('Professora da rede pública e sindicalista');
   expect(html).toContain('Expectativas do eleitorado de São Paulo');
-  expect(html).toContain('<strong>Parceiros (1)</strong>'); // ...e o arquivo segue com a lista de texto
+  expect(html).toContain('<strong>Aliados (1)</strong>'); // ...e o arquivo segue com a lista de texto
   expect(html).toContain('<strong>P</strong> — Oratória em plenário');
   for (const proibido of ['class="barra"', 'class="seg"', 'class="segs"', 'class="pessoa"', 'class="cards', 'class="grp', 'class="res2"',
     'class="frag"', 'table class="terr"', 'data-ilha=']) expect(html, proibido).not.toContain(proibido);
@@ -71,7 +72,7 @@ test('"Ver o que foi preenchido" no Painel mostra o mesmo conteúdo de Resumo.mi
   expect(corpo).toContain('Professora da rede pública e sindicalista');
   await expect(resp.locator('.pessoa, .grp, ul.frag, .ilha, .barra')).toHaveCount(0);
   expect(corpo).toContain('<strong>P</strong> — Oratória em plenário'); // as fragilidades e os parceiros, no texto de sempre
-  expect(corpo).toContain('Parceiros (1)');
+  expect(corpo).toContain('Aliados (1)');
 });
 
 test('Enter e Espaço abrem e fecham um <summary> de missão e de exercício (RES-01.6, RES-13.3)', async ({ page }) => {
@@ -126,14 +127,14 @@ test('mandato vazio: "0%", "0 de 16 exercícios concluídos", todas as missões 
   await expect(page.locator('#tela details.missao')).toHaveCount(5);
   await expect(page.locator('#tela details.missao[open]')).toHaveCount(0);
   await expect(page.locator('#tela details.ex[open]')).toHaveCount(0);
-  await expect(page.locator('#tela [aria-live="polite"]')).toHaveText('16 exercícios ainda sem conclusão');
+  await expect(page.locator('#tela .pend-total')).toHaveText('16 exercícios ainda sem conclusão');
 });
 
 test('mandato 100% concluído: "100%" e a frase de conclusão', async ({ page }) => {
   await abreResumo(page, { campos: {}, feitos: Object.fromEntries(IDS.map((id) => [id, true])) });
   await expect(page.locator('#tela .geral b')).toHaveText('100%');
   await expect(page.getByText('16 de 16 exercícios concluídos', { exact: true })).toBeVisible();
-  await expect(page.locator('#tela [aria-live="polite"]')).toHaveText('Todos os exercícios estão concluídos.');
+  await expect(page.locator('#tela .pend-total')).toHaveText('Todos os exercícios estão concluídos.');
 });
 
 test('sair e voltar a #/resumo redesenha com os dados atuais e mantém um único conjunto de ouvintes (edge case)', async ({ page }) => {

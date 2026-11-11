@@ -57,11 +57,14 @@ test.describe('Resumo e andamento (GER-02, GER-03)', () => {
   test('responder só em cartões e seletores novos deixa a etapa "em andamento" e o Resumo mostra tudo', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await abreGuia(page, '#/resumo', { dados: { agendasPrio: ['saude'], eleitorado: DADOS.eleitorado } });
-    const missao = page.locator('.res-missao').first();
-    await expect(missao).toBeVisible({ timeout: 30_000 });
-    const sel = (titulo: string) => missao.locator('.res-ex', { has: page.locator('h4', { hasText: titulo }) }).locator('.selo');
-    await expect(sel('Oportunidades')).toHaveText('em andamento');
-    await expect(sel('Conjuntura')).toHaveText('não iniciado');
+    /* a aba Resumo é a tela nova (resumo-tela.js): um bloco por missão, um <details class="ex"> por exercício, com selo de estado */
+    await expect(page.locator('#tela .seg')).toHaveCount(5, { timeout: 30_000 });
+    await page.getByRole('button', { name: 'Expandir tudo' }).click();
+    const missao = page.locator('#res-m1');
+    await expect(missao).toBeVisible();
+    const sel = (titulo: RegExp) => missao.locator('details.ex', { has: page.locator('a.ex-link', { hasText: titulo }) }).locator('.selo');
+    await expect(sel(/oportunidades/i)).toHaveText('em andamento');
+    await expect(sel(/conjuntura/i)).toHaveText('não iniciado');
     await expect(missao).toContainText('PROMESSA-UM');
     await expect(missao.locator('li', { hasText: /^Saúde$/ })).toHaveCount(1);
     await expect(missao).toContainText('Promessas de Campanha (1)');

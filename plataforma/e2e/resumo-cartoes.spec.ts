@@ -20,7 +20,7 @@ const conj = (page: Page) => page.locator('#tela details.ex:has(a.ex-link[href="
 test('com 3 aliados, 2 opositores e 1 potencial na Casa: três grupos com contagens 3, 2 e 1 e um cartão por pessoa (RES-07.1)', async ({ page }) => {
   await abre(page, { relacoes: RELACOES });
   const c = conj(page);
-  await expect(c.locator('.grp')).toHaveText(['Aliados · 3', 'Opositores · 2', 'Potenciais · 1']);
+  await expect(c.locator('.grp')).toHaveText(['Aliados · 3', 'Oponentes · 2', 'Indefinidas · 1']);
   await expect(c.locator('.cards.al .pessoa')).toHaveCount(3);
   await expect(c.locator('.cards.op .pessoa')).toHaveCount(2);
   await expect(c.locator('.cards.po .pessoa')).toHaveCount(1);
@@ -44,20 +44,22 @@ test('o anel da foto é verde para aliado, coral para opositor e roxo para poten
   expect(await anel('po')).toContain('rgb(186, 107, 237)');
 });
 
-test('grupo sem pessoas não aparece; o município só aparece na pergunta do município (RES-07.2, RES-07.4)', async ({ page }) => {
+/* A Missão 1 reestruturada removeu a pergunta do município (PAR-13): a relação gravada com município não tem mais onde aparecer
+   no Resumo, e a Casa Legislativa segue só com as relações sem município (RES-07.4). */
+test('grupo sem pessoas não aparece; a relação com município fica fora da pergunta da Casa (RES-07.2, RES-07.4, PAR-13)', async ({ page }) => {
   await abre(page, { relacoes: { a: rel('aliado', 'ANA ALVES'), m: rel('concorrente', 'MARIO MELO', { mun: 'Campinas' }) } });
   const c = conj(page);
-  await expect(c.locator('.grp')).toHaveText(['Aliados · 1', 'Opositores · 1']);
+  await expect(c.locator('.grp')).toHaveText(['Aliados · 1']);
   await expect(c.locator('.grp.po')).toHaveCount(0);
-  await expect(c.locator('.pessoa', { hasText: 'Mario Melo' }).locator('.meta')).toHaveText('PSB · Deputado(a) Estadual · Campinas');
+  await expect(c.locator('.pessoa', { hasText: 'Mario Melo' })).toHaveCount(0);
   await expect(c.locator('.pessoa', { hasText: 'Ana Alves' }).locator('.meta')).not.toContainText('Campinas');
 });
 
-test('sem nenhuma relação a pergunta mantém "não preenchido" e não há cartões (RES-07.5)', async ({ page }) => {
+test('sem nenhuma relação a pergunta mostra "Nada classificado ainda." (LEG-13) e não há cartões (RES-07.5)', async ({ page }) => {
   await abre(page, { campos: { 'm1.q5': 'Partido com 2 cadeiras' }, relacoes: {} });
   const c = conj(page);
   await expect(c.locator('.pessoa')).toHaveCount(0);
-  await expect(c.locator('dt', { hasText: 'Parceiros e concorrentes na Casa Legislativa' }).locator('+ dd')).toHaveText('não preenchido');
+  await expect(c.locator('dt', { hasText: 'Relação com os parlamentares' }).locator('+ dd')).toHaveText('Nada classificado ainda.');
 });
 
 test('a 375 px os cartões cabem na tela sem rolagem horizontal (RES-13.5)', async ({ page }) => {
