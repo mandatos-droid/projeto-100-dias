@@ -424,10 +424,10 @@ T19
 
 **Done when**:
 
-- [ ] Hover e foco mostram o tooltip; Esc fecha
-- [ ] e2e confere o texto do tooltip de um indicador (ex.: IDEB anos finais)
-- [ ] Gate full passa
-- [ ] Contagem de testes não diminui
+- [x] Hover e foco mostram o tooltip; Esc fecha
+- [x] e2e confere o texto do tooltip de um indicador (ex.: IDEB anos finais)
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
 
 **Tests**: e2e
 **Gate**: full

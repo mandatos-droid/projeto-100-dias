@@ -1128,3 +1128,9 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .ilha-corpo .as-tab td:last-child{white-space:nowrap;font-variant-numeric:tabular-nums}
 .ilha-corpo .as-fx{display:inline-block;margin-left:0.25rem;padding:0.0625rem 0.5rem;border-radius:999px;border:1.5px solid var(--f);background:var(--f);color:var(--ft,#fff);font-size:0.6875rem;font-weight:800}
 .ilha-corpo .as-cartao select:focus-visible{outline:3px solid var(--vinho);outline-offset:2px}
+/* ⓘ e tooltip do indicador (OP-04) */
+.ilha-corpo .as-info{display:inline-block;margin-left:0.25rem;vertical-align:baseline}
+.ilha-corpo .as-info-bt{border:0;background:none;padding:0 0.125rem;font:inherit;font-size:0.875rem;line-height:1;color:var(--vinho);cursor:help;border-radius:50%}
+.ilha-corpo .as-info-bt:focus-visible{outline:3px solid var(--vinho);outline-offset:2px}
+.ilha-corpo .as-dica{position:fixed;z-index:50;max-width:17rem;padding:0.4375rem 0.625rem;background:#1A1A1A;color:#fff;font-size:0.75rem;font-weight:500;line-height:1.35;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.25);pointer-events:none}
+.ilha-corpo .as-dica[hidden]{display:none}

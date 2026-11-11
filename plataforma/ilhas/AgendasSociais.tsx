@@ -2,9 +2,9 @@
 /* Pergunta 3.2 da Missão 1 (conjuntura social do território): um cartão por agenda temática com as notas de ODS e
    os indicadores da UF da liderança, em slides de 4 cartões. Sem mapa. Os registros antigos de D.social não são lidos
    nem alterados (SOC-09). Regras em lib/indicadoresSociais.ts; arquivos em public/data/social (lib/agendas.ts). */
-import { useId, useMemo, useState } from 'react';
-import { AGENDAS, FAIXAS, carregaCatalogo, carregaIndicador, faixaDe, textoSobre, type Agenda, type Catalogo, type DadosIndicador } from '@/lib/agendas';
-import { filtraFaixa, linhasDaAgenda } from '@/lib/indicadoresSociais';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { AGENDAS, FAIXAS, carregaCatalogo, carregaIndicador, faixaDe, textoSobre, type Agenda, type Catalogo, type DadosIndicador, type IndInfo } from '@/lib/agendas';
+import { descreveIndicador, filtraFaixa, linhasDaAgenda } from '@/lib/indicadoresSociais';
 import { nf } from '@/lib/format';
 import { useLegado } from './ponte';
 import { useCarga } from './pecas';
@@ -29,6 +29,36 @@ async function carregaTudo(): Promise<{ cat: Catalogo; dados: Record<string, Dad
   const ids = idsNecessarios(cat);
   const arqs = await Promise.all(ids.map((id) => carregaIndicador(id)));
   return { cat, dados: Object.fromEntries(ids.map((id, k) => [id, arqs[k]])) };
+}
+
+/** Botão ⓘ com tooltip (fonte, ano e sentido): abre por mouse e por foco, fecha com Esc (OP-04). Posição fixa para não ser cortada pela rolagem da lista. */
+function InfoIndicador({ info }: { info: IndInfo }) {
+  const id = useId();
+  const [aberto, setAberto] = useState(false);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const bt = useRef<HTMLButtonElement>(null);
+  const abre = () => {
+    const r = bt.current?.getBoundingClientRect();
+    if (r) setPos({ x: Math.max(8, Math.min(r.left, window.innerWidth - 280)), y: r.bottom + 6 });
+    setAberto(true);
+  };
+  useEffect(() => {
+    if (!aberto) return;
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setAberto(false); };
+    const fecha = () => setAberto(false); // rolagem da lista ou da página tira o tooltip do lugar
+    document.addEventListener('keydown', esc);
+    window.addEventListener('scroll', fecha, true);
+    return () => { document.removeEventListener('keydown', esc); window.removeEventListener('scroll', fecha, true); };
+  }, [aberto]);
+  return (
+    <span className="as-info">
+      <button ref={bt} type="button" className="as-info-bt" aria-label={`Sobre o indicador ${info.nome}`} aria-describedby={id}
+        onMouseEnter={abre} onMouseLeave={() => setAberto(false)} onFocus={abre} onBlur={() => setAberto(false)}>
+        <span aria-hidden="true">ⓘ</span>
+      </button>
+      <span id={id} role="tooltip" className="as-dica" hidden={!aberto} style={{ left: pos.x, top: pos.y }}>{descreveIndicador(info)}</span>
+    </span>
+  );
 }
 
 export default function AgendasSociais() {
@@ -73,7 +103,7 @@ export default function AgendasSociais() {
             <tbody>
               {vistas.map((l) => (
                 <tr key={l.indicador}>
-                  <td>{l.indicador}</td>
+                  <td>{l.indicador}{(() => { const info = carga.dados?.cat.indicadores.find((i) => i.ods === l.ods && i.nome === l.indicador); return info ? <InfoIndicador info={info} /> : null; })()}</td>
                   <td>ODS {l.ods}{l.odsRot ? ` · ${l.odsRot}` : ''}</td>
                   <td><strong>{nf.format(l.nota)}</strong> <small className="as-fx" style={{ ['--f' as string]: faixaDe(l.nota).cor, ['--ft' as string]: textoSobre(faixaDe(l.nota).cor) }}>{faixaDe(l.nota).rot}</small></td>
                 </tr>

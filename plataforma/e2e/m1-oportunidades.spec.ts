@@ -197,6 +197,33 @@ test.describe('Agendas sociais · cartões em slides com filtro (SOC-02 a SOC-06
     expect(e.peso).toBeGreaterThanOrEqual(700);
   });
 
+  test('o ⓘ do IDEB (anos finais) mostra fonte, ano e sentido por hover e por foco, e o Esc fecha (OP-04)', async ({ page }) => {
+    await abre(page);
+    const educacao = page.locator('[data-ilha="agendas-sociais"] article').filter({ has: page.getByRole('heading', { name: 'Educação' }) });
+    await expect(educacao).toBeVisible({ timeout: 30_000 });
+    const linha = educacao.locator('tbody tr').filter({ hasText: /IDEB\) - anos finais/ });
+    const bt = linha.getByRole('button', { name: /Sobre o indicador .*IDEB.*anos finais/ });
+    await bt.scrollIntoViewIfNeeded();
+    await expect(page.locator('[role="tooltip"]:visible')).toHaveCount(0); // nenhum tooltip aberto antes do hover
+    // hover
+    await bt.hover();
+    const id = await bt.getAttribute('aria-describedby');
+    expect(id).toBeTruthy();
+    const alvo = page.locator(`[id="${id}"]`);
+    await expect(alvo).toBeVisible();
+    await expect(alvo).toHaveText('Fonte: MEC/IDEB · Ano: 2023 · Sentido: mais é melhor');
+    await page.keyboard.press('Escape');
+    await expect(alvo).toBeHidden();
+    await page.mouse.move(0, 0);
+    // foco por teclado
+    await bt.focus();
+    await expect(alvo).toBeVisible();
+    await expect(alvo).not.toContainText(/undefined|null/);
+    await page.keyboard.press('Escape');
+    await expect(alvo).toBeHidden();
+    await expect(bt).toBeFocused();
+  });
+
   test('a caixa m1.q8a continua depois dos cartões', async ({ page }) => {
     await abre(page);
     const d = await page.locator('[data-ilha="agendas-sociais"]').boundingBox();
