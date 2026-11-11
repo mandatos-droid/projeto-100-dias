@@ -96,10 +96,10 @@ T19
 
 **Done when**:
 
-- [ ] Computed `overflow-y` das `.abas` da Conjuntura e de Oportunidades é `hidden`
-- [ ] e2e novo em `e2e/m1-conjuntura.spec.ts` confere o estilo computado e que `scrollHeight <= clientHeight`
-- [ ] Gate full passa
-- [ ] Contagem de testes não diminui
+- [x] Computed `overflow-y` das `.abas` da Conjuntura e de Oportunidades é `hidden`
+- [x] e2e novo em `e2e/m1-conjuntura.spec.ts` confere o estilo computado e que `scrollHeight <= clientHeight`
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
 
 **Tests**: e2e
 **Gate**: full

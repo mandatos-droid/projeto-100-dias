@@ -21,6 +21,8 @@
 .ilha-filtros input{flex:1}
 .ilha-filtros select{max-width:11.875rem}
 .ilha-corpo .abas{margin:0 0 0.875rem}
+/* o legacy.css dá overflow-x:auto às .abas e o navegador então abre também a rolagem vertical (sugestão 139) */
+.abas{overflow-y:hidden}
 .ilha-corpo .abas button:disabled{opacity:.4;cursor:not-allowed}
 
 .ilha-corpo .chip{display:inline-flex;align-items:center;gap:0.375rem;border:1.5px solid var(--linha);background:#fff;border-radius:var(--r);

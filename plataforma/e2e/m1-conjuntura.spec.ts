@@ -247,3 +247,26 @@ test.describe('Conjuntura · relações com os parlamentares (LEG-01, LEG-02, LE
     });
   }
 });
+
+test.describe('Abas sem barra de rolagem vertical (UI-01)', () => {
+  const semRolagemVertical = async (page: Page, seletor: string) => {
+    const abas = page.locator(seletor);
+    await expect(abas.first()).toBeVisible({ timeout: 30_000 });
+    await page.waitForTimeout(3000); // deixa as ilhas montarem as abas que chegam depois
+    const dados = await abas.evaluateAll((els) => els.map((el) => ({
+      overflowY: getComputedStyle(el).overflowY, sobra: el.scrollHeight - el.clientHeight,
+    })));
+    expect(dados.length).toBeGreaterThan(0);
+    for (const d of dados) {
+      expect(d.overflowY).toBe('hidden');
+      // 1px é a margem negativa do botão sobre a borda da aba (legacy.css); mais que isso seria conteúdo escondido
+      expect(d.sobra).toBeLessThanOrEqual(1);
+    }
+  };
+
+  test('todas as .abas da Conjuntura (Casas legislativas, escopo do perfil) não rolam na vertical', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO });
+    await semRolagemVertical(page, '#tela .abas');
+  });
+});
