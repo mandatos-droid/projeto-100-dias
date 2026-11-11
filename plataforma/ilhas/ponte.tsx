@@ -34,6 +34,7 @@ import ResumoEquipe from './ResumoEquipe';
 import AreaVisao from './AreaVisao';
 import AreaEquipe from './AreaEquipe';
 import AreaConta from './AreaConta';
+import { dadosMapaPolitico } from './dadosMapa';
 import { criaRegistrador, funcionalidadeDe } from '@/lib/uso';
 
 /* ---------- acesso ao estado do Guia original (globais D e Store) ---------- */
@@ -163,6 +164,8 @@ function registraUso(nome: string) {
 
 export function instalaIlhas() {
   (window as unknown as { Ilhas: unknown }).Ilhas = {
+    /* dados extras do HTML do Mapa Político (m1.js, Baixar.mapaPolitico) */
+    dadosMapaPolitico,
     ligar(raiz: HTMLElement) {
       const antigas = [...raizes];
       raizes.clear();

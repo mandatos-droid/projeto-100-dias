@@ -535,3 +535,90 @@ test('o Resumo mostra "Você tem N Aliados; …" e as listas por categoria, só 
 test('sem classificação o Resumo mostra "Nada classificado ainda." (LEG-13)', () => {
   assert.ok(resumoIlhas({}).includes('Nada classificado ainda.'));
 });
+
+/* ---------- FEC-02, FEC-03, FEC-05: HTML do Mapa Político ---------- */
+type Extras = Record<string, unknown>;
+type JanelaMapa = Janela & { Baixar: { htmlMapaPolitico(e?: Extras): string }; Resumo: { missao(m: unknown): string } };
+/** Janela com conteudo/guia/resumo/trechos do novos.js (ResumoIlhas e o Resumo.ex da Missão 1) e o m1.js, como no Guia. */
+function janelaMapa(D: Record<string, unknown> = {}): JanelaMapa {
+  const novos = ler('novos.js');
+  const ri = novos.slice(novos.indexOf('window.ResumoIlhas={'), novos.indexOf('/* ---------- Perguntas respondidas só pelo módulo'));
+  const rex = novos.slice(novos.indexOf('function linkPasso('), novos.indexOf('var _rmi=Resumo.missao;'));
+  const ctx: Record<string, unknown> = {
+    esc: (s: unknown) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'),
+    rich: (s: string) => s, titulo: (s: string) => s, fmt: (n: number) => String(n), pc: (n: number) => `${n}%`,
+    D: { campos: {}, frags: [], relacoes: {}, tse: {}, pleitos: [], ...D },
+    aviso() {}, estadoEx: () => 'andamento', diaAtual: () => 0, dBRc: () => '11/11/2026',
+    Store: { mandato: { nome_parlamentar: 'Ana', uf: 'DF', partido: 'PSOL' }, usuario: { nome: 'Equipe' } },
+  };
+  ctx.window = ctx;
+  vm.createContext(ctx);
+  vm.runInContext(`${CONTEUDO};this.MISSOES=MISSOES;`, ctx);
+  vm.runInContext(`${GUIA};this.Guia=Guia;this.Comp=Comp;`, ctx);
+  vm.runInContext(`${ler('resumo.js')};this.Resumo=Resumo;this.Baixar=Baixar;`, ctx);
+  vm.runInContext(ri, ctx);
+  ctx.achaEx = () => ({ m: (ctx.MISSOES as unknown[])[0] });
+  vm.runInContext(`var _rex=Resumo.ex;${rex}`, ctx);
+  vm.runInContext(CODIGO, ctx);
+  return ctx as unknown as JanelaMapa;
+}
+const AGENDAS_EXTRA = ['Saúde', 'Educação', 'Segurança pública', 'Moradia', 'Trabalho'].map((rot, i) => ({
+  id: `a${i}`, rot,
+  linhas: [{ indicador: `Ind ${rot} A`, ods: 3, odsRot: 'Saúde', nota: 30, faixa: 'Muito baixo' }, { indicador: `Ind ${rot} B`, ods: 3, odsRot: 'Saúde', nota: 45, faixa: 'Baixo' }],
+}));
+const EXTRAS: Extras = {
+  agendas: AGENDAS_EXTRA,
+  municipios: { aviso: null, nomes: {}, cartoes: [{ nome: 'Taguatinga', pos: 1, votos: 1200, partido: 'PSOL', nomeUF: 'Distrito Federal', vereadores: 9, vereadoresPartido: 2, filiados: 340, prefeito: { nome: 'Fulana', partido: 'PT' }, posicao: 'Base aliada', pctMun: 12.5, pctUF: 8.1 }] },
+};
+
+test('o HTML do Mapa Político traz as respostas da Missão 1 na ordem do Resumo, com os cartões de agenda e de município (FEC-02)', () => {
+  const w = janelaMapa({ campos: { 'm1.q1': 'RESP-Q1', 'm1.q3c1': 'RESP-C1', 'm1.q3b': 'RESP-CARGO', 'm1.q6': 'RESP-ATORES', 'm1.q8a': 'RESP-SOCIAL' } });
+  const h = w.Baixar.htmlMapaPolitico(EXTRAS);
+  const ordem = ['RESP-Q1', 'RESP-C1', 'RESP-CARGO', 'Os municípios mais votados', 'Taguatinga', 'RESP-ATORES', 'Indicadores por agenda temática', 'RESP-SOCIAL'].map((t) => h.indexOf(t));
+  assert.ok(ordem.every((i) => i > 0), JSON.stringify(ordem));
+  assert.deepEqual([...ordem].sort((a, b) => a - b), ordem);
+  assert.ok(h.includes('Base aliada') && h.includes('Ind Saúde A'));
+  assert.equal(h.includes('Missão 1'), true);
+});
+
+test('pergunta sem resposta aparece como "Não respondida" e não trava a geração (FEC-05)', () => {
+  const h = janelaMapa().Baixar.htmlMapaPolitico();
+  assert.ok(h.includes('Não respondida'));
+  assert.equal(h.includes('não preenchido'), false);
+  assert.ok(h.includes('Não foi possível carregar os indicadores do seu estado agora.'));
+});
+
+test('o HTML não tem mapa, não depende de rede e leva o script inline (FEC-03)', () => {
+  const h = janelaMapa().Baixar.htmlMapaPolitico(EXTRAS);
+  assert.equal(/data-ilha=|<svg|<link |src="http|<script src/i.test(h), false);
+  assert.equal((h.match(/<script>/g) ?? []).length, 1);
+});
+
+test('aberto num DOM sem rede, "Próximo" troca o slide e o filtro esconde as linhas fora da faixa (FEC-03)', async () => {
+  const { chromium } = await import('playwright');
+  const h = janelaMapa().Baixar.htmlMapaPolitico(EXTRAS);
+  const nav = await chromium.launch();
+  try {
+    const page = await nav.newPage();
+    await page.route('**/*', (r) => r.abort()); // isolado: qualquer pedido de rede falha
+    await page.setContent(h);
+    const slides = page.locator('[data-slide]');
+    assert.equal(await slides.count(), 2);
+    assert.equal(await page.locator('[data-ind]').first().textContent(), 'Slide 1 de 2');
+    assert.equal(await slides.nth(0).isVisible(), true);
+    assert.equal(await slides.nth(1).isVisible(), false);
+    assert.equal(await page.locator('[data-ant]').first().isDisabled(), true);
+    await page.locator('[data-prox]').first().click();
+    assert.equal(await page.locator('[data-ind]').first().textContent(), 'Slide 2 de 2');
+    assert.equal(await slides.nth(0).isVisible(), false);
+    assert.equal(await slides.nth(1).isVisible(), true);
+    await page.locator('[data-ant]').first().click();
+    const cartao = slides.nth(0).locator('[data-cartao]').first();
+    await cartao.locator('[data-filtro]').selectOption('Baixo');
+    assert.equal(await cartao.locator('tbody tr:visible').count(), 1);
+    assert.equal(await cartao.locator('tbody tr:visible').first().getAttribute('data-faixa'), 'Baixo');
+    await cartao.locator('[data-filtro]').selectOption('Alto');
+    assert.equal(await cartao.locator('tbody tr:visible').count(), 0);
+    assert.equal(await cartao.locator('[data-vazio]').isVisible(), true);
+  } finally { await nav.close(); }
+});

@@ -188,7 +188,13 @@ window.ResumoIlhas={
     var h='',t=D.tse||{};
     if(ilha==='social')return this.mapa('social','Problemas e potencialidades por agenda e território');
     if(ilha==='eleitorado')return this.mapa('eleitorado','Promessas e grupos sociais por município');
-    if(ilha==='calor')return this.mapa('calor','Cadeiras, filiados e posição do partido diante do Executivo');
+    var ex=(typeof Baixar!=='undefined'&&Baixar.extras)||null; /* só no HTML do Mapa Político (m1.js): cartões em HTML estático */
+    if(ilha==='calor'){
+      h=this.mapa('calor','Cadeiras, filiados e posição do partido diante do Executivo');
+      if(ex&&ex.municipios&&Baixar.cartoesMunicipio){var cm=Baixar.cartoesMunicipio(ex.municipios);if(cm)h+='<dt style="color:var(--tinta)">Os municípios mais votados da liderança</dt>'+cm}
+      return h;
+    }
+    if(ilha==='agendas-sociais'&&ex&&Baixar.cartoesAgenda)return '<dt style="color:var(--tinta)">Indicadores por agenda temática</dt>'+Baixar.cartoesAgenda(ex.agendas);
     if(ilha==='persona-tse'){
       h+='<dt style="color:var(--tinta)">Desempenho eleitoral'+(t.ano?' em '+t.ano:' em 2026')+' (dados do TSE)</dt>';
       var pl=(D.pleitos||[]).slice().sort(function(a,b){return b.ano-a.ano});
@@ -234,7 +240,18 @@ function rotulo(href,txt){return '<a class="res-link" href="'+href+'" title="Ir 
 var _rex=Resumo.ex;
 Resumo.ex=function(ex){
   var r=achaEx(ex.id),m=r&&r.m;
-  if(!Resumo.vivo||!m)return _rex.call(this,ex);
+  if(!m)return _rex.call(this,ex);
+  /* Perguntas respondidas só pelo módulo (sem caixa de texto) não mostram a linha "não preenchido" (a resposta é o bloco da ilha).
+     Vale para a aba Resumo (com links) e para o HTML do Mapa Político (sem links, Resumo.vivo falso). */
+  if(ex.tipo==='perguntas'&&ex.id&&String(ex.id).indexOf('m1.')===0){
+    var SEM_LINHA=['assentos','eleitorado','social','agendas-sociais','prioritarias'];
+    return '<dl class="cmp">'+ex.itens.map(function(i,n){
+      var tit=(n+1)+'. '+esc(i.t);
+      if(Resumo.vivo)tit=rotulo(linkPasso(m,ex,function(p){return p.k==='pergunta'&&p.n===n}),tit);
+      return '<dt>'+tit+'</dt>'+(SEM_LINHA.indexOf(i.ilha)>=0?'':'<dd>'+Resumo.v(i.k)+'</dd>')+
+        (i.ilha&&window.ResumoIlhas?ResumoIlhas.html(i.ilha):'')}).join('')+'</dl>';
+  }
+  if(!Resumo.vivo)return _rex.call(this,ex);
   if(ex.tipo==='perguntas'){
     return '<dl class="cmp">'+ex.itens.map(function(i,n){
       var href=linkPasso(m,ex,function(p){return p.k==='pergunta'&&p.n===n});

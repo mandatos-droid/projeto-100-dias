@@ -1152,10 +1152,10 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] O HTML traz as respostas da Missão 1 na ordem do Resumo, os cartões de relação com filtro e os cartões de agenda em slides
-- [ ] Perguntas sem resposta aparecem como "Não respondida"
-- [ ] Abrir o HTML num DOM isolado e clicar "Próximo" muda o slide, sem rede
-- [ ] Caso novo em `tests/legado-m1.test.ts` passa
+- [x] O HTML traz as respostas da Missão 1 na ordem do Resumo, os cartões de relação com filtro e os cartões de agenda em slides
+- [x] Perguntas sem resposta aparecem como "Não respondida"
+- [x] Abrir o HTML num DOM isolado e clicar "Próximo" muda o slide, sem rede
+- [x] Caso novo em `tests/legado-m1.test.ts` passa
 
 **Tests**: unit
 **Gate**: quick

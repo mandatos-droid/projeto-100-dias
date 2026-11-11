@@ -12,7 +12,7 @@ export type VotosMun = { atualizado: string; mun: Record<string, [number, number
 const CASAS: CasaChave[] = ['federal', 'estadual', 'senado'];
 export const MSG_MAIS_VOTADOS = 'Não foi possível carregar os municípios mais votados agora.';
 
-async function buscaVotos(uf: string, casa: CasaChave, sq: string): Promise<VotosMun> {
+export async function buscaVotos(uf: string, casa: CasaChave, sq: string): Promise<VotosMun> {
   const r = await fetch(`/api/votos-mun?uf=${uf.toLowerCase()}&casa=${casa}&sq=${sq}`);
   if (!r.ok) throw new Error(MSG_MAIS_VOTADOS);
   return r.json();

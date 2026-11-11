@@ -267,3 +267,110 @@
     return extra&&i>=0?h.slice(0,i)+extra+h.slice(i):h;
   };
 })();
+
+/* ---------- HTML do Mapa Político (FEC-02, FEC-03, FEC-05) ----------
+   Mesmo conteúdo da aba Resumo (Resumo.missao da Missão 1), mais os cartões de município (2.2) e de agenda (3.2) em HTML
+   estático. Os dados dos cartões vêm de `Ilhas.dadosMapaPolitico()` (ilhas/dadosMapa.ts); o carrossel e o filtro rodam
+   por um <script> inline, então o arquivo funciona fora da plataforma. Fica aqui e não no resumo.js, que o
+   extrair_legado.py sobrescreve (AD-003). */
+(function(){
+  if(typeof Baixar==='undefined'||typeof Resumo==='undefined'||typeof MISSOES==='undefined')return;
+  var FAIXAS=['Muito baixo','Baixo','Médio','Alto','Muito alto'];
+  var MSG_SEM_IND='Não foi possível carregar os indicadores do seu estado agora.';
+  var fmtN=function(n){return n==null?'—':Number(n).toLocaleString('pt-BR')};
+  var fmtP=function(n){return n==null?'—':Number(n).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'};
+
+  /* Roda dentro do arquivo baixado: sem dependência da plataforma. Vira texto por toString(). */
+  function roteiro(){
+    document.querySelectorAll('[data-slides]').forEach(function(caixa){
+      var slides=caixa.querySelectorAll('[data-slide]'),i=0;
+      var ind=caixa.querySelector('[data-ind]'),ant=caixa.querySelector('[data-ant]'),prox=caixa.querySelector('[data-prox]');
+      function mostra(){
+        slides.forEach(function(s,k){s.hidden=k!==i});
+        ind.textContent='Slide '+(i+1)+' de '+slides.length;
+        ant.disabled=i===0;prox.disabled=i>=slides.length-1;
+      }
+      ant.addEventListener('click',function(){if(i>0){i--;mostra()}});
+      prox.addEventListener('click',function(){if(i<slides.length-1){i++;mostra()}});
+      mostra();
+    });
+    document.querySelectorAll('[data-filtro]').forEach(function(sel){
+      sel.addEventListener('change',function(){
+        var c=sel.closest('[data-cartao]'),v=sel.value,n=0;
+        c.querySelectorAll('tbody tr').forEach(function(tr){
+          var ok=v==='todas'||tr.getAttribute('data-faixa')===v;
+          tr.hidden=!ok;if(ok)n++;
+        });
+        var vz=c.querySelector('[data-vazio]'),tb=c.querySelector('table');
+        if(vz)vz.hidden=n>0;
+        if(tb)tb.hidden=n===0;
+      });
+    });
+  }
+
+  var CSS='.cartoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:8px 0}'+
+    '.cartao{border:1px solid #E6DCCE;border-radius:8px;padding:10px 12px;background:#FFFDF9}'+
+    '.cartao h4{margin:0 0 6px;font-size:15px}.cartao h5{margin:8px 0 2px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#5E524C}'+
+    '.cartao dl{margin:0}.cartao dt{margin-top:4px}.cartao table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}'+
+    '.cartao th,.cartao td{border-bottom:1px solid #E6DCCE;padding:3px 4px;text-align:left}'+
+    '.cartao label{font-size:12px;color:#5E524C}.slides-nav{display:flex;gap:12px;align-items:center;justify-content:center;margin:8px 0}'+
+    '.slides-nav button{font:inherit;padding:4px 12px;border:1px solid #571730;background:#fff;color:#571730;border-radius:6px;cursor:pointer}'+
+    '.slides-nav button:disabled{opacity:.4;cursor:default}[hidden]{display:none!important}';
+
+  function cartaoAgenda(a){
+    var h='<article class="cartao" data-cartao><h4>'+esc(a.rot)+'</h4>';
+    if(!(a.linhas||[]).length)return h+'<p class="sem">Sem notas deste estado para esta agenda.</p></article>';
+    h+='<label>Classificação <select data-filtro><option value="todas">Todas</option>'+
+      FAIXAS.map(function(f){return '<option value="'+f+'">'+f+'</option>'}).join('')+'</select></label>'+
+      '<table><thead><tr><th>Indicador</th><th>ODS relacionada</th><th>Nota</th></tr></thead><tbody>'+
+      a.linhas.map(function(l){
+        return '<tr data-faixa="'+esc(l.faixa)+'"><td>'+esc(l.indicador)+'</td><td>ODS '+esc(l.ods)+(l.odsRot?' · '+esc(l.odsRot):'')+
+          '</td><td><strong>'+fmtN(l.nota)+'</strong> <small>'+esc(l.faixa)+'</small></td></tr>'}).join('')+
+      '</tbody></table><p class="sem" data-vazio hidden>Nenhum indicador nesta classificação.</p></article>';
+    return h;
+  }
+  /* cartões de agenda em slides de 4 (SOC-06) */
+  Baixar.cartoesAgenda=function(agendas){
+    if(!agendas||!agendas.length)return '<dd><p class="sem">'+MSG_SEM_IND+'</p></dd>';
+    var slides=[];
+    for(var i=0;i<agendas.length;i+=4)slides.push(agendas.slice(i,i+4));
+    return '<dd><div data-slides>'+slides.map(function(g,k){
+      return '<div class="cartoes" data-slide'+(k?' hidden':'')+'>'+g.map(cartaoAgenda).join('')+'</div>'}).join('')+
+      '<div class="slides-nav"><button type="button" data-ant>Anterior</button><span data-ind>Slide 1 de '+slides.length+
+      '</span><button type="button" data-prox>Próximo</button></div></div></dd>';
+  };
+  /* cartões dos municípios mais votados (PAR-04 a PAR-07) */
+  Baixar.cartoesMunicipio=function(mun){
+    if(!mun)return '';
+    if(mun.aviso)return '<dd><p class="sem">'+esc(mun.aviso)+'</p></dd>';
+    if(!(mun.cartoes||[]).length)return '';
+    return '<dd><div class="cartoes">'+mun.cartoes.map(function(c){
+      return '<article class="cartao"><h4>'+(c.pos?c.pos+'º · ':'')+esc(c.nome)+'</h4>'+
+        (c.votos?'<small>'+fmtN(c.votos)+' votos da liderança</small>':'')+
+        '<h5>Placar</h5><dl><dt>Vereadores no município</dt><dd>'+fmtN(c.vereadores)+'</dd>'+
+        '<dt>Vereadores do '+esc(c.partido)+'</dt><dd>'+fmtN(c.vereadoresPartido)+'</dd>'+
+        '<dt>Prefeito(a)</dt><dd>'+(c.prefeito?esc(c.prefeito.nome)+' ('+esc(c.prefeito.partido)+')':'—')+'</dd>'+
+        '<dt>Filiados do '+esc(c.partido)+'</dt><dd>'+fmtN(c.filiados)+'</dd></dl>'+
+        '<h5>Força</h5><dl><dt>Votos do '+esc(c.partido)+' em '+esc(c.nome)+'</dt><dd>'+fmtP(c.pctMun)+'</dd>'+
+        '<dt>Votos do '+esc(c.partido)+' em '+esc(c.nomeUF)+'</dt><dd>'+fmtP(c.pctUF)+'</dd></dl>'+
+        '<h5>Executivo</h5><p>'+(c.posicao?esc(c.posicao):'<span class="sem">Posição não escolhida</span>')+'</p></article>'}).join('')+'</div></dd>';
+  };
+
+  /* O HTML da Missão 1. `extras` = resultado de Ilhas.dadosMapaPolitico(); sem ele, os cartões mostram só a mensagem. */
+  Baixar.htmlMapaPolitico=function(extras){
+    var m1=MISSOES.filter(function(m){return m.n===1})[0];
+    var sem=Resumo.sem,vivo=Resumo.vivo,ant=Baixar.extras;
+    var miolo;
+    Resumo.sem='<span class="sem">Não respondida</span>';Resumo.vivo=false;Baixar.extras=extras||{};
+    try{miolo=Resumo.missao(m1)}finally{Resumo.sem=sem;Resumo.vivo=vivo;Baixar.extras=ant}
+    return this.pagina('Mapa Político — Missão 1',miolo)
+      .replace('</style>',function(){return CSS+'</style>'})
+      .replace('</body>',function(){return '<script>('+roteiro.toString()+')();</script></body>'});
+  };
+  Baixar.mapaPolitico=async function(){
+    var extras={};
+    try{if(window.Ilhas&&Ilhas.dadosMapaPolitico)extras=(await Ilhas.dadosMapaPolitico())||{}}catch(e){extras={}}
+    this.arq('mapa-politico-'+this.base()+'.html',this.htmlMapaPolitico(extras),'text/html');
+    aviso('HTML do Mapa Político baixado.');
+  };
+})();
