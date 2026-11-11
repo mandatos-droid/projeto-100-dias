@@ -109,19 +109,54 @@ test.describe('Conjuntura · relações com os parlamentares (LEG-01, LEG-02, LE
   const linhas = (page: Page) => page.locator('[data-ilha="assentos"] table.tb tbody tr');
   const CATS = ['Aliado', 'Aliado, mas concorrente', 'Oponente', 'Oponente e concorrente', 'Indefinida'];
 
-  test('sem cartograma de UFs; seletor de escopo e abas com os nomes novos; 5 botões de categoria', async ({ page }) => {
+  test('sem cartograma de UFs; seletor de escopo e abas com os nomes novos; 5 botões de categoria', async ({ page, request }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO });
     const ilha = page.locator('[data-ilha="assentos"]');
     await expect.poll(() => linhas(page).count(), { timeout: 30_000 }).toBe(15);
     await expect(ilha.locator('.mapa-br')).toHaveCount(0);
     await expect(ilha.getByLabel('Território')).toBeVisible();
-    await expect(ilha.getByRole('tab', { name: /^Assembleia Legislativa/ })).toBeVisible();
-    await expect(ilha.getByRole('tab', { name: /^Câmara dos Deputados/ })).toBeVisible();
-    await expect(ilha.getByRole('tab', { name: /^Senado/ })).toBeVisible();
+    await expect(ilha.getByLabel('Território').locator('option').first()).toHaveText('Brasil inteiro');
+    // abas com a contagem de cada Casa em SP (contada nos dados do TSE: 94 deputados estaduais, 70 federais, 3 senadores)
+    const eleitos = (await (await request.get('/data/eleitos.json')).json()) as { k: string; uf: string }[];
+    const n = (k: string) => eleitos.filter((e) => e.k === k && e.uf === 'SP').length.toLocaleString('pt-BR');
+    await expect(ilha.getByRole('tab', { name: new RegExp(String.raw`^Assembleia Legislativa\s*${n('e')}$`) })).toBeVisible();
+    await expect(ilha.getByRole('tab', { name: new RegExp(String.raw`^Câmara dos Deputados\s*${n('f')}$`) })).toBeVisible();
+    await expect(ilha.getByRole('tab', { name: new RegExp(String.raw`^Senado\s*${n('s')}$`) })).toBeVisible();
+    await expect(ilha.getByRole('img', { name: `Hemiciclo com ${n('e')} cadeiras` })).toBeVisible();
     const botoes = linhas(page).first().locator('.st button');
     await expect(botoes).toHaveCount(5);
     for (let i = 0; i < 5; i++) await expect(botoes.nth(i)).toHaveText(CATS[i]);
+  });
+
+  test('os grandes números e os gráficos de gênero, cor ou raça e mandato ficam logo abaixo dos filtros (LEG-06)', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO });
+    const ilha = page.locator('[data-ilha="assentos"]');
+    await expect.poll(() => linhas(page).count(), { timeout: 30_000 }).toBe(15);
+    const caixa = async (seletor: string) => (await ilha.locator(seletor).first().boundingBox())!;
+    const filtros = await caixa('.barra-f'), kpis = await caixa('.kpis'), perfil = await caixa('.perfil'), hemi = await caixa('svg.hemi');
+    expect(kpis.y).toBeGreaterThanOrEqual(filtros.y + filtros.height - 1); // abaixo dos filtros
+    expect(kpis.y - (filtros.y + filtros.height)).toBeLessThan(120); // e logo abaixo
+    expect(perfil.y).toBeGreaterThanOrEqual(kpis.y + kpis.height - 1);
+    expect(hemi.y).toBeGreaterThanOrEqual(perfil.y + perfil.height - 1); // antes do hemiciclo e da tabela
+    for (const t of ['Gênero', 'Cor ou raça', 'Mandato']) await expect(ilha.locator('.perfil')).toContainText(t);
+    await expect(ilha.locator('.kpis')).toContainText('parlamentares eleitos');
+  });
+
+  test('"Brasil inteiro" mantém a tabela de eleitos em 15 linhas por página', async ({ page, request }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO });
+    const ilha = page.locator('[data-ilha="assentos"]');
+    await expect.poll(() => linhas(page).count(), { timeout: 30_000 }).toBe(15);
+    await ilha.getByLabel('Território').selectOption('BR');
+    const eleitos = (await (await request.get('/data/eleitos.json')).json()) as { k: string }[];
+    const paginas = Math.ceil(eleitos.filter((e) => e.k === 'e').length / 15);
+    await expect(page.getByText(`Página 1 de ${paginas}`)).toBeVisible();
+    await expect(linhas(page)).toHaveCount(15);
+    await page.getByRole('button', { name: /Próxima/ }).click();
+    await expect(page.getByText(`Página 2 de ${paginas}`)).toBeVisible();
+    await expect(linhas(page)).toHaveCount(15);
   });
 
   test('o seletor de escopo grava D.escopoSel; no DF a aba se chama Câmara Legislativa', async ({ page }) => {
@@ -190,4 +225,25 @@ test.describe('Conjuntura · relações com os parlamentares (LEG-01, LEG-02, LE
     await car.getByRole('button', { name: /^Todas/ }).click();
     await expect(car.getByText('Slide 1 de 2')).toBeVisible();
   });
+
+  for (const largura of [1280, 390]) {
+    test(`mais de 12 classificados: o carrossel segue navegável sem rolagem horizontal da página (${largura}px)`, async ({ page }) => {
+      await page.setViewportSize({ width: largura, height: 900 });
+      await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO });
+      await expect.poll(() => linhas(page).count(), { timeout: 30_000 }).toBe(15);
+      for (let i = 0; i < 13; i++) await linhas(page).nth(i).getByRole('button', { name: 'Aliado', exact: true }).click();
+      const car = page.getByTestId('classificados');
+      await expect(car.getByRole('button', { name: /^Todas/ })).toContainText('13');
+      await expect(car.getByText('Slide 1 de 5')).toBeVisible(); // 3 cartões por slide
+      const semRolagem = () => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+      expect(await semRolagem()).toBe(true);
+      for (let n = 2; n <= 5; n++) {
+        await car.getByRole('button', { name: /^Próximo/ }).click();
+        await expect(car.getByText(`Slide ${n} de 5`)).toBeVisible();
+        expect(await semRolagem()).toBe(true);
+      }
+      await expect(car.getByRole('button', { name: /^Próximo/ })).toBeDisabled();
+      await expect(car.locator('article')).toHaveCount(1); // o último slide leva só o 13º
+    });
+  }
 });

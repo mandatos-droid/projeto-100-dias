@@ -184,3 +184,31 @@ test.describe('Agendas prioritárias · 3 escolhas (AGE-01 a AGE-04)', () => {
     await expect.poll(async () => (await dadosDe(page)).agendasPrio).toEqual(['saude', 'seguranca', 'cultura']);
   });
 });
+
+test.describe('Casos de borda da etapa (SOC-09 e "+" aberto e vazio)', () => {
+  const SOCIAL = { itens: [{ id: 's1', nivel: 'UF', tipo: 'problema', agenda: 'saude', texto: 'Fila de espera', uf: 'SP', alvos: ['SP'], nomes: ['São Paulo'] }] };
+  const ITEM = { id: 'e1', tipo: 'promessa', texto: 'Transporte escolar', muns: [] };
+
+  test('os registros antigos de D.social seguem gravados, iguais, depois de abrir e editar a etapa (SOC-09)', async ({ page }) => {
+    await abre(page, { social: SOCIAL });
+    const ilha = page.locator('[data-ilha="prioritarias"]');
+    await ilha.getByRole('button', { name: 'Saúde', exact: true }).click(); // edita outra coisa da etapa, que salva o mandato
+    await expect.poll(async () => (await dadosDe(page)).agendasPrio).toEqual(['saude']);
+    expect(((await salvoDe(page)).dados as { social?: unknown }).social).toEqual(SOCIAL);
+    await page.reload();
+    await expect(page.locator('[data-ilha="eleitorado"]')).toBeVisible({ timeout: 30_000 });
+    expect(((await salvoDe(page)).dados as { social?: unknown }).social).toEqual(SOCIAL);
+  });
+
+  test('trocar de etapa com o "+" aberto e vazio abre a etapa seguinte sem gravar item', async ({ page }) => {
+    await abre(page, { eleitorado: { itens: [ITEM] } });
+    const c = coluna(page, 'Promessas de Campanha');
+    await c.getByRole('button', { name: /formulário/ }).click();
+    await expect(c.getByRole('textbox')).toBeVisible();
+    await expect(c.getByRole('textbox')).toHaveValue('');
+    await page.getByRole('button', { name: /Próximo exercício/ }).click();
+    await expect(page).toHaveURL(/#\/m\/1\/m1\.frag/);
+    await expect(page.locator('[data-ilha="eleitorado"]')).toHaveCount(0);
+    expect((await dadosDe(page)).eleitorado?.itens).toEqual([ITEM]); // nada novo, nada alterado
+  });
+});
