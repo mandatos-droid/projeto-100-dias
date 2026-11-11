@@ -230,7 +230,8 @@ window.ResumoIlhas={
     }
     if(ilha==='agendas-sociais'){
       if(ex&&Baixar.cartoesAgenda)return '<dt style="color:var(--tinta)">Indicadores por agenda temática</dt>'+Baixar.cartoesAgenda(ex.agendas);
-      return this.mapa('agendas-sociais','Indicadores por agenda temática');
+      /* D.social segue gravado (SOC-09) e a tabela por território continua no Resumo (RES-08), depois dos cartões de agenda */
+      return this.mapa('agendas-sociais','Indicadores por agenda temática')+this.mapa('social','Problemas e potencialidades por agenda e território');
     }
     if(ilha==='persona-tse'){
       h+='<dt style="color:var(--tinta)">Desempenho eleitoral'+(t.ano?' em '+t.ano:' em 2026')+' (dados do TSE)</dt>';
