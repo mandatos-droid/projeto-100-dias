@@ -858,15 +858,17 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Cada cartão mostra vereadores do município, vereadores do partido, foto e nome do prefeito, posição do partido, e filiados do partido
-- [ ] O bloco Força mostra a % de votos do partido no município e no estado
-- [ ] O bloco Executivo oferece as 4 posições e grava em `D.conj2`
-- [ ] Sem votação 2026 por município mostra só o município de domicílio ou a mensagem de PAR-08
-- [ ] `npx tsc --noEmit` passa
+- [x] Cada cartão mostra vereadores do município, vereadores do partido, foto e nome do prefeito, posição do partido, e filiados do partido
+- [x] O bloco Força mostra a % de votos do partido no município e no estado
+- [x] O bloco Executivo oferece as 4 posições e grava em `D.conj2`
+- [x] Sem votação 2026 por município mostra só o município de domicílio ou a mensagem de PAR-08
+- [x] `npx tsc --noEmit` passa
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(m1): cartões de município do partido`
+
+**Status**: ✅ Done
 
 ---
 

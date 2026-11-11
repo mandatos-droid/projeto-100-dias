@@ -10,6 +10,7 @@ import { corPartido } from '@/lib/partidos';
 import { nf, pct } from '@/lib/format';
 import type { Conj2, EsferaExec, ExecEleito, FilAcum, Mun, PosExec, RegExec } from '@/lib/types';
 import { CARGOS, NIVEIS } from './cargos';
+import { POSICOES, ROT_POS, sugere } from './posicoes';
 import { useLegado } from './ponte';
 import { BarrasPartido, Chip, useCarga } from './pecas';
 
@@ -25,20 +26,7 @@ const RELACOES = [
   { k: 'transicao', t: 'Em reavaliação', d: 'Pondera mudar de papel ou de partido; precisa mapear custos e alternativas.' },
 ];
 
-/* posição do partido diante de cada Executivo. A sugestão sai da coligação com que o eleito disputou. */
-const POSICOES: { k: PosExec; rot: string }[] = [
-  { k: 'governo', rot: 'Partido do governo' },
-  { k: 'base', rot: 'Base aliada' },
-  { k: 'oposicao', rot: 'Oposição' },
-  { k: 'independente', rot: 'Independente' },
-];
-export const ROT_POS = Object.fromEntries(POSICOES.map((p) => [p.k, p.rot])) as Record<PosExec, string>;
-
-/** Do que a coligação da eleição diz sobre o partido: 'governo' (é o do eleito), 'base' (está na coligação) ou null. */
-export function sugere(reg: RegExec | undefined, partido: string): PosExec | null {
-  if (!reg) return null;
-  return reg.p === partido ? 'governo' : reg.c.includes(partido) ? 'base' : null;
-}
+export { ROT_POS, sugere }; // Resumos importa daqui
 
 /* recortes dos filiados, na mesma ordem dos vetores de scripts/build_filiados.py */
 const GENERO = ['Masculino', 'Feminino'];

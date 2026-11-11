@@ -79,3 +79,8 @@ test('defineReacao com dado nulo limpa a linha (PAR-12)', () => {
   assert.deepEqual(defineReacao(dois, 1, null, ''), [dois[0]]);
   assert.deepEqual(defineReacao(dois, 0, null, ''), [{ dado: '', valor: '', texto: '' }, dois[1]]);
 });
+
+test('município sem votação do cargo da liderança não oferece o dado "% de votos" (PAR-06, PAR-08)', () => {
+  const r = dadosSelecionaveis(placar, [{ cdi: '5208707', nome: 'Goiânia', vereadoresPartido: 4, filiados: 2300, pct: null }]);
+  assert.deepEqual(r.slice(5).map((d) => d.nome), ['Vereadores do partido em Goiânia', 'Filiados do partido em Goiânia']);
+});

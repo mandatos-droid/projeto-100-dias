@@ -1086,3 +1086,17 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .ass .escopo-sel label{font-weight:700}
 .ass .escopo-sel select{border:2px solid var(--linha);border-radius:var(--r);padding:0.3125rem 0.5rem;background:#fff;font:inherit}
 .ass .escopo-sel select:focus-visible{outline:3px solid var(--vinho);outline-offset:2px}
+
+/* cartões de município do partido (Conjuntura 2.2): Placar, Força e Executivo */
+.ilha-corpo .cm5{margin:1.25rem 0 0.5rem}
+.ilha-corpo .cm5-lista{list-style:none;margin:0.5rem 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0.75rem}
+.ilha-corpo .cm5-cartao{display:flex;flex-direction:column;gap:0.75rem;padding:0.875rem 1rem;background:#fff;border:1.5px solid var(--linha);border-radius:var(--r);min-width:0}
+.ilha-corpo .cm5-topo{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.125rem 0.5rem}
+.ilha-corpo .cm5-bloco h5{margin:0 0 0.375rem;font-size:0.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--tinta-3)}
+.ilha-corpo .cm5-dl{margin:0 0 0.5rem;display:grid;gap:0.25rem}
+.ilha-corpo .cm5-dl>div{display:flex;justify-content:space-between;gap:0.75rem;font-size:0.875rem}
+.ilha-corpo .cm5-dl dt{color:var(--tinta-2)}
+.ilha-corpo .cm5-dl dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums}
+.ilha-corpo .cm5-camara{margin-top:0.5rem;font-size:0.875rem}
+.ilha-corpo .cm5-camara summary{cursor:pointer;color:var(--tinta-2)}
+.ilha-corpo .cm5-bloco .v2-seg{flex-wrap:wrap}

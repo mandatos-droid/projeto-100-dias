@@ -12,7 +12,7 @@ export type PlacarPartido = {
   executivos: string; // posição do partido nos Executivos, já em texto (ex.: "Base aliada")
 };
 /** Números de um dos 5 municípios mais votados: vereadores do partido, filiados e % de votos do partido. */
-export type MunPartido = { cdi: string; nome: string; vereadoresPartido: number; filiados: number; pct: number };
+export type MunPartido = { cdi: string; nome: string; vereadoresPartido: number; filiados: number; pct: number | null }; // pct null: sem votação do cargo da liderança no município
 
 const par = (p: ParPlacar) => `${nf.format(p.uf)} no estado, ${nf.format(p.br)} no Brasil`;
 
@@ -27,7 +27,7 @@ export function dadosSelecionaveis(placar: PlacarPartido, municipios: MunPartido
     ...municipios.flatMap((m): DadoPartido[] => [
       { id: `mun:${m.cdi}:vereadores`, nome: `Vereadores do partido em ${m.nome}`, valor: nf.format(m.vereadoresPartido) },
       { id: `mun:${m.cdi}:filiados`, nome: `Filiados do partido em ${m.nome}`, valor: nf.format(m.filiados) },
-      { id: `mun:${m.cdi}:pct`, nome: `% de votos do partido em ${m.nome}`, valor: pct(m.pct) },
+      ...(m.pct == null ? [] : [{ id: `mun:${m.cdi}:pct`, nome: `% de votos do partido em ${m.nome}`, valor: pct(m.pct) }]),
     ]),
   ];
 }
