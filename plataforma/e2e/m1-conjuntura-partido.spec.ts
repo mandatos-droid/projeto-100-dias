@@ -10,10 +10,10 @@ const MUN = { atualizado: '2026-10-05', mun: { 3500105: [900, 10000], 3500204: [
 const editor = (page: Page, k: string) => page.locator(`.campo:has(textarea[data-k="${k}"]) .rico-area`);
 const dadosDe = async (page: Page) => (await salvoDe(page)).dados as { conj2?: { reacoes?: { dado: string; valor: string; texto: string }[]; prefExtra?: Record<string, string> } };
 
-async function abre(page: Page, dados: Record<string, unknown> = { tse: TSE }) {
+async function abre(page: Page, dados: Record<string, unknown> = { tse: TSE }, votos: unknown = MUN, mandato = MANDATO) {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.route('**/api/votos-mun**', (r) => r.fulfill({ json: MUN }));
-  await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO, dados });
+  await page.route('**/api/votos-mun**', (r) => r.fulfill({ json: votos }));
+  await abreGuia(page, '#/m/1/m1.conjuntura', { mandato, dados });
   await expect(page.locator('[data-ilha="calor"]')).toContainText('Placar do partido', { timeout: 30_000 });
 }
 
@@ -44,6 +44,36 @@ test.describe('Conjuntura do partido · sem mapa, com cartões (PAR-02 a PAR-05,
     }
     await expect(cartoes.first().locator('.mv5-pos')).toHaveText('1º');
     await expect(cartoes.first()).toContainText('4.000 votos');
+  });
+
+  test('Placar e Força de um município trazem os valores dos arquivos do TSE (PAR-05, PAR-06)', async ({ page }) => {
+    // Campinas (3509502): 33 vereadores, 2 do PSOL, 1.498 filiados do PSOL; prefeito eleito em 2024 Dário Saadi (REPUBLICANOS);
+    // PSOL teve 88.745 de 589.932 votos válidos para deputado estadual (15,04%) e 8,97% no estado de SP.
+    // Franca (3516200) fica sem posição gravada.
+    await abre(page, { tse: TSE, conj2: { prefExtra: { 3509502: 'oposicao' } } }, { atualizado: '2026-10-05', mun: { 3509502: [9000, 20000], 3516200: [800, 9000] } });
+    const campinas = page.getByTestId('cartao-municipio').filter({ hasText: 'Campinas' });
+    await expect(campinas).toBeVisible({ timeout: 30_000 });
+    const placar = campinas.getByRole('group', { name: /^Placar de/ });
+    const valor = (grupo: typeof placar, rotulo: string) => grupo.locator('div', { has: page.locator(`dt:text-is("${rotulo}")`) }).locator('dd').first();
+    await expect(valor(placar, 'Vereadores no município')).toHaveText('33');
+    await expect(valor(placar, 'Vereadores do PSOL')).toHaveText('2');
+    await expect(valor(placar, 'Filiados do PSOL')).toHaveText('1.498');
+    await expect(valor(placar, 'Posição do PSOL diante do Executivo')).toHaveText('Oposição');
+    await expect(placar.locator('.casa-pref strong')).toHaveText('Dário Saadi');
+    await expect(placar.locator('.casa-pref')).toContainText('REPUBLICANOS');
+    await expect(placar.locator('.casa-pref .foto img')).toHaveAttribute('src', /250001918263/);
+    const forca = campinas.getByRole('group', { name: /^Força de/ });
+    await expect(valor(forca, 'Votos do PSOL em Campinas')).toHaveText('15,04%');
+    await expect(valor(forca, 'Votos do PSOL em São Paulo')).toHaveText('8,97%');
+    // Franca: 15 vereadores, 1 do PSOL, 335 filiados; sem posição gravada, aparece "Não informada"
+    const franca = page.getByTestId('cartao-municipio').filter({ hasText: 'Franca' });
+    const placarFranca = franca.getByRole('group', { name: /^Placar de/ });
+    await expect(valor(placarFranca, 'Vereadores no município')).toHaveText('15');
+    await expect(valor(placarFranca, 'Vereadores do PSOL')).toHaveText('1');
+    await expect(valor(placarFranca, 'Filiados do PSOL')).toHaveText('335');
+    await expect(valor(placarFranca, 'Posição do PSOL diante do Executivo')).toHaveText('Não informada');
+    await expect(placarFranca.locator('.casa-pref strong')).toHaveText('Alexandre Ferreira');
+    await expect(valor(franca.getByRole('group', { name: /^Força de/ }), 'Votos do PSOL em Franca')).toHaveText('5,23%');
   });
 
   test('a posição do Executivo no cartão grava em D.conj2', async ({ page }) => {

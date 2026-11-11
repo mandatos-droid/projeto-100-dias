@@ -5,8 +5,8 @@ import { useMemo } from 'react';
 import { carregaGeo } from '@/lib/dados';
 import { cincoMais } from '@/lib/maisVotados';
 import { nf, pct } from '@/lib/format';
-import type { MunPartido } from '@/lib/dadosPartido';
-import type { CasaChave, Conj2, ExecUF, FiliadosUF, Mun, MunUF, PosExec } from '@/lib/types';
+import { numerosMun } from '@/lib/forcaMunicipio';
+import type { CasaChave, Conj2, ExecUF, FiliadosUF, MunUF, PosExec } from '@/lib/types';
 import { CasaMunicipal } from './CasaMunicipal';
 import { useVotosMun } from './MaisVotados';
 import { POSICOES, sugere } from './posicoes';
@@ -18,36 +18,6 @@ const CASAS: CasaChave[] = ['federal', 'estadual', 'senado'];
 
 export type ItemMun = { cdi: string; nome: string; pos?: number; votos?: number };
 export type AlvoMun = { casa: CasaChave | null; itens: ItemMun[]; carregando: boolean; aviso: string | null };
-
-/** Votos do partido no cargo da liderança: de um município (`pctMun`) ou do estado inteiro (`pctEstado`). */
-const blocoDe = (m: Mun | undefined, casa: CasaChave | null) => (m && casa ? m[casa === 'senado' ? 'senador' : casa] : undefined);
-export function pctMun(m: Mun | undefined, casa: CasaChave | null, partido: string): number | null {
-  const b = blocoDe(m, casa);
-  return b?.v ? ((b.p.find((q) => q[0] === partido)?.[1] ?? 0) / b.v) * 100 : null;
-}
-export function pctEstado(muns: Record<string, Mun> | undefined, casa: CasaChave | null, partido: string): number | null {
-  let v = 0, n = 0;
-  for (const m of Object.values(muns ?? {})) {
-    const b = blocoDe(m, casa);
-    if (!b?.v) continue;
-    v += b.v;
-    n += b.p.find((q) => q[0] === partido)?.[1] ?? 0;
-  }
-  return v ? (n / v) * 100 : null;
-}
-
-/** Números do município que o seletor de dados e o cartão compartilham. */
-export function numerosMun(it: ItemMun, munUF: MunUF | undefined, fil: FiliadosUF | undefined, casa: CasaChave | null, partido: string): MunPartido & { vereadoresTotal: number } {
-  const m = munUF?.mun[it.cdi];
-  const el = m?.m24?.ver.el ?? {};
-  return {
-    cdi: it.cdi, nome: m?.nm ?? it.nome,
-    vereadoresPartido: el[partido] ?? 0,
-    vereadoresTotal: Object.values(el).reduce((a, b) => a + b, 0),
-    filiados: fil?.mun[it.cdi]?.[partido]?.[0] ?? 0,
-    pct: pctMun(m, casa, partido),
-  };
-}
 
 /** Os municípios dos cartões: os 5 mais votados (candidatura 2026) ou, sem eles, o município de domicílio. */
 export function useAlvoMun(munUF: MunUF | undefined): AlvoMun {

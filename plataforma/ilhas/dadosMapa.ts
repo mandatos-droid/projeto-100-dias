@@ -6,7 +6,8 @@ import { AGENDAS, carregaCatalogo, carregaIndicador, faixaDe, type DadosIndicado
 import { linhasDaAgenda } from '@/lib/indicadoresSociais';
 import { cincoMais } from '@/lib/maisVotados';
 import type { CasaChave } from '@/lib/types';
-import { numerosMun, pctEstado, type ItemMun } from './CartoesMunicipio';
+import type { ItemMun } from './CartoesMunicipio';
+import { numerosMun, pctEstado } from '@/lib/forcaMunicipio';
 import { buscaVotos } from './MaisVotados';
 import { ROT_POS, sugere } from './posicoes';
 import { dadosGuia, mandato } from './ponte';
