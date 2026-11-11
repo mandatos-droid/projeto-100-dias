@@ -887,14 +887,16 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] O seletor lista os dados de `dadosSelecionaveis` com valor ao lado
-- [ ] Escolher o dado preenche a frase e abre a caixa de texto
-- [ ] Grava em `D.conj2.reacoes` e não oferece 3ª linha
-- [ ] `npx tsc --noEmit` passa
+- [x] O seletor lista os dados de `dadosSelecionaveis` com valor ao lado
+- [x] Escolher o dado preenche a frase e abre a caixa de texto
+- [x] Grava em `D.conj2.reacoes` e não oferece 3ª linha
+- [x] `npx tsc --noEmit` passa
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(m1): reação do mandato a 2 dados do partido`
+
+**Status**: ✅ Done
 
 ---
 

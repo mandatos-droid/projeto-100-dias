@@ -1100,3 +1100,8 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .ilha-corpo .cm5-camara{margin-top:0.5rem;font-size:0.875rem}
 .ilha-corpo .cm5-camara summary{cursor:pointer;color:var(--tinta-2)}
 .ilha-corpo .cm5-bloco .v2-seg{flex-wrap:wrap}
+
+/* reação do mandato a 2 dados do partido (Conjuntura 2.2) */
+.ilha-corpo .rea{margin:1.25rem 0 0.5rem}
+.ilha-corpo .rea-linha{display:grid;gap:0.5rem;margin:0.75rem 0 1rem;padding:0.875rem 1rem;background:#fff;border:1.5px solid var(--linha);border-radius:var(--r)}
+.ilha-corpo .rea-linha select{max-width:100%}
