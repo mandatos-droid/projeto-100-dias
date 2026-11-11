@@ -59,9 +59,9 @@ test.describe('Conjuntura do partido · sem mapa, com cartões (PAR-02 a PAR-05,
     await expect(valor(placar, 'Vereadores do PSOL')).toHaveText('2');
     await expect(valor(placar, 'Filiados do PSOL')).toHaveText('1.498');
     await expect(valor(placar, 'Posição do PSOL diante do Executivo')).toHaveText('Oposição');
-    await expect(placar.locator('.casa-pref strong')).toHaveText('Dário Saadi');
-    await expect(placar.locator('.casa-pref')).toContainText('REPUBLICANOS');
-    await expect(placar.locator('.casa-pref .foto img')).toHaveAttribute('src', /250001918263/);
+    await expect(placar.locator(':scope > .casa-pref strong')).toHaveText('Dário Saadi');
+    await expect(placar.locator(':scope > .casa-pref')).toContainText('REPUBLICANOS');
+    await expect(placar.locator(':scope > .casa-pref .foto img')).toHaveAttribute('src', /250001918263/);
     const forca = campinas.getByRole('group', { name: /^Força de/ });
     await expect(valor(forca, 'Votos do PSOL em Campinas')).toHaveText('15,04%');
     await expect(valor(forca, 'Votos do PSOL em São Paulo')).toHaveText('8,97%');
@@ -72,7 +72,7 @@ test.describe('Conjuntura do partido · sem mapa, com cartões (PAR-02 a PAR-05,
     await expect(valor(placarFranca, 'Vereadores do PSOL')).toHaveText('1');
     await expect(valor(placarFranca, 'Filiados do PSOL')).toHaveText('335');
     await expect(valor(placarFranca, 'Posição do PSOL diante do Executivo')).toHaveText('Não informada');
-    await expect(placarFranca.locator('.casa-pref strong')).toHaveText('Alexandre Ferreira');
+    await expect(placarFranca.locator(':scope > .casa-pref strong')).toHaveText('Alexandre Ferreira');
     await expect(valor(franca.getByRole('group', { name: /^Força de/ }), 'Votos do PSOL em Franca')).toHaveText('5,23%');
   });
 
@@ -115,9 +115,10 @@ test.describe('Conjuntura do partido · reação a 2 dados (PAR-09 a PAR-12)', (
 
   test('os dados do seletor batem com o número mostrado no Placar', async ({ page }) => {
     await abre(page);
-    const placar = await page.locator('.v2-grande').filter({ hasText: 'Filiados' }).first().locator('b').allTextContents();
+    const lePlacar = () => page.locator('.v2-grande').filter({ hasText: 'Filiados' }).first().locator('b').allTextContents();
+    await expect.poll(async () => (await lePlacar())[1]).not.toBe('0'); // espera os filiados carregarem
     await page.locator('#rea-sel-0').selectOption('filiados');
-    await expect.poll(async () => (await dadosDe(page)).conj2?.reacoes?.[0]?.valor).toBe(`${placar[1]} no estado, ${placar[0]} no Brasil`);
+    await expect.poll(async () => { const p = await lePlacar(); return p[1] === '0' ? null : (await dadosDe(page)).conj2?.reacoes?.[0]?.valor === `${p[1]} no estado, ${p[0]} no Brasil`; }).toBe(true);
   });
 });
 

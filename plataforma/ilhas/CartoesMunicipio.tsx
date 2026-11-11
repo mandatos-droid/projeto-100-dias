@@ -9,7 +9,7 @@ import { numerosMun } from '@/lib/forcaMunicipio';
 import type { CasaChave, Conj2, ExecUF, FiliadosUF, MunUF, PosExec } from '@/lib/types';
 import { CasaMunicipal } from './CasaMunicipal';
 import { useVotosMun } from './MaisVotados';
-import { POSICOES, sugere } from './posicoes';
+import { POSICOES, ROT_POS, sugere } from './posicoes';
 import { useLegado } from './ponte';
 import { Chip, Foto, useCarga } from './pecas';
 
@@ -87,6 +87,7 @@ export function CartoesMunicipio({ alvo, partido, uf, c, munUF, fil, exUF, pctUF
                   <div><dt>Vereadores no município</dt><dd>{mun?.m24 ? nf.format(n.vereadoresTotal) : '—'}</dd></div>
                   <div><dt>Vereadores do {partido}</dt><dd>{mun?.m24 ? nf.format(n.vereadoresPartido) : '—'}</dd></div>
                   <div><dt>Filiados do {partido}</dt><dd>{fil ? nf.format(n.filiados) : '—'}</dd></div>
+                  <div><dt>Posição do {partido} diante do Executivo</dt><dd>{efetivo ? ROT_POS[efetivo] : 'Não informada'}</dd></div>
                 </dl>
                 {reg ? (
                   <div className="casa-pref">
