@@ -374,3 +374,22 @@
     aviso('HTML do Mapa Político baixado.');
   };
 })();
+
+/* ---------- Fechamento: "Pronto!", botão do HTML e compilado das respostas (FEC-01, FEC-02, FEC-04) ----------
+   Vem depois do fim de m1.frag (a última etapa). O compilado é o mesmo HTML da aba Resumo, com os módulos de leitura montados. */
+(function(){
+  if(typeof Comp==='undefined'||typeof Resumo==='undefined'||typeof MISSOES==='undefined')return;
+  var PRONTO='Parabéns! Com base neste amplo estudo de preparação da sua chegada você gerou o seu Mapa Político. Agora você tem as informações necessárias para começar a rodar o mandato com intencionalidade e profissionalismo! Este levantamento de evidências e de autoconhecimento vai fundamentar o Projeto Político da liderança parlamentar, que transcende a Legislatura e fundamenta a pertinência de sua atuação política no curto, médio e até longo prazo.';
+  var _fr=Comp.frag;
+  Comp.frag=function(e){
+    var h=_fr.call(this,e);
+    if(!e||e.id!=='m1.frag')return h;
+    var m1=MISSOES.filter(function(m){return m.n===1})[0],vivo=Resumo.vivo,comp;
+    Resumo.vivo=true;
+    try{comp=Resumo.missao(m1)}finally{Resumo.vivo=vivo}
+    return h+'<section class="m1-pronto" aria-labelledby="m1-pronto-t"><h3 id="m1-pronto-t">Pronto!</h3>'+
+      '<div class="texto"><p>'+PRONTO+'</p></div>'+
+      '<p><button type="button" class="bt pri" onclick="Baixar.mapaPolitico()">Gerar HTML do Mapa Político</button></p>'+
+      '<h4>Compilado das respostas da Missão 1</h4><div class="m1-compilado">'+comp+'</div></section>';
+  };
+})();

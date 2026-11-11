@@ -16,7 +16,7 @@ type Passo = { k: string; n?: number };
 type Janela = {
   MISSOES: { n: number; exercicios: Ex[] }[];
   Guia: { m: unknown; ex: Ex; passos: Passo[]; montar(ex: Ex): Passo[]; bloco(p: Passo, n: number): string };
-  Comp: { perguntas(ex: Ex): string };
+  Comp: { perguntas(ex: Ex): string; frag(ex: Ex): string };
 };
 
 function janela(antesM1 = ''): Janela {
@@ -675,4 +675,43 @@ test('os nomes das 13 agendas do Resumo são os de lib/agendas.ts (ELE-11, GER-0
   const { AGENDAS } = await import('../lib/agendas.ts');
   const w = janelaMapa() as JanelaRes;
   assert.deepEqual(JSON.parse(JSON.stringify(w.ResumoIlhas.AGENDAS)), Object.fromEntries(AGENDAS.map((a: { id: string; rot: string }) => [a.id, a.rot])));
+});
+
+/* ---------- FEC-01, FEC-02, FEC-04: fechamento da missão ---------- */
+const PRONTO = 'Parabéns! Com base neste amplo estudo de preparação da sua chegada você gerou o seu Mapa Político. Agora você tem as informações necessárias para começar a rodar o mandato com intencionalidade e profissionalismo! Este levantamento de evidências e de autoconhecimento vai fundamentar o Projeto Político da liderança parlamentar, que transcende a Legislatura e fundamenta a pertinência de sua atuação política no curto, médio e até longo prazo.';
+test('depois do fim de m1.frag aparecem "Pronto!", o texto de fechamento e o botão (FEC-01)', () => {
+  const w = janelaMapa();
+  const h = w.Comp.frag(ex1(w, 'm1.frag'));
+  const fim = h.indexOf('Tornando fragilidades em fortalezas!');
+  assert.ok(fim > 0);
+  for (const t of ['<h3 id="m1-pronto-t">Pronto!</h3>', PRONTO, 'Gerar HTML do Mapa Político']) assert.ok(h.indexOf(t) > fim, t);
+  assert.equal((h.match(/Pronto!/g) ?? []).length, 1);
+});
+
+test('o botão chama Baixar.mapaPolitico (FEC-02)', () => {
+  const w = janelaMapa();
+  const h = w.Comp.frag(ex1(w, 'm1.frag'));
+  const onclick = h.match(/<button type="button" class="bt pri" onclick="([^"]+)">Gerar HTML do Mapa Político/)?.[1];
+  assert.equal(onclick, 'Baixar.mapaPolitico()');
+  const ctx = w as unknown as vm.Context;
+  vm.runInContext('globalThis.__chamou=0;Baixar.mapaPolitico=function(){globalThis.__chamou++}', ctx);
+  vm.runInContext(onclick!, ctx);
+  assert.equal((ctx as unknown as { __chamou: number }).__chamou, 1);
+});
+
+test('o compilado do fim da página é o mesmo HTML do Resumo da Missão 1 (FEC-04)', () => {
+  const w = janelaMapa({ campos: { 'm1.q1': 'RESP-Q1', 'm1.q3c2': 'RESP-C2', 'm1.q8a': 'RESP-SOCIAL' }, agendasPrio: ['saude'] }) as JanelaRes;
+  const h = w.Comp.frag(ex1(w, 'm1.frag'));
+  const ctx = w as unknown as { Resumo: { vivo?: boolean; missao(m: unknown): string }; MISSOES: unknown[] };
+  ctx.Resumo.vivo = true;
+  const resumo = ctx.Resumo.missao(ctx.MISSOES[0]);
+  ctx.Resumo.vivo = false;
+  assert.ok(h.includes(`<div class="m1-compilado">${resumo}</div>`));
+  assert.ok(resumo.includes('RESP-Q1') && resumo.includes('RESP-C2') && resumo.includes('RESP-SOCIAL') && resumo.includes('<li><strong>Saúde</strong></li>'));
+  assert.equal(ctx.Resumo.vivo, false); // o modo do Resumo volta ao que era
+});
+
+test('as outras etapas da Missão 1 não ganham o fechamento (FEC-01)', () => {
+  const w = janelaMapa();
+  assert.equal(w.Comp.perguntas(ex1(w, 'm1.oportunidades')).includes('Pronto!'), false);
 });

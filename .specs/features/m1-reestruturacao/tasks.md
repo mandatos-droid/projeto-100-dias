@@ -1203,10 +1203,10 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] O texto "Parabéns! Com base neste amplo estudo…" e o botão aparecem depois de `m1.frag`
-- [ ] O botão chama `Baixar.mapaPolitico`
-- [ ] O compilado usa o mesmo HTML do Resumo
-- [ ] Caso novo em `tests/legado-m1.test.ts` passa
+- [x] O texto "Parabéns! Com base neste amplo estudo…" e o botão aparecem depois de `m1.frag`
+- [x] O botão chama `Baixar.mapaPolitico`
+- [x] O compilado usa o mesmo HTML do Resumo
+- [x] Caso novo em `tests/legado-m1.test.ts` passa
 
 **Tests**: unit
 **Gate**: quick
