@@ -478,10 +478,10 @@ T19
 
 **Done when**:
 
-- [ ] Cada valor capturável tem id igual ao de `DadoPartido`
-- [ ] e2e confere atributos nos 5 cartões
-- [ ] Gate full passa
-- [ ] Contagem de testes não diminui
+- [x] Cada valor capturável tem id igual ao de `DadoPartido`
+- [x] e2e confere atributos nos 5 cartões
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
 
 **Tests**: e2e
 **Gate**: full

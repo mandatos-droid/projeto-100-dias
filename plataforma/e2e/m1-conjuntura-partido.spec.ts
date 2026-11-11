@@ -137,6 +137,25 @@ test.describe('Conjuntura do partido · sem mapa, com cartões (PAR-02 a PAR-05,
 });
 
 test.describe('Conjuntura do partido · reação a 2 dados (PAR-09 a PAR-12)', () => {
+  test('os valores dos 5 cartões de município são capturáveis e batem com os dados oferecidos (SEL-01)', async ({ page }) => {
+    await abre(page);
+    const cartoes = page.getByTestId('cartao-municipio');
+    await expect(cartoes).toHaveCount(5, { timeout: 30_000 });
+    const opcoes = await page.locator('#rea-sel-0 option[value^="mun:"]').evaluateAll((os) => os.map((o) => ({ id: (o as HTMLOptionElement).value, texto: o.textContent ?? '' })));
+    expect(opcoes.length).toBeGreaterThanOrEqual(10);
+    for (let i = 0; i < 5; i++) {
+      const caps = cartoes.nth(i).locator('.capturable-data');
+      expect(await caps.count()).toBeGreaterThanOrEqual(2);
+    }
+    for (const o of opcoes) {
+      const el = page.locator(`.cm5-cartao .capturable-data[data-dado-id="${o.id}"]`);
+      await expect(el).toHaveCount(1);
+      const nome = await el.getAttribute('data-dado-nome'), valor = await el.getAttribute('data-dado-valor');
+      expect(`${nome}: ${valor}`).toBe(o.texto); // o mesmo nome e valor que o seletor mostra
+      await expect(el).toHaveText(valor!); // o número visível é o capturado
+    }
+  });
+
   test('escolher 2 dados completa as frases e grava; não há 3ª linha', async ({ page }) => {
     await abre(page);
     await expect(page.getByTestId('cartao-municipio')).toHaveCount(5, { timeout: 30_000 });

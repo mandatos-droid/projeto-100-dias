@@ -59,3 +59,8 @@ export function mensagem(e: Estado): string {
   const base = `Clique no ${ORDINAL[proxima]} dado na tela.`;
   return e.aviso ? `${e.aviso} ${base}` : base;
 }
+
+/** Atributos de um valor que a pessoa pode escolher clicando na página (modo de captura). */
+export const capturavel = (d: DadoPartido) => ({
+  className: 'capturable-data', 'data-dado-id': d.id, 'data-dado-nome': d.nome, 'data-dado-valor': d.valor,
+});

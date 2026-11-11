@@ -6,6 +6,7 @@ import { carregaGeo } from '@/lib/dados';
 import { cincoMais } from '@/lib/maisVotados';
 import { nf, pct } from '@/lib/format';
 import { numerosMun } from '@/lib/forcaMunicipio';
+import { capturavel } from '@/lib/selecaoDados';
 import type { CasaChave, Conj2, ExecUF, FiliadosUF, MunUF, PosExec } from '@/lib/types';
 import { CasaMunicipal } from './CasaMunicipal';
 import { useVotosMun } from './MaisVotados';
@@ -85,8 +86,12 @@ export function CartoesMunicipio({ alvo, partido, uf, c, munUF, fil, exUF, pctUF
                 <h5>Placar</h5>
                 <dl className="cm5-dl">
                   <div><dt>Vereadores no município</dt><dd>{mun?.m24 ? nf.format(n.vereadoresTotal) : '—'}</dd></div>
-                  <div><dt>Vereadores do {partido}</dt><dd>{mun?.m24 ? nf.format(n.vereadoresPartido) : '—'}</dd></div>
-                  <div><dt>Filiados do {partido}</dt><dd>{fil ? nf.format(n.filiados) : '—'}</dd></div>
+                  <div><dt>Vereadores do {partido}</dt>{mun?.m24
+                    ? <dd {...capturavel({ id: `mun:${it.cdi}:vereadores`, nome: `Vereadores do partido em ${n.nome}`, valor: nf.format(n.vereadoresPartido) })}>{nf.format(n.vereadoresPartido)}</dd>
+                    : <dd>—</dd>}</div>
+                  <div><dt>Filiados do {partido}</dt>{fil
+                    ? <dd {...capturavel({ id: `mun:${it.cdi}:filiados`, nome: `Filiados do partido em ${n.nome}`, valor: nf.format(n.filiados) })}>{nf.format(n.filiados)}</dd>
+                    : <dd>—</dd>}</div>
                   <div><dt>Posição do {partido} diante do Executivo</dt><dd>{efetivo ? ROT_POS[efetivo] : 'Não informada'}</dd></div>
                 </dl>
                 {reg ? (
@@ -110,7 +115,7 @@ export function CartoesMunicipio({ alvo, partido, uf, c, munUF, fil, exUF, pctUF
                 <h5>Força</h5>
                 {n.pct == null ? <p className="sem">Sem votação do cargo da liderança neste município.</p> : (
                   <dl className="cm5-dl">
-                    <div><dt>Votos do {partido} em {n.nome}</dt><dd>{pct(n.pct)}</dd></div>
+                    <div><dt>Votos do {partido} em {n.nome}</dt><dd {...capturavel({ id: `mun:${it.cdi}:pct`, nome: `% de votos do partido em ${n.nome}`, valor: pct(n.pct) })}>{pct(n.pct)}</dd></div>
                     <div><dt>Votos do {partido} em {nomeUF}</dt><dd>{pctUF == null ? '—' : pct(pctUF)}</dd></div>
                   </dl>
                 )}
