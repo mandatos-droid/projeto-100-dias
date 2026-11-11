@@ -830,14 +830,16 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Não há mapa coroplético, camadas nem painel lateral na pergunta 2.2
-- [ ] Os cartões do Placar do partido têm borda; as seções Executivo e Filiados continuam
-- [ ] `D.conj2.muns`, `relacao`, `relacaoPq`, `desafios` e `oportunidades` seguem gravados
-- [ ] `npx tsc --noEmit` passa; o e2e `m1-conjuntura` segue verde
+- [x] Não há mapa coroplético, camadas nem painel lateral na pergunta 2.2
+- [x] Os cartões do Placar do partido têm borda; as seções Executivo e Filiados continuam
+- [x] `D.conj2.muns`, `relacao`, `relacaoPq`, `desafios` e `oportunidades` seguem gravados
+- [x] `npx tsc --noEmit` passa; o e2e `m1-conjuntura` segue verde
 
 **Tests**: e2e
 **Gate**: full
 **Commit**: `feat(m1): conjuntura do partido sem mapa`
+
+**Status**: ✅ Done
 
 ---
 

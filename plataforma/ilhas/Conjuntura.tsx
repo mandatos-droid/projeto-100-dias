@@ -3,28 +3,19 @@
    quer ter com ele. Tudo o que a equipe registra vai para D.conj2; o resto é leitura de public/data. */
 import { Fragment, useMemo, useState } from 'react';
 import {
-  carregaExecBR, carregaExecUF, carregaFiliadosBR, carregaFiliadosUF, carregaGeo, carregaHist, carregaMun,
+  carregaExecBR, carregaExecUF, carregaFiliadosBR, carregaFiliadosUF, carregaHist, carregaMun,
   carregaNacional, carregaUF,
 } from '@/lib/dados';
-import { corPartido, mistura } from '@/lib/partidos';
-import { CARGOS_22, bloco22, variacaoPartidos, type Cargo22 } from '@/lib/eleicao22';
+import { corPartido } from '@/lib/partidos';
 import { nf, pct } from '@/lib/format';
-import type { Conj2, EsferaExec, ExecEleito, FilAcum, Mun, PosExec, RegExec, TagMun } from '@/lib/types';
+import type { Conj2, EsferaExec, ExecEleito, FilAcum, Mun, PosExec, RegExec } from '@/lib/types';
 import { CARGOS, NIVEIS } from './cargos';
-import { CasaMunicipal } from './CasaMunicipal';
 import { useLegado } from './ponte';
-import { BarrasPartido, Chip, MapaMunicipios, useCarga } from './pecas';
+import { BarrasPartido, Chip, useCarga } from './pecas';
 
 const vazio = (): Conj2 => ({ muns: {}, posicao: {}, relacao: '', relacaoPq: '', desafios: [], oportunidades: [] });
 const soma = (o?: Record<string, number>) => Object.values(o ?? {}).reduce((a, b) => a + b, 0);
 const somaArr = (a?: number[]) => (a ?? []).reduce((x, y) => x + y, 0);
-
-const TAGS: { k: TagMun; rot: string; cor: string }[] = [
-  { k: 'base', rot: 'Base do mandato', cor: '#1B6B4F' },
-  { k: 'expansao', rot: 'Prioridade de expansão', cor: '#E0A526' },
-  { k: 'risco', rot: 'Risco / concorrência', cor: '#C93636' },
-];
-const COR_TAG = Object.fromEntries(TAGS.map((t) => [t.k, t.cor])) as Record<TagMun, string>;
 
 const RELACOES = [
   { k: 'direcao', t: 'Quadro de direção', d: 'Quer disputar espaço nas executivas e influir nas decisões do partido.' },
@@ -61,9 +52,6 @@ function somaTodos(mapa: Record<string, FilAcum> | undefined, k: 1 | 2 | 3, n: n
   return out;
 }
 
-type Modo = 'calor' | 'lider' | 'var' | 'ver' | 'fil' | 'marcas';
-const MODOS: [Modo, string][] = [['calor', '% de votos'], ['lider', 'Quem lidera'], ['var', 'Variação 2022→2026'], ['ver', 'Vereadores'], ['fil', 'Filiados'], ['marcas', 'Minhas marcações']];
-
 /** Cargos do mapa. 2026 e 2024 vêm do arquivo do município; 2022 e 2020 de public/data/hist. */
 type CargoMapa = { id: string; ano: number; rot: string; pega: (x: Mun, h?: Record<string, { v: number; p: [string, number][] }>) => { v: number; p: [string, number][] } | undefined };
 const hist = (k: string) => (_: Mun, h?: Record<string, { v: number; p: [string, number][] }>) => h?.[k];
@@ -77,7 +65,6 @@ const CARGOS_MAPA: CargoMapa[] = [
   { id: 'pref2020', ano: 2020, rot: 'Prefeito (1º turno)', pega: hist('pref2020') },
   { id: 'ver2020', ano: 2020, rot: 'Vereador', pega: hist('ver2020') },
 ];
-const ANOS_MAPA = [2026, 2024, 2022, 2020];
 
 /** Uma barra por categoria: o partido (barra cheia) contra todos os partidos do mesmo escopo (traço). */
 function Recorte({ titulo, rots, a, todos, cor }: { titulo: string; rots: string[]; a?: number[]; todos: number[]; cor: string }) {
@@ -108,7 +95,6 @@ function Recorte({ titulo, rots, a, todos, cor }: { titulo: string; rots: string
 export default function Conjuntura() {
   const { D, m, bump } = useLegado();
   const mun = useCarga(() => carregaMun(m.uf), m.uf);
-  const geo = useCarga(() => carregaGeo(m.uf), m.uf);
   const uf = useCarga(() => carregaUF(m.uf), m.uf);
   const nac = useCarga(() => carregaNacional(), 'nac');
   const his = useCarga(() => carregaHist(m.uf), m.uf);
@@ -122,20 +108,14 @@ export default function Conjuntura() {
   if (!c.posicao) c.posicao = {};
   const partido = (m.partido ?? '').toUpperCase();
   const cor = corPartido(partido);
-  const [cargoId, setCargoId] = useState('estadual2026');
-  const [modo, setModo] = useState<Modo>('calor');
-  const [cargoVar, setCargoVar] = useState<Cargo22>('federal');
-  const [sel, setSel] = useState<string | null>(null);        // município aberto no painel do mapa
-  const [munFil, setMunFil] = useState<string | null>(null);   // município do perfil de filiados (fechar o painel não o muda)
   const [esc, setEsc] = useState<'uf' | 'br' | null>(null);
   const [somando, setSomando] = useState(false);               // seletor do botão + das prefeituras
   const muda = (f: () => void) => { f(); bump(); };
 
-  const cargo = CARGOS_MAPA.find((x) => x.id === cargoId) ?? CARGOS_MAPA[0];
+  const cargo = CARGOS_MAPA.find((x) => x.id === 'estadual2026') ?? CARGOS_MAPA[0];
   const pegaB = (id: string, x: Mun) => cargo.pega(x, his.dados?.[id]);
   const cdi = (D.tse as { cdi?: string }).cdi || m.municipio || '';
-  const munAlvo = munFil ?? cdi; // perfil de filiados: o último município clicado no mapa ou escolhido na lista; senão o de domicílio
-  const escolheMun = (id: string | null) => { setSel(id); if (id) setMunFil(id); };
+  const munAlvo = cdi; // perfil de filiados: o município de domicílio
 
   const res = useMemo(() => {
     if (!mun.dados) return null;
@@ -171,22 +151,6 @@ export default function Conjuntura() {
     }
     return { out, max };
   }, [mun.dados, his.dados, cargo, partido]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  /* variação do partido de 2022 para 2026, em pontos percentuais da votação do cargo, por município */
-  const varMun = useMemo(() => {
-    const out = new Map<string, { dp: number; p22: number; p26: number }>();
-    let max = 0;
-    if (mun.dados && his.dados) {
-      for (const [id, x] of Object.entries(mun.dados.mun)) {
-        const a = bloco22(his.dados, id, cargoVar), b = x[cargoVar];
-        if (!a?.v || !b?.v) continue;
-        const e = variacaoPartidos(a, b).find((q) => q.partido === partido) ?? { p22: 0, p26: 0, dp: 0 };
-        out.set(id, { dp: e.dp, p22: e.p22, p26: e.p26 });
-        max = Math.max(max, Math.abs(e.dp));
-      }
-    }
-    return { out, max };
-  }, [mun.dados, his.dados, cargoVar, partido]);
 
   /* vereadores eleitos em 2024 e filiados, por município: parte do partido no total do município */
   const porMun = useMemo(() => {
@@ -331,26 +295,6 @@ export default function Conjuntura() {
   if (!partido) return <div className="apoio atencao"><span className="tag">Atenção</span>Informe o partido em “Dados do mandato” para ver a conjuntura.</div>;
   if (!m.uf) return <div className="apoio atencao"><span className="tag">Atenção</span>Informe a UF em “Dados do mandato” para ver a conjuntura.</div>;
 
-  const escala = (v: number, max: number) => mistura(cor, 0.06 + 0.94 * (max ? v / max : 0));
-  const fill = (id: string) => {
-    if (modo === 'marcas') return c.muns[id] ? COR_TAG[c.muns[id].tag] : '#d9d2c3';
-    if (modo === 'lider') { const l = res?.lider.get(id); return l ? mistura(corPartido(l), 0.85) : '#d9d2c3'; }
-    if (modo === 'var') { const x = varMun.out.get(id); return x ? mistura(x.dp >= 0 ? cor : '#a8442d', 0.1 + 0.9 * (varMun.max ? Math.abs(x.dp) / varMun.max : 0)) : '#d9d2c3'; }
-    if (modo === 'ver') { const x = porMun.ver.get(id); return x ? escala(x.p, porMun.maxVer) : '#d9d2c3'; }
-    if (modo === 'fil') { const x = porMun.fl.get(id); return x ? escala(x.p, porMun.maxFil) : '#d9d2c3'; }
-    return pcts.out.has(id) ? escala(pcts.out.get(id)!, pcts.max) : '#d9d2c3';
-  };
-  const dica = (id: string, nm: string) => {
-    const t = c.muns[id] ? ` · ${TAGS.find((x) => x.k === c.muns[id].tag)?.rot}` : '';
-    if (modo === 'lider') return `${nm}: ${res?.lider.get(id) ?? 'sem dados'}${t}`;
-    if (modo === 'var') { const x = varMun.out.get(id); return `${nm}: ${x ? `${x.dp > 0 ? '+' : ''}${x.dp.toFixed(1).replace('.', ',')} p.p. (${pct(x.p22, 1)} → ${pct(x.p26, 1)})` : 'sem dados'}${t}`; }
-    if (modo === 'ver') { const x = porMun.ver.get(id); return `${nm}: ${x ? `${x.v} de ${x.t} vereadores` : 'sem dados'}${t}`; }
-    if (modo === 'fil') { const x = porMun.fl.get(id); return `${nm}: ${x ? `${nf.format(x.v)} filiados (${pct(x.p, 1)} do município)` : 'sem dados'}${t}`; }
-    return `${nm}: ${pcts.out.has(id) ? pct(pcts.out.get(id)!) : 'sem dados'}${t}`;
-  };
-
-  const marcados = Object.entries(c.muns).sort((a, b) => nomeMun(a[0]).localeCompare(nomeMun(b[0]), 'pt'));
-  const detB = sel && mun.dados ? pegaB(sel, mun.dados.mun[sel]) : undefined;
   const addLista = (k: 'desafios' | 'oportunidades', t: string) => { if (t.trim() && !c[k].includes(t.trim())) muda(() => c[k].push(t.trim())); };
 
   const lista = (k: 'desafios' | 'oportunidades', titulo: string, cl: string) => {
@@ -386,29 +330,7 @@ export default function Conjuntura() {
   const rankUF = Object.entries(fil.dados?.uf ?? {}).map(([p, v]) => [p, v[0]] as [string, number]).sort((a, b) => b[1] - a[1]);
   const rankMostra = rankUF.slice(0, 10);
   if (!rankMostra.some(([p]) => p === partido) && fil.dados?.uf[partido]) rankMostra.push([partido, fil.dados.uf[partido][0]]);
-  /* o ranking acompanha a camada do mapa; o partido do mandato sempre aparece, mesmo fora do top 10 */
-  const top = (e: [string, number][], n = 10) => {
-    const o = [...e].sort((a, b) => b[1] - a[1]);
-    const t = o.slice(0, n);
-    const meu = o.find(([p]) => p === partido);
-    if (meu && !t.includes(meu)) t.push(meu);
-    return t;
-  };
-  const lidera = new Map<string, number>();
-  res?.lider.forEach((p) => lidera.set(p, (lidera.get(p) ?? 0) + 1));
-  const votos22 = new Map<string, number>();
-  if (modo === 'var') for (const id of Object.keys(mun.dados?.mun ?? {})) bloco22(his.dados, id, cargoVar)?.p.forEach(([p, v]) => votos22.set(p, (votos22.get(p) ?? 0) + v));
-  const ranking = modo === 'var' ? { titulo: `Votos em 2022 no estado (${CARGOS_MAPA.find((x) => x.id === `${cargoVar}2026`)?.rot})`, dados: top([...votos22.entries()]) }
-    : modo === 'ver' ? { titulo: 'Vereadores eleitos em 2024 no estado', dados: top(Object.entries(porMun.verPart)) }
-    : modo === 'fil' ? { titulo: 'Filiados por partido no estado', dados: top(rankUF) }
-    : modo === 'lider' ? { titulo: `Municípios em que lidera (${cargo.rot} ${cargo.ano})`, dados: top([...lidera.entries()]) }
-    : { titulo: `Votos no estado (${cargo.rot} ${cargo.ano})`, dados: top(res?.lista ?? []) };
-  /* barras do município clicado: também seguem a camada (vereadores e filiados dele, ou votos do cargo) */
-  const detRank = !sel ? null
-    : modo === 'ver' ? { t: 'Vereadores eleitos em 2024', d: top(Object.entries(mun.dados?.mun[sel]?.m24?.ver.el ?? {}), 6) }
-    : modo === 'fil' ? { t: 'Filiados por partido', d: top(Object.entries(fil.dados?.mun[sel] ?? {}).map(([p, v]) => [p, v[0]] as [string, number]), 6) }
-    : detB ? { t: `Votos · ${cargo.rot} ${cargo.ano}`, d: top(detB.p, 6) } : null;
-  const carregando = mun.carregando || geo.carregando || uf.carregando || nac.carregando || his.carregando || fil.carregando || filBR.carregando || exUF.carregando || exBR.carregando;
+  const carregando = mun.carregando || uf.carregando || nac.carregando || his.carregando || fil.carregando || filBR.carregando || exUF.carregando || exBR.carregando;
   const parlBR = parl('br'), parlUF = parl('uf');
   const verBR = cad('vereadores', 'br'), verUF = cad('vereadores', 'uf');
   const prefBR = cad('prefeitos', 'br'), prefUFn = cad('prefeitos', 'uf');
@@ -418,7 +340,7 @@ export default function Conjuntura() {
     <div className="ilha-corpo v2">
       <h4 className="v2-titulo">Conjuntura do {partido} em {nomeUF} e no Brasil</h4>
       {carregando && <p className="sem">Carregando dados…</p>}
-      {(mun.erro || geo.erro) && <div className="erro-cx">Não foi possível carregar os dados de {m.uf}.</div>}
+      {mun.erro && <div className="erro-cx">Não foi possível carregar os dados de {m.uf}.</div>}
       {(fil.erro || filBR.erro) && <div className="erro-cx">Não foi possível carregar os filiados.</div>}
       {(exUF.erro || exBR.erro) && <div className="erro-cx">Não foi possível carregar os dados do Executivo.</div>}
 
@@ -454,8 +376,8 @@ export default function Conjuntura() {
         Filiados: posição de {fil.dados?.geracao ?? '…'} (TSE, atualizada todo mês).
       </p>
 
-      {/* 2 · cadeiras e mapa */}
-      <h4><span className="v2-n">2</span> Cadeiras e mapa: onde o partido tem força</h4>
+      {/* 2 · cadeiras (o mapa por município saiu: PAR-03) */}
+      <h4><span className="v2-n">2</span> Cadeiras do partido</h4>
       <div className="v2-grandes">
         {NIVEIS.slice(0, 3).map(({ k, rot }) => { // vereadores e prefeituras já estão no placar
           const b = cad(k, 'br'), a = cad(k, 'uf');
@@ -470,97 +392,6 @@ export default function Conjuntura() {
           );
         })}
       </div>
-      <div className="ilha-controles">
-        <div className="abas" style={{ margin: 0 }} role="tablist" aria-label="Camada do mapa">
-          {MODOS.map(([k, r]) => <button key={k} type="button" role="tab" aria-selected={modo === k} onClick={() => setModo(k)}>{r}</button>)}
-        </div>
-        {modo === 'var' && (
-          <label className="campo"><span className="rot">Cargo</span>
-            <select value={cargoVar} onChange={(e) => setCargoVar(e.target.value as Cargo22)}>
-              {CARGOS_22.map((k) => <option key={k} value={k}>{CARGOS_MAPA.find((x) => x.id === `${k}2026`)?.rot ?? k}</option>)}
-            </select></label>
-        )}
-        {(modo === 'calor' || modo === 'lider' || modo === 'marcas') && (
-          <label className="campo"><span className="rot">Cargo</span>
-            <select value={cargo.id} onChange={(e) => setCargoId(e.target.value)}>
-              {ANOS_MAPA.map((a) => (
-                <optgroup key={a} label={`Eleição ${a}`}>
-                  {CARGOS_MAPA.filter((x) => x.ano === a).map((x) => <option key={x.id} value={x.id}>{x.rot}</option>)}
-                </optgroup>
-              ))}
-            </select></label>
-        )}
-      </div>
-      {mun.dados && geo.dados && res && (
-        <div className="ilha-lado">
-          <div>
-            <MapaMunicipios geo={geo.dados} fill={fill} selecionado={sel} onSelecionar={escolheMun} titulo={dica} />
-            <div className="escala-l">
-              {modo === 'calor' && <><span>0%</span><i style={{ background: `linear-gradient(90deg, ${mistura(cor, 0.06)}, ${cor})` }} /><span>{pct(pcts.max, 0)} dos votos</span></>}
-              {modo === 'var' && <><span>−{varMun.max.toFixed(0)} p.p.</span><i style={{ background: `linear-gradient(90deg, #a8442d, ${mistura(cor, 0.06)} 50%, ${cor})` }} /><span>+{varMun.max.toFixed(0)} p.p.</span></>}
-              {modo === 'ver' && <><span>0%</span><i style={{ background: `linear-gradient(90deg, ${mistura(cor, 0.06)}, ${cor})` }} /><span>{pct(porMun.maxVer, 0)} dos vereadores</span></>}
-              {modo === 'fil' && <><span>0%</span><i style={{ background: `linear-gradient(90deg, ${mistura(cor, 0.06)}, ${cor})` }} /><span>{pct(porMun.maxFil, 0)} dos filiados</span></>}
-              {modo === 'lider' && res.lista.slice(0, 6).map(([p]) => <span key={p} className="v2-leg"><i style={{ background: mistura(corPartido(p), 0.85) }} />{p}</span>)}
-              {modo === 'marcas' && TAGS.map((t) => <span key={t.k} className="v2-leg"><i style={{ background: t.cor }} />{t.rot}</span>)}
-            </div>
-            <p className="peq-t">
-              {modo === 'var' ? `Variação da parte do ${partido} nos votos nominais do cargo, de 2022 para 2026. Cor do partido = ganhou; vermelho = perdeu. ` : modo === 'ver' ? 'Parte das cadeiras da Câmara Municipal que é do partido (eleição de 2024). ' : modo === 'fil' ? 'Parte dos filiados do município que é do partido. ' : ''}
-              Clique num município para detalhar e marcar. Cinza = sem dados.
-            </p>
-          </div>
-          <div>
-            {sel ? (
-              <div className="v2-det">
-                <div className="topo"><h4 style={{ margin: 0 }}>{nomeMun(sel)}</h4><button type="button" className="rm" onClick={() => setSel(null)} aria-label="Fechar">×</button></div>
-                <p className="peq-t">
-                  {[
-                    detB ? `${nf.format(detB.v)} votos válidos · ${cargo.rot} ${cargo.ano}` : 'Sem votos para este cargo',
-                    porMun.fl.get(sel) ? `${nf.format(porMun.fl.get(sel)!.v)} filiados do ${partido} (${pct(porMun.fl.get(sel)!.p, 1)})` : null,
-                  ].filter(Boolean).join(' · ')}
-                </p>
-                {mun.dados.mun[sel] && <CasaMunicipal key={sel} id={sel} uf={m.uf} mun={mun.dados.mun[sel]} exec={exUF.dados?.pref[sel]} partido={partido} />}
-                {detRank && modo !== 'ver' && (detRank.d.length > 0
-                  ? <><p className="peq-t" style={{ marginBottom: 2 }}><strong>{detRank.t}</strong></p><BarrasPartido destaque={partido} dados={detRank.d} /></>
-                  : <p className="sem">Sem dados de {detRank.t.toLowerCase()} neste município.</p>)}
-                <div className="v2-tags" role="group" aria-label="Marcar município">
-                  {TAGS.map((t) => (
-                    <button key={t.k} type="button" aria-pressed={c.muns[sel]?.tag === t.k} style={{ ['--c' as string]: t.cor }}
-                      onClick={() => muda(() => { if (c.muns[sel]?.tag === t.k) delete c.muns[sel]; else c.muns[sel] = { tag: t.k, nota: c.muns[sel]?.nota ?? '' }; })}>{t.rot}</button>
-                  ))}
-                </div>
-                {c.muns[sel] && (
-                  <label className="campo"><span className="rot">Anotação sobre {nomeMun(sel)}</span>
-                    <textarea rows={2} value={c.muns[sel].nota} placeholder="Quem é a liderança local, o que falta, próximo passo…"
-                      onChange={(e) => muda(() => { c.muns[sel].nota = e.target.value; })} /></label>
-                )}
-              </div>
-            ) : (
-              <>
-                <h4 style={{ marginTop: 0 }}>{ranking.titulo}</h4>
-                <BarrasPartido destaque={partido} dados={ranking.dados} />
-              </>
-            )}
-          </div>
-        </div>
-      )}
-      {marcados.length > 0 && (
-        <div className="rolar">
-          <table className="tb" style={{ minWidth: 0 }}>
-            <thead><tr><th>Município</th><th>Marcação</th><th>% do partido</th><th>Anotação</th><th /></tr></thead>
-            <tbody>
-              {marcados.map(([id, v]) => (
-                <tr key={id} onClick={() => { escolheMun(id); setModo('marcas'); }} style={{ cursor: 'pointer' }}>
-                  <td><strong>{nomeMun(id)}</strong></td>
-                  <td><span className="v2-leg"><i style={{ background: COR_TAG[v.tag] }} />{TAGS.find((t) => t.k === v.tag)?.rot}</span></td>
-                  <td>{pcts.out.has(id) ? pct(pcts.out.get(id)!, 1) : '—'}</td>
-                  <td>{v.nota || <span className="peq-t">—</span>}</td>
-                  <td><button type="button" className="rm" aria-label={`Remover marcação de ${nomeMun(id)}`} onClick={(e) => { e.stopPropagation(); muda(() => { delete c.muns[id]; }); }}>×</button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
 
       {/* 3 · Executivo */}
       <h4><span className="v2-n">3</span> O partido diante do Executivo</h4>

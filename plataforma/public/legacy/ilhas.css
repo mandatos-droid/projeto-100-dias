@@ -461,7 +461,7 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .v2-sug button:hover{border-color:var(--vinho);color:var(--tinta)}
 .v2-titulo{margin:0.875rem 0 0}
 .v2-grandes{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1.375rem 1.75rem;margin:0.875rem 0 1.375rem}
-.v2-grande{display:flex;flex-direction:column}
+.v2-grande{display:flex;flex-direction:column;min-width:0;padding:0.875rem 1rem;background:#fff;border:1.5px solid var(--linha);border-radius:var(--r)}
 .v2-grande .rot{font-weight:700;font-size:0.8438rem;margin-bottom:2px}
 .v2-grande b{font-family:'Anton',sans-serif;font-weight:400;font-size:3.25rem;line-height:1.02;color:var(--vinho)}
 .v2-grande b.uf{margin-top:0.75rem;color:var(--tinta-2)}
