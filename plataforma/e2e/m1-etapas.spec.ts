@@ -23,10 +23,11 @@ test.describe('Faixa das 4 etapas (SUG-21)', () => {
     await expect(page.locator('.etiqueta')).toContainText('As fragilidades e fortalezas');
   });
 
-  test('nas Missões 2 a 5 a faixa não aparece', async ({ page }) => {
+  test('nas Missões 2 a 5 a faixa das 4 etapas do Mapa Político não aparece', async ({ page }) => {
+    const faixa = page.getByRole('navigation', { name: 'As 4 etapas do Mapa Político' });
     await abreGuia(page, '#/m/2');
-    await expect(page.locator('.m1-etapas')).toHaveCount(0);
+    await expect(faixa).toHaveCount(0);
     await abreGuia(page, '#/m/3/m3.bandeiras');
-    await expect(page.locator('.m1-etapas')).toHaveCount(0);
+    await expect(faixa).toHaveCount(0);
   });
 });

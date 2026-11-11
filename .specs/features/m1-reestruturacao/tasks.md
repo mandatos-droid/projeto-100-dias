@@ -484,13 +484,15 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Cada uma das 4 etapas abre numa página só e a faixa marca a atual
-- [ ] `#/m/1/m1.oportunidades/1` abre a página única da etapa
-- [ ] Passa: `npx playwright test e2e/m1-pagina-unica e2e/m1-etapas`
+- [x] Cada uma das 4 etapas abre numa página só e a faixa marca a atual
+- [x] `#/m/1/m1.oportunidades/1` abre a página única da etapa
+- [x] Passa: `npx playwright test e2e/m1-pagina-unica e2e/m1-etapas`
 
 **Tests**: e2e
 **Gate**: full
 **Commit**: `test(m1): e2e da página única por etapa`
+
+**Status**: ✅ Done
 
 ---
 

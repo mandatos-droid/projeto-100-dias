@@ -5,7 +5,7 @@ import { abreGuia, salvoDe } from './guia-real';
 test.describe('Fragilidades e fortalezas numa página só (SUG-22, SUG-23)', () => {
   test('um passo só: comando, checklist, diagnóstico e plano de estudo, nessa ordem', async ({ page }) => {
     await abreGuia(page, '#/m/1/m1.frag');
-    await expect(page.locator('.passo-conta')).toHaveText('1 de 1');
+    await expect(page.locator('.passo-conta')).toHaveCount(0);
     await expect(page.getByText('Quais são os conhecimentos e/ou práticas')).toBeVisible();
     await expect(page.locator('.frag-i').first()).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Diagnóstico das fragilidades' })).toBeVisible();
