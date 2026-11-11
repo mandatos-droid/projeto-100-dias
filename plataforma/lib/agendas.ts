@@ -51,6 +51,25 @@ export const FAIXAS = [
 ];
 export const faixaDe = (v: number) => [...FAIXAS].reverse().find((f) => v >= f.de) ?? FAIXAS[0];
 
+/** Luminância relativa WCAG 2.x de uma cor `#rrggbb`. */
+function luminancia(hex: string): number {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/** Razão de contraste WCAG entre duas cores `#rrggbb` (de 1 a 21). */
+export function razaoContraste(a: string, b: string): number {
+  const [x, y] = [luminancia(a), luminancia(b)].sort((p, q) => q - p);
+  return (x + 0.05) / (y + 0.05);
+}
+
+const TEXTO_ESCURO = '#1A1A1A', TEXTO_CLARO = '#FFFFFF';
+/** Cor do texto (clara ou escura) que dá mais contraste sobre o fundo `cor`; usada nos selos de faixa (OP-02). */
+export const textoSobre = (cor: string) => (razaoContraste(cor, TEXTO_CLARO) >= razaoContraste(cor, TEXTO_ESCURO) ? TEXTO_CLARO : TEXTO_ESCURO);
+
 export type OpcaoInd = { id: string; nome: string; grupo: string };
 
 /** Indicadores oferecidos para a agenda escolhida (ou todos, agrupados por ODS, quando é "todas"). */

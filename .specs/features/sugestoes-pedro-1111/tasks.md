@@ -344,10 +344,10 @@ T19
 
 **Done when**:
 
-- [ ] Cada faixa tem cor própria, com texto claro ou escuro conforme o contraste
-- [ ] Teste unitário em `tests/` calcula a razão de contraste de cada par (≥ 4,5)
-- [ ] Gate quick passa
-- [ ] Contagem de testes não diminui
+- [x] Cada faixa tem cor própria, com texto claro ou escuro conforme o contraste
+- [x] Teste unitário em `tests/` calcula a razão de contraste de cada par (≥ 4,5)
+- [x] Gate quick passa
+- [x] Contagem de testes não diminui
 
 **Tests**: unit
 **Gate**: quick

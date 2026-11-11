@@ -73,3 +73,31 @@ test('emSlides divide em grupos de 4 e o último pode ser menor (SOC-06)', () =>
   assert.deepEqual(emSlides([]), []);
   assert.deepEqual(emSlides([1, 2, 3], 2), [[1, 2], [3]]);
 });
+
+/* OP-02: selos de faixa com fundo preenchido e contraste mínimo de 4,5:1. A razão é calculada aqui, direto da fórmula WCAG,
+   sem usar as funções da lib para a conta. */
+import { FAIXAS, razaoContraste, textoSobre } from '../lib/agendas.ts';
+const lum = (hex: string) => {
+  const [r, g, b] = [1, 3, 5].map((i) => { const c = parseInt(hex.slice(i, i + 2), 16) / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+const wcag = (a: string, b: string) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+
+test('cada faixa tem fundo próprio e texto com contraste de pelo menos 4,5:1 (OP-02)', () => {
+  assert.equal(new Set(FAIXAS.map((f) => f.cor)).size, FAIXAS.length);
+  for (const f of FAIXAS) {
+    const texto = textoSobre(f.cor);
+    assert.ok(wcag(f.cor, texto) >= 4.5, `${f.rot}: ${f.cor} com ${texto} dá ${wcag(f.cor, texto).toFixed(2)}`);
+  }
+});
+
+test('razaoContraste confere com valores conhecidos do WCAG', () => {
+  assert.ok(Math.abs(razaoContraste('#000000', '#FFFFFF') - 21) < 0.01);
+  assert.ok(Math.abs(razaoContraste('#777777', '#FFFFFF') - 4.48) < 0.02);
+  assert.equal(razaoContraste('#336699', '#336699'), 1);
+});
+
+test('textoSobre escolhe texto claro em fundo escuro e escuro em fundo claro', () => {
+  assert.equal(textoSobre('#000000'), '#FFFFFF');
+  assert.equal(textoSobre('#FFFFFF'), '#1A1A1A');
+});

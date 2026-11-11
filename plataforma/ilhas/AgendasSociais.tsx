@@ -3,7 +3,7 @@
    os indicadores da UF da liderança, em slides de 4 cartões. Sem mapa. Os registros antigos de D.social não são lidos
    nem alterados (SOC-09). Regras em lib/indicadoresSociais.ts; arquivos em public/data/social (lib/agendas.ts). */
 import { useId, useMemo, useState } from 'react';
-import { AGENDAS, FAIXAS, carregaCatalogo, carregaIndicador, faixaDe, type Agenda, type Catalogo, type DadosIndicador } from '@/lib/agendas';
+import { AGENDAS, FAIXAS, carregaCatalogo, carregaIndicador, faixaDe, textoSobre, type Agenda, type Catalogo, type DadosIndicador } from '@/lib/agendas';
 import { filtraFaixa, linhasDaAgenda } from '@/lib/indicadoresSociais';
 import { nf } from '@/lib/format';
 import { useLegado } from './ponte';
@@ -73,7 +73,7 @@ export default function AgendasSociais() {
                 <tr key={l.indicador}>
                   <td>{l.indicador}</td>
                   <td>ODS {l.ods}{l.odsRot ? ` · ${l.odsRot}` : ''}</td>
-                  <td><strong>{nf.format(l.nota)}</strong> <small className="as-fx" style={{ ['--f' as string]: faixaDe(l.nota).cor }}>{faixaDe(l.nota).rot}</small></td>
+                  <td><strong>{nf.format(l.nota)}</strong> <small className="as-fx" style={{ ['--f' as string]: faixaDe(l.nota).cor, ['--ft' as string]: textoSobre(faixaDe(l.nota).cor) }}>{faixaDe(l.nota).rot}</small></td>
                 </tr>
               ))}
             </tbody>

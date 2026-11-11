@@ -1124,5 +1124,5 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .ilha-corpo .as-tab th{text-align:left;font-size:0.7188rem;letter-spacing:.05em;text-transform:uppercase;color:var(--tinta-3);padding:0.25rem 0.375rem 0.25rem 0;border-bottom:1.5px solid var(--linha)}
 .ilha-corpo .as-tab td{padding:0.3125rem 0.375rem 0.3125rem 0;border-bottom:1px solid var(--linha-2);vertical-align:top}
 .ilha-corpo .as-tab td:last-child{white-space:nowrap;font-variant-numeric:tabular-nums}
-.ilha-corpo .as-fx{display:inline-block;margin-left:0.25rem;padding:0 0.375rem;border-radius:999px;border:1.5px solid var(--f);font-size:0.6875rem;font-weight:700}
+.ilha-corpo .as-fx{display:inline-block;margin-left:0.25rem;padding:0.0625rem 0.5rem;border-radius:999px;border:1.5px solid var(--f);background:var(--f);color:var(--ft,#fff);font-size:0.6875rem;font-weight:800}
 .ilha-corpo .as-cartao select:focus-visible{outline:3px solid var(--vinho);outline-offset:2px}
