@@ -44,3 +44,43 @@ test('o Resumo mostra o próximo cargo (m1.q3b)', async ({ page }) => {
   await expect(page.getByText('Próximo cargo que a liderança deseja ocupar')).toBeVisible();
   await expect(page.locator('#tela')).toContainText('Senado da República');
 });
+
+/* Persona, pergunta 1.2 (PER-01 a PER-05): ranking em lista, sem mapa, e os 5 municípios mais votados. */
+const SQ = '250002536851'; // EDUARDO SUPLICY, PT, Deputado Estadual SP (public/data/uf/sp.json)
+const TSE = { sq: SQ, casa: 'estadual', uf: 'SP', nome: 'EDUARDO SUPLICY', partido: 'PT', cargo: 'Deputado Estadual', votos: 654627, pct: 2.806, situacao: 'Eleito por QP', pos: 2, candidaturas: 1346, vagas: 94, atualizado: '04/10/2026 22:58:07' };
+const MUN = { atualizado: '2026-10-05', mun: { 3500105: [900, 10000], 3500204: [4000, 20000], 3500303: [3000, 6000], 3500402: [1500, 30000], 3500501: [2500, 5000], 3500550: [100, 1000] } };
+
+test.describe('Persona · ranking em lista e municípios mais votados (PER-01 a PER-05)', () => {
+  test('sem mapa, ranking com partido ao lado e sem barras, e 5 cartões em ordem decrescente', async ({ page }) => {
+    await page.route('**/api/votos-mun**', (r) => r.fulfill({ json: MUN }));
+    await abreGuia(page, '#/m/1/m1.persona', { dados: { tse: TSE } });
+    await expect(page.getByText('Posição no ranking de votos')).toBeVisible();
+    await expect(page.getByText('Onde estão os votos')).toHaveCount(0);
+    await expect(page.locator('.rk-linha').first().locator('.chip')).toBeVisible();
+    await expect(page.locator('.barra-p')).toHaveCount(0);
+    const cartoes = page.locator('.mv5-cartao');
+    await expect(cartoes).toHaveCount(5);
+    await expect(cartoes.first()).toContainText('1º');
+    await expect(cartoes.first()).toContainText('4.000 votos');
+    await expect(cartoes.first()).toContainText('20');
+    await expect(cartoes.first()).toContainText('dos votos válidos');
+    await expect(cartoes.nth(4)).toContainText('900 votos');
+  });
+
+  test('com a consulta falhando mostra a mensagem e mantém o ranking', async ({ page }) => {
+    await page.route('**/api/votos-mun**', (r) => r.fulfill({ status: 500, json: { erro: 'x' } }));
+    await abreGuia(page, '#/m/1/m1.persona', { dados: { tse: TSE } });
+    await expect(page.getByText('Não foi possível carregar os municípios mais votados agora.')).toBeVisible();
+    await expect(page.locator('.mv5-cartao')).toHaveCount(0);
+    await expect(page.getByText('Posição no ranking de votos')).toBeVisible();
+  });
+
+  test('sem candidatura 2026 não há cartões nem consulta', async ({ page }) => {
+    let consultas = 0;
+    await page.route('**/api/votos-mun**', (r) => { consultas++; return r.fulfill({ json: MUN }); });
+    await abreGuia(page, '#/m/1/m1.persona');
+    await expect(page.getByText(TEXTO)).toBeVisible();
+    await expect(page.locator('.mv5')).toHaveCount(0);
+    expect(consultas).toBe(0);
+  });
+});

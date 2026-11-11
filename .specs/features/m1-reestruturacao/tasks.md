@@ -596,13 +596,15 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Sem mapa; ranking com partido; 5 cartões com a consulta interceptada
-- [ ] Com a consulta falhando aparece a mensagem de PER-05
-- [ ] Passa: `npx playwright test e2e/m1-persona`
+- [x] Sem mapa; ranking com partido; 5 cartões com a consulta interceptada
+- [x] Com a consulta falhando aparece a mensagem de PER-05
+- [x] Passa: `npx playwright test e2e/m1-persona`
 
 **Tests**: e2e
 **Gate**: full
 **Commit**: `test(m1): e2e da persona reestruturada`
+
+**Status**: ✅ Done
 
 ---
 
