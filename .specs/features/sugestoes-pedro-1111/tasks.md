@@ -505,10 +505,10 @@ T19
 
 **Done when**:
 
-- [ ] Todo `DadoPartido` oferecido hoje no `<select>` tem um elemento capturável na página
-- [ ] e2e compara a lista de ids
-- [ ] Gate full passa
-- [ ] Contagem de testes não diminui
+- [x] Todo `DadoPartido` oferecido hoje no `<select>` tem um elemento capturável na página
+- [x] e2e compara a lista de ids
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
 
 **Tests**: e2e
 **Gate**: full

@@ -61,6 +61,6 @@ export function mensagem(e: Estado): string {
 }
 
 /** Atributos de um valor que a pessoa pode escolher clicando na página (modo de captura). */
-export const capturavel = (d: DadoPartido) => ({
-  className: 'capturable-data', 'data-dado-id': d.id, 'data-dado-nome': d.nome, 'data-dado-valor': d.valor,
+export const capturavel = (d: DadoPartido, classe = '') => ({
+  className: `${classe} capturable-data`.trim(), 'data-dado-id': d.id, 'data-dado-nome': d.nome, 'data-dado-valor': d.valor,
 });

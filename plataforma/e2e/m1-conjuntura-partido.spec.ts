@@ -137,6 +137,24 @@ test.describe('Conjuntura do partido · sem mapa, com cartões (PAR-02 a PAR-05,
 });
 
 test.describe('Conjuntura do partido · reação a 2 dados (PAR-09 a PAR-12)', () => {
+  test('todo dado oferecido no seletor tem um elemento capturável na página, com o mesmo texto (SEL-01)', async ({ page }) => {
+    await abre(page);
+    await expect(page.getByTestId('cartao-municipio')).toHaveCount(5, { timeout: 30_000 });
+    const opcoes = await page.locator('#rea-sel-0 option:not([value=""])').evaluateAll((os) => os.map((o) => ({ id: (o as HTMLOptionElement).value, texto: o.textContent ?? '' })));
+    const capturaveis = await page.locator('.capturable-data').evaluateAll((es) => es.map((e) => e.getAttribute('data-dado-id')));
+    expect(opcoes.map((o) => o.id).sort()).toEqual([...capturaveis].sort()); // mesma lista de ids, sem repetição
+    for (const id of ['parlamentares', 'vereadores', 'prefeituras', 'filiados', 'executivos']) {
+      const el = page.locator(`.v2-grande.capturable-data[data-dado-id="${id}"]`);
+      await expect(el).toHaveCount(1);
+      const texto = opcoes.find((o) => o.id === id)!.texto;
+      expect(`${await el.getAttribute('data-dado-nome')}: ${await el.getAttribute('data-dado-valor')}`).toBe(texto);
+    }
+    // o valor capturado do Placar é o número que o cartão mostra (UF e Brasil)
+    const filiados = page.locator('.capturable-data[data-dado-id="filiados"]');
+    const [br, uf] = await filiados.locator('b').allTextContents();
+    await expect.poll(async () => filiados.getAttribute('data-dado-valor')).toBe(`${uf} no estado, ${br} no Brasil`);
+  });
+
   test('os valores dos 5 cartões de município são capturáveis e batem com os dados oferecidos (SEL-01)', async ({ page }) => {
     await abre(page);
     const cartoes = page.getByTestId('cartao-municipio');

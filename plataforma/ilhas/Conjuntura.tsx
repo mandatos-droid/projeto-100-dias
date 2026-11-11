@@ -15,6 +15,7 @@ import { numerosMun, pctEstado } from '@/lib/forcaMunicipio';
 import { POSICOES, ROT_POS, sugere } from './posicoes';
 import { Reacoes } from './Reacoes';
 import { dadosSelecionaveis } from '@/lib/dadosPartido';
+import { capturavel } from '@/lib/selecaoDados';
 import { useLegado } from './ponte';
 import { BarrasPartido, Chip, useCarga } from './pecas';
 
@@ -275,6 +276,8 @@ export default function Conjuntura() {
     alvo.itens.map((it) => numerosMun(it, mun.dados, fil.dados, alvo.casa, partido)),
   );
 
+  const dadoPorId = (id: string) => dadosDoPartido.find((d) => d.id === id)!;
+
   return (
     <div className="ilha-corpo v2">
       <h4 className="v2-titulo">Conjuntura do {partido} em {nomeUF} e no Brasil</h4>
@@ -287,12 +290,12 @@ export default function Conjuntura() {
       <h4><span className="v2-n">1</span> Placar do partido</h4>
       <div className="v2-grandes">
         {[
-          { rot: 'Parlamentares (Câmara dos Deputados, Senado e Assembleia)', br: parlBR, uf: parlUF },
-          { rot: 'Vereadores (2024)', br: verBR, uf: verUF },
-          { rot: 'Prefeituras (2024)', br: prefBR, uf: prefUFn },
-          { rot: 'Filiados', br: filBRn, uf: filUFn },
+          { id: 'parlamentares', rot: 'Parlamentares (Câmara dos Deputados, Senado e Assembleia)', br: parlBR, uf: parlUF },
+          { id: 'vereadores', rot: 'Vereadores (2024)', br: verBR, uf: verUF },
+          { id: 'prefeituras', rot: 'Prefeituras (2024)', br: prefBR, uf: prefUFn },
+          { id: 'filiados', rot: 'Filiados', br: filBRn, uf: filUFn },
         ].map((x) => (
-          <div className="v2-grande" key={x.rot}>
+          <div key={x.rot} {...capturavel(dadoPorId(x.id), 'v2-grande')}>
             <span className="rot">{x.rot}</span>
             <b>{nf.format(x.br.n)}</b>
             <span>no Brasil{lbl(x.br.n, x.br.t)}</span>
@@ -300,7 +303,7 @@ export default function Conjuntura() {
             <span>em {m.uf}{lbl(x.uf.n, x.uf.t)}</span>
           </div>
         ))}
-        <div className="v2-grande">
+        <div {...capturavel(dadoPorId('executivos'), 'v2-grande')}>
           <span className="rot">Posição nos Executivos</span>
           <ul className="v2-pos-lista">
             {esferas.map((e) => {
