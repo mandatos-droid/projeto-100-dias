@@ -38,6 +38,7 @@ test.describe('Contador de dias mostra quanto falta (CFG-01)', () => {
     await abre(page, -5);
     await expect(lateral(page)).toContainText('faltam 5 dias para a posse');
     await expect(page.locator('#diaMovel')).toHaveText('faltam 5 dias para a posse');
+    expect(await resumoBaixado(page)).toContain(' · faltam 5 dias para a posse');
   });
 
   test('dia 99 no singular ("falta 1 dia")', async ({ page }) => {

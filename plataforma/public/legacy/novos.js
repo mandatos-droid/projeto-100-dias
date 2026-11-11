@@ -593,7 +593,8 @@ function contadorDias(d){
     var _pag=Baixar.pagina;
     Baixar.pagina=function(){
       var h=_pag.apply(this,arguments),d=diaAtual(),c=contadorDias(d);
-      return c&&d>0?h.replace(' · dia '+d+' de 100',' · '+c.texto):h;
+      if(!c)return h;
+      return d>0?h.replace(' · dia '+d+' de 100',' · '+c.texto):h.replace('<br>Exportado em ',' · '+c.texto+'<br>Exportado em ');
     };
   }
 })();
