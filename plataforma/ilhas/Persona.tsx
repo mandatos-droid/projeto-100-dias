@@ -1,12 +1,11 @@
 'use client';
 import { useMemo, useState, type ReactNode } from 'react';
 import { carregaPleitos, carregaUF } from '@/lib/dados';
-import { corPartido } from '@/lib/partidos';
 import { nf, pct, semAcento } from '@/lib/format';
 import type { Cand, CasaChave, Pleito, UFData } from '@/lib/types';
 import { atualizaMandato, useLegado } from './ponte';
 import { Chip, Foto, Info, useCarga } from './pecas';
-import MapaVotos from './MapaVotos';
+import MaisVotados from './MaisVotados';
 
 const CASAS: CasaChave[] = ['federal', 'estadual', 'senado'];
 const CARGOS = ['Presidente', 'Governador', 'Senador', 'Deputado Federal', 'Deputado Estadual', 'Deputado Distrital', 'Prefeito', 'Vice-prefeito', 'Vereador', 'Outro'];
@@ -275,22 +274,18 @@ export default function Persona() {
                 </p>
               )}
 
-              <MapaVotos uf={m.uf} casa={achado.casa} sq={c.s} nome={c.u} totalUF={c.v} />
-
               <h4>Posição no ranking de votos</h4>
-              <div>
-                {ranking.map((r) => {
-                  const max = ranking[0].v;
-                  return (
-                    <div className={`barra-p largo ${r.s === c.s ? 'dest' : ''}`} key={r.s}>
-                      <span className="nm">{casa.cands.indexOf(r) + 1}º {r.u}</span>
-                      <span className="fundo"><i style={{ width: `${(r.v / max) * 100}%`, background: corPartido(r.p), opacity: r.e ? 1 : 0.4 }} /></span>
-                      <span className="v">{nf.format(r.v)}</span>
-                    </div>
-                  );
-                })}
-              </div>
-              <p className="peq-t">Barras claras = não eleitos. Fonte: resultados.tse.jus.br, totalização de {casa.atualizado}.</p>
+              <ol className="rk-lista">
+                {ranking.map((r) => (
+                  <li className={`rk-linha ${r.s === c.s ? 'dest' : ''} ${r.e ? '' : 'nao'}`} key={r.s}>
+                    <span className="rk-pos">{casa.cands.indexOf(r) + 1}º</span>
+                    <span className="rk-nome"><strong>{r.u}</strong> <Chip p={r.p} /></span>
+                    <span className="rk-v">{nf.format(r.v)}</span>
+                  </li>
+                ))}
+              </ol>
+              <p className="peq-t">Em cinza, quem não foi eleito. Fonte: resultados.tse.jus.br, totalização de {casa.atualizado}.</p>
+              <MaisVotados />
             </>
           )}
         </Cartao>

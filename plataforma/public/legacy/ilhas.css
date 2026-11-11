@@ -1050,3 +1050,11 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
 .ilha-corpo .mv5-nome{overflow-wrap:anywhere}
 .ilha-corpo .mv5-votos{font-variant-numeric:tabular-nums;font-weight:700}
 .ilha-corpo .mv5-pct{margin:0}
+/* ranking de votos em lista (pergunta 1.2): posição, nome com partido ao lado, votos */
+.ilha-corpo .rk-lista{list-style:none;margin:0.5rem 0;padding:0}
+.ilha-corpo .rk-linha{display:grid;grid-template-columns:3rem 1fr auto;gap:0.625rem;align-items:center;padding:0.375rem 0;border-bottom:1px solid var(--linha-2);font-size:0.9rem}
+.ilha-corpo .rk-linha.dest{font-weight:700;background:var(--linha-2)}
+.ilha-corpo .rk-linha.nao .rk-nome strong{color:var(--tinta-2);font-weight:600}
+.ilha-corpo .rk-pos{font-variant-numeric:tabular-nums;color:var(--tinta-3)}
+.ilha-corpo .rk-nome{display:flex;flex-wrap:wrap;align-items:center;gap:0.375rem;min-width:0}
+.ilha-corpo .rk-v{text-align:right;font-variant-numeric:tabular-nums}

@@ -542,14 +542,16 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Não há mapa "Onde estão os votos" na pergunta 1.2
-- [ ] O ranking mostra posição, nome e `Chip` do partido, sem barras
-- [ ] Os pleitos anteriores a 2026 não mostram cartões de município
-- [ ] `npx tsc --noEmit` passa
+- [x] Não há mapa "Onde estão os votos" na pergunta 1.2
+- [x] O ranking mostra posição, nome e `Chip` do partido, sem barras
+- [x] Os pleitos anteriores a 2026 não mostram cartões de município
+- [x] `npx tsc --noEmit` passa
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(m1): persona sem mapa de votos`
+
+**Status**: ✅ Done
 
 ---
 
