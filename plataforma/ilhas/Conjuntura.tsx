@@ -59,18 +59,32 @@ const CARGOS_MAPA: CargoMapa[] = [
   { id: 'ver2020', ano: 2020, rot: 'Vereador', pega: hist('ver2020') },
 ];
 
-/** Uma barra por categoria: o partido (barra cheia) contra todos os partidos do mesmo escopo (traço). */
-function Recorte({ titulo, rots, a, todos, cor }: { titulo: string; rots: string[]; a?: number[]; todos: number[]; cor: string }) {
+/** Percentuais do partido e de todos os partidos por categoria (a mesma conta do desenho e dos dados capturáveis). */
+function percentuais(rots: string[], a: number[] | undefined, todos: number[]) {
   const ta = somaArr(a), tt = somaArr(todos);
-  const pa = rots.map((_, i) => (ta ? ((a?.[i] ?? 0) / ta) * 100 : 0));
-  const pt = rots.map((_, i) => (tt ? (todos[i] / tt) * 100 : 0));
+  return {
+    ta, pa: rots.map((_, i) => (ta ? ((a?.[i] ?? 0) / ta) * 100 : 0)), pt: rots.map((_, i) => (tt ? (todos[i] / tt) * 100 : 0)),
+  };
+}
+/** Um dado capturável por categoria de um gráfico de perfil (SEL-02). */
+function dadosRecorte(titulo: string, rots: string[], a: number[] | undefined, todos: number[], quem: string, escopo: string): DadoPartido[] {
+  const { pa, pt } = percentuais(rots, a, todos);
+  return rots.map((r, i) => ({
+    id: `perfil:${escopo}:${titulo}:${r}`, nome: `Perfil dos filiados do ${quem} · ${titulo}: ${r}`,
+    valor: `${pct(pa[i], 1)} do partido, ${pct(pt[i], 1)} de todos os partidos`,
+  }));
+}
+
+/** Uma barra por categoria: o partido (barra cheia) contra todos os partidos do mesmo escopo (traço). */
+function Recorte({ titulo, rots, a, todos, cor, quem, escopo }: { titulo: string; rots: string[]; a?: number[]; todos: number[]; cor: string; quem: string; escopo: string }) {
+  const { ta, pa, pt } = percentuais(rots, a, todos);
   const esc = 100 / Math.max(1, ...pa, ...pt);
   return (
     <div className="v2-rec">
       <h5>{titulo}</h5>
       <div className="v2-rec-l cab" aria-hidden="true"><span /><span /><span className="v">Partido</span><span className="t">Todos</span></div>
       {rots.map((r, i) => (
-        <div className="v2-rec-l" key={r}>
+        <div key={r} {...capturavel(dadosRecorte(titulo, rots, a, todos, quem, escopo)[i], 'v2-rec-l')}>
           <span className="nm">{r}</span>
           <span className="fundo">
             <i style={{ width: `${pa[i] * esc}%`, background: cor }} />
@@ -280,7 +294,28 @@ export default function Conjuntura() {
     const b = cad(k, 'br'), a = cad(k, 'uf');
     return { id: `cadeiras:${k}`, nome: `Cadeiras do partido · ${rot}`, valor: `${nf.format(b.n)} no Brasil${b.t ? ` (${pct((b.n / b.t) * 100, 1)} de ${nf.format(b.t)})` : ''}, ${nf.format(a.n)} em ${m.uf}${a.t ? ` (${pct((a.n / a.t) * 100, 1)} de ${nf.format(a.t)})` : ''}` };
   });
-  const dadosCapturaveis = [...dadosDoPartido, ...dadosCadeiras];
+  const RECORTES = [['Gênero', GENERO, 1], ['Faixa etária', FAIXAS, 2], ['Escolaridade', ESCOLA, 3]] as const;
+  const dadosPerfil: DadoPartido[] = (['uf', 'br'] as const).flatMap((e) => {
+    const mapa = e === 'uf' ? fil.dados?.uf : filBR.dados?.br;
+    const quem = `${partido} em ${e === 'uf' ? nomeUF : 'Brasil'}`;
+    return [
+      { id: `perfil:${e}:total`, nome: `Filiados do ${quem}`, valor: nf.format(mapa?.[partido]?.[0] ?? 0) },
+      ...RECORTES.flatMap(([t, rots, k]) => dadosRecorte(t, [...rots], mapa?.[partido]?.[k], somaTodos(mapa, k, rots.length), quem, e)),
+    ];
+  });
+  const dadosFiliados: DadoPartido[] = [
+    { id: 'fil:br', nome: `Filiados do ${partido} no Brasil`, valor: `${nf.format(filBRn.n)}${lbl(filBRn.n, filBRn.t)}` },
+    { id: 'fil:uf', nome: `Filiados do ${partido} em ${nomeUF}`, valor: `${nf.format(filUFn.n)}${lbl(filUFn.n, filUFn.t)}` },
+    ...(munAlvo ? [{ id: 'fil:mun', nome: `Filiados do ${partido} em ${nomeMun(munAlvo)}`, valor: `${nf.format(filMunn.n)}${lbl(filMunn.n, filMunn.t)}` }] : []),
+    ...rankMostra.map(([p, n]) => ({ id: `rank:${p}`, nome: `Filiados do ${p} em ${nomeUF}`, valor: nf.format(n) })),
+  ];
+  const dadosExec: DadoPartido[] = esferas.flatMap((e) => {
+    const ef = e.eleito;
+    if (!ef || 'pend' in ef) return [];
+    const efetivo = c.posicao?.[e.k] ?? sugere(ef, partido);
+    return [{ id: `exec:${e.k}`, nome: `${e.titulo} · eleição de ${e.ano}`, valor: `${ef.n} (${ef.p}) · posição do partido: ${efetivo ? ROT_POS[efetivo] : 'a definir'}` }];
+  });
+  const dadosCapturaveis = [...dadosDoPartido, ...dadosCadeiras, ...dadosFiliados, ...dadosPerfil, ...dadosExec];
 
   const dadoPorId = (id: string) => dadosCapturaveis.find((d) => d.id === id)!;
 
@@ -355,7 +390,7 @@ export default function Conjuntura() {
         return (
           <Fragment key={e.k}>
           <div className="v2-exec">
-            <div className="quem">
+            <div {...(ef && !('pend' in ef) ? capturavel(dadoPorId(`exec:${e.k}`), 'quem') : { className: 'quem' })}>
               <h5>{e.titulo} <span className="peq-t">· eleição de {e.ano}</span></h5>
               {ef === undefined ? <p className="sem">Carregando…</p>
                 : ef === null ? <p className="sem">Sem dados para esta esfera.</p>
@@ -399,12 +434,13 @@ export default function Conjuntura() {
       {/* 4 · filiados */}
       <h4><span className="v2-n">4</span> Filiados: quem compõe a base do partido</h4>
       <div className="kpis" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(170px,1fr))' }}>
-        <div className="kp"><b>{nf.format(filBRn.n)}</b><span>no Brasil{lbl(filBRn.n, filBRn.t)}</span></div>
-        <div className="kp"><b>{nf.format(filUFn.n)}</b><span>em {nomeUF}{lbl(filUFn.n, filUFn.t)}</span></div>
-        {munAlvo && <div className="kp"><b>{nf.format(filMunn.n)}</b><span>em {nomeMun(munAlvo)}{lbl(filMunn.n, filMunn.t)}</span></div>}
+        <div {...capturavel(dadoPorId('fil:br'), 'kp')}><b>{nf.format(filBRn.n)}</b><span>no Brasil{lbl(filBRn.n, filBRn.t)}</span></div>
+        <div {...capturavel(dadoPorId('fil:uf'), 'kp')}><b>{nf.format(filUFn.n)}</b><span>em {nomeUF}{lbl(filUFn.n, filUFn.t)}</span></div>
+        {munAlvo && <div {...capturavel(dadoPorId('fil:mun'), 'kp')}><b>{nf.format(filMunn.n)}</b><span>em {nomeMun(munAlvo)}{lbl(filMunn.n, filMunn.t)}</span></div>}
       </div>
       <h4 style={{ marginTop: 6 }}>Filiados por partido em {nomeUF}</h4>
-      <BarrasPartido destaque={partido} dados={rankMostra} />
+      <BarrasPartido destaque={partido} dados={rankMostra}
+        captura={(p) => { const d = dadoPorId(`rank:${p}`); return { 'data-dado-id': d.id, 'data-dado-nome': d.nome, 'data-dado-valor': d.valor }; }} />
       <h4>Perfil dos filiados do {partido}</h4>
       <div className="ilha-controles">
         <div className="abas" style={{ margin: 0 }} role="tablist" aria-label="Escopo do perfil">
@@ -415,11 +451,11 @@ export default function Conjuntura() {
       </div>
       {aEsc ? (
         <>
-          <p className="peq-t">{partido} em {rotEscopo}: <strong>{nf.format(aEsc[0])}</strong> filiados.</p>
+          <p {...capturavel(dadoPorId(`perfil:${escopo}:total`), 'peq-t')}>{partido} em {rotEscopo}: <strong>{nf.format(aEsc[0])}</strong> filiados.</p>
           <div className="v2-recs">
-            <Recorte titulo="Gênero" rots={GENERO} a={aEsc[1]} todos={somaTodos(mapaEscopo, 1, GENERO.length)} cor={cor} />
-            <Recorte titulo="Faixa etária" rots={FAIXAS} a={aEsc[2]} todos={somaTodos(mapaEscopo, 2, FAIXAS.length)} cor={cor} />
-            <Recorte titulo="Escolaridade" rots={ESCOLA} a={aEsc[3]} todos={somaTodos(mapaEscopo, 3, ESCOLA.length)} cor={cor} />
+            <Recorte titulo="Gênero" rots={GENERO} a={aEsc[1]} todos={somaTodos(mapaEscopo, 1, GENERO.length)} cor={cor} quem={`${partido} em ${rotEscopo}`} escopo={escopo} />
+            <Recorte titulo="Faixa etária" rots={FAIXAS} a={aEsc[2]} todos={somaTodos(mapaEscopo, 2, FAIXAS.length)} cor={cor} quem={`${partido} em ${rotEscopo}`} escopo={escopo} />
+            <Recorte titulo="Escolaridade" rots={ESCOLA} a={aEsc[3]} todos={somaTodos(mapaEscopo, 3, ESCOLA.length)} cor={cor} quem={`${partido} em ${rotEscopo}`} escopo={escopo} />
           </div>
         </>
       ) : (

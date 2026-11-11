@@ -120,12 +120,12 @@ export function StatusBotoes({ chave, rel }: { chave: string; rel: Omit<Relacao,
   );
 }
 
-export function BarrasPartido({ dados, destaque }: { dados: [string, number][]; destaque?: string }) {
+export function BarrasPartido({ dados, destaque, captura }: { dados: [string, number][]; destaque?: string; captura?: (p: string, n: number) => Record<string, string> }) {
   const max = Math.max(1, ...dados.map((d) => d[1]));
   return (
     <div>
       {dados.map(([p, n]) => (
-        <div className={`barra-p ${p === destaque ? 'dest' : ''}`} key={p}>
+        <div key={p} {...(captura ? captura(p, n) : {})} className={`barra-p ${p === destaque ? 'dest' : ''} ${captura ? 'capturable-data' : ''}`}>
           <span>{p}</span>
           <span className="fundo"><i style={{ width: `${(n / max) * 100}%`, background: corPartido(p) }} /></span>
           <span className="v">{n.toLocaleString('pt-BR')}</span>

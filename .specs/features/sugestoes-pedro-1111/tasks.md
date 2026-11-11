@@ -732,9 +732,9 @@ T24
 
 ---
 
-### T24: Cartões da pergunta 2 capturáveis (sugestão #144)
+### T24: Dados dos tópicos 1 a 4 capturáveis (sugestão #144)
 
-**What**: Cada cartão de "Cadeiras do partido" ganha `.capturable-data` (id `cadeiras:<k>`, valor com o par Brasil/UF) e entra na lista de dados das reações.
+**What**: Tudo dos tópicos 1 a 4 ganha `.capturable-data` e entra na lista de dados das reações: cartões de cadeiras (`cadeiras:<k>`, par Brasil/UF), blocos do Executivo (`exec:<k>`), totais de filiados, linhas do ranking (`rank:<p>`) e linhas dos gráficos de perfil (`perfil:<escopo>:<gráfico>:<categoria>`).
 **Where**: `plataforma/ilhas/Conjuntura.tsx`
 **Depends on**: None
 **Reuses**: `capturavel` (`lib/selecaoDados.ts`); e2e de `m1-conjuntura-partido.spec.ts`

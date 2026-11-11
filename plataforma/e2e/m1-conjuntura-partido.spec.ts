@@ -151,7 +151,6 @@ test.describe('Conjuntura do partido · dados capturáveis na página (SEL-01)',
     const esperados = [...PLACAR_IDS, ...CDIS.flatMap((c) => [`mun:${c}:vereadores`, `mun:${c}:filiados`])];
     for (const id of esperados) expect(ids).toContain(id);
     expect(ids.filter((i) => i.startsWith('mun:') && i.endsWith(':pct')).length).toBeGreaterThan(0);
-    expect(ids.length).toBeLessThanOrEqual(PLACAR_IDS.length + 3 + CDIS.length * 3);
     for (const id of PLACAR_IDS) await expect(page.locator(`.v2-grande.capturable-data[data-dado-id="${id}"]`)).toHaveCount(1);
     for (const cdi of CDIS) { // cada cartão de município carrega os seus
       const el = capturavel(page, `mun:${cdi}:vereadores`);
@@ -182,6 +181,34 @@ test.describe('Conjuntura do partido · cartões da pergunta 2 capturáveis (SEL
     await expect(page.locator('.rea-chip')).toHaveCount(2);
     await expect(page.locator('.rea-linha').nth(0)).toContainText('Cadeiras do partido · Câmara dos Deputados');
     await expect(page.locator('.rea-linha').nth(1)).toContainText('Cadeiras do partido · Senado');
+  });
+});
+
+test.describe('Conjuntura do partido · tópicos 3 e 4 capturáveis (SEL-02, sugestão #144)', () => {
+  test('linhas dos gráficos de perfil, ranking, totais de filiados e blocos do Executivo são capturáveis', async ({ page }) => {
+    await abre(page);
+    await expect(page.getByTestId('cartao-municipio')).toHaveCount(5, { timeout: 30_000 });
+    const ids = await page.locator('.capturable-data').evaluateAll((es) => es.map((e) => e.getAttribute('data-dado-id')!));
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const t of ['Gênero', 'Faixa etária', 'Escolaridade']) {
+      const linhas = page.locator('.v2-rec', { has: page.getByRole('heading', { name: t }) }).locator('.v2-rec-l.capturable-data');
+      expect(await linhas.count()).toBeGreaterThanOrEqual(2);
+      await expect(linhas.first()).toHaveAttribute('data-dado-valor', /% do partido, .*% de todos os partidos/);
+    }
+    expect(ids.filter((i) => i.startsWith('rank:')).length).toBeGreaterThan(0);
+    expect(ids).toContain('fil:br');
+    expect(ids).toContain('fil:uf');
+    expect(ids.filter((i) => i.startsWith('exec:')).length).toBeGreaterThan(0);
+  });
+
+  test('clicar numa linha do gráfico e num bloco do Executivo captura os dois', async ({ page }) => {
+    await abre(page);
+    await expect(page.getByTestId('cartao-municipio')).toHaveCount(5, { timeout: 30_000 });
+    await iniciar(page);
+    await page.locator('.v2-rec-l.capturable-data').first().locator('.nm').click();
+    await page.locator('.barra-p.capturable-data').first().click();
+    await expect(page.locator('.rea-chip')).toHaveCount(2);
+    await expect(page.locator('.rea-linha').nth(0)).toContainText('Perfil dos filiados');
   });
 });
 
