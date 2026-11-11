@@ -33,7 +33,7 @@ export default function Classificados() {
           </button>
         ))}
       </div>
-      <Slides itens={lista} tam={CARTOES_POR_SLIDE} rotulo="Parlamentares classificados" chave={([sq]) => sq}
+      <Slides key={filtro} itens={lista} tam={CARTOES_POR_SLIDE} rotulo="Parlamentares classificados" chave={([sq]) => sq}
         vazio={<p className="sem">Nenhum parlamentar nesta categoria.</p>}
         render={([sq, r]) => {
           const { status: st, ...rel } = r;

@@ -173,4 +173,21 @@ test.describe('Conjuntura · relações com os parlamentares (LEG-01, LEG-02, LE
     await page.evaluate(() => { location.hash = '#/resumo'; });
     await expect(page.locator('#tela')).toContainText('Você tem 1 Oponente e concorrente; 1 Indefinida', { timeout: 20_000 });
   });
+
+  test('ao trocar o filtro do carrossel, ele volta ao primeiro slide (LEG-09)', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await abreGuia(page, '#/m/1/m1.conjuntura', { mandato: MANDATO });
+    await expect.poll(() => linhas(page).count(), { timeout: 30_000 }).toBe(15);
+    const marca = (i: number, cat: string) => linhas(page).nth(i).getByRole('button', { name: cat, exact: true }).click();
+    for (let i = 0; i < 3; i++) await marca(i, 'Aliado');
+    await marca(3, 'Oponente e concorrente');
+    const car = page.getByTestId('classificados');
+    await expect(car.getByText('Slide 1 de 2')).toBeVisible();
+    await car.getByRole('button', { name: /^Próximo/ }).click();
+    await expect(car.getByText('Slide 2 de 2')).toBeVisible();
+    await car.getByRole('button', { name: /^Oponente e concorrente\s*1/ }).click();
+    await expect(car.getByText('Slide 1 de 1')).toBeVisible();
+    await car.getByRole('button', { name: /^Todas/ }).click();
+    await expect(car.getByText('Slide 1 de 2')).toBeVisible();
+  });
 });
