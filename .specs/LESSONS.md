@@ -282,6 +282,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: .specs/features/area-do-mandato/spec.md:181 (N-1, rodada 2) (spec)
 - last seen: 2026-11-10T20:55:53Z
 
+### L-041 - Seed every enumerated category or state in tests of duplicated render code, so renaming or reordering any one of them fails a test
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `legacy` · harmful: 0
+- features: m1-reestruturacao
+- evidence: mutants N8/N12 public/legacy/novos.js:164-165 (legacy)
+- last seen: 2026-11-11T06:10:01Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

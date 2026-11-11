@@ -263,35 +263,35 @@ Todas as decisões foram aprovadas pelo Pedro em 2026-11-11 (as que estavam sem 
 | PAG-03 | P1: Cada etapa numa página só | T8, T14 | Verified |
 | PAG-04 | P1: Cada etapa numa página só | T8, T14 | Verified |
 | PER-01 | P1: Persona | T16, T17, T18 | Verified |
-| PER-02 | P1: Persona | T16, T18 | Implementing |
+| PER-02 | P1: Persona | T16, T18 | Verified |
 | PER-03 | P1: Persona | T4, T15, T18 | Verified |
-| PER-04 | P1: Persona | T15, T16 | Implementing |
+| PER-04 | P1: Persona | T15, T16 | Verified |
 | PER-05 | P1: Persona | T15, T18 | Verified |
 | PER-06 | P1: Persona | T9 | Verified |
 | PER-07 | P1: Persona | T9, T18 | Verified |
 | PER-08 | P1: Persona | T9, T18 | Verified |
 | PER-09 | P1: Persona | T9, T18 | Verified |
-| LEG-01 | P1: Conjuntura, relações | T22, T25 | Implementing |
-| LEG-02 | P1: Conjuntura, relações | T22, T25, T41 | Implementing |
+| LEG-01 | P1: Conjuntura, relações | T22, T25 | Verified |
+| LEG-02 | P1: Conjuntura, relações | T22, T25, T41 | Verified |
 | LEG-03 | P1: Conjuntura, relações | T1, T2, T19, T25 | Verified |
 | LEG-04 | P1: Conjuntura, relações | T10, T19 | Verified |
 | LEG-05 | P1: Conjuntura, relações | T10 | Verified |
-| LEG-06 | P1: Conjuntura, relações | T22 | Implementing |
+| LEG-06 | P1: Conjuntura, relações | T22 | Verified |
 | LEG-07 | P1: Conjuntura, relações | T22, T25 | Verified |
 | LEG-08 | P1: Conjuntura, relações | T20, T21, T25 | Verified |
 | LEG-09 | P1: Conjuntura, relações | T21, T25 | Verified |
 | LEG-10 | P1: Conjuntura, relações | T21, T25 | Verified |
 | LEG-11 | P1: Conjuntura, relações | T2, T19, T41 | Verified |
 | LEG-12 | P1: Conjuntura, relações | T2, T23, T25 | Verified |
-| LEG-13 | P1: Conjuntura, relações | T23, T24 | Verified |
+| LEG-13 | P1: Conjuntura, relações | T23, T24 | Needs Fix |
 | PAR-01 | P1: Conjuntura, partido | T10, T30 | Verified |
-| PAR-02 | P1: Conjuntura, partido | T26, T30 | Implementing |
+| PAR-02 | P1: Conjuntura, partido | T26, T30 | Verified |
 | PAR-03 | P1: Conjuntura, partido | T26, T30 | Verified |
 | PAR-04 | P1: Conjuntura, partido | T27, T29, T30 | Verified |
-| PAR-05 | P1: Conjuntura, partido | T27, T30 | Implementing |
-| PAR-06 | P1: Conjuntura, partido | T27 | Implementing |
-| PAR-07 | P1: Conjuntura, partido | T27 | Implementing |
-| PAR-08 | P1: Conjuntura, partido | T15, T27 | Implementing |
+| PAR-05 | P1: Conjuntura, partido | T27, T30 | Verified |
+| PAR-06 | P1: Conjuntura, partido | T27 | Verified |
+| PAR-07 | P1: Conjuntura, partido | T27 | Verified |
+| PAR-08 | P1: Conjuntura, partido | T15, T27 | Verified |
 | PAR-09 | P1: Conjuntura, partido | T10, T29, T30 | Verified |
 | PAR-10 | P1: Conjuntura, partido | T7, T28, T29 | Verified |
 | PAR-11 | P1: Conjuntura, partido | T7, T28, T30 | Verified |
@@ -306,7 +306,7 @@ Todas as decisões foram aprovadas pelo Pedro em 2026-11-11 (as que estavam sem 
 | SOC-06 | P1: Oportunidades e ameaças | T5, T20, T33, T37 | Verified |
 | SOC-07 | P1: Oportunidades e ameaças | T11 | Verified |
 | SOC-08 | P1: Oportunidades e ameaças | T33 | Verified |
-| SOC-09 | P1: Oportunidades e ameaças | T33 | Implementing |
+| SOC-09 | P1: Oportunidades e ameaças | T33 | Verified |
 | ELE-01 | P1: Oportunidades e ameaças | T31, T36, T37 | Verified |
 | ELE-02 | P1: Oportunidades e ameaças | T31, T37 | Verified |
 | ELE-03 | P1: Oportunidades e ameaças | T31, T37 | Verified |
@@ -326,11 +326,11 @@ Todas as decisões foram aprovadas pelo Pedro em 2026-11-11 (as que estavam sem 
 | FRA-02 | P2: Fragilidades | T12 | Verified |
 | FRA-03 | P2: Fragilidades | T12 | Verified |
 | FEC-01 | P1: Fechamento | T40, T42 | Verified |
-| FEC-02 | P1: Fechamento | T38, T40, T42 | Implementing |
+| FEC-02 | P1: Fechamento | T38, T40, T42 | Needs Fix |
 | FEC-03 | P1: Fechamento | T38 | Verified |
 | FEC-04 | P1: Fechamento | T40, T42 | Verified |
 | FEC-05 | P1: Fechamento | T38, T42 | Verified |
-| GER-01 | P2: Linguagem e resumo | T12, T41 | Implementing |
+| GER-01 | P2: Linguagem e resumo | T12, T41 | Verified |
 | GER-02 | P2: Linguagem e resumo | T13, T39, T42 | Verified |
 | GER-03 | P2: Linguagem e resumo | T13, T42 | Verified |
 
