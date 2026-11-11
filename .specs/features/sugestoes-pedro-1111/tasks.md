@@ -451,10 +451,10 @@ T19
 
 **Done when**:
 
-- [ ] Teste unitário cobre cada transição, cancelar no meio, repetido e remover chip
-- [ ] `npm test` passa
-- [ ] Gate quick passa
-- [ ] Contagem de testes não diminui
+- [x] Teste unitário cobre cada transição, cancelar no meio, repetido e remover chip
+- [x] `npm test` passa
+- [x] Gate quick passa
+- [x] Contagem de testes não diminui
 
 **Tests**: unit
 **Gate**: quick
