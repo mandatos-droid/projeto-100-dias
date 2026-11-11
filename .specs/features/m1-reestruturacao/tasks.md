@@ -258,14 +258,16 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] 4ª marcação não entra e devolve `erro: 'cheio'`
-- [ ] Desmarcar remove; id fora das 13 agendas é ignorado
-- [ ] `faltam` devolve 3 − tamanho da lista
-- [ ] Teste novo `tests/agendasPrio.test.ts` passa
+- [x] 4ª marcação não entra e devolve `erro: 'cheio'`
+- [x] Desmarcar remove; id fora das 13 agendas é ignorado
+- [x] `faltam` devolve 3 − tamanho da lista
+- [x] Teste novo `tests/agendasPrio.test.ts` passa
 
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(m1): regra das 3 agendas prioritárias`
+**Commit**: `feat(m1): regra das 3 agendas prioritárias`
+
+**Status**: ✅ Done
 
 ---
 
