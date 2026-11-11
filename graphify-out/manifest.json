@@ -60,9 +60,9 @@
     "semantic_hash": ""
   },
   "plataforma/ilhas/Resumos.tsx": {
-    "mtime": 1794374287.5215201,
-    "seen": 1794375126.9326348,
-    "ast_hash": "d5f0ff9d50ae27240eac9a256eea3c66",
+    "mtime": 1794375484.8443642,
+    "seen": 1794378418.1786397,
+    "ast_hash": "5b81f5ceaa36fc22c87fd21ae9425881",
     "semantic_hash": ""
   },
   "plataforma/ilhas/Social.tsx": {
@@ -1722,8 +1722,8 @@
     "semantic_hash": "1d4b789739020e634ad7e85710c75b7c"
   },
   "plataforma/public/legacy/novos.js": {
-    "mtime": 1794374265.1342754,
-    "seen": 1794375126.9347107,
+    "mtime": 1794377444.1466177,
+    "seen": 1794378418.2473347,
     "ast_hash": "230399e1d62cb040eb88cb2b7a0bcdd7",
     "semantic_hash": ""
   },
@@ -1872,9 +1872,9 @@
     "semantic_hash": "dff828eb6c761c4adccf5ca95b9418c3"
   },
   "plataforma/ilhas/Conjuntura.tsx": {
-    "mtime": 1794374287.5186293,
-    "seen": 1794375126.9325929,
-    "ast_hash": "aee82de74e39b5ef7486529e4eda6f45",
+    "mtime": 1794376173.0533185,
+    "seen": 1794378418.177536,
+    "ast_hash": "d1901df779d87c3aaa86685368e8d7f6",
     "semantic_hash": ""
   },
   "plataforma/ilhas/cargos.ts": {
@@ -2436,9 +2436,9 @@
     "semantic_hash": ""
   },
   ".specs/lessons.json": {
-    "mtime": 1794369400.7519913,
-    "seen": 1794375126.932021,
-    "ast_hash": "0b81882b3cb16d1a12a97cf13462e54d",
+    "mtime": 1794377401.5560553,
+    "seen": 1794378418.1615973,
+    "ast_hash": "4b60fac9e94a68b31d2d504c29f8ea35",
     "semantic_hash": ""
   },
   ".vscode/tasks.json": {
@@ -2922,9 +2922,9 @@
     "semantic_hash": ""
   },
   ".specs/LESSONS.md": {
-    "mtime": 1794369400.6176896,
-    "seen": 1794375126.9352157,
-    "ast_hash": "781b1ad1324633d7b39d1aac0ace0e13",
+    "mtime": 1794377401.557053,
+    "seen": 1794378418.259397,
+    "ast_hash": "297022030bc1e932424d36f87b8a98ab",
     "semantic_hash": ""
   },
   ".specs/STATE.md": {
@@ -3498,9 +3498,9 @@
     "semantic_hash": ""
   },
   "plataforma/e2e/m1-conjuntura.spec.ts": {
-    "mtime": 1794373364.5276453,
-    "seen": 1794375126.9324005,
-    "ast_hash": "6dc60b8d6a01043245ec3ddec6b7da3e",
+    "mtime": 1794376580.6212769,
+    "seen": 1794378418.1727974,
+    "ast_hash": "5bbbe1dc3f8ff53db7dae2076bfb86b2",
     "semantic_hash": ""
   },
   "plataforma/e2e/m1-etapas.spec.ts": {
@@ -3516,9 +3516,9 @@
     "semantic_hash": ""
   },
   "plataforma/e2e/m1-persona.spec.ts": {
-    "mtime": 1794371689.7878642,
-    "seen": 1794375126.9324234,
-    "ast_hash": "e34d17a48a44d08aa51c0f58a91449c9",
+    "mtime": 1794376440.336635,
+    "seen": 1794378418.1732755,
+    "ast_hash": "208e5e0150fe7d36e69f4a974d1df15b",
     "semantic_hash": ""
   },
   "plataforma/public/legacy/m1.js": {
@@ -3528,9 +3528,9 @@
     "semantic_hash": ""
   },
   "plataforma/tests/legado-m1.test.ts": {
-    "mtime": 1794374220.757183,
-    "seen": 1794375126.9350069,
-    "ast_hash": "70b3c608242968ce44d83c6b4a614c68",
+    "mtime": 1794377439.6374762,
+    "seen": 1794378418.254745,
+    "ast_hash": "91bf6490f5ab336bfa2c3801bb72c0f5",
     "semantic_hash": ""
   },
   ".specs/features/sugestoes-m1/spec.md": {
@@ -4494,9 +4494,9 @@
     "semantic_hash": ""
   },
   "plataforma/e2e/m1-conjuntura-partido.spec.ts": {
-    "mtime": 1794372957.702417,
-    "seen": 1794375126.9323952,
-    "ast_hash": "67e2185d4144d757743326dc03ffca29",
+    "mtime": 1794376905.1555343,
+    "seen": 1794378418.1727936,
+    "ast_hash": "606199804be5007f7743714c69d5c6f3",
     "semantic_hash": ""
   },
   "plataforma/e2e/m1-fechamento.spec.ts": {
@@ -4506,9 +4506,9 @@
     "semantic_hash": ""
   },
   "plataforma/e2e/m1-oportunidades.spec.ts": {
-    "mtime": 1794373425.712548,
-    "seen": 1794375126.9324152,
-    "ast_hash": "c08764abedc0414bee37e2aed87e5641",
+    "mtime": 1794376434.7951298,
+    "seen": 1794378418.1731563,
+    "ast_hash": "0c40b333055deb25adcf52a4c5c60a07",
     "semantic_hash": ""
   },
   "plataforma/e2e/m1-pagina-unica.spec.ts": {
@@ -4524,15 +4524,15 @@
     "semantic_hash": ""
   },
   "plataforma/ilhas/CartoesMunicipio.tsx": {
-    "mtime": 1794372876.6824324,
-    "seen": 1794375126.9325793,
-    "ast_hash": "ce412d32f6fd6f2b25e7c8e9b01f6a4e",
+    "mtime": 1794376389.6425064,
+    "seen": 1794378418.1774154,
+    "ast_hash": "9890fb1fae6f432bf83522eda78259ae",
     "semantic_hash": ""
   },
   "plataforma/ilhas/Classificados.tsx": {
-    "mtime": 1794372004.0886683,
-    "seen": 1794375126.9325876,
-    "ast_hash": "787f33a25d2eee583fcc2a602a8f1dfb",
+    "mtime": 1794375624.493528,
+    "seen": 1794378418.1775331,
+    "ast_hash": "6b2a9f81e690f6c02107f0e49e933b25",
     "semantic_hash": ""
   },
   "plataforma/ilhas/MaisVotados.tsx": {
@@ -4560,9 +4560,9 @@
     "semantic_hash": ""
   },
   "plataforma/ilhas/dadosMapa.ts": {
-    "mtime": 1794373894.7352915,
-    "seen": 1794375126.9326868,
-    "ast_hash": "887dcafcb509cef321bce777d82d0da0",
+    "mtime": 1794376173.0543172,
+    "seen": 1794378418.180552,
+    "ast_hash": "148e08b3ed0604bf1be7f235e3559ddc",
     "semantic_hash": ""
   },
   "plataforma/ilhas/posicoes.ts": {
@@ -4662,9 +4662,9 @@
     "semantic_hash": ""
   },
   ".specs/features/m1-reestruturacao/spec.md": {
-    "mtime": 1794375077.7888775,
-    "seen": 1794375126.9352787,
-    "ast_hash": "87a02f931a4091e68e5b9b3756ae2c18",
+    "mtime": 1794378308.6879787,
+    "seen": 1794378418.2608712,
+    "ast_hash": "16d91cc3c40405c0e2b84b5f0e6303a8",
     "semantic_hash": ""
   },
   ".specs/features/m1-reestruturacao/sugestoes-alana.md": {
@@ -4674,9 +4674,9 @@
     "semantic_hash": ""
   },
   ".specs/features/m1-reestruturacao/tasks.md": {
-    "mtime": 1794375081.452507,
-    "seen": 1794375126.9352884,
-    "ast_hash": "0d41715388480300f0f4ebab85860977",
+    "mtime": 1794376736.5409904,
+    "seen": 1794378418.2609954,
+    "ast_hash": "258c239d0d66bf914531aad84495568b",
     "semantic_hash": ""
   },
   ".specs/features/resumo-reestruturado/design.md": {
@@ -4785,6 +4785,24 @@
     "mtime": 1794369402.7945926,
     "seen": 1794375126.93564,
     "ast_hash": "71dc2802e26ad407ed61b5d24513b11d",
+    "semantic_hash": ""
+  },
+  "plataforma/lib/forcaMunicipio.ts": {
+    "mtime": 1794376172.9743626,
+    "seen": 1794378418.193509,
+    "ast_hash": "a30c968fcb3235aca189b129f0c54d7b",
+    "semantic_hash": ""
+  },
+  "plataforma/tests/forcaMunicipio.test.ts": {
+    "mtime": 1794376193.586142,
+    "seen": 1794378418.254264,
+    "ast_hash": "bd21761cdf8ee6c85dcf1b2c655a750c",
+    "semantic_hash": ""
+  },
+  ".specs/features/m1-reestruturacao/validation.md": {
+    "mtime": 1794378351.1212497,
+    "seen": 1794378418.2609987,
+    "ast_hash": "48aaacd1a0736256a6c0d82e43cdef29",
     "semantic_hash": ""
   },
   "plataforma/package-lock.json": {
