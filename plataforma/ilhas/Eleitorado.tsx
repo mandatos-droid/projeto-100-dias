@@ -3,14 +3,11 @@
    formulário do tipo. Sem mapa nem município (ELE-01). Regras em lib/eleitorado.ts; tudo vai para D.eleitorado.itens.
    Itens antigos com `muns` continuam gravados e aparecem sem município (ELE-10). */
 import { useId, useState } from 'react';
-import { carregaGeo } from '@/lib/dados';
 import { COLUNAS, GRUPOS, adiciona, remove } from '@/lib/eleitorado';
 import type { Eleitorado, TipoEl } from '@/lib/types';
 import { useLegado } from './ponte';
-import { useCarga } from './pecas';
 
 const TIPOS = COLUNAS;
-const porNome = (a: string, b: string) => a.localeCompare(b, 'pt');
 const novoId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 const MSG_REPETIDO = 'Este item já está na lista.';
 
@@ -88,12 +85,10 @@ export default function EleitoradoIlha() {
   );
 }
 
-/** Versão somente leitura para a aba Resumo. */
+/** Versão somente leitura para a aba Resumo: as 3 colunas, sem município (ELE-11). */
 export function EleitoradoResumo() {
-  const { D, m } = useLegado();
-  const geo = useCarga(() => (m.uf ? carregaGeo(m.uf) : Promise.reject(new Error('sem UF'))), m.uf);
+  const { D } = useLegado();
   const itens = D.eleitorado?.itens ?? [];
-  const nome = (id: string) => geo.dados?.mun.find((x) => x.id === id)?.nm ?? id;
   if (!itens.length) return <p className="sem">Nada registrado ainda.</p>;
   return (
     <div className="ilha-corpo">
@@ -104,7 +99,7 @@ export function EleitoradoResumo() {
           <div key={x.k}>
             <strong style={{ color: x.cor }}>{x.titulo} ({l.length})</strong>
             <ul className="el-resumo-lista">
-              {l.map((i) => <li key={i.id}><strong>{i.texto}</strong> — {i.muns.length ? i.muns.map(nome).sort(porNome).join(', ') : `estado inteiro (${m.uf})`}</li>)}
+              {l.map((i) => <li key={i.id}><strong>{i.texto}</strong></li>)}
             </ul>
           </div>
         );

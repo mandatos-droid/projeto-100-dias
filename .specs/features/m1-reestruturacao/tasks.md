@@ -999,8 +999,8 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] O Resumo mostra as 3 colunas com os itens, sem nome de município e sem "estado inteiro"
-- [ ] `npx tsc --noEmit` passa
+- [x] O Resumo mostra as 3 colunas com os itens, sem nome de município e sem "estado inteiro"
+- [x] `npx tsc --noEmit` passa
 
 **Tests**: none
 **Gate**: build
