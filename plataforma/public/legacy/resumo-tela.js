@@ -8,6 +8,8 @@
 
 var SELO={ok:'concluído',andamento:'em andamento',nao:'não iniciado'};
 var VAZIO='não preenchido';
+/* frases de "nada ainda" da Missão 1 (LEG-13, ELE/AGE): contam como vazio, como o VAZIO */
+var SEM_DADO=['Nada registrado ainda.','Nada classificado ainda.'];
 var ENT={amp:'&',lt:'<',gt:'>',quot:'"','#39':"'",nbsp:' '};
 
 /* texto puro da primeira resposta preenchida (o 1º <dd> com texto) do corpo do exercício, em até 160 caracteres */
@@ -17,7 +19,7 @@ function previa(h){
     var t=r[1].replace(/<span class="foto"[^>]*>[\s\S]*?<\/span>/g,' ')
       .replace(/<(br|\/?(p|div|li|ul|ol|dl|dt|dd|h\d))\b[^>]*>/gi,' ').replace(/<[^>]*>/g,'')
       .replace(/&(amp|lt|gt|quot|#39|nbsp);/g,function(x,k){return ENT[k]}).replace(/\s+/g,' ').trim();
-    if(t&&t!==VAZIO)return t.length>160?t.slice(0,159)+'…':t;
+    if(t&&t!==VAZIO&&SEM_DADO.indexOf(t)<0)return t.length>160?t.slice(0,159)+'…':t;
   }
   return VAZIO;
 }
@@ -158,7 +160,10 @@ function titulo(s){
   return String(s||'').toLowerCase().split(' ').map(function(p,i){return (i>0&&PARTICULAS[p])?p:p.charAt(0).toUpperCase()+p.slice(1)}).join(' ');
 }
 function fmt(n){return Number(n||0).toLocaleString('pt-BR')}
-var GRUPOS=[{st:'aliado',cl:'al',rot:'Aliados'},{st:'concorrente',cl:'op',rot:'Opositores'},{st:'potencial',cl:'po',rot:'Potenciais'}];
+/* as 5 categorias de relação na ordem da Alana (LEG-03); as chaves gravadas não mudam */
+var GRUPOS=[{st:'aliado',cl:'al',rot:'Aliados',um:'Aliado'},{st:'aliado_concorrente',cl:'al',rot:'Aliados, mas concorrentes',um:'Aliado, mas concorrente'},
+  {st:'concorrente',cl:'op',rot:'Oponentes',um:'Oponente'},{st:'oponente_concorrente',cl:'op',rot:'Oponentes e concorrentes',um:'Oponente e concorrente'},
+  {st:'potencial',cl:'po',rot:'Indefinidas',um:'Indefinida'}];
 
 function cartao(x,local){
   var meta=[x.partido,x.cargo,local&&x.mun?x.mun:''].filter(Boolean).map(esc).join(' · ');
@@ -174,7 +179,7 @@ ResumoIlhas.lista=function(arr,grupo){
 
 /* relações da Casa (sem município) ou do município, já separadas por grupo; as de outro status ficam de fora */
 function relacoesPor(ilha){
-  var r=D.relacoes||{},out={aliado:[],concorrente:[],potencial:[]};
+  var r=D.relacoes||{},out={aliado:[],aliado_concorrente:[],concorrente:[],oponente_concorrente:[],potencial:[]};
   Object.keys(r).forEach(function(k){
     var x=r[k];if(!x||!out[x.status])return;
     var local=!!x.mun;
@@ -188,9 +193,9 @@ var htmlTexto=ResumoIlhas.html;
 ResumoIlhas.html=function(ilha){
   if(!Resumo.vivo||(ilha!=='assentos'&&ilha!=='municipio'))return htmlTexto.call(this,ilha);
   var g=relacoesPor(ilha),grupos=GRUPOS.filter(function(x){return g[x.st].length});
-  if(!grupos.length)return htmlTexto.call(this,ilha); // nenhuma relação: mantém "não preenchido"
+  if(!grupos.length)return htmlTexto.call(this,ilha); // nenhuma relação: "Nada classificado ainda." (LEG-13) ou "não preenchido"
   var rot=ilha==='assentos'?'na Casa Legislativa':'no município',self=this;
-  return '<dt style="color:var(--tinta)">Parceiros e concorrentes '+rot+'</dt><dd>'+grupos.map(function(x){
+  return '<dt style="color:var(--tinta)">Parceiros e concorrentes '+rot+'</dt><dd>'+(ilha==='assentos'?'<p><strong>Você tem '+grupos.map(function(x){var n=g[x.st].length;return n+' '+(n===1?x.um:x.rot)}).join('; ')+'</strong></p>':'')+grupos.map(function(x){
     return '<div class="grp '+x.cl+'"><span>'+x.rot+' · '+g[x.st].length+'</span></div>'+self.lista(g[x.st],ilha)}).join('')+'</dd>'+
     this.mapa(ilha,ilha==='assentos'?'Hemiciclo da Casa':'Mapa político do estado');
 };

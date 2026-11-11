@@ -441,10 +441,11 @@ test('depois da lista vem o texto "Caso sinta falta de algum outro tema, suba na
 /* "a pessoa do mandato" é a liderança parlamentar; "o parlamentar" fica fora dos textos novos ou reescritos da Missão 1 (GER-01).
    Varre o m1.js, o novos.js e todas as ilhas. A única ocorrência é o "Selecione o parlamentar…" do formulário de cadastro do
    mandato (novos.js), que é da Missão 0, não da Missão 1, e a spec não pede para reescrevê-lo. */
+const NAO_M1 = /^(ResumoRetrato|ResumoEquipe|Area[A-Z])/;
 const ESCRITO_A_MAO = [
   ['m1.js', CODIGO],
   ['novos.js', ler('novos.js').replace('Selecione o parlamentar…', 'Selecione a liderança…')],
-  ...readdirSync(new URL('../ilhas/', import.meta.url)).filter((f) => /\.tsx?$/.test(f))
+  ...readdirSync(new URL('../ilhas/', import.meta.url)).filter((f) => /\.tsx?$/.test(f) && !NAO_M1.test(f)) // as ilhas do Resumo geral e da Área do mandato não são da Missão 1
     .map((f) => [`ilhas/${f}`, readFileSync(new URL(`../ilhas/${f}`, import.meta.url), 'utf8')]),
 ];
 test('nenhum texto da Missão 1 escrito à mão (m1.js, novos.js e ilhas) usa "o parlamentar" ou "a parlamentar" para a pessoa do mandato (GER-01)', () => {

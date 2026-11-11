@@ -408,7 +408,7 @@ const TRES_DOIS_UM = () => ({
 
 test('com 3 aliados, 2 opositores e 1 potencial: três grupos com contagens 3, 2 e 1 e um cartão por pessoa (RES-07.1)', () => {
   const h = ilha(guia(TRES_DOIS_UM()), 'assentos');
-  assert.deepEqual(grupos(h), ['al:Aliados · 3', 'op:Opositores · 2', 'po:Potenciais · 1']);
+  assert.deepEqual(grupos(h), ['al:Aliados · 3', 'op:Oponentes · 2', 'po:Indefinidas · 1']);
   assert.equal(nCartoes(h), 6);
   assert.equal((h.match(/<div class="cards al">/g) ?? []).length, 1);
   assert.equal((h.match(/<div class="cards op">/g) ?? []).length, 1);
@@ -442,7 +442,7 @@ test('o município só aparece no cartão da relação local (RES-07.2)', () => 
 
 test('grupo vazio não aparece (RES-07.4)', () => {
   const h = ilha(guia({ relacoes: { a: rel('aliado', 'Ana Alves'), p: rel('potencial', 'Fábio Faria') } }), 'assentos');
-  assert.deepEqual(grupos(h), ['al:Aliados · 1', 'po:Potenciais · 1']);
+  assert.deepEqual(grupos(h), ['al:Aliados · 1', 'po:Indefinidas · 1']);
   assert.equal(h.includes('Opositores'), false);
   assert.equal(h.includes('cards op'), false);
 });
@@ -450,7 +450,7 @@ test('grupo vazio não aparece (RES-07.4)', () => {
 test('sem nenhuma relação a pergunta mantém "não preenchido" (RES-07.5)', () => {
   const w = guia({ relacoes: {} });
   const h = ilha(w, 'assentos');
-  assert.ok(h.includes('<dd><span class="sem">não preenchido</span></dd>'));
+  assert.ok(h.includes('<dd>Nada classificado ainda.</dd>')); // LEG-13: a Missão 1 mostra esta frase
   assert.equal(nCartoes(h), 0);
   const sem = guia({ relacoes: { n: rel('neutro', 'Zé Neutro') } });
   assert.ok(ilha(sem, 'municipio').includes('<dd><span class="sem">não preenchido</span></dd>'));
