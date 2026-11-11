@@ -1253,9 +1253,9 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] O botão baixa o HTML e o arquivo traz as respostas
-- [ ] Respondendo só nos cartões a etapa vira "em andamento"
-- [ ] Passa: `npx playwright test e2e/m1-fechamento`
+- [x] O botão baixa o HTML e o arquivo traz as respostas
+- [x] Respondendo só nos cartões a etapa vira "em andamento"
+- [x] Passa: `npx playwright test e2e/m1-fechamento`
 
 **Tests**: e2e
 **Gate**: full
