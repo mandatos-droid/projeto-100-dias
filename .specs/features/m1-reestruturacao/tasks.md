@@ -429,14 +429,16 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] O título e a instrução "Coloque um M … e um P …" batem com a spec
-- [ ] O item da lista é "Uso dos Sistemas da Casa Legislativa"
-- [ ] Nenhum texto novo de `m1.js` usa "o parlamentar" ou "a parlamentar" para a pessoa do mandato (teste de varredura no arquivo)
-- [ ] Casos novos em `tests/legado-m1.test.ts` passam
+- [x] O título e a instrução "Coloque um M … e um P …" batem com a spec
+- [x] O item da lista é "Uso dos Sistemas da Casa Legislativa"
+- [x] Nenhum texto novo de `m1.js` usa "o parlamentar" ou "a parlamentar" para a pessoa do mandato (teste de varredura no arquivo)
+- [x] Casos novos em `tests/legado-m1.test.ts` passam
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(m1): textos de fragilidades e linguagem de liderança parlamentar`
+
+**Status**: ✅ Done
 
 ---
 

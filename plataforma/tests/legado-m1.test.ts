@@ -404,3 +404,34 @@ test('na página única das Oportunidades as 3 perguntas aparecem na ordem 3.1, 
   assert.ok(ordem.every((i) => i > 0));
   assert.deepEqual([...ordem].sort((a, b) => a - b), ordem);
 });
+
+/* ---------- FRA-01 a FRA-03 e GER-01: Fragilidades e linguagem ---------- */
+test('4.1 mostra o título e a instrução M/P exatos, antes da lista (FRA-01)', () => {
+  const { html } = paginaFrag();
+  const titulo = html.indexOf('Quais são os conhecimentos e/ou práticas que a liderança parlamentar ou a equipe ainda não domina(m) para um bom exercício do mandato?');
+  const instrucao = html.indexOf('Coloque um M para fragilidades da equipe do mandato e um P para as fragilidades da liderança parlamentar.');
+  assert.ok(titulo >= 0 && instrucao > titulo && instrucao < html.indexOf('frag-l'));
+});
+
+test('a lista traz "Uso dos Sistemas da Casa Legislativa" com "Sistemas" no plural e deixa marcar M, P ou os dois (FRA-02)', () => {
+  const w = janela() as Janela & { Comp: { frag(ex: Ex): string }; FRAGILIDADES: string[] };
+  (w as unknown as { D: { frags: unknown[] } }).D.frags = w.FRAGILIDADES.map((t) => ({ t, mp: 'MP' }));
+  const h = w.Comp.frag(ex1(w, 'm1.frag'));
+  assert.ok(h.includes('Uso dos Sistemas da Casa Legislativa'));
+  assert.equal(h.includes('Uso do Sistema da Casa'), false);
+  const item = h.slice(h.indexOf('Uso dos Sistemas da Casa Legislativa'));
+  assert.ok(item.indexOf("Comp.mp(") > 0 && item.includes("'M')") && item.includes("'P')"));
+  assert.equal((item.match(/aria-pressed="true"/g) ?? []).length >= 2, true);
+});
+
+test('depois da lista vem o texto "Caso sinta falta de algum outro tema, suba na lista…" (FRA-03)', () => {
+  const { html } = paginaFrag();
+  const caso = html.indexOf('Caso sinta falta de algum outro tema, suba na lista e crie um plano de estudos');
+  assert.ok(caso > html.indexOf('Uso dos Sistemas da Casa Legislativa'));
+  assert.ok(caso < html.indexOf('Tornando fragilidades em fortalezas!'));
+});
+
+test('nenhum texto da Missão 1 escrito à mão usa "o parlamentar" ou "a parlamentar" para a pessoa do mandato (GER-01)', () => {
+  const achados = CODIGO.match(/(?<![\p{L}\p{N}])(?:o|a|do|da|ao|à|pelo|pela) parlamentar(?![\p{L}\p{N}])/giu) ?? [];
+  assert.deepEqual([...achados], []);
+});

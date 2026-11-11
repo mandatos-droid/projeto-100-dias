@@ -143,6 +143,12 @@
   if(typeof MISSOES==='undefined'||typeof Guia==='undefined'||typeof Comp==='undefined')return;
   var ex=MISSOES.filter(function(m){return m.n===1})[0].exercicios.filter(function(e){return e.id==='m1.frag'})[0];
   if(!ex)return;
+  /* FRA-01: título e instrução M/P como no documento da Alana (a lista, com "Sistemas" no plural, já vem do conteudo.js) */
+  ex.intro='<p><strong>Quais são os conhecimentos e/ou práticas que a liderança parlamentar ou a equipe ainda não domina(m) para um bom exercício do mandato?</strong></p>'+
+    '<p>Coloque um M para fragilidades da equipe do mandato e um P para as fragilidades da liderança parlamentar.</p>'+
+    '<p><em>Mapeie</em> todas as fragilidades a serem superadas.</p>';
+  /* FRA-03: o convite a ampliar a lista vem logo depois dela */
+  var CASO='<div class="texto"><p><em>Caso sinta falta de algum outro tema, suba na lista e crie um plano de estudos para ir se familiarizando com os assuntos. Na nossa Biblioteca você encontra informações introdutórias, além de sites de referência sobre os assuntos acima. Recomendamos fortemente o estudo do que ainda não se tem conhecimento em profundidade para potencializar uma melhor atuação política nos meses que seguem!</em></p></div>';
   ex.fim='<h4>Tornando fragilidades em fortalezas!</h4>'+
     '<p>Agora que já conseguiu identificar o que o mandato e a liderança ainda não dominam, crie um plano de estudo para ambos, com prazo certo para ter transformado a fragilidade mapeada em fortaleza.</p>'+
     '<p>Mesmo quem já trabalha com política há um tempo precisa se qualificar e até mesmo aprofundar seus conhecimentos técnicos!</p>'+
@@ -158,7 +164,7 @@
   var _fr=Comp.frag;
   Comp.frag=function(e){
     var h=_fr.call(this,e);
-    if(e&&e.id==='m1.frag')h+=Comp.diagFrag().replace('nos passos anteriores','na lista acima')+'<div class="texto">'+e.fim+'</div>';
+    if(e&&e.id==='m1.frag')h+=CASO+Comp.diagFrag().replace('nos passos anteriores','na lista acima')+'<div class="texto">'+e.fim+'</div>';
     return h;
   };
 })();
