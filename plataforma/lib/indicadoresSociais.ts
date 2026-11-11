@@ -38,3 +38,23 @@ export function emSlides<T>(itens: T[], tam = 4): T[][] {
   for (let i = 0; i < itens.length; i += tam) out.push(itens.slice(i, i + tam));
   return out;
 }
+
+/** Texto vazio para quem não informa nada: nunca "undefined" nem "null" (OP-04). */
+const limpo = (v: unknown): string => {
+  const t = typeof v === 'string' || typeof v === 'number' ? String(v).trim() : '';
+  return /^(undefined|null)$/i.test(t) ? '' : t;
+};
+
+/** Sentidos que o catálogo traz, sem acento nem maiúscula -> texto exibido. Qualquer outro valor é omitido. */
+const SENTIDOS: Record<string, string> = { 'mais e melhor': 'mais é melhor', 'menos e melhor': 'menos é melhor' };
+
+/** Texto do tooltip do ⓘ de um indicador: fonte, ano e sentido, só o que existe (OP-04). */
+export function descreveIndicador(i: IndInfo): string {
+  const sentido = SENTIDOS[limpo(i.sentido).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()];
+  const partes = [
+    limpo(i.fonte) && `Fonte: ${limpo(i.fonte)}`,
+    limpo(i.ano) && `Ano: ${limpo(i.ano)}`,
+    sentido && `Sentido: ${sentido}`,
+  ].filter(Boolean);
+  return partes.length ? partes.join(' · ') : 'Sem informações adicionais sobre este indicador.';
+}

@@ -397,10 +397,10 @@ T19
 
 **Done when**:
 
-- [ ] Teste unitário: com tudo, sem ano, sem fonte, sentido desconhecido
-- [ ] Nenhuma saída contém “undefined” ou “null”
-- [ ] Gate quick passa
-- [ ] Contagem de testes não diminui
+- [x] Teste unitário: com tudo, sem ano, sem fonte, sentido desconhecido
+- [x] Nenhuma saída contém “undefined” ou “null”
+- [x] Gate quick passa
+- [x] Contagem de testes não diminui
 
 **Tests**: unit
 **Gate**: quick

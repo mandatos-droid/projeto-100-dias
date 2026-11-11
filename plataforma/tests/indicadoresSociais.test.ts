@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { linhasDaAgenda, filtraFaixa, emSlides } from '../lib/indicadoresSociais.ts';
-import type { Agenda, Catalogo, DadosIndicador } from '../lib/agendas.ts';
+import type { Agenda, Catalogo, DadosIndicador, IndInfo } from '../lib/agendas.ts';
 
 const cat: Catalogo = {
   fonte: 'f', url: 'u',
@@ -100,4 +100,36 @@ test('razaoContraste confere com valores conhecidos do WCAG', () => {
 test('textoSobre escolhe texto claro em fundo escuro e escuro em fundo claro', () => {
   assert.equal(textoSobre('#000000'), '#FFFFFF');
   assert.equal(textoSobre('#FFFFFF'), '#1A1A1A');
+});
+
+/* OP-04: texto do tooltip do ⓘ */
+import { descreveIndicador } from '../lib/indicadoresSociais.ts';
+const ind = (o: Partial<IndInfo> = {}): IndInfo => ({ id: 'X', ods: 4, nome: 'IDEB', fonte: 'MEC/IDEB', ano: '2023', sentido: 'mais é melhor', ...o });
+
+test('descreveIndicador traz fonte, ano e sentido quando todos existem', () => {
+  assert.equal(descreveIndicador(ind()), 'Fonte: MEC/IDEB · Ano: 2023 · Sentido: mais é melhor');
+  assert.equal(descreveIndicador(ind({ sentido: 'menos é melhor' })), 'Fonte: MEC/IDEB · Ano: 2023 · Sentido: menos é melhor');
+});
+
+test('descreveIndicador omite o ano ausente, a fonte ausente e o sentido desconhecido', () => {
+  assert.equal(descreveIndicador(ind({ ano: null })), 'Fonte: MEC/IDEB · Sentido: mais é melhor');
+  assert.equal(descreveIndicador(ind({ fonte: '' })), 'Ano: 2023 · Sentido: mais é melhor');
+  assert.equal(descreveIndicador(ind({ sentido: 'tanto faz' })), 'Fonte: MEC/IDEB · Ano: 2023');
+  assert.equal(descreveIndicador(ind({ sentido: 'Mais é Melhor' })), 'Fonte: MEC/IDEB · Ano: 2023 · Sentido: mais é melhor');
+});
+
+test('descreveIndicador nunca devolve undefined, null nem texto vazio', () => {
+  const casos = [
+    ind({ fonte: '', ano: null, sentido: '' }),
+    ind({ fonte: undefined as unknown as string, ano: undefined as unknown as null, sentido: undefined as unknown as string }),
+    ind({ fonte: null as unknown as string, ano: null, sentido: null as unknown as string }),
+    ind({ fonte: 'undefined', ano: 'null', sentido: 'null' }),
+    ind({ fonte: '   ', ano: '  ', sentido: '  ' }),
+  ];
+  for (const c of casos) {
+    const t = descreveIndicador(c);
+    assert.ok(t.length > 0);
+    assert.doesNotMatch(t, /undefined|null/i);
+  }
+  assert.equal(descreveIndicador(casos[0]), 'Sem informações adicionais sobre este indicador.');
 });
