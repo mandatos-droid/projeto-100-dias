@@ -262,6 +262,47 @@ test.describe('Conjuntura do partido · reação a 2 dados (PAR-09 a PAR-12, SEL
     await expect.poll(async () => (await dadosDe(page)).conj2?.reacoes?.map((x) => x.dado)).toEqual(['vereadores', 'parlamentares']);
   });
 
+  test('o destaque dos dados só existe com o modo ativo (outline roxo)', async ({ page }) => {
+    await abre(page);
+    const el = capturavel(page, 'vereadores');
+    const outline = () => el.evaluate((e) => getComputedStyle(e).outlineStyle);
+    const cursor = () => el.evaluate((e) => getComputedStyle(e).cursor);
+    expect(await outline()).toBe('none');
+    expect(await cursor()).not.toBe('pointer');
+    await iniciar(page);
+    expect(await outline()).not.toBe('none');
+    expect(await cursor()).toBe('pointer');
+    await page.keyboard.press('Escape');
+    await expect(banner(page)).toHaveCount(0);
+    expect(await outline()).toBe('none');
+  });
+
+  test('o banner não cobre o botão da barra lateral no computador, aberta ou recolhida', async ({ page }) => {
+    await abre(page);
+    const sobrepoe = async () => {
+      const b = await banner(page).boundingBox(), t = await page.locator('.lado-alterna').boundingBox();
+      expect(b && t).toBeTruthy();
+      return !(b!.x + b!.width <= t!.x || t!.x + t!.width <= b!.x || b!.y + b!.height <= t!.y || t!.y + t!.height <= b!.y);
+    };
+    await iniciar(page);
+    expect(await sobrepoe()).toBe(false);
+    await page.keyboard.press('Escape');
+    await page.locator('.lado-alterna').click();
+    await iniciar(page);
+    expect(await sobrepoe()).toBe(false);
+  });
+
+  test('em 390px o banner não cobre o botão do menu móvel', async ({ page }) => {
+    await abre(page);
+    await page.setViewportSize({ width: 390, height: 800 });
+    await iniciar(page);
+    const b = await banner(page).boundingBox(), h = await page.locator('.topo-movel .ham').boundingBox();
+    expect(b && h).toBeTruthy();
+    expect(b!.y).toBeGreaterThanOrEqual(h!.y + h!.height); // o banner começa abaixo da faixa do menu
+    await expect(page.locator('.topo-movel .ham')).toBeVisible();
+    expect(b!.x + b!.width).toBeLessThanOrEqual(390);
+  });
+
   test('durante a captura, botão dentro do dado conta como captura e não age', async ({ page }) => {
     await abre(page);
     await expect(page.getByTestId('cartao-municipio')).toHaveCount(5, { timeout: 30_000 });

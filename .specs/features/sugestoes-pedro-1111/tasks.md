@@ -561,10 +561,10 @@ T19
 
 **Done when**:
 
-- [ ] Elementos `.capturable-data` só ganham destaque com o modo ativo (e2e confere `outline`)
-- [ ] Banner não cobre o botão de navegação em 390px
-- [ ] Gate full passa
-- [ ] Contagem de testes não diminui
+- [x] Elementos `.capturable-data` só ganham destaque com o modo ativo (e2e confere `outline`)
+- [x] Banner não cobre o botão de navegação em 390px
+- [x] Gate full passa
+- [x] Contagem de testes não diminui
 
 **Tests**: e2e
 **Gate**: full
