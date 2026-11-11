@@ -971,12 +971,12 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] 3 colunas na ordem da spec, cada uma com título, contagem e "+"
-- [ ] O "+" abre o formulário com rótulo, exemplo e botão "Adicionar" de cada tipo; as tags aparecem só nos dois tipos de grupo
-- [ ] Adicionar, tag, vazio, repetido e "×" seguem as regras de `lib/eleitorado.ts`
-- [ ] Itens antigos com `muns` aparecem sem município e `muns` segue gravado
-- [ ] Não há `MapaConjuntura`, busca nem seleção de município
-- [ ] `npx tsc --noEmit` passa
+- [x] 3 colunas na ordem da spec, cada uma com título, contagem e "+"
+- [x] O "+" abre o formulário com rótulo, exemplo e botão "Adicionar" de cada tipo; as tags aparecem só nos dois tipos de grupo
+- [x] Adicionar, tag, vazio, repetido e "×" seguem as regras de `lib/eleitorado.ts`
+- [x] Itens antigos com `muns` aparecem sem município e `muns` segue gravado
+- [x] Não há `MapaConjuntura`, busca nem seleção de município
+- [x] `npx tsc --noEmit` passa
 
 **Tests**: none
 **Gate**: build
