@@ -150,10 +150,10 @@ T19
 
 **Done when**:
 
-- [ ] Teste unitário cobre F e M nos 4 cargos, DF e gênero ausente (cai no masculino)
-- [ ] `npm test` passa
-- [ ] Gate quick passa
-- [ ] Contagem de testes não diminui
+- [x] Teste unitário cobre F e M nos 4 cargos, DF e gênero ausente (cai no masculino)
+- [x] `npm test` passa
+- [x] Gate quick passa
+- [x] Contagem de testes não diminui
 
 **Tests**: unit
 **Gate**: quick
