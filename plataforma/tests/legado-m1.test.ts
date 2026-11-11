@@ -494,3 +494,37 @@ test('as Missões 2 a 5 não ganham regra nova de andamento (GER-03)', () => {
   const w = janelaAndamento({ eleitorado: { itens: [{ id: 'a' }] }, agendasPrio: ['saude'] });
   for (const m of w.MISSOES.filter((x) => x.n !== 1)) for (const e of m.exercicios) assert.equal(w.temConteudo(e), false, e.id);
 });
+
+/* ---------- LEG-12, LEG-13: Resumo do preenchimento com as 5 categorias (novos.js, ResumoIlhas) ---------- */
+function resumoIlhas(relacoes: Record<string, unknown>, vivo = false) {
+  const codigo = ler('novos.js');
+  const ini = codigo.indexOf('window.ResumoIlhas={');
+  const fim = codigo.indexOf('/* ---------- Perguntas respondidas só pelo módulo');
+  const ctx: Record<string, unknown> = {
+    esc: (s: string) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;'),
+    titulo: (s: string) => s, fmt: (n: number) => String(n), pc: (n: number) => `${n}%`,
+    D: { relacoes, tse: {}, pleitos: [] }, Resumo: { vivo, sem: 'Sem resposta.' },
+  };
+  ctx.window = ctx;
+  vm.createContext(ctx);
+  vm.runInContext(codigo.slice(ini, fim), ctx);
+  return (ctx.ResumoIlhas as { html(i: string): string }).html('assentos');
+}
+const pessoa = (status: string, nome: string, mun?: string) => ({ status, nome, partido: 'PSOL', cargo: 'Deputado Federal', uf: 'DF', mun });
+
+test('o Resumo mostra "Você tem N Aliados; …" e as listas por categoria, só com as que têm alguém (LEG-12, LEG-13)', () => {
+  const h = resumoIlhas({
+    a1: pessoa('aliado', 'Ana'), a2: pessoa('aliado', 'Bia'), c1: pessoa('aliado_concorrente', 'Caio'),
+    o1: pessoa('concorrente', 'Dani'), x1: pessoa('potencial', 'Eva'), m1: pessoa('aliado', 'Prefeito', 'Taguatinga'),
+  });
+  assert.ok(h.includes('Você tem 2 Aliados; 1 Aliado, mas concorrente; 1 Oponente; 1 Indefinida'));
+  assert.equal(h.includes('Oponente e concorrente'), false);
+  assert.ok(h.includes('Aliados (2)') && h.includes('Aliados, mas concorrentes (1)') && h.includes('Oponentes (1)') && h.includes('Indefinidas (1)'));
+  assert.equal(h.includes('Prefeito'), false);
+  assert.equal(h.includes('Potenciais relacionamentos'), false);
+  assert.ok(h.indexOf('Você tem') < h.indexOf('Aliados (2)'));
+});
+
+test('sem classificação o Resumo mostra "Nada classificado ainda." (LEG-13)', () => {
+  assert.ok(resumoIlhas({}).includes('Nada classificado ainda.'));
+});

@@ -160,8 +160,12 @@ window.ResumoIlhas={
       esc(String(nome||'?').trim().charAt(0).toUpperCase())+
       '<img src="https://resultados.tse.jus.br/oficial/'+base+'/fotos/'+String(uf||'').toLowerCase()+'/'+esc(k)+'.jpeg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span>';
   },
+  /* As 5 categorias de relação na ordem da Alana (mesmas de lib/relacoes.ts); as chaves gravadas não mudam (LEG-11). */
+  CATS:[['aliado','Aliado','Aliados'],['aliado_concorrente','Aliado, mas concorrente','Aliados, mas concorrentes'],
+    ['concorrente','Oponente','Oponentes'],['oponente_concorrente','Oponente e concorrente','Oponentes e concorrentes'],['potencial','Indefinida','Indefinidas']],
   rel:function(grupo){
-    var r=D.relacoes||{},out={aliado:[],concorrente:[],potencial:[]};
+    var r=D.relacoes||{},out={};
+    this.CATS.forEach(function(c){out[c[0]]=[]});
     Object.keys(r).forEach(function(k){
       var x=r[k];if(!x||!out[x.status])return;
       var local=!!x.mun;
@@ -201,12 +205,12 @@ window.ResumoIlhas={
     }
     if(ilha==='assentos'||ilha==='municipio'){
       var g=this.rel(ilha),rot=ilha==='assentos'?'na Casa Legislativa':'no município';
-      h+='<dt style="color:var(--tinta)">Aliados, opositores e potenciais relacionamentos '+rot+'</dt>';
+      var cats=this.CATS.filter(function(c){return g[c[0]].length});
+      h+='<dt style="color:var(--tinta)">'+(ilha==='assentos'?'Relação com os parlamentares':'Aliados, opositores e potenciais relacionamentos '+rot)+'</dt>';
       var mapa=this.mapa(ilha,ilha==='assentos'?'Hemiciclo da Casa':'Mapa político do estado');
-      if(!g.aliado.length&&!g.concorrente.length&&!g.potencial.length)return h+'<dd>'+Resumo.sem+'</dd>'+mapa;
-      h+='<dd>'+(g.aliado.length?'<strong>Aliados ('+g.aliado.length+')</strong>'+this.lista(g.aliado,ilha):'')+
-        (g.concorrente.length?'<strong>Opositores ('+g.concorrente.length+')</strong>'+this.lista(g.concorrente,ilha):'')+
-        (g.potencial.length?'<strong>Potenciais relacionamentos ('+g.potencial.length+')</strong>'+this.lista(g.potencial,ilha):'')+'</dd>';
+      if(!cats.length)return h+'<dd>'+(ilha==='assentos'?'Nada classificado ainda.':Resumo.sem)+'</dd>'+mapa;
+      h+='<dd>'+(ilha==='assentos'?'<p><strong>Você tem '+cats.map(function(c){var n=g[c[0]].length;return n+' '+(n===1?c[1]:c[2])}).join('; ')+'</strong></p>':'')+
+        cats.map(function(c){return '<strong>'+c[2]+' ('+g[c[0]].length+')</strong>'+ResumoIlhas.lista(g[c[0]],ilha)}).join('')+'</dd>';
       return h+mapa;
     }
     return h;

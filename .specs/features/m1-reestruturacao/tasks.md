@@ -773,13 +773,15 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] O Resumo mostra o texto de contagem e, abaixo, as listas por categoria
-- [ ] Sem classificação mostra "Nada classificado ainda."
-- [ ] Caso novo em `tests/legado-m1.test.ts` passa
+- [x] O Resumo mostra o texto de contagem e, abaixo, as listas por categoria
+- [x] Sem classificação mostra "Nada classificado ainda."
+- [x] Caso novo em `tests/legado-m1.test.ts` passa
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(m1): resumo do preenchimento com as 5 categorias`
+
+**Status**: ✅ Done
 
 ---
 
