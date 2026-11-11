@@ -570,12 +570,14 @@ T38 → T39 → T40 → T41 → T42 → T43
 
 **Done when**:
 
-- [ ] Nenhuma referência a `MapaVotos` resta fora do histórico do git
-- [ ] `npx tsc --noEmit` e `npm test` passam
+- [x] Nenhuma referência a `MapaVotos` resta fora do histórico do git
+- [x] `npx tsc --noEmit` e `npm test` passam
 
 **Tests**: none
 **Gate**: build
 **Commit**: `refactor(m1): remove o mapa de votos da persona`
+
+**Status**: ✅ Done
 
 ---
 
