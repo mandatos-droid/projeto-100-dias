@@ -37,7 +37,7 @@ test('carregar o m5.js não muda nenhum texto da Missão 5 (M5-10.1)', () => {
 /* ---------- monitoramento conforme a Alana: uma caixa por meta e por mês (MON-01, MON-03, MON-04) ---------- */
 import { BOTAO_MONIT, MONIT_INTRO, MONIT_PERGUNTAS, MONIT_ROTULO } from '../ilhas/rumo/textosAlana.ts';
 
-type Meta = { id: string; texto?: string; resp?: string; status?: string; sucessos?: { status: string }[] };
+type Meta = { id: string; pred?: string; texto?: string; resp?: string; status?: string; sucessos?: { status: string }[] };
 function monit(metas: Meta[], campos: Record<string, string> = {}, foco?: string) {
   const janela: Record<string, unknown> = { MonitFoco: foco };
   const w = guia({
@@ -76,6 +76,17 @@ test('cada meta tem 3 caixas, uma por mês, com o rótulo e as perguntas da #128
   assert.ok(!html.includes('data-k="mon.m1.4.det"'));
   assert.equal(html.split(MONIT_ROTULO).length - 1, 6);
   for (const q of MONIT_PERGUNTAS) assert.equal(html.split(q).length - 1, 6, q);
+});
+
+test('o cartão da meta mostra o número, o objetivo estratégico dela, o texto e o responsável (MON-03.1)', () => {
+  const { html } = monit([META('m1', { pred: 'p1', texto: 'Aprovar 2 projetos', resp: 'Carla Dias' })], { 'm3.obj.p1': 'Priorizar a educação' });
+  assert.match(html, /<span class="idx">Meta 01 · Priorizar a educação<\/span>/);
+  assert.ok(html.includes('Aprovar 2 projetos'));
+  assert.ok(html.includes('Responsável: Carla Dias'));
+});
+
+test('meta sem objetivo mostra só o número (MON-03.1)', () => {
+  assert.match(monit([META('m1')]).html, /<span class="idx">Meta 01<\/span>/);
 });
 
 test('o cartão da meta mostra o atingimento registrado no Planejamento, com o link "alterar" (MON-03.3)', () => {

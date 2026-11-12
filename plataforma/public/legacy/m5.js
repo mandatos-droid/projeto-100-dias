@@ -56,8 +56,11 @@
   function cartao(m,i,foco){
     var c=(typeof D!=='undefined'&&D.campos)||{};
     var p=pctMeta(m),st=m.status||'nao_concluida';
+    /* objetivo estratégico da meta: o texto escrito na Missão 3 ou, sem ele, o nome do preditor (como o Guia fazia) */
+    var pr=m.pred&&typeof PREDITORES!=='undefined'?PREDITORES.filter(function(x){return x.id===m.pred})[0]:null;
+    var obj=m.pred?(c['m3.obj.'+m.pred]||(pr?pr.n:'')):'';
     var h='<div class="din" data-meta="'+e(m.id)+'"'+(foco?' data-foco':'')+'>'+
-      '<span class="idx">Meta '+String(i+1).padStart(2,'0')+'</span>'+
+      '<span class="idx">Meta '+String(i+1).padStart(2,'0')+(obj?' · '+e(obj):'')+'</span>'+
       '<p style="font-weight:700;margin:10px 0 2px">'+(r(m.texto)||'(meta ainda sem texto)')+'</p>'+
       '<p style="font-size:13.5px;color:var(--tinta-3);margin:0 0 10px">Responsável: '+e(m.resp||'a definir')+'</p>'+
       '<div class="meta-pct" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:0 0 14px">'+
