@@ -221,7 +221,7 @@ T6 → T7 → T8
 
 ---
 
-### T8: Fechamento: rastreabilidade, grafo e validação
+### T8: Fechamento: rastreabilidade, grafo e validação ✅
 
 **What**: Marcar o status em `spec.md` (tabela de rastreabilidade) e `tasks.md`; rodar `graphify update .`; deixar para o Pedro a revisão das três telas (validation.md é escrito pelo Verifier).
 **Where**: `spec.md`, `tasks.md`
@@ -230,9 +230,9 @@ T6 → T7 → T8
 
 **Done when**:
 
-- [ ] Todas as linhas da rastreabilidade em `Done`
-- [ ] `npx tsc --noEmit && npm test && npm run test:e2e` passam
-- [ ] `graphify update .` rodou
+- [x] Todas as linhas da rastreabilidade em `Done`
+- [x] `npx tsc --noEmit && npm test && npm run test:e2e` passam
+- [x] `graphify update .` rodou
 
 **Tests**: none
 **Gate**: build

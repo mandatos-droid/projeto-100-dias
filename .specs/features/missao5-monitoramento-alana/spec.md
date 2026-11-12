@@ -132,11 +132,11 @@ Nenhuma.
 
 | ID     | Story                               | Origem           | Status  |
 | ------ | ----------------------------------- | ---------------- | ------- |
-| MON-01 | Explicação do Monitoramento       | #127, #129       | Pending |
-| MON-02 | Botão de volta no Planejamento     | #131             | Pending |
-| MON-03 | Uma caixa por meta e por mês        | #124, #125, #128 | Pending |
-| FBK-01 | Orientação e registro do Feedback | #130             | Pending |
-| MON-04 | Resumo reflete o texto novo         | #125             | Pending |
+| MON-01 | Explicação do Monitoramento       | #127, #129       | Done |
+| MON-02 | Botão de volta no Planejamento     | #131             | Done |
+| MON-03 | Uma caixa por meta e por mês        | #124, #125, #128 | Done |
+| FBK-01 | Orientação e registro do Feedback | #130             | Done |
+| MON-04 | Resumo reflete o texto novo         | #125             | Done |
 
 ## Success Criteria
 
