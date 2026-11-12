@@ -126,16 +126,19 @@ export default function Feedback() {
           <form className="fb-form" aria-label={`Conversa de feedback com ${quem.nome}`} onSubmit={salva}>
             <h4>{editando ? 'Editar conversa' : 'Nova conversa'} com {quem.nome}</h4>
             <label className="campo"><span className="rot">Data da conversa</span>
+              <span className="aj">Dia em que a conversa aconteceu.</span>
               <input type="text" placeholder="Ex.: 18/03" value={form.data} onChange={campo('data')} /></label>
             <label className="campo"><span className="rot">Ponto de destaque 1</span>
               <span className="aj">Ponto positivo trazido pela liderança ou apontado pelo liderado.</span>
               <textarea value={form.d1} onChange={campo('d1')} /></label>
             <label className="campo"><span className="rot">Ponto de destaque 2</span>
+              <span className="aj">Um segundo ponto positivo, trazido pela liderança ou apontado pelo liderado.</span>
               <textarea value={form.d2} onChange={campo('d2')} /></label>
             <label className="campo"><span className="rot">Ponto de ajuste 1</span>
               <span className="aj">Apresentado pela liderança para melhoria do desempenho do liderado.</span>
               <textarea value={form.a1} onChange={campo('a1')} /></label>
             <label className="campo"><span className="rot">Ponto de ajuste 2</span>
+              <span className="aj">Um segundo ponto que a liderança pede para melhorar o desempenho do liderado.</span>
               <textarea value={form.a2} onChange={campo('a2')} /></label>
             <label className="campo"><span className="rot">Resumo do plano de ação</span>
               <span className="aj">Proposto pela liderança para o liderado conseguir resultados mais aderentes ao que o mandato espera.</span>
