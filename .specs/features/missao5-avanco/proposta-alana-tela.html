@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Proposta de tela · Missão 5 (Alana)</title>
+<!-- Protótipo navegável com a UI real da plataforma: usa os mesmos CSS do app (legacy.css, ilhas.css, rumo.css, feedback.css).
+     Abra direto no navegador (duplo clique). Nada é gravado; os dados são exemplos. Textos da Alana: sugestões #128 a #131. -->
+<link rel="stylesheet" href="../../../plataforma/public/legacy/legacy.css">
+<link rel="stylesheet" href="../../../plataforma/public/legacy/ilhas.css">
+<link rel="stylesheet" href="../../../plataforma/ilhas/rumo/rumo.css">
+<link rel="stylesheet" href="../../../plataforma/ilhas/rumo/feedback.css">
+<style>
+  /* só o que é da proposta (marcações e painel de telas); o resto é a UI do app */
+  .prop-on [data-novo]{outline:2px dashed var(--coral);outline-offset:4px;position:relative}
+  .prop-on [data-novo]::before{content:attr(data-novo);position:absolute;top:-0.9rem;left:0;background:var(--coral);color:#fff;font:700 0.6rem/1 Commissioner,sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:0.2rem 0.4rem;border-radius:3px;z-index:3;white-space:nowrap}
+  .prop-painel{position:fixed;right:1rem;bottom:1rem;z-index:90;background:#fff;border:1.5px solid var(--linha);border-radius:8px;box-shadow:0 6px 24px rgba(23,17,15,.18);padding:0.75rem 0.875rem;font-size:0.8125rem;max-width:15rem}
+  .prop-painel b{display:block;font-size:0.6875rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta-3);margin-bottom:0.375rem}
+  .prop-painel a{display:block;padding:0.25rem 0;color:var(--vinho);text-decoration:none;font-weight:700}
+  .prop-painel a.on{color:var(--coral)}
+  .prop-painel label{display:flex;gap:0.4rem;align-items:center;margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid var(--linha-2);cursor:pointer}
+  .prop-nota{font-size:0.8125rem;color:var(--tinta-2);background:#fff;border:1.5px dashed var(--coral);border-radius:6px;padding:0.5rem 0.75rem;margin:0 0 1.25rem}
+  .prop-nota b{color:var(--coral)}
+  .aviso-toast{position:fixed;left:50%;bottom:1.25rem;transform:translateX(-50%);background:var(--tinta);color:#fff;padding:0.625rem 1rem;border-radius:6px;font-size:0.875rem;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
+  .aviso-toast.ve{opacity:1}
+  .meta-det{margin:0.5rem 0 0.25rem}
+  .meta-pct{display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;margin:0 0 0.875rem}
+  .meta-pct .rm-dica{margin:0}
+</style>
+</head>
+<body class="prop-on">
+<div id="app" class="app">
+  <aside class="lado" id="lado">
+    <div class="lado-topo">
+      <img src="../../../plataforma/public/legacy/logo-2.png" alt="Legisla Brasil">
+      <div id="ladoMandato"><strong style="color:#fff">Mandato exemplo</strong><br><span style="font-size:0.78rem;color:rgba(255,255,255,.62)">Vereadora Ana Souza</span></div>
+      <a class="lado-plano" href="#/plano"><span aria-hidden="true">◈</span>Planejamento Estratégico</a>
+      <div class="contador-dia"><b>62</b><span>dia de<br>100</span></div>
+    </div>
+    <nav class="lado-nav" id="ladoNav"></nav>
+    <div class="lado-pe"><div class="quem">Usuária de exemplo</div></div>
+  </aside>
+  <div class="corpo">
+    <main class="tela" id="tela"></main>
+  </div>
+</div>
+
+<div class="prop-painel" id="painel">
+  <b>Telas da proposta</b>
+  <a href="#/plano" data-r="plano">1 · Planejamento Estratégico</a>
+  <a href="#/m/5/m5.monit" data-r="monit">2 · Missão 5 · Monitoramento</a>
+  <a href="#/m/5/m5.feedback" data-r="feedback">3 · Missão 5 · Feedback</a>
+  <label><input type="checkbox" id="marc" checked> Mostrar o que muda</label>
+</div>
+<div class="aviso-toast" id="toast" role="status"></div>
+
+<script>
+/* ---------- dados de exemplo (nada é gravado) ---------- */
+var STATUS=[{id:'concluida',rot:'Concluída',pct:100}].concat([90,80,70,60,50,40,30,20,10].map(function(n){return{id:'concluida'+n,rot:'Concluída '+n+'%',pct:n}})).concat([{id:'nao_concluida',rot:'Não concluída',pct:0},{id:'congelada',rot:'Congelada',pct:null}]);
+var OBJ=[
+  {pid:'a',nome:'Articulação',texto:'Ser reconhecida pela base e pelos pares como articuladora da pauta de saúde',metas:[0,1]},
+  {pid:'b',nome:'Produção legislativa',texto:'Aprovar propostas que resolvam problemas concretos do território',metas:[2,3]}
+];
+var METAS=[
+  {txt:'Realizar 12 reuniões com associações de bairro até o dia 100',resp:'Carla Mendes',st:'concluida60'},
+  {txt:'Fechar parceria com 3 entidades de saúde da cidade',resp:'Rafael Lima',st:'concluida30'},
+  {txt:'Protocolar 5 proposições sobre atenção básica',resp:'Júlia Prado',st:'concluida80'},
+  {txt:'Aprovar 1 requerimento de audiência pública na comissão',resp:'Júlia Prado',st:'nao_concluida'}
+];
+var DET=['','','',''];           // caixa única de detalhamento por meta (Monitoramento)
+var CONCLUIDO={monit:false,feedback:false};
+var EQUIPE=[
+  {i:1,nome:'Marcos Teixeira',cargo:'Chefia de Gabinete',cor:'#571730',liderados:[{i:2,nome:'Júlia Prado'},{i:3,nome:'Carla Mendes'}]},
+  {i:2,nome:'Júlia Prado',cargo:'Coordenação Legislativa',cor:'#035252',liderados:[{i:4,nome:'Rafael Lima'},{i:5,nome:'Bia Nunes'}],pai:1},
+  {i:3,nome:'Carla Mendes',cargo:'Coordenação de Mobilização',cor:'#EB5454',liderados:[{i:6,nome:'Diego Alves'}],pai:1}
+];
+var CONVERSAS=[{id:'c1',pessoa:4,data:'18/03',destaques:'Entregou os 2 relatórios antes do prazo. Boa relação com as comissões.',ajustes:'Atrasos na atualização do monitoramento. Pouca devolutiva por escrito.',acao:'Reunião semanal de 15 min às segundas e checklist de entregas.'}];
+var EDITANDO=null,ABERTA=null,PESSOA=null;
+
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function stDe(id){return STATUS.filter(function(s){return s.id===id})[0]}
+function pctMeta(m){var s=stDe(m.st);return s?s.pct:0}
+function media(v){v=v.filter(function(x){return x!==null});return v.length?Math.round(v.reduce(function(a,b){return a+b},0)/v.length):null}
+function pctObj(o){return media(o.metas.map(function(i){return pctMeta(METAS[i])}))}
+function pctTotal(){return media(METAS.map(pctMeta))}
+function pT(p){return p===null?'—':p+'%'}
+function toast(t){var e=document.getElementById('toast');e.textContent=t;e.classList.add('ve');clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove('ve')},2200)}
+function simb(id){return id==='concluida'?'✓':id==='nao_concluida'?'○':id==='congelada'?'✱':'◐'}
+
+/* ---------- menu lateral (mesmas classes do app) ---------- */
+function lateral(r){
+  var M=[[1,'Mapa político','#4ABFB2','4/4'],[2,'Equipe e rotinas','#EB5454','2/2'],[3,'Defina o rumo','#E8D9DE','4/4'],[4,'Ação e articulação','#BA6BED','1/3']];
+  var f5=(CONCLUIDO.monit?1:0)+(CONCLUIDO.feedback?1:0);
+  var h='<a class="it" href="#/"><span class="nn">●</span><span class="tx">Painel do mandato</span></a><div class="nav-grupo">As cinco missões</div>';
+  M.forEach(function(m){h+='<a class="it" href="#/plano" style="--c:'+m[2]+'"><span class="nn">'+m[0]+'</span><span class="tx">'+m[1]+'</span><span class="fr full">'+m[3]+'</span></a>'});
+  h+='<a class="it'+(r!=='plano'?' on':'')+'" href="#/m/5/m5.monit" style="--c:#4ABFB2"><span class="nn">5</span><span class="tx">Monitoramento e feedback</span><span class="fr">'+f5+'/3</span></a>';
+  document.getElementById('ladoNav').innerHTML=h;
+  document.querySelectorAll('.lado-plano').forEach(function(a){a.style.outline=r==='plano'?'2px solid #fff':''});
+}
+
+/* ---------- TELA 1: Planejamento Estratégico (árvore real + botão novo) ---------- */
+function anel(p){var r=42,c=2*Math.PI*r;return '<div class="rm-anel" role="img" aria-label="Atingimento total: '+pT(p)+'"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="'+r+'" class="fundo"/><circle cx="50" cy="50" r="'+r+'" class="valor" stroke-dasharray="'+(c*(p||0)/100)+' '+c+'" transform="rotate(-90 50 50)"/></svg><b>'+pT(p)+'</b></div>'}
+function noMeta(i){
+  var m=METAS[i],s=stDe(m.st),n=String(i+1).padStart(2,'0'),dest=(i===0);
+  return '<li role="treeitem" aria-level="3" data-no="meta-'+i+'" data-tipo="meta"><div class="rm-no-cab">'+
+    '<span class="rm-no-tag">Meta '+n+'</span><span class="rm-no-txt">'+esc(m.txt)+'</span>'+
+    '<span class="rm-st" data-status="'+m.st+'"><i aria-hidden="true">'+simb(m.st)+'</i>'+s.rot+'<small>'+pT(s.pct)+'</small></span>'+
+    '<label class="rm-st-sel"'+(dest?' data-novo="% do todo"':'')+'><span class="sr">Status da meta '+n+'</span><select data-meta="'+i+'">'+
+    STATUS.map(function(x){return '<option value="'+x.id+'"'+(x.id===m.st?' selected':'')+'>'+x.rot+'</option>'}).join('')+'</select></label>'+
+    '</div></li>';
+}
+function noObj(o){
+  var p=pctObj(o);
+  return '<li role="treeitem" aria-level="2" data-no="obj-'+o.pid+'" data-tipo="objetivo"><div class="rm-no-cab">'+
+    '<span class="rm-no-tag obj">'+esc(o.nome)+'</span><span class="rm-no-txt">'+esc(o.texto)+'</span>'+
+    '<span class="rm-no-pct">'+pT(p)+'</span><span class="rm-no-barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+(p||0)+'"><i style="width:'+(p||0)+'%"></i></span></div>'+
+    '<ul role="group">'+o.metas.map(noMeta).join('')+'</ul></li>';
+}
+function telaPlano(){
+  return '<div class="etiqueta">Missão 3 · Defina o Rumo</div><h1 class="largo">Planejamento Estratégico</h1>'+
+  '<p class="chamada">O Legado, os objetivos estratégicos e as metas do mandato em uma só árvore, com o status de cada meta e o atingimento de cada objetivo.</p>'+
+  '<div class="ilha-corpo rm-plano">'+
+  '<div class="rm-plano-topo">'+anel(pctTotal())+
+    '<div><p class="rm-plano-t">Atingimento total</p><p class="rm-dica">Média de todas as metas ativas. Em cada meta, escolha o quanto já foi cumprido <b>do todo</b> (não só do mês).</p></div>'+
+    '<div class="rm-plano-acoes rm-nao-imprime"><button type="button" class="bt pri" id="btMonit" data-novo="Botão novo (#131)">Registrar detalhes sobre o atingimento das metas no Monitoramento</button></div>'+
+  '</div>'+
+  '<ul role="tree" aria-label="Árvore do planejamento" class="rm-arvore"><li role="treeitem" aria-level="1" data-no="legado" data-tipo="legado"><div class="rm-no-cab"><span class="rm-no-tag">Legado</span><span class="rm-no-txt rm-no-legado">Uma vereadora que devolveu a saúde básica ao centro da agenda da cidade.</span></div>'+
+  '<ul role="group">'+OBJ.map(noObj).join('')+'</ul></li></ul></div>';
+}
+function ligaPlano(t){
+  t.querySelectorAll('select[data-meta]').forEach(function(s){s.onchange=function(){
+    METAS[+s.dataset.meta].st=s.value;
+    var y=window.scrollY;render();window.scrollTo(0,y);
+    toast('Meta '+String(+s.dataset.meta+1).padStart(2,'0')+': '+stDe(s.value).rot+' (% do todo). O Monitoramento já mostra este valor.');
+  }});
+  document.getElementById('btMonit').onclick=function(){location.hash='#/m/5/m5.monit'};
+}
+
+/* ---------- TELA 2: Missão 5 · Monitoramento ---------- */
+function topoEx(rot){return '<div class="guia-topo"><button class="voltar" type="button" onclick="toast(\'Volta para a página da Missão 5\')">‹ Missão 5</button></div><div class="etiqueta" style="margin-top:22px">Missão 5 · Monitoramento e feedback · '+rot+'</div>'}
+function rodape(chave){
+  return '<div class="passo-rodape">'+(CONCLUIDO[chave]
+    ?'<button class="bt sec" data-ac="reabrir" data-ch="'+chave+'">Reabrir exercício</button>'
+    :'<button class="bt pri" data-ac="concluir" data-ch="'+chave+'">Marcar como concluído</button>')+
+    '<button class="bt fant" type="button" data-ac="prox">Próximo exercício ›</button>'+
+    '<span class="salvo-aviso" data-salvo>'+(CONCLUIDO[chave]?'Concluído':'Salvo automaticamente')+'</span></div>';
+}
+function telaMonit(){
+  var h=topoEx('O monitoramento do avanço das metas')+
+  '<div class="passo-corpo"><h1 class="largo" style="font-size:clamp(28px,4.2vw,42px)">O monitoramento do avanço das metas</h1>'+
+  '<div class="texto" data-novo="Texto novo (#129)"><p>O monitoramento do planejamento serve para o mandato acompanhar as vitórias e os desafios que justificam os resultados parciais de cada meta.</p>'+
+  '<p>O exercício proposto passa por duas etapas. Para cumprir a primeira você deve clicar na caixa abaixo, retornar ao planejamento e registrar quanto vocês caminharam este mês no atingimento da meta. Lembre-se que o percentual corresponde ao todo, e não ao mês!</p>'+
+  '<p>Depois de registrar os avanços em cada meta, volte para esta tela e aponte em formato de resumo o caminho percorrido.</p></div>'+
+  '<h4>Como conduzir</h4><div class="orienta" style="--c:#035252"><p><strong>Primeiro passo:</strong> abra o Planejamento Estratégico e registre, em cada meta, o quanto já foi cumprido do todo.</p><p><strong>Segundo passo:</strong> volte aqui e, em cada meta, resuma o caminho percorrido neste mês.</p></div>'+
+  '<p class="bts"><button type="button" class="bt pri" id="btPlano">Abrir Planejamento Estratégico</button></p>';
+  METAS.forEach(function(m,i){
+    var s=stDe(m.st),o=OBJ.filter(function(x){return x.metas.indexOf(i)>=0})[0];
+    h+='<div class="din"><span class="idx">Meta '+String(i+1).padStart(2,'0')+' · '+esc(o.nome)+'</span>'+
+    '<p style="font-weight:700;margin:10px 0 2px">'+esc(m.txt)+'</p>'+
+    '<p style="font-size:13.5px;color:var(--tinta-3);margin:0 0 10px">Responsável: '+esc(m.resp)+'</p>'+
+    '<div class="meta-pct"><span class="rm-st" data-status="'+m.st+'"><i aria-hidden="true">'+simb(m.st)+'</i>'+s.rot+'<small>'+pT(s.pct)+'</small></span>'+
+    '<span class="rm-dica" data-novo="Vem do Planejamento">Atingimento registrado no Planejamento · <a href="#/plano">alterar</a></span></div>'+
+    '<label class="campo" data-novo="1 caixa no lugar de 6 campos × 3 meses (#128)"><span class="rot">Registre o detalhamento de como esta meta caminhou ao longo deste mês.</span>'+
+    '<span class="aj">Responda as perguntas a seguir para um bom registro: O que deu certo e o que deu errado para que a meta tivesse tal resultado parcial? Quais foram as novas oportunidades políticas que surgiram ao longo do mês, por conta dos esforços para cumprimento da meta?</span>'+
+    '<textarea data-det="'+i+'" style="min-height:120px" placeholder="Escreva aqui o resumo do mês">'+esc(DET[i])+'</textarea></label></div>';
+  });
+  return h+'</div>'+rodape('monit');
+}
+function ligaMonit(t){
+  document.getElementById('btPlano').onclick=function(){location.hash='#/plano'};
+  t.querySelectorAll('textarea[data-det]').forEach(function(a){a.oninput=function(){
+    DET[+a.dataset.det]=a.value;var s=t.querySelector('[data-salvo]');s.textContent='Salvando…';
+    clearTimeout(ligaMonit.t);ligaMonit.t=setTimeout(function(){s.textContent='Salvo automaticamente'},700)}});
+}
+
+/* ---------- TELA 3: Missão 5 · Feedback (ilha real: mapa do organograma, pessoas, conversa) ---------- */
+function feitas(l){return l.liderados.filter(function(p){return CONVERSAS.some(function(c){return c.pessoa===p.i})}).length}
+function noFb(l){
+  var sub=EQUIPE.filter(function(x){return x.pai===l.i});
+  return '<li class="fb-no"><div class="fb-card'+(ABERTA===l.i?' sel':'')+'" style="border-top-color:'+l.cor+'"><button type="button" class="fb-abre" data-lider="'+l.i+'" aria-expanded="'+(ABERTA===l.i)+'">'+
+    '<strong class="fb-nome">'+esc(l.nome)+'</strong><span class="fb-cargo">'+esc(l.cargo)+'</span>'+
+    '<span class="fb-da">dá feedback a '+l.liderados.length+' '+(l.liderados.length===1?'pessoa':'pessoas')+'</span>'+
+    '<span class="fb-cont'+(feitas(l)===l.liderados.length?' ok':'')+'">feitas '+feitas(l)+' de '+l.liderados.length+'</span></button></div>'+
+    (sub.length?'<ul class="fb-filhos">'+sub.map(noFb).join('')+'</ul>':'')+'</li>';
+}
+function telaFeedback(){
+  var h=topoEx('O primeiro ciclo de feedback estruturado')+
+  '<div class="passo-corpo"><h1 class="largo" style="font-size:clamp(28px,4.2vw,42px)">O primeiro ciclo de feedback estruturado</h1>'+
+  '<div class="texto"><p>O feedback estruturado também precisa ser realizado periodicamente. Recomendamos que ocorra ao menos uma vez por semestre, mas que, nos primeiros 100 dias, seja o primeiro marco de ajustes e devolutivas entre liderança e liderado individualmente.</p></div>'+
+  '<div class="texto" data-novo="Orientação nova, antes da árvore (#130)">'+
+  '<p>Os registros a seguir devem ser realizados pela Chefia de Gabinete. As únicas pessoas que podem acessar o resumo a seguir são a liderança parlamentar e a chefia de Gabinete.</p>'+
+  '<p>Após a realização de cada ciclo de feedback estruturado, as lideranças devem fazer a devolutiva para a Chefia de Gabinete sobre como cada conversa com seus liderados se deu.</p>'+
+  '<p>Abaixo você terá a oportunidade de preencher 4 informações sobre cada feedback realizado: data; 2 pontos de destaque positivo trazidos pela liderança ou apontados pelo liderado; 2 pontos de ajuste apresentados pela liderança para melhoria do desempenho do liderado; resumo do plano de ação proposto pela liderança para seu liderado conseguir resultados mais aderentes com o que o mandato espera.</p>'+
+  '<p>Desse modo, a Chefia de Gabinete consegue acompanhar de modo sistemático todos os ciclos e tomar decisões sobre a governança do mandato e sobre a gestão de pessoas com base em evidências e de modo humanizado também.</p></div>'+
+  '<p class="rm-alerta" role="note" data-novo="Acesso restrito">Acesso restrito: só a liderança parlamentar e a Chefia de Gabinete veem estes registros.</p>'+
+  '<div class="ilha-corpo rm-fb"><p class="rm-dica">Cada liderança dá feedback às pessoas que lidera no organograma da Missão 2. Clique em uma liderança para ver as pessoas dela.</p>'+
+  '<ul class="fb-arvore" aria-label="Mapa de feedback pelo organograma">'+noFb(EQUIPE[0])+'</ul>';
+  var l=EQUIPE.filter(function(x){return x.i===ABERTA})[0];
+  if(l){
+    h+='<section class="fb-painel"><h4>Pessoas que '+esc(l.nome)+' lidera <span class="rm-n">feitas '+feitas(l)+' de '+l.liderados.length+'</span></h4><ul class="fb-pessoas">'+
+    l.liderados.map(function(p){var f=CONVERSAS.some(function(c){return c.pessoa===p.i});
+      return '<li class="'+(PESSOA===p.i?'sel':'')+'"><button type="button" class="fb-pessoa-bt" data-pessoa="'+p.i+'">'+esc(p.nome)+'</button><span class="fb-sit '+(f?'feita':'pendente')+'">'+(f?'feita':'pendente')+'</span></li>'}).join('')+'</ul></section>';
+    var q=l.liderados.filter(function(p){return p.i===PESSOA})[0];
+    if(q){
+      var hist=CONVERSAS.filter(function(c){return c.pessoa===q.i}),ed=CONVERSAS.filter(function(c){return c.id===EDITANDO})[0]||{data:'',destaques:'',ajustes:'',acao:''};
+      h+='<section class="fb-conversa">'+(hist.length?'<ul class="fb-historico">'+hist.map(function(v){return '<li><b>'+esc(v.data||'sem data')+'</b><span>Destaques: '+esc(v.destaques)+'</span><span>Ajustes: '+esc(v.ajustes)+'</span><span>Plano de ação: '+esc(v.acao)+'</span><span class="fb-acoes"><button type="button" class="rm-link" data-ed="'+v.id+'">Editar</button><button type="button" class="rm-link" data-ap="'+v.id+'">Apagar</button></span></li>'}).join('')+'</ul>':'')+
+      '<form class="fb-form" id="fbForm"><h4>'+(EDITANDO?'Editar conversa':'Nova conversa')+' com '+esc(q.nome)+'</h4>'+
+      '<label class="campo"><span class="rot">Data da conversa</span><input type="text" name="data" placeholder="Ex.: 18/03" value="'+esc(ed.data)+'"></label>'+
+      '<label class="campo"><span class="rot">2 pontos de destaque positivo</span><span class="aj">Trazidos pela liderança ou apontados pelo liderado.</span><textarea name="destaques">'+esc(ed.destaques)+'</textarea></label>'+
+      '<label class="campo"><span class="rot">2 pontos de ajuste</span><span class="aj">Apresentados pela liderança para melhoria do desempenho.</span><textarea name="ajustes">'+esc(ed.ajustes)+'</textarea></label>'+
+      '<label class="campo"><span class="rot">Resumo do plano de ação pactuado</span><span class="aj">Proposto pela liderança para o liderado alcançar resultados mais aderentes ao que o mandato espera.</span><textarea name="acao">'+esc(ed.acao)+'</textarea></label>'+
+      '<div class="bts"><button type="submit" class="bt pri peq">Salvar conversa</button>'+(EDITANDO?'<button type="button" class="bt sec peq" id="fbCancela">Cancelar edição</button>':'')+'</div></form></section>';
+    }
+  }
+  return h+'</div></div>'+rodape('feedback');
+}
+function ligaFeedback(t){
+  t.querySelectorAll('[data-lider]').forEach(function(b){b.onclick=function(){var i=+b.dataset.lider;ABERTA=ABERTA===i?null:i;PESSOA=null;EDITANDO=null;render()}});
+  t.querySelectorAll('[data-pessoa]').forEach(function(b){b.onclick=function(){PESSOA=+b.dataset.pessoa;EDITANDO=null;render()}});
+  t.querySelectorAll('[data-ed]').forEach(function(b){b.onclick=function(){EDITANDO=b.dataset.ed;render()}});
+  t.querySelectorAll('[data-ap]').forEach(function(b){b.onclick=function(){if(!confirm('Apagar esta conversa? O texto dela será apagado.'))return;CONVERSAS=CONVERSAS.filter(function(c){return c.id!==b.dataset.ap});toast('Conversa apagada');render()}});
+  var c=document.getElementById('fbCancela');if(c)c.onclick=function(){EDITANDO=null;render()};
+  var f=document.getElementById('fbForm');
+  if(f)f.onsubmit=function(e){e.preventDefault();
+    var v={data:f.data.value,destaques:f.destaques.value,ajustes:f.ajustes.value,acao:f.acao.value};
+    if(EDITANDO){CONVERSAS.forEach(function(x){if(x.id===EDITANDO)Object.assign(x,v)})}
+    else CONVERSAS.push(Object.assign({id:'c'+Date.now(),pessoa:PESSOA},v));
+    EDITANDO=null;toast('Conversa salva. A Chefia de Gabinete já vê o ciclo atualizado.');render()};
+}
+
+/* ---------- rodapé e roteamento ---------- */
+function ligaRodape(t,chave){
+  t.querySelectorAll('[data-ac]').forEach(function(b){b.onclick=function(){
+    var a=b.dataset.ac;
+    if(a==='concluir'){CONCLUIDO[b.dataset.ch]=true;toast('Exercício marcado como concluído')}
+    else if(a==='reabrir'){CONCLUIDO[b.dataset.ch]=false}
+    else if(a==='prox'){location.hash=chave==='monit'?'#/m/5/m5.feedback':'#/m/5/m5.monit';return}
+    render()}});
+}
+function rota(){var h=location.hash||'#/plano';return h.indexOf('m5.feedback')>=0?'feedback':h.indexOf('m5.monit')>=0?'monit':'plano'}
+function render(){
+  var r=rota(),t=document.getElementById('tela');
+  t.innerHTML=r==='plano'?telaPlano():r==='monit'?telaMonit():telaFeedback();
+  t.className='tela largo';
+  if(r==='plano')ligaPlano(t);else{ligaRodape(t,r);r==='monit'?ligaMonit(t):ligaFeedback(t)}
+  lateral(r);
+  document.querySelectorAll('#painel a').forEach(function(a){a.classList.toggle('on',a.dataset.r===r)});
+}
+window.addEventListener('hashchange',function(){window.scrollTo(0,0);render()});
+document.getElementById('marc').onchange=function(){document.body.classList.toggle('prop-on',this.checked)};
+render();
+</script>
+</body>
+</html>
