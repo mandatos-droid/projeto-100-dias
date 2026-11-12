@@ -114,7 +114,7 @@ T6 → T7 → T8
 
 ---
 
-### T3: Monitoramento no m5.js
+### T3: Monitoramento no m5.js ✅
 
 **What**: Reescrever `CAMPOS_MONIT` com o campo único `det`; substituir `Comp.monit` (texto #129, passo a passo, botão "Abrir Planejamento Estratégico", cartão por meta com percentual só leitura e link "alterar", três meses em sanfona com a ajuda da #128 acima de cada caixa); tratar `window.MonitFoco`.
 **Where**: `public/legacy/m5.js`, `tests/legado-m5.test.ts`
@@ -124,14 +124,14 @@ T6 → T7 → T8
 
 **Done when**:
 
-- [ ] Depois do `m5.js`, `CAMPOS_MONIT` tem 1 campo, chave `det` (MON-04, AD-2)
-- [ ] O HTML do monitoramento contém o texto #129, o botão "Abrir Planejamento Estratégico" com `href="#/plano"` e não contém a tabela original (MON-01.1, MON-01.2)
-- [ ] Para cada meta há 3 caixas com `data-k="mon.<idMeta>.<mes>.det"`, mes 1 a 3, e a ajuda #128 visível antes de cada uma (MON-03.1)
-- [ ] O cartão mostra o percentual da meta (status em passos de 10%, ou atingidos/total com sucessos) e o link "alterar" para `#/plano` (MON-03.3)
-- [ ] Sem metas, mostra o aviso atual de que as metas aparecem ali (MON-03.4)
-- [ ] Com `window.MonitFoco` = id de uma meta existente, o cartão dela sai aberto e marcado para rolar; id inexistente é ignorado (MON-02.2)
-- [ ] O hash do `conteudo.js` segue igual (AD-1)
-- [ ] Testes M5-10.2 e "corpo original" atualizados para o comportamento novo (regra 5); nenhum removido
+- [x] Depois do `m5.js`, `CAMPOS_MONIT` tem 1 campo, chave `det` (MON-04, AD-2)
+- [x] O HTML do monitoramento contém o texto #129, o botão "Abrir Planejamento Estratégico" com `href="#/plano"` e não contém a tabela original (MON-01.1, MON-01.2)
+- [x] Para cada meta há 3 caixas com `data-k="mon.<idMeta>.<mes>.det"`, mes 1 a 3, e a ajuda #128 visível antes de cada uma (MON-03.1)
+- [x] O cartão mostra o percentual da meta (status em passos de 10%, ou atingidos/total com sucessos) e o link "alterar" para `#/plano` (MON-03.3)
+- [x] Sem metas, mostra o aviso atual de que as metas aparecem ali (MON-03.4)
+- [x] Com `window.MonitFoco` = id de uma meta existente, o cartão dela sai aberto e marcado para rolar; id inexistente é ignorado (MON-02.2)
+- [x] O hash do `conteudo.js` segue igual (AD-1)
+- [x] Testes M5-10.2 e "corpo original" atualizados para o comportamento novo (regra 5); nenhum removido
 
 **Tests**: unit
 **Gate**: quick

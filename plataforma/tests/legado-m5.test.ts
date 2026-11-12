@@ -34,26 +34,94 @@ test('carregar o m5.js não muda nenhum texto da Missão 5 (M5-10.1)', () => {
   assert.equal(hashM5(w.MISSOES), HASH_TEXTOS);
 });
 
-/* ---------- gancho do monitoramento ---------- */
-function janela() {
-  const w = guia({ Comp: { monit: () => '<table>tabela original</table>', outro: () => 'outro' } });
-  vm.runInContext(CODIGO, w as unknown as vm.Context);
-  return w as unknown as { Comp: { monit(ex?: unknown): string; outro(): string } };
-}
+/* ---------- monitoramento conforme a Alana: uma caixa por meta e por mês (MON-01, MON-03, MON-04) ---------- */
+import { BOTAO_MONIT, MONIT_INTRO, MONIT_PERGUNTAS, MONIT_ROTULO } from '../ilhas/rumo/textosAlana.ts';
 
-test('a tarefa de monitoramento mostra o botão "Abrir Planejamento Estratégico" que leva a #/plano (M5-10.2)', () => {
-  const h = janela().Comp.monit({ id: 'm5.monit' });
-  assert.match(h, /Abrir Planejamento Estratégico/);
-  assert.match(h, /href="#\/plano"/);
+type Meta = { id: string; texto?: string; resp?: string; status?: string; sucessos?: { status: string }[] };
+function monit(metas: Meta[], campos: Record<string, string> = {}, foco?: string) {
+  const janela: Record<string, unknown> = { MonitFoco: foco };
+  const w = guia({
+    Comp: { monit: () => '<table>tabela original</table>', outro: () => 'outro' },
+    D: { metas, campos },
+    esc: (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'),
+    rich: (s: string) => s,
+    window: janela,
+  });
+  vm.runInContext(CODIGO, w as unknown as vm.Context);
+  const c = w as unknown as { Comp: { monit(ex?: unknown): string; outro(): string }; CAMPOS_MONIT: string[][] };
+  return { html: c.Comp.monit({ id: 'm5.monit' }), campos: c.CAMPOS_MONIT, janela, w: c };
+}
+const META = (id: string, extra: Partial<Meta> = {}): Meta => ({ id, texto: `texto ${id}`, resp: 'Ana', status: 'nao_concluida', ...extra });
+
+test('depois do m5.js o Guia tem um único campo de monitoramento, "det" (MON-04, AD-2)', () => {
+  const { campos } = monit([]);
+  assert.deepEqual([...campos.map((c) => c[0])], ['det']);
 });
 
-test('o corpo original do monitoramento continua inteiro, sem alteração (M5-10.1)', () => {
-  const h = janela().Comp.monit({ id: 'm5.monit' });
-  assert.ok(h.includes('<table>tabela original</table>'));
+test('a tarefa de monitoramento mostra o texto #129 e o botão "Abrir Planejamento Estratégico" que leva a #/plano (MON-01.1, MON-01.2)', () => {
+  const { html } = monit([META('m1')]);
+  for (const p of MONIT_INTRO) assert.ok(html.includes(p), p);
+  assert.match(html, /<a class="bt pri" href="#\/plano">Abrir Planejamento Estratégico<\/a>/);
+});
+
+test('o monitoramento não traz mais a tabela nem os 6 campos antigos (MON-03.1)', () => {
+  const { html } = monit([META('m1')]);
+  assert.ok(!html.includes('tabela original'));
+  assert.ok(!/data-k="mon\.m1\.\d\.(sucesso|result|pct|desafios|oport|read)"/.test(html));
+});
+
+test('cada meta tem 3 caixas, uma por mês, com o rótulo e as perguntas da #128 (MON-03.1)', () => {
+  const { html } = monit([META('m1'), META('m2')]);
+  for (const id of ['m1', 'm2']) for (const mes of [1, 2, 3]) assert.ok(html.includes(`data-k="mon.${id}.${mes}.det"`), `${id} mês ${mes}`);
+  assert.ok(!html.includes('data-k="mon.m1.4.det"'));
+  assert.equal(html.split(MONIT_ROTULO).length - 1, 6);
+  for (const q of MONIT_PERGUNTAS) assert.equal(html.split(q).length - 1, 6, q);
+});
+
+test('o cartão da meta mostra o atingimento registrado no Planejamento, com o link "alterar" (MON-03.3)', () => {
+  const { html } = monit([META('m1', { status: 'concluida60' })]);
+  assert.match(html, /data-status="concluida60"/);
+  assert.match(html, /Concluída 60%/);
+  assert.match(html, /<small>60%<\/small>/);
+  assert.match(html, /href="#\/plano"[^>]*>alterar<\/a>/);
+});
+
+test('meta com sucessos mostra atingidos sobre o total e meta congelada mostra "—" (MON-03.3)', () => {
+  const com = monit([META('m1', { sucessos: [{ status: 'concluida' }, { status: 'nao_concluida' }, { status: 'congelada' }] })]).html;
+  assert.match(com, /<small>50%<\/small>/);
+  const cong = monit([META('m2', { status: 'congelada' })]).html;
+  assert.match(cong, /<small>—<\/small>/);
+});
+
+test('sem metas o monitoramento mostra o aviso e ainda assim o botão do Planejamento (MON-03.4)', () => {
+  const { html } = monit([]);
+  assert.match(html, /As metas da Missão 3 aparecem aqui assim que forem escritas\./);
+  assert.match(html, /href="#\/plano"/);
+});
+
+test('a caixa com texto abre o mês; as vazias ficam fechadas (MON-03.2)', () => {
+  const { html } = monit([META('m1')], { 'mon.m1.2.det': 'andou bem' });
+  assert.match(html, /<details open[^>]*data-mes="2"/);
+  assert.match(html, /<details(?! open)[^>]*data-mes="1"/);
+});
+
+test('com MonitFoco de uma meta existente, só o cartão dela sai marcado e aberto; id inexistente é ignorado (MON-02.2)', () => {
+  const a = monit([META('m1'), META('m2')], {}, 'm2');
+  assert.equal(a.html.split('data-foco').length - 1, 1);
+  assert.match(a.html, /data-meta="m2"[^>]*data-foco/);
+  assert.equal(a.janela.MonitFoco, undefined, 'o foco é consumido');
+  const b = monit([META('m1')], {}, 'inexistente');
+  assert.ok(!b.html.includes('data-foco'));
+});
+
+test('os textos do m5.js são os mesmos de textosAlana.ts (sem divergência entre o legado e as ilhas)', () => {
+  const ilhas = [...MONIT_INTRO, ...MONIT_PERGUNTAS, MONIT_ROTULO];
+  for (const t of ilhas) assert.ok(CODIGO.includes(t), t);
+  assert.ok(BOTAO_MONIT.length > 0);
 });
 
 test('o gancho não mexe nos outros componentes do Guia', () => {
-  assert.equal(janela().Comp.outro(), 'outro');
+  assert.equal(monit([]).w.Comp.outro(), 'outro');
 });
 
 test('m5.js sem o Comp do Guia carregado não quebra', () => {
