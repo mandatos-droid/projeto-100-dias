@@ -1,7 +1,7 @@
 'use client';
 /* Missão 3 · aba Planejamento Estratégico: árvore Legado → objetivos → metas, com status por meta e atingimento por objetivo e total.
    Lê e grava os mesmos dados do exercício (D.metas, D.preditores, D.rumo); a edição usa o mesmo CartaoMeta. */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { pctObjetivo, pctPlano, statusPorAtingimento } from '@/lib/atingimento';
 import { abrirCiclo, excluiPlano, lerPlanos, listaCiclos, renomeiaPlano } from '@/lib/ciclos';
 import { OBJETIVOS_LEGISLA, lerEstrategia, lerJustificativa } from '@/lib/estrategia';
@@ -14,6 +14,7 @@ import PdfOrgRotinas from '../equipe/PdfOrgRotinas';
 import ArvorePlano, { pctTxt } from './ArvorePlano';
 import CartaoMeta from './CartaoMeta';
 import EditorPlano from './EditorPlano';
+import { BOTAO_MONIT } from './textosAlana';
 import { useRumo } from './useRumo';
 import './rumo.css';
 
@@ -95,6 +96,13 @@ export default function Plano() {
   const [filtro, setFiltro] = useState('');
   const [ordenar, setOrdenar] = useState(false);
   const [ver, setVer] = useState<number | null>(null); // planejamento arquivado aberto para leitura; null = o atual
+  /* Missão 5: a última meta mexida aqui é a que o Monitoramento abre; o legado lê window.MonitFoco (public/legacy/m5.js) */
+  const ultima = useRef<string | null>(null);
+  const lembra = (idx: number) => { ultima.current = metas.find((x) => x.idx === idx)?.id ?? null; };
+  const irMonitoramento = (id?: string | null) => {
+    (window as unknown as { MonitFoco?: string }).MonitFoco = id ?? undefined;
+    window.location.hash = '#/m/5/m5.monit';
+  };
   const total = pctPlano(arv.objetivos);
   const vazio = !arv.objetivos.some((o) => o.metas.length > 0);
   const nMetas = metas.length;
@@ -119,9 +127,10 @@ export default function Plano() {
   const daPessoa = (m: (typeof metas)[number]) => nomesDasMetas(m).some((n) => norm(n) === norm(filtro));
 
   const opcoes = {
-    onStatus: (idx: number, status: Parameters<typeof setMeta>[1]['status'] & string) => setMeta(idx, { status }),
+    onStatus: (idx: number, status: Parameters<typeof setMeta>[1]['status'] & string) => { lembra(idx); setMeta(idx, { status }); },
     onStatusSucesso: (idx: number, id: string, status: Parameters<typeof setMeta>[1]['status'] & string) => {
       const meta = metas.find((x) => x.idx === idx);
+      lembra(idx);
       if (meta) { const sucessos = editaSucesso(lerSucessos(meta), id, { status }); setMeta(idx, { sucessos, status: statusPorAtingimento(meta.status, sucessos) }); }
     },
     marca: (m: (typeof metas)[number]) => (filtro ? (daPessoa(m) ? ('destaque' as const) : ('esmaecido' as const)) : undefined),
@@ -132,9 +141,11 @@ export default function Plano() {
       <>
         <button type="button" className="rm-link rm-nao-imprime" aria-expanded={editando === m.idx} aria-label={`${editando === m.idx ? 'Fechar a edição da' : 'Editar a'} meta ${String(m.idx + 1).padStart(2, '0')}`}
           onClick={() => setEditando(editando === m.idx ? null : m.idx)}>{editando === m.idx ? 'Fechar' : 'Editar'}</button>
+        <button type="button" className="rm-link rm-nao-imprime" data-monit-meta={m.id} aria-label={`Detalhar a meta ${String(m.idx + 1).padStart(2, '0')} no Monitoramento`}
+          onClick={() => irMonitoramento(m.id)}>Detalhar no Monitoramento</button>
         {editando === m.idx && (
           <div className="rm-no-edicao rm-nao-imprime">
-            <CartaoMeta meta={m} objetivos={objetivos} pessoas={pessoas} campos={c} comStatus podeMover={podeMover} onChange={setMeta} onRemove={remove} />
+            <CartaoMeta meta={m} objetivos={objetivos} pessoas={pessoas} campos={c} comStatus podeMover={podeMover} onChange={(i, patch) => { lembra(i); setMeta(i, patch); }} onRemove={remove} />
           </div>
         )}
       </>
@@ -216,6 +227,7 @@ export default function Plano() {
               <p className="rm-dica">Média de todas as metas ativas: cada meta pesa o mesmo no todo, então objetivos com mais metas pesam mais. Meta congelada fica fora da conta; meta sem status vale 0.</p>
             </div>
             <div className="rm-plano-acoes rm-nao-imprime">
+              <button type="button" className="bt pri" data-ir-monit onClick={() => irMonitoramento(ultima.current)}>{BOTAO_MONIT}</button>
               <label className="campo"><span className="rot">Filtrar por pessoa</span>
                 <select value={filtro} onChange={(e) => setFiltro(e.target.value)}>
                   <option value="">Todas as pessoas</option>

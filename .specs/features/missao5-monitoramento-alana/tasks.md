@@ -139,7 +139,7 @@ T6 → T7 → T8
 
 ---
 
-### T4: Botão e links no Planejamento
+### T4: Botão e links no Planejamento ✅
 
 **What**: Botão "Registrar detalhes sobre o atingimento das metas no Monitoramento" no topo do Planejamento; link "Detalhar no Monitoramento" em cada meta; ambos escondidos no plano arquivado; grava `window.MonitFoco` antes de ir para `#/m/5/m5.monit`.
 **Where**: `ilhas/rumo/Plano.tsx`, `ilhas/rumo/ArvorePlano.tsx` (se preciso), `e2e/` (spec novo)
@@ -148,11 +148,11 @@ T6 → T7 → T8
 
 **Done when**:
 
-- [ ] O botão aparece junto do atingimento total e leva a `#/m/5/m5.monit` (MON-02.1, MON-02.2)
-- [ ] O link de uma meta leva ao Monitoramento já na meta dela (MON-02.2)
-- [ ] Sem foco, o Monitoramento abre no topo (MON-02.2)
-- [ ] No planejamento arquivado nem o botão nem os links aparecem (MON-02.3)
-- [ ] E2E novo cobre os quatro casos acima
+- [x] O botão aparece junto do atingimento total e leva a `#/m/5/m5.monit` (MON-02.1, MON-02.2)
+- [x] O link de uma meta leva ao Monitoramento já na meta dela (MON-02.2)
+- [x] Sem foco, o Monitoramento abre no topo (MON-02.2)
+- [x] No planejamento arquivado nem o botão nem os links aparecem (MON-02.3)
+- [x] E2E novo cobre os quatro casos acima
 
 **Tests**: e2e
 **Gate**: full
