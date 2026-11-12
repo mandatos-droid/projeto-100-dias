@@ -5,13 +5,17 @@
 import { useState } from 'react';
 import { coordDe, liderDe } from '@/lib/cadeiras';
 import { COR_COORD } from '@/lib/equipe';
-import { apaga, contagens, edita, migraAntigo, paraGuia, registra, removidas, type Conversa, type LiderancaContada } from '@/lib/feedback';
+import { apaga, contagens, edita, migraAntigo, paraGuia, pontosDe, registra, removidas, type Conversa, type LiderancaContada } from '@/lib/feedback';
 import { cargoNome } from '../equipe/cargos';
 import { useLegado } from '../ponte';
+import { FEEDBACK_AVISO, FEEDBACK_ORIENTACAO } from './textosAlana';
 import './feedback.css';
 
-const VAZIO = { data: '', destaques: '', ajustes: '', acao: '' };
+/* Quatro informações por conversa (sugestão #130 da Alana): data, 2 destaques, 2 ajustes e o resumo do plano de ação. Todas opcionais. */
+const VAZIO = { data: '', d1: '', d2: '', a1: '', a2: '', acao: '' };
 const rotData = (v: Conversa) => v.data.trim() || 'sem data';
+/** destaques e ajustes vêm com um ponto por linha; no histórico aparecem numa linha só */
+const emLinha = (t: string) => t.split('\n').join(' · ');
 
 export default function Feedback() {
   const { D, bump } = useLegado();
@@ -38,10 +42,11 @@ export default function Feedback() {
   const salva = (e: React.FormEvent) => {
     e.preventDefault();
     if (!lider || !quem) return;
-    grava(editando ? edita(conversas, editando, form) : registra(conversas, { cadeira: quem.i, pessoa: quem.nome, lider: lider.nome || cargoNome(c, lider.i), ...form }));
+    /* destaques e ajustes (texto que o Resumo do Guia lê) são montados em lib/feedback.ts a partir dos campos separados */
+    grava(editando ? edita(conversas, editando, form) : registra(conversas, { cadeira: quem.i, pessoa: quem.nome, lider: lider.nome || cargoNome(c, lider.i), destaques: '', ajustes: '', ...form }));
     limpa();
   };
-  const comeca = (v: Conversa) => { setEditando(v.id); setForm({ data: v.data, destaques: v.destaques, ajustes: v.ajustes, acao: v.acao }); };
+  const comeca = (v: Conversa) => { setEditando(v.id); setForm({ data: v.data, ...pontosDe(v), acao: v.acao }); };
   const apagaConversa = (v: Conversa) => {
     if (!window.confirm('Apagar esta conversa? O texto dela será apagado.')) return;
     grava(apaga(conversas, v.id));
@@ -70,6 +75,11 @@ export default function Feedback() {
 
   return (
     <div className="ilha-corpo rm-fb">
+      {/* orientação da Alana (#130), antes do mapa; "acesso restrito" é só texto, nada é bloqueado */}
+      <div className="fb-orienta" data-orientacao>
+        {FEEDBACK_ORIENTACAO.map((p) => <p key={p}>{p}</p>)}
+      </div>
+      <p className="rm-alerta" role="note" data-acesso-restrito>{FEEDBACK_AVISO}</p>
       {mapa.length === 0 ? (
         <p className="rm-alerta" role="note" data-sem-equipe>
           A equipe da Missão 2 ainda não tem cadeiras com nome para formar o mapa de feedback. <a href="#/m/2/m2.funcoes">Ir para a equipe da Missão 2</a>
@@ -102,8 +112,8 @@ export default function Feedback() {
               {deles.map((v) => (
                 <li key={v.id} data-conversa={v.id}>
                   <b>{rotData(v)}</b>
-                  {v.destaques && <span>Destaques: {v.destaques}</span>}
-                  {v.ajustes && <span>Ajustes: {v.ajustes}</span>}
+                  {v.destaques && <span>Destaques: {emLinha(v.destaques)}</span>}
+                  {v.ajustes && <span>Ajustes: {emLinha(v.ajustes)}</span>}
                   {v.acao && <span>Plano de ação: {v.acao}</span>}
                   <span className="fb-acoes">
                     <button type="button" className="rm-link" aria-label={`Editar conversa de ${rotData(v)}`} onClick={() => comeca(v)}>Editar</button>
@@ -117,11 +127,18 @@ export default function Feedback() {
             <h4>{editando ? 'Editar conversa' : 'Nova conversa'} com {quem.nome}</h4>
             <label className="campo"><span className="rot">Data da conversa</span>
               <input type="text" placeholder="Ex.: 18/03" value={form.data} onChange={campo('data')} /></label>
-            <label className="campo"><span className="rot">Pontos de destaque</span>
-              <textarea value={form.destaques} onChange={campo('destaques')} /></label>
-            <label className="campo"><span className="rot">Pontos de ajuste</span>
-              <textarea value={form.ajustes} onChange={campo('ajustes')} /></label>
-            <label className="campo"><span className="rot">Plano de ação pactuado</span>
+            <label className="campo"><span className="rot">Ponto de destaque 1</span>
+              <span className="aj">Ponto positivo trazido pela liderança ou apontado pelo liderado.</span>
+              <textarea value={form.d1} onChange={campo('d1')} /></label>
+            <label className="campo"><span className="rot">Ponto de destaque 2</span>
+              <textarea value={form.d2} onChange={campo('d2')} /></label>
+            <label className="campo"><span className="rot">Ponto de ajuste 1</span>
+              <span className="aj">Apresentado pela liderança para melhoria do desempenho do liderado.</span>
+              <textarea value={form.a1} onChange={campo('a1')} /></label>
+            <label className="campo"><span className="rot">Ponto de ajuste 2</span>
+              <textarea value={form.a2} onChange={campo('a2')} /></label>
+            <label className="campo"><span className="rot">Resumo do plano de ação</span>
+              <span className="aj">Proposto pela liderança para o liderado conseguir resultados mais aderentes ao que o mandato espera.</span>
               <textarea value={form.acao} onChange={campo('acao')} /></label>
             <div className="bts">
               <button type="submit" className="bt pri peq">Salvar conversa</button>
@@ -139,8 +156,8 @@ export default function Feedback() {
               <li key={v.id} data-conversa={v.id}>
                 <b>{v.pessoa || 'Sem nome'} <em className="fb-sit pendente">pessoa removida</em></b>
                 <span>{rotData(v)}{v.lider && ` · liderança: ${v.lider}`}</span>
-                {v.destaques && <span>Destaques: {v.destaques}</span>}
-                {v.ajustes && <span>Ajustes: {v.ajustes}</span>}
+                {v.destaques && <span>Destaques: {emLinha(v.destaques)}</span>}
+                {v.ajustes && <span>Ajustes: {emLinha(v.ajustes)}</span>}
                 {v.acao && <span>Plano de ação: {v.acao}</span>}
                 <span className="fb-acoes"><button type="button" className="rm-link" aria-label={`Apagar conversa de ${v.pessoa || 'pessoa removida'}`} onClick={() => apagaConversa(v)}>Apagar</button></span>
               </li>

@@ -182,7 +182,7 @@ T6 → T7 → T8
 
 ---
 
-### T6: Tela de Feedback
+### T6: Tela de Feedback ✅
 
 **What**: Orientação (#130) e aviso de acesso restrito antes do mapa; formulário com os 6 campos opcionais e a ajuda da Alana em cada um; edição de conversa antiga usa `destaques`/`ajustes` como `d1`/`a1`.
 **Where**: `ilhas/rumo/Feedback.tsx`, `ilhas/rumo/feedback.css`, `e2e/` (spec novo ou existente de feedback)
@@ -191,11 +191,11 @@ T6 → T7 → T8
 
 **Done when**:
 
-- [ ] A orientação (#130) e o aviso de acesso restrito aparecem antes do mapa do organograma (FBK-01.1, FBK-01.4)
-- [ ] O formulário tem data, destaque 1, destaque 2, ajuste 1, ajuste 2 e resumo do plano, e salva com qualquer um vazio (FBK-01.2, Q13)
-- [ ] Salvar, editar e apagar atualizam "feitas X de Y" e feita/pendente (FBK-01.3)
-- [ ] Nada é bloqueado: o formulário abre para qualquer usuário com acesso (FBK-01.4, Q6, Q7)
-- [ ] E2E cobre os quatro casos acima; testes de e2e antigos de feedback seguem passando
+- [x] A orientação (#130) e o aviso de acesso restrito aparecem antes do mapa do organograma (FBK-01.1, FBK-01.4)
+- [x] O formulário tem data, destaque 1, destaque 2, ajuste 1, ajuste 2 e resumo do plano, e salva com qualquer um vazio (FBK-01.2, Q13)
+- [x] Salvar, editar e apagar atualizam "feitas X de Y" e feita/pendente (FBK-01.3)
+- [x] Nada é bloqueado: o formulário abre para qualquer usuário com acesso (FBK-01.4, Q6, Q7)
+- [x] E2E cobre os quatro casos acima; testes de e2e antigos de feedback seguem passando
 
 **Tests**: e2e
 **Gate**: full

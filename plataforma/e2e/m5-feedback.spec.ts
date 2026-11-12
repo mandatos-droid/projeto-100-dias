@@ -59,15 +59,38 @@ test.describe('Lista de pessoas e registro da conversa (M5-20.2, M5-21)', () => 
     await expect(pessoa(page, 3)).toContainText('pendente');
   });
 
-  test('clicar na pessoa abre o formulário com data, destaques, ajustes e plano de ação (M5-21.3)', async ({ page }) => {
+  test('clicar na pessoa abre o formulário com data, 2 destaques, 2 ajustes e o resumo do plano de ação (FBK-01.2)', async ({ page }) => {
     await abreEquipe(page);
     await card(page, 1).getByRole('button', { name: /Bruno Lima/ }).click();
     await pessoa(page, 3).getByRole('button', { name: /Davi Rocha/ }).click();
     const form = page.getByRole('form', { name: 'Conversa de feedback com Davi Rocha' });
     await expect(form.getByLabel('Data da conversa')).toBeVisible();
-    await expect(form.getByLabel('Pontos de destaque')).toBeVisible();
-    await expect(form.getByLabel('Pontos de ajuste')).toBeVisible();
-    await expect(form.getByLabel('Plano de ação pactuado')).toBeVisible();
+    for (const r of ['Ponto de destaque 1', 'Ponto de destaque 2', 'Ponto de ajuste 1', 'Ponto de ajuste 2', 'Resumo do plano de ação']) await expect(form.getByLabel(r)).toBeVisible();
+  });
+
+  test('a orientação e o aviso de acesso restrito vêm antes do mapa e não bloqueiam o formulário (FBK-01.1, FBK-01.4)', async ({ page }) => {
+    await abreEquipe(page);
+    const orienta = page.locator('[data-orientacao]');
+    await expect(orienta).toContainText('Os registros a seguir devem ser realizados pela Chefia de Gabinete');
+    await expect(orienta).not.toContainText('Pedro Salvar');
+    await expect(page.locator('[data-acesso-restrito]')).toContainText('Acesso restrito');
+    const ordem = await page.evaluate(() => {
+      const o = document.querySelector('[data-orientacao]')!, m = document.querySelector('.fb-arvore')!;
+      return !!(o.compareDocumentPosition(m) & Node.DOCUMENT_POSITION_FOLLOWING);
+    });
+    expect(ordem).toBe(true);
+    await card(page, 1).getByRole('button', { name: /Bruno Lima/ }).click();
+    await pessoa(page, 3).getByRole('button', { name: /Davi Rocha/ }).click();
+    await expect(page.getByRole('form', { name: 'Conversa de feedback com Davi Rocha' }).getByRole('button', { name: 'Salvar conversa' })).toBeEnabled();
+  });
+
+  test('salvar sem preencher nada é permitido: todos os campos são opcionais (Q13)', async ({ page }) => {
+    await abreEquipe(page);
+    await card(page, 1).getByRole('button', { name: /Bruno Lima/ }).click();
+    await pessoa(page, 3).getByRole('button', { name: /Davi Rocha/ }).click();
+    await page.getByRole('form', { name: 'Conversa de feedback com Davi Rocha' }).getByRole('button', { name: 'Salvar conversa' }).click();
+    expect(await feedbacksDe(page)).toHaveLength(1);
+    await expect(card(page, 1)).toContainText('feitas 1 de 2');
   });
 
   test('salvar grava em D.feedbacks, marca a pessoa como feita e atualiza a contagem (M5-21.4)', async ({ page }) => {
@@ -76,13 +99,15 @@ test.describe('Lista de pessoas e registro da conversa (M5-20.2, M5-21)', () => 
     await pessoa(page, 3).getByRole('button', { name: /Davi Rocha/ }).click();
     const form = page.getByRole('form', { name: 'Conversa de feedback com Davi Rocha' });
     await form.getByLabel('Data da conversa').fill('18/03');
-    await form.getByLabel('Pontos de destaque').fill('Boa entrega');
-    await form.getByLabel('Pontos de ajuste').fill('Prazos');
-    await form.getByLabel('Plano de ação pactuado').fill('Reunião semanal');
+    await form.getByLabel('Ponto de destaque 1').fill('Boa entrega');
+    await form.getByLabel('Ponto de destaque 2').fill('Boa escuta');
+    await form.getByLabel('Ponto de ajuste 1').fill('Prazos');
+    await form.getByLabel('Ponto de ajuste 2').fill('Devolutiva escrita');
+    await form.getByLabel('Resumo do plano de ação').fill('Reunião semanal');
     await form.getByRole('button', { name: 'Salvar conversa' }).click();
     const g = await feedbacksDe(page);
     expect(g).toHaveLength(1);
-    expect(g[0]).toMatchObject({ cadeira: 3, pessoa: 'Davi Rocha', lider: 'Bruno Lima', data: '18/03', destaques: 'Boa entrega', ajustes: 'Prazos', acao: 'Reunião semanal' });
+    expect(g[0]).toMatchObject({ cadeira: 3, pessoa: 'Davi Rocha', lider: 'Bruno Lima', data: '18/03', d1: 'Boa entrega', d2: 'Boa escuta', a1: 'Prazos', a2: 'Devolutiva escrita', destaques: 'Boa entrega\nBoa escuta', ajustes: 'Prazos\nDevolutiva escrita', acao: 'Reunião semanal' });
     await expect(card(page, 1)).toContainText('feitas 1 de 2');
     await expect(pessoa(page, 3)).toContainText('feita');
     await expect(pessoa(page, 2)).toContainText('pendente');
@@ -93,9 +118,9 @@ test.describe('Lista de pessoas e registro da conversa (M5-20.2, M5-21)', () => 
     await card(page, 1).getByRole('button', { name: /Bruno Lima/ }).click();
     await pessoa(page, 2).getByRole('button', { name: /Carla Dias/ }).click();
     const form = page.getByRole('form', { name: 'Conversa de feedback com Carla Dias' });
-    await form.getByLabel('Pontos de destaque').fill('Boa escuta');
-    await form.getByLabel('Pontos de ajuste').fill('Prazos');
-    await form.getByLabel('Plano de ação pactuado').fill('Agenda semanal');
+    await form.getByLabel('Ponto de destaque 1').fill('Boa escuta');
+    await form.getByLabel('Ponto de ajuste 1').fill('Prazos');
+    await form.getByLabel('Resumo do plano de ação').fill('Agenda semanal');
     await form.getByRole('button', { name: 'Salvar conversa' }).click();
     const [v] = await feedbacksDe(page);
     expect(v.pontos).toContain('Boa escuta');
@@ -109,8 +134,8 @@ test.describe('Lista de pessoas e registro da conversa (M5-20.2, M5-21)', () => 
     await pessoa(page, 2).getByRole('button', { name: /Carla Dias/ }).click();
     await page.getByRole('button', { name: 'Editar conversa de 10/03' }).click();
     const form = page.getByRole('form', { name: 'Conversa de feedback com Carla Dias' });
-    await expect(form.getByLabel('Pontos de destaque')).toHaveValue('Antes');
-    await form.getByLabel('Pontos de destaque').fill('Depois');
+    await expect(form.getByLabel('Ponto de destaque 1')).toHaveValue('Antes');
+    await form.getByLabel('Ponto de destaque 1').fill('Depois');
     await form.getByRole('button', { name: 'Salvar conversa' }).click();
     const g = await feedbacksDe(page);
     expect(g).toHaveLength(1);

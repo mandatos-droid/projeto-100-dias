@@ -35,3 +35,7 @@
 .rm-fb .fb-acoes{display:flex;gap:0.75rem;margin-top:0.25rem}
 .rm-fb .fb-form{margin-top:0.75rem;display:flex;flex-direction:column;gap:0.5rem}
 .rm-fb .fb-form textarea{min-height:4.5rem}
+
+/* Missão 5 · orientação da Alana antes do mapa (sugestão #130) */
+.rm-fb .fb-orienta{max-width:62ch;margin:0 0 0.75rem}
+.rm-fb .fb-orienta p{margin:0 0 0.75rem;line-height:1.6}
