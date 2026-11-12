@@ -94,7 +94,7 @@ T6 → T7 → T8
 
 ---
 
-### T2: Textos da Alana
+### T2: Textos da Alana ✅
 
 **What**: Criar `ilhas/rumo/textosAlana.ts` com os textos das sugestões #128, #129, #130 e #131, copiados como a Alana escreveu (sem a linha "Pedro Salvar orientação…").
 **Where**: `ilhas/rumo/textosAlana.ts` (+ `tests/textosAlana.test.ts`)
@@ -103,10 +103,10 @@ T6 → T7 → T8
 
 **Done when**:
 
-- [ ] Exporta `MONIT_INTRO` (#129), `MONIT_ROTULO` e `MONIT_PERGUNTAS` (#128), `FEEDBACK_ORIENTACAO` (#130), `BOTAO_MONIT` (#131)
-- [ ] `FEEDBACK_ORIENTACAO` não contém "Pedro Salvar" e contém "Chefia de Gabinete" e "liderança parlamentar" (Q7, Q9)
-- [ ] `MONIT_INTRO` contém "o percentual corresponde ao todo, e não ao mês" (#129)
-- [ ] Testes novos em `tests/textosAlana.test.ts`, nenhum removido
+- [x] Exporta `MONIT_INTRO` (#129), `MONIT_ROTULO` e `MONIT_PERGUNTAS` (#128), `FEEDBACK_ORIENTACAO` (#130), `BOTAO_MONIT` (#131)
+- [x] `FEEDBACK_ORIENTACAO` não contém "Pedro Salvar" e contém "Chefia de Gabinete" e "liderança parlamentar" (Q7, Q9)
+- [x] `MONIT_INTRO` contém "o percentual corresponde ao todo, e não ao mês" (#129)
+- [x] Testes novos em `tests/textosAlana.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
