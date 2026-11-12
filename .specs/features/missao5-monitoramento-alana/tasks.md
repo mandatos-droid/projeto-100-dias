@@ -203,7 +203,7 @@ T6 → T7 → T8
 
 ---
 
-### T7: Resumo reflete o texto novo
+### T7: Resumo reflete o texto novo ✅
 
 **What**: Conferir que o Resumo do Preenchimento lista o "Detalhamento do mês" por meta e por mês e o Feedback com os campos novos (efeito da AD-2 e do `paraGuia`); só mexer em código se a conferência falhar.
 **Where**: `tests/legado-m5.test.ts` (teste de integração em `vm` com `resumo.js`)
@@ -212,8 +212,8 @@ T6 → T7 → T8
 
 **Done when**:
 
-- [ ] Com `m5.js` e `resumo.js` carregados e `D.campos["mon.<id>.2.det"]` preenchido, o HTML do Resumo contém "Detalhamento do mês" e o texto, sob a meta certa (MON-04.1)
-- [ ] O Resumo de uma conversa nova mostra os destaques e ajustes digitados
+- [x] Com `m5.js` e `resumo.js` carregados e `D.campos["mon.<id>.2.det"]` preenchido, o HTML do Resumo contém "Detalhamento do mês" e o texto, sob a meta certa (MON-04.1)
+- [x] O Resumo de uma conversa nova mostra os destaques e ajustes digitados
 
 **Tests**: unit
 **Gate**: quick

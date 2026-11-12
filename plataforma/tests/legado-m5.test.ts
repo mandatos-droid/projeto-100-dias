@@ -217,3 +217,35 @@ test('a aba Planejamento sem Ilhas carregado não quebra', () => {
   vm.runInContext(CODIGO, w as unknown as vm.Context);
   assert.doesNotThrow(() => (w as unknown as { Telas: { plano(): void } }).Telas.plano());
 });
+
+/* ---------- Resumo do Preenchimento com o texto novo (MON-04, FBK-01.5) ---------- */
+import { paraGuia, registra } from '../lib/feedback.ts';
+const RESUMO = readFileSync(new URL('../public/legacy/resumo.js', import.meta.url), 'utf8');
+
+function resumo(D: Record<string, unknown>) {
+  const w = guia({ D, esc: (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'), rich: (s: string) => s, window: {}, Comp: { monit: () => '' } });
+  vm.runInContext(CODIGO, w as unknown as vm.Context); // m5.js reescreve CAMPOS_MONIT
+  vm.runInContext(`${RESUMO};this.Resumo=Resumo;`, w as unknown as vm.Context);
+  const m5 = w.MISSOES.find((m) => m.n === 5)! as unknown as { exercicios: Record<string, unknown>[] };
+  const ex = (id: string) => m5.exercicios.find((e) => e.id === id)!;
+  return { monit: () => (w as unknown as { Resumo: { ex(e: unknown): string } }).Resumo.ex(ex('m5.monit')), feedback: () => (w as unknown as { Resumo: { ex(e: unknown): string } }).Resumo.ex(ex('m5.feedback')) };
+}
+
+test('o Resumo lista o "Detalhamento do mês" sob a meta e o mês certos, e não os campos antigos (MON-04.1)', () => {
+  const r = resumo({
+    metas: [{ id: 'a', texto: 'Aprovar 2 projetos' }, { id: 'b', texto: 'Visitar escolas' }],
+    campos: { 'mon.a.2.det': 'Aprovamos o primeiro projeto', 'mon.a.2.result': 'texto antigo que não deve aparecer' },
+  }).monit();
+  assert.match(r, /Meta 01 — Aprovar 2 projetos<\/dt><dt>2º monitoramento<\/dt><dd><strong>Detalhamento do mês:<\/strong> Aprovamos o primeiro projeto<\/dd>/);
+  assert.ok(!r.includes('texto antigo'));
+  assert.match(r, /Meta 02 — Visitar escolas<\/dt><dd><span class="sem">não preenchido<\/span><\/dd>/);
+});
+
+test('o Resumo de uma conversa nova mostra os destaques e os ajustes digitados (FBK-01.5)', () => {
+  const conversa = paraGuia(registra([], { cadeira: 3, pessoa: 'Davi Rocha', lider: 'Bruno Lima', data: '18/03', destaques: '', ajustes: '', acao: 'Reunião semanal', d1: 'Boa entrega', d2: 'Boa escuta', a1: 'Prazos', a2: '' })[0]);
+  const h = resumo({ metas: [], campos: {}, feedbacks: [conversa] }).feedback();
+  assert.ok(h.includes('Boa entrega'));
+  assert.ok(h.includes('Boa escuta'));
+  assert.ok(h.includes('Prazos'));
+  assert.ok(h.includes('Reunião semanal'));
+});
