@@ -4,7 +4,9 @@
 import { ativas, liderDe, nomeLimpo, type Campos } from './cadeiras.ts';
 
 /** Conversa de feedback. `cadeira` liga a conversa à cadeira da Missão 2; `pessoa` e `lider` guardam o nome da época. */
-export interface Conversa { id: string; cadeira?: number; lider: string; pessoa: string; data: string; destaques: string; ajustes: string; acao: string }
+/** Conversa de feedback. `d1`/`d2` (destaques) e `a1`/`a2` (ajustes) são os campos separados pedidos pela Alana; `destaques` e `ajustes`
+ *  continuam existindo, montados a partir deles, porque o Resumo do Guia e as conversas antigas leem esses dois. */
+export interface Conversa { id: string; cadeira?: number; lider: string; pessoa: string; data: string; destaques: string; ajustes: string; acao: string; d1?: string; d2?: string; a1?: string; a2?: string }
 export interface Pessoa { i: number; nome: string }
 export interface Lideranca { i: number; nome: string; liderados: Pessoa[]; n: number }
 export interface LiderancaContada { i: number; nome: string; liderados: (Pessoa & { feita: boolean })[]; n: number; feitas: number }
@@ -38,11 +40,28 @@ export function removidas(c: Campos, conversas: Conversa[]): Conversa[] {
   return conversas.filter((v) => v.cadeira === undefined || !atuais.has(v.cadeira));
 }
 
+/** Junta os pontos escritos, um por linha, sem linha em branco. */
+const junta = (...pontos: (string | undefined)[]) => pontos.filter((p) => p && p.trim() !== '').join('\n');
+
+/** Monta `destaques` e `ajustes` a partir dos campos separados, quando a conversa os usa. Conversa antiga (sem d1/d2/a1/a2) passa igual. */
+function comTextoMontado(v: Conversa): Conversa {
+  const usaD = v.d1 !== undefined || v.d2 !== undefined;
+  const usaA = v.a1 !== undefined || v.a2 !== undefined;
+  return { ...v, ...(usaD ? { destaques: junta(v.d1, v.d2) } : {}), ...(usaA ? { ajustes: junta(v.a1, v.a2) } : {}) };
+}
+
+/** Os quatro pontos como o formulário os mostra: conversa nova pelos campos separados; conversa antiga (só destaques/ajustes) cai em d1 e a1. */
+export const pontosDe = (v: Conversa): { d1: string; d2: string; a1: string; a2: string } => {
+  const novaD = v.d1 !== undefined || v.d2 !== undefined;
+  const novaA = v.a1 !== undefined || v.a2 !== undefined;
+  return { d1: novaD ? v.d1 ?? '' : v.destaques, d2: v.d2 ?? '', a1: novaA ? v.a1 ?? '' : v.ajustes, a2: v.a2 ?? '' };
+};
+
 /** Lista com a conversa nova no fim (id gerado se faltar). */
-export const registra = (lista: Conversa[], nova: Omit<Conversa, 'id'> & { id?: string }): Conversa[] => [...lista, { ...nova, id: nova.id || uid() }];
+export const registra = (lista: Conversa[], nova: Omit<Conversa, 'id'> & { id?: string }): Conversa[] => [...lista, comTextoMontado({ ...nova, id: nova.id || uid() })];
 
 /** Troca só os campos do patch na conversa `id`; as demais ficam iguais. */
-export const edita = (lista: Conversa[], id: string, patch: Partial<Omit<Conversa, 'id'>>): Conversa[] => lista.map((v) => (v.id === id ? { ...v, ...patch } : v));
+export const edita = (lista: Conversa[], id: string, patch: Partial<Omit<Conversa, 'id'>>): Conversa[] => lista.map((v) => (v.id === id ? comTextoMontado({ ...v, ...patch }) : v));
 
 /** Lista sem a conversa `id`. */
 export const apaga = (lista: Conversa[], id: string): Conversa[] => lista.filter((v) => v.id !== id);
@@ -60,6 +79,7 @@ export function migraAntigo(bruto: unknown, c: Campos): Conversa[] {
       ...(typeof v.cadeira === 'number' ? { cadeira: v.cadeira } : porNome.has(norm(pessoa)) ? { cadeira: porNome.get(norm(pessoa)) } : {}),
       lider: txt(v.lider), pessoa, data: txt(v.data),
       destaques: txt(novo ? v.destaques : v.pontos), ajustes: txt(v.ajustes), acao: txt(novo ? v.acao : v.encam),
+      ...(['d1', 'd2', 'a1', 'a2'] as const).reduce<Partial<Conversa>>((acc, k) => (typeof v[k] === 'string' ? { ...acc, [k]: v[k] as string } : acc), {}),
     };
   });
 }

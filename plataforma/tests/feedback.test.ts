@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { apaga, contagens, edita, mapaFeedback, migraAntigo, paraGuia, registra, removidas, type Conversa } from '../lib/feedback.ts';
+import { apaga, contagens, edita, mapaFeedback, migraAntigo, paraGuia, pontosDe, registra, removidas, type Conversa } from '../lib/feedback.ts';
 
 type C = Record<string, string>;
 /* Equipe de teste: 0 Ana (chefia) lidera 1 Bruno; Bruno lidera 2 Carla e 3 Davi (liderança padrão da Missão 2). */
@@ -135,4 +135,50 @@ test('paraGuia sem ajustes deixa pontos igual aos destaques, e a volta por migra
   const v = paraGuia(conv(2, { destaques: 'Só destaque' }));
   assert.equal(v.pontos, 'Só destaque');
   assert.equal(migraAntigo([v], EQUIPE)[0].destaques, 'Só destaque');
+});
+
+/* ---------- campos separados da conversa: 2 destaques e 2 ajustes (spec missao5-monitoramento-alana, FBK-01.2, FBK-01.5, Q8, Q13) ---------- */
+const NOVA = { cadeira: 3, pessoa: 'Davi Rocha', lider: 'Bruno Lima', data: '18/03', destaques: '', ajustes: '', acao: 'Reunião semanal', d1: 'Entrega no prazo', d2: 'Boa escuta', a1: 'Atualizar o monitoramento', a2: 'Mais devolutiva escrita' };
+
+test('registra guarda d1, d2, a1 e a2 e monta destaques e ajustes juntando os dois pontos (FBK-01.2, FBK-01.5)', () => {
+  const [v] = registra([], NOVA);
+  assert.equal(v.d1, 'Entrega no prazo');
+  assert.equal(v.d2, 'Boa escuta');
+  assert.equal(v.a1, 'Atualizar o monitoramento');
+  assert.equal(v.a2, 'Mais devolutiva escrita');
+  assert.equal(v.destaques, 'Entrega no prazo\nBoa escuta');
+  assert.equal(v.ajustes, 'Atualizar o monitoramento\nMais devolutiva escrita');
+});
+
+test('ponto vazio não deixa linha em branco nem erro: todos os campos são opcionais (Q13)', () => {
+  const [um] = registra([], { ...NOVA, d2: '', a1: '', a2: '' });
+  assert.equal(um.destaques, 'Entrega no prazo');
+  assert.equal(um.ajustes, '');
+  const [nada] = registra([], { ...NOVA, d1: '', d2: '', a1: '', a2: '', acao: '', data: '' });
+  assert.equal(nada.destaques, '');
+  assert.equal(nada.ajustes, '');
+});
+
+test('edita um dos pontos atualiza o texto montado e não mexe nos outros campos (FBK-01.2)', () => {
+  const lista = registra([], { ...NOVA, id: 'x' });
+  const [v] = edita(lista, 'x', { d2: 'Liderou a reunião' });
+  assert.equal(v.destaques, 'Entrega no prazo\nLiderou a reunião');
+  assert.equal(v.ajustes, 'Atualizar o monitoramento\nMais devolutiva escrita');
+  assert.equal(v.acao, 'Reunião semanal');
+});
+
+test('paraGuia com os campos novos espelha pontos e encam para o Resumo do Guia (FBK-01.5)', () => {
+  const v = paraGuia(registra([], NOVA)[0]);
+  assert.equal(v.pontos, 'Entrega no prazo\nBoa escuta\nPontos de ajuste: Atualizar o monitoramento\nMais devolutiva escrita');
+  assert.equal(v.encam, 'Reunião semanal');
+});
+
+test('migraAntigo preserva d1, d2, a1 e a2 quando existem', () => {
+  const [v] = migraAntigo([paraGuia(registra([], { ...NOVA, id: 'n' })[0])], EQUIPE);
+  assert.deepEqual([v.d1, v.d2, v.a1, v.a2], ['Entrega no prazo', 'Boa escuta', 'Atualizar o monitoramento', 'Mais devolutiva escrita']);
+});
+
+test('pontosDe lê conversa antiga (só destaques e ajustes) como d1 e a1, e a nova pelos campos separados', () => {
+  assert.deepEqual(pontosDe(conv(2, { destaques: 'Antigo D', ajustes: 'Antigo A' })), { d1: 'Antigo D', d2: '', a1: 'Antigo A', a2: '' });
+  assert.deepEqual(pontosDe(registra([], NOVA)[0]), { d1: 'Entrega no prazo', d2: 'Boa escuta', a1: 'Atualizar o monitoramento', a2: 'Mais devolutiva escrita' });
 });

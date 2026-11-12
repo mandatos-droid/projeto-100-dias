@@ -160,7 +160,7 @@ T6 → T7 → T8
 
 ---
 
-### T5: Modelo da conversa de Feedback
+### T5: Modelo da conversa de Feedback ✅
 
 **What**: `Conversa` ganha `d1`, `d2`, `a1`, `a2` opcionais; `registra`, `edita`, `migraAntigo` e `paraGuia` ajustados; `destaques` e `ajustes` derivados dos novos.
 **Where**: `lib/feedback.ts`, `tests/feedback.test.ts`
@@ -169,12 +169,12 @@ T6 → T7 → T8
 
 **Done when**:
 
-- [ ] `registra` com `d1`, `d2`, `a1`, `a2` grava os quatro e deriva `destaques = "d1\nd2"` e `ajustes = "a1\na2"`, ignorando os vazios (FBK-01.2, FBK-01.5)
-- [ ] `edita` de um dos quatro campos atualiza também o derivado
-- [ ] Conversa antiga (só `destaques`/`ajustes`) lê com `d1`/`a1` iguais a esses valores (risco do design)
-- [ ] `paraGuia` continua devolvendo `pontos` e `encam` com o texto dos campos novos (FBK-01.5)
-- [ ] Todos os campos são opcionais: registrar com tudo vazio não lança erro (Q13)
-- [ ] Testes novos em `tests/feedback.test.ts`, nenhum removido
+- [x] `registra` com `d1`, `d2`, `a1`, `a2` grava os quatro e deriva `destaques = "d1\nd2"` e `ajustes = "a1\na2"`, ignorando os vazios (FBK-01.2, FBK-01.5)
+- [x] `edita` de um dos quatro campos atualiza também o derivado
+- [x] Conversa antiga (só `destaques`/`ajustes`) lê com `d1`/`a1` iguais a esses valores (risco do design)
+- [x] `paraGuia` continua devolvendo `pontos` e `encam` com o texto dos campos novos (FBK-01.5)
+- [x] Todos os campos são opcionais: registrar com tudo vazio não lança erro (Q13)
+- [x] Testes novos em `tests/feedback.test.ts`, nenhum removido
 
 **Tests**: unit
 **Gate**: quick
