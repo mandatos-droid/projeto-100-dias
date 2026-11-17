@@ -84,9 +84,9 @@
   var q8=item(opo,'m1.q8');
   q8.ilha='agendas-sociais'; /* cartões por agenda no lugar do mapa social (SOC-02, SOC-03); a ilha 'social' sai da Missão 1 */
   q8.d='Inspire-se nos dados públicos oficiais apresentados abaixo, acerca do seu estado, e faça uma análise da conjuntura social do território da liderança parlamentar.';
-  /* 3.3: as 3 agendas prioritárias, escolhidas na ilha (AGE-01); a pergunta é nova e não tem caixa de texto */
+  /* 3.3: as agendas prioritárias, escolhidas na ilha (AGE-01); a pergunta é nova e não tem caixa de texto */
   opo.itens.push({k:'m1.q9',ilha:'prioritarias',t:'Quais são as agendas prioritárias?',
-    d:'Considerando os dados acima e as promessas de campanha, selecione quais são as 3 Agendas que serão trabalhadas prioritariamente pela liderança parlamentar ao longo dos 100 Primeiros dias, mas também ao longo deste primeiro ano:',caixas:[]});
+    d:'Considerando os dados acima e as promessas de campanha, selecione quais são as Agendas que serão trabalhadas prioritariamente pela liderança parlamentar ao longo dos 100 Primeiros dias, mas também ao longo deste primeiro ano:',caixas:[]});
   q8.depois=true;
   q8.caixas=[{k:'m1.q8a',rot:ANALISE,resumo:'Análise da conjuntura social'}];
 

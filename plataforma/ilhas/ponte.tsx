@@ -50,7 +50,7 @@ type Legado = {
     conj2?: Conj2;      // conjuntura partidária (pergunta m1.q5)
     eleitorado?: Eleitorado;
     social?: ConjSocial;
-    agendasPrio?: string[]; // 3 agendas prioritárias (pergunta m1.q9)
+    agendasPrio?: string[]; // agendas prioritárias, sem limite (pergunta m1.q9); a Missão 3 só prioriza entre elas
     /* Missão 3: estado estruturado e listas do Guia (formato em lib/rumo.ts) */
     rumo?: unknown; metas?: unknown; preditores?: unknown; comissoesDesejadas?: unknown;
     /* Missão 4: comissões escolhidas e ações dos 100 dias (formato do Guia, lib/capital.ts) */

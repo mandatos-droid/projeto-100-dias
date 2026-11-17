@@ -1,8 +1,10 @@
 'use client';
-/* Missão 3 · bandeiras: mural, argumentos e notas por critério, critérios próprios e ranking com as prioritárias.
+/* Missão 3 · agendas: só as agendas escolhidas na Missão 1 (D.agendasPrio) entram no mural; mural, argumentos e notas por critério, critérios próprios e ranking com as prioritárias.
    Estado em D.rumo (lib/rumo.ts), espelhado em m3.mural, m3.argumentos, m3.criterios e m3.b1..b3. */
 import { useEffect, useState } from 'react';
-import { BANDEIRAS } from '@/lib/bandeiras';
+import { AGENDAS_PRIO } from '@/lib/agendas';
+import { validas } from '@/lib/agendasPrio';
+import { BANDEIRA_DA_AGENDA, bandeiraDe } from '@/lib/bandeiras';
 import { MAX_CRITERIOS, MAX_PRIORITARIAS, adicionaCriterio, alternaPrioritaria, defineNota, movePrioritaria, ranking, removeCriterio, total, type Resultado } from '@/lib/criterios';
 import { novaBandeira, type BandeiraRumo, type Rumo } from '@/lib/rumo';
 import { aviso } from '../ponte';
@@ -63,8 +65,7 @@ function Card({ b, rumo, aplica, remove, foco }: { b: BandeiraRumo; rumo: Rumo; 
 }
 
 export default function Bandeiras() {
-  const { rumo, set } = useRumo();
-  const [outra, setOutra] = useState('');
+  const { rumo, set, d } = useRumo();
   const [novoCriterio, setNovoCriterio] = useState('');
   const [foco, setFoco] = useState<string | null>(null);
   useEffect(() => { if (foco) document.querySelector(`[data-bandeira="${foco}"]`)?.scrollIntoView({ block: 'nearest' }); }, [foco]);
@@ -77,19 +78,13 @@ export default function Bandeiras() {
     const livre = b.prioridade !== null ? alternaPrioritaria(rumo, b.id).rumo : rumo; // as outras prioritárias sobem
     grava({ ...livre, bandeiras: livre.bandeiras.filter((x) => x.id !== b.id) });
   };
-  const alterna = (rot: string) => {
-    const nova = novaBandeira(rot);
+  const alterna = (agendaId: string) => {
+    const ag = AGENDAS_PRIO.find((a) => a.id === agendaId);
+    const bid = BANDEIRA_DA_AGENDA[agendaId];
+    if (!ag || !bid) return;
+    const nova = { ...novaBandeira(bandeiraDe(bid)?.rot ?? ag.rot), id: bid, rot: ag.rot };
     const atual = rumo.bandeiras.find((x) => x.id === nova.id);
     if (atual) return remove(atual);
-    grava({ ...rumo, bandeiras: [...rumo.bandeiras, nova] });
-    setFoco(nova.id);
-  };
-  const acrescentaOutra = () => {
-    const rot = outra.trim();
-    if (!rot) return;
-    const nova = novaBandeira(rot);
-    if (rumo.bandeiras.some((x) => x.id === nova.id)) { aviso(`${nova.rot} já está no mural.`); return; }
-    setOutra('');
     grava({ ...rumo, bandeiras: [...rumo.bandeiras, nova] });
     setFoco(nova.id);
   };
@@ -105,7 +100,9 @@ export default function Bandeiras() {
     grava(r.rumo);
   };
 
-  const ids = new Set(BANDEIRAS.map((b) => b.id));
+  const escolhidas = validas(d.agendasPrio).map((id) => AGENDAS_PRIO.find((a) => a.id === id)!);
+  const ids = new Set(escolhidas.map((a) => BANDEIRA_DA_AGENDA[a.id]));
+  /* marcadas antes e fora da seleção da Missão 1: continuam visíveis e podem ser removidas, nada é apagado em silêncio */
   const proprias = rumo.bandeiras.filter((b) => !ids.has(b.id));
   const ordem = ranking(rumo.bandeiras, rumo.criterios);
   const maximo = 5 * rumo.criterios.length;
@@ -117,24 +114,20 @@ export default function Bandeiras() {
       <ResumoMissao1 />
       <div className="rm-grade">
         <section className="rm-mural" aria-labelledby="rm-mural-t">
-          <h4 id="rm-mural-t">Marque as agendas levantadas</h4>
+          <h4 id="rm-mural-t">Marque as agendas que o mandato vai avaliar</h4>
+          {escolhidas.length === 0 && (
+            <p className="rm-vazio">Escolha antes as agendas prioritárias na <a href="#/m/1/m1.oportunidades">Missão 1</a>. Só elas podem ser priorizadas aqui.</p>
+          )}
           <div className="rm-chips">
-            {BANDEIRAS.map((b) => {
-              const on = rumo.bandeiras.some((x) => x.id === b.id);
-              return <button key={b.id} type="button" className="rm-chip" aria-pressed={on} onClick={() => alterna(b.rot)}>{b.rot}</button>;
+            {escolhidas.map((a) => {
+              const on = rumo.bandeiras.some((x) => x.id === BANDEIRA_DA_AGENDA[a.id]);
+              return <button key={a.id} type="button" className="rm-chip" aria-pressed={on} onClick={() => alterna(a.id)}>{a.rot}</button>;
             })}
             {proprias.map((b) => (
-              <button key={b.id} type="button" className="rm-chip" aria-pressed="true" title="Clique para remover" onClick={() => remove(b)}>{b.rot} ×</button>
+              <button key={b.id} type="button" className="rm-chip" aria-pressed="true" title="Fora da seleção da Missão 1. Clique para remover" onClick={() => remove(b)}>{b.rot} ×</button>
             ))}
           </div>
           <p className="rm-leg"><strong>{rumo.bandeiras.length}</strong> {rumo.bandeiras.length === 1 ? 'selecionada' : 'selecionadas'}</p>
-          <div className="rm-add">
-            <label className="campo"><span className="rot">Outra agenda</span>
-              <input type="text" value={outra} onChange={(e) => setOutra(e.target.value)} placeholder="Outra agenda"
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); acrescentaOutra(); } }} />
-            </label>
-            <button type="button" className="bt sec peq" onClick={acrescentaOutra}>Acrescentar agenda</button>
-          </div>
         </section>
 
         <div className="rm-direita">

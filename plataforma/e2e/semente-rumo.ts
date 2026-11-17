@@ -1,4 +1,8 @@
 import type { Page } from '@playwright/test';
+import { AGENDAS_PRIO } from '../lib/agendas';
+
+/** Por padrão a Missão 1 já escolheu todas as agendas: a Missão 3 só mostra as escolhidas lá. */
+const TODAS = AGENDAS_PRIO.map((a) => a.id);
 
 /** O que a rota de teste coloca em D e Store antes de montar as ilhas da Missão 3. */
 export interface Semente {
@@ -17,7 +21,8 @@ export const EQUIPE: Record<string, string> = {
 };
 
 /** Abre a rota de teste com as ilhas pedidas e o estado semeado. Resolve quando as ilhas montaram. */
-export async function abre(page: Page, ilhas: string[], semente: Semente = {}) {
+export async function abre(page: Page, ilhas: string[], semente0: Semente = {}) {
+  const semente: Semente = { ...semente0, D: { agendasPrio: TODAS, ...semente0.D } };
   /* a semente vale só na primeira carga da aba: recarregar tem de mostrar o que ficou salvo */
   await page.addInitScript((s) => {
     if (sessionStorage.getItem('semeado')) return;

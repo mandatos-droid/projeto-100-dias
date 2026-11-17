@@ -16,7 +16,7 @@ export const BANDEIRAS: Bandeira[] = [
   { id: 'mulheres', rot: 'Mulheres', agenda: 'mulheres' },
   { id: 'equidade-racial', rot: 'Equidade racial', agenda: 'raca' },
   { id: 'trabalho', rot: 'Trabalho e emprego', agenda: 'trabalho' },
-  { id: 'modernizacao', rot: 'Modernização do Estado' },
+  { id: 'modernizacao', rot: 'Modernização do Estado', agenda: 'modernizacao' },
   { id: 'industria', rot: 'Indústria, comércio e empreendedorismo', agenda: 'trabalho' },
   { id: 'esportes', rot: 'Esportes', agenda: 'cultura' },
   { id: 'ciencia', rot: 'Ciência, tecnologia e inovação' },
@@ -24,7 +24,17 @@ export const BANDEIRAS: Bandeira[] = [
   { id: 'mineracao', rot: 'Mineração' },
   { id: 'assistencia', rot: 'Assistência social', agenda: 'assistencia' },
   { id: 'lgbtqiap', rot: 'População LGBTQIAP+' },
+  { id: 'moradia', rot: 'Moradia e saneamento', agenda: 'moradia' },
+  { id: 'mobilidade', rot: 'Mobilidade e infraestrutura', agenda: 'mobilidade' },
+  { id: 'juventude', rot: 'Juventude', agenda: 'juventude' },
 ];
+
+/** Agenda escolhida na Missão 1 (lib/agendas.ts, AGENDAS_PRIO) → bandeira da taxonomia que guarda a escolha na Missão 3. */
+export const BANDEIRA_DA_AGENDA: Record<string, string> = {
+  saude: 'saude', educacao: 'educacao', seguranca: 'seguranca', moradia: 'moradia', trabalho: 'trabalho',
+  assistencia: 'assistencia', 'meio-ambiente': 'clima', mobilidade: 'mobilidade', campo: 'agricultura',
+  mulheres: 'mulheres', juventude: 'juventude', raca: 'equidade-racial', cultura: 'cultura', modernizacao: 'modernizacao',
+};
 
 /** A Missão 3 recomenda até 3 agendas para o mandato se especializar. */
 export const MAX_BANDEIRAS = 3;

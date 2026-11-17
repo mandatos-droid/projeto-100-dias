@@ -401,12 +401,12 @@ test('m1.oportunidades emite as ilhas eleitorado, agendas-sociais e prioritarias
   assert.equal(ilhas.includes('social'), false);
 });
 
-test('3.3 é a pergunta m1.q9 com o texto das 3 agendas prioritárias e a ilha de seleção, sem caixa de texto (AGE-01)', () => {
+test('3.3 é a pergunta m1.q9 com o texto das agendas prioritárias e a ilha de seleção, sem caixa de texto (AGE-01)', () => {
   const w = janela();
   const ex = ex1(w, 'm1.oportunidades');
   assert.deepEqual([...ex.itens!.map((i) => i.k)], ['m1.q7', 'm1.q8', 'm1.q9']);
   const h = pergunta(w, 'm1.oportunidades', 2);
-  assert.ok(h.includes('Considerando os dados acima e as promessas de campanha, selecione quais são as 3 Agendas que serão trabalhadas prioritariamente pela liderança parlamentar ao longo dos 100 Primeiros dias, mas também ao longo deste primeiro ano:'));
+  assert.ok(h.includes('Considerando os dados acima e as promessas de campanha, selecione quais são as Agendas que serão trabalhadas prioritariamente pela liderança parlamentar ao longo dos 100 Primeiros dias, mas também ao longo deste primeiro ano:'));
   assert.ok(h.includes('data-ilha="prioritarias"'));
   assert.deepEqual(chaves(h), []);
 });
@@ -724,10 +724,10 @@ test('no Resumo vivo a pergunta 3.3 e a 3.2 trazem o link e não repetem "não p
   assert.ok(/prioritárias\?<\/a><\/dt><dt/.test(op));
 });
 
-test('os nomes das 13 agendas do Resumo são os de lib/agendas.ts (ELE-11, GER-02)', async () => {
-  const { AGENDAS } = await import('../lib/agendas.ts');
+test('os nomes das agendas do Resumo são os de lib/agendas.ts (as 13 + Modernização do Estado) (ELE-11, GER-02)', async () => {
+  const { AGENDAS_PRIO } = await import('../lib/agendas.ts');
   const w = janelaMapa() as JanelaRes;
-  assert.deepEqual(JSON.parse(JSON.stringify(w.ResumoIlhas.AGENDAS)), Object.fromEntries(AGENDAS.map((a: { id: string; rot: string }) => [a.id, a.rot])));
+  assert.deepEqual(JSON.parse(JSON.stringify(w.ResumoIlhas.AGENDAS)), Object.fromEntries(AGENDAS_PRIO.map((a: { id: string; rot: string }) => [a.id, a.rot])));
 });
 
 /* ---------- FEC-01, FEC-02, FEC-04: fechamento da missão ---------- */

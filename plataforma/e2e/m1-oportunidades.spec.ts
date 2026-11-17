@@ -249,25 +249,20 @@ test.describe('Agendas sociais · cartões em slides com filtro (SOC-02 a SOC-06
   });
 });
 
-test.describe('Agendas prioritárias · 3 escolhas (AGE-01 a AGE-04)', () => {
-  test('13 botões; marcar 3, barrar a 4ª com a mensagem, desmarcar libera', async ({ page }) => {
+test.describe('Agendas prioritárias · sem limite (AGE-01 a AGE-04)', () => {
+  test('14 botões, com Modernização do Estado; marcar 4 ou mais, sem barrar; desmarcar', async ({ page }) => {
     await abre(page);
     const ilha = page.locator('[data-ilha="prioritarias"]');
     const botoes = ilha.getByRole('group', { name: 'Agendas prioritárias' }).getByRole('button');
-    await expect(botoes).toHaveCount(13);
-    await expect(ilha).toContainText('faltam 3');
-    for (const n of ['Saúde', 'Educação', 'Segurança pública']) await ilha.getByRole('button', { name: n, exact: true }).click();
-    await expect(ilha.locator('button[aria-pressed="true"]')).toHaveCount(3);
-    await expect(ilha).not.toContainText('faltam');
-    await ilha.getByRole('button', { name: 'Cultura e esporte' }).click();
-    await expect(ilha).toContainText('Você já escolheu 3 agendas. Desmarque uma para trocar.');
-    await expect(ilha.getByRole('button', { name: 'Cultura e esporte' })).toHaveAttribute('aria-pressed', 'false');
-    await expect.poll(async () => (await dadosDe(page)).agendasPrio).toEqual(['saude', 'educacao', 'seguranca']);
+    await expect(botoes).toHaveCount(14);
+    await expect(ilha.getByRole('button', { name: 'Modernização do Estado', exact: true })).toBeVisible();
+    await expect(ilha).toContainText('Nenhuma agenda escolhida');
+    for (const n of ['Saúde', 'Educação', 'Segurança pública', 'Cultura e esporte', 'Modernização do Estado']) await ilha.getByRole('button', { name: n, exact: true }).click();
+    await expect(ilha.locator('button[aria-pressed="true"]')).toHaveCount(5);
+    await expect(ilha).toContainText('5 agendas escolhidas');
+    await expect.poll(async () => (await dadosDe(page)).agendasPrio).toEqual(['saude', 'educacao', 'seguranca', 'cultura', 'modernizacao']);
     await ilha.getByRole('button', { name: 'Educação', exact: true }).click();
-    await expect(ilha).toContainText('faltam 1');
-    await expect.poll(async () => (await dadosDe(page)).agendasPrio).toEqual(['saude', 'seguranca']);
-    await ilha.getByRole('button', { name: 'Cultura e esporte' }).click();
-    await expect.poll(async () => (await dadosDe(page)).agendasPrio).toEqual(['saude', 'seguranca', 'cultura']);
+    await expect.poll(async () => (await dadosDe(page)).agendasPrio).toEqual(['saude', 'seguranca', 'cultura', 'modernizacao']);
   });
 });
 

@@ -33,12 +33,19 @@ test.describe('Mural e card (RUM-01.1, RUM-01.2, RUM-02.10)', () => {
     expect(c['m3.criterios']).toContain('Educação (8 pontos)');
   });
 
-  test('outra bandeira entra no mural com o próprio card', async ({ page }) => {
-    await abre(page, [ILHA]);
-    await page.getByLabel('Outra agenda').fill('Mobilidade urbana');
-    await page.getByRole('button', { name: 'Acrescentar agenda' }).click();
-    await expect(card(page, 'Mobilidade urbana')).toBeVisible();
-    expect((await camposDe(page))['m3.mural']).toBe('Mobilidade urbana');
+  test('só as agendas escolhidas na Missão 1 viram chips; não há "Outra agenda"', async ({ page }) => {
+    await abre(page, [ILHA], { D: { agendasPrio: ['saude', 'modernizacao'] } });
+    await expect(page.locator('.rm-chip')).toHaveText(['Saúde', 'Modernização do Estado']);
+    await expect(page.getByLabel('Outra agenda')).toHaveCount(0);
+    await chip(page, 'Modernização do Estado').click();
+    await expect(card(page, 'Modernização do Estado')).toBeVisible();
+    expect((await rumoDe(page)).bandeiras.map((x) => x.id)).toEqual(['modernizacao']);
+  });
+
+  test('com a Missão 1 vazia aparece o aviso com o link para a Missão 1 e nenhum chip', async ({ page }) => {
+    await abre(page, [ILHA], { D: { agendasPrio: [] } });
+    await expect(page.locator('.rm-chip')).toHaveCount(0);
+    await expect(page.locator('.rm-vazio a[href="#/m/1/m1.oportunidades"]')).toBeVisible();
   });
 });
 
@@ -50,12 +57,12 @@ async function comNotas(page: Page, rot: string, n: number) {
 test.describe('Ranking (RUM-01.5)', () => {
   test('com 4 bandeiras com nota, ordena por total sem rótulo de sugerida', async ({ page }) => {
     await abre(page, [ILHA]);
-    await comNotas(page, 'Cultura', 1);
+    await comNotas(page, 'Cultura e esporte', 1);
     await comNotas(page, 'Saúde', 5);
     await comNotas(page, 'Educação', 3);
-    await comNotas(page, 'Esportes', 0);
+    await comNotas(page, 'Mulheres', 0);
     const nomes = await page.locator('.rm-ranking li .rm-rank-nome').allTextContents();
-    expect(nomes).toEqual(['Saúde', 'Educação', 'Cultura', 'Esportes']);
+    expect(nomes).toEqual(['Saúde', 'Educação', 'Cultura e esporte', 'Mulheres']);
     await expect(page.locator('.rm-ranking .rm-sug')).toHaveCount(0);
   });
 
@@ -70,36 +77,36 @@ test.describe('Ranking (RUM-01.5)', () => {
 test.describe('Prioritárias (RUM-02.6, RUM-02.7, RUM-01.8)', () => {
   test('confirmar as três grava m3.b1..b3 na ordem; a quarta é recusada citando as três e não grava', async ({ page }) => {
     await abre(page, [ILHA]);
-    for (const r of ['Saúde', 'Educação', 'Cultura', 'Esportes']) await chip(page, r).click();
+    for (const r of ['Saúde', 'Educação', 'Cultura e esporte', 'Mulheres']) await chip(page, r).click();
     await estrela(page, 'Educação').click();
     await estrela(page, 'Saúde').click();
-    await estrela(page, 'Cultura').click();
+    await estrela(page, 'Cultura e esporte').click();
     let c = await camposDe(page);
-    expect([c['m3.b1'], c['m3.b2'], c['m3.b3']]).toEqual(['Educação', 'Saúde', 'Cultura']);
+    expect([c['m3.b1'], c['m3.b2'], c['m3.b3']]).toEqual(['Educação', 'Saúde', 'Cultura e esporte']);
 
-    await estrela(page, 'Esportes').click();
-    await expect(page.locator('#avisos')).toContainText('Já são 3 agendas prioritárias (Educação, Saúde, Cultura)');
+    await estrela(page, 'Mulheres').click();
+    await expect(page.locator('#avisos')).toContainText('Já são 3 agendas prioritárias (Educação, Saúde, Cultura e esporte)');
     c = await camposDe(page);
-    expect([c['m3.b1'], c['m3.b2'], c['m3.b3']]).toEqual(['Educação', 'Saúde', 'Cultura']);
-    expect((await rumoDe(page)).bandeiras.find((b) => b.id === 'esportes')!.prioridade).toBeNull();
+    expect([c['m3.b1'], c['m3.b2'], c['m3.b3']]).toEqual(['Educação', 'Saúde', 'Cultura e esporte']);
+    expect((await rumoDe(page)).bandeiras.find((b) => b.id === 'mulheres')!.prioridade).toBeNull();
   });
 
   test('subir e descer reordena as prioritárias e o espelho m3.b1..b3 acompanha (sugestão #7 da Alana)', async ({ page }) => {
     await abre(page, [ILHA]);
-    for (const r of ['Saúde', 'Educação', 'Cultura']) await chip(page, r).click();
+    for (const r of ['Saúde', 'Educação', 'Cultura e esporte']) await chip(page, r).click();
     await estrela(page, 'Educação').click();
     await estrela(page, 'Saúde').click();
-    await estrela(page, 'Cultura').click();
+    await estrela(page, 'Cultura e esporte').click();
     await expect(page.getByRole('button', { name: /^Subir Educação/ })).toBeDisabled();
     await expect(page.getByRole('button', { name: /^Descer Cultura/ })).toBeDisabled();
 
     await page.getByRole('button', { name: /^Subir Cultura/ }).click();
     let c = await camposDe(page);
-    expect([c['m3.b1'], c['m3.b2'], c['m3.b3']]).toEqual(['Educação', 'Cultura', 'Saúde']);
+    expect([c['m3.b1'], c['m3.b2'], c['m3.b3']]).toEqual(['Educação', 'Cultura e esporte', 'Saúde']);
 
     await page.getByRole('button', { name: /^Descer Educação/ }).click();
     c = await camposDe(page);
-    expect([c['m3.b1'], c['m3.b2'], c['m3.b3']]).toEqual(['Cultura', 'Educação', 'Saúde']);
+    expect([c['m3.b1'], c['m3.b2'], c['m3.b3']]).toEqual(['Cultura e esporte', 'Educação', 'Saúde']);
   });
 
   test('remover bandeira com notas pede confirmação; ao confirmar, sai das prioritárias e as outras sobem', async ({ page }) => {
@@ -126,9 +133,9 @@ test.describe('Prioritárias (RUM-02.6, RUM-02.7, RUM-01.8)', () => {
   test('remover bandeira sem argumentos nem notas não pergunta nada', async ({ page }) => {
     await abre(page, [ILHA]);
     page.on('dialog', () => { throw new Error('não deveria abrir confirmação'); });
-    await chip(page, 'Lazer').click();
-    await chip(page, 'Lazer').click();
-    await expect(card(page, 'Lazer')).toHaveCount(0);
+    await chip(page, 'Juventude').click();
+    await chip(page, 'Juventude').click();
+    await expect(card(page, 'Juventude')).toHaveCount(0);
   });
 });
 
@@ -165,7 +172,7 @@ test.describe('Mandato antigo (RUM-02.9, RUM-70)', () => {
     await expect(chip(page, 'Educação')).toHaveAttribute('aria-pressed', 'true');
     await expect(chip(page, 'Saúde')).toHaveAttribute('aria-pressed', 'true');
     await expect(chip(page, 'Mobilidade urbana ×')).toBeVisible();
-    await expect(chip(page, 'Cultura')).toHaveAttribute('aria-pressed', 'false');
+    await expect(chip(page, 'Cultura e esporte')).toHaveAttribute('aria-pressed', 'false');
     await expect(card(page, 'Educação').locator('.rm-selo')).toHaveText('Prioridade 1');
     await expect(page.locator('.rm-antigo')).toContainText('Escrito pela equipe na versão antiga');
     expect(await dadoDe(page, 'rumo')).toBeUndefined();
@@ -173,12 +180,12 @@ test.describe('Mandato antigo (RUM-02.9, RUM-70)', () => {
 
   test('a primeira edição não apaga o texto antigo de m3.argumentos', async ({ page }) => {
     await abre(page, [ILHA], { campos: antigo });
-    await chip(page, 'Cultura').click();
-    await page.getByLabel('Argumentos de Cultura').fill('Festivais da região');
+    await chip(page, 'Cultura e esporte').click();
+    await page.getByLabel('Argumentos de Cultura e esporte').fill('Festivais da região');
     const c = await camposDe(page);
     expect(c['m3.argumentos']).toContain('Escrito pela equipe na versão antiga');
-    expect(c['m3.argumentos']).toContain('Cultura: Festivais da região');
-    expect(c['m3.mural'].split('\n')).toEqual(['Educação', 'Saúde', 'Mobilidade urbana', 'Cultura']);
+    expect(c['m3.argumentos']).toContain('Cultura e esporte: Festivais da região');
+    expect(c['m3.mural'].split('\n')).toEqual(['Educação', 'Saúde', 'Mobilidade urbana', 'Cultura e esporte']);
     expect(c['m3.b1']).toBe('Educação');
   });
 });
@@ -187,9 +194,6 @@ test('HTML digitado nos argumentos aparece como texto e não executa', async ({ 
   await abre(page, [ILHA]);
   await chip(page, 'Saúde').click();
   await page.getByLabel('Argumentos de Saúde').fill('<img src=x onerror="window.__xss=1"><script>window.__xss=1</script>');
-  await page.getByLabel('Outra agenda').fill('<b>negrito</b>');
-  await page.getByRole('button', { name: 'Acrescentar agenda' }).click();
-  await expect(page.locator('.rm-card-nome', { hasText: '<b>negrito</b>' })).toBeVisible();
   expect(await page.evaluate(() => (window as unknown as { __xss?: number }).__xss)).toBeUndefined();
   expect(await page.locator('.rm-band b', { hasText: /^negrito$/ }).count()).toBe(0);
 });

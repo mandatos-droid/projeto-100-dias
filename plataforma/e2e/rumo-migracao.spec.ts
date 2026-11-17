@@ -129,7 +129,7 @@ test.describe('Gabinete novo, pelo Guia real em modo local', () => {
     });
     await expect(page.locator('[data-ilha="plano-resumo"]')).toContainText('Ele nasce quando você conclui a Missão 3');
     // a Missão 2 já deu nome a duas cadeiras
-    await page.evaluate(() => { const w = window as unknown as { D: { campos: Record<string, string> }; Store: { salvar(): void } }; Object.assign(w.D.campos, { 'm2.on': '0|1', 'm2.f1': 'Ana Souza', 'm2.f2': 'Bruno Lima' }); w.Store.salvar(); });
+    await page.evaluate(() => { const w = window as unknown as { D: { campos: Record<string, string> }; Store: { salvar(): void } }; (w.D as unknown as { agendasPrio: string[] }).agendasPrio = ['saude', 'educacao', 'cultura']; Object.assign(w.D.campos, { 'm2.on': '0|1', 'm2.f1': 'Ana Souza', 'm2.f2': 'Bruno Lima' }); w.Store.salvar(); });
 
     // 1) bandeiras
     await page.evaluate(() => { location.hash = '#/m/3/m3.bandeiras/1'; });

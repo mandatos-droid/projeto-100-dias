@@ -22,4 +22,7 @@ export const BANDEIRA_COMISSAO: Record<string, string[]> = {
   'mineracao': ['CME'],
   'assistencia': ['CPASF'],
   'lgbtqiap': ['CDHMIR'],
+  'moradia': ['CDU'],
+  'mobilidade': ['CVT'],
+  'juventude': ['CDHMIR'],
 };

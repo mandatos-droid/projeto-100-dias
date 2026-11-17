@@ -9,7 +9,7 @@ const br = JSON.parse(readFileSync(new URL('../public/data/comissoes/br.json', i
 const siglasDoCatalogo = new Set(br.comissoes.map((c) => c.sigla));
 
 test('toda bandeira da taxonomia tem ao menos uma sigla de comissão (CAP-01)', () => {
-  assert.equal(BANDEIRAS.length, 19);
+  assert.equal(BANDEIRAS.length, 22);
   BANDEIRAS.forEach((b) => {
     const siglas = BANDEIRA_COMISSAO[b.id];
     assert.ok(Array.isArray(siglas) && siglas.length >= 1, `${b.id} sem sigla`);

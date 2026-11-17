@@ -73,7 +73,7 @@
      sai da Missão 3. conteudo.js não é editado (AD-003), então ela é retirada de MISSOES na carga; D.comissoesDesejadas
      continua gravado e a Missão 4 ainda o importa. */
   if(typeof MISSOES!=='undefined'){
-    MISSOES.forEach(function(m){if(m.n===3)m.exercicios.forEach(function(e){if(e.id==='m3.bandeiras')delete e.listaExtra})});
+    MISSOES.forEach(function(m){if(m.n===3)m.exercicios.forEach(function(e){if(e.id==='m3.bandeiras'){delete e.listaExtra;e.t='As agendas do mandato';e.d='Priorizar até três das agendas escolhidas na Missão 1.'}})});
   }
   Comp.preditores=function(){return ilha('rumo-preditores')+ilha('rumo-estrategia')};
   Comp.metas=function(){return ilha('rumo-metas')};

@@ -1,28 +1,33 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { alterna, faltam } from '../lib/agendasPrio.ts';
+import { alterna, validas } from '../lib/agendasPrio.ts';
+import { AGENDAS, AGENDAS_PRIO } from '../lib/agendas.ts';
+import { BANDEIRAS, BANDEIRA_DA_AGENDA } from '../lib/bandeiras.ts';
 
 test('marcar acrescenta a agenda no fim da lista (AGE-02)', () => {
   assert.deepEqual(alterna([], 'saude'), { lista: ['saude'] });
   assert.deepEqual(alterna(['saude'], 'educacao'), { lista: ['saude', 'educacao'] });
 });
 
-test('a 4ª marcação não entra e devolve erro cheio (AGE-03)', () => {
-  const tres = ['saude', 'educacao', 'campo'];
-  const r = alterna(tres, 'mulheres');
-  assert.equal(r.erro, 'cheio');
-  assert.deepEqual(r.lista, tres);
+test('não há limite: da 4ª à última agenda, todas entram', () => {
+  let l: string[] = [];
+  for (const a of AGENDAS_PRIO) l = alterna(l, a.id).lista;
+  assert.equal(l.length, AGENDAS_PRIO.length);
+  assert.ok(l.length > 3);
 });
 
-test('desmarcar remove e libera vaga (AGE-04)', () => {
-  const r = alterna(['saude', 'educacao', 'campo'], 'educacao');
-  assert.deepEqual(r, { lista: ['saude', 'campo'] });
-  assert.equal(alterna(r.lista, 'mulheres').erro, undefined);
+test('Modernização do Estado é uma agenda escolhível e não vira cartão social', () => {
+  assert.deepEqual(alterna([], 'modernizacao'), { lista: ['modernizacao'] });
+  assert.ok(AGENDAS_PRIO.some((a) => a.rot === 'Modernização do Estado'));
+  assert.ok(!AGENDAS.some((a) => a.id === 'modernizacao'));
 });
 
-test('id fora das 13 agendas é ignorado, mesmo com a lista cheia (AGE-02)', () => {
+test('desmarcar remove (AGE-04)', () => {
+  assert.deepEqual(alterna(['saude', 'educacao', 'campo'], 'educacao'), { lista: ['saude', 'campo'] });
+});
+
+test('id desconhecido é ignorado', () => {
   assert.deepEqual(alterna(['saude'], 'inexistente'), { lista: ['saude'] });
-  assert.deepEqual(alterna(['saude', 'educacao', 'campo'], 'inexistente'), { lista: ['saude', 'educacao', 'campo'] });
 });
 
 test('não altera a lista recebida', () => {
@@ -31,8 +36,11 @@ test('não altera a lista recebida', () => {
   assert.deepEqual(a, ['saude']);
 });
 
-test('faltam devolve 3 menos o tamanho da lista (AGE-02)', () => {
-  assert.equal(faltam([]), 3);
-  assert.equal(faltam(['saude']), 2);
-  assert.equal(faltam(['saude', 'educacao', 'campo']), 0);
+test('validas descarta repetidos, ids desconhecidos e lixo, mantendo a ordem', () => {
+  assert.deepEqual(validas(['educacao', 'x', 'saude', 'educacao', 3]), ['educacao', 'saude']);
+  assert.deepEqual(validas(undefined), []);
+});
+
+test('toda agenda da Missão 1 tem uma bandeira da taxonomia para guardar a escolha na Missão 3', () => {
+  for (const a of AGENDAS_PRIO) assert.ok(BANDEIRAS.some((b) => b.id === BANDEIRA_DA_AGENDA[a.id]), a.id);
 });

@@ -183,7 +183,7 @@ window.ResumoIlhas={
   /* Nomes das 13 agendas da pergunta 3.3 (iguais aos de lib/agendas.ts; tests/legado-m1.test.ts confere) e dos dados do Placar. */
   AGENDAS:{saude:'Saúde',educacao:'Educação',seguranca:'Segurança pública',moradia:'Moradia e saneamento',trabalho:'Trabalho e renda',
     assistencia:'Assistência social e fome','meio-ambiente':'Meio ambiente e clima',mobilidade:'Mobilidade e infraestrutura',
-    campo:'Campo e agricultura familiar',mulheres:'Mulheres',juventude:'Juventude',raca:'Igualdade racial e povos tradicionais',cultura:'Cultura e esporte'},
+    campo:'Campo e agricultura familiar',mulheres:'Mulheres',juventude:'Juventude',raca:'Igualdade racial e povos tradicionais',cultura:'Cultura e esporte',modernizacao:'Modernização do Estado'},
   DADOS_PLACAR:{parlamentares:'Parlamentares do partido',vereadores:'Vereadores do partido',prefeituras:'Prefeituras do partido',
     filiados:'Filiados do partido',executivos:'Posição do partido nos Executivos'},
   COLUNAS_ELEITORADO:[['promessa','Promessas de Campanha'],['apoio','Grupos que Apoiaram'],['potencial','Grupos com Potencial']],

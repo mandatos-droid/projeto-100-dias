@@ -31,6 +31,10 @@ export const AGENDAS: Agenda[] = [
   { id: 'cultura', rot: 'Cultura e esporte', cor: '#7A4FB0', ods: [], extras: ['SDG4_6_EQP_CUL'] },
 ];
 
+/** Agendas que o mandato pode priorizar na Missão 1 (pergunta 3.3): as 13 agendas sociais mais Modernização do Estado,
+ *  que não tem indicador no IDSC e por isso fica de fora de AGENDAS (e dos cartões sociais). */
+export const AGENDAS_PRIO: Agenda[] = [...AGENDAS, { id: 'modernizacao', rot: 'Modernização do Estado', cor: '#475C73', ods: [] }];
+
 /** ODS que cada agenda recebe quando a equipe registra um problema a partir de uma nota baixa. */
 export const AGENDA_DO_ODS: Record<number, string> = Object.fromEntries(
   AGENDAS.flatMap((a) => a.ods.map((n) => [n, a.id] as const)));
