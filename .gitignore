@@ -15,3 +15,6 @@ graphify-out/graph.html
 # Supabase CLI: vínculo local do projeto
 supabase/.temp/
 plataforma/supabase/.temp/
+
+# saida de testes do Playwright
+.pw-out-tmp/
