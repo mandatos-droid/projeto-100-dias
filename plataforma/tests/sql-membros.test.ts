@@ -520,3 +520,35 @@ test('a coordenação exclui o mandato, tenha ou não criado o cadastro; membros
   await excluirMandato(IDS.mandatoB);
   assert.equal(await existe(IDS.mandatoB), false);
 });
+
+// Criar mandato é atômico: mandato e primeiro membro na mesma transação (nunca mandato sem membro).
+const criaMandato = (user: string, papel: string, codigo = 'ATOM01') =>
+  como(banco, user).then(() => banco.query(
+    `select (public.mandato_criar($1::jsonb, $2, 'Fulana')).id as id`,
+    [JSON.stringify({ codigo, nome_parlamentar: 'Teste', criado_por: IDS.membro }), papel]));
+
+test('mandato_criar: cria o mandato e o membro juntos, com o papel escolhido', async () => {
+  await comoDono(banco);
+  await comPerfil(banco, IDS.fora);
+  const r = await criaMandato(IDS.fora, 'assessoria');
+  await comoDono(banco);
+  const id = (r.rows[0] as { id: string }).id;
+  const m = await q<{ criado_por: string }>('select criado_por from public.mandatos where id = $1', [id]);
+  assert.equal(m[0].criado_por, IDS.fora, 'criado_por vem de auth.uid(), não do JSON');
+  const b = await q<{ user_id: string; papel: string }>('select user_id, papel from public.membros where mandato_id = $1', [id]);
+  assert.deepEqual(b, [{ user_id: IDS.fora, papel: 'assessoria' }]);
+});
+
+test('mandato_criar: falha inteira (nenhum mandato órfão) com papel leitura, sem perfil ou já em outro mandato', async () => {
+  await comoDono(banco);
+  const antes = (await q<{ n: number }>('select count(*)::int n from public.mandatos'))[0].n;
+  await comPerfil(banco, IDS.fora);
+  await comPerfil(banco, IDS.membro);
+  await assert.rejects(criaMandato(IDS.fora, 'leitura', 'ATOM02'), { code: '23514' });
+  await assert.rejects(criaMandato(IDS.membro, 'coordenacao', 'ATOM03'), { message: /Cada e-mail só pode integrar um mandato/ });
+  await comoDono(banco);
+  await banco.query('delete from public.perfis where user_id = $1', [IDS.fora]);
+  await assert.rejects(criaMandato(IDS.fora, 'coordenacao', 'ATOM04'), { code: '42501' });
+  await comoDono(banco);
+  assert.equal((await q<{ n: number }>('select count(*)::int n from public.mandatos'))[0].n, antes);
+});

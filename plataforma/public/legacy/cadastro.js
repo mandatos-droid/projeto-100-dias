@@ -83,6 +83,15 @@ var Cad={
       rNome:modo==='editar'?(m.resp_nome||''):((NUVEM&&Store.usuario&&Store.usuario.nome)||''),
       rCargo:m.resp_cargo||'',rPapel:'',rTel:m.resp_telefone||''};
     this.manual=false;this.sel=null;
+    /* cadastro novo: nome e telefone já estão no perfil da conta; só o papel é perguntado (sem perfil, os campos aparecem) */
+    this.perfil=null;
+    if(modo==='novo'&&NUVEM&&Store.usuario){
+      var eu=this;
+      Nuvem.rest('perfis?select=nome,telefone&user_id=eq.'+encodeURIComponent(Store.usuario.id)).then(function(r){
+        if(r&&r[0]&&r[0].nome){eu.perfil=r[0];eu.f.rNome=r[0].nome;eu.f.rTel=r[0].telefone||'';
+          if(eu.passo===2)eu.tela(false)}
+      }).catch(function(){});
+    }
     if(modo==='editar'&&(m.nome_parlamentar||m.nome_civil)){
       this.sel={sq:t?t.sq:'',nome:titulo(t?t.nome:m.nome_parlamentar),civil:m.nome_civil||'',partido:m.partido||'',
         votos:t?t.votos:null,pct:t?t.pct:null,situ:t?t.situacao:'',pos:t?t.pos:0,vagas:t?t.vagas:0,candidaturas:t?t.candidaturas:0,
@@ -399,7 +408,7 @@ var Cad={
 
   /* ---------- etapa 2: quem está cadastrando ---------- */
   p2:function(){
-    var s=this.sel||{},f=this.f,u=Store.usuario||{};
+    var s=this.sel||{},f=this.f,u=Store.usuario||{},so=this.modo==='novo'&&!!this.perfil; /* so: nome e telefone vêm do perfil */
     var resumo='<div class="cad-resumo">'+
       '<span class="pc-foto pq">'+foto(s)+'</span>'+
       '<span><strong>'+esc(f.nome||f.civil||'Parlamentar')+'</strong>'+(f.partido?' · '+esc(f.partido.toUpperCase()):'')+'<br>'+
@@ -408,7 +417,7 @@ var Cad={
     return '<h2 id="cadTit" tabindex="-1" class="cad-h2">Quem está fazendo o cadastro?</h2>'+
       '<p class="cad-sub">É a pessoa que a Legisla procura em caso de dúvida sobre os registros deste mandato.</p>'+resumo+
       '<div class="linha-campos c2" style="max-width:none">'+
-      this.campo('cadRNome','rNome','Seu nome','Como você quer ser chamado(a) pela equipe da Legisla.','text','name','Ex.: João Pereira…')+
+      (so?'':this.campo('cadRNome','rNome','Seu nome','Como você quer ser chamado(a) pela equipe da Legisla.','text','name','Ex.: João Pereira…'))+
       (this.modo==='novo'?
       '<label class="campo"><span class="rot">Seu papel no mandato</span>'+
       '<select id="cadRPapel" name="rPapel" onchange="Cad.papel(this.value)"><option value=""'+(f.rPapel?'':' selected')+'>Escolha seu papel…</option>'+
@@ -416,13 +425,13 @@ var Cad={
       '<span class="cad-erro" id="e_cadRPapel" role="alert"></span></label>':
       '<label class="campo"><span class="rot">Seu cargo no mandato</span>'+
       '<input type="text" id="cadRCargo" name="rCargo" value="'+attr(f.rCargo)+'" autocomplete="organization-title" placeholder="Ex.: Chefia de gabinete…" oninput="Cad.set(\'rCargo\',this.value)"></label>')+'</div>'+
-      '<div class="linha-campos c2" style="max-width:none">'+
-      '<label class="campo"><span class="rot">Telefone <span style="font-weight:400;color:var(--tinta-3)">(opcional)</span></span>'+
+      (so?'':'<div class="linha-campos c2" style="max-width:none">'+
+      '<label class="campo"><span class="rot">Telefone<span style="font-weight:400;color:var(--tinta-3)">(opcional)</span></span>'+
       '<span class="aj">Com DDD. Usamos só para contato sobre este mandato.</span>'+
       '<input type="tel" id="cadRTel" name="rTel" inputmode="tel" value="'+attr(f.rTel)+'" autocomplete="tel" placeholder="(61) 99999-0000…" '+
       'oninput="Cad.set(\'rTel\',this.value);Cad.limpaErro(\'cadRTel\')"><span class="cad-erro" id="e_cadRTel" role="alert"></span></label>'+
       (NUVEM?'<label class="campo"><span class="rot">E-mail da conta</span><span class="aj">É o e-mail com que você entrou. Para trocá-lo, fale com a Legisla.</span>'+
-      '<input type="email" id="cadREmail" name="email" value="'+attr(u.email||'')+'" autocomplete="email" readonly></label>':'')+'</div>'+
+      '<input type="email" id="cadREmail" name="email" value="'+attr(u.email||'')+'" autocomplete="email" readonly></label>':'')+'</div>')+
       '<div class="bts cad-rod"><button type="button" class="bt fant" onclick="Cad.ir(1)">← Voltar</button>'+
       '<button type="button" class="bt pri" id="cadSalvar2" onclick="Cad.enviar(this)">'+(this.modo==='novo'?'Criar mandato':'Salvar alterações')+'</button></div>';
   },
@@ -761,12 +770,11 @@ window.Equipe={
 (function(){
   var _cria=Store.criarMandato;
   Store.criarMandato=async function(c){
-    var papel=Cad.f&&Cad.f.rPapel;
-    if(!NUVEM||!papel)return _cria.call(this,c);
+    if(!NUVEM)return _cria.call(this,c);
+    var papel=(Cad.f&&Cad.f.rPapel)||'coordenacao';
+    // uma chamada só: o banco cria o mandato e o membro na mesma transação (nunca sobra mandato sem membro)
     var reg=Object.assign({codigo:codigo(),dados:{}},c);
-    reg.criado_por=this.usuario.id;
-    var m=(await Nuvem.rest('mandatos',{method:'POST',body:reg,headers:{Prefer:'return=representation'}}))[0];
-    await Nuvem.rest('membros',{method:'POST',body:{mandato_id:m.id,user_id:this.usuario.id,papel:papel,nome:this.usuario.nome}});
+    var m=await Nuvem.rest('rpc/mandato_criar',{method:'POST',body:{p_dados:reg,p_papel:papel,p_nome:this.usuario.nome}});
     return m;
   };
 })();

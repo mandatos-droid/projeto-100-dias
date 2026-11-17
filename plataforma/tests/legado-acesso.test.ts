@@ -401,14 +401,18 @@ test('a tela de entrada (login) não fala mais em código de convite no aviso do
   assert.doesNotMatch(aviso, CODIGO_DE_CONVITE);
 });
 
-test('cadastrar um mandato novo continua incluindo a pessoa como coordenacao (ACE-07.3)', async () => {
-  const { w, pedidos } = janela({ responde: (url, metodo) => (metodo === 'POST' && url.endsWith('/rest/v1/mandatos') ? [{ id: 'm-novo' }] : undefined) });
+test('cadastrar um mandato novo é uma chamada só (rpc mandato_criar): mandato e membro nascem juntos (ACE-07.3)', async () => {
+  const { w, pedidos } = janela({ responde: (url, metodo) => (metodo === 'POST' && url.endsWith('/rest/v1/rpc/mandato_criar') ? { id: 'm-novo' } : undefined) });
   w.Store.usuario = { id: 'uid-ana', nome: 'Ana Lima' };
   const m = await w.Store.criarMandato({ nome_parlamentar: 'Bruno Alves', cargo: 'Vereador(a)', uf: 'MG' });
   assert.equal(m.id, 'm-novo');
-  const membro = pedidos.find((p) => p.metodo === 'POST' && p.url.endsWith('/rest/v1/membros'));
-  assert.ok(membro, 'POST em membros');
-  assert.deepEqual({ ...membro.corpo }, { mandato_id: 'm-novo', user_id: 'uid-ana', papel: 'coordenacao', nome: 'Ana Lima' });
+  const rpc = pedidos.find((p) => p.metodo === 'POST' && p.url.endsWith('/rest/v1/rpc/mandato_criar'));
+  assert.ok(rpc, 'POST em rpc/mandato_criar');
+  const corpo = (rpc.corpo ?? {}) as { p_papel?: string; p_nome?: string; p_dados?: { nome_parlamentar?: string } };
+  assert.equal(corpo.p_papel, 'coordenacao');
+  assert.equal(corpo.p_nome, 'Ana Lima');
+  assert.equal(corpo.p_dados?.nome_parlamentar, 'Bruno Alves');
+  assert.equal(pedidos.some((p) => p.metodo === 'POST' && /\/rest\/v1\/(mandatos|membros)$/.test(p.url)), false, 'sem POST separado em mandatos/membros');
 });
 
 /* ---------- T35: modo somente leitura (ACE-03.2, ACE-03.3) ---------- */
