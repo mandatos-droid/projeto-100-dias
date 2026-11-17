@@ -612,3 +612,27 @@ function contadorDias(d){
     if(sp&&d<=100)sp.textContent=sp.textContent.replace(/^faltam \d+ dias? · /,'Dia '+d+' de 100 · ');
   };
 })();
+
+/* ---------- Fim de missão: o "Próximo exercício" do último exercício leva à capa da próxima missão ----------
+   Antes pulava a capa e as orientações e abria direto o 1º exercício da missão seguinte. Na última missão não há
+   próxima: o botão segue levando ao início. */
+(function(){
+  if(typeof Guia==='undefined'||typeof MISSOES==='undefined')return;
+  function proxMissao(){
+    var m=Guia.m,ex=Guia.ex;
+    if(!m||!ex||!m.exercicios||m.exercicios[m.exercicios.length-1].id!==ex.id)return null;
+    return MISSOES.find(function(x){return x.n===m.n+1})||null;
+  }
+  var _p=Guia.proximo;
+  Guia.proximo=function(){
+    var pm=proxMissao();
+    if(pm){this.i=0;location.hash='#/m/'+pm.n;return}
+    return _p.apply(this,arguments);
+  };
+  var _r=Guia.render;
+  Guia.render=function(){
+    _r.apply(this,arguments);
+    var pm=proxMissao(),b=document.querySelector('#tela .passo-rodape .bt.fant');
+    if(pm&&b)b.textContent='Iniciar missão '+pm.n+' ›';
+  };
+})();

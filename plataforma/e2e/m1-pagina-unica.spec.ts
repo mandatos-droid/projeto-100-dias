@@ -34,7 +34,7 @@ test.describe('Cada etapa numa página só (PAG-01, PAG-02, PAG-03)', () => {
       await expect(rodape.getByRole('button', { name: 'Avançar' })).toHaveCount(0);
       await expect(page.getByRole('button', { name: /Ver tudo de uma vez|Voltar ao passo a passo/ })).toHaveCount(0);
       // ao fim da página, seguir para a etapa seguinte
-      await expect(page.getByRole('button', { name: /Próximo exercício/ })).toBeVisible();
+      await expect(page.getByRole('button', { name: /Próximo exercício|Iniciar missão 2/ })).toBeVisible();
     });
   }
 

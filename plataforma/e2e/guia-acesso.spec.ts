@@ -217,11 +217,11 @@ test.describe('Modo somente leitura no Guia (ACE-03.2, ACE-03.3)', () => {
     await expect(page.getByRole('button', { name: /Próximo exercício/ })).toBeEnabled();
   });
 
-  test('nas Fragilidades, classificar e "Marcar como concluído" ficam desabilitados; "Próximo exercício" segue livre', async ({ page }) => {
+  test('nas Fragilidades, classificar e "Marcar como concluído" ficam desabilitados; "Iniciar missão 2" (fim da missão) segue livre', async ({ page }) => {
     await abre(page, '#/m/1/m1.frag', { papel: 'leitura' });
     await expect(page.locator('.frag-i').first().getByRole('button', { name: 'Gabinete' })).toBeDisabled();
     await expect(page.getByRole('button', { name: 'Marcar como concluído' })).toBeDisabled();
-    await expect(page.getByRole('button', { name: 'Próximo exercício ›' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Iniciar missão 2 ›' })).toBeEnabled();
   });
 
   test('em Área do mandato, aba Dados, os campos e os botões Salvar alterações e trocar o parlamentar ficam desabilitados, e Excluir cadastro não aparece', async ({ page }) => {
