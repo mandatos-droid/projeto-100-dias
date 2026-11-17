@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { PAPEIS, rotuloPapel, papeisPermitidos, podeGerirEquipe, podeEditar, podeVerFeedback } from '../lib/convites/papeis.ts';
+import { PAPEIS, rotuloPapel, papeisPermitidos, papeisConvidaveis, podeGerirEquipe, podeEditar, podeVerFeedback } from '../lib/convites/papeis.ts';
 
 test('PAPEIS lista os cinco papéis do maior para o menor', () => {
   assert.deepEqual([...PAPEIS], ['parlamentar', 'chefe_gabinete', 'coordenacao', 'assessoria', 'leitura']);
@@ -45,4 +45,12 @@ test('papel ausente ou desconhecido não ganha permissão nenhuma', () => {
   assert.equal(podeGerirEquipe(undefined), false);
   assert.equal(podeEditar('titular'), false);
   assert.equal(podeVerFeedback(null), false);
+});
+
+test('papeisConvidaveis soma Parlamentar e Chefe vagos para quem edita; leitura não ganha nada', () => {
+  assert.deepEqual(papeisConvidaveis('assessoria', ['assessoria']), ['parlamentar', 'chefe_gabinete', 'assessoria', 'leitura']);
+  assert.deepEqual(papeisConvidaveis('coordenacao', ['coordenacao', 'chefe_gabinete']), ['parlamentar', 'coordenacao', 'assessoria', 'leitura']);
+  assert.deepEqual(papeisConvidaveis('coordenacao', ['parlamentar', 'chefe_gabinete']), ['coordenacao', 'assessoria', 'leitura']);
+  assert.deepEqual(papeisConvidaveis('chefe_gabinete', []), ['parlamentar', 'chefe_gabinete', 'coordenacao', 'assessoria', 'leitura']);
+  assert.deepEqual(papeisConvidaveis('leitura', []), ['leitura']);
 });

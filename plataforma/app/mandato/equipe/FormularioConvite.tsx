@@ -5,7 +5,7 @@ import { criaConvite } from '../../../lib/convites/api.ts';
 import { mensagemDe } from '../../../lib/convites/erros.ts';
 import { montaLink } from '../../../lib/convites/link.ts';
 import { mensagemConvite, urlWhatsApp } from '../../../lib/convites/mensagem.ts';
-import { papeisPermitidos, rotuloPapel, type Papel } from '../../../lib/convites/papeis.ts';
+import { papeisConvidaveis, rotuloPapel, type Papel } from '../../../lib/convites/papeis.ts';
 import { validaConvite } from '../../../lib/convites/validacao.ts';
 import { useMandato } from '../contexto.ts';
 
@@ -14,12 +14,13 @@ interface Pronto { link: string; mensagem: string }
 
 const VALIDADE = 'Vale por 7 dias e só pode ser usado uma vez.';
 
-export default function FormularioConvite({ meuNome, aoCriar }: { meuNome: string | null; aoCriar?: () => void }) {
+export default function FormularioConvite({ meuNome, pessoas, aoCriar }: { meuNome: string | null; pessoas: { papel: string }[] | null; aoCriar?: () => void }) {
   const { api, mandato, papel } = useMandato();
-  const permitidos = papeisPermitidos(papel);
+  const permitidos = papeisConvidaveis(papel, (pessoas ?? []).map((p) => p.papel));
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [papelEscolhido, setPapelEscolhido] = useState<Papel>(permitidos.includes('assessoria') ? 'assessoria' : permitidos[0]);
+  const escolhido = permitidos.includes(papelEscolhido) ? papelEscolhido : (permitidos.includes('assessoria') ? 'assessoria' : permitidos[0]);
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [pronto, setPronto] = useState<Pronto | null>(null);
@@ -34,7 +35,7 @@ export default function FormularioConvite({ meuNome, aoCriar }: { meuNome: strin
     if (!v.ok) { setErro(v.erro); setPronto(null); return; }
     setEnviando(true);
     try {
-      const c = await criaConvite(api, { mandato: mandato.id, nome: v.nome, email: v.email || null, papel: papelEscolhido });
+      const c = await criaConvite(api, { mandato: mandato.id, nome: v.nome, email: v.email || null, papel: escolhido });
       const link = montaLink(location.origin, c.token);
       const mensagem = mensagemConvite({
         parlamentar: mandato.nome_parlamentar?.trim() || 'este mandato',
@@ -76,7 +77,7 @@ export default function FormularioConvite({ meuNome, aoCriar }: { meuNome: strin
         </label>
         <label className="md-campo md-campo--papel">
           <span>Papel</span>
-          <select value={papelEscolhido} onChange={(e) => setPapelEscolhido(e.target.value as Papel)}>
+          <select value={escolhido} onChange={(e) => setPapelEscolhido(e.target.value as Papel)}>
             {permitidos.map((p) => <option key={p} value={p}>{rotuloPapel(p)}</option>)}
           </select>
         </label>

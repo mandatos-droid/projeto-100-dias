@@ -64,7 +64,7 @@ function posTxt(it){
 }
 
 /* papéis que quem cria o mandato pode assumir (os três que gerem a equipe; a política membros_criar do banco aceita só estes) */
-var PAPEIS_CADASTRO=[['parlamentar','Parlamentar'],['chefe_gabinete','Chefe de Gabinete'],['coordenacao','Coordenação']];
+var PAPEIS_CADASTRO=[['parlamentar','Parlamentar'],['chefe_gabinete','Chefe de Gabinete'],['coordenacao','Coordenação'],['assessoria','Assessoria']];
 var Cad={
   modo:'novo',passo:1,sujo:false,
   cargo:'',uf:'',cdi:'',munNome:'',

@@ -25,6 +25,15 @@ export function papeisPermitidos(meu: Papel | string | null | undefined): Papel[
   return ehPapel(meu) ? PAPEIS.slice(PAPEIS.indexOf(meu)) : [];
 }
 
+// Papéis que o convidador pode dar: os de nível igual ou menor que o dele e, se ele edita (assessoria para cima),
+// também Parlamentar e Chefe de Gabinete enquanto ninguém do mandato tem esse papel (ocupados = papéis de hoje).
+export function papeisConvidaveis(meu: Papel | string | null | undefined, ocupados: readonly string[]): Papel[] {
+  const base = papeisPermitidos(meu);
+  if (nivel(meu) < 2) return base;
+  const vagos = (['parlamentar', 'chefe_gabinete'] as const).filter((p) => !base.includes(p) && !ocupados.includes(p));
+  return [...vagos, ...base];
+}
+
 // Parlamentar, chefe de gabinete e coordenação gerem a equipe.
 export function podeGerirEquipe(p: Papel | string | null | undefined): boolean {
   return nivel(p) >= 3;
