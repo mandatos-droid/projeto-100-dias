@@ -63,6 +63,8 @@ function posTxt(it){
   return it.pos?it.pos+'º mais votado(a) entre '+fmt(it.candidaturas)+' candidaturas ('+it.vagas+' vagas)':'';
 }
 
+/* papéis que quem cria o mandato pode assumir (os três que gerem a equipe; a política membros_criar do banco aceita só estes) */
+var PAPEIS_CADASTRO=[['parlamentar','Parlamentar'],['chefe_gabinete','Chefe de Gabinete'],['coordenacao','Coordenação']];
 var Cad={
   modo:'novo',passo:1,sujo:false,
   cargo:'',uf:'',cdi:'',munNome:'',
@@ -79,7 +81,7 @@ var Cad={
     this.busca='';this.partido='';this.lista=null;this.muns=null;this.estado='';this.chave='';
     this.f={civil:m.nome_civil||'',nome:m.nome_parlamentar||'',partido:m.partido||'',casa:m.casa||'',posse:m.data_posse||(modo==='editar'?'':'2026-02-01'),
       rNome:modo==='editar'?(m.resp_nome||''):((NUVEM&&Store.usuario&&Store.usuario.nome)||''),
-      rCargo:m.resp_cargo||'',rTel:m.resp_telefone||'',proprio:false};
+      rCargo:m.resp_cargo||'',rPapel:'',rTel:m.resp_telefone||''};
     this.manual=false;this.sel=null;
     if(modo==='editar'&&(m.nome_parlamentar||m.nome_civil)){
       this.sel={sq:t?t.sq:'',nome:titulo(t?t.nome:m.nome_parlamentar),civil:m.nome_civil||'',partido:m.partido||'',
@@ -403,16 +405,17 @@ var Cad={
       '<span><strong>'+esc(f.nome||f.civil||'Parlamentar')+'</strong>'+(f.partido?' · '+esc(f.partido.toUpperCase()):'')+'<br>'+
       '<span class="pc-peq">'+esc(rotCargo(s.cargo,s.uf))+' · '+esc(s.uf||'')+(s.munNome?' · '+esc(s.munNome):'')+' · '+esc(f.casa||'')+'</span></span>'+
       '<button type="button" class="bt fant peq" onclick="Cad.ir(1)">Alterar</button></div>';
-    var cargos=['Chefia de gabinete','Assessoria parlamentar','Assessoria de comunicação','Coordenação de campanha','Parlamentar'];
     return '<h2 id="cadTit" tabindex="-1" class="cad-h2">Quem está fazendo o cadastro?</h2>'+
       '<p class="cad-sub">É a pessoa que a Legisla procura em caso de dúvida sobre os registros deste mandato.</p>'+resumo+
-      '<label class="chk" style="border:0;padding-top:4px"><input type="checkbox" id="cadProprio"'+(f.proprio?' checked':'')+' onchange="Cad.proprio(this.checked)">'+
-      '<span>Eu sou o(a) próprio(a) parlamentar</span></label>'+
       '<div class="linha-campos c2" style="max-width:none">'+
       this.campo('cadRNome','rNome','Seu nome','Como você quer ser chamado(a) pela equipe da Legisla.','text','name','Ex.: João Pereira…')+
-      '<label class="campo"><span class="rot">Seu cargo no mandato</span><span class="aj">Escolha uma sugestão ou escreva o seu.</span>'+
-      '<input type="text" id="cadRCargo" name="rCargo" list="cadRCargos" value="'+attr(f.rCargo)+'" autocomplete="organization-title" placeholder="Ex.: Chefia de gabinete…" '+
-      'oninput="Cad.set(\'rCargo\',this.value)"><datalist id="cadRCargos">'+cargos.map(function(c){return '<option value="'+attr(c)+'">'}).join('')+'</datalist></label></div>'+
+      (this.modo==='novo'?
+      '<label class="campo"><span class="rot">Seu papel no mandato</span><span class="aj">Define o que você vê e edita. Só Parlamentar e Chefe de Gabinete acessam o feedback.</span>'+
+      '<select id="cadRPapel" name="rPapel" onchange="Cad.papel(this.value)"><option value=""'+(f.rPapel?'':' selected')+'>Escolha seu papel…</option>'+
+      PAPEIS_CADASTRO.map(function(p){return '<option value="'+p[0]+'"'+(f.rPapel===p[0]?' selected':'')+'>'+p[1]+'</option>'}).join('')+'</select>'+
+      '<span class="cad-erro" id="e_cadRPapel" role="alert"></span></label>':
+      '<label class="campo"><span class="rot">Seu cargo no mandato</span>'+
+      '<input type="text" id="cadRCargo" name="rCargo" value="'+attr(f.rCargo)+'" autocomplete="organization-title" placeholder="Ex.: Chefia de gabinete…" oninput="Cad.set(\'rCargo\',this.value)"></label>')+'</div>'+
       '<div class="linha-campos c2" style="max-width:none">'+
       '<label class="campo"><span class="rot">Telefone <span style="font-weight:400;color:var(--tinta-3)">(opcional)</span></span>'+
       '<span class="aj">Com DDD. Usamos só para contato sobre este mandato.</span>'+
@@ -423,18 +426,14 @@ var Cad={
       '<div class="bts cad-rod"><button type="button" class="bt fant" onclick="Cad.ir(1)">← Voltar</button>'+
       '<button type="button" class="bt pri" id="cadSalvar2" onclick="Cad.enviar(this)">'+(this.modo==='novo'?'Criar mandato':'Salvar alterações')+'</button></div>';
   },
-  proprio:function(on){
-    this.f.proprio=on;this.marcarSujo();
-    if(on){
-      var s=this.sel||{};
-      this.f.rNome=this.f.nome||this.f.civil||this.f.rNome;this.f.rCargo=rotCargo(s.cargo,s.uf)||'Parlamentar';
-    }
-    document.getElementById('cadPasso').innerHTML=this.p2();
-    var c=document.getElementById('cadProprio');if(c)c.focus();
+  papel:function(v){
+    this.f.rPapel=v;this.marcarSujo();this.limpaErro('cadRPapel');
+    var r=PAPEIS_CADASTRO.filter(function(p){return p[0]===v})[0];this.f.rCargo=r?r[1]:'';
   },
   validar2:function(){
     var e=[],f=this.f;
     if(!(f.rNome||'').trim())e.push({id:'cadRNome',msg:'Informe o seu nome para que a equipe saiba quem preencheu.'});
+    if(this.modo==='novo'&&!f.rPapel)e.push({id:'cadRPapel',msg:'Escolha o seu papel no mandato.'});
     var d=String(f.rTel||'').replace(/\D/g,'');
     if(d&&(d.length<10||d.length>11))e.push({id:'cadRTel',msg:'Use o telefone com DDD, por exemplo (61) 99999-0000.'});
     return e;
@@ -756,4 +755,18 @@ window.Equipe={
   }
 };
 
+})();
+
+/* criar mandato: quem cria entra com o papel escolhido na lista (nucleo.js gravava sempre 'coordenacao') */
+(function(){
+  var _cria=Store.criarMandato;
+  Store.criarMandato=async function(c){
+    var papel=Cad.f&&Cad.f.rPapel;
+    if(!NUVEM||!papel)return _cria.call(this,c);
+    var reg=Object.assign({codigo:codigo(),dados:{}},c);
+    reg.criado_por=this.usuario.id;
+    var m=(await Nuvem.rest('mandatos',{method:'POST',body:reg,headers:{Prefer:'return=representation'}}))[0];
+    await Nuvem.rest('membros',{method:'POST',body:{mandato_id:m.id,user_id:this.usuario.id,papel:papel,nome:this.usuario.nome}});
+    return m;
+  };
 })();

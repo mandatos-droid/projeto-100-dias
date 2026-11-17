@@ -207,6 +207,27 @@ test('quem está na equipe Legisla segue dispensada em membros_criar: cria o man
   assert.deepEqual(await perfisDe(IDS.admin), []);
 });
 
+test('quem cria o mandato escolhe parlamentar, chefe de gabinete ou coordenação; assessoria e leitura o banco barra (cadastro)', async () => {
+  const entraComo = (mandato: string, quem: string, papel: string) =>
+    banco.query(`insert into public.membros (mandato_id, user_id, papel, nome) values ($1, $2, $3, 'Criador')`, [mandato, quem, papel]);
+  let n = 0;
+  for (const papel of ['parlamentar', 'chefe_gabinete', 'coordenacao']) {
+    await como(banco, IDS.fora);
+    assert.deepEqual(await salvarPerfil(), { ok: true });
+    await como(banco, IDS.fora);
+    const [{ id }] = await criaMandato(`PAP${++n}00`, IDS.fora);
+    await entraComo(id, IDS.fora, papel);
+    assert.deepEqual((await membrosDe(id)).map((m) => m.papel), [papel]);
+    await comoDono(banco);
+    await banco.query('delete from public.membros where mandato_id = $1', [id]);
+  }
+  for (const papel of ['assessoria', 'leitura']) {
+    await como(banco, IDS.fora);
+    const [{ id }] = await criaMandato(`PAP${++n}00`, IDS.fora);
+    await assert.rejects(entraComo(id, IDS.fora, papel), RLS);
+  }
+});
+
 // ---------- o que a migration repete das versões anteriores ----------
 
 const MIGRATIONS = new URL('../supabase/migrations/', import.meta.url);
