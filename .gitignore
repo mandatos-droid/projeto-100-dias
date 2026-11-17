@@ -18,3 +18,6 @@ plataforma/supabase/.temp/
 
 # saida de testes do Playwright
 .pw-out-tmp/
+
+# grafo duplicado gerado ao rodar graphify dentro de plataforma/
+plataforma/graphify-out/
