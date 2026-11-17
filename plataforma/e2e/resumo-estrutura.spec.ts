@@ -79,15 +79,10 @@ test('ao rolar, o segmento da última missão com o topo a 160 px ou menos fica 
   for (const n of [2, 3, 4, 5]) await expect(seg(page, n)).toHaveAttribute('aria-current', 'false');
 });
 
-test('a única ação é "Baixar resumo completo (HTML)": baixa regimento-<nome>-completo.html e avisa; sem "Gerar PDF" nem JSON (RES-03)', async ({ page }) => {
+test('a tela não tem botão de exportar (HTML, PDF nem JSON) (RES-03)', async ({ page }) => {
   await abreResumo(page, SEIS);
-  await expect(page.locator('#tela .barra button.bt')).toHaveCount(1);
-  await expect(page.getByRole('button', { name: /Gerar PDF/ })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: /JSON/ })).toHaveCount(0);
-  const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Baixar resumo completo (HTML)' }).click();
-  expect((await download).suggestedFilename()).toBe('regimento-ana-souza-completo.html');
-  await expect(page.locator('#toast')).toHaveText('Resumo completo baixado.');
+  await expect(page.locator('#tela .barra button.bt')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /Gerar PDF|Baixar resumo|JSON/ })).toHaveCount(0);
 });
 
 test('"Expandir tudo" abre todas as missões e exercícios; "Recolher tudo" fecha todos (RES-04.7)', async ({ page }) => {

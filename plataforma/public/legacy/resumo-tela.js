@@ -55,7 +55,7 @@ function missao(m){
 /* barra: percentual geral, "N de T exercícios concluídos", a única ação e um segmento (botão) por missão (RES-02, RES-03) */
 function barra(feitos,total){
   return '<div class="barra"><div class="barra-l1"><div class="geral"><b>'+progGeral()+'%</b><span>'+feitos+' de '+total+' exercícios concluídos</span></div>'+
-    '<div class="acoes"><button type="button" class="bt pri" onclick="Baixar.tudo()">Baixar resumo completo (HTML)</button></div></div>'+
+    '</div>'+
     '<nav class="segs" aria-label="Ir para a missão">'+MISSOES.map(function(m){
       var p=progMissao(m);
       return '<button type="button" class="seg" data-n="'+m.n+'" aria-current="false" aria-label="Ir para a Missão '+m.n+': '+esc(m.curto)+'"'+

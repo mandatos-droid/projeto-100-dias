@@ -68,9 +68,9 @@ test('o passo "clareza sobre as entregas e agendas" aparece marcado com a Missã
   assert.equal(janela().Comp.funcoes().includes('passo-feito'), false); // sem estadoEx no legado, não marca
 });
 
-test('m2.gestao mostra objetivo, importância e exercício do documento, o quadro de rotinas e, abaixo, o botão do PDF (RM2-51, RM2-58)', () => {
+test('m2.gestao mostra objetivo, importância e exercício do documento, o quadro de rotinas (RM2-51, RM2-58)', () => {
   const g = ex(janela(), 'm2.gestao');
-  const ordem = ['<strong>Objetivo:</strong>', '<strong>Importância:</strong>', 'A Legisla sugere que os mandatos cumpram as rotinas de alinhamento propostas no quadro abaixo.', 'data-ilha="quadro-rotinas"', 'data-ilha="pdf-org-rotinas"'].map((t) => g.intro.indexOf(t));
+  const ordem = ['<strong>Objetivo:</strong>', '<strong>Importância:</strong>', 'A Legisla sugere que os mandatos cumpram as rotinas de alinhamento propostas no quadro abaixo.', 'data-ilha="quadro-rotinas"'].map((t) => g.intro.indexOf(t));
   assert.ok(ordem.every((p, k) => p >= 0 && (k === 0 || p > ordem[k - 1])), `ordem: ${ordem}`);
   assert.ok(g.intro.includes('definir quais são os momentos de encontro coletivo e dentro de áreas'));
   assert.ok(g.intro.includes('criar previsibilidade e integração no trabalho'));
@@ -192,7 +192,7 @@ test('o Resumo escapa o cargo e a pessoa (segurança)', () => {
 
 test('m2.gestao emite a sugestão do checklist no fim, depois do quadro e do PDF e antes do checklist do Guia (RM2-57)', () => {
   const g = ex(janela(), 'm2.gestao');
-  const ordem = ['data-ilha="quadro-rotinas"', 'data-ilha="pdf-org-rotinas"', 'O checklist abaixo traz o que deve ser estabelecido', 'data-ilha="m2-sugestao-checklist"'].map((t) => g.intro.indexOf(t));
+  const ordem = ['data-ilha="quadro-rotinas"', 'O checklist abaixo traz o que deve ser estabelecido', 'data-ilha="m2-sugestao-checklist"'].map((t) => g.intro.indexOf(t));
   assert.ok(ordem.every((p, k) => p >= 0 && (k === 0 || p > ordem[k - 1])), `ordem: ${ordem}`);
   assert.ok(g.intro.endsWith('data-ilha="m2-sugestao-checklist"></div>'));
 });

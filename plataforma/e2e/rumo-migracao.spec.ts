@@ -224,6 +224,5 @@ test.describe('Impressão do Plano com o CSS do Guia carregado', () => {
     await page.emulateMedia({ media: 'print' });
     await expect(page.locator('[data-no="obj-p1"]')).toBeVisible();
     await expect(page.locator('#ladoNav')).toBeHidden();
-    await expect(page.getByRole('button', { name: 'Imprimir' })).toBeHidden();
   });
 });

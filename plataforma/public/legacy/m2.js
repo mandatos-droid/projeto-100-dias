@@ -57,7 +57,6 @@
       '<ul><li>Caso esteja de acordo com o modelo, adicione, na última linha, a data para a realização de cada uma das rotinas propostas.</li>'+
       '<li>Caso não esteja de acordo, altere o que desejar.</li></ul>'+
       '<div class="ilha" data-ilha="quadro-rotinas"></div>'+
-      '<div class="ilha" data-ilha="pdf-org-rotinas"></div>'+
       '<div class="apoio atencao"><span class="tag">Atenção</span>O checklist abaixo traz o que deve ser estabelecido antes de partir para a próxima missão.</div>'+
       ilha('m2-sugestao-checklist');
   }

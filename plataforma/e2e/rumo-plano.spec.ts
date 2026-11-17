@@ -207,26 +207,6 @@ test.describe('Filtro por pessoa (RUM-42.11)', () => {
   });
 });
 
-test.describe('Imprimir (RUM-42.13)', () => {
-  test('"Imprimir" chama a impressão e, em mídia de impressão, só a árvore fica visível, sem os controles', async ({ page }) => {
-    await abre(page, [ILHA], PLANO);
-    await page.evaluate(() => { const w = window as unknown as { __imprimiu: number }; w.__imprimiu = 0; window.print = () => { w.__imprimiu++; }; });
-    await page.getByRole('button', { name: 'Imprimir' }).click();
-    expect(await page.evaluate(() => (window as unknown as { __imprimiu: number }).__imprimiu)).toBe(1);
-    await page.emulateMedia({ media: 'print' });
-    await expect(no(page, 'obj-p1')).toBeVisible();
-    await expect(no(page, 'meta-0')).toBeVisible();
-    await expect(page.locator('.rm-anel b')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Imprimir' })).toBeHidden();
-    await expect(page.getByRole('button', { name: /^Acrescentar meta a / }).first()).toBeHidden();
-    await expect(page.getByLabel('Status da meta 01')).toBeHidden();
-    await expect(page.getByLabel('Filtrar por pessoa')).toBeHidden();
-    const pos = await page.evaluate(() => getComputedStyle(document.querySelector('.rm-plano')!).position);
-    expect(pos).toBe('absolute');
-    await page.screenshot({ path: 'test-results/plano-impressao.png', fullPage: true });
-  });
-});
-
 test.describe('Teclado na aba (RUM-42.14)', () => {
   test('Enter abre e fecha a edição da meta; cada nó tem rótulo acessível', async ({ page }) => {
     await abre(page, [ILHA], PLANO);

@@ -352,10 +352,7 @@ biblioteca(){
 resumo(){
   var h='<div class="etiqueta">Mandato</div><h1>Resumo do preenchimento</h1>'+
     '<p class="chamada">Tudo o que a equipe registrou, exercício por exercício. Use nas reuniões de alinhamento e na imersão de planejamento.</p>'+
-    '<div class="bts" style="margin-bottom:38px">'+
-    '<button class="bt pri" onclick="Baixar.tudo()">Baixar resumo completo</button>'+
-    '<button class="bt sec" onclick="window.print()">Gerar PDF</button>'+
-    '<button class="bt fant" onclick="Baixar.json()">Baixar dados (JSON)</button></div>';
+    '<div style="margin-bottom:38px"></div>';
   MISSOES.forEach(function(m){h+=Resumo.missao(m)});
   document.getElementById('tela').innerHTML=h;
 },

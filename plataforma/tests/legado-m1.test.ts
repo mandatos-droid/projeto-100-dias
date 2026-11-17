@@ -737,19 +737,9 @@ test('depois do fim de m1.frag aparecem "Pronto!", o texto de fechamento e o bot
   const h = w.Comp.frag(ex1(w, 'm1.frag'));
   const fim = h.indexOf('Tornando fragilidades em fortalezas!');
   assert.ok(fim > 0);
-  for (const t of ['<h3 id="m1-pronto-t">Pronto!</h3>', PRONTO, 'Gerar HTML do Mapa Político']) assert.ok(h.indexOf(t) > fim, t);
+  for (const t of ['<h3 id="m1-pronto-t">Pronto!</h3>', PRONTO]) assert.ok(h.indexOf(t) > fim, t);
+  assert.equal(h.includes('Gerar HTML do Mapa Político'), false);
   assert.equal((h.match(/Pronto!/g) ?? []).length, 1);
-});
-
-test('o botão chama Baixar.mapaPolitico (FEC-02)', () => {
-  const w = janelaMapa();
-  const h = w.Comp.frag(ex1(w, 'm1.frag'));
-  const onclick = h.match(/<button type="button" class="bt pri" onclick="([^"]+)">Gerar HTML do Mapa Político/)?.[1];
-  assert.equal(onclick, 'Baixar.mapaPolitico()');
-  const ctx = w as unknown as vm.Context;
-  vm.runInContext('globalThis.__chamou=0;Baixar.mapaPolitico=function(){globalThis.__chamou++}', ctx);
-  vm.runInContext(onclick!, ctx);
-  assert.equal((ctx as unknown as { __chamou: number }).__chamou, 1);
 });
 
 test('o compilado do fim da página é o mesmo HTML do Resumo da Missão 1 (FEC-04)', () => {

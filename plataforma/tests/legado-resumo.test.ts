@@ -305,11 +305,9 @@ test('cada segmento é um <button> com nome "Ir para a Missão n: título curto"
   });
 });
 
-test('a tela tem uma só ação, "Baixar resumo completo (HTML)", que chama Baixar.tudo(); sem "Gerar PDF" nem "Baixar dados (JSON)" (RES-03)', () => {
+test('a tela não tem botão de exportar (HTML, PDF nem JSON) (RES-03)', () => {
   const h = tela(guia(feitos(SEIS)));
-  assert.ok(barraDe(h).includes('<div class="acoes"><button type="button" class="bt pri" onclick="Baixar.tudo()">Baixar resumo completo (HTML)</button></div>'));
-  assert.equal(h.split('class="bt').length - 1, 1);
-  for (const fora of ['Gerar PDF', 'Baixar dados (JSON)', 'window.print()', 'Baixar.json()']) assert.equal(h.includes(fora), false, fora);
+  for (const fora of ['Baixar resumo completo', 'Gerar PDF', 'Baixar dados (JSON)', 'window.print()', 'Baixar.json()', 'Baixar.tudo()']) assert.equal(h.includes(fora), false, fora);
 });
 
 test('as ferramentas trazem Expandir tudo, Recolher tudo, a chave "Mostrar só o que falta preencher" e o aviso escondido "Nenhum exercício pendente." (RES-04)', () => {

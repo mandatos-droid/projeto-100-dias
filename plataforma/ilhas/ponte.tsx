@@ -26,7 +26,6 @@ import Comunicacao from './capital/Comunicacao';
 import Organograma from './equipe/Organograma';
 import TabelaEquipe from './equipe/TabelaEquipe';
 import QuadroRotinas from './equipe/QuadroRotinas';
-import PdfOrgRotinas from './equipe/PdfOrgRotinas';
 import SugestaoChecklist from './equipe/SugestaoChecklist';
 import { AssentosResumo, ConjunturaResumo, MunicipioResumo } from './Resumos';
 import ResumoRetrato from './ResumoRetrato';
@@ -123,7 +122,6 @@ const ILHAS: Record<string, () => React.ReactElement> = {
   'resumo-equipe': () => <ResumoEquipe />,
   'equipe-tabela': () => <TabelaEquipe />,
   'quadro-rotinas': () => <QuadroRotinas />,
-  'pdf-org-rotinas': () => <PdfOrgRotinas />,
   'm2-sugestao-checklist': () => <SugestaoChecklist />,
   organograma: () => <Organograma />,
   'rumo-bandeiras': () => <Bandeiras />,

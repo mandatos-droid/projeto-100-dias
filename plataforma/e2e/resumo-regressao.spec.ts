@@ -1,5 +1,4 @@
 import { test, expect, type Page } from '@playwright/test';
-import { readFileSync } from 'node:fs';
 import { abreGuia, MANDATO_REAL } from './guia-real';
 
 /* Regressão e acessibilidade da tela #/resumo: o que não pode mudar (download, Painel), teclado, nomes acessíveis,
@@ -43,24 +42,6 @@ async function abreResumo(page: Page, dados: Record<string, unknown>) {
 }
 const seg = (page: Page, n: number) => page.getByRole('button', { name: `Ir para a Missão ${n}: ${CURTOS[n - 1]}` });
 
-test('o arquivo baixado tem os títulos das missões e as respostas, e não tem a barra, os segmentos nem os cartões (RES-12.3)', async ({ page }) => {
-  await abreResumo(page, RICO);
-  await expect(page.locator('#tela .cards.al .pessoa')).toHaveCount(1); // na tela há cartões...
-  const titulos = await page.locator('#tela .ex-link').allTextContents();
-  expect(titulos).toHaveLength(16);
-  const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Baixar resumo completo (HTML)' }).click();
-  const html = readFileSync((await (await download).path())!, 'utf8');
-  for (const t of titulos) expect(html, t).toContain(t.replace(/&/g, '&amp;'));
-  for (const c of CURTOS) expect(html, c).toContain('Missão');
-  expect(html).toContain('Professora da rede pública e sindicalista');
-  expect(html).toContain('Expectativas do eleitorado de São Paulo');
-  expect(html).toContain('<strong>Aliados (1)</strong>'); // ...e o arquivo segue com a lista de texto
-  expect(html).toContain('<strong>P</strong> — Oratória em plenário');
-  for (const proibido of ['class="barra"', 'class="seg"', 'class="segs"', 'class="pessoa"', 'class="cards', 'class="grp', 'class="res2"',
-    'class="frag"', 'table class="terr"', 'data-ilha=']) expect(html, proibido).not.toContain(proibido);
-});
-
 test('"Ver o que foi preenchido" no Painel mostra o mesmo conteúdo de Resumo.missao, sem cartões, selos nem ilhas (RES-12.2)', async ({ page }) => {
   await abre(page, RICO, '#/');
   const resp = page.locator('details.ml-resp').first();
@@ -96,8 +77,7 @@ test('Enter e Espaço abrem e fecham um <summary> de missão e de exercício (RE
 
 test('Tab chega aos segmentos, em ordem, e Enter leva à missão sem mudar o endereço (RES-13.3)', async ({ page }) => {
   await abreResumo(page, { campos: {} });
-  await page.getByRole('button', { name: 'Baixar resumo completo (HTML)' }).focus();
-  await page.keyboard.press('Tab');
+  await seg(page, 1).focus();
   await expect(seg(page, 1)).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(seg(page, 2)).toBeFocused();
@@ -115,7 +95,7 @@ test('todo controle da barra e das ferramentas tem nome acessível (RES-13.3)', 
   await abreResumo(page, RICO);
   const nomes = await page.locator('#tela .barra button, #tela .ferr button, #tela .ferr input').evaluateAll((els) =>
     els.map((e) => (e.getAttribute('aria-label') || (e as HTMLElement).innerText || e.closest('label')?.textContent || '').trim()));
-  expect(nomes).toHaveLength(9); // baixar, 5 segmentos, expandir, recolher e a caixa do filtro
+  expect(nomes).toHaveLength(8); // 5 segmentos, expandir, recolher e a caixa do filtro
   expect(nomes.every(Boolean)).toBe(true);
   for (let n = 1; n <= 5; n++) await expect(seg(page, n)).toBeVisible();
 });

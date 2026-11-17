@@ -119,18 +119,6 @@ test.describe('Rotinas do mandato no Planejamento (RM2-60 a RM2-64)', () => {
     await expect(secao(page).locator('[data-sem-inicio]')).toHaveCount(0);
   });
 
-  test('o botão gera o PDF do organograma e rotinas: chama a impressão com os dois blocos (RM2-61)', async ({ page }) => {
-    await abre(page, [ILHA], { D: { preditores: TRES, metas: METAS }, campos: { ...EQ, 'm2.rq': RQ } });
-    await page.evaluate(() => {
-      const w = window as unknown as { __print: string[][] };
-      w.__print = [];
-      window.print = () => { w.__print.push([...document.querySelectorAll('.pdf-org section')].map((s) => (s as HTMLElement).dataset.pdf ?? '')); };
-    });
-    await secao(page).getByRole('button', { name: 'Gerar PDF do organograma e rotinas' }).click();
-    expect(await page.evaluate(() => (window as unknown as { __print: string[][] }).__print)).toEqual([['organograma', 'rotinas']]);
-    expect(await page.evaluate(() => document.body.classList.contains('imprimindo-org'))).toBe(false);
-  });
-
   test('a seção entra na impressão do planejamento completo, sem os botões (RM2-64)', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: TRES, metas: METAS }, campos: { 'm2.rq': RQ } });
     await page.emulateMedia({ media: 'print' });

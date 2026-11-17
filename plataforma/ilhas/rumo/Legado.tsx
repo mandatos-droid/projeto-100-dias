@@ -168,7 +168,7 @@ export default function Legado() {
         </section>
 
         <div className="rm-leg-jornal">
-          <Jornal jornal={lg.jornal} nome={nome} manchete={lg.manchete} linhaFina={linhaFina} dataEdicao={dataEdicao(m.data_posse)} fechado={lg.fechado} baixavel
+          <Jornal jornal={lg.jornal} nome={nome} manchete={lg.manchete} linhaFina={linhaFina} dataEdicao={dataEdicao(m.data_posse)} fechado={lg.fechado}
             onJornal={(j) => set({ legado: { jornal: j } })} />
         </div>
       </div>

@@ -10,7 +10,6 @@ import { resolve } from '@/lib/pessoas';
 import { quadroRotinasHtml } from '@/lib/exporta';
 import { dataOk, lerQuadro } from '@/lib/quadroRotinas';
 import { editaSucesso, lerSucessos } from '@/lib/sucessos';
-import PdfOrgRotinas from '../equipe/PdfOrgRotinas';
 import ArvorePlano, { pctTxt } from './ArvorePlano';
 import CartaoMeta from './CartaoMeta';
 import EditorPlano from './EditorPlano';
@@ -85,7 +84,6 @@ function RotinasPlano({ campos }: { campos: Record<string, string> }) {
         ? <p className="rm-dica">Nenhuma rotina está ligada. Ligue as rotinas na Missão 2.</p>
         : <div dangerouslySetInnerHTML={{ __html: quadroRotinasHtml(rotinas) }} />}
       {semInicio && <p className="rm-dica rm-nao-imprime" data-sem-inicio>Início ainda não definido. <a href="#/m/2/m2.gestao">Defina a data e o horário na Missão 2</a>.</p>}
-      <div className="rm-nao-imprime"><PdfOrgRotinas /></div>
     </section>
   );
 }
@@ -235,7 +233,6 @@ export default function Plano() {
                 </select>
               </label>
               <button type="button" className="bt sec peq" aria-pressed={ordenar} onClick={() => setOrdenar(!ordenar)}>Ordenar por atingimento</button>
-              <button type="button" className="bt sec peq" onClick={() => window.print()}>Imprimir</button>
             </div>
           </div>
           {filtro && <p className="rm-dica rm-nao-imprime" role="status">Em destaque: metas em que {filtro} é responsável ou apoio. As demais ficam esmaecidas.</p>}

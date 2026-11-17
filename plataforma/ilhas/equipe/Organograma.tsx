@@ -10,7 +10,6 @@ import { organogramaSvg } from '@/lib/exporta';
 import { layoutOrg } from '@/lib/layoutOrg';
 import { avisosOrg, organogramaGerado, vistaDaTabela } from '@/lib/tabelaEquipe';
 import { cargoNome, modeloNome } from './cargos';
-import { baixaPng } from './exportaPng';
 import { useEquipe } from './useEquipe';
 import './equipe.css';
 
@@ -80,7 +79,6 @@ export default function Organograma() {
       <div className="eq-barra">
         <label className="eq-tg"><input type="checkbox" checked={soPreenchidas} onChange={(e) => setSo(e.target.checked)} /> só cadeiras com nome</label>
         <button type="button" className="bt sec peq es-bt" onClick={() => setReajusta((n) => n + 1)}>Ajustar layout</button>
-        <button type="button" className="bt pri peq es-bt" onClick={() => baixaPng(organogramaSvg(vista, (i) => cargoNome(vista, i)), 'organograma-do-mandato.png')}>Exportar organograma (PNG)</button>
         <div className="eq-legenda" role="group" aria-label="Filtrar por área">
           <button type="button" className={!filtro ? 'on' : ''} aria-pressed={!filtro} onClick={() => setFiltro('')}>Todas</button>
           {l.areas.map((a) => (

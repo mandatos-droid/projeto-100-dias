@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { readFileSync } from 'node:fs';
 import { abre, MANDATO } from './semente-rumo';
 
 /* P3 (RUM-60): imagem da primeira página e ordenação por atingimento. */
@@ -7,44 +6,6 @@ const LEGADO = {
   mandato: MANDATO,
   D: { rumo: { v: 1, bandeiras: [], legado: { el: { protagonista: 'Ana Souza', entrega: '', resultado: '', cargo: '' }, manchete: 'Ana Souza colocou a Educação no centro do debate', manual: true, jornal: 'A Gazeta do Mandato', fechado: false, rascunhos: [] } } },
 };
-const png = (caminho: string) => {
-  const b = readFileSync(caminho);
-  return { b, assinatura: b.subarray(0, 8).toString('hex'), largura: b.readUInt32BE(16), altura: b.readUInt32BE(20) };
-};
-
-test.describe('Baixar imagem (RUM-60.1)', () => {
-  test('gera um PNG da primeira página, com o nome do jornal no arquivo', async ({ page }) => {
-    await abre(page, ['rumo-legado'], LEGADO);
-    const jornal = page.locator('.rm-jornal');
-    const caixa = (await jornal.boundingBox())!;
-    const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Baixar imagem' }).click()]);
-    expect(download.suggestedFilename()).toBe('a-gazeta-do-mandato.png');
-    const img = png((await download.path())!);
-    expect(img.assinatura).toBe('89504e470d0a1a0a'); // assinatura de PNG
-    expect(img.largura).toBeGreaterThanOrEqual(Math.floor(caixa.width * 2) - 2); // pixelRatio 2
-    expect(img.altura).toBeGreaterThanOrEqual(Math.floor(caixa.height * 2) - 2);
-  });
-
-  test('a imagem acompanha a manchete atual: mudar o texto muda o PNG', async ({ page }) => {
-    await abre(page, ['rumo-legado'], LEGADO);
-    const baixa = async () => {
-      const [d] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Baixar imagem' }).click()]);
-      return png((await d.path())!).b;
-    };
-    const antes = await baixa();
-    await page.getByLabel('Texto final da manchete').fill('Outra manchete, bem diferente e bem mais longa do que a primeira, para mudar o desenho');
-    await expect(page.locator('.rm-jornal h2')).toContainText('Outra manchete');
-    const depois = await baixa();
-    expect(Buffer.compare(antes, depois)).not.toBe(0);
-  });
-
-  test('o botão não entra na impressão nem na imagem (fica fora da primeira página)', async ({ page }) => {
-    await abre(page, ['rumo-legado'], LEGADO);
-    await expect(page.locator('.rm-jornal').getByRole('button', { name: 'Baixar imagem' })).toHaveCount(0);
-    await page.emulateMedia({ media: 'print' });
-    await expect(page.getByRole('button', { name: 'Baixar imagem' })).toBeHidden();
-  });
-});
 
 test.describe('Ordenar por atingimento (RUM-60.2)', () => {
   const D = {

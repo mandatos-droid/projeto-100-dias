@@ -389,7 +389,6 @@
     try{comp=Resumo.missao(m1)}finally{Resumo.vivo=vivo}
     return h+'<section class="m1-pronto" aria-labelledby="m1-pronto-t"><h3 id="m1-pronto-t">Pronto!</h3>'+
       '<div class="texto"><p>'+PRONTO+'</p></div>'+
-      '<p><button type="button" class="bt pri" onclick="Baixar.mapaPolitico()">Gerar HTML do Mapa Político</button></p>'+
       '<h4>Compilado das respostas da Missão 1</h4><div class="m1-compilado">'+comp+'</div></section>';
   };
 })();

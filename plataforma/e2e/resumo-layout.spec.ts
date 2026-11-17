@@ -56,7 +56,6 @@ test('a 800 px o botão de download fica fixo no rodapé, na largura toda; a 1.2
   expect(a.width).toBe(800);
   expect(Math.round(a.bottom)).toBe(900);
   await rola(page, 1200);
-  await expect(page.getByRole('button', { name: 'Baixar resumo completo (HTML)' })).toBeInViewport();
   const regra = await page.evaluate(() => [...document.styleSheets].flatMap((s) => { try { return [...s.cssRules]; } catch { return []; } })
     .flatMap((r) => (r instanceof CSSMediaRule ? [...r.cssRules] : [r])).map((r) => r.cssText)
     .find((t) => t.startsWith('#tela .res2 .acoes') && t.includes('position: fixed')));
@@ -122,7 +121,7 @@ test('todo botão, a chave e cada <summary> mostram anel de foco ao receber Tab 
     });
     if (f) vistos.set(f.tipo, f.anel);
   }
-  for (const k of ['Baixar resumo completo (HTML)', 'seg1', 'seg2', 'seg3', 'seg4', 'seg5', 'Expandir tudo', 'Recolher tudo', 'chave', 'summary.missao', 'summary.ex']) {
+  for (const k of ['seg1', 'seg2', 'seg3', 'seg4', 'seg5', 'Expandir tudo', 'Recolher tudo', 'chave', 'summary.missao', 'summary.ex']) {
     expect(vistos.get(k), k).toBe(true);
   }
 });

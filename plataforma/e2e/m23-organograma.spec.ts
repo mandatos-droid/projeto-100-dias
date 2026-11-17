@@ -1,5 +1,4 @@
 import { test, expect, type Page } from '@playwright/test';
-import { readFileSync } from 'node:fs';
 import { abre, camposDe } from './semente';
 
 /* Missão 2 · organograma gerado da tabela de equipe (RM2-30 a 38). A tabela e o organograma ficam na mesma página, como na Mão na massa 1. */
@@ -112,17 +111,6 @@ test.describe('Organograma gerado: caixa e tabela (RM2-36, RM2-37)', () => {
     await expect(page.locator('.es-no strong', { hasText: 'Processo seletivo' })).toHaveCount(4);
     await expect(caixa(page, 20)).toContainText('Coordenadora Legislativa');
     await expect(caixa(page, 20)).toContainText('Legislativo');
-  });
-});
-
-test.describe('Organograma gerado: exportar (RM2-38)', () => {
-  test('"Exportar organograma (PNG)" baixa um .png não vazio', async ({ page }) => {
-    await abre(page, ILHAS, equipe);
-    const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Exportar organograma (PNG)' }).click()]);
-    expect(dl.suggestedFilename()).toBe('organograma-do-mandato.png');
-    const bytes = readFileSync((await dl.path())!);
-    expect(bytes.length).toBeGreaterThan(1000);
-    expect(bytes.subarray(0, 8).toString('hex')).toBe('89504e470d0a1a0a');
   });
 });
 
