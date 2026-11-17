@@ -452,8 +452,8 @@ test('cadastro novo, como o Guia faz: quem criou lê o mandato no RETURNING e en
   const [{ id }] = await q<{ id: string }>(
     `insert into public.mandatos (codigo, nome_parlamentar, cargo, uf, criado_por) values ('CCC333', 'Parlamentar Três', 'Vereadora', 'RJ', $1)
      returning id`, [IDS.fora]);
-  // a primeira linha precisa ser de coordenação
-  for (const papel of ['assessoria', 'leitura']) {
+  // a primeira linha pode ser parlamentar, chefe, coordenação ou assessoria (o cadastro deixa escolher); leitura não
+  for (const papel of ['leitura']) {
     await assert.rejects(entraDireto(IDS.fora, papel, id), RLS, papel);
   }
   // outra conta não entra direto no mandato alheio, mesmo vazio
