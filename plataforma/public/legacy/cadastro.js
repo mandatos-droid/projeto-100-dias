@@ -410,7 +410,7 @@ var Cad={
       '<div class="linha-campos c2" style="max-width:none">'+
       this.campo('cadRNome','rNome','Seu nome','Como você quer ser chamado(a) pela equipe da Legisla.','text','name','Ex.: João Pereira…')+
       (this.modo==='novo'?
-      '<label class="campo"><span class="rot">Seu papel no mandato</span><span class="aj">Define o que você vê e edita. Só Parlamentar e Chefe de Gabinete acessam o feedback.</span>'+
+      '<label class="campo"><span class="rot">Seu papel no mandato</span>'+
       '<select id="cadRPapel" name="rPapel" onchange="Cad.papel(this.value)"><option value=""'+(f.rPapel?'':' selected')+'>Escolha seu papel…</option>'+
       PAPEIS_CADASTRO.map(function(p){return '<option value="'+p[0]+'"'+(f.rPapel===p[0]?' selected':'')+'>'+p[1]+'</option>'}).join('')+'</select>'+
       '<span class="cad-erro" id="e_cadRPapel" role="alert"></span></label>':
