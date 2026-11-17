@@ -57,7 +57,7 @@ type Legado = {
     /* Missão 5: conversas de feedback (formato em lib/feedback.ts; o antigo pessoa/lider/data/pontos/encam também vale) */
     feedbacks?: unknown;
   };
-  Store: { mandato: Record<string, string>; salvar(): void; atualizar(c: Record<string, unknown>): Promise<void> };
+  Store: { mandato: Record<string, string>; salvar(): void; atualizar(c: Record<string, unknown>): Promise<void>; meuPapel?(): string | null; feedbackFalhou?: boolean };
   aviso(t: string): void;
 };
 const L = () => window as unknown as Legado;
@@ -65,6 +65,9 @@ const L = () => window as unknown as Legado;
 export const mandato = () => L().Store.mandato;
 export const dadosGuia = () => L().D;
 export const aviso = (t: string) => L().aviso(t);
+/** Papel da pessoa no mandato aberto (Store.meuPapel, de m5.js); null sem a linha dela em membros. */
+export const meuPapel = (): string | null => L().Store.meuPapel?.() ?? null;
+export const feedbackFalhou = (): boolean => !!L().Store.feedbackFalhou;
 
 export function salva() {
   L().Store.salvar();

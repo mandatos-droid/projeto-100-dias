@@ -3,14 +3,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import { partesBrasilia } from '../../../lib/admin/escala.ts';
 import { EMAIL_INVALIDO, emailValido, mensagemDe, SEM_CONTA } from '../../../lib/admin/mensagens.ts';
+import { PAPEIS as PAPEIS_TODOS, rotuloPapel, type Papel } from '../../../lib/convites/papeis.ts';
 import Dialogo from './Dialogo.tsx';
 import { useAdmin } from './Sessao.tsx';
 
 // Retorno de admin_membros(p_mandato) (migration 20261105140000).
-type PapelMembro = 'coordenacao' | 'assessoria'; // os dois que o Guia grava
+type PapelMembro = Papel;
 interface Membro { user_id: string; nome: string | null; email: string | null; papel: PapelMembro; criado_em: string }
 
-const PAPEIS: PapelMembro[] = ['assessoria', 'coordenacao'];
+const PAPEIS: readonly PapelMembro[] = PAPEIS_TODOS;
 
 function dataBr(iso: string): string {
   const { ano, mes, dia } = partesBrasilia(iso);
@@ -47,7 +48,7 @@ function AdicionarMembro({ mandatoId, onFechar, onFeito }: { mandatoId: string; 
       </label>
       <label>Papel no mandato
         <select className="in" value={papel} onChange={(e) => setPapel(e.target.value as PapelMembro)}>
-          {PAPEIS.map((p) => <option key={p} value={p}>{p}</option>)}
+          {PAPEIS.map((p) => <option key={p} value={p}>{rotuloPapel(p)}</option>)}
         </select>
       </label>
     </Dialogo>
@@ -144,7 +145,7 @@ export default function Membros({ mandatoId, onMudou }: { mandatoId: string; onM
                     <td>
                       <select className="in" aria-label={`Papel de ${nome} no mandato`} value={m.papel} disabled={!admin}
                         onChange={(e) => trocaPapel(m, e.target.value as PapelMembro)}>
-                        {PAPEIS.map((x) => <option key={x} value={x}>{x}</option>)}
+                        {PAPEIS.map((x) => <option key={x} value={x}>{rotuloPapel(x)}</option>)}
                       </select>
                     </td>
                     <td>{dataBr(m.criado_em)}</td>

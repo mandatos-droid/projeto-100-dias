@@ -7,6 +7,7 @@ const POR_CODIGO: Record<string, string> = {
   invalido: 'Este convite não vale mais. Peça um novo para quem convidou você.',
   email: 'Este convite é para outro e-mail. Entre com a conta indicada ou peça um novo convite.',
   limite: 'Muitas tentativas. Tente de novo em alguns minutos.',
+  outro_mandato: 'Este e-mail já está vinculado a um mandato. Cada e-mail só pode integrar um mandato.',
 };
 
 // Exceções de regra do banco: nascem em português e passam como estão, mas só as conhecidas.
@@ -16,6 +17,7 @@ const EXCECOES = new Set([
   'O mandato precisa ter ao menos uma pessoa na coordenação.',
   'Informe um nome de até 80 caracteres.',
   'E-mail inválido.',
+  'Este e-mail já está vinculado a um mandato. Cada e-mail só pode integrar um mandato.',
   SEM_PERMISSAO,
 ]);
 

@@ -136,7 +136,7 @@ test('membro_trocar_papel trava as linhas de membros do mandato com for update a
   const trava = src.search(/from public\.membros b where b\.mandato_id = p_mandato for update/);
   assert.ok(trava >= 0, 'sem for update nas linhas do mandato');
   assert.ok(trava < src.indexOf('papel_no_mandato'), 'a trava precisa vir antes de ler o papel');
-  assert.ok(trava < src.indexOf("b.papel = 'coordenacao'"), 'a trava precisa vir antes de contar coordenações');
+  assert.ok(trava < src.indexOf('nivel_papel(b.papel) >= 3'), 'a trava precisa vir antes de contar coordenações');
 });
 
 test('a troca grava papel_trocado com ator, alvo e papel, e nenhuma linha em eventos (ACE-06.2, ACE-06.5)', async () => {
@@ -221,7 +221,7 @@ test('duas coordenações que se removem em sequência: a primeira passa, a segu
   await comoDono(banco);
   const [{ src }] = await q<{ src: string }>(`select prosrc src from pg_proc where proname = 'membro_remover'`);
   const trava = src.search(/from public\.membros b where b\.mandato_id = p_mandato for update/);
-  assert.ok(trava >= 0 && trava < src.indexOf('papel_no_mandato') && trava < src.indexOf("b.papel = 'coordenacao'"), 'trava antes de ler papel e contar');
+  assert.ok(trava >= 0 && trava < src.indexOf('papel_no_mandato') && trava < src.indexOf('nivel_papel(b.papel) >= 3'), 'trava antes de ler papel e contar');
 });
 
 test('a remoção grava membro_removido com ator, alvo e papel, e nenhuma linha em eventos (ACE-06.2, ACE-06.5)', async () => {
@@ -312,7 +312,7 @@ test('membro_sair trava as linhas do mandato antes de contar coordenações, e a
   await comoDono(banco);
   const [{ src }] = await q<{ src: string }>(`select prosrc src from pg_proc where proname = 'membro_sair'`);
   const trava = src.search(/from public\.membros b where b\.mandato_id = p_mandato for update/);
-  assert.ok(trava >= 0 && trava < src.indexOf('papel_no_mandato') && trava < src.indexOf("b.papel = 'coordenacao'"), 'trava antes de ler papel e contar');
+  assert.ok(trava >= 0 && trava < src.indexOf('papel_no_mandato') && trava < src.indexOf('nivel_papel(b.papel) >= 3'), 'trava antes de ler papel e contar');
   await como(banco, null);
   await assert.rejects(sair(), /permission denied/);
   assert.deepEqual(await papeisA(), ESTADO_INICIAL);
@@ -458,7 +458,7 @@ test('cadastro novo, como o Guia faz: quem criou lê o mandato no RETURNING e en
   }
   // outra conta não entra direto no mandato alheio, mesmo vazio
   await como(banco, ASSESSORIA);
-  await assert.rejects(entraDireto(ASSESSORIA, 'coordenacao', id), RLS);
+  await assert.rejects(entraDireto(ASSESSORIA, 'coordenacao', id), /row-level security|já está vinculado/);
   await como(banco, IDS.fora);
   await entraDireto(IDS.fora, 'coordenacao', id);
   assert.deepEqual(await q('select id from public.mandatos'), [{ id }]);
@@ -473,7 +473,7 @@ test('mutante B08: quem cria o mandato não inclui outra conta na primeira linha
     `insert into public.mandatos (codigo, nome_parlamentar, cargo, uf, criado_por) values ('DDD444', 'Parlamentar Quatro', 'Vereador', 'BA', $1)
      returning id`, [IDS.fora]);
   await como(banco, IDS.fora);
-  await assert.rejects(entraDireto(ASSESSORIA, 'coordenacao', id), RLS);
+  await assert.rejects(entraDireto(ASSESSORIA, 'coordenacao', id), /row-level security|já está vinculado/);
   await comoDono(banco);
   assert.deepEqual(await q('select user_id from public.membros where mandato_id = $1', [id]), []);
   await como(banco, IDS.fora);

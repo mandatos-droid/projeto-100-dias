@@ -1,6 +1,6 @@
 // Aba Usuários do /admin: estado da lista na URL, rótulos e paginação (funções puras).
 // Os dados vêm de public.admin_usuarios e public.admin_usuario_detalhe (20261110120000_admin_usuarios.sql).
-import { rotuloPapel, type Papel } from '../convites/papeis.ts';
+import { PAPEIS, rotuloPapel, type Papel } from '../convites/papeis.ts';
 import { ATUACOES, GENEROS, RACAS, type Opcao } from '../perfil/opcoes.ts';
 import { partesBrasilia } from './escala.ts';
 
@@ -102,7 +102,7 @@ export function rotuloUltimoAcesso(iso: string | null): string {
 }
 
 // Papel no mandato com o rótulo do painel (Coordenação, Assessoria, Somente leitura).
-export const rotuloPapelMandato = (p: string) => (['coordenacao', 'assessoria', 'leitura'].includes(p) ? rotuloPapel(p as Papel) : p);
+export const rotuloPapelMandato = (p: string) => ((PAPEIS as readonly string[]).includes(p) ? rotuloPapel(p as Papel) : p);
 
 // Mandato na linha da lista: "Parlamentar · Papel", com "(arquivado)" quando for o caso.
 export function rotuloMandato(m: { nome: string | null; papel: string; arquivado: boolean }): string {

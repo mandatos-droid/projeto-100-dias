@@ -135,3 +135,41 @@
     };
   }
 })();
+
+/* ---------- feedback só para parlamentar e chefe de gabinete ----------
+   No banco as conversas ficam em feedbacks_mandato (RLS: só parlamentar e chefe de gabinete), não em mandatos.dados.
+   Aqui o Store.abrir busca essa linha depois de abrir o mandato, e só para quem pode vê-la; os outros papéis ficam com
+   D.feedbacks vazio e a tela mostra o aviso de sem acesso. O Store.gravar não envia a chave quando a busca falhou
+   (senão gravaria uma lista vazia por cima das conversas) nem quando a pessoa não tem acesso. */
+(function(){
+  if(typeof Store==='undefined'||typeof Store.abrir!=='function'||Store._feedbackSeparado)return;
+  Store._feedbackSeparado=true;
+  function meuPapel(){
+    var eu=Store.usuario&&Store.usuario.id,l=Store.membros||[];
+    for(var i=0;i<l.length;i++)if(l[i].user_id===eu)return l[i].papel;
+    return null;
+  }
+  Store.meuPapel=meuPapel;
+  Store.podeVerFeedback=function(){var p=meuPapel();return p==='parlamentar'||p==='chefe_gabinete'};
+  Store.feedbackFalhou=false;
+  var abrir=Store.abrir,gravar=Store.gravar;
+  Store.abrir=async function(id){
+    var m=await abrir.apply(this,arguments);
+    Store.feedbackFalhou=false;
+    if(typeof NUVEM!=='undefined'&&NUVEM){
+      this.dados.feedbacks=[];
+      if(this.podeVerFeedback()){
+        try{
+          var l=await Nuvem.rest('feedbacks_mandato?mandato_id=eq.'+id+'&select=dados');
+          if(l&&l[0]&&Array.isArray(l[0].dados))this.dados.feedbacks=l[0].dados;
+        }catch(e){Store.feedbackFalhou=true}
+      }
+    }
+    return m;
+  };
+  Store.gravar=async function(){
+    var d=this.dados,guarda=d&&d.feedbacks,tira=typeof NUVEM!=='undefined'&&NUVEM&&(Store.feedbackFalhou||!this.podeVerFeedback());
+    if(tira)delete d.feedbacks;
+    try{return await gravar.apply(this,arguments)}finally{if(tira)d.feedbacks=guarda}
+  };
+})();

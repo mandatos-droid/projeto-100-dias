@@ -135,7 +135,7 @@ export default function Convite() {
       if (r.erro === 'consentimento') { setConcordo(false); setEstado({ ...atual, etapa: 'consentimento', aviso: undefined }); return; }
       if (r.erro === 'invalido') limpaPendente(armSessao());
       // invalido e limite encerram o convite nesta tela; outro e-mail deixa o convite disponível
-      if (r.erro === 'invalido' || r.erro === 'limite') { setEstado({ tipo: 'fim', mensagem: mensagemDe(r) }); return; }
+      if (r.erro === 'invalido' || r.erro === 'limite' || r.erro === 'outro_mandato') { setEstado({ tipo: 'fim', mensagem: mensagemDe(r) }); return; }
       setEstado({ ...atual, etapa: 'sessao', aviso: mensagemDe(r) });
     } catch (e) {
       setEstado({ ...atual, etapa: 'sessao', aviso: mensagemDe(e) });

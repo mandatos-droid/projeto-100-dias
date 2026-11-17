@@ -122,7 +122,7 @@ var Cad={
   /* fim da edição: equipe e conta agora são abas da Área do mandato; aqui fica só a exclusão, num bloco à parte e só para
      a coordenação (AMA-02.4, 02.5). Sem nuvem não há papéis: quem usa o navegador exclui, como antes. */
   zonaRisco:function(){
-    if(NUVEM&&meuPapel()!=='coordenacao')return '';
+    if(NUVEM&&['parlamentar','chefe_gabinete','coordenacao'].indexOf(meuPapel())<0)return '';
     return '<hr class="regra"><section class="zona-risco" aria-labelledby="cadRiscoTit" '+
       'style="border:1px solid var(--erro);border-radius:8px;padding:4px 18px 18px">'+
       '<h3 id="cadRiscoTit">Zona de risco</h3><p class="texto">Apaga este mandato e tudo o que foi preenchido nele, para toda a equipe. Não dá para desfazer.</p>'+
@@ -494,7 +494,11 @@ var Cad={
         this.abrir('editar',false,this.alvo);
       }
     }catch(err){
-      aviso('Não foi possível salvar: '+(err&&err.message?err.message:'tente de novo')+'.');
+      var msg=err&&err.message?err.message:'tente de novo';
+      /* regra de um mandato por e-mail: a política do banco recusa o cadastro com erro técnico em inglês */
+      if(this.modo==='novo'&&/row-level security|vinculado a um mandato/i.test(msg))
+        msg='Este e-mail já está vinculado a um mandato. Cada e-mail só pode integrar um mandato';
+      aviso('Não foi possível salvar: '+msg+'.');
       if(bt){bt.disabled=false;bt.textContent=rot}
     }
   }
@@ -708,7 +712,7 @@ Telas.primeiroAcesso=function(){
 };
 
 /* ---------- Equipe e convites ---------- */
-var PAPEIS={coordenacao:'Coordenação',assessoria:'Assessoria'};
+var PAPEIS={parlamentar:'Parlamentar',chefe_gabinete:'Chefe de Gabinete',coordenacao:'Coordenação',assessoria:'Assessoria',leitura:'Somente leitura'};
 /* a antiga tela #/equipe agora é uma seção de Configurações (#/config) */
 Telas.equipe=function(){location.replace('#/config')};
 Telas.equipeHtml=function(){

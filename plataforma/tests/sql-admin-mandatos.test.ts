@@ -60,7 +60,7 @@ test('adicionar recusa duplicado, pessoa e mandato ausentes e papel fora de coor
   await assert.rejects(chama('select public.admin_membro_adicionar($1, $2, $3)', [A, IDS.membro, 'assessoria']), /Esta pessoa já é membro deste mandato\./);
   await assert.rejects(chama('select public.admin_membro_adicionar($1, $2, $3)', [A, '00000000-0000-4000-8000-00000000ffff', 'assessoria']), /Pessoa não encontrada\./);
   await assert.rejects(chama('select public.admin_membro_adicionar($1, $2, $3)', ['00000000-0000-4000-8000-00000000fffe', IDS.fora, 'assessoria']), /Mandato não encontrado\./);
-  await assert.rejects(chama('select public.admin_membro_adicionar($1, $2, $3)', [A, IDS.fora, 'parlamentar']), /Papel inválido\./);
+  await assert.rejects(chama('select public.admin_membro_adicionar($1, $2, $3)', [A, IDS.fora, 'titular']), /Papel inválido\./);
   assert.deepEqual((await membrosDe(A)).map((x) => x.user_id), [IDS.membro]);
   assert.equal((await auditoria()).length, 0);
 });

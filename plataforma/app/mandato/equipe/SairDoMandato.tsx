@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { saiDoMandato, type PessoaEquipe } from '../../../lib/convites/api.ts';
+import { podeGerirEquipe } from '../../../lib/convites/papeis.ts';
 import { mensagemDe } from '../../../lib/convites/erros.ts';
 import { nomeDoMandato, useMandato } from '../contexto.ts';
 
@@ -20,8 +21,8 @@ export default function SairDoMandato({ pessoas }: Props) {
   const [ocupado, setOcupado] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
   // com a lista na tela, a orientação vem antes do banco; sem a lista, quem decide é o banco
-  const unica = papel === 'coordenacao' && pessoas !== null
-    && !pessoas.some((p) => p.user_id !== usuario.id && p.papel === 'coordenacao');
+  const unica = podeGerirEquipe(papel) && pessoas !== null
+    && !pessoas.some((p) => p.user_id !== usuario.id && podeGerirEquipe(p.papel));
 
   function pede() {
     setAviso(null);

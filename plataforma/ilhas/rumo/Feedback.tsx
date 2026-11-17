@@ -7,7 +7,8 @@ import { coordDe, liderDe } from '@/lib/cadeiras';
 import { COR_COORD } from '@/lib/equipe';
 import { apaga, contagens, edita, migraAntigo, paraGuia, pontosDe, registra, removidas, type Conversa, type LiderancaContada } from '@/lib/feedback';
 import { cargoNome } from '../equipe/cargos';
-import { useLegado } from '../ponte';
+import { podeVerFeedback } from '@/lib/convites/papeis';
+import { feedbackFalhou, meuPapel, useLegado } from '../ponte';
 import { FEEDBACK_AVISO, FEEDBACK_ORIENTACAO } from './textosAlana';
 import './feedback.css';
 
@@ -17,7 +18,23 @@ const rotData = (v: Conversa) => v.data.trim() || 'sem data';
 /** destaques e ajustes vêm com um ponto por linha; no histórico aparecem numa linha só */
 const emLinha = (t: string) => t.split('\n').join(' · ');
 
+/** Entrada da ilha: sem papel de parlamentar ou chefe de gabinete, só o aviso (nenhum hook de conversa roda). */
 export default function Feedback() {
+  const papel = meuPapel();
+  /* sem a linha da pessoa em membros (Guia local, sem nuvem) o papel é desconhecido e nada é bloqueado aqui; o banco decide */
+  if (papel !== null && !podeVerFeedback(papel)) {
+    return (
+      <div className="ilha-corpo rm-fb">
+        <p className="rm-alerta" role="note" data-sem-acesso>
+          Você não tem acesso ao feedback. Só o parlamentar e o chefe de gabinete veem e editam as conversas desta missão.
+        </p>
+      </div>
+    );
+  }
+  return <FeedbackConversas />;
+}
+
+function FeedbackConversas() {
   const { D, bump } = useLegado();
   const c = D.campos;
   const conversas = migraAntigo(D.feedbacks, c);
@@ -80,6 +97,11 @@ export default function Feedback() {
         {FEEDBACK_ORIENTACAO.map((p) => <p key={p}>{p}</p>)}
       </div>
       <p className="rm-alerta" role="note" data-acesso-restrito>{FEEDBACK_AVISO}</p>
+      {feedbackFalhou() && (
+        <p className="rm-alerta" role="alert" data-feedback-falhou>
+          Não foi possível carregar as conversas de feedback. Recarregue a página antes de registrar uma nova, para não perder as anteriores.
+        </p>
+      )}
       {mapa.length === 0 ? (
         <p className="rm-alerta" role="note" data-sem-equipe>
           A equipe da Missão 2 ainda não tem cadeiras com nome para formar o mapa de feedback. <a href="#/m/2/m2.funcoes">Ir para a equipe da Missão 2</a>
