@@ -25,3 +25,13 @@ Em 2026-11-10 um deploy feito sem push no `main` fez a produção voltar a um da
 1. **Antes do deploy**, rode `git fetch` e `git cherry origin/main <branch>`. Linhas com `+` são commits que ainda não estão no `main`; confira se algo publicado antes ou em outra branch seria sobrescrito.
 2. **Termine todo deploy com push no `main`**: `git push origin deploy/<x>:main`. `vercel --prod` publica a pasta do worktree, não o `main`; sem o push, o próximo deploy apaga a correção.
 3. Publique sempre de um worktree limpo, criado a partir de `origin/main` (nunca da pasta compartilhada) e trazendo só os commits da feature por cherry-pick. Como o cherry-pick muda o hash, use `git cherry` (compara por conteúdo), não `main..branch`.
+
+## Protocolo de microtarefa (obrigatorio)
+
+A producao (`origin/main`) e a fonte da verdade. A pasta principal e so um espelho dela: **nunca se edita nela**.
+
+1. Comecar: `bash scripts/sync-principal.sh`, depois `git worktree add ../wt-NOME -b fix/NOME origin/main` e trabalhar la.
+2. Uma tarefa por branch e por sessao. Rodar os testes e commitar.
+3. Deploy (`vercel --prod --yes` na raiz do worktree) e, na mesma sequencia, `git push origin HEAD:main`. Se um falhar, a tarefa nao esta pronta.
+4. Conferir `git cherry origin/main HEAD` sem nenhuma linha `+`.
+5. **Terminar sempre com `bash scripts/sync-principal.sh`**: ele coloca a pasta principal em `origin/main` e avisa se algo foi editado nela por engano. Tarefa so esta concluida depois disso.
