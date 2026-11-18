@@ -1,7 +1,7 @@
 # Graph Report - wt-layout  (2026-11-18)
 
 ## Corpus Check
-- 853 files · ~1,407,881 words
+- 853 files · ~1,407,899 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 18 file(s) not represented in the graph (top: .css 11, (none) 7)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2f5e6b46`
+- Built from commit: `1a7f0e55`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -1196,7 +1196,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `Task Breakdown` be split into smaller, more focused modules?**
   _Cohesion score 0.08333333333333333 - nodes in this community are weakly interconnected._
 - **Why does `@playwright/test` connect `@playwright/test` to `admin-analytics.spec.ts`, `area-equipe-pessoas.spec.ts`, `rumo-plano.spec.ts`, `area-equipe.spec.ts`, `moca`, `admin-analytics-perfil.spec.ts`, `mandato-api.ts`, `rumo-migracao.spec.ts / guia-real.ts`, `rumo-jornal.spec.ts`, `m1-contador.spec.ts`, `admin-detalhe.spec.ts`, `area-equipe-convites.spec.ts`, `semente-rumo.ts`, `area-mandato.spec.ts`, `resumo-regressao.spec.ts`, `rumo-legado.spec.ts / completa`, `resumo-territorio.spec.ts`, `capital-clipping.spec.ts`, `convite-api.ts`, `area-api.ts`, `area-visao.spec.ts`, `admin-transversal.spec.ts`, `admin-logs.spec.ts`, `admin-analytics-uso.spec.ts`, `primeiro-acesso.spec.ts`, `convite-conta.spec.ts`, `package.json`, `area-redirects.spec.ts`, `resumo-estrutura.spec.ts`, `admin-usuarios-detalhe.spec.ts`, `capital-acoes.spec.ts`, `capital-comunicacao.spec.ts`, `m23-estrategia.spec.ts`, `area-conta.spec.ts`, `convite-aceite.spec.ts`, `admin-api.ts`, `m23-plano.spec.ts`, `dadoDe`, `guia-acesso.spec.ts`?**
-  _High betweenness centrality (0.128) - this node is a cross-community bridge._
+  _High betweenness centrality (0.130) - this node is a cross-community bridge._
 - **Should `Regimento Externo 2.0 - Guia / PLL6 - Programacao e Metodo ` be split into smaller, more focused modules?**
   _Cohesion score 0.05052790346907994 - nodes in this community are weakly interconnected._
 - **Why does `Missão 4 Capital Político Design` connect `Missão 4 · Capital Político — Tasks` to `json / build_comissoes.py`, `Missão 4 · Capital Político  / 4. Parte C — Comunicação`, `ilhas/Equipe.tsx`, `Missão 5 · Garanta o avanço  / Missão 5 Avanço Design`?**

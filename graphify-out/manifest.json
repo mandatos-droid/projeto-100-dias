@@ -1698,9 +1698,9 @@
     "semantic_hash": ""
   },
   "plataforma/public/legacy/cadastro.js": {
-    "mtime": 1794970593.333682,
-    "seen": 1795000606.898227,
-    "ast_hash": "de2c542b7c07066ed49c278ff1485a8e",
+    "mtime": 1795024587.9844468,
+    "seen": 1795025558.5785613,
+    "ast_hash": "ec216447193fc4016bb6c312c22e8267",
     "semantic_hash": ""
   },
   "plataforma/public/legacy/conteudo.js": {
@@ -3786,9 +3786,9 @@
     "semantic_hash": ""
   },
   "plataforma/app/mandato/equipe/Equipe.tsx": {
-    "mtime": 1794970592.0011823,
-    "seen": 1795000606.896202,
-    "ast_hash": "02291fd39c251a7efd2ef17f077200f7",
+    "mtime": 1795024235.6218002,
+    "seen": 1795025558.453136,
+    "ast_hash": "c96dd6576d0c9b014d6445cb5354c03b",
     "semantic_hash": ""
   },
   "plataforma/app/mandato/equipe/FormularioConvite.tsx": {
@@ -3798,15 +3798,15 @@
     "semantic_hash": ""
   },
   "plataforma/app/mandato/equipe/ListaConvites.tsx": {
-    "mtime": 1794970592.0059898,
-    "seen": 1795000606.896211,
-    "ast_hash": "0dd4ebf7961909810eac710f1d272317",
+    "mtime": 1795024237.3146005,
+    "seen": 1795025558.4533076,
+    "ast_hash": "def1b49568406e3010410ec97b15dc2f",
     "semantic_hash": ""
   },
   "plataforma/app/mandato/equipe/ListaPessoas.tsx": {
-    "mtime": 1794970592.0081904,
-    "seen": 1795000606.8962162,
-    "ast_hash": "58ab79a402799897a7bc8a552fd529d4",
+    "mtime": 1795024238.812224,
+    "seen": 1795025558.4533114,
+    "ast_hash": "28be211496577897e687b01c354b4b9b",
     "semantic_hash": ""
   },
   "plataforma/app/mandato/equipe/SairDoMandato.tsx": {
@@ -4866,9 +4866,9 @@
     "semantic_hash": ""
   },
   "plataforma/ilhas/AreaConta.tsx": {
-    "mtime": 1794970592.1620185,
-    "seen": 1795000606.8966491,
-    "ast_hash": "a0a93fca335343e0d390243069cb3e3e",
+    "mtime": 1795024233.5038133,
+    "seen": 1795025558.4673705,
+    "ast_hash": "51684293bb516f0426f1875e338a3c6c",
     "semantic_hash": ""
   },
   "plataforma/ilhas/AreaEquipe.tsx": {
@@ -4878,9 +4878,9 @@
     "semantic_hash": ""
   },
   "plataforma/ilhas/AreaVisao.tsx": {
-    "mtime": 1794970592.1650176,
-    "seen": 1795000606.8966582,
-    "ast_hash": "a732ec52eb1181a3f9b474272192132f",
+    "mtime": 1795024231.7731483,
+    "seen": 1795025558.4677072,
+    "ast_hash": "570e75bf83f7cae898b7ead23262a59a",
     "semantic_hash": ""
   },
   "plataforma/ilhas/ResumoEquipe.tsx": {
