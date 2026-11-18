@@ -99,9 +99,19 @@
       '<textarea data-k="'+c.k+'" placeholder="Escreva aqui a resposta da equipe"></textarea></label>';
   }
   function ta(k){return new RegExp('<textarea data-k="'+k.replace(/\./g,'\\.')+'"[^>]*></textarea>')}
+  function caixasDe(it){
+    if(it.k==='m1.q3'&&it.caixas.length===4){
+      var ant=it.caixas[0].antes||'';
+      var cols=it.caixas.slice(0,3).map(function(c){
+        return caixa({k:c.k,resumo:c.resumo,rot:c.rot});
+      }).join('');
+      return ant+'<div class="np-3col">'+cols+'</div>'+caixa(it.caixas[3]);
+    }
+    return it.caixas.map(caixa).join('');
+  }
   /* troca a caixa única do item (ou o espaço dela) pelas caixas do item */
   function injeta(h,it){
-    var cx=it.caixas.map(caixa).join(''),pos=it.depois&&it.ilha?'<div class="ilha" data-ilha="'+it.ilha+'"></div>':null;
+    var cx=caixasDe(it),pos=it.depois&&it.ilha?'<div class="ilha" data-ilha="'+it.ilha+'"></div>':null;
     var MARCA='\u0001',vazio='<label class="campo"></label>';
     h=h.replace(ta(it.k),MARCA).replace(vazio,'');
     if(pos&&h.indexOf(pos)>=0)return h.replace(MARCA,'').replace(pos,function(){return pos+cx});
@@ -126,8 +136,14 @@
   };
   var _gb2=Guia.bloco;
   Guia.bloco=function(p,n){
-    if(p&&p.k==='m1.atores')return caixa(ATORES);
-    return _gb2.call(this,p,n);
+    var h=p&&p.k==='m1.atores'?caixa(ATORES):_gb2.call(this,p,n);
+    var eid=this.ex&&this.ex.id;
+    if(eid==='m1.persona')return '<div class="np-sec-card">'+h+'</div>';
+    if(eid==='m1.conjuntura'){
+      var cid=p&&p.k==='m1.atores'?'cj-23':p&&p.k==='pergunta'&&p.n===0?'cj-21':p&&p.k==='pergunta'&&p.n===1?'cj-22':'';
+      return '<div class="np-sec-card"'+(cid?' id="'+cid+'"':'')+'>'+h+'</div>';
+    }
+    return h;
   };
   var _cp=Comp.perguntas;
   Comp.perguntas=function(ex){
@@ -212,6 +228,21 @@
     if(!m1)return;
     var tl=document.getElementById('tela'),bt=tl&&tl.querySelector('button[onclick="Guia.alternarModo()"]');
     if(bt&&bt.parentNode)bt.parentNode.removeChild(bt);
+    var eid=this.ex&&this.ex.id;
+    if(tl&&(eid==='m1.persona'||eid==='m1.conjuntura')){
+      var anc=eid==='m1.conjuntura'?'<nav class="np-ancoras" aria-label="Atalhos desta etapa">'+
+        '<button type="button" onclick="document.getElementById(\'cj-21\').scrollIntoView({behavior:\'smooth\'})">2.1 Legislatura e Hemiciclo</button>'+
+        '<button type="button" onclick="document.getElementById(\'cj-22\').scrollIntoView({behavior:\'smooth\'})">2.2 Força do Partido e Municípios</button>'+
+        '<button type="button" onclick="document.getElementById(\'cj-23\').scrollIntoView({behavior:\'smooth\'})">2.3 Atores Políticos do Entorno</button></nav>':'';
+      if(tl.querySelectorAll){
+        tl.querySelectorAll('.passo-corpo > hr.regra').forEach(function(hr){if(hr.parentNode)hr.parentNode.removeChild(hr)});
+        var pc=tl.querySelector('.passo-corpo');
+        if(anc&&pc&&pc.insertAdjacentHTML)pc.insertAdjacentHTML('beforebegin',anc);
+      }else if(tl.innerHTML){
+        tl.innerHTML=tl.innerHTML.replace(/<hr class="regra">/g,'');
+        if(anc)tl.innerHTML=tl.innerHTML.replace('<div class="passo-corpo">',anc+'<div class="passo-corpo">');
+      }
+    }
   };
   var _ir=Guia.ir;
   Guia.ir=function(n){
@@ -224,6 +255,48 @@
     if(!this.m||this.m.n!==1)return;
     var h=location.hash||'',base='#/m/1/'+this.ex.id;
     if(h!==base&&h.indexOf(base+'/')===0&&history.replaceState)history.replaceState(null,'',base);
+  };
+})();
+
+/* ---------- Capa da Missão 1 (#/m/1) no layout Nova Proposta ---------- */
+(function(){
+  if(typeof Telas==='undefined'||!Telas.missao||typeof MISSOES==='undefined')return;
+  var _tm=Telas.missao;
+  Telas.missao=function(n){
+    if(n!==1)return _tm.apply(this,arguments);
+    var m=MISSOES.filter(function(x){return x.n===1})[0];
+    if(!m)return this.painel();
+    var p=progMissao(m);
+    var h='<div class="etiqueta">Missão '+m.n+' · '+esc(m.prazoTxt)+
+      (dataPrazo(m)&&!m.continua?' · até '+dBRc(dataPrazo(m)):'')+'</div>'+
+      '<div class="np-card" style="border-left:6px solid '+m.cor+';margin-bottom:1.5rem">'+
+        '<h1 class="largo" style="font-size:clamp(1.85rem,3.4vw,2.65rem)">'+esc(m.titulo)+'</h1>'+
+        '<p class="chamada" style="margin-bottom:0">'+esc(m.abre)+'</p>'+
+      '</div>'+
+      '<div class="np-m1-pilares">'+m.agenda.map(function(a,i){
+        return '<div class="np-pilar" style="--c:'+m.cor+'"><b>'+(i+1)+'</b><span>'+esc(a)+'</span></div>';
+      }).join('')+'</div>'+
+      '<div class="np-card" style="margin-bottom:1.5rem">'+
+        '<div class="texto">'+m.resumo+'</div>'+
+        '<div class="quadro">'+
+          '<div><h4>Ao terminar você terá</h4><ul>'+m.entrega.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div>'+
+          '<div><h4>Momento ideal</h4><ul>'+m.momento.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div>'+
+          '<div><h4>Quem conduz</h4><ul>'+m.lidera.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div>'+
+        '</div>'+
+        '<p style="font-size:13.5px;color:var(--tinta-3);margin:0">'+esc(NOTA_PRAZO)+'</p>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.75rem">'+
+        '<h2 style="margin:0">Mão na massa <span style="font-family:Commissioner;font-size:15px;font-weight:700;color:var(--tinta-3)">'+p.feitos+' de '+p.total+'</span></h2>'+
+      '</div>'+
+      '<div class="np-ex-grid">'+m.exercicios.map(function(ex,idx){
+        var e=estadoEx(ex);
+        return '<button type="button" class="np-ex-card ex-item '+e+'" onclick="location.hash=\'#/m/'+m.n+'/'+ex.id+'\'">'+
+          '<div style="display:flex;align-items:center;gap:12px;width:100%;flex-wrap:wrap"><span class="sinal"></span><span class="ex-t" style="margin:0">'+(idx+1)+'. '+esc(ex.t)+'</span><span class="selo '+e+'" style="margin-left:auto">'+Telas.estadoTxt(ex,e)+'</span></div>'+
+          '<p class="ex-d">'+esc(ex.d)+'</p>'+
+          '<span style="font-size:0.84rem;font-weight:700;color:var(--vinho)">Abrir etapa →</span></button>';
+      }).join('')+'</div>'+
+      (m.fecho?'<div class="apoio exemplo" style="margin-top:1.25rem"><span class="tag">Pronto</span>'+m.fecho+'</div>':'');
+    document.getElementById('tela').innerHTML=h;
   };
 })();
 

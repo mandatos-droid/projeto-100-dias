@@ -274,18 +274,24 @@ export default function Persona() {
                 </p>
               )}
 
-              <h4>Posição no ranking de votos</h4>
-              <ol className="rk-lista">
-                {ranking.map((r) => (
-                  <li className={`rk-linha ${r.s === c.s ? 'dest' : ''} ${r.e ? '' : 'nao'}`} key={r.s}>
-                    <span className="rk-pos">{casa.cands.indexOf(r) + 1}º</span>
-                    <span className="rk-nome"><strong>{r.u}</strong> <Chip p={r.p} /></span>
-                    <span className="rk-v">{nf.format(r.v)}</span>
-                  </li>
-                ))}
-              </ol>
-              <p className="peq-t">Em cinza, quem não foi eleito. Fonte: resultados.tse.jus.br, totalização de {casa.atualizado}.</p>
-              <MaisVotados />
+              <div className="np-2col" style={{ marginTop: '1rem' }}>
+                <div>
+                  <h4>Posição no ranking de votos</h4>
+                  <ol className="rk-lista">
+                    {ranking.map((r) => (
+                      <li className={`rk-linha ${r.s === c.s ? 'dest' : ''} ${r.e ? '' : 'nao'}`} key={r.s}>
+                        <span className="rk-pos">{casa.cands.indexOf(r) + 1}º</span>
+                        <span className="rk-nome"><strong>{r.u}</strong> <Chip p={r.p} /></span>
+                        <span className="rk-v">{nf.format(r.v)}</span>
+                      </li>
+                    ))}
+                  </ol>
+                  <p className="peq-t">Em cinza, quem não foi eleito. Fonte: resultados.tse.jus.br, totalização de {casa.atualizado}.</p>
+                </div>
+                <div>
+                  <MaisVotados />
+                </div>
+              </div>
             </>
           )}
         </Cartao>

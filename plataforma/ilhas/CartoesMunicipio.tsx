@@ -1,7 +1,7 @@
 'use client';
 /* Cartões de município do partido na Conjuntura (pergunta 2.2): um por município mais votado da liderança, com os blocos
    Placar, Força e Executivo (PAR-04 a PAR-08). Sem votação 2026 por município, só o município de domicílio (PAR-08). */
-import { useMemo } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { carregaGeo } from '@/lib/dados';
 import { cincoMais } from '@/lib/maisVotados';
 import { nf, pct } from '@/lib/format';
@@ -48,6 +48,8 @@ export function CartoesMunicipio({ alvo, partido, uf, c, munUF, fil, exUF, pctUF
   alvo: AlvoMun; partido: string; uf: string; c: Conj2; munUF?: MunUF; fil?: FiliadosUF; exUF?: ExecUF; pctUF: number | null; nomeUF: string;
 }) {
   const { D, m, bump } = useLegado();
+  const [slide, setSlide] = useState(0);
+  const trilhoRef = useRef<HTMLDivElement>(null);
   const cdiDomicilio = (D.tse as { cdi?: string }).cdi || m.municipio || '';
 
   if (alvo.carregando) return <p className="sem" role="status">Buscando os municípios mais votados…</p>;
@@ -62,80 +64,119 @@ export function CartoesMunicipio({ alvo, partido, uf, c, munUF, fil, exUF, pctUF
     bump();
   };
 
+  const renderCartao = (it: ItemMun) => {
+    const n = numerosMun(it, munUF, fil, alvo.casa, partido);
+    const mun = munUF.mun[it.cdi];
+    const reg = exUF?.pref[it.cdi];
+    const eleito = mun?.m24?.pref.cands.find((q) => q[4]);
+    const sug = sugere(reg, partido);
+    const escolhido = salvo(it.cdi) || null;
+    const efetivo = escolhido ?? sug;
+    return (
+      <li className="cm5-cartao" key={it.cdi} data-testid="cartao-municipio">
+        <header className="cm5-topo">
+          {it.pos ? <span className="mv5-pos" aria-label={`${it.pos}º lugar`}>{it.pos}º</span> : null}
+          <strong className="mv5-nome">{n.nome}</strong>
+          {it.votos ? <span className="peq-t">{nf.format(it.votos)} votos da liderança</span> : null}
+        </header>
+
+        <div className="cm5-bloco" role="group" aria-label={`Placar de ${n.nome}`}>
+          <h5>Placar</h5>
+          <dl className="cm5-dl">
+            <div><dt>Vereadores no município</dt><dd>{mun?.m24 ? nf.format(n.vereadoresTotal) : '—'}</dd></div>
+            <div><dt>Vereadores do {partido}</dt>{mun?.m24
+              ? <dd {...capturavel({ id: `mun:${it.cdi}:vereadores`, nome: `Vereadores do partido em ${n.nome}`, valor: nf.format(n.vereadoresPartido) })}>{nf.format(n.vereadoresPartido)}</dd>
+              : <dd>—</dd>}</div>
+            <div><dt>Filiados do {partido}</dt>{fil
+              ? <dd {...capturavel({ id: `mun:${it.cdi}:filiados`, nome: `Filiados do partido em ${n.nome}`, valor: nf.format(n.filiados) })}>{nf.format(n.filiados)}</dd>
+              : <dd>—</dd>}</div>
+            <div><dt>Posição do {partido} diante do Executivo</dt><dd>{efetivo ? ROT_POS[efetivo] : 'Não informada'}</dd></div>
+          </dl>
+          {reg ? (
+            <div className="casa-pref">
+              {eleito ? <Foto sq={eleito[3]} uf={uf} ano={2024} nome={reg.n} tam={44} /> : null}
+              <div>
+                <span className="peq-t">Prefeito(a) · eleição de 2024</span><br />
+                <strong>{reg.n}</strong> <Chip p={reg.p} />
+              </div>
+            </div>
+          ) : <p className="sem">Sem prefeito eleito em 2024 neste município no arquivo do TSE.</p>}
+          {mun && (
+            <details className="cm5-camara">
+              <summary>Ver a Câmara Municipal</summary>
+              <CasaMunicipal id={it.cdi} uf={uf} mun={mun} exec={reg} partido={partido} />
+            </details>
+          )}
+        </div>
+
+        <div className="cm5-bloco" role="group" aria-label={`Força de ${n.nome}`}>
+          <h5>Força</h5>
+          {n.pct == null ? <p className="sem">Sem votação do cargo da liderança neste município.</p> : (
+            <dl className="cm5-dl">
+              <div><dt>Votos do {partido} em {n.nome}</dt><dd {...capturavel({ id: `mun:${it.cdi}:pct`, nome: `% de votos do partido em ${n.nome}`, valor: pct(n.pct) })}>{pct(n.pct)}</dd></div>
+              <div><dt>Votos do {partido} em {nomeUF}</dt><dd>{pctUF == null ? '—' : pct(pctUF)}</dd></div>
+            </dl>
+          )}
+        </div>
+
+        <div className="cm5-bloco" role="group" aria-label={`Executivo de ${n.nome}`}>
+          <h5>Executivo</h5>
+          <div className="v2-seg" role="radiogroup" aria-label={`Posição do partido diante da prefeitura de ${n.nome}`}>
+            {POSICOES.map((p) => (
+              <button key={p.k} type="button" role="radio" aria-checked={efetivo === p.k}
+                onClick={() => grava(it.cdi, escolhido === p.k ? '' : p.k)}>
+                {p.rot}{!escolhido && sug === p.k ? <small> · sugerido</small> : null}
+              </button>
+            ))}
+          </div>
+        </div>
+      </li>
+    );
+  };
+
+  if (alvo.itens.length <= 1) {
+    return (
+      <section className="cm5" aria-labelledby="cm5-t">
+        <h4 id="cm5-t">Município da liderança</h4>
+        <ol className="cm5-lista">{alvo.itens.map(renderCartao)}</ol>
+      </section>
+    );
+  }
+
+  const grupos: ItemMun[][] = [];
+  for (let i = 0; i < alvo.itens.length; i += 3) grupos.push(alvo.itens.slice(i, i + 3));
+  const ativo = Math.min(slide, grupos.length - 1);
+  const ir = (idx: number) => {
+    const prox = Math.max(0, Math.min(idx, grupos.length - 1));
+    setSlide(prox);
+    const el = trilhoRef.current;
+    const alvoEl = el?.children[prox] as HTMLElement | undefined;
+    if (el && alvoEl) el.scrollTo({ left: alvoEl.offsetLeft, behavior: 'smooth' });
+  };
+  const aoRolar = () => {
+    const el = trilhoRef.current;
+    if (!el || !el.clientWidth) return;
+    const idx = Math.round(el.scrollLeft / el.clientWidth);
+    if (idx >= 0 && idx < grupos.length && idx !== ativo) setSlide(idx);
+  };
+
   return (
-    <section className="cm5" aria-labelledby="cm5-t">
-      <h4 id="cm5-t">{alvo.itens.length > 1 ? 'Os 5 municípios mais votados da liderança' : 'Município da liderança'}</h4>
-      <ol className="cm5-lista">
-        {alvo.itens.map((it) => {
-          const n = numerosMun(it, munUF, fil, alvo.casa, partido);
-          const mun = munUF.mun[it.cdi];
-          const reg = exUF?.pref[it.cdi];
-          const eleito = mun?.m24?.pref.cands.find((q) => q[4]);
-          const sug = sugere(reg, partido);
-          const escolhido = salvo(it.cdi) || null;
-          const efetivo = escolhido ?? sug;
-          return (
-            <li className="cm5-cartao" key={it.cdi} data-testid="cartao-municipio">
-              <header className="cm5-topo">
-                {it.pos ? <span className="mv5-pos" aria-label={`${it.pos}º lugar`}>{it.pos}º</span> : null}
-                <strong className="mv5-nome">{n.nome}</strong>
-                {it.votos ? <span className="peq-t">{nf.format(it.votos)} votos da liderança</span> : null}
-              </header>
-
-              <div className="cm5-bloco" role="group" aria-label={`Placar de ${n.nome}`}>
-                <h5>Placar</h5>
-                <dl className="cm5-dl">
-                  <div><dt>Vereadores no município</dt><dd>{mun?.m24 ? nf.format(n.vereadoresTotal) : '—'}</dd></div>
-                  <div><dt>Vereadores do {partido}</dt>{mun?.m24
-                    ? <dd {...capturavel({ id: `mun:${it.cdi}:vereadores`, nome: `Vereadores do partido em ${n.nome}`, valor: nf.format(n.vereadoresPartido) })}>{nf.format(n.vereadoresPartido)}</dd>
-                    : <dd>—</dd>}</div>
-                  <div><dt>Filiados do {partido}</dt>{fil
-                    ? <dd {...capturavel({ id: `mun:${it.cdi}:filiados`, nome: `Filiados do partido em ${n.nome}`, valor: nf.format(n.filiados) })}>{nf.format(n.filiados)}</dd>
-                    : <dd>—</dd>}</div>
-                  <div><dt>Posição do {partido} diante do Executivo</dt><dd>{efetivo ? ROT_POS[efetivo] : 'Não informada'}</dd></div>
-                </dl>
-                {reg ? (
-                  <div className="casa-pref">
-                    {eleito ? <Foto sq={eleito[3]} uf={uf} ano={2024} nome={reg.n} tam={44} /> : null}
-                    <div>
-                      <span className="peq-t">Prefeito(a) · eleição de 2024</span><br />
-                      <strong>{reg.n}</strong> <Chip p={reg.p} />
-                    </div>
-                  </div>
-                ) : <p className="sem">Sem prefeito eleito em 2024 neste município no arquivo do TSE.</p>}
-                {mun && (
-                  <details className="cm5-camara">
-                    <summary>Ver a Câmara Municipal</summary>
-                    <CasaMunicipal id={it.cdi} uf={uf} mun={mun} exec={reg} partido={partido} />
-                  </details>
-                )}
-              </div>
-
-              <div className="cm5-bloco" role="group" aria-label={`Força de ${n.nome}`}>
-                <h5>Força</h5>
-                {n.pct == null ? <p className="sem">Sem votação do cargo da liderança neste município.</p> : (
-                  <dl className="cm5-dl">
-                    <div><dt>Votos do {partido} em {n.nome}</dt><dd {...capturavel({ id: `mun:${it.cdi}:pct`, nome: `% de votos do partido em ${n.nome}`, valor: pct(n.pct) })}>{pct(n.pct)}</dd></div>
-                    <div><dt>Votos do {partido} em {nomeUF}</dt><dd>{pctUF == null ? '—' : pct(pctUF)}</dd></div>
-                  </dl>
-                )}
-              </div>
-
-              <div className="cm5-bloco" role="group" aria-label={`Executivo de ${n.nome}`}>
-                <h5>Executivo</h5>
-                <div className="v2-seg" role="radiogroup" aria-label={`Posição do partido diante da prefeitura de ${n.nome}`}>
-                  {POSICOES.map((p) => (
-                    <button key={p.k} type="button" role="radio" aria-checked={efetivo === p.k}
-                      onClick={() => grava(it.cdi, escolhido === p.k ? '' : p.k)}>
-                      {p.rot}{!escolhido && sug === p.k ? <small> · sugerido</small> : null}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </li>
-          );
-        })}
-      </ol>
+    <section className="cm5 np-mun5-slide" aria-labelledby="cm5-t">
+      <h4 id="cm5-t">Os 5 municípios mais votados da liderança</h4>
+      <div className="np-mun5-trilho" ref={trilhoRef} onScroll={aoRolar}>
+        {grupos.map((grupo, gi) => (
+          <ol className="cm5-lista np-mun5-grupo" key={gi} start={gi * 3 + 1}>
+            {grupo.map(renderCartao)}
+          </ol>
+        ))}
+      </div>
+      {grupos.length > 1 && (
+        <nav className="slides-nav" style={{ marginTop: '0.75rem' }} aria-label="Slides dos municípios">
+          <button type="button" className="bt fant peq" disabled={ativo === 0} onClick={() => ir(ativo - 1)}>‹ Anterior</button>
+          <span className="peq-t" style={{ margin: 0 }} aria-live="polite">Slide {ativo + 1} de {grupos.length} ({grupos[ativo].length} municípios)</span>
+          <button type="button" className="bt fant peq" disabled={ativo >= grupos.length - 1} onClick={() => ir(ativo + 1)}>Próximo ›</button>
+        </nav>
+      )}
     </section>
   );
 }

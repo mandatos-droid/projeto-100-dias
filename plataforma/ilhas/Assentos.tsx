@@ -283,59 +283,63 @@ export default function Assentos() {
 
           <section className="ass-main">
             {base.length > 0 && (
-              <>
-                <Hemiciclo membros={membros} partidos={new Set()} filtroStatus="todos" visivel={vis} selecionado={sel}
-                  proprio={meuSq} onSelecionar={(k) => { setSel(k === sel ? null : k); }} />
-                <ul className="legenda" aria-label="Legenda das formas">
-                  <li><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="#9a8f86" /></svg> sem marcação</li>
-                  {CATEGORIAS.map((c) => <li key={c.k}><Marca tipo={c.k} tam={13} /> {ROT_REL[c.k].toLowerCase()}</li>)}
-                  <li><Marca tipo="proprio" tam={13} /> esta liderança</li>
-                  <li>cor = partido · esmaecido = fora do filtro</li>
-                </ul>
-                {escopo === 'BR' && casa === 'estadual' && (
-                  <p className="peq-t" style={{ textAlign: 'center' }}>Visão nacional das assembleias: passe o mouse nas cadeiras ou escolha um estado no seletor de território para detalhar.</p>
-                )}
-              </>
-            )}
-
-            <div ref={fichaRef}>
-              {atual && (
-                <div className="ficha-sel">
-                  <div className="topo">
-                    <span className="com-foto"><Foto sq={atual.s} uf={atual.uf} ano={2026} nome={atual.u} tam={64} /><strong>{atual.u}</strong></span>
-                    <button type="button" className="rm" onClick={() => setSel(null)} aria-label="Fechar">×</button>
-                  </div>
-                  <p className="peq-t">{atual.c}</p>
-                  <p><Chip p={atual.p} /> <span className="selo ok">{cargoEleito(atual)} · {atual.uf}</span>
-                    {meuSq === atual.s && <span className="selo ok" style={{ marginLeft: 6 }}><Marca tipo="proprio" tam={11} /> Esta liderança</span>}</p>
-                  <p className="peq-t">
-                    {atual.g === 'F' ? 'Mulher' : 'Homem'}{atual.r && ` · ${RACA.find(([k]) => k === atual.r)?.[1]}`}
-                    {' · '}{atual.m === 'r' ? 'reeleição' : atual.m === '?' ? 'eleição em 2022, mandato até 2031' : 'primeiro mandato no cargo'}
-                  </p>
-                  {atual.a === 2026 && (
-                    <p style={{ margin: '4px 0 10px' }}><strong>{nf.format(atual.v)}</strong> votos · <strong>{pct(atual.x)}</strong> dos válidos em {atual.uf}</p>
+              <div className="np-2col np-hemi-grid">
+                <div>
+                  <Hemiciclo membros={membros} partidos={new Set()} filtroStatus="todos" visivel={vis} selecionado={sel}
+                    proprio={meuSq} onSelecionar={(k) => { setSel(k === sel ? null : k); }} />
+                  <ul className="legenda" aria-label="Legenda das formas">
+                    <li><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="#9a8f86" /></svg> sem marcação</li>
+                    {CATEGORIAS.map((c) => <li key={c.k}><Marca tipo={c.k} tam={13} /> {ROT_REL[c.k].toLowerCase()}</li>)}
+                    <li><Marca tipo="proprio" tam={13} /> esta liderança</li>
+                    <li>cor = partido · esmaecido = fora do filtro</li>
+                  </ul>
+                  {escopo === 'BR' && casa === 'estadual' && (
+                    <p className="peq-t" style={{ textAlign: 'center' }}>Visão nacional das assembleias: passe o mouse nas cadeiras ou escolha um estado no seletor de território para detalhar.</p>
                   )}
-                  {meuSq !== atual.s && (() => {
-                    // PAR-05: na ficha a relação aparece uma vez, com troca compacta e remoção (a linha da tabela mantém os 5 botões)
-                    const st = statusDe(atual.s);
-                    const cat = CATEGORIAS.find((c) => c.k === st);
-                    return (
-                      <div className="ficha-relacao">
-                        {cat && <p className="cartao-class-cat"><Marca tipo={cat.k} tam={13} /> {cat.rot}</p>}
-                        <select className="cartao-class-troca" aria-label={`Trocar a relação de ${atual.u}`} value={cat ? st : ''}
-                          onChange={(ev) => marca(atual.s, relDe(atual), st, ev.target.value as Status)}>
-                          {!cat && <option value="" disabled>Sem classificação</option>}
-                          {CATEGORIAS.map((c) => <option key={c.k} value={c.k}>{c.rot}</option>)}
-                        </select>
-                        {cat && <button type="button" className="link-bt" onClick={() => marca(atual.s, relDe(atual), st, st)}>
-                          Remover classificação<span className="so-leitor"> de {atual.u}</span>
-                        </button>}
-                      </div>
-                    );
-                  })()}
                 </div>
-              )}
-            </div>
+
+                <div ref={fichaRef} className="np-ficha-sticky">
+                  {atual ? (
+                    <div className="ficha-sel">
+                      <div className="topo">
+                        <span className="com-foto"><Foto sq={atual.s} uf={atual.uf} ano={2026} nome={atual.u} tam={64} /><strong>{atual.u}</strong></span>
+                        <button type="button" className="rm" onClick={() => setSel(null)} aria-label="Fechar">×</button>
+                      </div>
+                      <p className="peq-t">{atual.c}</p>
+                      <p><Chip p={atual.p} /> <span className="selo ok">{cargoEleito(atual)} · {atual.uf}</span>
+                        {meuSq === atual.s && <span className="selo ok" style={{ marginLeft: 6 }}><Marca tipo="proprio" tam={11} /> Esta liderança</span>}</p>
+                      <p className="peq-t">
+                        {atual.g === 'F' ? 'Mulher' : 'Homem'}{atual.r && ` · ${RACA.find(([k]) => k === atual.r)?.[1]}`}
+                        {' · '}{atual.m === 'r' ? 'reeleição' : atual.m === '?' ? 'eleição em 2022, mandato até 2031' : 'primeiro mandato no cargo'}
+                      </p>
+                      {atual.a === 2026 && (
+                        <p style={{ margin: '4px 0 10px' }}><strong>{nf.format(atual.v)}</strong> votos · <strong>{pct(atual.x)}</strong> dos válidos em {atual.uf}</p>
+                      )}
+                      {meuSq !== atual.s && (() => {
+                        // PAR-05: na ficha a relação aparece uma vez, com troca compacta e remoção (a linha da tabela mantém os 5 botões)
+                        const st = statusDe(atual.s);
+                        const cat = CATEGORIAS.find((c) => c.k === st);
+                        return (
+                          <div className="ficha-relacao">
+                            {cat && <p className="cartao-class-cat"><Marca tipo={cat.k} tam={13} /> {cat.rot}</p>}
+                            <select className="cartao-class-troca" aria-label={`Trocar a relação de ${atual.u}`} value={cat ? st : ''}
+                              onChange={(ev) => marca(atual.s, relDe(atual), st, ev.target.value as Status)}>
+                              {!cat && <option value="" disabled>Sem classificação</option>}
+                              {CATEGORIAS.map((c) => <option key={c.k} value={c.k}>{c.rot}</option>)}
+                            </select>
+                            {cat && <button type="button" className="link-bt" onClick={() => marca(atual.s, relDe(atual), st, st)}>
+                              Remover classificação<span className="so-leitor"> de {atual.u}</span>
+                            </button>}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  ) : (
+                    <p className="sem np-ficha-vazia">Clique em uma cadeira do hemiciclo ou em uma linha da tabela para inspecionar o perfil.</p>
+                  )}
+                </div>
+              </div>
+            )}
           </section>
 
           <Classificados />
@@ -360,7 +364,7 @@ export default function Assentos() {
                         {escopo === 'BR' && <td>{e.uf}</td>}
                         <td className="peq-t">{e.g === 'F' ? 'Mulher' : 'Homem'} · {RACA.find(([k]) => k === e.r)?.[1] ?? '—'} · {e.m === 'r' ? 'reeleição' : e.m === '?' ? '2022' : '1º mandato'}</td>
                         <td>{e.a === 2022 ? '—' : nf.format(e.v)}</td>
-                        <td onClick={(ev) => ev.stopPropagation()}>{meuSq === e.s ? <span className="peq-t" aria-hidden="true">—</span> : <StatusBotoes chave={e.s} rel={relDe(e)} />}</td>
+                        <td onClick={(ev) => { if ((ev.target as HTMLElement).closest('button')) ev.stopPropagation(); }}>{meuSq === e.s ? <span className="peq-t" aria-hidden="true">—</span> : <StatusBotoes chave={e.s} rel={relDe(e)} />}</td>
                       </tr>
                     );
                   })}
