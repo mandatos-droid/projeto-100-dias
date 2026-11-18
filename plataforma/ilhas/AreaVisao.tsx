@@ -19,8 +19,10 @@ function Visao() {
       {!mandato.data_posse && (
         <p className="md-aviso" role="status">{AVISO_POSSE} <a href="#/config/dados">Informar agora</a></p>
       )}
-      <CartaoMandato nivel={2} />
-      <ResumoEquipe convidar="#/config/equipe" />
+      <div className="np-md-grid">
+        <CartaoMandato nivel={2} />
+        <ResumoEquipe convidar="#/config/equipe" />
+      </div>
       <Atividade />
     </div>
   );

@@ -39,7 +39,7 @@ function Conta() {
   const [antes, contato] = CORRIGIR.split('contato@legislabrasil.org');
   return (
     <section className="md-card md-pilha" aria-label="Seus dados">
-      <dl style={{ margin: 0, display: 'grid', gap: 12 }}>
+      <dl className="np-conta-grid" style={{ margin: 0 }}>
         {estado.linhas.map((l) => (
           <div key={l.rotulo}>
             <dt className="md-rotulo">{l.rotulo}</dt>

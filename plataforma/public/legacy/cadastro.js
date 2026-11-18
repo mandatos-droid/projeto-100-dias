@@ -135,7 +135,7 @@ var Cad={
   zonaRisco:function(){
     if(NUVEM&&['parlamentar','chefe_gabinete','coordenacao'].indexOf(meuPapel())<0)return '';
     return '<hr class="regra"><section class="zona-risco" aria-labelledby="cadRiscoTit" '+
-      'style="border:1px solid var(--erro);border-radius:8px;padding:4px 18px 18px">'+
+      'style="border:1px solid var(--erro);border-radius:8px;padding:4px 18px 18px;background:#fff">'+
       '<h3 id="cadRiscoTit">Zona de risco</h3><p class="texto">Apaga este mandato e tudo o que foi preenchido nele, para toda a equipe. Não dá para desfazer.</p>'+
       '<div class="bts"><button type="button" class="bt sec" id="cadExcluir" style="color:var(--erro);border-color:var(--erro)" onclick="Cad.excluir(this)">Excluir cadastro</button></div></section>';
   },
@@ -185,7 +185,7 @@ var Cad={
       (this.sel?'<div class="bts" style="margin:0 0 18px"><button type="button" class="bt fant peq" onclick="Cad.cancelarTroca()">← Manter '+esc(this.sel.nome)+'</button></div>':'')+
       '<fieldset class="cad-fs"><legend>Cargo</legend><div class="cad-pills" id="cadCargos">'+pills+'</div>'+
       '<p class="cad-erro" id="e_cadCargos" role="alert"></p></fieldset>'+
-      '<div class="linha-campos c2" style="max-width:62ch">'+
+      '<div class="linha-campos c2">'+
       '<label class="campo" style="margin-bottom:8px"><span class="rot">Estado (UF)</span>'+
       '<select id="cadUf" name="uf" autocomplete="off" onchange="Cad.ufMuda(this.value)">'+ufs+'</select>'+
       '<span class="cad-erro" id="e_cadUf" role="alert"></span></label>'+

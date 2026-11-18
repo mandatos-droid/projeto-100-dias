@@ -76,17 +76,17 @@ export default function ListaPessoas({ pessoas, erro, aoTrocar, aoRemover, aoTen
             const eu = p.user_id === usuario.id;
             const nome = nomeDe(p);
             return (
-              <li key={p.user_id}>
-                <span className={`md-av md-av--${CORES[i % CORES.length]}`} aria-hidden="true">{iniciais(p.nome || p.email)}</span>
-                <span className="md-cresce">
-                  <span>
+              <li key={p.user_id} className="np-membro-linha">
+                <span className="np-membro-id">
+                  <span className={`md-av md-av--${CORES[i % CORES.length]}`} aria-hidden="true">{iniciais(p.nome || p.email)}</span>
+                  <span className="np-membro-nome">
                     <strong>{nome}</strong>
                     {eu && <> <span className="md-voce">você</span></>}
                   </span>
-                  {p.email && <span className="md-mut">{p.email}</span>}
                 </span>
-                {gere && !eu ? (
-                  <>
+                <span className="md-mut np-membro-email">{p.email ?? ''}</span>
+                <span className="np-membro-papel">
+                  {gere && !eu ? (
                     <select
                       value={p.papel}
                       onChange={(e) => troca(p, e.target.value as Papel)}
@@ -95,6 +95,12 @@ export default function ListaPessoas({ pessoas, erro, aoTrocar, aoRemover, aoTen
                     >
                       {PAPEIS.map((x) => <option key={x} value={x}>{rotuloPapel(x)}</option>)}
                     </select>
+                  ) : (
+                    <span className="md-papel-txt">{papelTxt(p.papel)}</span>
+                  )}
+                </span>
+                <span className="np-membro-acao">
+                  {gere && !eu && (
                     <button
                       type="button"
                       className="md-bt md-bt--peq md-bt--perigo"
@@ -104,10 +110,8 @@ export default function ListaPessoas({ pessoas, erro, aoTrocar, aoRemover, aoTen
                     >
                       Remover
                     </button>
-                  </>
-                ) : (
-                  <span className="md-papel-txt">{papelTxt(p.papel)}</span>
-                )}
+                  )}
+                </span>
                 {confirmando === p.user_id && (
                   <div className="md-confirma md-linha-cheia" role="group" aria-label={`Confirmar a remoção de ${nome}`}>
                     <p>Remover {nome} do mandato? A conta dela continua na plataforma, só sai deste mandato.</p>

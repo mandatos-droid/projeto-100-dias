@@ -57,31 +57,33 @@ export default function ListaConvites({ convites, erro, aoCancelar, aoTentarDeNo
       )}
       {convites && convites.length === 0 && <p className="md-mut">Nenhum convite pendente.</p>}
       {convites && convites.length > 0 && (
-        <ul className="md-lista">
-          {convites.map((c, i) => (
-            <li key={c.id}>
-              <span className={`md-av md-av--${CORES[i % CORES.length]}`} aria-hidden="true">{iniciais(c.nome)}</span>
-              <span className="md-cresce">
-                <strong>{c.nome}</strong>
-                <span className="md-mut">
-                  {PAPEIS.includes(c.papel as Papel) ? rotuloPapel(c.papel) : c.papel}
-                  {' · '}enviado por {c.convidado_por_nome || 'alguém da equipe'}
-                  {' · '}{expiraEm(c.expira_em, agora)}
+        <div className="np-convites-scroll">
+          <ul className="md-lista">
+            {convites.map((c, i) => (
+              <li key={c.id}>
+                <span className={`md-av md-av--${CORES[i % CORES.length]}`} aria-hidden="true">{iniciais(c.nome)}</span>
+                <span className="md-cresce">
+                  <strong>{c.nome}</strong>
+                  <span className="md-mut">
+                    {PAPEIS.includes(c.papel as Papel) ? rotuloPapel(c.papel) : c.papel}
+                    {' · '}enviado por {c.convidado_por_nome || 'alguém da equipe'}
+                    {' · '}{expiraEm(c.expira_em, agora)}
+                  </span>
                 </span>
-              </span>
-              <button
-                type="button"
-                className="md-bt md-bt--peq md-bt--perigo"
-                onClick={() => cancela(c.id)}
-                disabled={cancelando !== null}
-                aria-label={`Cancelar convite de ${c.nome}`}
-              >
-                Cancelar
-              </button>
-              {recusa?.id === c.id && <div className="md-aviso md-linha-cheia" role="alert">{recusa.mensagem}</div>}
-            </li>
-          ))}
-        </ul>
+                <button
+                  type="button"
+                  className="md-bt md-bt--peq md-bt--perigo"
+                  onClick={() => cancela(c.id)}
+                  disabled={cancelando !== null}
+                  aria-label={`Cancelar convite de ${c.nome}`}
+                >
+                  Cancelar
+                </button>
+                {recusa?.id === c.id && <div className="md-aviso md-linha-cheia" role="alert">{recusa.mensagem}</div>}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </section>
   );

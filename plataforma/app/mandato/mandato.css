@@ -113,7 +113,7 @@
 .md-lista time { font-size: 13px; }
 
 /* formulário de convite e link pronto */
-.md input {
+.md input:not([type=checkbox]):not([type=radio]) {
   font: inherit; width: 100%; min-width: 0; padding: 10px 12px; border: 1.5px solid var(--tinta-2); border-radius: 8px;
   background: var(--branco); color: var(--tinta);
 }
@@ -150,3 +150,33 @@
 .md-pessoas select { width: auto; max-width: 100%; padding: 6px 10px; font-size: 14px; }
 .md-papel-txt { font-size: 14px; font-weight: 600; }
 .md-confirma { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border: 1px solid var(--coral); border-radius: 8px; background: #FDF3F3; font-size: 14px; }
+
+/* Nova Proposta · Área do mandato (#/config) */
+.np-md-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
+.np-md-grid > .md-card { min-width: 0; height: 100%; }
+
+.np-equipe-topo2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
+.np-equipe-topo2 > .md-card { margin: 0; height: 100%; min-width: 0; }
+.np-equipe-topo2 > .md-pendentes { display: flex; flex-direction: column; }
+.np-convites-scroll { flex: 1; min-height: 0; max-height: 220px; overflow-y: auto; padding-right: 8px; }
+
+.md-pessoas { width: 100%; }
+.md-lista li.np-membro-linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.4fr) minmax(155px, auto) minmax(88px, auto);
+  gap: 12px 18px;
+  align-items: center;
+  padding: 14px 4px;
+}
+.np-membro-id { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.np-membro-nome, .np-membro-email, .np-membro-papel { min-width: 0; overflow-wrap: anywhere; }
+.np-membro-acao { justify-self: end; }
+.md-lista li.np-membro-linha .md-linha-cheia { grid-column: 1 / -1; }
+
+.np-conta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px 20px; }
+
+@media (max-width: 900px) {
+  .np-md-grid, .np-equipe-topo2, .np-conta-grid { grid-template-columns: 1fr; }
+  .md-lista li.np-membro-linha { grid-template-columns: 1fr; gap: 8px; }
+  .np-membro-acao { justify-self: start; }
+}

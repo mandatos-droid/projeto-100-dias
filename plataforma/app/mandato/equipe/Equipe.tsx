@@ -58,13 +58,15 @@ export default function Equipe({ nivel = 1, aoMudarPessoas }: Props) {
         <Titulo>Equipe e convites</Titulo>
         <p className="md-mut">Todas as pessoas da equipe podem convidar outras.</p>
       </div>
-      <FormularioConvite meuNome={meuNome} pessoas={pessoas} aoCriar={carregaPendentes} />
-      <ListaConvites
-        convites={pendentes}
-        erro={erroPendentes}
-        aoCancelar={(id) => { leitura.current++; setPendentes((l) => l && l.filter((c) => c.id !== id)); }}
-        aoTentarDeNovo={tentaDeNovo}
-      />
+      <div className="np-equipe-topo2">
+        <FormularioConvite meuNome={meuNome} pessoas={pessoas} aoCriar={carregaPendentes} />
+        <ListaConvites
+          convites={pendentes}
+          erro={erroPendentes}
+          aoCancelar={(id) => { leitura.current++; setPendentes((l) => l && l.filter((c) => c.id !== id)); }}
+          aoTentarDeNovo={tentaDeNovo}
+        />
+      </div>
       <ListaPessoas
         pessoas={pessoas}
         erro={erroPessoas}

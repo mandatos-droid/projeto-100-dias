@@ -1246,6 +1246,16 @@ body.modo-captura .capturable-data:hover::before{content:"Clique para escolher e
 #tela .res2>.np-sec-card>.chamada{margin:0 0 1rem}
 #tela .res2 .np-sec-card>.ilha{margin:0}
 
+:is(.np-sec-card,#cadPasso) .linha-campos{display:grid;gap:0.25rem 1.125rem}
+:is(.np-sec-card,#cadPasso) .linha-campos>*{min-width:0}
+:is(.np-sec-card,#cadPasso) .linha-campos.c2{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}
+:is(.np-sec-card,#cadPasso) .linha-campos.c3{grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))}
+
+#cadSteps{background:#fff;border:1.5px solid var(--linha);border-bottom:0;border-radius:10px 10px 0 0;padding:1.15rem 1.75rem 0}
+#cadSteps .cad-steps{margin:0}
+#cadPasso{background:#fff;border:1.5px solid var(--linha);border-top:0;border-radius:0 0 10px 10px;padding:1.5rem 1.75rem 1.75rem;margin-bottom:1.75rem}
+#cadPasso .cad-h2:first-child{margin-top:0}
+
 @media(max-width:1040px){
   .np-frag-layout{grid-template-columns:1fr}
   .np-frag-sticky{position:static}
@@ -1258,9 +1268,11 @@ body.modo-captura .capturable-data:hover::before{content:"Clique para escolher e
   .np-sec-card[id^="f-"],.np-sec-card[id^="b-"]{scroll-margin-top:4rem}
 }
 @media(max-width:900px){
-  .np-m1-pilares,.np-ex-grid,.ilha-corpo .np-mun5-grupo,.ilha-corpo .as-slides .slides-lista,.np-prio-grid{grid-template-columns:1fr}
+  .np-m1-pilares,.np-ex-grid,.ilha-corpo .np-mun5-grupo,.ilha-corpo .as-slides .slides-lista,.np-prio-grid,:is(.np-sec-card,#cadPasso) .linha-campos.c2,:is(.np-sec-card,#cadPasso) .linha-campos.c3{grid-template-columns:1fr}
   .np-ancoras,.np-ficha-sticky,.np-frag-sticky,.np-apoio-sticky{position:static}
   .np-sec-card{padding:1.1rem 1rem}
+  #cadSteps{padding:1rem 1rem 0}
+  #cadPasso{padding:1.1rem 1rem}
 }
 @media(max-width:600px){
   .v2-rec-l{grid-template-columns:minmax(88px,130px) 1fr 2.75rem 2.75rem;gap:0.45rem}
