@@ -111,26 +111,27 @@ export default function Bandeiras() {
 
   return (
     <div className="ilha-corpo rm-band">
-      <ResumoMissao1 />
-      <div className="rm-grade">
-        <section className="rm-mural" aria-labelledby="rm-mural-t">
-          <h4 id="rm-mural-t">Marque as agendas que o mandato vai avaliar</h4>
-          {escolhidas.length === 0 && (
-            <p className="rm-vazio">Escolha antes as agendas prioritárias na <a href="#/m/1/m1.oportunidades">Missão 1</a>. Só elas podem ser priorizadas aqui.</p>
-          )}
-          <div className="rm-chips">
-            {escolhidas.map((a) => {
-              const on = rumo.bandeiras.some((x) => x.id === BANDEIRA_DA_AGENDA[a.id]);
-              return <button key={a.id} type="button" className="rm-chip" aria-pressed={on} onClick={() => alterna(a.id)}>{a.rot}</button>;
-            })}
-            {proprias.map((b) => (
-              <button key={b.id} type="button" className="rm-chip" aria-pressed="true" title="Fora da seleção da Missão 1. Clique para remover" onClick={() => remove(b)}>{b.rot} ×</button>
-            ))}
-          </div>
-          <p className="rm-leg"><strong>{rumo.bandeiras.length}</strong> {rumo.bandeiras.length === 1 ? 'selecionada' : 'selecionadas'}</p>
-        </section>
+      <div className="np-sec-card">
+        <div className="etiqueta np-passo-et">Passo 1 · Seleção de agendas e critérios</div>
+        <ResumoMissao1 />
+        <div className="np-2col np-band-passo1">
+          <section className="rm-mural" aria-labelledby="rm-mural-t">
+            <h4 id="rm-mural-t">Marque as agendas que o mandato vai avaliar</h4>
+            {escolhidas.length === 0 && (
+              <p className="rm-vazio">Escolha antes as agendas prioritárias na <a href="#/m/1/m1.oportunidades">Missão 1</a>. Só elas podem ser priorizadas aqui.</p>
+            )}
+            <div className="rm-chips">
+              {escolhidas.map((a) => {
+                const on = rumo.bandeiras.some((x) => x.id === BANDEIRA_DA_AGENDA[a.id]);
+                return <button key={a.id} type="button" className="rm-chip" aria-pressed={on} onClick={() => alterna(a.id)}>{a.rot}</button>;
+              })}
+              {proprias.map((b) => (
+                <button key={b.id} type="button" className="rm-chip" aria-pressed="true" title="Fora da seleção da Missão 1. Clique para remover" onClick={() => remove(b)}>{b.rot} ×</button>
+              ))}
+            </div>
+            <p className="rm-leg"><strong>{rumo.bandeiras.length}</strong> {rumo.bandeiras.length === 1 ? 'selecionada' : 'selecionadas'}</p>
+          </section>
 
-        <div className="rm-direita">
           <section aria-labelledby="rm-crit-t" className="rm-criterios">
             <h4 id="rm-crit-t">Critérios de priorização</h4>
             <ul className="rm-crit-lista">
@@ -149,48 +150,55 @@ export default function Bandeiras() {
             </div>
             <p className="rm-dica">Nota de 0 a 5 em cada critério, todos com o mesmo peso.</p>
           </section>
-
-          {rumo.textoAntigo && (
-            <details className="rm-antigo">
-              <summary>Texto escrito antes desta tela (mantido)</summary>
-              {rumo.textoAntigo.argumentos && <p><b>Argumentos</b>{rumo.textoAntigo.argumentos}</p>}
-              {rumo.textoAntigo.criterios && <p><b>Critérios</b>{rumo.textoAntigo.criterios}</p>}
-            </details>
-          )}
-
-          {rumo.bandeiras.length === 0
-            ? <p className="rm-vazio">Marque ao menos uma agenda ao lado para abrir os argumentos e as notas dela.</p>
-            : rumo.bandeiras.map((b) => <Card key={b.id} b={b} rumo={rumo} aplica={aplica} remove={remove} foco={foco === b.id} />)}
-
-          {rumo.bandeiras.length > 0 && (
-            <section aria-labelledby="rm-rank-t" className="rm-ranking">
-              <h4 id="rm-rank-t">Ranking e prioritárias <span>{nPrior} de {MAX_PRIORITARIAS}</span></h4>
-              <ol>
-                {ordem.map((l, i) => {
-                  const b = porId.get(l.id)!;
-                  return (
-                    <li key={l.id} data-ranking={b.id}>
-                      <span className="rm-pos">{i + 1}</span>
-                      <span className="rm-rank-nome">{b.rot}</span>
-                      <span className="rm-barra" aria-hidden="true"><i style={{ width: `${maximo ? (l.total / maximo) * 100 : 0}%` }} /></span>
-                      <span className="rm-rank-pts">{l.total}</span>
-                      <button type="button" className="rm-estrela" aria-pressed={b.prioridade !== null}
-                        aria-label={b.prioridade !== null ? `Desmarcar ${b.rot} das prioritárias` : `Marcar ${b.rot} como prioritária`}
-                        onClick={() => aplica(alternaPrioritaria(rumo, b.id))}>{b.prioridade !== null ? `★ ${b.prioridade}` : '☆'}</button>
-                      {b.prioridade !== null && (
-                        <span className="rm-mover">
-                          <button type="button" disabled={b.prioridade === 1} aria-label={`Subir ${b.rot} na ordem de prioridade`} onClick={() => aplica(movePrioritaria(rumo, b.id, 'cima'))}>↑</button>
-                          <button type="button" disabled={b.prioridade === nPrior} aria-label={`Descer ${b.rot} na ordem de prioridade`} onClick={() => aplica(movePrioritaria(rumo, b.id, 'baixo'))}>↓</button>
-                        </span>
-                      )}
-                    </li>
-                  );
-                })}
-              </ol>
-            </section>
-          )}
         </div>
+
+        {rumo.textoAntigo && (
+          <details className="rm-antigo" open>
+            <summary>Texto escrito antes desta tela (mantido)</summary>
+            {rumo.textoAntigo.argumentos && <p><b>Argumentos</b>{rumo.textoAntigo.argumentos}</p>}
+            {rumo.textoAntigo.criterios && <p><b>Critérios</b>{rumo.textoAntigo.criterios}</p>}
+          </details>
+        )}
       </div>
+
+      <div className="np-sec-card">
+        <div className="etiqueta np-passo-et">Passo 2 · Avaliação por bandeira</div>
+        <h3 className="np-passo-t">Avaliação por bandeira</h3>
+        {rumo.bandeiras.length === 0
+          ? <p className="rm-vazio">Marque ao menos uma agenda ao lado para abrir os argumentos e as notas dela.</p>
+          : <div className="np-band-grid2">{rumo.bandeiras.map((b) => <Card key={b.id} b={b} rumo={rumo} aplica={aplica} remove={remove} foco={foco === b.id} />)}</div>}
+      </div>
+
+      {rumo.bandeiras.length > 0 && (
+        <section aria-labelledby="rm-rank-t" className="np-sec-card np-rank-card rm-ranking">
+          <div className="etiqueta np-passo-et">Passo 3 · Ranking e prioritárias</div>
+          <h4 id="rm-rank-t">Ranking e prioritárias <span>{nPrior} de {MAX_PRIORITARIAS}</span></h4>
+          <ol className="np-rank-lista">
+            {ordem.map((l, i) => {
+              const b = porId.get(l.id)!;
+              return (
+                <li key={l.id} data-ranking={b.id} className="np-rank-item">
+                  <span className="rm-pos">#{i + 1}</span>
+                  <span className="rm-rank-nome">{b.rot}</span>
+                  <span className="rm-barra" aria-hidden="true"><i style={{ width: `${maximo ? (l.total / maximo) * 100 : 0}%` }} /></span>
+                  <span className="rm-rank-pts">{l.total}/{maximo}</span>
+                  <span className="np-rank-acoes">
+                    <button type="button" className="rm-estrela" aria-pressed={b.prioridade !== null}
+                      aria-label={b.prioridade !== null ? `Desmarcar ${b.rot} das prioritárias` : `Marcar ${b.rot} como prioritária`}
+                      onClick={() => aplica(alternaPrioritaria(rumo, b.id))}>{b.prioridade !== null ? `★ ${b.prioridade}` : '☆'}</button>
+                    {b.prioridade !== null && (
+                      <span className="rm-mover">
+                        <button type="button" disabled={b.prioridade === 1} aria-label={`Subir ${b.rot} na ordem de prioridade`} onClick={() => aplica(movePrioritaria(rumo, b.id, 'cima'))}>↑</button>
+                        <button type="button" disabled={b.prioridade === nPrior} aria-label={`Descer ${b.rot} na ordem de prioridade`} onClick={() => aplica(movePrioritaria(rumo, b.id, 'baixo'))}>↓</button>
+                      </span>
+                    )}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      )}
     </div>
   );
 }

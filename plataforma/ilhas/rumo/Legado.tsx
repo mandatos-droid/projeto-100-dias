@@ -173,7 +173,7 @@ export default function Legado() {
         </div>
       </div>
 
-      <details className="rm-gaveta" open={lg.rascunhos.length > 0}>
+      <details className="rm-gaveta" open>
         <summary>Manchetes dos grupos{lg.rascunhos.length > 0 ? ` (${lg.rascunhos.length})` : ''}</summary>
         {!lg.rascunhos.length && <p className="rm-vazio">Cada grupo guarda aqui a manchete que escreveu. Depois, a equipe escolhe uma como base ou junta elementos de mais de uma.</p>}
         <ul className="rm-rascunhos">
@@ -197,7 +197,7 @@ export default function Legado() {
           <label className="campo"><span className="rot">Cargo do grupo</span>
             <select value={g.cargo} onChange={(e) => setG({ ...g, cargo: e.target.value })}><option value="">Sem cargo</option>{cargos.map((c) => <option key={c}>{c}</option>)}</select>
           </label>
-          <details className="rm-antigo"><summary>Elementos do grupo (opcional, para unificar depois)</summary>
+          <details className="rm-antigo" open><summary>Elementos do grupo (opcional, para unificar depois)</summary>
             {(['protagonista', 'entrega', 'resultado'] as const).map((k) => (
               <label className="campo" key={k}><span className="rot">{ROT_ELEMENTO[k]} do grupo</span><input type="text" value={g[k]} onChange={(e) => setG({ ...g, [k]: e.target.value })} /></label>
             ))}

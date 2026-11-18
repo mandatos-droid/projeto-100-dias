@@ -2,7 +2,11 @@
 /* Missão 3 · metas agrupadas por objetivo estratégico, com retorno SMART, responsável e apoios (CartaoMeta).
    Estado: D.metas (campos antigos pred, texto, resp, apoio preservados). */
 import { MAX_METAS_POR_OBJETIVO, METAS_MAX, METAS_MIN, contagemMetas, podeAcrescentarMeta } from '@/lib/plano';
+import { resolve } from '@/lib/pessoas';
+import { lerSucessos } from '@/lib/sucessos';
 import { useState } from 'react';
+import Gaveta from '../Gaveta';
+import { aviso } from '../ponte';
 import ArvorePlano from './ArvorePlano';
 import CartaoMeta from './CartaoMeta';
 import { useRumo } from './useRumo';
@@ -18,24 +22,40 @@ export default function Metas() {
     rmMeta(idx);
     setEditando(null);
   };
-  const [editando, setEditando] = useState<number | null>(null);
-  const acrescenta = (pid: string) => { const prox = (d.metas as unknown[]).length; addMeta(pid); setEditando(prox); };
+  const [editando, setEditando] = useState<{ idx: number; origem?: HTMLElement | null } | null>(null);
+  const acrescenta = (pid: string, origem?: HTMLElement | null) => {
+    const prox = Array.isArray(d.metas) ? d.metas.length : 0;
+    if (addMeta(pid) === null) setEditando({ idx: prox, origem: origem ?? null });
+  };
+  const metasLista = [...arv.objetivos.flatMap((o) => o.metas), ...arv.semObjetivo];
+  const metaGaveta = editando ? metasLista.find((x) => x.idx === editando.idx) ?? null : null;
+
   const opcoes = {
-    onStatus: () => {}, leitura: true,
+    cartoes: true,
+    onStatus: () => {},
+    leitura: true,
+    infoMeta: (m: (typeof arv.semObjetivo)[number]) => {
+      const r = resolve(c, m);
+      const suc = lerSucessos(m).length;
+      return (
+        <span className="np-meta-resp">
+          Responsável: <b>{r.resp || 'A definir'}</b>
+          {r.apoios.length > 0 && ` · Apoio: ${r.apoios.join(', ')}`}
+          {` · ${suc} ${suc === 1 ? 'sucesso mensal' : 'sucessos mensais'}`}
+        </span>
+      );
+    },
     extraObjetivo: (pid: string) => (
-      <button type="button" className="bt sec peq" aria-label={`Acrescentar meta a ${objetivos.find((o) => o.pid === pid)?.texto ?? pid}`} onClick={() => acrescenta(pid)}>Acrescentar meta</button>
+      <button type="button" className="bt sec peq" aria-label={`Acrescentar meta a ${objetivos.find((o) => o.pid === pid)?.texto ?? pid}`} onClick={(e) => acrescenta(pid, e.currentTarget)}>+ Acrescentar meta</button>
     ),
-    extra: (m: (typeof arv.semObjetivo)[number]) => (
-      <>
-        <button type="button" className="rm-link" aria-expanded={editando === m.idx} aria-label={`${editando === m.idx ? 'Fechar a edição da' : 'Editar a'} meta ${String(m.idx + 1).padStart(2, '0')}`}
-          onClick={() => setEditando(editando === m.idx ? null : m.idx)}>{editando === m.idx ? 'Fechar' : 'Editar'}</button>
-        {editando === m.idx && (
-          <div className="rm-no-edicao">
-            <CartaoMeta meta={m} objetivos={objetivos} pessoas={pessoas} campos={c} podeMover={podeMover} onChange={setMeta} onRemove={remove} />
-          </div>
-        )}
-      </>
-    ),
+    extra: (m: (typeof arv.semObjetivo)[number]) => {
+      const aberta = editando?.idx === m.idx;
+      const nMeta = String(m.idx + 1).padStart(2, '0');
+      return (
+        <button type="button" className="bt sec peq" aria-expanded={aberta} aria-label={`${aberta ? 'Fechar a edição da' : 'Editar a'} meta ${nMeta}`}
+          onClick={(e) => setEditando(aberta ? null : { idx: m.idx, origem: e.currentTarget })}>{aberta ? 'Fechar' : 'Editar'}</button>
+      );
+    },
   };
 
   return (
@@ -55,8 +75,52 @@ export default function Metas() {
       )}
 
       <p className="rm-dica">Os objetivos definidos nos preditores já estão na árvore. Acrescente as metas dentro de cada objetivo (até {MAX_METAS_POR_OBJETIVO} por objetivo) e use Editar para escrever, definir responsável e apoios.</p>
-      <ArvorePlano modo="plano" arv={arv} rotulo="Árvore do planejamento: Legado, objetivos e metas" opcoes={opcoes}
-        onAtiva={(id) => { if (id.startsWith('meta-')) { const i = Number(id.slice(5)); setEditando(editando === i ? null : i); } }} />
+      <ArvorePlano modo="plano" estilo="cartoes" arv={arv} rotulo="Árvore do planejamento: Legado, objetivos e metas" opcoes={opcoes}
+        editandoId={editando ? `meta-${editando.idx}` : null}
+        onAtiva={(id) => {
+          if (id.startsWith('meta-')) {
+            const i = Number(id.slice(5));
+            const origem = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+            setEditando(editando?.idx === i ? null : { idx: i, origem });
+          }
+        }} />
+
+      <Gaveta
+        aberta={metaGaveta !== null}
+        titulo={metaGaveta ? `Editar Meta ${String(metaGaveta.idx + 1).padStart(2, '0')}` : ''}
+        ariaLabel="Editar meta SMART"
+        classeCorpo="rm-no-edicao"
+        origem={editando?.origem ?? null}
+        onFechar={() => setEditando(null)}
+        rodape={
+          <>
+            <button type="button" className="bt sec" onClick={() => setEditando(null)}>Fechar</button>
+            <button
+              type="button"
+              className="bt pri"
+              onClick={() => {
+                if (metaGaveta) aviso(`Meta ${String(metaGaveta.idx + 1).padStart(2, '0')} salva.`);
+                setEditando(null);
+              }}
+            >
+              Salvar meta
+            </button>
+          </>
+        }
+      >
+        {metaGaveta && (
+          <CartaoMeta
+            meta={metaGaveta}
+            objetivos={objetivos}
+            pessoas={pessoas}
+            campos={c}
+            umaColuna
+            podeMover={podeMover}
+            onChange={setMeta}
+            onRemove={remove}
+          />
+        )}
+      </Gaveta>
     </div>
   );
 }

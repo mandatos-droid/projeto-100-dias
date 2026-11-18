@@ -434,3 +434,67 @@ input.rm-jn-titulo:focus-visible{outline:3px solid var(--verde);outline-offset:2
 .np-drawer-body .rm-meta{margin:0;width:100%;box-sizing:border-box}
 .np-drawer-body .rm-meta .rm-suc-l li{grid-template-columns:1fr;gap:0.55rem;background:var(--papel);padding:0.75rem;border:1px solid var(--linha-2);border-radius:8px}
 .np-drawer-body .rm-meta .rm-suc-l li .rm-link{justify-self:start}
+
+/* ---------- Nova Proposta · Missão 3 (Bandeiras em 3 passos, Preditores + Estratégia com árvore sticky única) ---------- */
+.rm-band .np-sec-card .etiqueta.np-passo-et{margin-bottom:0.55rem}
+.rm-band .np-sec-card h3.np-passo-t{margin:0 0 0.85rem}
+.rm-band .np-band-passo1 .rm-criterios{margin-bottom:0}
+.rm-band .np-sec-card .rm-antigo{margin:1rem 0 0}
+.np-band-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;align-items:start}
+@media(max-width:900px){.np-band-grid2{grid-template-columns:1fr}}
+.np-band-grid2 .rm-card{margin:0}
+.rm-band .rm-nota{display:flex;flex-wrap:nowrap;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:1px dashed var(--linha-2)}
+.rm-band .rm-nota span:first-child{font-size:0.86rem;font-weight:600;flex:1;min-width:0}
+.rm-band .rm-nota-bt{flex:none}
+.rm-band .rm-nota-bt button{width:2rem;height:2rem}
+@media(max-width:560px){
+  .rm-band .rm-nota{flex-wrap:wrap}
+  .rm-band .rm-nota-bt{margin-left:auto}
+}
+
+.np-rank-card{border-top:5px solid var(--vinho)}
+.rm-ranking.np-rank-card{margin-top:0}
+.rm-ranking.np-rank-card h4{margin:0 0 0.85rem;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.np-rank-lista{list-style:none;margin:0;padding:0;display:grid;gap:0.65rem}
+.rm-ranking ol li.np-rank-item{display:grid;grid-template-columns:36px minmax(150px,1.2fr) minmax(110px,2fr) 64px auto;align-items:center;gap:12px;background:#fff;border:1px solid var(--linha);border-radius:8px;padding:10px 14px;border-top-width:1px}
+.rm-ranking .np-rank-item .rm-pos{font-size:1.05rem;font-weight:800;color:var(--vinho)}
+.rm-ranking .np-rank-item .rm-rank-nome{font-weight:700;font-size:0.95rem}
+.rm-ranking .np-rank-item .rm-barra{width:100%;height:10px;display:block}
+.rm-ranking .np-rank-item .rm-rank-pts{font-weight:700;text-align:right;white-space:nowrap}
+.rm-ranking .np-rank-item .rm-estrela{padding:0.2rem 0.65rem;white-space:nowrap}
+.np-rank-acoes{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;justify-content:flex-end}
+@media(max-width:900px){
+  .rm-ranking ol li.np-rank-item{grid-template-columns:32px minmax(0,1fr) auto;gap:8px}
+  .rm-ranking .np-rank-item .rm-barra{grid-column:1 / -1;order:4;display:block}
+  .rm-ranking .np-rank-item .rm-rank-pts{text-align:right}
+  .np-rank-acoes{grid-column:1 / -1;justify-content:flex-start;order:5}
+}
+
+/* M3.3 Preditores e Estratégia: árvore do planejamento única na coluna direita sticky */
+.np-pred-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(300px,0.95fr);gap:1.5rem 1.75rem;align-items:start;margin-bottom:1.75rem}
+.np-pred-layout [data-ilha="rumo-preditores"],
+.np-pred-layout [data-ilha="rumo-preditores"]>.ilha-corpo,
+.np-pred-layout [data-ilha="rumo-preditores"]>.ilha-corpo>.rm-grade{display:contents}
+.np-pred-layout [data-ilha="rumo-preditores"] section,
+.np-pred-layout [data-ilha="rumo-estrategia"] section{background:#fff;border:1.5px solid var(--linha);border-radius:10px;padding:1.5rem 1.75rem;min-width:0}
+.np-pred-layout [data-ilha="rumo-preditores"] section{grid-column:1;grid-row:1}
+.np-pred-layout [data-ilha="rumo-estrategia"]{grid-column:1;grid-row:2;min-width:0}
+.np-pred-layout [data-ilha="rumo-estrategia"]>.ilha-corpo>.rm-grade{display:block}
+.np-pred-layout [data-ilha="rumo-estrategia"] .rm-direita{display:none}
+.np-pred-layout [data-ilha="rumo-preditores"] .rm-direita{grid-column:2;grid-row:1 / span 2;position:sticky;top:14px;background:#fff;border:1.5px solid var(--linha);border-top:5px solid var(--vinho);border-radius:10px;padding:1.35rem 1.5rem;min-width:0}
+.np-pred-layout [data-ilha="rumo-preditores"] .rm-direita h4,.np-pred-layout section h4:first-child{margin-top:0}
+.rm-est .rolar{max-width:100%;overflow-x:auto}
+@media(max-width:900px){
+  .np-pred-layout{grid-template-columns:1fr;gap:1.25rem}
+  .np-pred-layout [data-ilha="rumo-preditores"],
+  .np-pred-layout [data-ilha="rumo-preditores"]>.ilha-corpo{display:grid;gap:1.25rem}
+  .np-pred-layout [data-ilha="rumo-preditores"]>.ilha-corpo>.rm-grade{display:grid;grid-template-columns:1fr;gap:1.25rem}
+  .np-pred-layout [data-ilha="rumo-preditores"] section,
+  .np-pred-layout [data-ilha="rumo-estrategia"],
+  .np-pred-layout [data-ilha="rumo-preditores"] .rm-direita{grid-column:auto;grid-row:auto;position:static;padding:1.1rem 1rem}
+  .np-pred-layout [data-ilha="rumo-estrategia"] section{padding:1.1rem 1rem}
+}
+
+/* M3.4 Metas em cartões na árvore + espaçamento dentro do .np-sec-card */
+.np-sec-card>.rm-metas>.contador:first-child{margin-top:0}
+.rm-metas .rm-arvore-cartoes{margin-top:1rem}

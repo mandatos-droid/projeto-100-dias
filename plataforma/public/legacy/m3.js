@@ -218,3 +218,58 @@
     liga(t);
   };
 })();
+
+/* ---------- Missão 3 em página única com cartões .np-sec-card (mesmo mecanismo de m1.js e m2.js) ----------
+   Preserva Guia.montar, Comp.campos, Comp.preditores, Comp.metas, Guia.bloco em modo guiado e os hashes de MISSOES
+   para manter todos os contratos e testes (tests/legado-m3.test.ts). */
+(function(){
+  if(typeof Guia==='undefined'||typeof Comp==='undefined')return;
+
+  var _gb=Guia.bloco;
+  Guia.bloco=function(p,n){
+    var h=_gb.call(this,p,n);
+    if(!this.m||this.m.n!==3||this.modo!=='tudo'||!this.ex||typeof h!=='string')return h;
+    var eid=this.ex.id;
+    if(p&&p.k==='componente'){
+      if(this.passos&&this.passos.length>1){
+        h=h.replace(/^<h1[^>]*>[\s\S]*?<\/h1>\s*(?:<div class="texto"><\/div>\s*)?/,'');
+      }
+      if(eid==='m3.bandeiras'){
+        h=h.replace(/<details class="rm-passos" open><summary>Como conduzir<\/summary>[\s\S]*?<\/details>/,'');
+        return h;
+      }
+      if(eid==='m3.preditores')return '<div class="np-pred-layout">'+h+'</div>';
+    }
+    return '<div class="np-sec-card">'+h+'</div>';
+  };
+
+  var forcou=false,antes='guiado';
+  var _r=Guia.render;
+  Guia.render=function(){
+    var m3=!!(this.m&&this.m.n===3);
+    if(m3){
+      if(!forcou){antes=this.modo;forcou=true}
+      this.modo='tudo';this.i=0;
+    }else if(forcou){this.modo=antes;forcou=false}
+    _r.apply(this,arguments);
+    if(!m3)return;
+    var tl=document.getElementById('tela'),bt=tl&&tl.querySelector('button[onclick="Guia.alternarModo()"]');
+    if(bt&&bt.parentNode)bt.parentNode.removeChild(bt);
+    if(tl&&tl.querySelectorAll){
+      tl.querySelectorAll('.passo-corpo > hr.regra').forEach(function(hr){if(hr.parentNode)hr.parentNode.removeChild(hr)});
+    }else if(tl&&tl.innerHTML){
+      tl.innerHTML=tl.innerHTML.replace(/<hr class="regra">/g,'');
+    }
+  };
+  var _ir=Guia.ir;
+  Guia.ir=function(n){
+    if(this.m&&this.m.n===3){this.render();return}
+    return _ir.call(this,n);
+  };
+  var _ab=Guia.abrir;
+  Guia.abrir=function(nm,id){
+    _ab.call(this,nm,id);
+    if(!this.m||this.m.n!==3)return;
+    this.modo='tudo';
+  };
+})();
