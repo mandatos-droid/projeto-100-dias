@@ -636,3 +636,117 @@ function contadorDias(d){
     if(pm&&b)b.textContent='Iniciar missão '+pm.n+' ›';
   };
 })();
+
+/* ---------- Painel do mandato: arranjo em cartões (Nova Proposta) ----------
+   Roda depois de Telas.painel inteiro (app.js e os wrappers de novos.js e m3.js, que entram em ordem de carga) e só
+   reorganiza os blocos que já foram desenhados: nenhum texto do Painel é reescrito, apagado nem escondido. Fica de fora o
+   que não existe no Painel (sem Painel desenhado, não faz nada). O resumo do planejamento (ilha plano-resumo) é movido
+   com a raiz React intacta. */
+(function(){
+  if(typeof App==='undefined'||typeof Telas==='undefined'||typeof MISSOES==='undefined')return;
+  function no(html){var d=document.createElement('div');d.innerHTML=html;return d.firstElementChild}
+  function cap(s){return String(s||'').charAt(0).toUpperCase()+String(s||'').slice(1)}
+
+  /* 1. topo em 3 colunas: Continue por aqui | contagem regressiva dos 100 dias | % geral concluída */
+  function cartaoDias(linha,d){
+    var p=posse(),fim=p?somaDias(p,99):null,c=(d===null||typeof contadorDias!=='function')?null:contadorDias(d);
+    var sub=[];
+    if(!p){var sp=linha.querySelector('.cab span');sub=sp?[sp.innerHTML]:[]}
+    else{
+      if(d>=1&&d<=100)sub.push('Dia '+d+' de 100');
+      sub.push('Posse em '+dBRc(p));
+      sub.push('Marco 100º dia em '+dBRc(fim));
+    }
+    var pos=d&&d>0?Math.min(100,d):0;
+    return no('<div class="np-kpi-card"><div><div class="np-kpi-et">Linha do tempo dos 100 dias</div>'+
+      '<div class="np-kpi-val">'+(c?cap(c.texto):'Sem data')+'</div>'+
+      '<div class="np-kpi-sub">'+sub.join(' · ')+'</div></div>'+
+      '<div class="np-progresso-barra"><i style="width:'+pos+'%"></i></div></div>');
+  }
+  function cartaoPct(g){
+    return no('<div class="np-kpi-card"><div><div class="np-kpi-et">Progresso geral no Guia</div>'+
+      '<div class="np-kpi-pct">'+medidor(g,'#035252')+
+      '<div><div class="np-kpi-val np-kpi-val-pct">'+g+'%</div><div class="np-kpi-sub">dos exercícios concluídos</div></div></div></div></div>');
+  }
+
+  /* 2. trilha das cinco missões em grade de cinco passos iguais, sem datas sobrepostas */
+  function trilha(linha,d){
+    var cab=linha.querySelector('.cab'),velho=linha.querySelector('.trilho');
+    if(!cab||!velho)return;
+    var topo=no('<div class="np-trilho-topo"></div>');
+    topo.appendChild(cab);
+    if(d&&d>=1&&d<=100)topo.appendChild(no('<span class="np-hoje-tag">● Hoje: Dia '+d+' de 100</span>'));
+    var pos=d&&d>0?Math.min(100,d):0;
+    var passos=no('<div class="np-steps-100"></div>');
+    MISSOES.forEach(function(m){
+      var p=progMissao(m),dp=dataPrazo(m);
+      var a=document.createElement('a');
+      a.className='np-step'+(p.pct===100?' cheio':'');
+      a.href='#/m/'+m.n;a.style.setProperty('--c',m.cor);
+      a.innerHTML='<span class="np-step-dot">'+(p.pct===100?'✓':m.n)+'</span>'+
+        '<span class="np-step-tit">'+m.n+'. '+esc(m.curto)+'</span>'+
+        '<span class="np-step-dt">'+(m.continua?'contínua':(dp?esc(m.prazoTxt)+' · '+dBR(dp):'dia '+m.prazo))+'</span>';
+      passos.appendChild(a);
+    });
+    linha.classList.add('np-trilho-box');
+    linha.insertBefore(topo,velho);
+    linha.insertBefore(no('<div class="np-progresso-barra"><i style="width:'+pos+'%"></i></div>'),velho);
+    linha.replaceChild(passos,velho);
+  }
+
+  function arranja(){
+    var t=document.getElementById('tela');if(!t||t.querySelector('.np-hero-3col'))return;
+    var agora=t.querySelector(':scope > .agora'),linha=t.querySelector(':scope > .linha100');
+    if(!agora||!linha)return;
+    var d=diaAtual(),g=progGeral();
+
+    var hero=no('<div class="np-hero-3col"></div>'),vinho=no('<div class="np-card-vinho"></div>');
+    t.insertBefore(hero,agora);
+    vinho.appendChild(agora);
+    hero.appendChild(vinho);
+    hero.appendChild(cartaoDias(linha,d));
+    hero.appendChild(cartaoPct(g));
+
+    trilha(linha,d);
+
+    /* resumo do planejamento estratégico em largura total, logo abaixo da trilha */
+    var resumo=t.querySelector(':scope > .ilha[data-ilha="plano-resumo"]');
+    if(resumo){
+      var cartao=no('<div class="np-card np-resumo-card"></div>');
+      t.insertBefore(cartao,resumo);
+      cartao.appendChild(resumo);
+      linha.parentNode.insertBefore(cartao,linha.nextSibling);
+    }
+
+    /* as cinco missões em cartões com borda lateral na cor da missão; o link de "Ver tudo..." sobe para o cabeçalho */
+    var h2=null;
+    Array.prototype.forEach.call(t.children,function(e){if(e.tagName==='H2'&&e.textContent.trim()==='As cinco missões')h2=e});
+    var linhas=Array.prototype.slice.call(t.querySelectorAll(':scope > a.missao-linha'));
+    if(h2&&linhas.length){
+      var topo=no('<div class="np-missoes-topo"></div>'),grade=no('<div class="np-missoes-grid"></div>');
+      t.insertBefore(topo,h2);topo.appendChild(h2);
+      var bts=t.querySelector(':scope > .bts'),ver=bts&&bts.querySelector('a.bt');
+      if(ver){ver.classList.add('peq');topo.appendChild(ver);bts.parentNode.removeChild(bts)}
+      topo.parentNode.insertBefore(grade,topo.nextSibling);
+      linhas.forEach(function(a){
+        var det=a.nextElementSibling,card=no('<div class="np-missao-card"></div>');
+        card.style.setProperty('--c',a.style.getPropertyValue('--c'));
+        grade.appendChild(card);card.appendChild(a);
+        if(det&&det.matches('details.ml-resp'))card.appendChild(det);
+      });
+    }
+  }
+
+  var _pn3=Telas.painel;
+  Telas.painel=function(){
+    var r=_pn3.apply(this,arguments);
+    Promise.resolve().then(function(){try{arranja()}catch(e){if(window.console)console.error(e)}});
+    return r;
+  };
+  var _ro=App.rotear;
+  App.rotear=function(){
+    var r=_ro.apply(this,arguments);
+    try{arranja()}catch(e){if(window.console)console.error(e)}
+    return r;
+  };
+})();

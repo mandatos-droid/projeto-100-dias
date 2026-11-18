@@ -392,3 +392,56 @@ dl.cmp dd{margin:0;padding:2px 0 2px 0.875rem;border-left:2px solid var(--linha)
 .diag-sub{display:flex;align-items:center;gap:0.5rem;margin:1.125rem 0 0.375rem}
 .diag-sub span{font-size:0.75rem;color:#fff;border-radius:999px;padding:1px 0.5625rem}
 .diag-sub.g span{background:var(--verde)}.diag-sub.p span{background:var(--vinho)}
+
+/* ===================== PAINEL DO MANDATO: ARRANJO EM CARTÕES (Nova Proposta) ===================== */
+.np-card{background:#fff;border:1.5px solid var(--linha);border-radius:10px;padding:1.5rem 1.75rem;box-shadow:0 2px 10px rgba(87,23,48,.04)}
+.np-card-vinho{background:var(--vinho);color:#fff;border-radius:10px;padding:1.75rem 2rem;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between}
+.np-card-vinho .agora{margin:0;padding:0;background:none}
+
+/* topo em 3 colunas */
+.np-hero-3col{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(210px,0.78fr) minmax(210px,0.78fr);gap:1rem;align-items:stretch;margin-bottom:1.25rem}
+@media(max-width:1020px){.np-hero-3col{grid-template-columns:1fr}}
+.np-hero-3col .agora{margin:0;padding:1.15rem 1.35rem;height:100%;display:flex;flex-direction:column;justify-content:space-between;min-height:0}
+.np-hero-3col .agora h2{font-size:1.35rem;margin:0.2rem 0}
+.np-hero-3col .agora p{max-width:none;margin-bottom:0.875rem}
+.np-kpi-card{background:#fff;border:1px solid var(--linha);border-radius:10px;padding:1.15rem 1.25rem;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 2px 10px rgba(23,17,15,.04)}
+.np-kpi-et{font-size:0.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--tinta-3);font-weight:700;margin-bottom:6px}
+.np-kpi-val{font-family:'Anton',sans-serif;font-size:clamp(1.65rem,2.4vw,2.15rem);line-height:1.1;color:var(--vinho)}
+.np-kpi-val-pct{font-size:1.45rem;color:var(--verde)}
+.np-kpi-sub{font-size:0.86rem;color:var(--tinta-2);margin-top:6px;line-height:1.4}
+.np-kpi-pct{display:flex;align-items:center;gap:12px;margin-top:4px}
+.np-kpi-pct .np-kpi-sub{margin:0}
+.np-progresso-barra{height:8px;background:var(--linha-2);border-radius:999px;overflow:hidden;position:relative;margin-top:0.65rem}
+.np-progresso-barra i{display:block;height:100%;background:linear-gradient(90deg,var(--vinho),var(--turquesa));border-radius:999px}
+.np-kpi-card .np-progresso-barra{margin:12px 0 0}
+.np-hoje-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(235,84,84,.1);color:var(--erro);border:1px solid rgba(235,84,84,.3);font-size:0.75rem;font-weight:700;padding:2px 10px;border-radius:999px}
+
+/* trilha das cinco missões: cinco passos iguais, sem datas sobrepostas */
+.np-trilho-box,.np-trilho-box.linha100{background:#fff;border:1.5px solid var(--linha);border-radius:10px;padding:1.5rem 1.75rem;margin:0 0 1.5rem}
+.np-trilho-topo{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:12px}
+.np-trilho-box .cab{margin:0}
+.np-steps-100{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1rem;position:relative;margin-top:1.5rem}
+.np-steps-100::before{content:"";position:absolute;top:17px;left:10%;right:10%;height:3px;background:var(--linha);z-index:0}
+@media(max-width:900px){.np-steps-100{grid-template-columns:1fr}.np-steps-100::before{display:none}}
+.np-step{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;text-decoration:none;color:inherit;background:#fff;border:1.5px solid var(--linha);border-radius:8px;padding:0.85rem 0.75rem;transition:.15s}
+.np-step:hover{border-color:var(--c);transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.06)}
+.np-step-dot{width:28px;height:28px;border-radius:50%;background:var(--papel);border:3px solid var(--c);display:grid;place-items:center;font-family:'Anton',sans-serif;font-size:0.85rem;color:var(--c);margin-bottom:0.5rem}
+.np-step.cheio .np-step-dot{background:var(--c);color:#fff}
+.np-step-tit{font-weight:700;font-size:0.86rem;line-height:1.25;margin-bottom:0.25rem}
+.np-step-dt{font-size:0.74rem;color:var(--tinta-3)}
+
+/* resumo do planejamento em largura total e as cinco missões em cartões */
+.np-resumo-card{margin-bottom:1.5rem}
+.np-resumo-card .ilha{margin:0}
+.np-resumo-card .rm-resumo{margin:0}
+.np-resumo-card:has(.rm-resumo.vazio){border-style:dashed;background:var(--papel)}
+.np-resumo-card .rm-resumo.vazio{border:0;background:none;padding:0}
+@media(max-width:900px){.np-card,.np-trilho-box,.np-trilho-box.linha100,.np-missao-card{padding:1.1rem}}
+.np-missoes-topo{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:12px;margin:2rem 0 1rem}
+.np-missoes-topo h2{margin:0}
+.np-missoes-grid{display:grid;gap:1rem}
+.np-missao-card{background:#fff;border:1.5px solid var(--linha);border-left:6px solid var(--c);border-radius:8px;padding:1.25rem 1.5rem;transition:.15s}
+.np-missao-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.05)}
+.np-missao-card a.missao-linha{border:0;padding:0}
+.np-missao-card .ml-resp{margin:0.85rem 0 0 4.8rem;border-left:2px solid var(--linha);padding-bottom:0}
+@media(max-width:680px){.np-missao-card .ml-resp{margin-left:0}}
