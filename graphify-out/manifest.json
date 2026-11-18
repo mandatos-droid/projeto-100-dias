@@ -1722,9 +1722,9 @@
     "semantic_hash": "1d4b789739020e634ad7e85710c75b7c"
   },
   "plataforma/public/legacy/novos.js": {
-    "mtime": 1795005317.5062711,
-    "seen": 1795007770.9353693,
-    "ast_hash": "f28ce758dcf7f3b2e11e80fedcc8b508",
+    "mtime": 1795023062.7873516,
+    "seen": 1795023968.105597,
+    "ast_hash": "8bdc7727763a95223123f642952fb4c4",
     "semantic_hash": ""
   },
   "plataforma/public/legacy/nucleo.js": {
@@ -2376,9 +2376,9 @@
     "semantic_hash": "b458b4f20e6d027dddc360f8559a55c5"
   },
   "plataforma/public/legacy/sugestoes.js": {
-    "mtime": 1794970593.374389,
-    "seen": 1795000606.8982835,
-    "ast_hash": "95290900b97e7bd1d968d5c89b96c351",
+    "mtime": 1795023066.2815335,
+    "seen": 1795023968.105827,
+    "ast_hash": "34c01a11c174dc1b00039f79d42881b8",
     "semantic_hash": ""
   },
   "plataforma/scripts/build_executivo.py": {
@@ -4968,9 +4968,9 @@
     "semantic_hash": ""
   },
   "plataforma/public/legacy/resumo-tela.js": {
-    "mtime": 1794970593.369691,
-    "seen": 1795000606.8982747,
-    "ast_hash": "880d2366db849baa21795f2713eb68d3",
+    "mtime": 1795023064.4947958,
+    "seen": 1795023968.1057112,
+    "ast_hash": "9e2d688a107b00e4612bcd649753fb1a",
     "semantic_hash": ""
   },
   "plataforma/tests/admin-usuarios-edicao.test.ts": {
