@@ -40,16 +40,28 @@ export default function Comunicacao() {
 
   return (
     <div className="ilha-corpo cp-esc cp-com">
-      <p className="cp-band">Semana atual: {semana}. Registre uma vez por semana os números de cada tópico; só valem números iguais ou maiores que zero.</p>
-      {SECOES.map((s) => <SecaoComunicacao key={s.id} secao={s} com={com} hoje={hoje} onGrava={grava} clipping={com.clipping} />)}
-      <Clipping />
-      <section className="cp-geral" aria-labelledby="cp-geral-t">
-        <h4 id="cp-geral-t">Linha do tempo geral</h4>
-        <p className="cp-fonte">Um indicador de cada seção: o número principal dela em cada semana (alcance, comentários, mensagens recebidas, pessoas que participaram e aparições na imprensa).</p>
-        {semanasTotal >= 2
-          ? <Grafico tipo="linha" titulo="Um indicador de cada seção, por semana" series={series} />
-          : <p className="cp-vazio">Registre mais uma semana para ver a linha do tempo geral.</p>}
-      </section>
+      <div className="np-sec-card cp-com-banda">
+        <p className="cp-band">Semana atual: {semana}. Registre uma vez por semana os números de cada tópico; só valem números iguais ou maiores que zero.</p>
+      </div>
+      <div className="np-com-split">
+        <div className="np-sec-card np-com-secoes">
+          {SECOES.map((s) => <SecaoComunicacao key={s.id} secao={s} com={com} hoje={hoje} onGrava={grava} clipping={com.clipping} />)}
+        </div>
+        <div className="np-com-dir">
+          <div className="np-sec-card">
+            <section className="cp-geral" aria-labelledby="cp-geral-t">
+              <h4 id="cp-geral-t">Linha do tempo geral</h4>
+              <p className="cp-fonte">Um indicador de cada seção: o número principal dela em cada semana (alcance, comentários, mensagens recebidas, pessoas que participaram e aparições na imprensa).</p>
+              {semanasTotal >= 2
+                ? <Grafico tipo="linha" titulo="Um indicador de cada seção, por semana" series={series} />
+                : <p className="cp-vazio">Registre mais uma semana para ver a linha do tempo geral.</p>}
+            </section>
+          </div>
+          <div className="np-sec-card">
+            <Clipping />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

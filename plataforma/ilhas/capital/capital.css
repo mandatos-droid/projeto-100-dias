@@ -67,7 +67,7 @@
 
 /* ---------- gráficos (Grafico.tsx): paleta categórica validada (skill dataviz), com superfície própria nos dois temas ---------- */
 .cp-g{--g-sup:#fcfcfb;--g-tx:#0b0b0b;--g-tx2:#52514e;--g-grade:#e3e1dc;--g-s1:#2a78d6;--g-s2:#eb6834;--g-s3:#1baf7a;--g-s4:#eda100;--g-s5:#e87ba4;
-  margin:0;padding:0.75rem;max-width:36rem;background:var(--g-sup);color:var(--g-tx);border:1px solid var(--linha);border-radius:var(--r)}
+  margin:0;padding:0.75rem;max-width:none;width:100%;box-sizing:border-box;background:var(--g-sup);color:var(--g-tx);border:1px solid var(--linha);border-radius:var(--r)}
 @media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .cp-g{--g-sup:#1a1a19;--g-tx:#f0efec;--g-tx2:#c3c2b7;--g-grade:#3a3a37;--g-s1:#3987e5;--g-s2:#d95926;--g-s3:#199e70;--g-s4:#c98500;--g-s5:#d55181}}
 :root[data-theme="dark"] .cp-g{--g-sup:#1a1a19;--g-tx:#f0efec;--g-tx2:#c3c2b7;--g-grade:#3a3a37;--g-s1:#3987e5;--g-s2:#d95926;--g-s3:#199e70;--g-s4:#c98500;--g-s5:#d55181}
 .cp-g figcaption{font-size:0.875rem;font-weight:700;margin:0 0 0.375rem}
@@ -140,3 +140,37 @@
 .cp-livre{display:flex;flex-wrap:wrap;align-items:flex-end;gap:0.5rem 0.75rem;margin-top:1rem}
 .cp-livre .campo{flex:1 1 18rem;margin:0}
 .cp-data{display:block;margin:0 0 0.75rem}
+
+/* ---------- Nova Proposta · Missão 4 (largura total, gavetas laterais e comunicação em 2 colunas) ---------- */
+.ilha-corpo.cp-esc{border-top:0;padding-top:0}
+.cp-esc .np-sec-card>h3:first-child,.cp-esc .np-sec-card>h4:first-child,.cp-esc .np-sec-card>section:first-child>h4:first-child{margin-top:0}
+.cp-topo-barra{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:0.85rem;padding-bottom:0.75rem;border-bottom:1px solid var(--linha-2)}
+.cp-topo-avisos{display:grid;gap:0.5rem;flex:1 1 18rem;min-width:0}
+.cp-lin-acoes,.cp-acao-acoes{display:flex;align-items:center;gap:6px 8px;flex-wrap:wrap}
+.cp-resumo-com{margin:0.3rem 0 0;font-size:0.8125rem;color:var(--ok)}
+.cp-acoes-topo{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+.cp-acoes-estado{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.np-acoes-tit{margin:0 0 0.75rem}
+.cp-gaveta-chips{display:flex;flex-wrap:wrap;gap:6px}
+.cp-gaveta-item{padding:1rem 1.15rem;margin:0}
+.cp-gaveta-cab{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:0.5rem}
+.cp-gaveta-nome{font-size:1.05rem;color:var(--vinho)}
+.cp-gaveta-nome small{color:var(--tinta-3);font-weight:600}
+.np-drawer-body .cp-cartao{margin:0;border:1px solid var(--linha)}
+.np-drawer-body .cp-campos{margin-left:0;grid-template-columns:1fr}
+.np-drawer-body .cp-acao{padding:0.85rem 1rem}
+.cp-com-banda{padding:0.95rem 1.35rem;margin-bottom:1.25rem}
+.np-com-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,1.05fr);gap:1.5rem;align-items:start}
+.np-com-split>*{min-width:0}
+.np-com-secoes{display:grid;gap:0.75rem;margin-bottom:0}
+.np-com-dir{display:grid;gap:1.5rem;min-width:0}
+.np-com-dir>.np-sec-card{margin-bottom:0}
+.cp-geral h4{margin:0 0 0.375rem}
+.cp-geral .cp-fonte{margin-bottom:0.625rem}
+.cp-g-tab{overflow-x:auto;max-width:100%}
+.cp-sec-corpo{width:100%;box-sizing:border-box}
+.cp-sec-corpo>*{width:100%;max-width:100%;box-sizing:border-box}
+.cp-sec-corpo>.bts{width:auto}
+@media(max-width:900px){
+  .np-com-split{grid-template-columns:1fr}
+}

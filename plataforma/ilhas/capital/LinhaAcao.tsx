@@ -22,8 +22,8 @@ const longo: { k: Texto; rot: string }[] = [
 ];
 const texto = (v: unknown) => (typeof v === 'string' ? v : '');
 
-export default function LinhaAcao({ bingo, i, titulo, acao, pessoas, metas, posse, onAlterna, onMuda }: {
-  bingo: string; i: number; titulo: string; acao?: Acao; pessoas: Pessoa[]; metas: MetaLigavel[]; posse?: string; onAlterna: () => void; onMuda: () => void;
+export default function LinhaAcao({ bingo, i, titulo, frenteNome, acao, pessoas, metas, posse, onAlterna, onMuda }: {
+  bingo: string; i: number; titulo: string; frenteNome?: string; acao?: Acao; pessoas: Pessoa[]; metas: MetaLigavel[]; posse?: string; onAlterna: () => void; onMuda: () => void;
 }) {
   const completa = acao ? acaoCompleta(acao) : false;
   const modo = modoDaAcao(acao);
@@ -57,7 +57,7 @@ export default function LinhaAcao({ bingo, i, titulo, acao, pessoas, metas, poss
       <div className="cp-acao-topo">
         <label>
           <input type="checkbox" checked={!!acao} onChange={onAlterna} aria-label={`Escolher ação: ${titulo}`} />
-          <span>{texto(acao?.titulo) || titulo}</span>
+          <span>{frenteNome && <b>{frenteNome}: </b>}{texto(acao?.titulo) || titulo}</span>
         </label>
         {acao && (
           <span className="cp-ponto" data-estado={completa ? 'completa' : 'pendente'} role="img" aria-label={completa ? 'Ação completa' : 'Faltam campos'}>
