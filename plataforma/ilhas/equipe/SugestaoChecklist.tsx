@@ -24,7 +24,7 @@ export default function SugestaoChecklist() {
 
   if (pendentes.length === 0) return null;
   return (
-    <div className="ilha-corpo es-nao-imprime">
+    <div className="ilha-corpo es-nao-imprime es-sug-ilha">
       <div className="apoio" role="status">
         <span className="tag">Sugestão</span>Pelo que você preencheu, estes itens do checklist já podem ser marcados:
         <ul className="es-sugchk">

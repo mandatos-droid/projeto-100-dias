@@ -153,3 +153,98 @@
     }).join('')+'</ol></nav>');
   };
 })();
+
+/* ---------- Missão 2 em página única com cartões .np-sec-card (mesmo mecanismo de m1.js) ----------
+   Mantém Guia.montar, Comp.funcoes, g.intro e g.itens intactos para preservar todos os contratos e testes (legado-m2.test.ts). */
+(function(){
+  if(typeof Guia==='undefined'||typeof Comp==='undefined')return;
+  var M_ROT='<div class="ilha" data-ilha="quadro-rotinas"></div>';
+  var M_TAB='<div class="ilha" data-ilha="equipe-tabela"></div>';
+  var M_ORG='<div class="apoio"><span class="tag">Organograma</span>';
+  var M_AT='<div class="apoio atencao">';
+
+  var _gb=Guia.bloco;
+  Guia.bloco=function(p,n){
+    if(!this.m||this.m.n!==2||this.modo!=='tudo'||!this.ex)return _gb.call(this,p,n);
+    var eid=this.ex.id;
+    if(eid==='m2.funcoes'){
+      var fHtml=Comp.funcoes(this.ex),iTab=fHtml.indexOf(M_TAB),iOrg=fHtml.indexOf(M_ORG);
+      if(p.k==='intro'){
+        var h=_gb.call(this,p,n);
+        var passos=iTab>=0?fHtml.slice(0,iTab):'';
+        return '<div class="np-sec-card">'+h+passos+'</div>';
+      }
+      if(p.k==='componente'){
+        var pTab=iTab>=0?(iOrg>iTab?fHtml.slice(iTab,iOrg):fHtml.slice(iTab)):fHtml;
+        var pOrg=iOrg>=0?fHtml.slice(iOrg):'';
+        return '<div class="np-sec-card">'+pTab+'</div>'+(pOrg?'<div class="np-sec-card">'+pOrg+'</div>':'');
+      }
+    }
+    if(eid==='m2.gestao'){
+      var intro=this.ex.intro||'',iRot=intro.indexOf(M_ROT),iAt=intro.indexOf(M_AT);
+      if(p.k==='intro'){
+        var h2=_gb.call(this,p,n);
+        if(iRot>=0){
+          var idxTexto=h2.indexOf(M_ROT);
+          var cab=(idxTexto>=0?h2.slice(0,idxTexto):h2)+'</div>';
+          return '<div class="np-sec-card">'+cab+'</div><div class="np-sec-card">'+M_ROT+'</div>';
+        }
+        return '<div class="np-sec-card">'+h2+'</div>';
+      }
+      if(p.k==='componente'){
+        var sug=iAt>=0?intro.slice(iAt):'';
+        var c=(typeof D!=='undefined'&&D&&D.campos)||{};
+        var itens=this.ex.itens||[];
+        var marcados=itens.filter(function(it){return !!c[it.k]}).length;
+        return '<div class="np-sec-card np-m2-chk-card">'+
+          '<div class="np-m2-chk-cab"><h3>Checklist da Missão 2</h3>'+
+            '<span class="selo '+(marcados===itens.length&&itens.length>0?'ok':'andamento')+'" data-chk-cont>'+marcados+' de '+itens.length+'</span>'+
+          '</div>'+
+          sug+'<div class="chks">'+Comp.checklist(this.ex)+'</div>'+
+        '</div>';
+      }
+    }
+    return _gb.call(this,p,n);
+  };
+
+  var forcou=false,antes='guiado';
+  var _r=Guia.render;
+  Guia.render=function(){
+    var m2=!!(this.m&&this.m.n===2);
+    if(m2){
+      if(!forcou){antes=this.modo;forcou=true}
+      this.modo='tudo';this.i=0;
+    }else if(forcou){this.modo=antes;forcou=false}
+    _r.apply(this,arguments);
+    if(!m2)return;
+    var tl=document.getElementById('tela'),bt=tl&&tl.querySelector('button[onclick="Guia.alternarModo()"]');
+    if(bt&&bt.parentNode)bt.parentNode.removeChild(bt);
+    if(tl&&tl.querySelectorAll){
+      tl.querySelectorAll('.passo-corpo > hr.regra').forEach(function(hr){if(hr.parentNode)hr.parentNode.removeChild(hr)});
+      var cardChk=tl.querySelector('.np-m2-chk-card'),selo=cardChk&&cardChk.querySelector('[data-chk-cont]');
+      if(cardChk&&selo){
+        var chks=cardChk.querySelectorAll('.chks input[type="checkbox"]');
+        var atualizaSelo=function(){
+          var nOn=0;
+          chks.forEach(function(el){if(el.checked)nOn++});
+          selo.textContent=nOn+' de '+chks.length;
+          selo.className='selo '+(nOn===chks.length&&chks.length>0?'ok':'andamento');
+        };
+        chks.forEach(function(el){el.addEventListener('change',atualizaSelo)});
+      }
+    }else if(tl&&tl.innerHTML){
+      tl.innerHTML=tl.innerHTML.replace(/<hr class="regra">/g,'');
+    }
+  };
+  var _ir=Guia.ir;
+  Guia.ir=function(n){
+    if(this.m&&this.m.n===2){this.render();return}
+    return _ir.call(this,n);
+  };
+  var _ab=Guia.abrir;
+  Guia.abrir=function(nm,id){
+    _ab.call(this,nm,id);
+    if(!this.m||this.m.n!==2)return;
+    this.modo='tudo';
+  };
+})();

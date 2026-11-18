@@ -750,3 +750,48 @@ function contadorDias(d){
     return r;
   };
 })();
+
+/* ---------- Capas das Missões 2 a 5 (#/m/2 .. #/m/5) no layout Nova Proposta ----------
+   Mesma estrutura da capa da Missão 1 (m1.js): cartão de título com borda na cor da missão,
+   pilares numerados, bloco de contexto + quadro 3x1 e exercícios em cartões com selo de status
+   e botão "Abrir etapa →". Textos vêm intactos de MISSOES e NOTA_PRAZO. */
+(function(){
+  if(typeof Telas==='undefined'||!Telas.missao||typeof MISSOES==='undefined')return;
+  var _tm=Telas.missao;
+  Telas.missao=function(n){
+    if(n===1)return _tm.apply(this,arguments);
+    var m=MISSOES.filter(function(x){return x.n===n})[0];
+    if(!m)return _tm.apply(this,arguments);
+    var p=progMissao(m);
+    var h='<div class="etiqueta">Missão '+m.n+' · '+esc(m.prazoTxt)+
+      (dataPrazo(m)&&!m.continua?' · até '+dBRc(dataPrazo(m)):'')+'</div>'+
+      '<div class="np-card" style="border-left:6px solid '+m.cor+';margin-bottom:1.5rem">'+
+        '<h1 class="largo" style="font-size:clamp(1.85rem,3.4vw,2.65rem)">'+esc(m.titulo)+'</h1>'+
+        '<p class="chamada" style="margin-bottom:0">'+esc(m.abre)+'</p>'+
+      '</div>'+
+      '<div class="np-m1-pilares">'+m.agenda.map(function(a,i){
+        return '<div class="np-pilar" style="--c:'+m.cor+'"><b>'+(i+1)+'</b><span>'+esc(a)+'</span></div>';
+      }).join('')+'</div>'+
+      '<div class="np-card" style="margin-bottom:1.5rem">'+
+        '<div class="texto">'+m.resumo+'</div>'+
+        '<div class="quadro">'+
+          '<div><h4>Ao terminar você terá</h4><ul>'+m.entrega.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div>'+
+          '<div><h4>Momento ideal</h4><ul>'+m.momento.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div>'+
+          '<div><h4>Quem conduz</h4><ul>'+m.lidera.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div>'+
+        '</div>'+
+        '<p style="font-size:13.5px;color:var(--tinta-3);margin:0">'+esc(NOTA_PRAZO)+'</p>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.75rem">'+
+        '<h2 style="margin:0">Mão na massa <span style="font-family:Commissioner;font-size:15px;font-weight:700;color:var(--tinta-3)">'+p.feitos+' de '+p.total+'</span></h2>'+
+      '</div>'+
+      '<div class="np-ex-grid">'+m.exercicios.map(function(ex,idx){
+        var e=estadoEx(ex);
+        return '<button type="button" class="np-ex-card ex-item '+e+'" onclick="location.hash=\'#/m/'+m.n+'/'+ex.id+'\'">'+
+          '<div style="display:flex;align-items:center;gap:12px;width:100%;flex-wrap:wrap"><span class="sinal"></span><span class="ex-t" style="margin:0">'+(idx+1)+'. '+esc(ex.t)+'</span><span class="selo '+e+'" style="margin-left:auto">'+Telas.estadoTxt(ex,e)+'</span></div>'+
+          '<p class="ex-d">'+esc(ex.d)+'</p>'+
+          '<span style="font-size:0.84rem;font-weight:700;color:var(--vinho)">Abrir etapa →</span></button>';
+      }).join('')+'</div>'+
+      (m.fecho?'<div class="apoio exemplo" style="margin-top:1.25rem"><span class="tag">Pronto</span>'+m.fecho+'</div>':'');
+    document.getElementById('tela').innerHTML=h;
+  };
+})();

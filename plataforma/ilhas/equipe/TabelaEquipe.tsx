@@ -4,6 +4,7 @@
    a primeira edição grava de uma vez os valores derivados (materializa), para a leitura nova não perder nada. */
 import { useEffect, useState } from 'react';
 import { AREAS, SEM_AREA, aplica, type Campos } from '@/lib/cadeiras';
+import { COR_COORD } from '@/lib/equipe';
 import { CATEGORIAS, COLUNAS, colunaLiberada, contagemCompletas, defineN, editaCelula, linhas, materializa, migrada, type ColunaId, type Linha } from '@/lib/tabelaEquipe';
 import { modeloNome } from './cargos';
 import { useEquipe } from './useEquipe';
@@ -84,24 +85,51 @@ export default function TabelaEquipe() {
         <>
           <p className="es-tab-contador" data-contador><strong>{completas} de {total}</strong> linhas completas</p>
           <p className="es-tab-ajuda">Preencha cada linha da esquerda para a direita: uma coluna só abre quando a anterior está preenchida. O que você já escreveu fica guardado se esvaziar uma coluna.</p>
-          <div className="es-tab-rolagem">
-            <table className="es-tab">
-              <thead>
-                <tr><th scope="col">Linha</th>{COLUNAS.map((x) => <th key={x.id} scope="col" title={x.dica}>{x.rotulo}</th>)}</tr>
-              </thead>
-              <tbody>
-                {ls.map((l, pos) => (
-                  <tr key={l.i} id={`es-linha-${l.i}`} data-linha={l.i} className={l.completa ? 'completa' : ''}>
-                    <th scope="row" data-label="Linha">Linha {pos + 1}{l.completa && <em className="es-tag"> completa</em>}</th>
-                    {COLUNAS.map((x) => (
-                      <td key={x.id} data-label={x.rotulo}>
+          <div className="np-eq-lista2">
+            {ls.map((l, pos) => {
+              const cor = l.completa && !l.processoSeletivo ? 'var(--ok)' : (COR_COORD[l.area] ?? 'var(--vinho)');
+              return (
+                <section
+                  key={l.i}
+                  id={`es-linha-${l.i}`}
+                  data-linha={l.i}
+                  className={`np-eq-card2${l.completa ? ' completa' : ''}`}
+                  style={{ borderLeftColor: cor }}
+                  aria-label={`Posição ${pos + 1}`}
+                >
+                  <div className="np-eq-cab">
+                    <div className="np-eq-cab-info">
+                      <span className="np-eq-pos">#{pos + 1}</span>
+                      <strong className="np-eq-tit">
+                        {l.cargo || 'Função ainda sem nome'}
+                        {l.pessoa && l.pessoa !== '*' ? ` · ${l.pessoa}` : ''}
+                      </strong>
+                      {l.processoSeletivo
+                        ? <span className="selo ps">Processo seletivo</span>
+                        : l.completa
+                          ? <span className="selo ok">Completa</span>
+                          : <span className="selo andamento">Em andamento</span>}
+                    </div>
+                  </div>
+                  <div className="np-eq-andar1">
+                    {COLUNAS.slice(0, 2).map((x) => (
+                      <div key={x.id} className="np-eq-campo" data-label={x.rotulo}>
+                        <span className="np-eq-lbl" title={x.dica} aria-hidden="true">{x.rotulo}</span>
                         <Celula l={l} pos={pos} col={x} onChange={(v) => grava(editaCelula(vista, l.i, x.id, v))} />
-                      </td>
+                      </div>
                     ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                  </div>
+                  <div className="np-eq-andar2">
+                    {COLUNAS.slice(2).map((x) => (
+                      <div key={x.id} className="np-eq-campo" data-label={x.rotulo}>
+                        <span className="np-eq-lbl" title={x.dica} aria-hidden="true">{x.rotulo}</span>
+                        <Celula l={l} pos={pos} col={x} onChange={(v) => grava(editaCelula(vista, l.i, x.id, v))} />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
           </div>
           {ls.some((l) => l.processoSeletivo) && (
             <p className="apoio es-tab-div" role="note">Caso não haja pessoas que se encaixem nos requisitos, encorajamos o mandato a abrir processo seletivo e aumentar a diversidade e a representatividade dentro da equipe!</p>

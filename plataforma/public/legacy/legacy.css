@@ -445,3 +445,9 @@ dl.cmp dd{margin:0;padding:2px 0 2px 0.875rem;border-left:2px solid var(--linha)
 .np-missao-card a.missao-linha{border:0;padding:0}
 .np-missao-card .ml-resp{margin:0.85rem 0 0 4.8rem;border-left:2px solid var(--linha);padding-bottom:0}
 @media(max-width:680px){.np-missao-card .ml-resp{margin-left:0}}
+
+/* ===================== MISSÃO 2: GESTÃO / CHECKLIST EM LARGURA TOTAL ===================== */
+.np-m2-chk-card{border-top:5px solid var(--coral)}
+.np-m2-chk-cab{display:flex;justify-content:space-between;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem}
+.np-m2-chk-cab h3{margin:0}
+.np-m2-chk-card .apoio,.np-m2-chk-card .chk{max-width:none}
