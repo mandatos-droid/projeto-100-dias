@@ -1,5 +1,5 @@
 /* Módulos novos da Missão 1. Usa o vocabulário visual do Guia (variáveis, .tb, .abas, .campo, .apoio…). */
-.tela.largo{max-width:68.75rem}
+.tela.largo{max-width:82rem}
 .ilha{margin:0.375rem 0 2.75rem;max-width:none}
 .ilha-corpo{border-top:2px solid var(--vinho);padding-top:0.375rem}
 .ilha-corpo h4{margin:1.375rem 0 0.5rem}
@@ -394,7 +394,7 @@ input[readonly]{color:var(--tinta-2);background:var(--linha-2)}
   body.lado-fechado .corpo{margin-left:0}
   body.lado-fechado .lado-alterna{left:12px}
   body.lado-fechado .lado-alterna svg{transform:rotate(180deg)}
-  body.lado-fechado .tela.largo{max-width:85rem}
+  body.lado-fechado .tela,body.lado-fechado .tela.largo{max-width:85rem}
   /* o botão fixo (12 a 44px) não pode cobrir o início do conteúdo: a .tela encostava em 38px (sugestão 139) */
   body.lado-fechado .tela{padding-left:max(2.5rem,3.5rem)}
 }
@@ -1161,3 +1161,18 @@ body.modo-captura .capturable-data:hover::before{content:"Clique para escolher e
 /* Carrossel dos classificados com largura fluida (PAR-06): até 3 colunas, cada uma um terço da lista (menos 1px de folga
    para o arredondamento); cai para 2 e 1 coluna quando o cartão ficaria menor que 14rem. auto-fill mantém a largura nos slides com menos de 3 cartões. */
 .ilha-corpo .classificados .slides-lista{grid-template-columns:repeat(auto-fill,minmax(max(14rem,calc((100% - 1.5rem)/3 - 1px)),1fr))}
+
+/* Classes compartilhadas da Nova Proposta (.np-sec-card, .np-2col, .np-3col e gaveta lateral .np-drawer-*) */
+.np-sec-card{background:#fff;border:1.5px solid var(--linha);border-radius:10px;padding:1.5rem 1.75rem;margin-bottom:1.75rem}
+.np-2col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.5rem;align-items:start}
+.np-3col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.25rem;align-items:start}
+@media(max-width:960px){.np-2col,.np-3col{grid-template-columns:1fr}}
+.np-drawer-veu{position:fixed;inset:0;z-index:9980;background:rgba(23,17,15,.48);display:flex;justify-content:flex-end}
+.np-drawer{width:min(640px,94vw);height:100vh;background:var(--papel);border-left:4px solid var(--vinho);box-shadow:-12px 0 40px rgba(0,0,0,.32);display:flex;flex-direction:column;overflow:hidden}
+@media(max-width:900px){.np-drawer{width:100vw}}
+.np-drawer-head{background:var(--vinho);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.np-drawer-head h3{margin:0;color:#fff;font-size:1.25rem;line-height:1.2}
+.np-drawer-x{background:rgba(255,255,255,.15);border:0;color:#fff;width:32px;height:32px;border-radius:6px;font-size:20px;line-height:1;cursor:pointer;flex:none}
+.np-drawer-body{padding:18px 20px;overflow-y:auto;flex:1;display:grid;gap:14px;align-content:start}
+.np-drawer-foot{padding:12px 20px;background:#fff;border-top:1px solid var(--linha);display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+@media print{.np-drawer-veu{display:none!important}}
