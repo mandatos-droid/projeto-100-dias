@@ -3090,9 +3090,9 @@
     "semantic_hash": ""
   },
   "plataforma/ilhas/capital/Comissoes.tsx": {
-    "mtime": 1794970592.2276378,
-    "seen": 1795000606.8967671,
-    "ast_hash": "241b1acedbf0e35e5c37c9fc4dd2d5a5",
+    "mtime": 1795019247.192842,
+    "seen": 1795020340.6648262,
+    "ast_hash": "013155090b54651e075f827189d33b54",
     "semantic_hash": ""
   },
   "plataforma/lib/capital.ts": {
@@ -3114,9 +3114,9 @@
     "semantic_hash": ""
   },
   "plataforma/public/legacy/m4.js": {
-    "mtime": 1794970593.360859,
-    "seen": 1795000606.8982575,
-    "ast_hash": "f535377b6810ce50e04cfe6193ae099a",
+    "mtime": 1795019044.6078954,
+    "seen": 1795020340.774542,
+    "ast_hash": "8b60d0c67a7932ea669f821deacdbef8",
     "semantic_hash": ""
   },
   "plataforma/tests/capital.test.ts": {
@@ -3210,15 +3210,15 @@
     "semantic_hash": ""
   },
   "plataforma/ilhas/capital/LinhaAcao.tsx": {
-    "mtime": 1794970592.2306232,
-    "seen": 1795000606.8967798,
-    "ast_hash": "7eb16ec421eb985bfd4ab45b47ec0788",
+    "mtime": 1795019154.22473,
+    "seen": 1795020340.665049,
+    "ast_hash": "39456ef30ef7ff980b7cd325ea129da6",
     "semantic_hash": ""
   },
   "plataforma/ilhas/capital/Matriz.tsx": {
-    "mtime": 1794970592.2317443,
-    "seen": 1795000606.8967848,
-    "ast_hash": "bf5f973a25a07b74bc190329ee19e175",
+    "mtime": 1795019156.14442,
+    "seen": 1795020340.6650536,
+    "ast_hash": "a06564e6c10f601371f9968bca27c191",
     "semantic_hash": ""
   },
   "plataforma/ilhas/rumo/NovoCiclo.tsx": {
@@ -3258,9 +3258,9 @@
     "semantic_hash": ""
   },
   "plataforma/ilhas/capital/Comunicacao.tsx": {
-    "mtime": 1794970592.2286327,
-    "seen": 1795000606.8967714,
-    "ast_hash": "424eef69cf1063388b120d964c1d0820",
+    "mtime": 1795019158.0656788,
+    "seen": 1795020340.664833,
+    "ast_hash": "136b0dd0adad700eea287707a0fae471",
     "semantic_hash": ""
   },
   "plataforma/ilhas/capital/SecaoComunicacao.tsx": {
