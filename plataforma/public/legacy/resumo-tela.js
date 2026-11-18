@@ -80,9 +80,10 @@ function ferramentas(pend){
 function html(){
   var t=0,f=0;
   MISSOES.forEach(function(m){var p=progMissao(m);t+=p.total;f+=p.feitos});
-  return '<div class="res2"><div class="etiqueta">Mandato</div><h1>Resumo do preenchimento</h1>'+
+  return '<div class="res2"><div class="etiqueta">Mandato</div>'+
+    '<div class="np-sec-card"><h1>Resumo do preenchimento</h1>'+
     '<p class="chamada">Tudo o que a equipe registrou, exercício por exercício. Use nas reuniões de alinhamento e na imersão de planejamento.</p>'+
-    '<div class="ilha" data-ilha="resumo-retrato"></div>'+
+    '<div class="ilha" data-ilha="resumo-retrato"></div></div>'+
     barra(f,t)+ferramentas(t-f)+
     MISSOES.map(function(m){return missao(m)}).join('')+'</div>';
 }

@@ -795,3 +795,112 @@ function contadorDias(d){
     document.getElementById('tela').innerHTML=h;
   };
 })();
+
+/* ---------- Ferramentas (#/ferramentas) e Biblioteca (#/biblioteca) em 2 colunas (.np-apoio-split) ----------
+   Sumário alfabético sticky à esquerda; cartões (.np-sec-card) à direita. Links, rótulos e textos de conteudo.js preservados. */
+(function(){
+  if(typeof Telas==='undefined'||typeof FERRAMENTAS==='undefined'||typeof BIBLIOTECA==='undefined')return;
+
+  function apoioSplitHtml(titulo,chamada,sumarioHtml,cartoesHtml){
+    return '<div class="etiqueta">Apoio</div>'+
+      '<div class="np-sec-card"><h1 class="largo" style="margin:0 0 0.5rem">'+esc(titulo)+'</h1>'+
+        '<p class="chamada" style="margin:0">'+esc(chamada)+'</p></div>'+
+      '<div class="np-apoio-split">'+
+        '<div class="np-sec-card np-apoio-sticky"><h2>Sumário</h2>'+sumarioHtml+'</div>'+
+        '<div>'+cartoesHtml+'</div>'+
+      '</div>';
+  }
+
+  function blocoApoioCard(prefixo,b){
+    var ls=b.links||(b.link?[b.link]:[]);
+    return '<div class="np-sec-card" id="'+prefixo+esc(b.id)+'">'+
+      '<h2>'+esc(b.t)+'</h2>'+chipsMissoes(b.id)+
+      '<div class="texto">'+b.html+'</div>'+
+      (ls.length?'<ul class="link-lista">'+ls.map(function(l){
+        return '<li><a href="'+esc(l.u)+'" target="_blank" rel="noopener">'+esc(l.t)+'</a></li>'}).join('')+'</ul>':'')+
+      '</div>';
+  }
+
+  var MODELO_IDS={
+    'Modelo de Planejamento Estratégico para Mandatos':'mod-mandatos',
+    'Modelo de Planejamento Estratégico para Partidos':'mod-partidos',
+    'Modelo de Planilha de Monitoramento das Metas':'mod-metas',
+    'Modelo de Planilha de Gestão de Pessoas e Organograma':'mod-pessoas'
+  };
+
+  Telas.ferramentas=function(){
+    var modelos=FERRAMENTAS.modelos.map(function(m){
+      var id=MODELO_IDS[m.t];
+      return {tipo:'modelo',id:id,t:m.t,u:m.u,pendente:!m.u};
+    });
+    var blocos=FERRAMENTAS.blocos.map(function(b){
+      return {tipo:'bloco',id:b.id,t:b.t,sec:'f-'+b.id,b:b};
+    });
+    var itens=modelos.map(function(m){return {id:m.id,t:m.t,u:m.u,pendente:m.pendente}})
+      .concat(blocos.map(function(x){return {id:x.id,t:x.t,sec:x.sec}})).sort(ordemAlfa);
+    var itensSumario=itens.map(function(it){
+      return it.u?{id:it.id,t:it.t,sec:'f-'+it.id}:it;
+    });
+    var cartoes=modelos.concat(blocos).sort(ordemAlfa).map(function(item){
+      if(item.tipo==='bloco')return blocoApoioCard('f-',item.b);
+      return '<div class="np-sec-card" id="f-'+esc(item.id)+'">'+
+        '<h2>'+esc(item.t)+'</h2>'+
+        chipsMissoes(item.id)+
+        '<div style="margin-top:0.85rem">'+
+          (item.u
+            ?'<a class="bt sec peq np-ext-bt" href="'+esc(item.u)+'" target="_blank" rel="noopener">'+esc(item.t)+'</a>'
+            :'<span class="pendente">link a inserir</span>')+
+        '</div></div>';
+    }).join('');
+    document.getElementById('tela').innerHTML=apoioSplitHtml(
+      'Caixa de ferramentas',
+      FERRAMENTAS.intro,
+      sumarioApoio('ferramentas',itensSumario),
+      cartoes
+    );
+    var g=document.getElementById('tabGIP');
+    if(g)g.innerHTML='<div class="rolar"><table class="tb"><thead><tr><th style="width:4%">#</th><th style="width:22%">Preditor</th><th style="width:36%">Capacidade desenvolvida</th><th>Pergunta-teste</th></tr></thead><tbody>'+
+      PREDITORES.map(function(p,i){return '<tr><td>'+(i+1)+'</td><td>'+esc(p.n)+'</td><td>'+esc(p.d)+'</td><td>'+esc(p.q)+'</td></tr>'}).join('')+'</tbody></table></div>';
+    var c=document.getElementById('modeloCanal');
+    if(c){
+      var x='<div class="apoio exemplo"><span class="tag">Modelo de formulário</span>'+
+        '<p><strong>'+esc(CANAL_ACOLHIMENTO.abertura)+'</strong></p>'+
+        CANAL_ACOLHIMENTO.texto.map(function(t){return '<p>'+esc(t)+'</p>'}).join('')+'</div><ol class="texto">';
+      CANAL_ACOLHIMENTO.perguntas.forEach(function(q){
+        x+='<li><strong>'+esc(q[0])+'</strong>'+
+          (q[1]?'<ul>'+q[1].map(function(o){return '<li>'+esc(o)+'</li>'}).join('')+'</ul>':'')+'</li>';
+      });
+      x+='</ol><p class="texto"><strong>Possibilidades de atuação voluntária</strong></p><ul class="texto">'+
+        CANAL_ACOLHIMENTO.voluntariado.map(function(v){return '<li><strong>'+esc(v[0])+':</strong> '+esc(v[1])+'</li>'}).join('')+'</ul>';
+      c.innerHTML=x;
+    }
+  };
+
+  Telas.biblioteca=function(){
+    var lista=BIBLIOTECA.map(function(b){return {id:b.id,t:b.t,sec:'b-'+b.id}}).sort(ordemAlfa);
+    var cartoes=BIBLIOTECA.slice().sort(ordemAlfa).map(function(b){
+      return blocoApoioCard('b-',b);
+    }).join('');
+    document.getElementById('tela').innerHTML=apoioSplitHtml(
+      'Biblioteca',
+      'Materiais de aprofundamento sobre os temas que aparecem nas fragilidades do Mapa Político.',
+      sumarioApoio('biblioteca',lista),
+      cartoes
+    );
+    var lr=document.getElementById('listaRegimentos');
+    if(lr){
+      var uf=Store.mandato&&Store.mandato.uf;
+      var x='<h4>Federal e Congresso Nacional</h4><ul class="link-lista">'+
+        REGIMENTOS_FEDERAL.map(function(r){return '<li><a href="'+r[1]+'" target="_blank" rel="noopener">'+esc(r[0])+'</a></li>'}).join('')+'</ul>';
+      if(uf&&REGIMENTOS_UF[uf])
+        x+='<div class="apoio"><span class="tag">A Casa do seu mandato</span>'+
+          '<a href="'+REGIMENTOS_UF[uf]+'" target="_blank" rel="noopener">Regimento Interno — '+esc(UFS[uf][0])+'</a></div>';
+      x+='<h4>Assembleias Legislativas estaduais e Câmara Legislativa do DF</h4><ul class="link-lista">';
+      Object.keys(REGIMENTOS_UF).forEach(function(u){
+        x+='<li><a href="'+REGIMENTOS_UF[u]+'" target="_blank" rel="noopener"><span><span class="uf">'+u+'</span>'+
+          esc(UFS[u][0])+(OBS_REGIMENTO[u]?' <span class="obs">('+esc(OBS_REGIMENTO[u])+')</span>':'')+'</span></a></li>';
+      });
+      lr.innerHTML=x+'</ul>';
+    }
+  };
+})();

@@ -1222,13 +1222,44 @@ body.modo-captura .capturable-data:hover::before{content:"Clique para escolher e
 .diag-frag .kp span{display:block;font-size:0.8125rem;color:var(--tinta-2);line-height:1.35;margin-top:2px}
 .np-sec-card .diag-frag,.np-sec-card .diag-frag h3,.np-sec-card .m1-pronto>h3{margin-top:0}
 
+/* Nova Proposta · Apoio (Ferramentas, Biblioteca), Sugestões e Resumo */
+.np-apoio-split{display:grid;grid-template-columns:minmax(270px,0.72fr) minmax(0,1.4fr);gap:1.5rem;align-items:start}
+.np-apoio-split>*{min-width:0}
+.np-apoio-sticky{position:sticky;top:24px}
+.np-apoio-split .np-sec-card{min-width:0}
+.np-apoio-split .np-sec-card>h2:first-child,.np-apoio-split .np-sec-card>h3:first-child{margin-top:0}
+.np-apoio-split .sumario{margin-bottom:0;max-width:none}
+.np-apoio-split .link-lista{max-width:none}
+.np-apoio-split .link-lista .uf{display:inline-block;width:2.2rem}
+.np-apoio-split .pendente{display:inline-block;font-size:0.75rem;font-weight:700;border:1px solid var(--linha);padding:2px 0.5rem;border-radius:2px;color:var(--tinta-3)}
+.np-ext-bt{max-width:100%;white-space:normal;text-align:left;justify-content:flex-start}
+.np-ext-bt::after{content:"\00a0↗";flex:none}
+.np-sec-card[id^="f-"],.np-sec-card[id^="b-"]{scroll-margin-top:1.5rem}
+
+.np-apoio-split .sug-filtros{flex-direction:column;align-items:stretch;margin:0}
+.np-apoio-split .sug-fl-q{flex:0 0 auto}
+.np-apoio-split .sug-fl input,.np-apoio-split .sug-fl select{width:100%;max-width:100%;background:#fff}
+.np-apoio-split .sug-abas{margin-top:0;margin-bottom:1.25rem}
+.np-apoio-split .sug-card{max-width:none}
+
+#tela .res2>.np-sec-card>h1{margin:0 0 0.45rem;max-width:26ch}
+#tela .res2>.np-sec-card>.chamada{margin:0 0 1rem}
+#tela .res2 .np-sec-card>.ilha{margin:0}
+
 @media(max-width:1040px){
   .np-frag-layout{grid-template-columns:1fr}
   .np-frag-sticky{position:static}
 }
+@media(max-width:1000px){
+  .np-apoio-split{grid-template-columns:1fr}
+  .np-apoio-sticky{position:static}
+}
+@media(max-width:61.25rem){
+  .np-sec-card[id^="f-"],.np-sec-card[id^="b-"]{scroll-margin-top:4rem}
+}
 @media(max-width:900px){
   .np-m1-pilares,.np-ex-grid,.ilha-corpo .np-mun5-grupo,.ilha-corpo .as-slides .slides-lista,.np-prio-grid{grid-template-columns:1fr}
-  .np-ancoras,.np-ficha-sticky,.np-frag-sticky{position:static}
+  .np-ancoras,.np-ficha-sticky,.np-frag-sticky,.np-apoio-sticky{position:static}
   .np-sec-card{padding:1.1rem 1rem}
 }
 @media(max-width:600px){

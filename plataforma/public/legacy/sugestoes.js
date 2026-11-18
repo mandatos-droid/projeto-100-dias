@@ -263,10 +263,14 @@ var Sug={
   },
   desenhar:function(){
     var eq=this.ehEquipe||this.previa;
-    var h='<div class="etiqueta">Mandato</div><h1>Sugestões e correções</h1>'+
-      '<p class="chamada">O que as pessoas enviaram pelo botão “Sugestões para Pedrinho”.'+(eq?' Selecione um trecho do texto para comentar só ele.':'')+'</p>'+
+    var h='<div class="etiqueta">Mandato</div>'+
+      '<div class="np-sec-card"><h1 class="largo" style="margin:0 0 0.45rem">Sugestões e correções</h1>'+
+      '<p class="chamada" style="margin:0">O que as pessoas enviaram pelo botão “Sugestões para Pedrinho”.'+(eq?' Selecione um trecho do texto para comentar só ele.':'')+'</p></div>'+
       (this.previa?'<div class="apoio atencao"><span class="tag">Prévia</span>Estes são exemplos fictícios, só para mostrar a tela. As sugestões reais aparecem aqui quando o banco estiver ativo e você estiver logado.</div>':'')+
-      this.barra()+'<div id="sugLista">'+this.corpo()+'</div>';
+      '<div class="np-apoio-split">'+
+        '<div class="np-sec-card np-apoio-sticky">'+this.barra()+'</div>'+
+        '<div id="sugLista">'+this.corpo()+'</div>'+
+      '</div>';
     document.getElementById('tela').innerHTML=h;
     this.sel=null;this.dica(false);
     if(this.rasc)this.comentar(this.rasc.id,this.rasc.inicio,this.rasc.fim,true);
