@@ -1,17 +1,17 @@
 # Graph Report - wt-layout  (2026-11-18)
 
 ## Corpus Check
-- 853 files · ~1,407,097 words
+- 853 files · ~1,407,578 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 18 file(s) not represented in the graph (top: .css 11, (none) 7)
 
 ## Summary
-- 5129 nodes · 11166 edges · 245 communities (227 shown, 18 thin omitted)
+- 5129 nodes · 11169 edges · 245 communities (227 shown, 18 thin omitted)
 - Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 1057 edges (avg confidence: 0.94)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `fb6dc60f`
+- Built from commit: `e758433b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -1233,7 +1233,7 @@ Nodes (5): esc(), rich(), richEhHtml(), 1. O que já está bom, Error Handling S
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `react` connect `Assentos.tsx` to `ponte.tsx`, `PrimeiroAcesso.tsx`, `UsuarioEdicao.tsx`, `app/page.tsx`, `Legado.tsx`, `plano.ts / useRumo`, `MapaConjuntura.tsx`, `Task Breakdown`, `dadosMapa.ts`, `logs/page.tsx`, `usuarios.ts`, `Convite.tsx`, `Feedback.tsx`, `papeis.ts`, `capital.ts`, `Conjuntura.tsx`, `ilhas/Equipe.tsx`, `Matriz.tsx`, `AreaConta.tsx`, `comunicacao.ts`, `types.ts`, `ArvorePlano.tsx`, `tabelaEquipe.ts`, `react`, `Bandeiras.tsx`, `mandatos.ts`, `useCarga`, `FormularioConvite.tsx`, `Hero`, `destinoAuth`, `analytics/page.tsx`, `Organograma.tsx`, `ciclos.ts`, `quadroRotinas.ts`, `react`, `package.json`, `Comissoes.tsx`, `Plano.tsx`?**
-  _High betweenness centrality (0.161) - this node is a cross-community bridge._
+  _High betweenness centrality (0.157) - this node is a cross-community bridge._
 - **What connects `RFC-822`, `Estudo: Trajetoria de Assessores Negros no Congresso`, `CARGOS_EQUIPE` to the rest of the system?**
   _63 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Task Breakdown` be split into smaller, more focused modules?**
@@ -1243,6 +1243,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `Regimento Externo 2.0 - Guia / PLL6 - Programacao e Metodo ` be split into smaller, more focused modules?**
   _Cohesion score 0.05052790346907994 - nodes in this community are weakly interconnected._
 - **Why does `Missão 4 Capital Político Design` connect `Missão 4 · Capital Político  / 4. Parte C — Comunicação` to `json / build_comissoes.py`, `ilhas/Equipe.tsx`, `Missão 5 · Garanta o avanço  / Missão 5 Avanço Design`?**
-  _High betweenness centrality (0.073) - this node is a cross-community bridge._
+  _High betweenness centrality (0.064) - this node is a cross-community bridge._
 - **Should `Task Breakdown` be split into smaller, more focused modules?**
   _Cohesion score 0.08307692307692308 - nodes in this community are weakly interconnected._
