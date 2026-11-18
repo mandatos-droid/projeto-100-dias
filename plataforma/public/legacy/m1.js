@@ -138,10 +138,14 @@
   Guia.bloco=function(p,n){
     var h=p&&p.k==='m1.atores'?caixa(ATORES):_gb2.call(this,p,n);
     var eid=this.ex&&this.ex.id;
-    if(eid==='m1.persona')return '<div class="np-sec-card">'+h+'</div>';
+    if(eid==='m1.persona'||eid==='m1.oportunidades')return '<div class="np-sec-card">'+h+'</div>';
     if(eid==='m1.conjuntura'){
       var cid=p&&p.k==='m1.atores'?'cj-23':p&&p.k==='pergunta'&&p.n===0?'cj-21':p&&p.k==='pergunta'&&p.n===1?'cj-22':'';
       return '<div class="np-sec-card"'+(cid?' id="'+cid+'"':'')+'>'+h+'</div>';
+    }
+    if(eid==='m1.frag'&&p&&p.k==='componente'){
+      var sep='<div class="np-frag-layout">',ix=h.indexOf(sep);
+      return ix>=0?'<div class="np-sec-card">'+h.slice(0,ix)+'</div>'+h.slice(ix):'<div class="np-sec-card">'+h+'</div>';
     }
     return h;
   };
@@ -181,8 +185,14 @@
   var _fr=Comp.frag;
   Comp.frag=function(e){
     var h=_fr.call(this,e);
-    if(e&&e.id==='m1.frag')h+=CASO+Comp.diagFrag().replace('nos passos anteriores','na lista acima')+'<div class="texto">'+e.fim+'</div>';
-    return h;
+    if(!e||e.id!=='m1.frag')return h;
+    return '<div class="np-frag-layout">'+
+      '<div class="np-sec-card">'+h+CASO+'</div>'+
+      '<div class="np-frag-sticky">'+
+        '<div class="np-sec-card">'+Comp.diagFrag().replace('nos passos anteriores','na lista acima')+'</div>'+
+        '<div class="np-sec-card"><div class="texto">'+e.fim+'</div></div>'+
+      '</div>'+
+    '</div>';
   };
 })();
 
@@ -229,7 +239,7 @@
     var tl=document.getElementById('tela'),bt=tl&&tl.querySelector('button[onclick="Guia.alternarModo()"]');
     if(bt&&bt.parentNode)bt.parentNode.removeChild(bt);
     var eid=this.ex&&this.ex.id;
-    if(tl&&(eid==='m1.persona'||eid==='m1.conjuntura')){
+    if(tl&&(eid==='m1.persona'||eid==='m1.conjuntura'||eid==='m1.oportunidades')){
       var anc=eid==='m1.conjuntura'?'<nav class="np-ancoras" aria-label="Atalhos desta etapa">'+
         '<button type="button" onclick="document.getElementById(\'cj-21\').scrollIntoView({behavior:\'smooth\'})">2.1 Legislatura e Hemiciclo</button>'+
         '<button type="button" onclick="document.getElementById(\'cj-22\').scrollIntoView({behavior:\'smooth\'})">2.2 Força do Partido e Municípios</button>'+
@@ -460,8 +470,8 @@
     var m1=MISSOES.filter(function(m){return m.n===1})[0],vivo=Resumo.vivo,comp;
     Resumo.vivo=true;
     try{comp=Resumo.missao(m1)}finally{Resumo.vivo=vivo}
-    return h+'<section class="m1-pronto" aria-labelledby="m1-pronto-t"><h3 id="m1-pronto-t">Pronto!</h3>'+
+    return h+'<div class="np-sec-card" style="border-top:5px solid var(--vinho)"><section class="m1-pronto" aria-labelledby="m1-pronto-t"><h3 id="m1-pronto-t">Pronto!</h3>'+
       '<div class="texto"><p>'+PRONTO+'</p></div>'+
-      '<h4>Compilado das respostas da Missão 1</h4><div class="m1-compilado">'+comp+'</div></section>';
+      '<h4>Compilado das respostas da Missão 1</h4><div class="m1-compilado">'+comp+'</div></section></div>';
   };
 })();

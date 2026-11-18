@@ -16,10 +16,17 @@ export default function Prioritarias() {
 
   return (
     <div className="ilha-corpo">
-      <div className="so-agendas" role="group" aria-label="Agendas prioritárias">
-        {AGENDAS_PRIO.map((a) => (
-          <button key={a.id} type="button" aria-pressed={lista.includes(a.id)} style={{ ['--c' as string]: a.cor }} onClick={() => clica(a.id)}>{a.rot}</button>
-        ))}
+      <div className="np-prio-grid" role="group" aria-label="Agendas prioritárias">
+        {AGENDAS_PRIO.map((a) => {
+          const on = lista.includes(a.id);
+          return (
+            <button key={a.id} type="button" className="np-prio-bt" aria-pressed={on}
+              style={{ ['--c' as string]: a.cor }} onClick={() => clica(a.id)}>
+              <span>{a.rot}</span>
+              <span className="np-prio-chk" aria-hidden="true">{on ? '✓' : ''}</span>
+            </button>
+          );
+        })}
       </div>
       <p className="peq-t" role="status" aria-live="polite">
         {lista.length === 0 ? 'Nenhuma agenda escolhida' : `${lista.length} ${lista.length === 1 ? 'agenda escolhida' : 'agendas escolhidas'}`}
