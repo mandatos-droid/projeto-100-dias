@@ -10,6 +10,7 @@ import { cargoNome } from '../equipe/cargos';
 import { podeVerFeedback } from '@/lib/convites/papeis';
 import { feedbackFalhou, meuPapel, useLegado } from '../ponte';
 import { FEEDBACK_AVISO, FEEDBACK_ORIENTACAO } from './textosAlana';
+import Gaveta from '../Gaveta';
 import './feedback.css';
 
 /* Quatro informações por conversa (sugestão #130 da Alana): data, 2 destaques, 2 ajustes e o resumo do plano de ação. Todas opcionais. */
@@ -25,9 +26,11 @@ export default function Feedback() {
   if (papel !== null && !podeVerFeedback(papel)) {
     return (
       <div className="ilha-corpo rm-fb">
-        <p className="rm-alerta" role="note" data-sem-acesso>
-          Você não tem acesso ao feedback. Só o parlamentar e o chefe de gabinete veem e editam as conversas desta missão.
-        </p>
+        <div className="np-sec-card">
+          <p className="rm-alerta" role="note" data-sem-acesso>
+            Você não tem acesso ao feedback. Só o parlamentar e o chefe de gabinete veem e editam as conversas desta missão.
+          </p>
+        </div>
       </div>
     );
   }
@@ -42,6 +45,8 @@ function FeedbackConversas() {
   const sairam = removidas(c, conversas);
   const [aberta, setAberta] = useState<number | null>(null);   // liderança aberta
   const [pessoa, setPessoa] = useState<number | null>(null);   // pessoa cuja conversa se registra
+  const [drawerAberta, setDrawerAberta] = useState(false);
+  const [origemGaveta, setOrigemGaveta] = useState<HTMLElement | null>(null);
   const [editando, setEditando] = useState<string | null>(null);
   const [form, setForm] = useState(VAZIO);
 
@@ -54,16 +59,27 @@ function FeedbackConversas() {
   /** Grava a lista inteira em D.feedbacks, com os campos antigos espelhados para o Resumo do Guia. */
   const grava = (lista: Conversa[]) => { D.feedbacks = lista.map(paraGuia); bump(); };
   const limpa = () => { setEditando(null); setForm(VAZIO); };
-  const abreLider = (i: number) => { setAberta(aberta === i ? null : i); setPessoa(null); limpa(); };
-  const abrePessoa = (i: number) => { setPessoa(i); limpa(); };
+  const abreLider = (i: number) => { setAberta(aberta === i ? null : i); setPessoa(null); setDrawerAberta(false); limpa(); };
+  const abrePessoa = (i: number, orig?: HTMLElement | null) => {
+    if (orig) setOrigemGaveta(orig);
+    if (pessoa !== i) limpa();
+    setPessoa(i);
+    setDrawerAberta(true);
+  };
   const salva = (e: React.FormEvent) => {
     e.preventDefault();
     if (!lider || !quem) return;
     /* destaques e ajustes (texto que o Resumo do Guia lê) são montados em lib/feedback.ts a partir dos campos separados */
     grava(editando ? edita(conversas, editando, form) : registra(conversas, { cadeira: quem.i, pessoa: quem.nome, lider: lider.nome || cargoNome(c, lider.i), destaques: '', ajustes: '', ...form }));
     limpa();
+    setDrawerAberta(false);
   };
-  const comeca = (v: Conversa) => { setEditando(v.id); setForm({ data: v.data, ...pontosDe(v), acao: v.acao }); };
+  const comeca = (v: Conversa, orig?: HTMLElement | null) => {
+    if (orig && !drawerAberta) setOrigemGaveta(orig);
+    setEditando(v.id);
+    setForm({ data: v.data, ...pontosDe(v), acao: v.acao });
+    setDrawerAberta(true);
+  };
   const apagaConversa = (v: Conversa) => {
     if (!window.confirm('Apagar esta conversa? O texto dela será apagado.')) return;
     grava(apaga(conversas, v.id));
@@ -92,104 +108,132 @@ function FeedbackConversas() {
 
   return (
     <div className="ilha-corpo rm-fb">
-      {/* orientação da Alana (#130), antes do mapa; "acesso restrito" é só texto, nada é bloqueado */}
-      <div className="fb-orienta" data-orientacao>
-        {FEEDBACK_ORIENTACAO.map((p) => <p key={p}>{p}</p>)}
-      </div>
-      <p className="rm-alerta" role="note" data-acesso-restrito>{FEEDBACK_AVISO}</p>
-      {feedbackFalhou() && (
-        <p className="rm-alerta" role="alert" data-feedback-falhou>
-          Não foi possível carregar as conversas de feedback. Recarregue a página antes de registrar uma nova, para não perder as anteriores.
-        </p>
-      )}
-      {mapa.length === 0 ? (
-        <p className="rm-alerta" role="note" data-sem-equipe>
-          A equipe da Missão 2 ainda não tem cadeiras com nome para formar o mapa de feedback. <a href="#/m/2/m2.funcoes">Ir para a equipe da Missão 2</a>
-        </p>
-      ) : (
-        <>
-          <p className="rm-dica">Cada liderança dá feedback às pessoas que lidera no organograma da Missão 2. Clique em uma liderança para ver as pessoas dela.</p>
-          <ul className="fb-arvore" aria-label="Mapa de feedback pelo organograma">{filhos(null).map(no)}</ul>
-        </>
-      )}
+      <div className="np-sec-card">
+        {/* orientação da Alana (#130), antes do mapa; "acesso restrito" é só texto, nada é bloqueado */}
+        <div className="fb-orienta" data-orientacao>
+          {FEEDBACK_ORIENTACAO.map((p) => <p key={p}>{p}</p>)}
+        </div>
+        <p className="rm-alerta" role="note" data-acesso-restrito>{FEEDBACK_AVISO}</p>
+        {feedbackFalhou() && (
+          <p className="rm-alerta" role="alert" data-feedback-falhou>
+            Não foi possível carregar as conversas de feedback. Recarregue a página antes de registrar uma nova, para não perder as anteriores.
+          </p>
+        )}
+        {mapa.length === 0 ? (
+          <p className="rm-alerta" role="note" data-sem-equipe>
+            A equipe da Missão 2 ainda não tem cadeiras com nome para formar o mapa de feedback. <a href="#/m/2/m2.funcoes">Ir para a equipe da Missão 2</a>
+          </p>
+        ) : (
+          <>
+            <p className="rm-dica">Cada liderança dá feedback às pessoas que lidera no organograma da Missão 2. Clique em uma liderança para ver as pessoas dela.</p>
+            <ul className="fb-arvore" aria-label="Mapa de feedback pelo organograma">{filhos(null).map(no)}</ul>
+          </>
+        )}
 
-      {lider && (
-        <section className="fb-painel" aria-label={`Pessoas que ${lider.nome || 'a liderança'} lidera`}>
-          <h4>Pessoas que {lider.nome || cargoNome(c, lider.i)} lidera <span className="rm-n">feitas {lider.feitas} de {lider.n}</span></h4>
-          <ul className="fb-pessoas">
-            {lider.liderados.map((p) => (
-              <li key={p.i} data-pessoa={p.i} className={pessoa === p.i ? 'sel' : ''}>
-                <button type="button" className="fb-pessoa-bt" aria-expanded={pessoa === p.i} onClick={() => abrePessoa(p.i)}>{p.nome}</button>
-                <span className={'fb-sit ' + (p.feita ? 'feita' : 'pendente')}>{p.feita ? 'feita' : 'pendente'}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {lider && quem && (
-        <section className="fb-conversa" aria-label={`Conversas com ${quem.nome}`}>
-          {deles.length > 0 && (
-            <ul className="fb-historico">
-              {deles.map((v) => (
-                <li key={v.id} data-conversa={v.id}>
-                  <b>{rotData(v)}</b>
-                  {v.destaques && <span>Destaques: {emLinha(v.destaques)}</span>}
-                  {v.ajustes && <span>Ajustes: {emLinha(v.ajustes)}</span>}
-                  {v.acao && <span>Plano de ação: {v.acao}</span>}
-                  <span className="fb-acoes">
-                    <button type="button" className="rm-link" aria-label={`Editar conversa de ${rotData(v)}`} onClick={() => comeca(v)}>Editar</button>
-                    <button type="button" className="rm-link" aria-label={`Apagar conversa de ${rotData(v)}`} onClick={() => apagaConversa(v)}>Apagar</button>
-                  </span>
+        {lider && (
+          <section className="fb-painel" aria-label={`Pessoas que ${lider.nome || 'a liderança'} lidera`}>
+            <h4>Pessoas que {lider.nome || cargoNome(c, lider.i)} lidera <span className="rm-n">feitas {lider.feitas} de {lider.n}</span></h4>
+            <ul className="fb-pessoas">
+              {lider.liderados.map((p) => (
+                <li key={p.i} data-pessoa={p.i} className={pessoa === p.i && drawerAberta ? 'sel' : ''}>
+                  <button
+                    type="button"
+                    className="fb-pessoa-bt"
+                    aria-expanded={pessoa === p.i && drawerAberta}
+                    onClick={(ev) => abrePessoa(p.i, ev.currentTarget)}
+                  >
+                    {p.nome}
+                  </button>
+                  <div className="fb-pessoa-dir">
+                    <span className={'fb-sit ' + (p.feita ? 'feita' : 'pendente')}>{p.feita ? 'feita' : 'pendente'}</span>
+                    <button
+                      type="button"
+                      className="bt sec peq"
+                      onClick={(ev) => abrePessoa(p.i, ev.currentTarget)}
+                    >
+                      Abrir conversa
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
-          )}
-          <form className="fb-form" aria-label={`Conversa de feedback com ${quem.nome}`} onSubmit={salva}>
-            <h4>{editando ? 'Editar conversa' : 'Nova conversa'} com {quem.nome}</h4>
-            <label className="campo"><span className="rot">Data da conversa</span>
-              <span className="aj">Dia em que a conversa aconteceu.</span>
-              <input type="text" placeholder="Ex.: 18/03" value={form.data} onChange={campo('data')} /></label>
-            <label className="campo"><span className="rot">Ponto de destaque 1</span>
-              <span className="aj">Ponto positivo trazido pela liderança ou apontado pelo liderado.</span>
-              <textarea value={form.d1} onChange={campo('d1')} /></label>
-            <label className="campo"><span className="rot">Ponto de destaque 2</span>
-              <span className="aj">Um segundo ponto positivo, trazido pela liderança ou apontado pelo liderado.</span>
-              <textarea value={form.d2} onChange={campo('d2')} /></label>
-            <label className="campo"><span className="rot">Ponto de ajuste 1</span>
-              <span className="aj">Apresentado pela liderança para melhoria do desempenho do liderado.</span>
-              <textarea value={form.a1} onChange={campo('a1')} /></label>
-            <label className="campo"><span className="rot">Ponto de ajuste 2</span>
-              <span className="aj">Um segundo ponto que a liderança pede para melhorar o desempenho do liderado.</span>
-              <textarea value={form.a2} onChange={campo('a2')} /></label>
-            <label className="campo"><span className="rot">Resumo do plano de ação</span>
-              <span className="aj">Proposto pela liderança para o liderado conseguir resultados mais aderentes ao que o mandato espera.</span>
-              <textarea value={form.acao} onChange={campo('acao')} /></label>
-            <div className="bts">
-              <button type="submit" className="bt pri peq">Salvar conversa</button>
-              {editando && <button type="button" className="bt sec peq" onClick={limpa}>Cancelar edição</button>}
-            </div>
-          </form>
-        </section>
-      )}
+          </section>
+        )}
 
-      {sairam.length > 0 && (
-        <section className="fb-removidas" data-removidas aria-label="Conversas de pessoas que saíram do organograma">
-          <h4>Conversas de pessoas que não estão mais no organograma</h4>
-          <ul className="fb-historico">
-            {sairam.map((v) => (
-              <li key={v.id} data-conversa={v.id}>
-                <b>{v.pessoa || 'Sem nome'} <em className="fb-sit pendente">pessoa removida</em></b>
-                <span>{rotData(v)}{v.lider && ` · liderança: ${v.lider}`}</span>
-                {v.destaques && <span>Destaques: {emLinha(v.destaques)}</span>}
-                {v.ajustes && <span>Ajustes: {emLinha(v.ajustes)}</span>}
-                {v.acao && <span>Plano de ação: {v.acao}</span>}
-                <span className="fb-acoes"><button type="button" className="rm-link" aria-label={`Apagar conversa de ${v.pessoa || 'pessoa removida'}`} onClick={() => apagaConversa(v)}>Apagar</button></span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+        {sairam.length > 0 && (
+          <section className="fb-removidas" data-removidas aria-label="Conversas de pessoas que saíram do organograma">
+            <h4>Conversas de pessoas que não estão mais no organograma</h4>
+            <ul className="fb-historico">
+              {sairam.map((v) => (
+                <li key={v.id} data-conversa={v.id}>
+                  <b>{v.pessoa || 'Sem nome'} <em className="fb-sit pendente">pessoa removida</em></b>
+                  <span>{rotData(v)}{v.lider && ` · liderança: ${v.lider}`}</span>
+                  {v.destaques && <span>Destaques: {emLinha(v.destaques)}</span>}
+                  {v.ajustes && <span>Ajustes: {emLinha(v.ajustes)}</span>}
+                  {v.acao && <span>Plano de ação: {v.acao}</span>}
+                  <span className="fb-acoes"><button type="button" className="rm-link" aria-label={`Apagar conversa de ${v.pessoa || 'pessoa removida'}`} onClick={() => apagaConversa(v)}>Apagar</button></span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+
+      <Gaveta
+        aberta={drawerAberta && !!lider && !!quem}
+        titulo={quem ? `Feedback · ${quem.nome}` : ''}
+        ariaLabel={quem ? `Conversas com ${quem.nome}` : 'Conversas de feedback'}
+        corTopo="#035252"
+        classeCorpo="rm-fb"
+        origem={origemGaveta}
+        onFechar={() => setDrawerAberta(false)}
+      >
+        {lider && quem && (
+          <section className="fb-conversa" aria-label={`Conversas com ${quem.nome}`}>
+            {deles.length > 0 && (
+              <ul className="fb-historico">
+                {deles.map((v) => (
+                  <li key={v.id} data-conversa={v.id}>
+                    <b>{rotData(v)}</b>
+                    {v.destaques && <span>Destaques: {emLinha(v.destaques)}</span>}
+                    {v.ajustes && <span>Ajustes: {emLinha(v.ajustes)}</span>}
+                    {v.acao && <span>Plano de ação: {v.acao}</span>}
+                    <span className="fb-acoes">
+                      <button type="button" className="rm-link" aria-label={`Editar conversa de ${rotData(v)}`} onClick={(ev) => comeca(v, ev.currentTarget)}>Editar</button>
+                      <button type="button" className="rm-link" aria-label={`Apagar conversa de ${rotData(v)}`} onClick={() => apagaConversa(v)}>Apagar</button>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <form className="fb-form" aria-label={`Conversa de feedback com ${quem.nome}`} onSubmit={salva}>
+              <h4>{editando ? 'Editar conversa' : 'Nova conversa'} com {quem.nome}</h4>
+              <label className="campo"><span className="rot">Data da conversa</span>
+                <span className="aj">Dia em que a conversa aconteceu.</span>
+                <input type="text" placeholder="Ex.: 18/03" value={form.data} onChange={campo('data')} /></label>
+              <label className="campo"><span className="rot">Ponto de destaque 1</span>
+                <span className="aj">Ponto positivo trazido pela liderança ou apontado pelo liderado.</span>
+                <textarea value={form.d1} onChange={campo('d1')} /></label>
+              <label className="campo"><span className="rot">Ponto de destaque 2</span>
+                <span className="aj">Um segundo ponto positivo, trazido pela liderança ou apontado pelo liderado.</span>
+                <textarea value={form.d2} onChange={campo('d2')} /></label>
+              <label className="campo"><span className="rot">Ponto de ajuste 1</span>
+                <span className="aj">Apresentado pela liderança para melhoria do desempenho do liderado.</span>
+                <textarea value={form.a1} onChange={campo('a1')} /></label>
+              <label className="campo"><span className="rot">Ponto de ajuste 2</span>
+                <span className="aj">Um segundo ponto que a liderança pede para melhorar o desempenho do liderado.</span>
+                <textarea value={form.a2} onChange={campo('a2')} /></label>
+              <label className="campo"><span className="rot">Resumo do plano de ação</span>
+                <span className="aj">Proposto pela liderança para o liderado conseguir resultados mais aderentes ao que o mandato espera.</span>
+                <textarea value={form.acao} onChange={campo('acao')} /></label>
+              <div className="bts">
+                <button type="submit" className="bt pri peq">Salvar conversa</button>
+                {editando && <button type="button" className="bt sec peq" onClick={limpa}>Cancelar edição</button>}
+              </div>
+            </form>
+          </section>
+        )}
+      </Gaveta>
     </div>
   );
 }

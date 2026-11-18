@@ -498,3 +498,33 @@ input.rm-jn-titulo:focus-visible{outline:3px solid var(--verde);outline-offset:2
 /* M3.4 Metas em cartões na árvore + espaçamento dentro do .np-sec-card */
 .np-sec-card>.rm-metas>.contador:first-child{margin-top:0}
 .rm-metas .rm-arvore-cartoes{margin-top:1rem}
+
+/* ---------- Nova Proposta · Missão 5 (Monitoramento 2 colunas, Imersão 2 colunas) ---------- */
+.np-monit-topo .np-monit-cab-topo{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.75rem 1rem;margin-bottom:0.5rem}
+.np-monit-topo .np-monit-cab-topo h1{margin:0}
+.np-monit-topo .orienta{max-width:none}
+.np-monit-acoes{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-top:0.25rem}
+.np-monit-filtro{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-top:1.15rem;padding-top:1rem;border-top:1px solid var(--linha-2)}
+.np-monit-filtro-rot{font-size:0.85rem;font-weight:700;color:var(--tinta-2)}
+.np-monit-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem;align-items:start}
+.np-monit-grid2 .din{margin:0;max-width:none;background:#fff;border:1.5px solid var(--linha);border-radius:10px;padding:1.25rem 1.35rem;box-sizing:border-box;min-width:0}
+.np-monit-grid2 .din[data-foco]{border-color:var(--verde);box-shadow:0 0 0 2px rgba(3,82,82,.12)}
+.np-monit-grid2 .din .campo,.np-monit-grid2 .din textarea,.np-monit-grid2 .din .rico{max-width:none;width:100%;box-sizing:border-box}
+@media(max-width:900px){
+  .np-monit-grid2{grid-template-columns:1fr}
+  .np-monit-grid2 .din{padding:1.1rem 1rem}
+}
+
+.np-imersao-topo{border-left:6px solid var(--verde)}
+.np-imersao-cab{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.65rem 1rem;margin-bottom:0.5rem}
+.np-imersao-cab h1{margin:0}
+.np-imersao-topo .linha-campos{margin-top:1rem}
+.np-2col.np-imersao-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.5rem;align-items:start}
+.np-imersao-split>.np-sec-card{margin-bottom:0;min-width:0}
+.np-imersao-chk-card h4{margin-top:0}
+.np-imersao-chk-card .chk{max-width:none}
+.np-imersao-ciclo-card .rm-novociclo{margin:0}
+@media(max-width:900px){
+  .np-2col.np-imersao-split{grid-template-columns:1fr;gap:1.15rem}
+  .np-monit-topo,.np-imersao-topo,.np-imersao-split>.np-sec-card{padding:1.15rem 1rem}
+}

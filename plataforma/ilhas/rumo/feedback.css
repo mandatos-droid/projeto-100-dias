@@ -10,7 +10,7 @@
 .rm-fb .fb-cont{font-size:0.8125rem;font-weight:700;color:var(--andamento)}
 .rm-fb .fb-cont.ok{color:var(--ok)}
 
-@media (max-width:640px){
+@media (max-width:900px){
   .rm-fb .fb-arvore,.rm-fb .fb-filhos{display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:0.625rem}
   .rm-fb .fb-no{align-items:stretch;gap:0.625rem}
   .rm-fb .fb-filhos{border-top:0;padding-top:0}
@@ -25,17 +25,26 @@
 .rm-fb .fb-painel,.rm-fb .fb-conversa,.rm-fb .fb-removidas{margin-top:1.25rem;padding:0.875rem 1rem;border:1.5px solid var(--linha);border-radius:var(--r);background:var(--papel)}
 .rm-fb h4{margin:0 0 0.5rem}
 .rm-fb .fb-pessoas,.rm-fb .fb-historico{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0.375rem}
-.rm-fb .fb-pessoas li{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;background:#fff;border:1.5px solid var(--linha);border-radius:var(--r);padding:0.375rem 0.75rem}
+.rm-fb .fb-pessoas li{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;background:#fff;border:1.5px solid var(--linha);border-radius:var(--r);padding:0.5rem 0.75rem}
 .rm-fb .fb-pessoas li.sel{border-color:var(--vinho)}
-.rm-fb .fb-pessoa-bt{all:unset;cursor:pointer;font-weight:700;flex:1}
-.rm-fb .fb-sit{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-style:normal}
-.rm-fb .fb-sit.feita{color:var(--ok)}
-.rm-fb .fb-sit.pendente{color:var(--andamento)}
+.rm-fb .fb-pessoa-bt{all:unset;cursor:pointer;font-weight:700;flex:1;min-width:0}
+.rm-fb .fb-pessoa-dir{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;justify-content:flex-end}
+.rm-fb .fb-sit{display:inline-block;padding:0.15rem 0.55rem;border-radius:4px;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-style:normal}
+.rm-fb .fb-sit.feita{color:var(--ok);background:rgba(27,107,79,.12)}
+.rm-fb .fb-sit.pendente{color:var(--andamento);background:rgba(165,84,21,.12)}
 .rm-fb .fb-historico li{display:flex;flex-direction:column;gap:0.125rem;background:#fff;border:1.5px solid var(--linha);border-radius:var(--r);padding:0.5rem 0.75rem;font-size:0.875rem}
 .rm-fb .fb-acoes{display:flex;gap:0.75rem;margin-top:0.25rem}
 .rm-fb .fb-form{margin-top:0.75rem;display:flex;flex-direction:column;gap:0.5rem}
 .rm-fb .fb-form textarea{min-height:4.5rem}
 
-/* Missão 5 · orientação da Alana antes do mapa (sugestão #130) */
-.rm-fb .fb-orienta{max-width:62ch;margin:0 0 0.75rem}
+/* Missão 5 · orientação da Alana antes do mapa (sugestão #130) + gaveta lateral Nova Proposta */
+.rm-fb .fb-orienta{max-width:none;margin:0 0 0.75rem}
 .rm-fb .fb-orienta p{margin:0 0 0.75rem;line-height:1.6}
+.rm-fb>.np-sec-card{margin-bottom:0}
+.np-drawer-body.rm-fb .fb-conversa{margin-top:0;padding:0;border:0;background:transparent}
+.np-drawer-body.rm-fb .fb-form .campo,.np-drawer-body.rm-fb .fb-form input,.np-drawer-body.rm-fb .fb-form textarea{max-width:none;width:100%;box-sizing:border-box}
+@media (max-width:900px){
+  .rm-fb>.np-sec-card{padding:1.15rem 1rem}
+  .rm-fb .fb-pessoas li{flex-wrap:wrap}
+  .rm-fb .fb-pessoa-dir{margin-left:auto}
+}
