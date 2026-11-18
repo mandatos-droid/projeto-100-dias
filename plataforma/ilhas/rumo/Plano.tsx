@@ -13,6 +13,7 @@ import { editaSucesso, lerSucessos } from '@/lib/sucessos';
 import ArvorePlano, { pctTxt } from './ArvorePlano';
 import CartaoMeta from './CartaoMeta';
 import EditorPlano from './EditorPlano';
+import Gaveta from '../Gaveta';
 import { BOTAO_MONIT } from './textosAlana';
 import { useRumo } from './useRumo';
 import './rumo.css';
@@ -90,7 +91,7 @@ function RotinasPlano({ campos }: { campos: Record<string, string> }) {
 
 export default function Plano() {
   const { d, c, arv, objetivos, pessoas, metas, setMeta, addMeta, rmMeta, bump } = useRumo();
-  const [editando, setEditando] = useState<number | null>(null);
+  const [editando, setEditando] = useState<{ idx: number; modo: 'gaveta' | 'inline'; origem?: HTMLElement | null } | null>(null);
   const [filtro, setFiltro] = useState('');
   const [ordenar, setOrdenar] = useState(false);
   const [ver, setVer] = useState<number | null>(null); // planejamento arquivado aberto para leitura; null = o atual
@@ -104,6 +105,8 @@ export default function Plano() {
   const total = pctPlano(arv.objetivos);
   const vazio = !arv.objetivos.some((o) => o.metas.length > 0);
   const nMetas = metas.length;
+  const escolhidos = arv.objetivos.map((o) => o.pid);
+  const temEstrategia = lerEstrategia(c, escolhidos) !== null || PREDITORES.some((p) => lerJustificativa(c, p.id).trim() !== '');
   /* "Ordenar por atingimento": do menor para o maior; objetivo sem atingimento ("—") vai ao fim; empate mantém a ordem dos preditores */
   const ordenado = ordenar
     ? { ...arv, objetivos: arv.objetivos.map((o, i) => ({ o, i, p: pctObjetivo(o.metas) })).sort((a, b) => (a.p ?? Infinity) - (b.p ?? Infinity) || a.i - b.i).map((x) => x.o) }
@@ -116,15 +119,17 @@ export default function Plano() {
     rmMeta(idx);
   };
   const acrescenta = (pid: string) => {
-    if (addMeta(pid) === null) setEditando((Array.isArray(d.metas) ? d.metas.length : 1) - 1);
+    if (addMeta(pid) === null) setEditando({ idx: (Array.isArray(d.metas) ? d.metas.length : 1) - 1, modo: 'inline' });
   };
 
   /* filtro por pessoa: as da Missão 2 e os nomes livres que já aparecem nas metas */
   const nomesDasMetas = (m: (typeof metas)[number]) => { const r = resolve(c, m); return [r.resp, ...r.apoios].filter(Boolean); };
   const gente = [...new Map([...pessoas.map((p) => p.nome), ...metas.flatMap(nomesDasMetas)].map((n) => [norm(n), n])).values()].sort((a, b) => a.localeCompare(b, 'pt-BR'));
   const daPessoa = (m: (typeof metas)[number]) => nomesDasMetas(m).some((n) => norm(n) === norm(filtro));
+  const metaGaveta = editando?.modo === 'gaveta' ? metas.find((x) => x.idx === editando.idx) ?? null : null;
 
   const opcoes = {
+    cartoes: true,
     onStatus: (idx: number, status: Parameters<typeof setMeta>[1]['status'] & string) => { lembra(idx); setMeta(idx, { status }); },
     onStatusSucesso: (idx: number, id: string, status: Parameters<typeof setMeta>[1]['status'] & string) => {
       const meta = metas.find((x) => x.idx === idx);
@@ -132,21 +137,35 @@ export default function Plano() {
       if (meta) { const sucessos = editaSucesso(lerSucessos(meta), id, { status }); setMeta(idx, { sucessos, status: statusPorAtingimento(meta.status, sucessos) }); }
     },
     marca: (m: (typeof metas)[number]) => (filtro ? (daPessoa(m) ? ('destaque' as const) : ('esmaecido' as const)) : undefined),
+    infoMeta: (m: (typeof metas)[number]) => {
+      const r = resolve(c, m);
+      return (
+        <span className="np-meta-resp">
+          Responsável: <b>{r.resp || 'A definir'}</b>
+          {r.apoios.length > 0 && ` · Apoio: ${r.apoios.join(', ')}`}
+        </span>
+      );
+    },
     extraObjetivo: (pid: string) => (
       <button type="button" className="bt sec peq rm-nao-imprime" aria-label={`Acrescentar meta a ${objetivos.find((o) => o.pid === pid)?.texto ?? pid}`} onClick={() => acrescenta(pid)}>Acrescentar meta</button>
     ),
-    extra: (m: (typeof metas)[number]) => (
-      <>
-        <button type="button" className="rm-link rm-nao-imprime" aria-expanded={editando === m.idx} aria-label={`${editando === m.idx ? 'Fechar a edição da' : 'Editar a'} meta ${String(m.idx + 1).padStart(2, '0')}`}
-          onClick={() => setEditando(editando === m.idx ? null : m.idx)}>{editando === m.idx ? 'Fechar' : 'Editar'}</button>
-        <button type="button" className="rm-link rm-nao-imprime" data-monit-meta={m.id} aria-label={`Detalhar a meta ${String(m.idx + 1).padStart(2, '0')} no Monitoramento`}
-          onClick={() => irMonitoramento(m.id)}>Detalhar no Monitoramento</button>
-        {editando === m.idx && (
-          <div className="rm-no-edicao rm-nao-imprime">
-            <CartaoMeta meta={m} objetivos={objetivos} pessoas={pessoas} campos={c} comStatus podeMover={podeMover} onChange={(i, patch) => { lembra(i); setMeta(i, patch); }} onRemove={remove} />
-          </div>
-        )}
-      </>
+    extra: (m: (typeof metas)[number]) => {
+      const aberta = editando?.idx === m.idx;
+      return (
+        <>
+          <button type="button" className="bt sec peq rm-nao-imprime" aria-expanded={aberta} aria-label={`${aberta ? 'Fechar a edição da' : 'Editar a'} meta ${String(m.idx + 1).padStart(2, '0')}`}
+            onClick={(e) => setEditando(aberta ? null : { idx: m.idx, modo: 'gaveta', origem: e.currentTarget })}>{aberta ? 'Fechar' : 'Editar'}</button>
+          <button type="button" className="rm-link rm-nao-imprime" data-monit-meta={m.id} aria-label={`Detalhar a meta ${String(m.idx + 1).padStart(2, '0')} no Monitoramento`}
+            onClick={() => irMonitoramento(m.id)}>Detalhar no Monitoramento</button>
+        </>
+      );
+    },
+    abaixoMeta: (m: (typeof metas)[number]) => (
+      editando?.idx === m.idx && editando.modo === 'inline' ? (
+        <div className="rm-no-edicao rm-nao-imprime">
+          <CartaoMeta meta={m} objetivos={objetivos} pessoas={pessoas} campos={c} comStatus podeMover={podeMover} onChange={(i, patch) => { lembra(i); setMeta(i, patch); }} onRemove={remove} />
+        </div>
+      ) : null
     ),
   };
 
@@ -197,50 +216,105 @@ export default function Plano() {
           <div className="rm-plano-vazio"><h4>Este planejamento não tinha metas</h4><p>Ele foi guardado sem metas, então não há o que mostrar na árvore.</p></div>
         ) : (
           <>
-            <div className="rm-plano-topo"><Anel pct={totalArq} /><div><p className="rm-plano-t">Atingimento total</p></div></div>
-            <ArvorePlano modo="plano" arv={arquivado} opcoes={{ onStatus: () => {}, leitura: true }} />
+            <div className="np-plano-dash sem-est">
+              <div className="np-card np-plano-anel"><Anel pct={totalArq} /><div><p className="rm-plano-t">Atingimento total</p></div></div>
+            </div>
+            <ArvorePlano modo="plano" estilo="cartoes" arv={arquivado} opcoes={{ onStatus: () => {}, leitura: true, cartoes: true }} />
           </>
         )}
       </div>
     );
   }
 
+  const temConteudo = !vazio || arv.semObjetivo.length > 0 || arv.objetivos.length > 0;
+
   return (
     <div className="ilha-corpo rm-plano" data-n-metas={nMetas} data-imprime="">
+      {temConteudo && (
+        <div className="np-plano-monit-topo rm-nao-imprime">
+          <button type="button" className="bt pri" data-ir-monit onClick={() => irMonitoramento(ultima.current)}>{BOTAO_MONIT}</button>
+        </div>
+      )}
       {seletor}
+      {temConteudo ? (
+        <div className={`np-plano-dash${temEstrategia ? '' : ' sem-est'}`}>
+          <div className="np-card np-plano-anel">
+            <Anel pct={total} />
+            <div>
+              <p className="rm-plano-t">Atingimento total</p>
+              <p className="rm-dica">Média de todas as metas ativas: cada meta pesa o mesmo no todo, então objetivos com mais metas pesam mais. Meta congelada fica fora da conta; meta sem status vale 0.</p>
+            </div>
+          </div>
+          {temEstrategia && (
+            <div className="np-card np-plano-est-card">
+              <EstrategiaPlano campos={c} escolhidos={escolhidos} />
+            </div>
+          )}
+        </div>
+      ) : (
+        temEstrategia && (
+          <div className="np-card np-plano-est-card np-plano-est-solo">
+            <EstrategiaPlano campos={c} escolhidos={escolhidos} />
+          </div>
+        )
+      )}
       <EditorPlano aberto={arv.objetivos.length === 0} />
-      <EstrategiaPlano campos={c} escolhidos={arv.objetivos.map((o) => o.pid)} />
       {vazio && (
         <div className="rm-plano-vazio">
           <h4>O planejamento ainda não tem metas</h4>
           <p>{arv.objetivos.length === 0 ? 'Escolha os preditores acima. Cada um vira um objetivo, e você acrescenta as metas e os sucessos aqui mesmo.' : 'Use "Acrescentar meta" em cada objetivo abaixo. Os sucessos mensais entram na edição da meta.'}</p>
         </div>
       )}
-      {(!vazio || arv.semObjetivo.length > 0 || arv.objetivos.length > 0) && (
+      {temConteudo && (
         <>
-          <div className="rm-plano-topo">
-            <Anel pct={total} />
-            <div>
-              <p className="rm-plano-t">Atingimento total</p>
-              <p className="rm-dica">Média de todas as metas ativas: cada meta pesa o mesmo no todo, então objetivos com mais metas pesam mais. Meta congelada fica fora da conta; meta sem status vale 0.</p>
-            </div>
-            <div className="rm-plano-acoes rm-nao-imprime">
-              <button type="button" className="bt pri" data-ir-monit onClick={() => irMonitoramento(ultima.current)}>{BOTAO_MONIT}</button>
-              <label className="campo"><span className="rot">Filtrar por pessoa</span>
-                <select value={filtro} onChange={(e) => setFiltro(e.target.value)}>
-                  <option value="">Todas as pessoas</option>
-                  {gente.map((n) => <option key={n} value={n}>{n}</option>)}
-                </select>
-              </label>
-              <button type="button" className="bt sec peq" aria-pressed={ordenar} onClick={() => setOrdenar(!ordenar)}>Ordenar por atingimento</button>
-            </div>
+          <div className="np-plano-filtros rm-nao-imprime">
+            <label className="campo"><span className="rot">Filtrar por pessoa</span>
+              <select value={filtro} onChange={(e) => setFiltro(e.target.value)}>
+                <option value="">Todas as pessoas</option>
+                {gente.map((n) => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </label>
+            <button type="button" className="bt sec peq" aria-pressed={ordenar} onClick={() => setOrdenar(!ordenar)}>Ordenar por atingimento</button>
           </div>
           {filtro && <p className="rm-dica rm-nao-imprime" role="status">Em destaque: metas em que {filtro} é responsável ou apoio. As demais ficam esmaecidas.</p>}
-          <ArvorePlano modo="plano" arv={ordenado} opcoes={opcoes}
-            onAtiva={(id) => { if (id.startsWith('meta-')) { const i = Number(id.slice(5)); setEditando(editando === i ? null : i); } }} />
+          <ArvorePlano modo="plano" estilo="cartoes" arv={ordenado} opcoes={opcoes} editandoId={editando ? `meta-${editando.idx}` : null}
+            onAtiva={(id) => {
+              if (id.startsWith('meta-')) {
+                const i = Number(id.slice(5));
+                const origem = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+                setEditando(editando?.idx === i ? null : { idx: i, modo: 'gaveta', origem });
+              }
+            }} />
         </>
       )}
-      <RotinasPlano campos={c} />
+      <div className="np-card np-rotinas-card"><RotinasPlano campos={c} /></div>
+      <Gaveta
+        aberta={!!metaGaveta}
+        titulo={metaGaveta ? `Editar Meta ${String(metaGaveta.idx + 1).padStart(2, '0')}` : ''}
+        classeCorpo="rm-no-edicao"
+        origem={editando?.origem ?? null}
+        onFechar={() => setEditando(null)}
+        rodape={
+          <>
+            <button type="button" className="bt sec" onClick={() => setEditando(null)}>Fechar</button>
+            <button type="button" className="bt pri" onClick={() => setEditando(null)}>Concluir</button>
+          </>
+        }
+      >
+        {metaGaveta && (
+          <CartaoMeta
+            meta={metaGaveta}
+            objetivos={objetivos}
+            pessoas={pessoas}
+            campos={c}
+            comStatus
+            umaColuna
+            podeMover={podeMover}
+            onChange={(i, patch) => { lembra(i); setMeta(i, patch); }}
+            onRemove={remove}
+          />
+        )}
+      </Gaveta>
     </div>
   );
 }

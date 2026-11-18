@@ -30,13 +30,15 @@ export interface CartaoMetaProps {
   marca?: 'esmaecido' | 'destaque';
   /** mostra o seletor de status (aba Planejamento) */
   comStatus?: boolean;
+  /** força disposição em coluna única (ex.: dentro da gaveta lateral) */
+  umaColuna?: boolean;
   /** valida a troca de objetivo (limite de 4 por objetivo); devolve o motivo da recusa ou null */
   podeMover: (pid: string) => string | null;
   onChange: (idx: number, patch: Partial<Meta>) => void;
   onRemove: (idx: number) => void;
 }
 
-export default function CartaoMeta({ meta, objetivos, pessoas, campos, comStatus, marca, podeMover, onChange, onRemove }: CartaoMetaProps) {
+export default function CartaoMeta({ meta, objetivos, pessoas, campos, comStatus, umaColuna, marca, podeMover, onChange, onRemove }: CartaoMetaProps) {
   const [ignora, setIgnora] = useState(false);
   const plano = semHtml(meta.texto);
   const r = avaliaMeta({ texto: plano, pred: meta.pred && objetivos.some((o) => o.pid === meta.pred) ? meta.pred : undefined, alcancavel: meta.alcancavel });
@@ -97,7 +99,8 @@ export default function CartaoMeta({ meta, objetivos, pessoas, campos, comStatus
         <button type="button" className="rm-link" aria-label={`Remover a meta ${n}`} onClick={() => onRemove(meta.idx)}>Remover</button>
       </div>
 
-      <label className="campo"><span className="rot">Objetivo estratégico da meta {n}</span>
+      <div className={umaColuna ? 'np-meta-1col' : undefined}>
+        <label className="campo"><span className="rot">Objetivo estratégico da meta {n}</span>
         <select value={semObjetivo ? '' : meta.pred} onChange={(e) => mudaObjetivo(e.target.value)}>
           <option value="">Escolha o objetivo</option>
           {objetivos.map((o) => <option key={o.pid} value={o.pid}>{o.texto}</option>)}
@@ -205,6 +208,7 @@ export default function CartaoMeta({ meta, objetivos, pessoas, campos, comStatus
           </select>
         </label>
       )}
+      </div>
     </div>
   );
 }

@@ -14,6 +14,8 @@ export interface No {
   /** nome acessível do nó (lido pelo leitor de tela) */
   rot: string;
   cabeca: ReactNode;
+  /** conteúdo logo abaixo do cabeçalho do nó (ex.: edição inline fora do grid do cabeçalho) */
+  abaixo?: ReactNode;
   filhos?: No[];
   /** na aba: 'esmaecido' (fora do filtro de pessoa) ou 'destaque' */
   marca?: 'esmaecido' | 'destaque';
@@ -57,13 +59,19 @@ export interface OpcoesPlano {
   onStatus: (idx: number, status: StatusMeta) => void;
   /** muda o status de um sucesso mensal (posição da meta em D.metas e id do sucesso) */
   onStatusSucesso?: (idx: number, id: string, status: StatusMeta) => void;
-  /** conteúdo extra dentro do nó da meta (a edição, na T21) */
+  /** conteúdo extra dentro do nó da meta (ações/botões) */
   extra?: (m: ItemMeta) => ReactNode;
+  /** informação secundária logo abaixo do texto da meta (ex.: responsável e apoio) */
+  infoMeta?: (m: ItemMeta) => ReactNode;
+  /** conteúdo abaixo da barra da meta no modo cartões (ex.: edição inline ao acrescentar) */
+  abaixoMeta?: (m: ItemMeta) => ReactNode;
   /** botões do objetivo (acrescentar meta) */
   extraObjetivo?: (pid: string) => ReactNode;
   marca?: (m: ItemMeta) => 'esmaecido' | 'destaque' | undefined;
   /** planejamento arquivado: só mostra o status, sem campo para editar */
   leitura?: boolean;
+  /** visual em cartões da aba Planejamento */
+  cartoes?: boolean;
 }
 
 /** Sucessos da meta, um nó por mês (só meses com sucesso), cada sucesso com status editável. */
@@ -98,22 +106,38 @@ function noMeta(m: ItemMeta, o: OpcoesPlano): No {
   const txt = semTags(m.texto).trim();
   const sucessos = lerSucessos(m);
   const p = pctMeta(m.status, sucessos);
+  const statusEl = (
+    <>
+      <span className="rm-st" data-status={m.status}><i aria-hidden="true">{SIMBOLO[m.status]}</i>{rotStatus(m.status)}<small>{pctTxt(p)}</small></span>
+      {!o.leitura && (
+        <label className="rm-st-sel"><span className="sr">Status da meta {n}</span>
+          <select value={m.status} onChange={(e) => o.onStatus(m.idx, e.target.value as StatusMeta)}>
+            {STATUS.map((s) => <option key={s.id} value={s.id}>{s.rot}</option>)}
+          </select>
+        </label>
+      )}
+    </>
+  );
   return {
     id: `meta-${m.idx}`, tipo: 'meta', marca: o.marca?.(m),
+    abaixo: o.cartoes ? o.abaixoMeta?.(m) : undefined,
     filhos: sucessos.length ? nosSucessos(m.idx, sucessos, o) : undefined,
     rot: `Meta ${n}: ${txt || 'sem texto'}. Status: ${rotStatus(m.status)}${p === null ? ', fora da conta' : `, ${p}%`}`,
-    cabeca: (
+    cabeca: o.cartoes ? (
+      <>
+        <span className="rm-no-tag np-meta-num">Meta {n}</span>
+        <div className="np-meta-corpo">
+          <span className="rm-no-txt">{txt ? curto(txt, 160) : <em>Meta ainda sem texto</em>}</span>
+          {o.infoMeta?.(m)}
+        </div>
+        <div className="np-meta-status">{statusEl}</div>
+        {o.extra && <div className="np-meta-acoes">{o.extra(m)}</div>}
+      </>
+    ) : (
       <>
         <span className="rm-no-tag">Meta {n}</span>
         <span className="rm-no-txt">{txt ? curto(txt, 160) : <em>Meta ainda sem texto</em>}</span>
-        <span className="rm-st" data-status={m.status}><i aria-hidden="true">{SIMBOLO[m.status]}</i>{rotStatus(m.status)}<small>{pctTxt(p)}</small></span>
-        {!o.leitura && (
-          <label className="rm-st-sel"><span className="sr">Status da meta {n}</span>
-            <select value={m.status} onChange={(e) => o.onStatus(m.idx, e.target.value as StatusMeta)}>
-              {STATUS.map((s) => <option key={s.id} value={s.id}>{s.rot}</option>)}
-            </select>
-          </label>
-        )}
+        {statusEl}
         {o.extra?.(m)}
       </>
     ),
@@ -122,24 +146,55 @@ function noMeta(m: ItemMeta, o: OpcoesPlano): No {
 
 /** Nós da aba: Legado → objetivos (atingimento, barra, contagem por status) → metas; metas sem objetivo em bloco próprio. */
 export function nosPlano(arv: Arvore, o: OpcoesPlano): No[] {
-  const base = nosPrevia(arv)[0];
+  const legado = arv.legado.trim();
+  const base: No = o.cartoes ? {
+    id: 'legado', tipo: 'legado',
+    rot: legado ? `Legado: ${legado}` : 'Legado ainda não escrito',
+    cabeca: (
+      <>
+        <span className="rm-no-tag">Legado do mandato</span>
+        <span className={`rm-no-txt rm-no-legado${legado ? '' : ' vazio'}`}>{legado || 'Escreva a manchete no exercício do Legado.'}</span>
+      </>
+    ),
+  } : nosPrevia(arv)[0];
   const objs: No[] = arv.objetivos.map((ob) => {
     const p = pctObjetivo(ob.metas);
     const cont = STATUS.map((s) => ({ ...s, n: ob.metas.filter((m) => m.status === s.id).length })).filter((s) => s.n > 0);
+    const barra = (
+      <span className="rm-no-barra" role="progressbar" aria-label={`Atingimento do objetivo ${ob.texto}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={p ?? undefined} aria-valuetext={pctTxt(p)}>
+        <i style={{ width: `${p ?? 0}%` }} />
+      </span>
+    );
+    const listaCont = (
+      <ul className="rm-cont" aria-label="Metas por status">
+        {cont.map((s) => <li key={s.id} data-status={s.id} data-n={s.n}>{s.rot} <b>{s.n}</b></li>)}
+      </ul>
+    );
     return {
       id: `obj-${ob.pid}`, tipo: 'objetivo' as const,
       rot: `Objetivo de ${ob.nome}: ${ob.texto}. Atingimento ${pctTxt(p)}. ${ob.metas.length} ${ob.metas.length === 1 ? 'meta' : 'metas'}`,
-      cabeca: (
+      cabeca: o.cartoes ? (
+        <>
+          <div className="np-obj-info">
+            <span className="rm-no-tag obj">{ob.nome}</span>
+            <h3 className="rm-no-txt np-obj-tit">{ob.texto}</h3>
+            {listaCont}
+          </div>
+          <div className="np-obj-lado">
+            <div className="np-obj-prog">
+              <span className="rm-no-pct" data-pct={p ?? ''}>{pctTxt(p)}</span>
+              {barra}
+            </div>
+            {o.extraObjetivo?.(ob.pid)}
+          </div>
+        </>
+      ) : (
         <>
           <span className="rm-no-tag obj">{ob.nome}</span>
           <span className="rm-no-txt">{ob.texto}</span>
           <span className="rm-no-pct" data-pct={p ?? ''}>{pctTxt(p)}</span>
-          <span className="rm-no-barra" role="progressbar" aria-label={`Atingimento do objetivo ${ob.texto}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={p ?? undefined} aria-valuetext={pctTxt(p)}>
-            <i style={{ width: `${p ?? 0}%` }} />
-          </span>
-          <ul className="rm-cont" aria-label="Metas por status">
-            {cont.map((s) => <li key={s.id} data-status={s.id} data-n={s.n}>{s.rot} <b>{s.n}</b></li>)}
-          </ul>
+          {barra}
+          {listaCont}
           {o.extraObjetivo?.(ob.pid)}
         </>
       ),
@@ -159,11 +214,36 @@ export function nosPlano(arv: Arvore, o: OpcoesPlano): No[] {
   return [{ ...base, filhos: objs }, ...sem];
 }
 
-export function ArvoreNos({ nos, rotulo, onAtiva, vazio }: { nos: No[]; rotulo: string; onAtiva?: (id: string) => void; vazio?: string }) {
+const CLASSE_LI: Partial<Record<No['tipo'], string>> = {
+  legado: 'np-no-legado',
+  objetivo: 'np-obj-card',
+  sem: 'np-obj-card np-obj-sem',
+  meta: 'np-meta-row',
+  mes: 'np-mes-grupo',
+  sucesso: 'np-suc-linha',
+};
+const CLASSE_CAB: Partial<Record<No['tipo'], string>> = {
+  legado: 'np-legado-card',
+  objetivo: 'np-obj-head',
+  sem: 'np-obj-head',
+  meta: 'np-meta-top',
+  mes: 'np-mes-cab',
+  sucesso: 'np-suc-item',
+};
+const CLASSE_GRUPO: Partial<Record<No['tipo'], string>> = {
+  legado: 'np-objs-grupo',
+  objetivo: 'np-meta-grid',
+  sem: 'np-meta-grid',
+  meta: 'np-sucessos-box',
+  mes: 'np-suc-grupo',
+};
+
+export function ArvoreNos({ nos, rotulo, onAtiva, vazio, estilo = 'arvore', editandoId }: { nos: No[]; rotulo: string; onAtiva?: (id: string) => void; vazio?: string; estilo?: 'arvore' | 'cartoes'; editandoId?: string | null }) {
   const [fechados, setFechados] = useState<Set<string>>(new Set());
   const [foco, setFoco] = useState<string | null>(null);
   const primeiro = foco ?? nos[0]?.id ?? null;
   const alterna = (id: string) => setFechados((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  const cartoes = estilo === 'cartoes';
 
   const teclas = (e: KeyboardEvent<HTMLUListElement>) => {
     const li = e.target as HTMLElement;
@@ -193,22 +273,29 @@ export function ArvoreNos({ nos, rotulo, onAtiva, vazio }: { nos: No[]; rotulo: 
   const item = (n: No, nivel: number): ReactNode => {
     const tem = !!n.filhos?.length;
     const aberto = !fechados.has(n.id);
+    const liCls = cartoes
+      ? [CLASSE_LI[n.tipo], n.tipo === 'meta' ? n.marca : undefined, editandoId === n.id ? 'editando' : undefined].filter(Boolean).join(' ') || undefined
+      : undefined;
+    const cabCls = cartoes && CLASSE_CAB[n.tipo] ? `rm-no-cab ${CLASSE_CAB[n.tipo]}` : 'rm-no-cab';
+    const grpCls = cartoes ? CLASSE_GRUPO[n.tipo] : undefined;
     return (
       <li key={n.id} role="treeitem" data-no={n.id} data-tipo={n.tipo} data-marca={n.marca} aria-level={nivel} aria-label={n.rot}
-        aria-expanded={tem ? aberto : undefined} tabIndex={n.id === primeiro ? 0 : -1} onFocus={(e) => { if (e.target === e.currentTarget) setFoco(n.id); }}>
-        <div className="rm-no-cab">
+        className={liCls} aria-expanded={tem ? aberto : undefined} tabIndex={n.id === primeiro ? 0 : -1} onFocus={(e) => { if (e.target === e.currentTarget) setFoco(n.id); }}>
+        <div className={cabCls}>
           {tem && <button type="button" className="rm-no-bt" tabIndex={-1} aria-hidden="true" onClick={() => alterna(n.id)}>{aberto ? '−' : '+'}</button>}
           {n.cabeca}
         </div>
-        {tem && aberto && <ul role="group">{n.filhos!.map((f) => item(f, nivel + 1))}</ul>}
+        {n.abaixo}
+        {tem && aberto && <ul role="group" className={grpCls}>{n.filhos!.map((f) => item(f, nivel + 1))}</ul>}
       </li>
     );
   };
 
   if (!nos.length) return <p className="rm-vazio">{vazio ?? 'Nada para mostrar ainda.'}</p>;
-  return <ul role="tree" aria-label={rotulo} className="rm-arvore" onKeyDown={teclas}>{nos.map((n) => item(n, 1))}</ul>;
+  return <ul role="tree" aria-label={rotulo} className={cartoes ? 'rm-arvore rm-arvore-cartoes' : 'rm-arvore'} onKeyDown={teclas}>{nos.map((n) => item(n, 1))}</ul>;
 }
 
-export default function ArvorePlano({ modo, arv, rotulo = 'Árvore do planejamento', opcoes, onAtiva }: { modo: 'previa' | 'plano'; arv: Arvore; rotulo?: string; opcoes?: OpcoesPlano; onAtiva?: (id: string) => void }) {
-  return <ArvoreNos nos={modo === 'plano' && opcoes ? nosPlano(arv, opcoes) : nosPrevia(arv)} rotulo={rotulo} onAtiva={onAtiva} />;
+export default function ArvorePlano({ modo, arv, rotulo = 'Árvore do planejamento', opcoes, onAtiva, estilo = 'arvore', editandoId }: { modo: 'previa' | 'plano'; arv: Arvore; rotulo?: string; opcoes?: OpcoesPlano; onAtiva?: (id: string) => void; estilo?: 'arvore' | 'cartoes'; editandoId?: string | null }) {
+  const op = opcoes ? (estilo === 'cartoes' && !opcoes.cartoes ? { ...opcoes, cartoes: true } : opcoes) : undefined;
+  return <ArvoreNos nos={modo === 'plano' && op ? nosPlano(arv, op) : nosPrevia(arv)} rotulo={rotulo} onAtiva={onAtiva} estilo={estilo} editandoId={editandoId} />;
 }
