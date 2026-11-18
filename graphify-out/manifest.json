@@ -3504,9 +3504,9 @@
     "semantic_hash": ""
   },
   "plataforma/public/legacy/m1.js": {
-    "mtime": 1795002131.9694722,
-    "seen": 1795003392.5222871,
-    "ast_hash": "e4ad96cb4357ae2185006765cdec97e5",
+    "mtime": 1795003633.4272432,
+    "seen": 1795004094.6755404,
+    "ast_hash": "90de11698d958b9d51720c5dbe66516e",
     "semantic_hash": ""
   },
   "plataforma/tests/legado-m1.test.ts": {
@@ -4470,9 +4470,9 @@
     "semantic_hash": ""
   },
   "plataforma/ilhas/Prioritarias.tsx": {
-    "mtime": 1794970592.2042978,
-    "seen": 1795000606.8967185,
-    "ast_hash": "1bc31dbdf8837c05d59b8b091d00c5bd",
+    "mtime": 1795003625.8158517,
+    "seen": 1795004094.4935963,
+    "ast_hash": "22bb5d184d2801cada57c849419ab29f",
     "semantic_hash": ""
   },
   "plataforma/ilhas/Reacoes.tsx": {
