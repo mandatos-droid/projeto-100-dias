@@ -66,9 +66,9 @@ test.describe('A árvore e o total (RUM-40.1, RUM-41)', () => {
     const barra = no(page, 'obj-p1').getByRole('progressbar', { name: /Atingimento do objetivo/ });
     await expect(barra).toHaveAttribute('aria-valuenow', '57');
     const cont = no(page, 'obj-p1').locator('> .rm-no-cab .rm-cont li');
-    await expect(cont).toHaveText(['Concluída 1', 'Concluída 70% 1', 'Não concluída 1', 'Congelada 1']);
+    await expect(cont).toHaveText(['Concluída 1', 'Em andamento – 70% 1', 'Não concluída 1', 'Congelada 1']);
     await statusDe(page, 3).selectOption('concluida');
-    await expect(cont).toHaveText(['Concluída 2', 'Concluída 70% 1', 'Não concluída 1', 'Congelada 0']);
+    await expect(cont).toHaveText(['Concluída 2', 'Em andamento – 70% 1', 'Não concluída 1', 'Congelada 0']);
     await expect(barra).toHaveAttribute('aria-valuenow', '68'); // (100 + 70 + 0 + 100) / 4 = 67,5
   });
 
@@ -76,10 +76,10 @@ test.describe('A árvore e o total (RUM-40.1, RUM-41)', () => {
     await abre(page, [ILHA], PLANO);
     const st = (i: number) => no(page, `meta-${i}`).locator('> .rm-no-cab .rm-st');
     await expect(st(0)).toContainText('Concluída');
-    await expect(st(1)).toContainText('Concluída 70%');
+    await expect(st(1)).toContainText('Em andamento – 70%');
     await expect(st(2)).toContainText('Não concluída');
     await expect(st(3)).toContainText('Congelada');
-    await expect(no(page, 'meta-1')).toHaveAttribute('aria-label', /Status: Concluída 70%, 70%/);
+    await expect(no(page, 'meta-1')).toHaveAttribute('aria-label', /Status: Em andamento – 70%, 70%/);
     await expect(no(page, 'meta-3')).toHaveAttribute('aria-label', /Status: Congelada, fora da conta/);
   });
 });
@@ -152,7 +152,7 @@ test.describe('Edição pela aba (RUM-40.8, RUM-40.9, RUM-40.10)', () => {
     // e o caminho de volta: editar no exercício muda a árvore
     await exercicio.getByRole('textbox', { name: /no formato SMART/ }).fill('Realizar 3 audiências até junho');
     await expect(no(page, 'meta-0')).toContainText('Realizar 3 audiências até junho');
-    await expect(no(page, 'obj-p2')).toContainText('Concluída 70%');
+    await expect(no(page, 'obj-p2')).toContainText('Em andamento – 70%');
   });
 
   test('o cartão da meta na aba mostra o retorno SMART (S M A R T) ao editar o texto (RUM-40.8)', async ({ page }) => {

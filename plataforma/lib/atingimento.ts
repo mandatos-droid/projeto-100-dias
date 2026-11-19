@@ -2,10 +2,10 @@
 import type { StatusMeta } from './rumo.ts';
 import { atingidos, lerSucessos } from './sucessos.ts';
 
-/** Passos de 10% (SUG-43): Concluída (100), Concluída 90% ... Concluída 10%, Não concluída (0) e Congelada (fora da conta). */
+/** Passos de 10% (SUG-43): Concluída (100), Em andamento – 90% ... Em andamento – 10% (#196: só 100% é "concluída"), Não concluída (0) e Congelada (fora da conta). */
 export const STATUS: { id: StatusMeta; rot: string; pct: number | null }[] = [
   { id: 'concluida', rot: 'Concluída', pct: 100 },
-  ...[90, 80, 70, 60, 50, 40, 30, 20, 10].map((n) => ({ id: `concluida${n}` as StatusMeta, rot: `Concluída ${n}%`, pct: n })),
+  ...[90, 80, 70, 60, 50, 40, 30, 20, 10].map((n) => ({ id: `concluida${n}` as StatusMeta, rot: `Em andamento – ${n}%`, pct: n })),
   { id: 'nao_concluida', rot: 'Não concluída', pct: 0 },
   { id: 'congelada', rot: 'Congelada', pct: null },
 ];

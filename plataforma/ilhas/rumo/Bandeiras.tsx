@@ -12,23 +12,6 @@ import { useRumo } from './useRumo';
 import './rumo.css';
 
 const NOTAS = [0, 1, 2, 3, 4, 5];
-const RECAP: [string, string][] = [['m1.q1', 'Quem é a liderança'], ['m1.q3', 'Desejo para o futuro'], ['m1.q7', 'Expectativas do eleitorado'], ['m1.q8', 'Conjuntura social do território']];
-/* o legado guarda HTML nas respostas da Missão 1; aqui só o texto */
-const limpa = (s: unknown) => String(s ?? '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
-
-function ResumoMissao1() {
-  const { c, d } = useRumo();
-  const frags = ((d as { frags?: { t: string; mp?: string | null }[] }).frags ?? []).filter((f) => f.mp);
-  const itens = RECAP.map(([k, rot]) => [rot, limpa(c[k])] as const).filter(([, v]) => v);
-  return (
-    <details className="rm-recap" open={itens.length > 0 || frags.length > 0}>
-      <summary>Relembre o que a Missão 1 apurou</summary>
-      {itens.map(([rot, v]) => <p key={rot}><b>{rot}</b>{v}</p>)}
-      {frags.length > 0 && <p><b>Fragilidades apontadas</b>{frags.map((f) => f.t).join('; ')}</p>}
-      {!itens.length && !frags.length && <p className="rm-vazio">Ainda não há respostas da Missão 1 neste mandato. Preencha-a para ver aqui o resumo.</p>}
-    </details>
-  );
-}
 
 function Card({ b, rumo, aplica, remove, foco }: { b: BandeiraRumo; rumo: Rumo; aplica: (r: Resultado) => void; remove: (b: BandeiraRumo) => void; foco: boolean }) {
   const pts = total(b, rumo.criterios);
@@ -113,7 +96,6 @@ export default function Bandeiras() {
     <div className="ilha-corpo rm-band">
       <div className="np-sec-card">
         <div className="etiqueta np-passo-et">Passo 1 · Seleção de agendas e critérios</div>
-        <ResumoMissao1 />
         <div className="np-2col np-band-passo1">
           <section className="rm-mural" aria-labelledby="rm-mural-t">
             <h4 id="rm-mural-t">Marque as agendas que o mandato vai avaliar</h4>
@@ -173,6 +155,7 @@ export default function Bandeiras() {
         <section aria-labelledby="rm-rank-t" className="np-sec-card np-rank-card rm-ranking">
           <div className="etiqueta np-passo-et">Passo 3 · Ranking e prioritárias</div>
           <h4 id="rm-rank-t">Ranking e prioritárias <span>{nPrior} de {MAX_PRIORITARIAS}</span></h4>
+          <p className="rm-comando">Analise o ranking e decida, à luz dos dados, quais são as agendas prioritárias que decidem manter.</p>
           <ol className="np-rank-lista">
             {ordem.map((l, i) => {
               const b = porId.get(l.id)!;

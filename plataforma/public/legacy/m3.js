@@ -75,6 +75,26 @@
   if(typeof MISSOES!=='undefined'){
     MISSOES.forEach(function(m){if(m.n===3)m.exercicios.forEach(function(e){if(e.id==='m3.bandeiras'){delete e.listaExtra;e.t='As agendas do mandato';e.d='Priorizar até três das agendas escolhidas na Missão 1.'}})});
   }
+  /* Ajustes de texto da Missão 3 (sugestões #175, #181, #195). conteudo.js não é editado (AD-003): entram aqui, na carga, como a troca() acima. */
+  if(typeof MISSOES!=='undefined'){
+    MISSOES.forEach(function(m){
+      if(m.n!==3)return;
+      m.exercicios.forEach(function(e){
+        if(e.id==='m3.bandeiras'){
+          /* #175: a frase "Ainda que agentes políticos precisem saber debater…" sai e entram três parágrafos curtos */
+          var ant='Ainda que agentes políticos precisem saber debater temas de todas as esferas e devam ter um repertório amplo para embasar seus votos em plenário, <strong>recomendamos que selecione até 3 agendas para se especializar</strong>. ';
+          var novo='</p><p>É necessário que agentes políticos consigam debater temas de todas as esferas e tenham um repertório amplo para embasar seus votos em plenário.</p>'+
+            '<p>Contudo, ninguém é bom em tudo nem precisa ter afinidade com todas as agendas públicas em profundidade. Na Missão 1 você já teve a oportunidade de sinalizar quais são os grandes temas que apareceram com mais frequência no Mapa Político.</p>'+
+            '<p>Nesta etapa de agora, vamos exercitar a capacidade de priorização do mandato. O convite é para que <strong>selecionem até 3 agendas para se especializar</strong> e otimizar esforços.</p><p>';
+          if(typeof e.intro==='string'&&e.intro.indexOf(ant)>=0)e.intro=e.intro.replace(ant,novo).replace(/ {2,}/g,' ');
+          /* #181: fecha a caixa "No futuro" apontando para a Missão 4 */
+          if(typeof e.fim==='string'&&e.fim.indexOf('Falaremos mais sobre articulação política')<0)e.fim=e.fim.replace(/<\/div>\s*$/,' Falaremos mais sobre articulação política na Missão 4!</div>');
+        }
+        /* #195: concordância na manchete de exemplo */
+        ['intro','fim','exemplo'].forEach(function(k){if(typeof e[k]==='string')e[k]=e[k].replace('todos as grandes cidades','todas as grandes cidades')});
+      });
+    });
+  }
   Comp.preditores=function(){return ilha('rumo-preditores')+ilha('rumo-estrategia')};
   Comp.metas=function(){return ilha('rumo-metas')};
 })();

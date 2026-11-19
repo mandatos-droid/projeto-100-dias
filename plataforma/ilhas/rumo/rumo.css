@@ -5,10 +5,7 @@
 /* ---------- bandeiras (T13) ---------- */
 .rm-band .rm-grade{display:grid;grid-template-columns:minmax(15rem,19rem) minmax(0,1fr);gap:1.75rem;align-items:start}
 @media(max-width:56.25rem){.rm-band .rm-grade{grid-template-columns:minmax(0,1fr)}}
-.rm-recap{border-left:3px solid var(--turquesa);background:rgba(74,191,178,.09);padding:0.75rem 1.125rem;margin:0.5rem 0 1.25rem}
-.rm-recap summary{cursor:pointer;font-weight:700}
-.rm-recap p{margin:0.625rem 0 0;font-size:0.9062rem;line-height:1.5;max-height:8rem;overflow:auto}
-.rm-recap b,.rm-antigo b{display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--tinta-2)}
+.rm-antigo b{display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--tinta-2)}
 .rm-vazio{color:var(--tinta-2);font-size:0.875rem;margin:0.5rem 0}
 .rm-mural h4,.rm-direita h4{margin:0 0 0.5rem}
 .rm-chips{display:flex;flex-wrap:wrap;gap:0.5rem}
@@ -25,6 +22,9 @@
 .rm-crit-lista button{border:0;background:none;font-size:1.125rem;line-height:1;color:var(--tinta-3);cursor:pointer;padding:0 0.375rem}
 .rm-crit-lista button:hover{color:var(--erro)}
 .rm-dica{font-size:0.78rem;color:var(--tinta-3);margin:0.375rem 0 0}
+.rm-comando{margin:0.25rem 0 1rem;font-size:0.9375rem;line-height:1.55}
+.rm-atencao{margin:0.75rem 0 1rem;font-size:0.9375rem}
+.rm-atencao strong{color:var(--coral)}
 .rm-antigo{border:1px dashed var(--linha);padding:0.5rem 0.875rem;margin-bottom:1rem;font-size:0.875rem}
 .rm-antigo summary{cursor:pointer;font-weight:700}
 .rm-antigo p{margin:0.5rem 0 0;white-space:pre-line}

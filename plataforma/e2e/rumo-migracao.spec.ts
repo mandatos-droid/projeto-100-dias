@@ -27,7 +27,7 @@ test.describe('Mandato antigo percorrido de ponta a ponta (RUM-70, critério de 
   test('abrir os exercícios e editar uma meta não faz sumir texto, meta nem preditor', async ({ page }) => {
     await abreGuia(page, '#/m/3/m3.bandeiras/1', { dados: ANTIGO });
     await expect(page.locator('.rm-chip[aria-pressed="true"]')).toHaveCount(3); // o mural antigo virou chips
-    await expect(page.locator('.rm-antigo, .rm-recap').first()).toBeVisible();
+    await expect(page.locator('.rm-antigo').first()).toBeVisible();
     for (const h of ['#/m/3/m3.legado/1', '#/m/3/m3.preditores/1']) {
       await page.evaluate((x) => { location.hash = x; }, h);
       await expect(page.locator('.ilha-corpo').first()).toBeVisible();

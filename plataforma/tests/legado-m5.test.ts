@@ -92,7 +92,7 @@ test('meta sem objetivo mostra só o número (MON-03.1)', () => {
 test('o cartão da meta mostra o atingimento registrado no Planejamento, com o link "alterar" (MON-03.3)', () => {
   const { html } = monit([META('m1', { status: 'concluida60' })]);
   assert.match(html, /data-status="concluida60"/);
-  assert.match(html, /Concluída 60%/);
+  assert.match(html, /Em andamento – 60%/);
   assert.match(html, /<small>60%<\/small>/);
   assert.match(html, /href="#\/plano"[^>]*>alterar<\/a>/);
 });

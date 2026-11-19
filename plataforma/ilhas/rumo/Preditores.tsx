@@ -31,7 +31,7 @@ export default function Preditores() {
       <div className="rm-grade">
         <section aria-labelledby="rm-pred-t">
           <h4 id="rm-pred-t">Escolha os preditores</h4>
-          <p className="rm-dica">Atenção! Sua escolha deve considerar o que precisa acontecer logo nos primeiros dias do mandato.</p>
+          <p className="apoio atencao rm-atencao" role="note"><strong>Atenção!</strong> Sua escolha deve considerar o que precisa acontecer logo nos primeiros dias do mandato.</p>
           <ul className="rm-preds">
             {PREDITORES.map((p) => {
               const on = escolhidos.includes(p.id);

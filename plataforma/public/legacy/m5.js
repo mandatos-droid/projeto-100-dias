@@ -49,7 +49,7 @@
     if(st==='concluida')return 'Concluída';
     if(st==='congelada')return 'Congelada';
     var x=/^concluida(\d+)$/.exec(st||'');
-    return x?'Concluída '+x[1]+'%':'Não concluída';
+    return x?'Em andamento – '+x[1]+'%':'Não concluída';
   }
   function simbolo(st){return st==='concluida'?'✓':st==='nao_concluida'||!st?'○':st==='congelada'?'✱':'◐'}
 

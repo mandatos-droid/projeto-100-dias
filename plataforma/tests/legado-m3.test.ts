@@ -13,7 +13,7 @@ const CONTEUDO = readFileSync(new URL('../public/legacy/conteudo.js', import.met
 /* Hash do JSON inteiro da Missão 3 (itens, listaExtra, ct, prazo e todos os exercícios), calculado sobre o conteudo.js de antes da feature. */
 const HASH_TEXTOS = '318f86b99e245a6d6fe61b809729b61e407d632d32819216dbff2cb7f170dee3';
 /* Hashes dos mesmos JSONs depois da troca "objetivo(s) específico(s)" por "objetivo(s) estratégico(s)" (RM3-42): só o termo muda, o resto do texto fica igual. */
-const HASH_M3_ESTRATEGICO = '84d715549df8bb51199927b2b910df9f6ea50a464b3d7dc74e002b22cfe3f9ee'; // atualizado: m3.bandeiras vira "As agendas do mandato" (só título e descrição); m3.js também troca "Lembre-se que" por "Lembre-se de que" (sugestão 32) e retira a lista de comissões de m3.bandeiras (sugestão 33)
+const HASH_M3_ESTRATEGICO = '8e6498c478fb00cce8ded0090442ec88232f5151807a92beac0fe408e1cccfc4'; // atualizado (#175, #181, #195: parágrafos da intro das bandeiras, frase final do "No futuro" e "todas as grandes cidades"); m3.bandeiras vira "As agendas do mandato" (só título e descrição); m3.js também troca "Lembre-se que" por "Lembre-se de que" (sugestão 32) e retira a lista de comissões de m3.bandeiras (sugestão 33)
 const HASH_M5_ESTRATEGICO = '1a032f6a51a9571199bf3341dd0c02d2d3fdf8ca89fba5bf07b0b8e191ced93b';
 
 type Ex = Record<string, unknown> & { id: string; intro: string; fim?: string; listaExtra?: { titulo: string; chave: string } };
@@ -41,6 +41,39 @@ test('carregar o m3.js só troca "objetivo específico" por "objetivo estratégi
   const w = guia({ Comp: { campos: () => '', lista: () => '' }, esc: (s: string) => s });
   vm.runInContext(CODIGO, w as unknown as vm.Context);
   assert.equal(hashDosTextos(w.MISSOES), HASH_M3_ESTRATEGICO);
+});
+
+/* Correções de texto da Missão 3 pedidas na revisão (#175, #181, #195). O conteudo.js segue cru (AD-003); o m3.js ajusta na carga. */
+test('m3.js quebra a introdução das bandeiras em parágrafos curtos e tira a frase antiga (#175)', () => {
+  const w = guia({ Comp: { campos: () => '', lista: () => '' }, esc: (s: string) => s });
+  assert.match(ex3(w, 'm3.bandeiras').intro, /Ainda que agentes políticos precisem saber debater/, 'o conteudo.js cru mantém a frase antiga');
+  vm.runInContext(CODIGO, w as unknown as vm.Context);
+  const intro = ex3(w, 'm3.bandeiras').intro;
+  assert.doesNotMatch(intro, /Ainda que agentes políticos precisem saber debater/);
+  assert.doesNotMatch(intro, /recomendamos que selecione/);
+  assert.match(intro, /<p>É necessário que agentes políticos consigam debater temas de todas as esferas e tenham um repertório amplo para embasar seus votos em plenário\.<\/p>/);
+  assert.match(intro, /<p>Contudo, ninguém é bom em tudo nem precisa ter afinidade com todas as agendas públicas em profundidade\. Na Missão 1 você já teve a oportunidade de sinalizar quais são os grandes temas que apareceram com mais frequência no Mapa Político\.<\/p>/);
+  assert.match(intro, /<p>Nesta etapa de agora, vamos exercitar a capacidade de priorização do mandato\. O convite é para que <strong>selecionem até 3 agendas para se especializar<\/strong> e otimizar esforços\.<\/p>/);
+  assert.match(intro, /<p>Ainda que pareça difícil abrir mão de uma bandeira/);
+  assert.equal((intro.match(/<p>/g) ?? []).length, 5);
+  assert.doesNotMatch(intro, / {2}/);
+  assert.ok(intro.includes('<div class="apoio exemplo">'), 'os exemplos de agendas continuam');
+});
+
+test('m3.js fecha a caixa "No futuro" das bandeiras apontando para a Missão 4, uma vez só (#181)', () => {
+  const w = guia({ Comp: { campos: () => '', lista: () => '' }, esc: (s: string) => s });
+  vm.runInContext(CODIGO, w as unknown as vm.Context);
+  const fim = ex3(w, 'm3.bandeiras').fim!;
+  assert.match(fim, /contemplem suas bandeiras, para fortalecer sua influência e notoriedade na agenda\. Falaremos mais sobre articulação política na Missão 4!<\/div>$/);
+  assert.equal(fim.split('Falaremos mais').length, 2);
+});
+
+test('m3.js corrige "todos as grandes cidades" na manchete do Legado (#195)', () => {
+  const w = guia({ Comp: { campos: () => '', lista: () => '' }, esc: (s: string) => s });
+  assert.match(ex3(w, 'm3.legado').intro, /todos as grandes cidades/, 'o conteudo.js cru tem o erro');
+  vm.runInContext(CODIGO, w as unknown as vm.Context);
+  assert.doesNotMatch(ex3(w, 'm3.legado').intro, /todos as grandes cidades/);
+  assert.match(ex3(w, 'm3.legado').intro, /em todas as grandes cidades do estado/);
 });
 
 test('carregar o m3.js só troca o termo também na Missão 5 (RM3-42)', () => {
