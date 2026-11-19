@@ -39,6 +39,8 @@ test.describe('Mandato antigo percorrido de ponta a ponta (RUM-70, critério de 
     /* a tela de metas abre uma meta por vez, pelo botão Editar do nó da árvore */
     await page.getByRole('button', { name: 'Editar a meta 02' }).click();
     await expect(page.locator('[data-meta="1"]').getByRole('textbox', { name: /no formato SMART/ })).toHaveValue('Visitar 10 escolas da rede estadual');
+    await page.keyboard.press('Escape'); // a edição abre numa gaveta modal: fecha antes de abrir a outra meta
+    await expect(page.getByRole('dialog')).toHaveCount(0);
     await page.getByRole('button', { name: 'Editar a meta 01' }).click();
     const meta1 = page.locator('[data-meta="0"]');
     await expect(meta1.getByRole('textbox', { name: /no formato SMART/ })).toHaveValue(METAS_ANTIGAS[0].texto);
@@ -158,6 +160,8 @@ test.describe('Gabinete novo, pelo Guia real em modo local', () => {
     await page.getByRole('group', { name: /^Responsável direto/ }).getByRole('button', { name: /Bruno Lima/ }).click();
     await page.getByLabel('Cabe na capacidade da equipe nos 4 meses?').check();
     await expect(page.locator('[data-letra][data-ok="true"]')).toHaveCount(5);
+    await page.keyboard.press('Escape'); // a meta nova abre na gaveta de edição; fecha para voltar à tela
+    await expect(page.getByRole('dialog')).toHaveCount(0);
     // a aba e o Painel
     await page.locator('#ladoNav a.it[href="#/plano"]').click();
     await expect(page.locator('[data-no="legado"]')).toHaveAttribute('aria-label', /reeleição a Deputado\(a\) Estadual/i); // a manchete composta cita o cargo

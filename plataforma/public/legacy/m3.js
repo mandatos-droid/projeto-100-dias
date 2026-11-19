@@ -243,10 +243,12 @@
     return '<div class="np-sec-card">'+h+'</div>';
   };
 
+  /* Só as Bandeiras ficam em página única; as demais exercícios da M3 mantêm o passo a passo e o "Ver tudo de uma vez". */
+  function ehBand(g){return !!(g.m&&g.m.n===3&&g.ex&&g.ex.id==='m3.bandeiras')}
   var forcou=false,antes='guiado';
   var _r=Guia.render;
   Guia.render=function(){
-    var m3=!!(this.m&&this.m.n===3);
+    var m3=ehBand(this);
     if(m3){
       if(!forcou){antes=this.modo;forcou=true}
       this.modo='tudo';this.i=0;
@@ -263,13 +265,13 @@
   };
   var _ir=Guia.ir;
   Guia.ir=function(n){
-    if(this.m&&this.m.n===3){this.render();return}
+    if(ehBand(this)){this.render();return}
     return _ir.call(this,n);
   };
   var _ab=Guia.abrir;
   Guia.abrir=function(nm,id){
     _ab.call(this,nm,id);
-    if(!this.m||this.m.n!==3)return;
+    if(!ehBand(this))return;
     this.modo='tudo';
   };
 })();

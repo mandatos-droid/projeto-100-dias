@@ -173,7 +173,7 @@ export default function Legado() {
         </div>
       </div>
 
-      <details className="rm-gaveta" open>
+      <details className="rm-gaveta" open={lg.rascunhos.length > 0}>
         <summary>Manchetes dos grupos{lg.rascunhos.length > 0 ? ` (${lg.rascunhos.length})` : ''}</summary>
         {!lg.rascunhos.length && <p className="rm-vazio">Cada grupo guarda aqui a manchete que escreveu. Depois, a equipe escolhe uma como base ou junta elementos de mais de uma.</p>}
         <ul className="rm-rascunhos">

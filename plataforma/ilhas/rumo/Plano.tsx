@@ -14,6 +14,7 @@ import ArvorePlano, { pctTxt } from './ArvorePlano';
 import CartaoMeta from './CartaoMeta';
 import EditorPlano from './EditorPlano';
 import Gaveta from '../Gaveta';
+import { aviso } from '../ponte';
 import { BOTAO_MONIT } from './textosAlana';
 import { useRumo } from './useRumo';
 import './rumo.css';
@@ -297,7 +298,16 @@ export default function Plano() {
         rodape={
           <>
             <button type="button" className="bt sec" onClick={() => setEditando(null)}>Fechar</button>
-            <button type="button" className="bt pri" onClick={() => setEditando(null)}>Concluir</button>
+            <button
+              type="button"
+              className="bt pri"
+              onClick={() => {
+                if (metaGaveta) aviso(`Meta ${String(metaGaveta.idx + 1).padStart(2, '0')} salva!`);
+                setEditando(null);
+              }}
+            >
+              Salvar meta
+            </button>
           </>
         }
       >

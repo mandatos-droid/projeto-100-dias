@@ -99,7 +99,7 @@ export default function Metas() {
               type="button"
               className="bt pri"
               onClick={() => {
-                if (metaGaveta) aviso(`Meta ${String(metaGaveta.idx + 1).padStart(2, '0')} salva.`);
+                if (metaGaveta) aviso(`Meta ${String(metaGaveta.idx + 1).padStart(2, '0')} salva!`);
                 setEditando(null);
               }}
             >
