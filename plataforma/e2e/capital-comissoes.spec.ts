@@ -20,6 +20,7 @@ test.describe('Deputado(a) Federal com bandeira (CAP-01.1, CAP-01.2, CAP-01.3)',
     await expect(saude).toContainText('Combina com sua bandeira Saúde');
     await expect(todas(page).getByText('Comissão de Saúde')).toHaveCount(0);
     await expect(todas(page).locator('li', { hasText: 'Comissão de Educação' })).toBeVisible();
+    await expect(todas(page).getByText('Existem outras Comissões que o mandato deseja participar?')).toBeVisible(); // #187
     await expect(page.getByText(AVISO)).toHaveCount(0);
   });
 

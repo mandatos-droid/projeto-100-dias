@@ -11,6 +11,8 @@ const CONTEUDO = readFileSync(new URL('../public/legacy/conteudo.js', import.met
 
 /* Hashes do conteudo.js de antes da feature: o JSON inteiro da Missão 4 (t, d, intro, fim, entrega, itens, campos...) e o BINGOS (frentes e ações). */
 const HASH_MISSAO4 = '14170369a21828f9d4f69e1bc49d5d8561397f5cb7b7de18e37989a3434b261a';
+/* Hash da Missão 4 depois do m4.js: só muda o título de m4.acoes e a frase final da intro dele (#209). */
+const HASH_MISSAO4_COM_M4 = 'bf70593f6a21941675771a27a9f37968535dc24fc41077a890bc4fa7af8333d0';
 const HASH_BINGOS = '970fc89d9dc694913ad47b3d3a7d867152d3181be54eec13605a165aac54cbd7';
 
 type Ex = Record<string, unknown> & { id: string; t: string; d: string; intro?: string; fim?: string; tipo: string };
@@ -58,11 +60,22 @@ test('alterar um caractere de qualquer texto da Missão 4 muda o hash e o teste 
   assert.notEqual(sha(b.BINGOS), HASH_BINGOS, 'bingos');
 });
 
-test('carregar o m4.js não muda nenhum texto da Missão 4 nem os bingos (CAP-21.9, CAP-40)', () => {
+test('carregar o m4.js só muda o título e a intro de m4.acoes (#209); os bingos ficam intactos (CAP-40)', () => {
   const w = guia({ Comp: { lista: () => '', bingo: () => '', checklist: () => '' } });
   vm.runInContext(CODIGO, w as unknown as vm.Context);
-  assert.equal(hashMissao4(w), HASH_MISSAO4);
+  assert.equal(hashMissao4(w), HASH_MISSAO4_COM_M4);
   assert.equal(sha(w.BINGOS), HASH_BINGOS);
+});
+
+test('m4.acoes vira "Articulação e Mobilização" e perde a frase do bingo; carregar duas vezes dá o mesmo resultado (#209)', () => {
+  const w = guia({ Comp: { lista: () => '', bingo: () => '', checklist: () => '' } });
+  vm.runInContext(CODIGO, w as unknown as vm.Context);
+  vm.runInContext(CODIGO, w as unknown as vm.Context);
+  const ex = ex4(w, 'm4.acoes');
+  assert.equal(ex.t, 'Articulação e Mobilização');
+  assert.ok(!String(ex.intro).includes('complete uma ação de cada bingo'));
+  assert.ok(String(ex.intro).includes('<strong>As ações devem estar em frentes diferentes.</strong></p>'));
+  assert.equal(hashMissao4(w), HASH_MISSAO4_COM_M4);
 });
 
 /* ---------- ganchos: um por exercício, o resto passa direto (CAP-40) ---------- */

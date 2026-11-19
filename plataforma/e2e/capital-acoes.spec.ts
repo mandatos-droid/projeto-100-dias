@@ -226,7 +226,9 @@ test.describe('Texto base de "Como saberemos" (CAP-11.3)', () => {
     const l = await marca(page);
     await expect(l.getByLabel('Como saberemos')).toHaveValue(BASE_ARTICULACAO);
     expect((await acoes(page))![0].saber).toBe(BASE_ARTICULACAO);
+    await expect(l.getByText('Sugestão pronta: edite à vontade')).toBeVisible(); // #197: avisa que o texto é só uma sugestão
     await l.getByLabel('Como saberemos').fill('Ata assinada');
+    await expect(l.getByText('Sugestão pronta: edite à vontade')).toHaveCount(0);
     expect((await acoes(page))![0].saber).toBe('Ata assinada');
   });
 

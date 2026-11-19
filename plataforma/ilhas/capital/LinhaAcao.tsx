@@ -2,7 +2,7 @@
 /* Missão 4 · uma linha da matriz de ações (estilo 5W2H): caixa de marcar, os 5 campos e o ponto de preenchimento.
    Grava direto no registro de D.acoes, no formato do Guia: { id, bingo, i, titulo, alcancar, resp, prazo, saber, prox }.
    Extras ignorados pelo legado: respCad (índice da cadeira da Missão 2; `resp` guarda a cópia do nome). */
-import { acaoCompleta, ehDataISO, hojeISO, limitesPrazo, modoDaAcao, validaPrazo, type MetaLigavel, type ModoAcao } from '@/lib/capital';
+import { TEXTO_SABER, acaoCompleta, ehDataISO, hojeISO, limitesPrazo, modoDaAcao, validaPrazo, type MetaLigavel, type ModoAcao } from '@/lib/capital';
 import type { Pessoa } from '@/lib/pessoas';
 import { aviso } from '../ponte';
 import '../rumo/rumo.css';
@@ -110,6 +110,7 @@ export default function LinhaAcao({ bingo, i, titulo, frenteNome, acao, pessoas,
           {longo.slice(1).map((c) => (
             <label key={c.k} className={`campo cp-c-${c.k}`}><span className="rot">{c.rot}</span>
               <textarea value={texto(acao[c.k])} onChange={(e) => grava(c.k, e.target.value)} />
+              {c.k === 'saber' && texto(acao.saber) === TEXTO_SABER[bingo] && <span className="cp-ajuda">Sugestão pronta: edite à vontade ou apague e escreva o seu.</span>}
             </label>
           ))}
         </div>

@@ -176,6 +176,21 @@ export function inicioDaSemana(semana: string): string {
   return seg.toISOString().slice(0, 10);
 }
 
+/** "Semana 16/11/26 até 22/11/26" para "2026-W47" (segunda a domingo, ano com 2 dígitos). Rótulo que não é semana ISO fica como veio. */
+export function rotuloSemana(semana: string): string {
+  const seg = inicioDaSemana(semana);
+  if (!seg) return semana;
+  const dom = new Date(Date.parse(`${seg}T00:00:00Z`) + 6 * 86400000).toISOString().slice(0, 10);
+  const curto = (iso: string) => `${iso.slice(8)}/${iso.slice(5, 7)}/${iso.slice(2, 4)}`;
+  return `Semana ${curto(seg)} até ${curto(dom)}`;
+}
+
+/** "16/11" (a segunda-feira) para "2026-W47": rótulo curto do eixo do gráfico. Rótulo que não é semana ISO fica como veio. */
+export function rotuloSemanaCurto(semana: string): string {
+  const seg = inicioDaSemana(semana);
+  return seg ? `${seg.slice(8)}/${seg.slice(5, 7)}` : semana;
+}
+
 /** "mês de novembro de 2026" para "2026-11". */
 export const rotuloMes = (mes: string) => (ehMes(mes) ? `mês de ${MESES[+mes.slice(5) - 1]} de ${mes.slice(0, 4)}` : mes);
 

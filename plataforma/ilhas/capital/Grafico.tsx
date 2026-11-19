@@ -3,6 +3,7 @@
    Identidade nunca só por cor: legenda com o mesmo marcador de cada série, valor escrito no último ponto, e uma tabela
    equivalente em "Ver como tabela". As cores seguem a paleta categórica validada da skill dataviz, em ordem fixa, e o
    gráfico traz a própria superfície, então vale no Guia claro e num tema escuro. */
+import { rotuloSemana, rotuloSemanaCurto } from '@/lib/comunicacao';
 import './capital.css';
 
 export type SerieLinha = { id: string; rot: string; pontos: { x: string; valor: number }[] };
@@ -13,8 +14,8 @@ export type GraficoProps =
 
 const L = 360, A = 220, ME = 38, MD = 22, MT = 18, MB = 30; // tamanho do desenho e margens
 
-/** "2026-W44" → "S44"; outros rótulos ficam como vieram. */
-export const rotuloX = (x: string) => /^\d{4}-W(\d{2})$/.test(x) ? `S${x.slice(-2)}` : x;
+/** "2026-W47" → "16/11" (segunda-feira da semana) no eixo; outros rótulos ficam como vieram. */
+export const rotuloX = rotuloSemanaCurto;
 
 /** Teto "redondo" do eixo vertical: 1, 2, 5 ou 10 vezes uma potência de 10. */
 export function tetoEixo(max: number): number {
@@ -43,7 +44,7 @@ function Linha({ titulo, series, vazio }: { titulo: string; series: SerieLinha[]
   const ticks = [0, teto / 2, teto];
   return (
     <>
-      <svg className="cp-g-svg" viewBox={`0 0 ${L} ${A}`} role="img" aria-label={`${titulo}. ${series.map((s) => `${s.rot}: ${s.pontos.map((p) => `${rotuloX(p.x)} ${p.valor}`).join(', ')}`).join('. ')}`}>
+      <svg className="cp-g-svg" viewBox={`0 0 ${L} ${A}`} role="img" aria-label={`${titulo}. ${series.map((s) => `${s.rot}: ${s.pontos.map((p) => `${rotuloSemana(p.x)} ${p.valor}`).join(', ')}`).join('. ')}`}>
         {ticks.map((t) => (
           <g key={t}>
             <line x1={ME} x2={L - MD} y1={py(t)} y2={py(t)} className="cp-g-grade" />
@@ -60,7 +61,7 @@ function Linha({ titulo, series, vazio }: { titulo: string; series: SerieLinha[]
               {pts.map((p) => (
                 <g key={p.x}>
                   <Marca forma={MARCAS[k % MARCAS.length]} x={p.cx} y={p.cy} />
-                  <circle cx={p.cx} cy={p.cy} r={11} fill="transparent"><title>{`${s.rot}, ${p.x}: ${p.valor}`}</title></circle>
+                  <circle cx={p.cx} cy={p.cy} r={11} fill="transparent"><title>{`${s.rot}, ${rotuloSemana(p.x)}: ${p.valor}`}</title></circle>
                 </g>
               ))}
               {ultimo && series.length <= 4 && <text x={Math.min(ultimo.cx, L - MD)} y={ultimo.cy - 10} textAnchor="middle" className="cp-g-valor">{ultimo.valor}</text>}
@@ -81,7 +82,7 @@ function Linha({ titulo, series, vazio }: { titulo: string; series: SerieLinha[]
         <summary>Ver como tabela</summary>
         <table>
           <thead><tr><th scope="col">Semana</th>{series.map((s) => <th key={s.id} scope="col">{s.rot}</th>)}</tr></thead>
-          <tbody>{xs.map((x) => <tr key={x}><th scope="row">{x}</th>{series.map((s) => <td key={s.id}>{s.pontos.find((p) => p.x === x)?.valor ?? '–'}</td>)}</tr>)}</tbody>
+          <tbody>{xs.map((x) => <tr key={x}><th scope="row">{rotuloSemana(x)}</th>{series.map((s) => <td key={s.id}>{s.pontos.find((p) => p.x === x)?.valor ?? '–'}</td>)}</tr>)}</tbody>
         </table>
       </details>
     </>

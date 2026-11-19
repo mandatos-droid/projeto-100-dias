@@ -207,6 +207,7 @@ export default function Comissoes() {
         {catalogo && (
           <section aria-labelledby="cp-todas-t">
             <h4 id="cp-todas-t">Todas as comissões</h4>
+            <p className="cp-fonte cp-instrucao">Existem outras Comissões que o mandato deseja participar? Assinale-as a seguir considerando a quantidade de recursos disponíveis para a realização de um trabalho relevante.</p>
             <label className="campo cp-busca"><span className="rot">Buscar por nome ou sigla</span>
               <input type="search" value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Ex.: saúde ou CSAUDE" />
             </label>

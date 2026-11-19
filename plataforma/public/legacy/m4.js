@@ -30,6 +30,21 @@
   };
 })();
 
+/* ---------- Ajuste de texto da Missão 4 (sugestão #209) ----------
+   conteudo.js não é editado (AD-003): o título e a frase final da intro entram aqui, na carga, como em m3.js.
+   "As ações dos 100 dias" vira "Articulação e Mobilização" e sai "Se quiser ir além, complete uma ação de cada bingo." */
+(function(){
+  if(typeof MISSOES==='undefined')return;
+  MISSOES.forEach(function(m){
+    if(m.n!==4)return;
+    m.exercicios.forEach(function(e){
+      if(e.id!=='m4.acoes')return;
+      e.t='Articulação e Mobilização';
+      if(typeof e.intro==='string')e.intro=e.intro.replace(' Se quiser ir além, complete uma ação de cada bingo.','');
+    });
+  });
+})();
+
 /* ---------- Resumo (e a Missão 5, que o lê): mostra os dados novos da Missão 4 sem perder os antigos ----------
    Comissões: D.comissoes já guarda pq, papel e mov em texto legível, então a lista do Guia basta.
    Ações: o prazo novo vem como AAAA-MM-DD e aparece como DD/MM/AAAA; prazo antigo em texto livre aparece como estava.

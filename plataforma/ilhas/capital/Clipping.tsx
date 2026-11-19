@@ -4,7 +4,7 @@
    Grava só título, veículo, data e link em D.comunicacao.clipping (regras puras em lib/comunicacao.ts). */
 import { useState } from 'react';
 import { BANDEIRAS, bandeiraDe } from '@/lib/bandeiras';
-import { SEM_BANDEIRA, adicionaManual, aparicoesPorBandeira, etiquetaNoticias, lerComunicacao, mesclaBusca, ocultaNoticias, semanaDe, type ItemBusca, type Noticia } from '@/lib/comunicacao';
+import { SEM_BANDEIRA, adicionaManual, aparicoesPorBandeira, etiquetaNoticias, lerComunicacao, mesclaBusca, ocultaNoticias, rotuloSemana, semanaDe, type ItemBusca, type Noticia } from '@/lib/comunicacao';
 import { lerRumo } from '@/lib/rumo';
 import { useLegado } from '../ponte';
 import Grafico, { type ItemBarra } from './Grafico';
@@ -166,7 +166,7 @@ export default function Clipping() {
 
       {visiveis.length > 0 && (
         <div className="cp-clip-graf">
-          <Grafico tipo="barras" titulo={`Aparições por bandeira nesta semana (${semana})`} itens={itensGrafico(aparicoesPorBandeira(com.clipping, semana))} vazio="Nenhuma aparição nesta semana." />
+          <Grafico tipo="barras" titulo={`Aparições por bandeira nesta semana (${rotuloSemana(semana)})`} itens={itensGrafico(aparicoesPorBandeira(com.clipping, semana))} vazio="Nenhuma aparição nesta semana." />
           <Grafico tipo="barras" titulo="Aparições por bandeira no período" itens={itensGrafico(aparicoesPorBandeira(com.clipping))} />
         </div>
       )}

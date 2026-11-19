@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { SECOES, semanaDe, lerComunicacao, registra, serie, ultimoRegistro, aparicoesPorBandeira, indicador, caixinhasParaMarcar, mesclaBusca, aparicoesDaSemana, adicionaManual, ocultaNoticias, etiquetaNoticias, registraMes, validaDataRegistro, validaMesRegistro, ultimoRegistroDatado, inicioDaSemana, serieMes, aparicoesDoMes, type Comunicacao } from '../lib/comunicacao.ts';
+import { SECOES, semanaDe, lerComunicacao, registra, serie, ultimoRegistro, aparicoesPorBandeira, indicador, caixinhasParaMarcar, mesclaBusca, aparicoesDaSemana, adicionaManual, ocultaNoticias, etiquetaNoticias, registraMes, validaDataRegistro, validaMesRegistro, ultimoRegistroDatado, inicioDaSemana, rotuloSemana, rotuloSemanaCurto, serieMes, aparicoesDoMes, type Comunicacao } from '../lib/comunicacao.ts';
 
 /* Missão 4 · regras da comunicação (CAP-20, CAP-21, CAP-31, CAP-40). Resultados esperados vêm da spec e do calendário ISO. */
 const vazia: Comunicacao = { semanas: {}, clipping: [] };
@@ -224,4 +224,16 @@ test('SUG-50: aparicoesDoMes conta só as não ocultas com data no mês; registr
   const n = (data: string, oculta = false) => ({ id: data + oculta, semana: '', titulo: 't', veiculo: '', data, url: '', bandeiras: [], oculta });
   assert.equal(aparicoesDoMes([n('2026-11-02'), n('2026-11-30'), n('2026-10-31'), n('2026-11-05', true)], '2026-11'), 2);
   assert.deepEqual(caixinhasParaMarcar(ok(registraMes(vazia, 'k3', '2026-11', { recebidas: 1 })), {}), ['m4.k3']);
+});
+
+test('#198: rotuloSemana mostra segunda a domingo em DD/MM/AA, inclusive na virada de ano', () => {
+  assert.equal(rotuloSemana('2026-W47'), 'Semana 16/11/26 até 22/11/26');
+  assert.equal(rotuloSemana('2026-W53'), 'Semana 28/12/26 até 03/01/27');
+  assert.equal(rotuloSemana('2027-W01'), 'Semana 04/01/27 até 10/01/27');
+  assert.equal(rotuloSemana('lixo'), 'lixo');
+});
+
+test('#198: rotuloSemanaCurto dá a segunda-feira (DD/MM) para o eixo do gráfico', () => {
+  assert.equal(rotuloSemanaCurto('2026-W47'), '16/11');
+  assert.equal(rotuloSemanaCurto('lixo'), 'lixo');
 });

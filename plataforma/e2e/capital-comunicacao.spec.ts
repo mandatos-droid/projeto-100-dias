@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { abre, dadoDe, MANDATO } from './semente-rumo';
 import { abreGuia } from './guia-real';
-import { semanaDe } from '../lib/comunicacao.ts';
+import { rotuloSemanaCurto, semanaDe } from '../lib/comunicacao.ts';
 
 /* Missão 4 · acompanhamento semanal da comunicação (CAP-20, CAP-21). Ilha montada na rota de teste. */
 const ILHA = 'capital-comunicacao';
@@ -148,8 +148,8 @@ test.describe('Gráfico de linha da seção (CAP-20.5, CAP-20.6)', () => {
     await expect(s.getByText('Registre mais uma semana para ver a linha')).toHaveCount(0);
     const g = s.locator('.cp-g[data-tipo="linha"]');
     await expect(g.locator('polyline')).toHaveCount(3);
-    await expect(g.locator('.cp-g-eixo', { hasText: `S${semana(1).slice(-2)}` })).toBeVisible();
-    await expect(g.locator('.cp-g-eixo', { hasText: `S${semana(0).slice(-2)}` })).toBeVisible();
+    await expect(g.locator('.cp-g-eixo', { hasText: rotuloSemanaCurto(semana(1)) })).toBeVisible();
+    await expect(g.locator('.cp-g-eixo', { hasText: rotuloSemanaCurto(semana(0)) })).toBeVisible();
     await expect(g.getByRole('list', { name: 'Legenda' }).locator('li')).toHaveText(['Seguidores (total)', 'Novos seguidores na semana', 'Alcance ou visualizações']);
   });
 
@@ -178,7 +178,7 @@ test.describe('Gráfico de linha da seção (CAP-20.5, CAP-20.6)', () => {
     await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: dados } });
     const s = await abreSecao(page, 'k1');
     await s.getByText('Ver como tabela').click();
-    await expect(s.locator('.cp-g-tab tbody th')).toHaveText(['2026-W44', '2026-W53', '2027-W01']);
+    await expect(s.locator('.cp-g-tab tbody th')).toHaveText(['Semana 26/10/26 até 01/11/26', 'Semana 28/12/26 até 03/01/27', 'Semana 04/01/27 até 10/01/27']);
   });
 });
 
