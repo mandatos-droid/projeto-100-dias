@@ -148,30 +148,19 @@ test.describe('Agendas sociais · cartões em slides com filtro (SOC-02 a SOC-06
     await expect(ilha.getByText('Slide 1 de 4')).toBeVisible();
   });
 
-  test('cartão com muitos indicadores tem no máximo 420px e rola só a lista, com título e filtro fixos (OP-01)', async ({ page }) => {
+  test('cartões não prendem a rolagem: a lista cresce com a página, sem teto de altura nem barra interna (OP-01, nova proposta)', async ({ page }) => {
     await abre(page);
     const ilha = page.locator('[data-ilha="agendas-sociais"]');
     await expect(ilha.locator('article')).toHaveCount(4, { timeout: 30_000 });
     const cartoes = ilha.locator('article');
-    // procura um cartão cuja lista não cabe em 420px
-    let longo = -1;
-    for (let i = 0; i < 4 && longo < 0; i++) {
-      if (await cartoes.nth(i).locator('.as-lista').evaluate((e) => e.scrollHeight > e.clientHeight)) longo = i;
+    for (let i = 0; i < 4; i++) {
+      const c = cartoes.nth(i);
+      expect(await c.evaluate((e) => getComputedStyle(e).maxHeight)).toBe('none');
+      expect(await c.locator('.as-lista').evaluate((e) => getComputedStyle(e).overflowY)).toBe('visible');
+      expect(await c.locator('.as-lista').evaluate((e) => e.scrollHeight <= e.clientHeight + 1)).toBe(true); // nada a rolar por dentro
+      await expect(c.locator('h4')).toBeVisible();
+      await expect(c.getByRole('combobox', { name: 'Classificação' })).toBeVisible();
     }
-    expect(longo).toBeGreaterThanOrEqual(0);
-    const c = cartoes.nth(longo);
-    for (let i = 0; i < 4; i++) expect((await cartoes.nth(i).boundingBox())!.height).toBeLessThanOrEqual(420.5);
-    const titulo = c.locator('h4'), filtro = c.getByRole('combobox', { name: 'Classificação' }), lista = c.locator('.as-lista');
-    await c.scrollIntoViewIfNeeded();
-    const antes = [(await titulo.boundingBox())!.y, (await filtro.boundingBox())!.y];
-    const paginaAntes = await page.evaluate(() => window.scrollY);
-    await lista.evaluate((e) => { e.scrollTop = e.scrollHeight; });
-    expect(await lista.evaluate((e) => e.scrollTop)).toBeGreaterThan(0);
-    expect([(await titulo.boundingBox())!.y, (await filtro.boundingBox())!.y]).toEqual(antes); // não saíram do lugar
-    await expect(titulo).toBeInViewport();
-    await expect(filtro).toBeInViewport();
-    expect(await page.evaluate(() => window.scrollY)).toBe(paginaAntes); // só a lista rolou, não a página
-    expect(await c.evaluate((e) => e.scrollHeight <= e.clientHeight + 1)).toBe(true); // o cartão em si não rola
   });
 
   test('o cabeçalho de cada cartão é uma faixa na cor da agenda e os selos de faixa são preenchidos (OP-02, OP-03)', async ({ page }) => {

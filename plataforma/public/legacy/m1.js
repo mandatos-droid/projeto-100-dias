@@ -44,7 +44,7 @@
      Aliados, oponentes e indefinidos são marcados na tabela (ilha), então a pergunta não tem caixa de texto: m1.q4 e m1.q4b
      continuam gravadas, só deixam de ser mostradas. As definições são as do documento da Alana. */
   var q4=item(exDe('m1.conjuntura'),'m1.q4');
-  q4.d='Analise qual é o tipo de relação que a liderança parlamentar tem com as pessoas eleitas, a partir dos dados expostos abaixo.</p>'+
+  q4.d='Analise qual é o tipo de relação que a liderança parlamentar tem com as pessoas eleitas.</p>'+
     '<p>Siga as seguintes orientações para realizar a análise:</p>'+
     '<ol><li>Crie categorias iniciais de análise, por meio do filtro, para iniciar sua avaliação.</li>'+
     '<li>A partir dos nomes filtrados, classifique como é a relação atual da liderança parlamentar com os perfis dos colegas parlamentares listados. Caso tenha necessidade, mude o filtro e faça novas classificações. Não é necessário esgotar este processo com todas as cadeiras da Casa.</li></ol>'+
@@ -57,25 +57,26 @@
     '<li><strong>Indefinida:</strong> para perfis com quem haja potencial de construção de espaços de convergência e que pode ser aliado ou oponente, a depender da pauta debatida, e cuja relação ainda precisa ser desenvolvida.</li></ul>'+
     '<p>Os dados abaixo são a base da sua análise.';
   q4.depois=true;
-  q4.caixas=[];
+  /* depois da tabela de parlamentares: a caixa aberta que antes era "Principais atores políticos do entorno" (sugestões #156 e #158) */
+  q4.caixas=[{k:'m1.q4c',resumo:'Estratégias iniciais para conquistar novas pessoas aliadas',
+    rot:'A partir das relações mapeadas, registre abaixo quais são as estratégias iniciais para conquistar novas pessoas aliadas, ainda nestes primeiros 100 dias, a partir da aproximação com aqueles que classificou como "Indeterminada". Lembre-se de considerar a importância de encontrar os pontos de possíveis consensos para avanço do projeto político.'}];
 
   /* ---- Conjuntura · 2.2: contexto antes dos dados; depois deles, os dois textos de PAR-09 (PAR-01, PAR-09) ---- */
   var q5=item(exDe('m1.conjuntura'),'m1.q5');
   q5.d='A análise da quantidade de cargos ocupados pelo partido na sua Casa Legislativa, no território nacional e em seu domicílio eleitoral, dos setoriais e diretórios de que a liderança parlamentar pode passar a fazer parte, do tipo de relação que deseja ter com o partido e dos desafios e oportunidades de expansão da relevância partidária da liderança parlamentar é fundamental para a compreensão da conjuntura política em que a liderança parlamentar está inserida.';
   q5.depois=true;
-  q5.caixas=[{k:'m1.q5',rot:'Identifique que tipo de relação com o partido a liderança parlamentar deseja ter, à luz destes dados, refletindo como o mandato pode contribuir para o fortalecimento do partido e como pode se posicionar diante do poder Executivo.'},
-    {texto:'Selecione 2 dados e registre como a liderança parlamentar deseja que o mandato reaja a eles.'}];
+  /* ordem da sugestão #205: texto sobre a relação com o partido, enunciado dos 2 dados e só então a caixa; o seletor de dados na tela saiu */
+  q5.caixas=[{texto:'Identifique que tipo de relação com o partido a liderança parlamentar deseja ter, à luz destes dados, refletindo como o mandato pode contribuir para o fortalecimento do partido e como pode se posicionar diante do poder Executivo.'},
+    {k:'m1.q5',rot:'Selecione 2 dados e registre como a liderança parlamentar deseja que o mandato reaja a eles.'}];
 
-  /* ---- Conjuntura · fim da página: some a pergunta 2.3 e seu mapa; fica o texto e a caixa m1.q6 (PAR-13) ----
-     A resposta antiga continua em m1.q6; a caixa vem num passo próprio, depois das perguntas, sem título de pergunta. */
+  /* ---- Conjuntura · sem a pergunta 2.3 nem a caixa de atores: a antiga m1.q6 foi removida (sugestões #156 e #158) ----
+     A resposta antiga continua gravada em m1.q6 (só deixa de ser mostrada). */
   var conj=exDe('m1.conjuntura');
   conj.itens=conj.itens.filter(function(i){return i.k!=='m1.q6'});
-  conj.d='Duas perguntas sobre a legislatura e o partido, e o cenário político do entorno da liderança parlamentar.';
-  var ATORES={k:'m1.q6',resumo:'Principais atores políticos do entorno',rot:'Principais atores políticos do entorno',
-    antes:'<div class="orienta"><p>Registre quais são os principais atores políticos do entorno da liderança parlamentar. Leve em consideração os diversos poderes, e monte o cenário político instalado a partir de quem são seus aliados e concorrentes em potencial.</p></div>'};
+  conj.d='Duas perguntas sobre a legislatura e o partido.';
 
   /* ---- Oportunidades (social): a caixa de análise vai para depois dos dados (SUG-19) ---- */
-  var ANALISE='A partir dos dados apresentados acima, e de outros que você possa ter pesquisado, faça uma análise destacando o que mais te chama a atenção e como o mandato deve agir a partir desta conjuntura.';
+  var ANALISE='A partir dos dados apresentados acima, e de outros que possa ter pesquisado, destaque os 10 indicadores que o mandato poderia ter como referência para sustentar seu trabalho desde o começo da Legislatura.';
   var opo=exDe('m1.oportunidades');
   opo.d='Três perguntas sobre as expectativas do eleitorado, a conjuntura social do território e as agendas prioritárias.';
   /* 3.1: o texto da Alana já era o do Guia original (SOC-01); fica aqui conferido, antes das colunas de registro */
@@ -83,7 +84,9 @@
   /* 3.2: texto novo, dados e só então a caixa de análise (SOC-02, SOC-07) */
   var q8=item(opo,'m1.q8');
   q8.ilha='agendas-sociais'; /* cartões por agenda no lugar do mapa social (SOC-02, SOC-03); a ilha 'social' sai da Missão 1 */
-  q8.d='Inspire-se nos dados públicos oficiais apresentados abaixo, acerca do seu estado, e faça uma análise da conjuntura social do território da liderança parlamentar.';
+  q8.d='Neste exercício usaremos dados sociais públicos, que são apresentados por meio dos indicadores vindos dos Objetivos de Desenvolvimento Sustentável - ODS.</p>'+
+    '<p>Os 17 ODS contemplam um guarda-chuva de mais de 200 indicadores.</p>'+
+    '<p>Apresentamos alguns a seguir, para que seu mandato se inspire em evidências para apoiar a tomada de decisão sobre as soluções que desejam entregar para a sociedade.';
   /* 3.3: as agendas prioritárias, escolhidas na ilha (AGE-01); a pergunta é nova e não tem caixa de texto */
   opo.itens.push({k:'m1.q9',ilha:'prioritarias',t:'Quais são as agendas prioritárias?',
     d:'Considerando os dados acima e as promessas de campanha, selecione quais são as Agendas que serão trabalhadas prioritariamente pela liderança parlamentar ao longo dos 100 Primeiros dias, mas também ao longo deste primeiro ano:',caixas:[]});
@@ -127,20 +130,13 @@
     }
     return h;
   };
-  /* passo final da Conjuntura (texto + caixa m1.q6); no modo "tudo" vem depois das perguntas */
-  var _mt=Guia.montar;
-  Guia.montar=function(e){
-    var p=_mt.call(this,e);
-    if(e&&e.id==='m1.conjuntura')p.push({k:'m1.atores'});
-    return p;
-  };
   var _gb2=Guia.bloco;
   Guia.bloco=function(p,n){
-    var h=p&&p.k==='m1.atores'?caixa(ATORES):_gb2.call(this,p,n);
+    var h=_gb2.call(this,p,n);
     var eid=this.ex&&this.ex.id;
     if(eid==='m1.persona'||eid==='m1.oportunidades')return '<div class="np-sec-card">'+h+'</div>';
     if(eid==='m1.conjuntura'){
-      var cid=p&&p.k==='m1.atores'?'cj-23':p&&p.k==='pergunta'&&p.n===0?'cj-21':p&&p.k==='pergunta'&&p.n===1?'cj-22':'';
+      var cid=p&&p.k==='pergunta'&&p.n===0?'cj-21':p&&p.k==='pergunta'&&p.n===1?'cj-22':'';
       return '<div class="np-sec-card"'+(cid?' id="'+cid+'"':'')+'>'+h+'</div>';
     }
     if(eid==='m1.frag'&&p&&p.k==='componente'){
@@ -166,7 +162,7 @@
   if(!ex)return;
   /* FRA-01: título e instrução M/P como no documento da Alana (a lista, com "Sistemas" no plural, já vem do conteudo.js) */
   ex.intro='<p><strong>Quais são os conhecimentos e/ou práticas que a liderança parlamentar ou a equipe ainda não domina(m) para um bom exercício do mandato?</strong></p>'+
-    '<p>Coloque um M para fragilidades da equipe do mandato e um P para as fragilidades da liderança parlamentar.</p>'+
+    '<p>Selecione Gabinete para fragilidades da equipe do mandato e Parlamentar para as fragilidades da liderança parlamentar.</p>'+
     '<p><em>Mapeie</em> todas as fragilidades a serem superadas.</p>';
   /* FRA-03: o convite a ampliar a lista vem logo depois dela */
   var CASO='<div class="texto"><p><em>Caso sinta falta de algum outro tema, suba na lista e crie um plano de estudos para ir se familiarizando com os assuntos. Na nossa Biblioteca você encontra informações introdutórias, além de sites de referência sobre os assuntos acima. Recomendamos fortemente o estudo do que ainda não se tem conhecimento em profundidade para potencializar uma melhor atuação política nos meses que seguem!</em></p></div>';
@@ -242,8 +238,7 @@
     if(tl&&(eid==='m1.persona'||eid==='m1.conjuntura'||eid==='m1.oportunidades')){
       var anc=eid==='m1.conjuntura'?'<nav class="np-ancoras" aria-label="Atalhos desta etapa">'+
         '<button type="button" onclick="document.getElementById(\'cj-21\').scrollIntoView({behavior:\'smooth\'})">2.1 Legislatura e Hemiciclo</button>'+
-        '<button type="button" onclick="document.getElementById(\'cj-22\').scrollIntoView({behavior:\'smooth\'})">2.2 Força do Partido e Municípios</button>'+
-        '<button type="button" onclick="document.getElementById(\'cj-23\').scrollIntoView({behavior:\'smooth\'})">2.3 Atores Políticos do Entorno</button></nav>':'';
+        '<button type="button" onclick="document.getElementById(\'cj-22\').scrollIntoView({behavior:\'smooth\'})">2.2 Força do Partido e Municípios</button></nav>':'';
       if(tl.querySelectorAll){
         tl.querySelectorAll('.passo-corpo > hr.regra').forEach(function(hr){if(hr.parentNode)hr.parentNode.removeChild(hr)});
         var pc=tl.querySelector('.passo-corpo');
@@ -324,7 +319,7 @@
     if(ex.id==='m1.persona')return algum(['m1.q3c1','m1.q3c2','m1.q3c3']);
     if(ex.id==='m1.conjuntura'){
       var re=(D.conj2&&D.conj2.reacoes)||[];
-      return cheio('m1.q6')||re.some(function(r){return r&&(String(r.dado||'').trim()||String(r.texto||'').trim())});
+      return algum(['m1.q4c','m1.q6'])||re.some(function(r){return r&&(String(r.dado||'').trim()||String(r.texto||'').trim())});
     }
     if(ex.id==='m1.oportunidades')
       return !!(D.eleitorado&&(D.eleitorado.itens||[]).length)||(D.agendasPrio||[]).length>0||cheio('m1.q8a');
@@ -340,7 +335,8 @@
     var h=_ex.apply(this,arguments);
     if(!ex||ex.tipo!=='perguntas'||!ex.itens)return h;
     var extra='';
-    if(ex.id==='m1.conjuntura')extra+='<dt>Principais atores políticos do entorno</dt><dd>'+Resumo.v('m1.q6')+'</dd>';
+    /* a caixa de atores saiu da tela (#156); o que já tinha sido escrito nela continua aparecendo no Resumo */
+    if(ex.id==='m1.conjuntura'&&String((D.campos||{})['m1.q6']||'').trim()!=='')extra+='<dt>Principais atores políticos do entorno</dt><dd>'+Resumo.v('m1.q6')+'</dd>';
     ex.itens.forEach(function(it){
       (it.caixas||[]).forEach(function(c){
         if(c.resumo)extra+='<dt>'+esc(c.resumo)+'</dt><dd>'+Resumo.v(c.k)+'</dd>';

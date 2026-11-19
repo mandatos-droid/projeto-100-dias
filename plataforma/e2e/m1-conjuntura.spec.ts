@@ -9,7 +9,7 @@ const campos = async (page: Page) => ((await salvoDe(page)).dados as { campos?: 
 test.describe('Conjuntura · legislatura (LEG-04, LEG-05)', () => {
   test('texto de análise, 2 orientações e 5 definições antes dos dados, sem a pergunta das pontes', async ({ page }) => {
     await abreGuia(page, '#/m/1/m1.conjuntura');
-    await expect(page.getByText('Analise qual é o tipo de relação que a liderança parlamentar tem com as pessoas eleitas, a partir dos dados expostos abaixo.')).toBeVisible();
+    await expect(page.getByText('Analise qual é o tipo de relação que a liderança parlamentar tem com as pessoas eleitas.')).toBeVisible();
     await expect(page.locator('ol li').filter({ hasText: 'Crie categorias iniciais de análise' })).toHaveCount(1);
     await expect(page.locator('.categorias-relacao li')).toHaveCount(5);
     await expect(page.locator('#tela')).not.toContainText('100 primeiros dias');
@@ -29,8 +29,8 @@ test.describe('Conjuntura · legislatura (LEG-04, LEG-05)', () => {
   });
 });
 
-test.describe('Conjuntura · partido, atores e social (PAR-01, PAR-09, PAR-13, SOC-07)', () => {
-  const COMANDO = 'A partir dos dados apresentados acima, e de outros que você possa ter pesquisado, faça uma análise destacando o que mais te chama a atenção e como o mandato deve agir a partir desta conjuntura.';
+test.describe('Conjuntura · partido, estratégias e social (PAR-01, PAR-09, #156, SOC-07)', () => {
+  const COMANDO = 'A partir dos dados apresentados acima, e de outros que possa ter pesquisado, destaque os 10 indicadores que o mandato poderia ter como referência para sustentar seu trabalho desde o começo da Legislatura.';
   const depoisDosDados = async (page: Page, ilha: string, k: string) => {
     const d = await page.locator(`[data-ilha="${ilha}"]`).boundingBox();
     const c = await editor(page, k).boundingBox();
@@ -46,15 +46,18 @@ test.describe('Conjuntura · partido, atores e social (PAR-01, PAR-09, PAR-13, S
     await expect(editor(page, 'm1.q5')).toContainText('análise antiga');
   });
 
-  test('fim da página: texto dos atores políticos e caixa m1.q6, sem a pergunta nem o mapa de município', async ({ page }) => {
+  test('2.1: a caixa m1.q4c vem depois da tabela de parlamentares; sem a caixa m1.q6, o anexo 2.3 nem a pergunta do município (#156/#158)', async ({ page }) => {
     await abreGuia(page, '#/m/1/m1.conjuntura');
-    await expect(page.getByText('Registre quais são os principais atores políticos do entorno da liderança parlamentar.')).toBeVisible();
+    await expect(page.locator('#tela')).not.toContainText('Registre quais são os principais atores políticos do entorno');
     await expect(page.locator('#tela')).not.toContainText('Qual é a conjuntura política do seu estado ou município de origem?');
+    await expect(page.locator('textarea[data-k="m1.q6"]')).toHaveCount(0);
     await expect(page.locator('[data-ilha="municipio"]')).toHaveCount(0);
-    await depoisDosDados(page, 'calor', 'm1.q6');
-    await editor(page, 'm1.q6').click();
-    await page.keyboard.type('Prefeito da capital');
-    await expect.poll(async () => (await campos(page))['m1.q6']).toContain('Prefeito da capital');
+    await expect(page.locator('textarea[data-k="m1.q4c"]')).toHaveCount(1);
+    await expect(page.getByText('estratégias iniciais para conquistar novas pessoas aliadas').first()).toBeVisible();
+    await depoisDosDados(page, 'assentos', 'm1.q4c');
+    await editor(page, 'm1.q4c').click();
+    await page.keyboard.type('Aproximar quem é Indeterminada');
+    await expect.poll(async () => (await campos(page))['m1.q4c']).toContain('Aproximar quem é Indeterminada');
   });
 
   test('m1.q8a traz a caixa de análise depois dos dados sociais', async ({ page }) => {

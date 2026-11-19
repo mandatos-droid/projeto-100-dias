@@ -8,7 +8,16 @@ type Acao = { id?: string; bingo?: string; i?: number; titulo?: string; alcancar
 const acoes = (page: Page) => dadoDe(page, 'acoes') as Promise<Acao[] | undefined>;
 const frente = (page: Page, k: string) => page.locator(`.cp-frentes button[data-frente="${k}"]`);
 const linhas = (page: Page) => page.locator('.cp-acoes > li');
-const linha = (page: Page, bingo: string, i: number) => page.locator(`li[data-bingo="${bingo}"][data-i="${i}"]`);
+/** Item da lista da página (caixa de marcar e "Detalhar ação"). */
+const item = (page: Page, bingo: string, i: number) => page.locator(`.cp-acoes > li[data-bingo="${bingo}"][data-i="${i}"]`);
+/** Linha de detalhamento (os campos): fica na gaveta "Plano das ações escolhidas", que abre ao marcar a ação. */
+const linha = (page: Page, bingo: string, i: number) => page.getByRole('dialog').locator(`li[data-bingo="${bingo}"][data-i="${i}"]`);
+/** Marca a ação na lista da página; a gaveta abre sozinha, focada nela. */
+const escolhe = (page: Page, bingo: string, i: number) => item(page, bingo, i).getByRole('checkbox').check();
+/** Abre a gaveta de uma ação que já estava marcada. */
+const abreDetalhe = (page: Page, bingo: string, i: number) => item(page, bingo, i).getByRole('button', { name: 'Detalhar ação' }).click();
+/** Fecha a gaveta (o véu dela bloqueia a lista da página). */
+const fecha = async (page: Page) => { await page.keyboard.press('Escape'); await expect(page.getByRole('dialog')).toHaveCount(0); };
 /** Data AAAA-MM-DD daqui a n dias, no fuso do aparelho (os testes valem em qualquer dia). */
 const iso = (n: number) => { const d = new Date(); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 /** SUG-52: depois de marcar, a ação pede o formato; os testes dos 5 campos escolhem o registro completo. */
@@ -45,7 +54,7 @@ test.describe('Marcar, campos e gravação no formato antigo (CAP-10.3, CAP-10.4
     await abre(page, [ILHA], { mandato: MANDATO });
     const l = linha(page, 'articulacao', 0);
     await expect(l.locator('textarea, input[type=text], input[type=date]')).toHaveCount(0);
-    await l.getByRole('checkbox').check();
+    await escolhe(page, 'articulacao', 0);
     await expect(l.getByRole('button', { name: 'Detalhar em formato de resumo' })).toBeVisible();
     await expect(l.getByLabel('O que queremos alcançar')).toHaveCount(0); // antes de escolher o formato não há campos
     await completo(l);
@@ -57,9 +66,7 @@ test.describe('Marcar, campos e gravação no formato antigo (CAP-10.3, CAP-10.4
 
   test('o que se digita grava na hora nos campos alcancar, resp, prazo, saber e prox', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO });
-    const l = linha(page, 'articulacao', 0);
-    await l.getByRole('checkbox').check();
-    await completo(l);
+    const l = await marca(page);
     await l.getByLabel('O que queremos alcançar').fill('Ser ouvido nas decisões da Mesa');
     await l.getByLabel('Responsável').fill('Bruno');
     await l.getByLabel('Prazo').fill(iso(20));
@@ -70,16 +77,14 @@ test.describe('Marcar, campos e gravação no formato antigo (CAP-10.3, CAP-10.4
 
   test('desmarcar remove a ação; com campos preenchidos pede confirmação e cancelar mantém tudo', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO });
-    const l = linha(page, 'articulacao', 1);
-    await l.getByRole('checkbox').check();
-    await completo(l);
+    const l = await marca(page, 'articulacao', 1);
     await l.getByLabel('Responsável').fill('Bruno');
     page.once('dialog', (d) => d.dismiss());
     await l.getByRole('checkbox').click(); // uncheck() falharia: ele confere que a caixa mudou, e cancelar a mantém marcada
     await expect(l.getByRole('checkbox')).toBeChecked();
     expect(await acoes(page)).toHaveLength(1);
     page.once('dialog', (d) => d.accept());
-    await l.getByRole('checkbox').uncheck();
+    await l.getByRole('checkbox').click(); // a linha some da gaveta ao desmarcar, então não dá para esperar a caixa mudar
     expect(await acoes(page)).toEqual([]);
     await expect(l.getByLabel('Responsável')).toHaveCount(0);
   });
@@ -88,6 +93,8 @@ test.describe('Marcar, campos e gravação no formato antigo (CAP-10.3, CAP-10.4
     const antiga = { id: 'old1', bingo: 'partido', i: 2, titulo: 'Contribuir para uma posição ou documento partidário', alcancar: 'Texto antigo', resp: 'Ana', prazo: 'até 20/03', saber: 'Ata', prox: 'Escrever' };
     await abre(page, [ILHA], { mandato: MANDATO, D: { acoes: [antiga] } });
     await frente(page, 'partido').click();
+    await expect(item(page, 'partido', 2).getByRole('checkbox')).toBeChecked();
+    await abreDetalhe(page, 'partido', 2);
     const l = linha(page, 'partido', 2);
     await expect(l.getByRole('checkbox')).toBeChecked();
     await expect(l.getByLabel('O que queremos alcançar')).toHaveValue('Texto antigo');
@@ -100,8 +107,8 @@ test.describe('Ponto de preenchimento (CAP-11.9)', () => {
   test('ação marcada com campo vazio mostra ponto amarelo; completa mostra ponto verde', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO });
     const l = linha(page, 'articulacao', 0);
-    await expect(l.locator('.cp-ponto')).toHaveCount(0);
-    await l.getByRole('checkbox').check();
+    await expect(item(page, 'articulacao', 0).locator('.cp-ponto')).toHaveCount(0);
+    await escolhe(page, 'articulacao', 0);
     await expect(l.locator('.cp-ponto')).toHaveAttribute('data-estado', 'pendente');
     await completo(l);
     await l.getByLabel('O que queremos alcançar').fill('a');
@@ -122,7 +129,7 @@ const comPosse = (dias: number) => ({ ...MANDATO, data_posse: iso(dias) });
 type AcaoCad = Acao & { respCad?: number | null };
 async function marca(page: Page, bingo = 'articulacao', i = 0) {
   const l = linha(page, bingo, i);
-  await l.getByRole('checkbox').check();
+  await escolhe(page, bingo, i);
   await completo(l);
   return l;
 }
@@ -202,6 +209,7 @@ test.describe('Prazo (CAP-11.2, CAP-40)', () => {
   test('o prazo antigo em texto livre continua visível e guardado até escolherem uma data', async ({ page }) => {
     const antiga = { id: 'old1', bingo: 'articulacao', i: 0, titulo: ART0, alcancar: 'x', resp: 'Ana', prazo: 'até 20/03', saber: 's', prox: 'p' };
     await abre(page, [ILHA], { mandato: comPosse(10), D: { acoes: [antiga] } });
+    await abreDetalhe(page, 'articulacao', 0);
     const l = linha(page, 'articulacao', 0);
     await expect(l.getByText('Prazo anterior: até 20/03')).toBeVisible();
     await expect(l.locator('.cp-ponto')).toHaveAttribute('data-estado', 'completa');
@@ -227,7 +235,7 @@ test.describe('Texto base de "Como saberemos" (CAP-11.3)', () => {
     const l = await marca(page);
     let perguntou = false;
     page.on('dialog', (d) => { perguntou = true; void d.dismiss(); });
-    await l.getByRole('checkbox').uncheck();
+    await l.getByRole('checkbox').click();
     expect(perguntou).toBe(false);
     expect(await acoes(page)).toEqual([]);
   });
@@ -243,6 +251,7 @@ test.describe('Progresso: 2 ações em 2 frentes (CAP-12)', () => {
     await expect(progresso(page)).toContainText('Faltam ações em frentes diferentes');
     await expect(progresso(page)).toHaveAttribute('data-ok', 'false');
     await marca(page, 'articulacao', 0);
+    await fecha(page);
     await marca(page, 'articulacao', 1);
     await expect(progresso(page)).toContainText('Faltam ações em frentes diferentes');
     await expect(progresso(page)).not.toContainText('✓');
@@ -252,11 +261,12 @@ test.describe('Progresso: 2 ações em 2 frentes (CAP-12)', () => {
   test('marcar uma ação em outra frente mostra "2 ações em 2 frentes ✓"; desmarcar volta ao aviso', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO });
     await marca(page, 'articulacao', 0);
+    await fecha(page);
     await frente(page, 'mobilizacao').click();
     await marca(page, 'mobilizacao', 3);
     await expect(progresso(page)).toContainText(OK);
     await expect(progresso(page)).toHaveAttribute('data-ok', 'true');
-    await linha(page, 'mobilizacao', 3).getByRole('checkbox').uncheck();
+    await linha(page, 'mobilizacao', 3).getByRole('checkbox').click();
     await expect(progresso(page)).toContainText('Faltam ações em frentes diferentes');
   });
 
@@ -266,6 +276,7 @@ test.describe('Progresso: 2 ações em 2 frentes (CAP-12)', () => {
     await expect(barra).toHaveAttribute('value', '0');
     await marca(page, 'articulacao', 0);
     await expect(barra).toHaveAttribute('value', '2');
+    await fecha(page);
     await frente(page, 'redes').click();
     await marca(page, 'redes', 0);
     await expect(barra).toHaveAttribute('value', '4');
@@ -338,6 +349,7 @@ for (const tela of [{ nome: 'celular 360 px', width: 360, height: 740 }, { nome:
       await a.getByLabel('Próximo passo').fill('Ligar para a secretaria');
       await expect(a.locator('.cp-ponto')).toHaveAttribute('data-estado', 'completa');
       expect(await semRolagemLateral(page)).toBe(true);
+      await fecha(page);
 
       await frente(page, 'mobilizacao').click();
       const b = await marca(page, 'mobilizacao', 0);
@@ -345,6 +357,7 @@ for (const tela of [{ nome: 'celular 360 px', width: 360, height: 740 }, { nome:
       await expect(b.locator('.cp-ponto')).toHaveAttribute('data-estado', 'pendente');
       await expect(progresso(page)).toContainText(OK);
       expect(await semRolagemLateral(page)).toBe(true);
+      await fecha(page);
 
       await page.getByRole('button', { name: 'Todas as ações' }).click();
       const todas = page.locator('.cp-todas > li');
@@ -357,6 +370,7 @@ for (const tela of [{ nome: 'celular 360 px', width: 360, height: 740 }, { nome:
       await page.reload();
       await page.locator('#tela[data-pronto="true"]').waitFor();
       await frente(page, 'articulacao').click();
+      await abreDetalhe(page, 'articulacao', 0);
       await expect(linha(page, 'articulacao', 0).getByLabel('Próximo passo')).toHaveValue('Ligar para a secretaria');
       await expect(progresso(page)).toContainText(OK);
       const salvas = (await acoes(page)) as AcaoCad[];
@@ -374,11 +388,13 @@ test.describe('Guia de verdade: ação salva antes da mudança continua abrindo 
 
   test('a ilha abre as ações antigas marcadas, com prazo em texto livre visível, e o Resumo as mostra', async ({ page }) => {
     await abreGuia(page, '#/m/4/m4.acoes/1', { dados: { acoes: antigas } });
-    await expect(linha(page, 'articulacao', 1).getByRole('checkbox')).toBeChecked();
+    await expect(item(page, 'articulacao', 1).getByRole('checkbox')).toBeChecked();
+    await abreDetalhe(page, 'articulacao', 1);
     await expect(linha(page, 'articulacao', 1).getByText('Prazo anterior: até 20/03')).toBeVisible();
     await expect(progresso(page)).toContainText(OK);
+    await fecha(page);
     await frente(page, 'redes').click();
-    await expect(linha(page, 'redes', 0).getByRole('checkbox')).toBeChecked();
+    await expect(item(page, 'redes', 0).getByRole('checkbox')).toBeChecked();
     await page.evaluate(() => { location.hash = '#/resumo'; });
     const resumo = page.locator('#tela');
     await expect(resumo).toContainText('Reunir-se com a presidência ou a secretaria de uma comissão prioritária');
@@ -406,7 +422,7 @@ test.describe('SUG-52 · detalhar em resumo ou em registro completo', () => {
   test('marcar mostra as duas opções; resumo abre só uma caixa de texto e grava modo e resumo', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO });
     const l = linha(page, 'articulacao', 0);
-    await l.getByRole('checkbox').check();
+    await escolhe(page, 'articulacao', 0);
     await expect(modos(l)).toHaveText(['Detalhar em formato de resumo', 'Detalhar em formato de registro completo']);
     await l.getByRole('button', { name: 'Detalhar em formato de resumo' }).click();
     await expect(l.locator('textarea')).toHaveCount(1);
@@ -418,7 +434,7 @@ test.describe('SUG-52 · detalhar em resumo ou em registro completo', () => {
   test('resumo preenchido deixa o ponto verde; vazio, amarelo', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO });
     const l = linha(page, 'articulacao', 0);
-    await l.getByRole('checkbox').check();
+    await escolhe(page, 'articulacao', 0);
     await l.getByRole('button', { name: 'Detalhar em formato de resumo' }).click();
     await expect(l.locator('.cp-ponto')).toHaveAttribute('data-estado', 'pendente');
     await l.getByLabel('Resumo da ação').fill('ok');
@@ -428,7 +444,7 @@ test.describe('SUG-52 · detalhar em resumo ou em registro completo', () => {
   test('trocar de formato não apaga o que já foi escrito no outro', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO });
     const l = linha(page, 'articulacao', 0);
-    await l.getByRole('checkbox').check();
+    await escolhe(page, 'articulacao', 0);
     await completo(l);
     await l.getByLabel('Responsável').fill('Bruno');
     await l.getByRole('button', { name: 'Detalhar em formato de resumo' }).click();
@@ -439,6 +455,7 @@ test.describe('SUG-52 · detalhar em resumo ou em registro completo', () => {
 
   test('ação antiga com campos preenchidos abre direto no registro completo', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO, D: { acoes: [{ id: 'a', bingo: 'articulacao', i: 0, titulo: ART0, alcancar: 'x', resp: 'Ana' }] } });
+    await abreDetalhe(page, 'articulacao', 0);
     const l = linha(page, 'articulacao', 0);
     await expect(modos(l).nth(1)).toHaveAttribute('aria-pressed', 'true');
     await expect(l.getByLabel('Responsável')).toHaveValue('Ana');
@@ -447,7 +464,7 @@ test.describe('SUG-52 · detalhar em resumo ou em registro completo', () => {
   test('o Resumo do Guia mostra o texto do resumo', async ({ page }) => {
     await abreGuia(page, '#/m/4/m4.acoes/1', { mandato: { nome_parlamentar: 'Ana Souza', cargo: 'Deputado(a) Federal', casa: 'Câmara dos Deputados', uf: 'SP', data_posse: '2027-02-01' }, dados: {} });
     const l = linha(page, 'articulacao', 0);
-    await l.getByRole('checkbox').check();
+    await escolhe(page, 'articulacao', 0);
     await l.getByRole('button', { name: 'Detalhar em formato de resumo' }).click();
     await l.getByLabel('Resumo da ação').fill('Conversa com a Secretaria-Geral em dezembro');
     await page.evaluate(() => { location.hash = '#/resumo'; });
@@ -459,7 +476,7 @@ test.describe('SUG-53 · ação ligada a uma meta do planejamento', () => {
   test('a lista traz as metas da Missão 3 e "Nenhuma"; escolher grava meta e metaTexto; voltar a "Nenhuma" apaga o vínculo', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO, D: { metas: [META, { id: 'm2', texto: '', status: 'nao_concluida' }] } });
     const l = linha(page, 'articulacao', 0);
-    await l.getByRole('checkbox').check();
+    await escolhe(page, 'articulacao', 0);
     const sel = l.getByLabel('Meta do planejamento relacionada');
     await expect(sel.locator('option')).toHaveText(['Nenhuma', META.texto]);
     await sel.selectOption({ label: META.texto });
@@ -472,7 +489,9 @@ test.describe('SUG-53 · ação ligada a uma meta do planejamento', () => {
 
   test('meta apagada some do vínculo, sem apagar a ação, e a visão "Todas as ações" mostra a meta ligada', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO, D: { metas: [META], acoes: [{ id: 'a', bingo: 'articulacao', i: 0, titulo: ART0, meta: 'm1', metaTexto: META.texto }, { id: 'b', bingo: 'redes', i: 0, titulo: 'z', meta: 'm9', metaTexto: 'Meta que não existe mais' }] } });
+    await abreDetalhe(page, 'articulacao', 0);
     await expect(linha(page, 'articulacao', 0).getByLabel('Meta do planejamento relacionada')).toHaveValue('m1');
+    await fecha(page);
     await page.getByRole('button', { name: /^Todas as ações/ }).click();
     await expect(page.locator('.cp-todas')).toContainText(`Meta: ${META.texto}`);
     await expect(page.locator('.cp-todas')).not.toContainText('Meta que não existe mais');
@@ -482,7 +501,7 @@ test.describe('SUG-53 · ação ligada a uma meta do planejamento', () => {
   test('o Resumo do Guia mostra a meta ligada', async ({ page }) => {
     await abreGuia(page, '#/m/4/m4.acoes/1', { mandato: { nome_parlamentar: 'Ana Souza', cargo: 'Deputado(a) Federal', casa: 'Câmara dos Deputados', uf: 'SP', data_posse: '2027-02-01' }, dados: { metas: [META] } });
     const l = linha(page, 'articulacao', 0);
-    await l.getByRole('checkbox').check();
+    await escolhe(page, 'articulacao', 0);
     await l.getByLabel('Meta do planejamento relacionada').selectOption({ label: META.texto });
     await page.evaluate(() => { location.hash = '#/resumo'; });
     await expect(page.locator('#tela')).toContainText(`Meta do planejamento: ${META.texto}`);

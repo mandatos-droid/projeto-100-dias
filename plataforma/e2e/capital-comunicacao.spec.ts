@@ -194,7 +194,8 @@ const caixinha = (page: Page, k: string) => page.evaluate((c) => (window as unkn
 test.describe('Linha do tempo geral (CAP-21.7)', () => {
   test('fica no fim da tela e, com 2 semanas registradas, mostra um indicador de cada seção com registro', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: duasSemanas({ k1: { alcance: 100 }, k3: { recebidas: 20 }, k5: { aparicoes: 4 } }) } });
-    await expect(page.locator('.cp-com').locator('> *').last()).toHaveClass(/cp-geral/);
+    await expect(page.locator('.cp-com').locator('> *').last()).toHaveClass(/np-com-split/); // a linha do tempo fica na coluna da direita, ao lado das seções
+    await expect(page.locator('.np-com-dir').locator('.cp-geral')).toBeVisible();
     await expect(geral(page).getByRole('heading', { name: 'Linha do tempo geral' })).toBeVisible();
     const g = geral(page).locator('.cp-g[data-tipo="linha"]');
     await expect(g.locator('polyline')).toHaveCount(3);

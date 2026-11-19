@@ -82,8 +82,10 @@ const pergunta = (page: Page, campo: 'pq' | 'papel' | 'mov') => page.locator(`.c
 const botao = (page: Page, campo: 'pq' | 'papel' | 'mov', rot: string) => pergunta(page, campo).getByRole('button', { name: rot, exact: true });
 async function escolheSaude(page: Page) {
   await abre(page, [ILHA], { campos: SAUDE, mandato: FEDERAL });
-  await page.getByRole('checkbox', { name: 'Escolher Comissão de Saúde' }).check();
+  await page.getByRole('checkbox', { name: 'Escolher Comissão de Saúde' }).check(); // a gaveta "Espaços escolhidos para negociar" abre sozinha
 }
+/** Reabre a gaveta das perguntas de uma comissão que já estava marcada (depois de recarregar ou com dados salvos, ela começa fechada). */
+const abreConfig = (page: Page, sigla: string) => page.locator(`li[data-sigla="${sigla}"]`).getByRole('button', { name: 'Configurar' }).first().click();
 
 test.describe('Cartão da comissão (CAP-03.6, CAP-03.7, CAP-03.8)', () => {
   test('escolher a comissão abre o cartão com as 3 perguntas, cada uma com "Outro (escrever)" e os papéis do Guia', async ({ page }) => {
@@ -102,6 +104,7 @@ test.describe('Cartão da comissão (CAP-03.6, CAP-03.7, CAP-03.8)', () => {
     expect(await registros(page)).toEqual([expect.objectContaining({ sigla: 'CSAUDE', pq: `${MOTIVO1}; ${MOTIVO2}`, papel: 'Titular', mov: MOV })]);
     await page.reload();
     await page.locator('#tela[data-pronto="true"]').waitFor();
+    await abreConfig(page, 'CSAUDE');
     await expect(botao(page, 'pq', MOTIVO1)).toHaveAttribute('aria-pressed', 'true');
     await expect(botao(page, 'pq', MOTIVO2)).toHaveAttribute('aria-pressed', 'true');
     await expect(botao(page, 'papel', 'Titular')).toHaveAttribute('aria-pressed', 'true');
@@ -130,17 +133,20 @@ test.describe('Cartão da comissão (CAP-03.6, CAP-03.7, CAP-03.8)', () => {
     expect((await registros(page))[0].papel).toBe('Líder da bancada na comissão');
     await page.reload();
     await page.locator('#tela[data-pronto="true"]').waitFor();
+    await abreConfig(page, 'CSAUDE');
     await expect(page.getByLabel('Outro papel')).toHaveValue('Líder da bancada na comissão');
   });
 
   test('SUG-46: papel antigo "Relatoria" abre marcado em "Conquista de Relatoria Relevante", sem perder o dado', async ({ page }) => {
     await abre(page, [ILHA], { campos: SAUDE, mandato: FEDERAL, D: { comissoes: [{ id: 'a', esp: 'Comissão de Saúde', sigla: 'CSAUDE', papel: 'Relatoria' }] } });
+    await abreConfig(page, 'CSAUDE');
     await expect(botao(page, 'papel', 'Conquista de Relatoria Relevante')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByLabel('Outro papel')).toHaveCount(0);
   });
 
   test('o texto antigo, digitado à mão no Guia, abre como "Outro" sem perda', async ({ page }) => {
     await abre(page, [ILHA], { campos: SAUDE, mandato: FEDERAL, D: { comissoes: [{ id: 'a', esp: 'Comissão de Saúde', prio: 'saúde', pq: 'Porque a saúde é nossa bandeira', papel: 'titular', mov: 'Falar com o líder' }] } });
+    await abreConfig(page, 'CSAUDE');
     await expect(page.getByLabel('Outro motivo')).toHaveValue('Porque a saúde é nossa bandeira');
     await expect(page.getByLabel('Outro papel')).toHaveValue('titular');
     await expect(page.getByLabel('Outro movimento')).toHaveValue('Falar com o líder');
@@ -169,6 +175,7 @@ test.describe('Cartão da comissão (CAP-03.6, CAP-03.7, CAP-03.8)', () => {
     await expect(page.getByText('Escolha no máximo 4 movimentos.')).toBeVisible();
     await page.reload();
     await page.locator('#tela[data-pronto="true"]').waitFor();
+    await abreConfig(page, 'CSAUDE');
     await expect(botao(page, 'mov', 'Pedir a vaga formalmente')).toHaveAttribute('aria-pressed', 'true');
   });
 
@@ -199,6 +206,7 @@ test.describe('Pré-marcação da Missão 3 (CAP-04)', () => {
     await abre(page, [ILHA], { mandato: FEDERAL, D: { comissoesDesejadas: DA_M3 } });
     await expect(page.getByRole('checkbox', { name: 'Escolher Comissão de Educação' })).toBeChecked();
     await expect(page.getByRole('checkbox', { name: 'Escolher Comissão de Meio Ambiente e Desenvolvimento Sustentável' })).toBeChecked();
+    await abreConfig(page, 'CE');
     await expect(page.getByRole('group', { name: 'Perguntas sobre Comissão de Educação' }).getByRole('button', { name: 'Titular', exact: true })).toHaveAttribute('aria-pressed', 'true');
     expect(await registros(page)).toEqual([
       expect.objectContaining({ sigla: 'CE', esp: 'Comissão de Educação', prio: 'Educação', papel: 'Titular' }),
@@ -274,6 +282,7 @@ for (const tela of [{ nome: 'celular 360 px', width: 360, height: 740 }, { nome:
       await page.reload();
       await page.locator('#tela[data-pronto="true"]').waitFor();
       await expect(page.getByRole('checkbox', { name: 'Escolher Comissão de Saúde' })).toBeChecked();
+      await abreConfig(page, 'CSAUDE');
       await expect(botao(page, 'pq', MOTIVO1)).toHaveAttribute('aria-pressed', 'true');
       await expect(botao(page, 'papel', 'Titular')).toHaveAttribute('aria-pressed', 'true');
       await expect(botao(page, 'mov', MOV)).toHaveAttribute('aria-pressed', 'true');
@@ -288,11 +297,13 @@ for (const tela of [{ nome: 'celular 360 px', width: 360, height: 740 }, { nome:
       await ce.getByRole('button', { name: 'Ajustar o nome' }).click();
       await page.getByLabel('Nome na sua Assembleia').fill('Comissão de Educação e Cultura');
       await page.getByRole('button', { name: 'Salvar nome' }).click();
+      await abreConfig(page, 'CE');
       await botao(page, 'papel', 'Suplente').click();
       expect(await semRolagemLateral(page)).toBe(true);
       await page.reload();
       await page.locator('#tela[data-pronto="true"]').waitFor();
       await expect(ce).toContainText('Comissão de Educação e Cultura');
+      await abreConfig(page, 'CE');
       await expect(botao(page, 'papel', 'Suplente')).toHaveAttribute('aria-pressed', 'true');
       expect(await registros(page)).toEqual([expect.objectContaining({ sigla: 'CE', esp: 'Comissão de Educação e Cultura', papel: 'Suplente' })]);
       expect(await semRolagemLateral(page)).toBe(true);

@@ -13,7 +13,6 @@ import { CARGOS, NIVEIS } from './cargos';
 import { CartoesMunicipio, useAlvoMun } from './CartoesMunicipio';
 import { numerosMun, pctEstado } from '@/lib/forcaMunicipio';
 import { POSICOES, ROT_POS, sugere } from './posicoes';
-import { Reacoes } from './Reacoes';
 import { dadosSelecionaveis, type DadoPartido } from '@/lib/dadosPartido';
 import { capturavel } from '@/lib/selecaoDados';
 import { useLegado } from './ponte';
@@ -462,8 +461,8 @@ export default function Conjuntura() {
         !carregando && <p className="sem">O {partido} não tem filiados registrados em {rotEscopo}.</p>
       )}
 
-      {/* depois dos dados: as 2 reações do mandato (PAR-09 a PAR-12); os cartões de município ficam no tópico 3 (CJ-02) */}
-      <Reacoes dados={dadosCapturaveis} />
+      {/* O seletor "Selecionar 2 dados na tela" (<Reacoes />) saiu por decisão sobre a sugestão #205: a pergunta é uma caixa de texto no Guia.
+          O que já foi salvo em D.conj2.reacoes segue gravado. */}
 
       {/* As seções 5 (relação desejada com o partido) e 6 (desafios e oportunidades) saíram da tela por decisão sobre a sugestão #20:
           fica só a pergunta abrangente, no Guia. Os valores já salvos (c.relacao, c.relacaoPq, c.desafios, c.oportunidades) seguem gravados. */}

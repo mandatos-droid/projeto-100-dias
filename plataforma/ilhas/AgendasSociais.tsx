@@ -118,8 +118,8 @@ export default function AgendasSociais() {
 
   return (
     <div className="ilha-corpo">
-      <div className="as-slides"><Slides itens={cartoes} tam={4} rotulo="Agendas temáticas" chave={(c) => c.a.id} render={cartao} /></div>
       <p className="peq-t">Notas de 0 a 100 (quanto maior, melhor) do IDSC-BR 2026 para {uf}. Muito baixo: menos de 40 · Baixo: 40 a 49 · Médio: 50 a 59 · Alto: 60 a 79 · Muito alto: 80 ou mais.</p>
+      <div className="as-slides"><Slides itens={cartoes} tam={4} rotulo="Agendas temáticas" chave={(c) => c.a.id} render={cartao} /></div>
     </div>
   );
 }

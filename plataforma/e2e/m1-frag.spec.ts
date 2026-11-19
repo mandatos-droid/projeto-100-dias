@@ -11,10 +11,12 @@ test.describe('Fragilidades e fortalezas numa página só (SUG-22, SUG-23)', () 
     await expect(page.getByRole('heading', { name: 'Diagnóstico das fragilidades' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Tornando fragilidades em fortalezas!' })).toBeVisible();
     await expect(page.locator('#tela')).not.toContainText('Para fechar');
-    const y = async (sel: string) => (await page.locator(sel).first().boundingBox())!.y;
-    const lista = await y('.frag-l'), diag = await y('.diag-frag'), plano = await y('h4:has-text("Tornando fragilidades")');
-    expect(lista).toBeLessThan(diag);
-    expect(diag).toBeLessThan(plano);
+    /* nova proposta: a lista fica à esquerda e o diagnóstico à direita (fixo na rolagem); o plano de estudo vem depois dos dois */
+    const caixa = async (sel: string) => (await page.locator(sel).first().boundingBox())!;
+    const lista = await caixa('.frag-l'), diag = await caixa('.diag-frag'), plano = await caixa('h4:has-text("Tornando fragilidades")');
+    expect(lista.x).toBeLessThan(diag.x);
+    expect(plano.y).toBeGreaterThan(lista.y);
+    expect(plano.y).toBeGreaterThan(diag.y);
   });
 
   test('o link leva à Biblioteca', async ({ page }) => {

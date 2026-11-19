@@ -112,7 +112,8 @@ const DEFINICOES = [
 test('2.1 mostra o texto de análise, as 2 orientações numeradas e as 5 definições, antes dos dados (LEG-04)', () => {
   const h = pergunta(janela(), 'm1.conjuntura', 0);
   const ilha = h.indexOf('data-ilha="assentos"');
-  assert.ok(h.includes('Analise qual é o tipo de relação que a liderança parlamentar tem com as pessoas eleitas, a partir dos dados expostos abaixo.'));
+  assert.ok(h.includes('Analise qual é o tipo de relação que a liderança parlamentar tem com as pessoas eleitas.'));
+  assert.equal(h.includes('a partir dos dados expostos abaixo'), false); // sugestão #149: o fim da frase saiu
   assert.ok(h.includes('Siga as seguintes orientações para realizar a análise:'));
   const ol = h.slice(h.indexOf('<ol>'), h.indexOf('</ol>'));
   assert.equal((ol.match(/<li>/g) ?? []).length, 2);
@@ -128,12 +129,12 @@ test('2.1 mostra o texto de análise, as 2 orientações numeradas e as 5 defini
   assert.equal(h.includes('100 primeiros'), false);
 });
 
-test('2.1 não traz a pergunta das pontes não óbvias nem caixa de texto, e m1.q4b segue gravada (LEG-05)', () => {
+test('2.1 não traz a pergunta das pontes não óbvias; só a caixa das estratégias (m1.q4c), e m1.q4b segue gravada (LEG-05, #158)', () => {
   const w = janela();
   const campos = (w as unknown as { D: { campos: Record<string, string> } }).D.campos;
   campos['m1.q4b'] = 'Vereadora do interior';
   const h = pergunta(w, 'm1.conjuntura', 0);
-  assert.deepEqual(chaves(h), []);
+  assert.deepEqual(chaves(h), ['m1.q4c']);
   assert.equal(h.includes('pontes não óbvias'), false);
   assert.equal(h.includes('Marque na tabela acima'), false);
   assert.equal(campos['m1.q4b'], 'Vereadora do interior');
@@ -148,7 +149,7 @@ test('2.1 mostra "Categorias de classificação:" e não promete um botão "i" q
 });
 
 /* ---------- PAR-01 e PAR-09: pergunta 2.2 ---------- */
-const COMANDO = 'A partir dos dados apresentados acima, e de outros que você possa ter pesquisado, faça uma análise destacando o que mais te chama a atenção e como o mandato deve agir a partir desta conjuntura.';
+const COMANDO = 'A partir dos dados apresentados acima, e de outros que possa ter pesquisado, destaque os 10 indicadores que o mandato poderia ter como referência para sustentar seu trabalho desde o começo da Legislatura.';
 const PAR09A = 'Identifique que tipo de relação com o partido a liderança parlamentar deseja ter, à luz destes dados, refletindo como o mandato pode contribuir para o fortalecimento do partido e como pode se posicionar diante do poder Executivo.';
 const PAR09B = 'Selecione 2 dados e registre como a liderança parlamentar deseja que o mandato reaja a eles.';
 
@@ -158,8 +159,9 @@ test('2.2 mostra o texto de contexto antes dos dados e os dois textos de PAR-09 
   const ilha = h.indexOf('data-ilha="calor"');
   assert.ok(h.indexOf('Qual é a conjuntura política regional e nacional de seu partido?') < texto);
   assert.ok(texto > 0 && texto < ilha);
-  const a = h.indexOf(PAR09A), b = h.indexOf(PAR09B);
-  assert.ok(ilha < a && a < b);
+  const a = h.indexOf(PAR09A), b = h.indexOf(PAR09B), caixa = h.indexOf('data-k="m1.q5"');
+  assert.ok(ilha < a && a < b && b < caixa); // sugestão #205: texto sobre o partido, enunciado dos 2 dados e a caixa de texto
+  assert.equal(h.includes('Selecionar 2 dados na tela'), false);
   assert.equal(h.includes('Contabilize'), false);
   assert.equal(h.includes(COMANDO), false);
 });
@@ -180,12 +182,21 @@ function paginaConj() {
   w.Guia.passos = w.Guia.montar(ex);
   return { w, ex, html: w.Guia.passos.map((p, n) => w.Guia.bloco(p, n)).join('') };
 }
-test('o fim da Conjuntura traz o texto dos atores políticos e a caixa m1.q6, depois dos dados de 2.2 (PAR-13)', () => {
+test('a caixa de estratégias com novas pessoas aliadas (m1.q4c) vem logo depois da tabela de parlamentares, antes da pergunta 2.2 (sugestões #156 e #158)', () => {
   const { html } = paginaConj();
-  const texto = html.indexOf('Registre quais são os principais atores políticos do entorno da liderança parlamentar. Leve em consideração os diversos poderes, e monte o cenário político instalado a partir de quem são seus aliados e concorrentes em potencial.');
-  assert.ok(texto > html.indexOf(PAR09B));
-  assert.ok(html.indexOf('data-k="m1.q6"') > texto);
-  assert.equal((html.match(/data-k="m1\.q6"/g) ?? []).length, 1);
+  const tabela = html.indexOf('data-ilha="assentos"'), caixa = html.indexOf('data-k="m1.q4c"');
+  const q22 = html.indexOf('Qual é a conjuntura política regional e nacional de seu partido?');
+  assert.ok(html.includes('A partir das relações mapeadas, registre abaixo quais são as estratégias iniciais para conquistar novas pessoas aliadas, ainda nestes primeiros 100 dias'));
+  assert.ok(html.includes('Lembre-se de considerar a importância de encontrar os pontos de possíveis consensos para avanço do projeto político.'));
+  assert.ok(caixa > tabela && caixa < q22);
+  assert.equal((html.match(/data-k="m1\.q4c"/g) ?? []).length, 1);
+});
+
+test('a caixa "Principais atores políticos do entorno" e o atalho 2.3 saíram do fim da Conjuntura (sugestão #156)', () => {
+  const { html } = paginaConj();
+  assert.equal(html.includes('data-k="m1.q6"'), false);
+  assert.equal(html.includes('Principais atores políticos do entorno'), false);
+  assert.equal(html.includes('cj-23'), false);
 });
 
 test('a pergunta "Qual é a conjuntura política do seu estado ou município de origem?" e o mapa dela não aparecem (PAR-13)', () => {
@@ -388,7 +399,9 @@ test('3.1 mostra o texto exato antes da ilha das colunas de registro (SOC-01)', 
 
 test('3.2 mostra o texto novo e a caixa m1.q8a só depois dos dados (SOC-02, SOC-07)', () => {
   const h = pergunta(janela(), 'm1.oportunidades', 1);
-  const texto = h.indexOf('Inspire-se nos dados públicos oficiais apresentados abaixo, acerca do seu estado, e faça uma análise da conjuntura social do território da liderança parlamentar.');
+  const texto = h.indexOf('Neste exercício usaremos dados sociais públicos, que são apresentados por meio dos indicadores vindos dos Objetivos de Desenvolvimento Sustentável - ODS.');
+  assert.ok(h.includes('Os 17 ODS contemplam um guarda-chuva de mais de 200 indicadores.'));
+  assert.ok(h.includes('Apresentamos alguns a seguir, para que seu mandato se inspire em evidências para apoiar a tomada de decisão sobre as soluções que desejam entregar para a sociedade.'));
   assert.ok(texto > 0);
   assert.ok(texto < h.indexOf('data-ilha="agendas-sociais"') && h.indexOf('data-ilha="agendas-sociais"') < h.indexOf('data-k="m1.q8a"'));
   assert.equal(h.includes('Consulte'), false);
@@ -424,7 +437,7 @@ test('na página única das Oportunidades as 3 perguntas aparecem na ordem 3.1, 
 test('4.1 mostra o título e a instrução M/P exatos, antes da lista (FRA-01)', () => {
   const { html } = paginaFrag();
   const titulo = html.indexOf('Quais são os conhecimentos e/ou práticas que a liderança parlamentar ou a equipe ainda não domina(m) para um bom exercício do mandato?');
-  const instrucao = html.indexOf('Coloque um M para fragilidades da equipe do mandato e um P para as fragilidades da liderança parlamentar.');
+  const instrucao = html.indexOf('Selecione Gabinete para fragilidades da equipe do mandato e Parlamentar para as fragilidades da liderança parlamentar.');
   assert.ok(titulo >= 0 && instrucao > titulo && instrucao < html.indexOf('frag-l'));
 });
 

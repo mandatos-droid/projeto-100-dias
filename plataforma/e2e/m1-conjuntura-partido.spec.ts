@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 import { abreGuia, salvoDe, MANDATO_REAL } from './guia-real';
 
 /* Missão 1 · Conjuntura, pergunta 2.2 (PAR-01 a PAR-05, PAR-08, PAR-09, PAR-11 a PAR-14): sem mapa, 5 cartões de
-   município, 2 reações a dados do partido e o texto final com a caixa m1.q6. */
+   município, a caixa m1.q4c da 2.1 (#156/#158) e o texto final de PAR-09. As reações a 2 dados saíram da tela (#205). */
 const MANDATO = { ...MANDATO_REAL, partido: 'PSOL' };
 const TSE = { sq: '250002536851', casa: 'estadual', uf: 'SP', nome: 'EDUARDO SUPLICY', partido: 'PSOL', cargo: 'Deputado Estadual', votos: 654627, situacao: 'Eleito por QP', vagas: 94 };
 // códigos IBGE de municípios de SP, o primeiro com mais votos
@@ -139,8 +139,6 @@ test.describe('Conjuntura do partido · sem mapa, com cartões (PAR-02 a PAR-05,
 const PLACAR_IDS = ['parlamentares', 'vereadores', 'prefeituras', 'filiados', 'executivos'];
 const CDIS = ['3500204', '3500303', '3500501', '3500402', '3500105']; // os 5 mais votados de MUN, em ordem
 const capturavel = (page: Page, id: string) => page.locator(`.capturable-data[data-dado-id="${id}"]`);
-const banner = (page: Page) => page.locator('.rea-banner');
-const iniciar = (page: Page) => page.getByRole('button', { name: 'Selecionar 2 dados na tela' }).click();
 
 test.describe('Conjuntura do partido · dados capturáveis na página (SEL-01)', () => {
   test('todo dado que o seletor oferecia tem um elemento capturável, e só um, com nome e valor do que se vê', async ({ page }) => {
@@ -175,12 +173,6 @@ test.describe('Conjuntura do partido · cartões da pergunta 2 capturáveis (SEL
       await expect(el).toHaveClass(/v2-grande/);
       expect(await el.getAttribute('data-dado-valor')).toMatch(/^\d[\d.]* no Brasil.*, \d[\d.]* em [A-Z]{2}/);
     }
-    await iniciar(page);
-    await capturavel(page, 'cadeiras:federal').locator('b.uf').click(); // clicar no número interno captura o cartão inteiro
-    await capturavel(page, 'cadeiras:senado').locator('.rot').click();
-    await expect(page.locator('.rea-chip')).toHaveCount(2);
-    await expect(page.locator('.rea-linha').nth(0)).toContainText('Cadeiras do partido · Câmara dos Deputados');
-    await expect(page.locator('.rea-linha').nth(1)).toContainText('Cadeiras do partido · Senado');
   });
 });
 
@@ -200,206 +192,40 @@ test.describe('Conjuntura do partido · tópicos 3 e 4 capturáveis (SEL-02, sug
     expect(ids).toContain('fil:uf');
     expect(ids.filter((i) => i.startsWith('exec:')).length).toBeGreaterThan(0);
   });
-
-  test('clicar numa linha do gráfico e num bloco do Executivo captura os dois', async ({ page }) => {
-    await abre(page);
-    await expect(page.getByTestId('cartao-municipio')).toHaveCount(5, { timeout: 30_000 });
-    await iniciar(page);
-    await page.locator('.v2-rec-l.capturable-data').first().locator('.nm').click();
-    await page.locator('.barra-p.capturable-data').first().click();
-    await expect(page.locator('.rea-chip')).toHaveCount(2);
-    await expect(page.locator('.rea-linha').nth(0)).toContainText('Perfil dos filiados');
-  });
 });
 
-test.describe('Conjuntura do partido · reação a 2 dados (PAR-09 a PAR-12, SEL-01)', () => {
-  test('o botão abre o banner, 2 cliques fecham e viram chips; as frases completam e gravam; não há 3ª linha', async ({ page }) => {
+test.describe('Conjuntura do partido · fim da página (PAR-01, PAR-09, #205)', () => {
+  test('2.2: contexto, depois o preâmbulo e o enunciado com a caixa m1.q5; sem seletor de dados nem reações', async ({ page }) => {
     await abre(page);
     await expect(page.getByTestId('cartao-municipio')).toHaveCount(5, { timeout: 30_000 });
-    await expect(page.locator('.rea select')).toHaveCount(0); // sem os selects de Dado 1 e 2
-    await expect(page.locator('.rea textarea')).toHaveCount(0); // a caixa só abre depois da escolha
-    await expect(banner(page)).toHaveCount(0);
-    await iniciar(page);
-    await expect(banner(page)).toContainText('1º');
-    await expect(banner(page).getByRole('button', { name: 'Cancelar' })).toBeVisible();
-    await capturavel(page, 'filiados').click();
-    await expect(banner(page)).toContainText('2º');
-    await expect(capturavel(page, 'filiados')).toHaveAttribute('data-captura-tag', '1️⃣');
-    expect((await dadosDe(page)).conj2?.reacoes ?? []).toHaveLength(0); // nada gravado pela metade
-    await capturavel(page, 'parlamentares').click();
-    await expect(banner(page)).toHaveCount(0);
-    await expect(page.locator('[data-captura-tag]')).toHaveCount(0);
-    await expect(page.locator('.rea-chip')).toHaveCount(2);
-    await expect(page.locator('section.rea')).toBeInViewport(); // SEL-01: a página rolou de volta ao formulário
-    await expect(page.locator('.rea-linha').nth(0)).toContainText('Considerando Filiados do partido:');
-    await expect(page.locator('.rea-linha').nth(0)).toContainText(', o mandato deve');
-    await page.locator('.rea-linha').nth(0).locator('textarea').fill('ampliar a filiação no interior');
-    await page.locator('.rea-linha').nth(1).locator('textarea').fill('buscar a presidência da bancada');
-    await expect.poll(async () => (await dadosDe(page)).conj2?.reacoes?.[1]?.texto).toBe('buscar a presidência da bancada');
-    const r = (await dadosDe(page)).conj2!.reacoes!;
-    expect(r).toHaveLength(2);
-    expect(r[0]).toMatchObject({ dado: 'filiados', texto: 'ampliar a filiação no interior' });
-    expect(r[1]).toMatchObject({ dado: 'parlamentares', texto: 'buscar a presidência da bancada' });
-    expect(r[0].valor).toMatch(/no estado, .* no Brasil/); // mesmo formato de antes
-    expect(r[1].valor).toBeTruthy(); // a 2ª reação grava o valor do dado, não só o id
-    expect(r[1].valor).toMatch(/^\d/);
-    await expect(page.locator('.rea-linha')).toHaveCount(2);
-    await expect(page.getByRole('button', { name: 'Selecionar 2 dados na tela' })).toBeDisabled(); // sem vaga: remova um chip
-    await page.evaluate(() => { location.hash = '#/resumo'; }); // o Resumo lê o mesmo dado
-    await expect(page.locator('#tela')).toContainText('Considerando Filiados do partido', { timeout: 20_000 });
-    await expect(page.locator('#tela')).toContainText('ampliar a filiação no interior');
-  });
-
-  test('o dado gravado é o número que o Placar mostra', async ({ page }) => {
-    await abre(page);
-    const lePlacar = () => page.locator('.v2-grande').filter({ hasText: 'Filiados' }).first().locator('b').allTextContents();
-    await expect.poll(async () => (await lePlacar())[1]).not.toBe('0'); // espera os filiados carregarem
-    await iniciar(page);
-    await capturavel(page, 'filiados').click();
-    await capturavel(page, 'vereadores').click();
-    await expect.poll(async () => { const p = await lePlacar(); return p[1] === '0' ? null : (await dadosDe(page)).conj2?.reacoes?.[0]?.valor === `${p[1]} no estado, ${p[0]} no Brasil`; }).toBe(true);
-  });
-
-  test('clicar duas vezes no mesmo dado avisa e segue esperando o 2º (AC4)', async ({ page }) => {
-    await abre(page);
-    await iniciar(page);
-    await capturavel(page, 'filiados').click();
-    await capturavel(page, 'filiados').click();
-    await expect(banner(page)).toContainText('Escolha um indicador diferente.');
-    await expect(page.locator('.rea-chip')).toHaveCount(0);
-    await capturavel(page, 'vereadores').click();
-    await expect(page.locator('.rea-chip')).toHaveCount(2);
-  });
-
-  test('Cancelar e Esc no meio fecham o banner sem gravar nada (AC5)', async ({ page }) => {
-    await abre(page);
-    await iniciar(page);
-    await capturavel(page, 'filiados').click();
-    await banner(page).getByRole('button', { name: 'Cancelar' }).click();
-    await expect(banner(page)).toHaveCount(0);
-    await iniciar(page);
-    await capturavel(page, 'filiados').click();
-    await page.keyboard.press('Escape');
-    await expect(banner(page)).toHaveCount(0);
-    await expect(page.locator('[data-captura-tag]')).toHaveCount(0);
-    await expect(page.locator('.rea-chip')).toHaveCount(0);
-    await page.waitForTimeout(600); // a gravação é com atraso: nada pode aparecer
-    expect((await dadosDe(page)).conj2?.reacoes ?? []).toHaveLength(0);
-    // fora do modo, clicar no dado não captura
-    await capturavel(page, 'filiados').click();
-    await expect(banner(page)).toHaveCount(0);
-    await expect(page.locator('.rea-chip')).toHaveCount(0);
-  });
-
-  test('remover um chip limpa só aquele dado e permite escolher outro (AC3)', async ({ page }) => {
-    await abre(page);
-    await iniciar(page);
-    await capturavel(page, 'filiados').click();
-    await capturavel(page, 'parlamentares').click();
-    await page.locator('.rea-linha').nth(1).locator('textarea').fill('texto do dado 2');
-    await page.getByRole('button', { name: 'Remover o dado 1' }).click();
-    await expect(page.locator('.rea-chip')).toHaveCount(1);
-    await expect(page.locator('.rea-linha').nth(1)).toContainText('Parlamentares do partido');
-    await expect(page.locator('.rea-linha').nth(1).locator('textarea')).toHaveValue('texto do dado 2');
-    await iniciar(page);
-    await expect(banner(page)).toContainText('1º'); // só falta o dado 1
-    await capturavel(page, 'parlamentares').click(); // já está no dado 2: ignorado
-    await expect(banner(page)).toContainText('Escolha um indicador diferente.');
-    await capturavel(page, 'vereadores').click();
-    await expect(banner(page)).toHaveCount(0);
-    await expect(page.locator('.rea-linha').nth(0)).toContainText('Considerando Vereadores do partido:');
-    await expect.poll(async () => (await dadosDe(page)).conj2?.reacoes?.map((x) => x.dado)).toEqual(['vereadores', 'parlamentares']);
-  });
-
-  test('o destaque dos dados só existe com o modo ativo (outline roxo)', async ({ page }) => {
-    await abre(page);
-    const el = capturavel(page, 'vereadores');
-    const outline = () => el.evaluate((e) => getComputedStyle(e).outlineStyle);
-    const cursor = () => el.evaluate((e) => getComputedStyle(e).cursor);
-    expect(await outline()).toBe('none');
-    expect(await cursor()).not.toBe('pointer');
-    await iniciar(page);
-    expect(await outline()).not.toBe('none');
-    expect(await cursor()).toBe('pointer');
-    await page.keyboard.press('Escape');
-    await expect(banner(page)).toHaveCount(0);
-    expect(await outline()).toBe('none');
-  });
-
-  test('o banner não cobre o botão da barra lateral no computador, aberta ou recolhida', async ({ page }) => {
-    await abre(page);
-    const sobrepoe = async () => {
-      const b = await banner(page).boundingBox(), t = await page.locator('.lado-alterna').boundingBox();
-      expect(b && t).toBeTruthy();
-      return !(b!.x + b!.width <= t!.x || t!.x + t!.width <= b!.x || b!.y + b!.height <= t!.y || t!.y + t!.height <= b!.y);
-    };
-    await iniciar(page);
-    expect(await sobrepoe()).toBe(false);
-    await page.keyboard.press('Escape');
-    await page.locator('.lado-alterna').click();
-    await iniciar(page);
-    expect(await sobrepoe()).toBe(false);
-  });
-
-  test('em 390px o banner não cobre o botão do menu móvel', async ({ page }) => {
-    await abre(page);
-    await page.setViewportSize({ width: 390, height: 800 });
-    await iniciar(page);
-    const b = await banner(page).boundingBox(), h = await page.locator('.topo-movel .ham').boundingBox();
-    expect(b && h).toBeTruthy();
-    expect(b!.y).toBeGreaterThanOrEqual(h!.y + h!.height); // o banner começa abaixo da faixa do menu
-    await expect(page.locator('.topo-movel .ham')).toBeVisible();
-    expect(b!.x + b!.width).toBeLessThanOrEqual(390);
-  });
-
-  test('durante a captura, botão dentro do dado conta como captura e não age', async ({ page }) => {
-    await abre(page);
-    await expect(page.getByTestId('cartao-municipio')).toHaveCount(5, { timeout: 30_000 });
-    await iniciar(page);
-    const dd = page.getByTestId('cartao-municipio').first().locator('.capturable-data').first();
-    // um botão dentro do valor capturável: o clique vira captura e o botão não dispara
-    await dd.evaluate((el) => {
-      const w = window as unknown as { __b: number };
-      w.__b = 0;
-      const b = document.createElement('button');
-      b.id = 'bt-teste'; b.textContent = 'x';
-      b.addEventListener('click', () => { w.__b++; });
-      el.appendChild(b);
-    });
-    await page.locator('#bt-teste').click();
-    await expect(banner(page)).toContainText('2º');
-    expect(await page.evaluate(() => (window as unknown as { __b: number }).__b)).toBe(0);
-  });
-});
-
-test.describe('Conjuntura do partido · fim da página (PAR-01, PAR-09, PAR-13)', () => {
-  test('textos de PAR-09 e a caixa m1.q6 vêm depois dos cartões e das reações', async ({ page }) => {
-    await abre(page);
-    await expect(page.getByTestId('cartao-municipio')).toHaveCount(5, { timeout: 30_000 });
-    await expect(page.getByText('Identifique que tipo de relação com o partido a liderança parlamentar deseja ter')).toBeVisible();
-    await expect(page.getByText('Selecione 2 dados e registre como a liderança parlamentar deseja que o mandato reaja a eles.')).toBeVisible();
-    await expect(page.getByText('Registre quais são os principais atores políticos do entorno da liderança parlamentar.')).toBeVisible();
+    const preambulo = page.getByText('Identifique que tipo de relação com o partido a liderança parlamentar deseja ter');
+    const enunciado = page.getByText('Selecione 2 dados e registre como a liderança parlamentar deseja que o mandato reaja a eles.');
+    await expect(preambulo).toBeVisible();
+    await expect(enunciado).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Selecionar 2 dados na tela' })).toHaveCount(0);
+    await expect(page.locator('section.rea')).toHaveCount(0);
+    await expect(page.locator('#tela')).not.toContainText('Registre quais são os principais atores políticos do entorno');
     await expect(page.locator('#tela')).not.toContainText('Qual é a conjuntura política do seu estado ou município de origem?');
-    const rea = await page.locator('.rea').boundingBox();
-    const q6 = await editor(page, 'm1.q6').boundingBox();
-    expect(rea && q6 && q6.y > rea.y).toBeTruthy();
-    await editor(page, 'm1.q6').click();
-    await page.keyboard.type('Prefeito da capital');
-    await expect.poll(async () => ((await salvoDe(page)).dados as { campos?: Record<string, string> }).campos?.['m1.q6']).toContain('Prefeito da capital');
+    const y = async (l: ReturnType<Page['locator']>) => (await l.boundingBox())!.y;
+    const calor = await y(page.locator('[data-ilha="calor"]'));
+    expect(await y(preambulo)).toBeGreaterThan(calor);
+    expect(await y(enunciado)).toBeGreaterThan(await y(preambulo));
+    expect(await y(editor(page, 'm1.q5'))).toBeGreaterThan(await y(enunciado));
   });
 
-  test('valores antigos de conj2 seguem gravados (PAR-14)', async ({ page }) => {
-    const CONJ2 = { muns: { 3500105: { tag: 'base', nota: 'x' } }, posicao: {}, relacao: 'lideranca', relacaoPq: 'quer', desafios: ['Poucos filiados'], oportunidades: ['Eleição'] };
+  test('valores antigos de conj2 (inclusive reações) seguem gravados (PAR-14)', async ({ page }) => {
+    const REACOES = [{ dado: 'filiados', valor: '10 no estado, 20 no Brasil', texto: 'ampliar a filiação' }];
+    const CONJ2 = { muns: { 3500105: { tag: 'base', nota: 'x' } }, posicao: {}, relacao: 'lideranca', relacaoPq: 'quer', desafios: ['Poucos filiados'], oportunidades: ['Eleição'], reacoes: REACOES };
     await abre(page, { tse: TSE, conj2: CONJ2 });
-    await iniciar(page);
-    await capturavel(page, 'vereadores').click();
-    await capturavel(page, 'filiados').click();
-    await expect.poll(async () => (await dadosDe(page)).conj2?.reacoes?.length).toBe(2);
+    await editor(page, 'm1.q5').click();
+    await page.keyboard.type('análise nova');
+    await expect.poll(async () => ((await salvoDe(page)).dados as { campos?: Record<string, string> }).campos?.['m1.q5']).toContain('análise nova');
     const c = (await dadosDe(page)).conj2 as Record<string, unknown>;
     expect(c.muns).toEqual(CONJ2.muns);
     expect(c.relacao).toBe('lideranca');
     expect(c.relacaoPq).toBe('quer');
     expect(c.desafios).toEqual(CONJ2.desafios);
     expect(c.oportunidades).toEqual(CONJ2.oportunidades);
+    expect(c.reacoes).toEqual(REACOES);
   });
 });
