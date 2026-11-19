@@ -1,17 +1,17 @@
 # Graph Report - wt-layout  (2026-11-19)
 
 ## Corpus Check
-- 853 files · ~1,409,766 words
+- 853 files · ~1,410,774 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 18 file(s) not represented in the graph (top: .css 11, (none) 7)
 
 ## Summary
-- 5139 nodes · 11215 edges · 225 communities (208 shown, 17 thin omitted)
+- 5148 nodes · 11239 edges · 246 communities (227 shown, 19 thin omitted)
 - Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 1058 edges (avg confidence: 0.94)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b3d455fd`
+- Built from commit: `c93ead86`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -21,7 +21,7 @@
 - perfil.ts
 - Assentos.tsx
 - cadeiras.ts
-- legado-m3.test.ts
+- convite-api.ts
 - rotinas.ts / EntreAreas.tsx
 - mensagemDe
 - estrategia.ts
@@ -43,7 +43,7 @@
 - moca
 - capital.ts
 - admin-analytics-perfil.spec.ts
-- Conjuntura.tsx
+- primeiro-acesso.spec.ts
 - nucleo.js
 - Missao 3 Defina o Rumo (Plan / Components
 - ilhas/Equipe.tsx
@@ -51,7 +51,7 @@
 - rumo-migracao.spec.ts / guia-real.ts
 - AreaConta.tsx
 - MISSOES (7 missions data mod / Render views (home, mission,
-- demo.test.ts
+- Landing Validation
 - compilerOptions / tsconfig.json
 - Missão 3 · Defina o Rumo (Pl / User Stories
 - json / build_comissoes.py
@@ -63,7 +63,7 @@
 - comunicacao.ts
 - Task Breakdown
 - Missão 2 · Equipe, Organograma e Rotinas Validation
-- types.ts
+- Conjuntura.tsx
 - build_eleitos.py / csv
 - rumo-legado.spec.ts / completa
 - tabelaEquipe.ts
@@ -71,11 +71,11 @@
 - Bandeiras.tsx
 - capital-clipping.spec.ts
 - legado-resumo.test.ts
-- PrimeiroAcesso.tsx
+- ErroApi
 - legado-m1.test.ts
 - admin-equipe.spec.ts
-- FormularioConta.tsx
-- paraGuia
+- PrimeiroAcesso.tsx
+- Task Breakdown
 - build_executivo.py / main
 - build_pleitos.py / pleitos_do_ano
 - clipping.ts
@@ -90,7 +90,7 @@
 - Missão 4 · Capital Político  / Parte A — Comissões permanen
 - Candidates (under observatio / LESSONS - auto-maintained by
 - Task Breakdown
-- Organograma.tsx
+- useCarga
 - Acesso, Equipe e Convites Specification
 - package.json
 - legado-m4.test.ts
@@ -103,7 +103,7 @@
 - Missão 2 · Equipe, Organograma e Rotinas Specification
 - admin-usuarios-detalhe.spec.ts
 - Primeiro Acesso e Login só com Google Validation
-- Persona.tsx
+- ponte.tsx
 - legado-acesso.test.ts
 - Sugestões do Pedro (11/11/2026): relatório do Verifier
 - capital-acoes.spec.ts
@@ -137,16 +137,16 @@
 - Sessao
 - resumo.js
 - react
-- rumo-migracao.spec.ts
+- dadoDe
 - User Stories
 - Primeiro Acesso e Login só com Google Specification
 - guia-acesso.spec.ts
 - convites/api.ts
 - admin-analytics.spec.ts
-- Municipio.tsx
+- types.ts
 - Acesso, Equipe e Convites: relatório do Verifier
 - Task Breakdown
-- legado-m2.test.ts
+- contadorDias
 - como
 - Components
 - app/page.tsx
@@ -155,9 +155,9 @@
 - Área do Mandato Validation
 - area-equipe-pessoas.spec.ts
 - admin-funil.test.ts
-- react
+- mensagemDe
 - Resumo do Preenchimento Reestruturado Tasks
-- logs/page.tsx
+- Matriz.tsx
 - area-equipe.spec.ts
 - resumo-tela.js
 - Reestruturação da Missão 1 Tasks
@@ -170,11 +170,11 @@
 - Task Breakdown
 - guardaPendente
 - papeis.ts
-- m23-plano.spec.ts
+- Comissoes.tsx
 - Organograma.tsx
-- Components
+- demo.test.ts
 - Validation: missao5-monitoramento-alana — PASS ✅
-- Missão 4 · Capital Político — Tasks
+- convite-conta.spec.ts
 - Hero
 - Cobertura por AC
 - Aba Usuários no Painel Admin Specification
@@ -184,36 +184,41 @@
 - area-equipe-convites.spec.ts
 - sql-admin-usuarios.test.ts
 - Aba Usuários do Painel Admin Validation
-- admin-logs.spec.ts
+- consentimentos
 - Missão 5 Avanço Spec
 - Missão 5 · Monitoramento e Feedback conforme a Alana — Tasks
 - area-mandato.spec.ts
 - clipping/route.ts
 - Lançamento seguro: diagnóstico e plano
 - ArvorePlano.tsx
-- Missoes
+- LinhaAcao.tsx
 - Sugestões do Pedro (04/11/2026) — ids 61–86 em `sugestoes`
 - convites-missoes.test.ts
 - Sugestões do Pedro (11/11/2026) Design
-- convite-api.ts
+- mandato-api.ts
 - admin/page.tsx
 - leitura
 - FormularioConvite.tsx
 - Task Breakdown
 - codigo
-- primeiro-acesso/page.tsx
+- PrimeiroAcesso
+- Sugestões da Missão 4 (tabela `sugestoes`, #46–#53, 03/11/2026) · Specification
+- rumo-jornal.spec.ts
 - Painel do Administrador Tasks
-- comoDono
+- sql-admin-usuarios-detalhe.test.ts
 - area-visao.spec.ts
 - admin-transversal.spec.ts
 - votos-mun/route.ts
+- capital-comissoes.spec.ts
 - Acesso, Equipe e Convites Tasks
 - Task Breakdown
 - admin-analytics-uso.spec.ts
+- convite-perfil.spec.ts
 - Missões 2 e 3 · Reestruturação: Validation
 - Execution Plan
 - El
 - vazou
+- pagina
 - Acesso, Equipe e Convites Design
 - area-redirects.spec.ts
 - sync-principal.sh
@@ -223,22 +228,37 @@
 - entrando
 - mandatos/[id]/page.tsx
 - legado-m5.test.ts
-- pred
-- Social.tsx
+- rumo-metas.spec.ts
+- Resumo do Preenchimento Reestruturado Validation: PASS
 - arquivosDe
 - Execution Plan
 - ligar
 - Gaveta.tsx
 - sql-perfil-resumo.test.ts
-- destinoAuth
+- lePendente
 - admin-uso-registro.spec.ts
+- Aba Usuários no Painel Admin Tasks
 - m1.js
+- resumo-regressao.spec.ts
 - Landing Page do Guia dos 100 Dias Specification
+- rumo-bandeiras.spec.ts
 - area-conta.spec.ts
+- Critérios de aceite ancorados na spec
+- User Stories
 - Landing Page Tasks
 - Spec-Anchored Acceptance Criteria
+- Missão 3 · Defina o Rumo (Planejamento Estratégico) Design
+- sql-papeis.test.ts
+- resumo-territorio.spec.ts
 - legado-m3.test.ts
+- Task Breakdown
+- Missão 5 Avanço Design
+- User Stories
 - Landing Page do Guia
+- admin/layout.tsx
+- Components
+- Missão 5 · Garanta o avanço — Design
+- Components
 
 ## God Nodes (most connected - your core abstractions)
 1. `@playwright/test` - 84 edges
@@ -253,16 +273,16 @@
 10. `useAdmin()` - 38 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `Lógica (`node --test`)` --references--> `Missoes`  [INFERRED]
+  .specs/features/missao2-equipe/spec.md → plataforma/app/_landing/Missoes.tsx
 - `Verificações dirigidas (rodada 2)` --references--> `Missoes`  [INFERRED]
   .specs/features/missao3-rumo/validation.md → plataforma/app/_landing/Missoes.tsx
-- ``public/legacy/resumo-tela.js` (novo, escrito à mão, IIFE)` --references--> `Missoes`  [INFERRED]
-  .specs/features/resumo-reestruturado/design.md → plataforma/app/_landing/Missoes.tsx
+- `Existing Components to Leverage` --references--> `Missoes`  [INFERRED]
+  .specs/features/painel-admin/design.md → plataforma/app/_landing/Missoes.tsx
 - `P3: Código antigo removido` --references--> `Casca()`  [INFERRED]
   .specs/features/area-do-mandato/spec.md → plataforma/app/admin/_componentes/Casca.tsx
 - `T8: Migrar os testes e remover o código antigo` --references--> `Casca()`  [INFERRED]
   .specs/features/area-do-mandato/tasks.md → plataforma/app/admin/_componentes/Casca.tsx
-- `T22: Diálogo reutilizável` --references--> `Casca()`  [INFERRED]
-  .specs/features/painel-admin/tasks.md → plataforma/app/admin/_componentes/Casca.tsx
 
 ## Import Cycles
 - 3-file cycle: `plataforma/ilhas/ponte.tsx -> plataforma/ilhas/rumo/PlanoResumo.tsx -> plataforma/ilhas/rumo/useRumo.ts -> plataforma/ilhas/ponte.tsx`
@@ -294,39 +314,39 @@
 - **Pipeline de planejamento estrategico (bandeiras, legado, preditores, metas)** — graphify_out_converted_regimento_externo_2_0_guia_dos_100_dias_8e027305_bandeiras, graphify_out_converted_regimento_externo_2_0_guia_dos_100_dias_8e027305_legado, graphify_out_converted_regimento_externo_2_0_guia_dos_100_dias_8e027305_preditores_gip, graphify_out_converted_regimento_externo_2_0_guia_dos_100_dias_8e027305_metas_smart [EXTRACTED 1.00]
 - **Missao 3 pure lib modules** — specs_features_missao3_rumo_design_lib_rumo_ts, specs_features_missao3_rumo_design_lib_smart_ts, specs_features_missao3_rumo_design_lib_plano_ts, specs_features_missao3_rumo_design_lib_atingimento_ts [INFERRED 0.75]
 
-## Communities (225 total, 17 thin omitted)
+## Communities (246 total, 19 thin omitted)
 
 ### Community 0 - "Task Breakdown"
-Cohesion: 0.08
-Nodes (25): T14: Uso por funcionalidade (campos), T15: Estilo do painel, T16: Layout do `/admin`, T17: Sessão e papel na interface, T18: Casca com menu, T19: Helper de e2e do `/admin`, T1: Dependência do Postgres embutido, T21: e2e de acesso e papéis (+17 more)
+Cohesion: 0.10
+Nodes (21): T14: Uso por funcionalidade (campos), T15: Estilo do painel, T16: Layout do `/admin`, T17: Sessão e papel na interface, T18: Casca com menu, T19: Helper de e2e do `/admin`, T1: Dependência do Postgres embutido, T21: e2e de acesso e papéis (+13 more)
 
 ### Community 1 - "Regimento Externo 2.0 - Guia / PLL6 - Programacao e Metodo "
 Cohesion: 0.05
 Nodes (48): PLL6 - Programacao e Metodo (Edicao 100 Dias), Convocatoria dos inscritos selecionados, Formacao dos Sherpas (mentores), Imersao presencial PLL6 (10 e 11 dezembro, Sao Paulo), Quatro mentorias tematicas (pessoas; articulacao; fluxos e legado; quadri), Plantao online do 90o dia (planejamento do quadrimestre), Sistema de Monitoramento do PLL6, Regimento Externo 2.0 - Guia dos 100 Dias (+40 more)
 
 ### Community 2 - "perfil.ts"
-Cohesion: 0.10
-Nodes (26): barras(), Estado, GRAFICOS, SecaoPerfil(), Barras(), Categoria, Colunas(), COR (+18 more)
+Cohesion: 0.19
+Nodes (11): CategoriaPerfil, categorias(), Distribuicao, FAIXAS, MENSAGEM_SEM_PERFIL, MESES, MesPerfil, ResumoPerfil (+3 more)
 
 ### Community 3 - "Assentos.tsx"
-Cohesion: 0.06
-Nodes (72): Assentos(), CASA_K, Ck(), Coluna, COR_GEN, COR_MAND, COR_RACA, Faceta (+64 more)
+Cohesion: 0.05
+Nodes (74): Assentos(), CASA_K, Ck(), Coluna, COR_GEN, COR_MAND, COR_RACA, Faceta (+66 more)
 
 ### Community 4 - "cadeiras.ts"
 Cohesion: 0.08
-Nodes (36): alternaArea(), aplica(), AREAS, CHAVE_COORDS, CHAVE_ON, CHEFIA, ficha(), FICHA_CAMPOS (+28 more)
+Nodes (37): Resultado, alternaArea(), aplica(), AREAS, CHAVE_COORDS, CHAVE_ON, ficha(), FICHA_CAMPOS (+29 more)
 
-### Community 5 - "legado-m3.test.ts"
-Cohesion: 0.15
-Nodes (15): BAND, CINCO, CODIGO, comEstado(), comPreditores(), CONTEUDO, Ex, guia() (+7 more)
+### Community 5 - "convite-api.ts"
+Cohesion: 0.16
+Nodes (13): chamadas(), CHAVE_ANON, CONFIG, MANDATO_ID, moca(), naoMapeadas(), ordemDe(), PERMITE (+5 more)
 
 ### Community 6 - "rotinas.ts / EntreAreas.tsx"
-Cohesion: 0.09
-Nodes (43): coordDe(), coordsDe(), ativaArea(), cadeia(), cadeirasDoElo(), CHAVE_ENTRE, CHAVE_ROTOFF, comoRotina() (+35 more)
+Cohesion: 0.10
+Nodes (40): coordsDe(), ativaArea(), cadeia(), cadeirasDoElo(), CHAVE_ENTRE, CHAVE_ROTOFF, comoRotina(), criaEntreAreas() (+32 more)
 
 ### Community 7 - "mensagemDe"
-Cohesion: 0.08
-Nodes (52): Confirmacao, Dialogo(), Props, Aberto, AdicionarMembro(), adicionar(), Estado, Membro (+44 more)
+Cohesion: 0.06
+Nodes (61): Confirmacao, Dialogo(), Props, Aberto, AdicionarMembro(), adicionar(), dataBr(), Estado (+53 more)
 
 ### Community 8 - "estrategia.ts"
 Cohesion: 0.19
@@ -338,11 +358,11 @@ Nodes (54): carrega(), Guia(), SCRIPTS, Harness(), Janela, Page(), Harness(), Ja
 
 ### Community 10 - "plano.ts"
 Cohesion: 0.14
-Nodes (35): arvore(), Gaveta(), aviso(), EditorPlano(), Metas(), Preditores(), modelo(), useRumo() (+27 more)
+Nodes (35): arvore(), aviso(), EditorPlano(), Metas(), Preditores(), modelo(), useRumo(), alternaPreditor() (+27 more)
 
 ### Community 11 - "rumo.ts"
-Cohesion: 0.13
-Nodes (28): bandeiraDoRotulo(), aplicaRumo(), DadosM3, dobra(), ehObj(), espelho(), idOutra(), JORNAL_PADRAO (+20 more)
+Cohesion: 0.12
+Nodes (31): aplicaRumo(), BandeiraRumo, CRITERIOS_GUIA, DadosM3, dobra(), ehObj(), espelho(), idOutra() (+23 more)
 
 ### Community 12 - "Task Breakdown"
 Cohesion: 0.05
@@ -353,8 +373,8 @@ Cohesion: 0.07
 Nodes (13): abrir(), alternarModo(), bloco(), concluir(), diagFrag(), frag(), ir(), montar() (+5 more)
 
 ### Community 14 - "dadosMapa.ts"
-Cohesion: 0.05
-Nodes (73): AgendasSociais(), carregaTudo(), FAIXA_OPCOES, idsNecessarios(), InfoIndicador(), MSG_SEM_INDICADORES, ItemMun, agendas() (+65 more)
+Cohesion: 0.07
+Nodes (52): AgendasSociais(), carregaTudo(), FAIXA_OPCOES, idsNecessarios(), InfoIndicador(), MSG_SEM_INDICADORES, ItemMun, agendas() (+44 more)
 
 ### Community 15 - "cadastro.js / carregar"
 Cohesion: 0.11
@@ -362,83 +382,83 @@ Nodes (16): attr(), cargoObj(), carregar(), casaDe(), chipPartido(), cor(), envi
 
 ### Community 16 - "Task Breakdown"
 Cohesion: 0.07
-Nodes (32): Prioritarias(), AGENDAS_PRIO, alterna(), validas(), T10: Conjuntura: textos, sem "pontes" e texto final, T11: Oportunidades: textos e passo das agendas, T12: Fragilidades: textos, T14: e2e da página única (+24 more)
+Nodes (29): T10: Conjuntura: textos, sem "pontes" e texto final, T11: Oportunidades: textos e passo das agendas, T12: Fragilidades: textos, T14: e2e da página única, T17: Remover o mapa de votos sem uso, T18: e2e da Persona, T20: Carrossel genérico, T23: Resumo em React dos eleitos (+21 more)
 
 ### Community 17 - "app.js"
 Cohesion: 0.05
-Nodes (50): aba(), autoCasa(), biblioteca(), chipsMissoes(), colher(), comEmail(), config(), entrou() (+42 more)
+Nodes (49): aba(), autoCasa(), biblioteca(), chipsMissoes(), colher(), comEmail(), config(), entrou() (+41 more)
 
 ### Community 18 - "MISSOES (five missions data  / Guia dos 100 Dias - platafor"
 Cohesion: 0.08
 Nodes (26): AMBIENTES (dev/prod config), Guia dos 100 Dias - plataforma dos mandatos (single-file app), Biblioteca (BIBLIOTECA reference articles), BINGOS (checklist bingo cards), Caixa de ferramentas (FERRAMENTAS, editable templates), Canal de acolhimento, CARGOS_EQUIPE / GRUPOS_EQUIPE (team roles), Equipe e convites (invite code, team roles) (+18 more)
 
 ### Community 19 - "usuarios.ts"
-Cohesion: 0.10
-Nodes (45): enderecoDetalhe(), enderecoLista(), Estado, Lista(), conteudo(), muda(), nomeMandato(), OpcaoMandato (+37 more)
+Cohesion: 0.12
+Nodes (40): enderecoDetalhe(), enderecoLista(), Estado, Lista(), conteudo(), muda(), nomeMandato(), OpcaoMandato (+32 more)
 
 ### Community 20 - "Convite.tsx"
-Cohesion: 0.14
-Nodes (25): abreGuia(), apagaSessao(), armLocal(), armSessao(), Convite(), abrirColado(), aceitaComSessao(), aceitar() (+17 more)
+Cohesion: 0.11
+Nodes (28): abreGuia(), apagaSessao(), armLocal(), armSessao(), Convite(), aceitaComSessao(), aceitar(), consentirEAceitar() (+20 more)
 
 ### Community 21 - "Feedback.tsx"
-Cohesion: 0.14
-Nodes (27): feedbackFalhou(), meuPapel(), emLinha(), Feedback(), FeedbackConversas(), rotData(), VAZIO, podeVerFeedback() (+19 more)
+Cohesion: 0.11
+Nodes (38): feedbackFalhou(), meuPapel(), emLinha(), Feedback(), FeedbackConversas(), rotData(), VAZIO, apaga() (+30 more)
 
 ### Community 22 - "User Stories"
 Cohesion: 0.10
 Nodes (20): acao(), Assumptions & Open Questions, Edge Cases, Goals, Out of Scope, P1: Arquivar e excluir mandatos ⭐ MVP, P1: Entrar no `/admin` e ter o papel respeitado ⭐ MVP, P1: Gerir a equipe Legisla ⭐ MVP (+12 more)
 
 ### Community 23 - "Missão 5 · Garanta o avanço — Tasks"
-Cohesion: 0.14
-Nodes (13): Missão 5 Avanço Design, Código novo (`plataforma/`), Dados (tudo em `D`, sem tabela nova), Missão 5 · Garanta o avanço — Design, Riscos, Telas, Missão 5 Avanço Tasks, Fase 1 · Sucesso mensal (+5 more)
+Cohesion: 0.33
+Nodes (6): Fase 1 · Sucesso mensal, Fase 2 · Monitoramento, Fase 3 · Feedback, Fase 4 · Novos planejamentos, Fase 5 · Fechamento, Missão 5 · Garanta o avanço — Tasks
 
 ### Community 24 - "moca"
-Cohesion: 0.15
-Nodes (13): entraComo(), MANDATOS, moca(), naoMapeadas(), ordena(), papelDoToken(), semeiaSessao(), tokenVale() (+5 more)
+Cohesion: 0.09
+Nodes (20): entraComo(), MANDATOS, moca(), naoMapeadas(), ordena(), papelDoToken(), semeiaSessao(), tokenVale() (+12 more)
 
 ### Community 25 - "capital.ts"
-Cohesion: 0.05
-Nodes (82): Campo, CartaoComissao(), PERGUNTAS, RegistroComissao, chaveDeReg(), Comissoes(), Linha, norm() (+74 more)
+Cohesion: 0.17
+Nodes (25): Campo, CartaoComissao(), PERGUNTAS, alternaMovimento(), alternaOutroMovimento(), CAMPOS_ACAO, dataBR(), defineDataMovimento() (+17 more)
 
 ### Community 26 - "admin-analytics-perfil.spec.ts"
 Cohesion: 0.18
 Nodes (14): abre(), ANO, chaveMes(), estado(), grafico(), linha(), MES, mesRel() (+6 more)
 
-### Community 27 - "Conjuntura.tsx"
-Cohesion: 0.09
-Nodes (56): CartoesMunicipio(), useAlvoMun(), CargoMapa, CARGOS_MAPA, Conjuntura(), dadosRecorte(), ESCOLA, FAIXAS (+48 more)
+### Community 27 - "primeiro-acesso.spec.ts"
+Cohesion: 0.14
+Nodes (11): auth(), Chamada, semeiaSessao(), abre(), ANA, argumentosSalvar(), mocaPerfil(), PERFIL_VALIDO (+3 more)
 
 ### Community 28 - "nucleo.js"
 Cohesion: 0.09
 Nodes (23): aviso(), criarConta(), criarMandato(), dataPrazo(), diaAtual(), diffDias(), entrar(), estadoEx() (+15 more)
 
 ### Community 29 - "Missao 3 Defina o Rumo (Plan / Components"
-Cohesion: 0.12
-Nodes (18): ponte.tsx ILHAS bridge, Components, D.rumo single source of truth, missao3-rumo design.md, ilhas/rumo/Espacos.tsx (`rumo-espacos`), ilhas/rumo/Legado.tsx (`rumo-legado`) e Jornal.tsx, ilhas/rumo/Metas.tsx (`rumo-metas`) e CartaoMeta.tsx, ilhas/rumo/Preditores.tsx (`rumo-preditores`) e ArvorePlano.tsx (+10 more)
+Cohesion: 0.13
+Nodes (18): pred(), Components, D.rumo single source of truth, ilhas/rumo/Espacos.tsx (`rumo-espacos`), ilhas/rumo/Legado.tsx (`rumo-legado`) e Jornal.tsx, ilhas/rumo/Metas.tsx (`rumo-metas`) e CartaoMeta.tsx, ilhas/rumo/Preditores.tsx (`rumo-preditores`) e ArvorePlano.tsx, ilhas/rumo/useRumo.ts (+10 more)
 
 ### Community 30 - "ilhas/Equipe.tsx"
-Cohesion: 0.08
-Nodes (50): Cargo, Chips(), DadoNo, Ficha(), ORDEM, Rotinas, tiposNo, cargos() (+42 more)
+Cohesion: 0.09
+Nodes (49): Cargo, Chips(), DadoNo, Ficha(), NoCargo(), ORDEM, Rotinas, tiposNo (+41 more)
 
 ### Community 31 - "@playwright/test"
-Cohesion: 0.06
-Nodes (27): ETAPAS, agendadas, equipe(), linha(), ANTIGO_M2, ANTIGO_M3, CAMPOS_M3, EQUIPE_NOVA (+19 more)
+Cohesion: 0.08
+Nodes (23): agendadas, equipe(), linha(), ANTIGO_M2, ANTIGO_M3, CAMPOS_M3, EQUIPE_NOVA, METAS (+15 more)
 
 ### Community 32 - "rumo-migracao.spec.ts / guia-real.ts"
-Cohesion: 0.03
-Nodes (51): abreGuia(), MANDATO_REAL, MandatoReal, salvoDe(), abre(), CDIS, dadosDe(), MANDATO (+43 more)
+Cohesion: 0.04
+Nodes (45): abreGuia(), MANDATO_REAL, MandatoReal, salvoDe(), abre(), CDIS, dadosDe(), MANDATO (+37 more)
 
 ### Community 33 - "AreaConta.tsx"
-Cohesion: 0.26
-Nodes (14): AreaConta(), Conta(), Estado, atuacao(), COLUNAS_PERFIL, consultaPerfil(), CORRIGIR, dataBr() (+6 more)
+Cohesion: 0.23
+Nodes (15): ProvedorLegado(), AreaConta(), Conta(), Estado, atuacao(), COLUNAS_PERFIL, consultaPerfil(), CORRIGIR (+7 more)
 
 ### Community 34 - "MISSOES (7 missions data mod / Render views (home, mission,"
 Cohesion: 0.11
 Nodes (20): Guia dos 100 Dias (Legisla Brasil) single-file app, BIBLIOTECA (resource library), BINGOS and CAMPOS_MONIT (monitoring), CANAL_ACOLHIMENTO (support channel), CARGOS_EQUIPE / GRUPOS_EQUIPE (team roles), FERRAMENTAS (tools catalog), FORMULA_META / METAS_EXEMPLARES / OBJ_ESPECIFICOS (goal setting), Missao: Capital politico, articulacao e mobilizacao (+12 more)
 
-### Community 35 - "demo.test.ts"
-Cohesion: 0.08
-Nodes (27): PleitoTSE, busca(), historico(), LinhaPleito, normaliza(), resumo, TRAJETORIA, resumo() (+19 more)
+### Community 35 - "Landing Validation"
+Cohesion: 0.13
+Nodes (15): Code Quality, Discrimination Sensor, Edge Cases, Gate Check, Lacunas ranqueadas, Landing Validation, P1: Chegar na landing e entrar no Guia, P1: Demonstração com dados do TSE (+7 more)
 
 ### Community 36 - "compilerOptions / tsconfig.json"
 Cohesion: 0.10
@@ -457,88 +477,88 @@ Cohesion: 0.15
 Nodes (16): Bandeiras prioritárias (Missão 3), Demo (gerador de 24 mandatos fictícios), Tabela equipe_legisla (controle de acesso), Arquivos JSON exportados pelos mandatos (Baixar dados), Filtros (UF, cargo, partido) e ordenação, Fonte (carregamento de dados: nuvem, arquivos, demo), Fragilidades (mandato M vs liderança parlamentar P), Frentes de articulação (Missão 4) (+8 more)
 
 ### Community 40 - "semente-rumo.ts"
-Cohesion: 0.04
-Nodes (45): botao(), DA_M3, escolheSaude(), FEDERAL, pergunta(), Registro, registros(), SAUDE (+37 more)
+Cohesion: 0.06
+Nodes (29): escolheSaude(), METAS, opcao(), radio(), TRES, EQ, JUST, METAS (+21 more)
 
 ### Community 41 - "cadeiras.ts"
 Cohesion: 0.06
-Nodes (53): NoCargo(), acrescenta(), defineLider(), grava(), liderDe(), Patch, remove(), layoutOrg() (+45 more)
+Nodes (51): acrescenta(), defineLider(), grava(), liderDe(), remove(), layoutOrg(), Code Reuse Analysis, Data Models (+43 more)
 
 ### Community 42 - "Missão 2 · Equipe, Organograma e Rotinas Tasks"
 Cohesion: 0.12
-Nodes (17): Diagram-Definition Cross-Check, missao2-equipe tasks.md, Execution Plan, Execution Protocol (MANDATORY -- do not skip), Gate Check Commands, Missão 2 · Equipe, Organograma e Rotinas Tasks, Phase 1: Lógica pura (`lib/`), Phase 2: Infra de testes de tela (+9 more)
+Nodes (16): Diagram-Definition Cross-Check, Execution Plan, Execution Protocol (MANDATORY -- do not skip), Gate Check Commands, Missão 2 · Equipe, Organograma e Rotinas Tasks, Phase 1: Lógica pura (`lib/`), Phase 2: Infra de testes de tela, Phase 3: Tarefa 1, escalação em 3 etapas (+8 more)
 
 ### Community 43 - "build_data.py / cargo_uf"
 Cohesion: 0.23
 Nodes (10): lib/dados.ts (loaders com cache), baixa(), cargo_uf(), coleta_2024(), coleta_2026(), fnum(), json_tse(), main() (+2 more)
 
 ### Community 44 - "comunicacao.ts"
-Cohesion: 0.08
-Nodes (68): Clipping(), busca(), dataBr(), hoje(), uid(), Comunicacao(), Barras(), Grafico() (+60 more)
+Cohesion: 0.07
+Nodes (80): duasSemanas(), semana(), semanas(), Clipping(), busca(), dataBr(), hoje(), uid() (+72 more)
 
 ### Community 45 - "Task Breakdown"
 Cohesion: 0.11
-Nodes (18): Faq(), PERGUNTAS, T10: Destino do retorno de login, T11: Estilo base da landing, T16: Missões em linha do tempo, T17: Funcionalidades, T18: Privacidade, fontes e autoria, T19: Perguntas frequentes (+10 more)
+Nodes (20): Eleito, resumo(), T10: Destino do retorno de login, T11: Estilo base da landing, T12: Campo de busca acessível, T13: Cartão do eleito, T16: Missões em linha do tempo, T17: Funcionalidades (+12 more)
 
 ### Community 46 - "Missão 2 · Equipe, Organograma e Rotinas Validation"
-Cohesion: 0.17
-Nodes (13): missao2-equipe design.md, missao2-equipe spec.md, Missao 2 Equipe, Organograma e Rotinas, Code Quality, Diff range, missao2-equipe validation.md, Fora do escopo (Fase 7), Missão 2 · Equipe, Organograma e Rotinas Validation (+5 more)
+Cohesion: 0.14
+Nodes (15): missao2-equipe design.md, ponte.tsx ILHAS bridge, missao2-equipe spec.md, Missao 2 Equipe, Organograma e Rotinas, missao2-equipe tasks.md, Code Quality, Diff range, missao2-equipe validation.md (+7 more)
 
-### Community 47 - "types.ts"
-Cohesion: 0.07
-Nodes (46): Cargo, CARGOS, NIVEIS, AlvoMun, CASAS, MSG_SEM_DOMICILIO, POSICOES, ROT_POS (+38 more)
+### Community 47 - "Conjuntura.tsx"
+Cohesion: 0.05
+Nodes (75): Cargo, CARGOS, NIVEIS, AlvoMun, CartoesMunicipio(), CASAS, MSG_SEM_DOMICILIO, useAlvoMun() (+67 more)
 
 ### Community 48 - "build_eleitos.py / csv"
-Cohesion: 0.27
-Nodes (7): linhas(), main(), norm(), zip_ano(), le(), main(), num()
+Cohesion: 0.25
+Nodes (8): linhas(), main(), norm(), zip_ano(), linhas(), le(), main(), num()
 
 ### Community 49 - "rumo-legado.spec.ts / completa"
-Cohesion: 0.11
-Nodes (17): card(), chip(), comNotas(), CRIT, nota(), rumoDe(), abreGaveta(), BANDEIRAS (+9 more)
+Cohesion: 0.17
+Nodes (10): abreGaveta(), BANDEIRAS, completa(), continuar(), guarda(), Legado, legadoDe(), protagonista() (+2 more)
 
 ### Community 50 - "tabelaEquipe.ts"
-Cohesion: 0.13
-Nodes (45): Celula(), Props, rotuloArea(), TabelaEquipe(), ativas(), chaveArq(), nomeDe(), nomeLimpo() (+37 more)
+Cohesion: 0.12
+Nodes (49): Celula(), Props, rotuloArea(), TabelaEquipe(), ativas(), chaveArq(), CHEFIA, coordDe() (+41 more)
 
 ### Community 51 - "smart.ts"
-Cohesion: 0.18
-Nodes (13): ALERTA_ROTINA, avaliaMeta(), DICAS, Letra, LETRAS, NAO_VERBOS, PRAZO, Retorno (+5 more)
+Cohesion: 0.09
+Nodes (24): ALERTA_ROTINA, avaliaMeta(), DICAS, Letra, LETRAS, NAO_VERBOS, PRAZO, Retorno (+16 more)
 
 ### Community 52 - "Bandeiras.tsx"
-Cohesion: 0.19
-Nodes (22): Bandeiras(), Card(), NOTAS, adicionaCriterio(), alternaPrioritaria(), defineNota(), MAX_CRITERIOS, MAX_PRIORITARIAS (+14 more)
+Cohesion: 0.15
+Nodes (25): Prioritarias(), Bandeiras(), Card(), NOTAS, AGENDAS_PRIO, alterna(), validas(), BANDEIRA_DA_AGENDA (+17 more)
 
 ### Community 53 - "capital-clipping.spec.ts"
-Cohesion: 0.12
-Nodes (11): BANDEIRAS, barras(), clipping(), DE_HOJE, dia(), ITENS, LONGOS, Noticia (+3 more)
+Cohesion: 0.15
+Nodes (8): BANDEIRAS, barras(), DE_HOJE, dia(), ITENS, LONGOS, Noticia, valor()
 
 ### Community 54 - "legado-resumo.test.ts"
 Cohesion: 0.06
 Nodes (26): blocoEx(), CADEIA, comVivo(), elemento(), Ex, exDe(), exercicios(), feitos() (+18 more)
 
-### Community 55 - "PrimeiroAcesso.tsx"
-Cohesion: 0.10
-Nodes (28): Autenticada, Contexto, Estado, Falha, FormularioPerfil(), aponta(), envia(), LinhaMembro (+20 more)
+### Community 55 - "ErroApi"
+Cohesion: 0.09
+Nodes (24): lerUsuario(), gravaConsentimento(), idDoUsuario(), criaApi(), pede(), ErroApi, ehEquipeLegisla(), ERRO_SALVAR (+16 more)
 
 ### Community 56 - "legado-m1.test.ts"
 Cohesion: 0.07
 Nodes (25): AGENDAS_EXTRA, CODIGO, CONQUISTAS, CONTEUDO, DEFINICOES, ESCRITO_A_MAO, Ex, ex1() (+17 more)
 
 ### Community 57 - "admin-equipe.spec.ts"
-Cohesion: 0.24
-Nodes (7): chamadas(), chamou(), chamou(), criaBanco(), erroBanco(), escritas(), ADM-03: gerir a equipe
+Cohesion: 0.21
+Nodes (8): chamadas(), RespostaRpc, chamou(), chamou(), criaBanco(), erroBanco(), escritas(), ADM-03: gerir a equipe
 
-### Community 58 - "FormularioConta.tsx"
-Cohesion: 0.09
-Nodes (29): Contexto, ContextoAdmin, Estado, lerUsuario(), gravaConsentimento(), idDoUsuario(), Props, VERSAO_CONSENTIMENTO (+21 more)
+### Community 58 - "PrimeiroAcesso.tsx"
+Cohesion: 0.16
+Nodes (19): Props, Usuario, Autenticada, Contexto, Entrada(), clica(), Estado, Falha (+11 more)
 
-### Community 59 - "paraGuia"
-Cohesion: 0.14
-Nodes (18): Conversa, paraGuia(), Componentes, Decisões de arquitetura, Missão 5 · Monitoramento e Feedback conforme a Alana — Design, Premissas verificadas (T1), Riscos, Testes (+10 more)
+### Community 59 - "Task Breakdown"
+Cohesion: 0.25
+Nodes (8): T1: Verificar as premissas do design ✅, T2: Textos da Alana ✅, T3: Monitoramento no m5.js ✅, T4: Botão e links no Planejamento ✅, T6: Tela de Feedback ✅, T7: Resumo reflete o texto novo ✅, T8: Fechamento: rastreabilidade, grafo e validação ✅, Task Breakdown
 
 ### Community 60 - "build_executivo.py / main"
-Cohesion: 0.30
-Nodes (7): coligacao(), escolhe(), linhas(), main(), reg(), sigla(), zip_ano()
+Cohesion: 0.33
+Nodes (6): coligacao(), escolhe(), main(), reg(), sigla(), zip_ano()
 
 ### Community 61 - "build_pleitos.py / pleitos_do_ano"
 Cohesion: 0.32
@@ -554,31 +574,31 @@ Nodes (25): abreArea(), ANA, BRUNO, CONFIG, convite, criaNuvem(), EstadoArea, ev
 
 ### Community 64 - "sql-convites.test.ts"
 Cohesion: 0.05
-Nodes (46): comPerfil(), cabecalhos(), cenarioPendentes(), consentem(), contas(), convitesDoBanco(), ConviteTeste, Criado (+38 more)
+Nodes (57): comoDono(), comPerfil(), cenarioPendentes(), consentem(), contas(), convitesDoBanco(), ConviteTeste, Criado (+49 more)
 
 ### Community 65 - "m4.js"
 Cohesion: 0.48
 Nodes (5): acoes(), dataBr(), iso(), segunda(), semana()
 
 ### Community 66 - "ciclos.ts"
-Cohesion: 0.13
-Nodes (26): pctTxt(), NovoCiclo(), txt(), Anel(), ESTRATEGIA_TXT, norm(), Plano(), PlanoResumo() (+18 more)
+Cohesion: 0.12
+Nodes (28): pctTxt(), NovoCiclo(), txt(), Anel(), ESTRATEGIA_TXT, norm(), Plano(), PlanoResumo() (+20 more)
 
 ### Community 67 - "build_social.py / collections"
-Cohesion: 0.22
-Nodes (3): num(), serie(), Fase 4 — Comunicação (Parte C)
+Cohesion: 0.12
+Nodes (11): num(), serie(), Como executar (obrigatório), Fase 1 — Base, Fase 2 — Comissões (Parte A), Fase 3 — Matriz de ações (Parte B), Fase 4 — Comunicação (Parte C), Fase 5 — Clipping (Parte C, tópico 5) (+3 more)
 
 ### Community 68 - "tokenDoHash"
-Cohesion: 0.11
-Nodes (17): tokenColado(), Instrucoes(), abre(), tokenDoHash(), Alvo, Armazenamento, CHAVE_PENDENTE, limpaPendente() (+9 more)
+Cohesion: 0.16
+Nodes (13): tokenColado(), Instrucoes(), abre(), tokenDoHash(), Passo, proximoPasso(), Situacao, tokenDoLinkColado() (+5 more)
 
 ### Community 69 - "ref_node_assert"
-Cohesion: 0.07
-Nodes (19): diaDoMandato, numeroDoDia(), paraEstrategico(), Ex, RAIZ, nucleo, arquivos, DIR (+11 more)
+Cohesion: 0.05
+Nodes (27): bloco(), diaDoMandato, numeroDoDia(), paraEstrategico(), Ex, RAIZ, nucleo, arquivos (+19 more)
 
 ### Community 70 - "Missão 4 · Capital Político  / 4. Parte C — Comunicação"
-Cohesion: 0.20
-Nodes (10): 1. O que reaproveitamos (já existe), 2. Parte A — Comissões, 4. Parte C — Comunicação, 5. Arquivos novos, 6. Suposições assumidas (peço seu OK), Clipping (notícias), Dados, Gráficos (+2 more)
+Cohesion: 0.13
+Nodes (16): Missão 4 Capital Político Design, 1. O que reaproveitamos (já existe), 2. Parte A — Comissões, 4. Parte C — Comunicação, 5. Arquivos novos, 6. Suposições assumidas (peço seu OK), BANDEIRA_COMISSAO table (flag to committee), Clipping (notícias) (+8 more)
 
 ### Community 71 - "Missão 4 · Capital Político  / Parte A — Comissões permanen"
 Cohesion: 0.20
@@ -590,19 +610,19 @@ Nodes (10): Candidates (under observation - do NOT load as guidance yet), Confir
 
 ### Community 73 - "Task Breakdown"
 Cohesion: 0.09
-Nodes (42): Edita, Linha(), QuadroRotinas(), Texto(), RotinasPlano(), Campos, Sugestao, sugestaoChecklist() (+34 more)
+Nodes (42): Edita, Linha(), QuadroRotinas(), Texto(), ITENS, SugestaoChecklist(), RotinasPlano(), Sugestao (+34 more)
 
-### Community 74 - "Organograma.tsx"
-Cohesion: 0.08
-Nodes (38): Cargo, cargoNome(), modelo(), modeloEscopo(), modeloFuncao(), modeloNome(), TEMATICOS, Dado (+30 more)
+### Community 74 - "useCarga"
+Cohesion: 0.16
+Nodes (26): NoParlamentar(), useCarga(), CASA, COR, ResumoRetrato(), Tse, ConjunturaResumo(), carregaFiliadosUF() (+18 more)
 
 ### Community 75 - "Acesso, Equipe e Convites Specification"
 Cohesion: 0.22
 Nodes (8): Acesso, Equipe e Convites Specification, Dimensions Sweep, Edge Cases, Goals, Out of Scope, Problem Statement, Requirement Traceability, Success Criteria
 
 ### Community 76 - "package.json"
-Cohesion: 0.07
-Nodes (33): dependencies, @dagrejs/dagre@^3.1.1, html-to-image@1.11.13, next@^16.4.6, react@^19.3.0, react-dom@^19.3.0, @xyflow/react@^12.12.0, devDependencies (+25 more)
+Cohesion: 0.08
+Nodes (31): dependencies, @dagrejs/dagre@^3.1.1, html-to-image@1.11.13, next@^16.4.6, react@^19.3.0, react-dom@^19.3.0, devDependencies, @electric-sql/pglite@0.5.15 (+23 more)
 
 ### Community 77 - "legado-m4.test.ts"
 Cohesion: 0.15
@@ -629,24 +649,24 @@ Cohesion: 0.09
 Nodes (20): Edge Cases, Goals, Out of Scope, P1: Cada etapa numa página só ⭐ MVP, P1: Conjuntura: partido em cartões e reação aos dados (2.2) ⭐ MVP, P1: Conjuntura: relações com os parlamentares (2.1) ⭐ MVP, P1: Fechamento com HTML do Mapa Político ⭐ MVP, P1: Oportunidades e ameaças sem mapas (3.1 a 3.3) ⭐ MVP (+12 more)
 
 ### Community 83 - "3. Conteúdo proposto, seção por seção"
-Cohesion: 0.15
-Nodes (13): 3.10 Perguntas frequentes (só o que o manual responde), 3.11 Fechamento, 3.12 Rodapé, 3.1 Metadados (título da aba e compartilhamento), 3.2 Topo, 3.3 Hero, 3.4 Como o Guia funciona, 3.5 As cinco missões (+5 more)
+Cohesion: 0.11
+Nodes (18): 1. Diagnóstico, 2. Decisões que preciso que você tome, 3.10 Perguntas frequentes (só o que o manual responde), 3.11 Fechamento, 3.12 Rodapé, 3.1 Metadados (título da aba e compartilhamento), 3.2 Topo, 3.3 Hero (+10 more)
 
 ### Community 84 - "Missão 2 · Equipe, Organograma e Rotinas Specification"
-Cohesion: 0.10
-Nodes (20): Assumptions & Open Questions, Edge Cases, Goals, Implicit-Requirement Dimensions, Jornada do usuário, Missão 2 · Equipe, Organograma e Rotinas Specification, Out of Scope, P1: Escolher as áreas e ajustar as cadeiras ⭐ MVP (+12 more)
+Cohesion: 0.14
+Nodes (14): Assumptions & Open Questions, Edge Cases, Goals, Implicit-Requirement Dimensions, Jornada do usuário, Jornada (Playwright), Lógica (`node --test`), Missão 2 · Equipe, Organograma e Rotinas Specification (+6 more)
 
 ### Community 85 - "admin-usuarios-detalhe.spec.ts"
-Cohesion: 0.13
-Nodes (15): detalheUsuario(), EstadoMoca, Papel, servidorUsuarios(), usuario(), Banco, Pessoa, Abre (+7 more)
+Cohesion: 0.12
+Nodes (17): detalheUsuario(), EstadoMoca, Papel, seguraRpc(), servidorUsuarios(), usuario(), Banco, Pessoa (+9 more)
 
 ### Community 86 - "Primeiro Acesso e Login só com Google Validation"
 Cohesion: 0.08
 Nodes (25): mostraErroPerfil(), Code Quality, Cleanup, Code Quality, Discrimination Sensor, e2e (camada de tela, servidor da porta 3100), Edge Cases, Gate Check (+17 more)
 
-### Community 87 - "Persona.tsx"
-Cohesion: 0.05
-Nodes (45): buscaVotos(), CASAS, MaisVotados(), MSG_MAIS_VOTADOS, useVotosMun(), VotosMun, CARGOS, Cartao() (+37 more)
+### Community 87 - "ponte.tsx"
+Cohesion: 0.08
+Nodes (43): dadosMapaPolitico(), municipios(), EleitoradoResumo(), CARGOS, Cartao(), CASAS, FormPleito(), envia() (+35 more)
 
 ### Community 88 - "legado-acesso.test.ts"
 Cohesion: 0.05
@@ -665,24 +685,24 @@ Cohesion: 0.50
 Nodes (5): Guia rapido: API de resultados do TSE, Codigo TSE diferente de codigo IBGE (cdi), coleta_municipal.py (coletor de votos municipais), Dados abertos TSE (CSV), API nao oficial resultados.tse.jus.br
 
 ### Community 92 - "Resumo do Preenchimento Reestruturado Design"
-Cohesion: 0.18
-Nodes (10): Architecture Overview, Components, Decisions, `ilhas.css` e `ponte.tsx`, `ilhas/ResumoEquipe.tsx` (novo) + `lib/resumoEquipe.ts` (novo), `lib/resumoSocial.ts` (novo) e `ilhas/Social.tsx` (`SocialResumo`), Pontos de atenção (para os workers), `public/legacy/resumo-tela.js` (novo, escrito à mão, IIFE) (+2 more)
+Cohesion: 0.12
+Nodes (14): Missoes, T2: Textos do Guia trocados por override ✅, T32: Ganchos da Missão 2, escalação e textos ✅, T4: Migration de leitura de mandatos e analytics, Architecture Overview, Components, Decisions, `ilhas.css` e `ponte.tsx` (+6 more)
 
 ### Community 93 - "capital-comunicacao.spec.ts"
-Cohesion: 0.19
-Nodes (11): abreSecao(), Dados, duasSemanas(), registra(), secao(), semana(), semanas(), TITULOS (+3 more)
+Cohesion: 0.23
+Nodes (7): abreSecao(), Dados, registra(), secao(), TITULOS, TODAS, topo()
 
 ### Community 94 - "Seções do painel (progresso, / BINGOS (frentes de articulaç"
 Cohesion: 0.40
 Nodes (4): BINGOS (frentes de articulação, Missão 4), FRAGILIDADES, PREDITORES, Seções do painel (progresso, preditores, frentes, fragilidades, bandeiras, sinais, tabela)
 
 ### Community 95 - "ref_node_assert"
-Cohesion: 0.09
-Nodes (23): Funcao, dono(), PROIBIDAS, VIEWS, addMembro(), auditoria(), dono(), Banco (+15 more)
+Cohesion: 0.11
+Nodes (20): auditoria(), equipe(), MIGRATION, Funcao, dono(), PROIBIDAS, VIEWS, addMembro() (+12 more)
 
 ### Community 96 - "UsuarioEdicao.tsx"
 Cohesion: 0.11
-Nodes (34): EditarPerfil(), salva(), Feito, Pessoa, argumentosPerfil(), camposDoPerfil(), confereEmail(), ERRO_SALVAR_PERFIL (+26 more)
+Nodes (34): EditarPerfil(), salva(), Feito, Pessoa, PerfilDetalhe, argumentosPerfil(), camposDoPerfil(), confereEmail() (+26 more)
 
 ### Community 98 - "Legisla Brasil logo (wordmar / Burgundy split-shape emblem "
 Cohesion: 0.67
@@ -698,7 +718,7 @@ Nodes (13): Diagram-Definition Cross-Check, Execution Plan, Gate Check Commands,
 
 ### Community 110 - "CartaoMeta.tsx"
 Cohesion: 0.10
-Nodes (39): CartaoMeta(), CartaoMetaProps, ROT_LETRA, semHtml(), media(), pctMeta(), pctObjetivo(), pctPlano() (+31 more)
+Nodes (40): OpcoesPlano, CartaoMeta(), CartaoMetaProps, ROT_LETRA, semHtml(), media(), pctMeta(), pctObjetivo() (+32 more)
 
 ### Community 111 - "sql-perfil.test.ts"
 Cohesion: 0.18
@@ -737,20 +757,20 @@ Cohesion: 0.46
 Nodes (6): cartao(), e(), pctMeta(), r(), rotStatus(), simbolo()
 
 ### Community 120 - "Sessao"
-Cohesion: 0.14
-Nodes (26): Sessao(), abre(), criaApiDaSessao(), com(), inicia(), voltaEntrada(), armLocal(), armSessao() (+18 more)
+Cohesion: 0.11
+Nodes (27): abre(), criaApiDaSessao(), com(), inicia(), voltaEntrada(), monta(), criaAutenticada(), comRenovacao() (+19 more)
 
 ### Community 121 - "resumo.js"
-Cohesion: 0.06
-Nodes (35): arq(), base(), ex(), json(), lista(), missao(), pagina(), tudo() (+27 more)
+Cohesion: 0.36
+Nodes (8): arq(), base(), ex(), json(), lista(), missao(), tudo(), T8: Página única por etapa
 
 ### Community 122 - "react"
-Cohesion: 0.08
-Nodes (45): Analytics(), AnalyticsPagina(), CONSULTAS, consultaUso(), Dados, Estado, MESES, rotuloMes() (+37 more)
+Cohesion: 0.06
+Nodes (47): Analytics(), AnalyticsPagina(), CONSULTAS, consultaUso(), Dados, Estado, MESES, rotuloMes() (+39 more)
 
-### Community 123 - "rumo-migracao.spec.ts"
-Cohesion: 0.09
-Nodes (13): ANTIGO, campos(), CAMPOS_ANTIGOS, ILHAS, metas(), METAS_ANTIGAS, SEMENTE, EQUIPE4 (+5 more)
+### Community 123 - "dadoDe"
+Cohesion: 0.08
+Nodes (20): clipping(), comunicacao(), M, metasDe(), P, PLANO, planosDe(), linhas() (+12 more)
 
 ### Community 124 - "User Stories"
 Cohesion: 0.12
@@ -761,48 +781,48 @@ Cohesion: 0.12
 Nodes (15): Assumptions & Open Questions, Edge Cases, Goals, Out of Scope, P1: Cadastro de perfil no primeiro acesso ⭐ MVP, P1: Entrar só com Google ⭐ MVP, P1: Perfil protegido no banco ⭐ MVP, P1: Pergunta sobre a equipe e escolha do mandato ⭐ MVP (+7 more)
 
 ### Community 126 - "guia-acesso.spec.ts"
-Cohesion: 0.10
-Nodes (11): CONFIG, Estado, LIA, LINHA_MANDATO, Papel, Pedido, PERMITE, registro (+3 more)
+Cohesion: 0.11
+Nodes (8): CONFIG, Estado, LIA, LINHA_MANDATO, Papel, Pedido, PERMITE, registro
 
 ### Community 127 - "convites/api.ts"
-Cohesion: 0.12
-Nodes (21): sai(), CORES, plural(), ResumoEquipe(), aceitaConvite(), Aceite, catalogoExercicios(), ConviteCriado (+13 more)
+Cohesion: 0.17
+Nodes (18): aceitaConvite(), cancelaConvite(), catalogoExercicios(), ConviteCriado, convitesPendentes(), criaConvite(), equipeDoMandato(), lerEventosEquipe() (+10 more)
 
 ### Community 128 - "admin-analytics.spec.ts"
-Cohesion: 0.08
-Nodes (23): abre(), ANO, CAMPOS, doisDig(), estadoPadrao(), EVENTOS, EXERCICIOS, exerciciosGuia (+15 more)
+Cohesion: 0.09
+Nodes (22): abre(), ANO, CAMPOS, doisDig(), estadoPadrao(), EVENTOS, EXERCICIOS, exerciciosGuia (+14 more)
 
-### Community 129 - "Municipio.tsx"
-Cohesion: 0.11
-Nodes (22): bbox(), Caixa, Celula, MapaConjuntura(), Marcas, Municipios, Vista, Camada (+14 more)
+### Community 129 - "types.ts"
+Cohesion: 0.04
+Nodes (69): bbox(), Caixa, Celula, MapaConjuntura(), Marcas, Municipios, Vista, COR_REL (+61 more)
 
 ### Community 130 - "Acesso, Equipe e Convites: relatório do Verifier"
-Cohesion: 0.11
-Nodes (18): ACE-01: Criar um convite por link pessoal, ACE-02: Aceitar o convite e entrar no mandato, ACE-03: Papéis do mandato aplicados no banco, ACE-04: Tela Equipe e convites, ACE-05: Área do mandato, ACE-06: Histórico da equipe, ACE-07: Retirar o código de convite antigo, Acesso, Equipe e Convites: relatório do Verifier (+10 more)
+Cohesion: 0.13
+Nodes (14): Acesso, Equipe e Convites: relatório do Verifier, Bordas, Botão "Sair do mandato" e tratamento de erro, Discrimination Sensor, Pendências do dono do produto (não reprovam), Qualidade do código, Requirement Traceability Update, Resumo (+6 more)
 
 ### Community 131 - "Task Breakdown"
-Cohesion: 0.08
-Nodes (25): estadoTxt(), funcoes(), temConteudo(), public/legacy/resumo.js e novos.js, T13: Resumo e contagem de andamento, T10: Planejamento mostra estratégia e justificativas ✅, T11: Resumo com estratégia e justificativas ✅, T12: Colunas, linhas e travamento da tabela ✅ (+17 more)
+Cohesion: 0.05
+Nodes (47): useEquipe(), estadoTxt(), funcoes(), temConteudo(), public/legacy/resumo.js e novos.js, T13: Resumo e contagem de andamento, Components, `ilhas/equipe/Organograma.tsx` (reduzido) (+39 more)
 
-### Community 132 - "legado-m2.test.ts"
-Cohesion: 0.13
-Nodes (14): bloco(), contadorDias, dias(), faltam(), monta(), fonte, texto(), CARGOS (+6 more)
+### Community 132 - "contadorDias"
+Cohesion: 0.52
+Nodes (5): contadorDias, dias(), faltam(), monta(), texto()
 
 ### Community 133 - "como"
 Cohesion: 0.16
 Nodes (18): auditoria(), email(), exclui(), existe(), PERFIL, q(), salva(), SEM_PERMISSAO (+10 more)
 
 ### Community 134 - "Components"
-Cohesion: 0.12
-Nodes (16): Abordagens consideradas, Architecture Overview, Banco: migration 1, equipe e auditoria, Banco: migration 2, leitura de mandatos e analytics, Banco: migration 3, gestão de mandatos, Banco: migration 4, uso das funcionalidades (P3), Components, Data Models (+8 more)
+Cohesion: 0.10
+Nodes (19): Abordagens consideradas, Architecture Overview, Banco: migration 1, equipe e auditoria, Banco: migration 2, leitura de mandatos e analytics, Banco: migration 3, gestão de mandatos, Banco: migration 4, uso das funcionalidades (P3), Code Reuse Analysis, Components (+11 more)
 
 ### Community 135 - "app/page.tsx"
-Cohesion: 0.13
-Nodes (16): Animacoes(), contar(), CURVA(), REVELAR, ComoFunciona(), Depois(), Equipe(), Fechamento() (+8 more)
+Cohesion: 0.15
+Nodes (14): Animacoes(), contar(), CURVA(), REVELAR, ComoFunciona(), Depois(), Equipe(), Ferramentas() (+6 more)
 
 ### Community 137 - "ponte.tsx"
-Cohesion: 0.11
-Nodes (24): EleitoradoIlha(), EleitoradoResumo(), novoId(), deveGravarUso, ILHAS, Legado, raizes, registraUso() (+16 more)
+Cohesion: 0.14
+Nodes (19): EleitoradoIlha(), novoId(), adiciona(), Coluna, COLUNAS, GRUPOS, remove(), semAcento() (+11 more)
 
 ### Community 138 - "Área do Mandato Validation"
 Cohesion: 0.11
@@ -816,17 +836,17 @@ Nodes (13): abre(), abrePessoas(), abreSair(), EQUIPE, formulario(), JOAO, linha
 Cohesion: 0.21
 Nodes (10): funil(), LinhaFunil, LinhaTrava, organiza(), pct(), travas(), CAT, IDS (+2 more)
 
-### Community 141 - "react"
-Cohesion: 0.14
-Nodes (24): useMandato(), Equipe(), Props, FormularioConvite(), CORES, expiraEm(), ListaConvites(), cancela() (+16 more)
+### Community 141 - "mensagemDe"
+Cohesion: 0.19
+Nodes (17): abrirColado(), carregaPrevia(), expiraEm(), ListaConvites(), cancela(), CORES, ListaPessoas(), remove() (+9 more)
 
 ### Community 142 - "Resumo do Preenchimento Reestruturado Tasks"
 Cohesion: 0.13
 Nodes (14): Diagram-Definition Cross-Check, Execution Plan, Execution Protocol (MANDATORY -- do not skip), Gate Check Commands, Phase 1: Estrutura da tela, Phase 2: Retrato e equipe, Phase 3: Cartões, território e selos, Phase 4: Fechamento (+6 more)
 
-### Community 143 - "logs/page.tsx"
-Cohesion: 0.24
-Nodes (10): AbaId, ABAS, Atividade, Auditoria, dataHoraBr(), descricao(), Estado, fmtHora (+2 more)
+### Community 143 - "Matriz.tsx"
+Cohesion: 0.23
+Nodes (19): Bingo, bingos(), chaveAcao(), Matriz(), prazoBr(), texto(), uid(), acaoCompleta() (+11 more)
 
 ### Community 144 - "area-equipe.spec.ts"
 Cohesion: 0.21
@@ -841,24 +861,24 @@ Cohesion: 0.12
 Nodes (15): Diagram-Definition Cross-Check, Execution Plan, Execution Protocol (MANDATORY -- do not skip), Gate Check Commands, Phase 1: Regras puras em `lib/`, Phase 2: Página única, textos e caixas (`m1.js`), Phase 3: Persona, Phase 4: Conjuntura, relações com os parlamentares (+7 more)
 
 ### Community 147 - "Reestruturação da Missão 1 Validation"
-Cohesion: 0.15
-Nodes (12): Code Quality, Discrimination Sensor, Edge cases, Fix Plans, Gate Check, Os demais 62 (mantidos da iteração 1, reconferidos nos arquivos atuais), Reestruturação da Missão 1 Validation, Requirement Traceability Update (+4 more)
+Cohesion: 0.14
+Nodes (13): Code Quality, Discrimination Sensor, Edge cases, Fix Plans, Gate Check, Os 13 que estavam parciais ou sem teste (re-derivados), Os demais 62 (mantidos da iteração 1, reconferidos nos arquivos atuais), Reestruturação da Missão 1 Validation (+5 more)
 
 ### Community 148 - "contexto.ts"
-Cohesion: 0.16
-Nodes (16): Contexto, ContextoMandato, MandatoDaPessoa, Usuario, Guia, monta(), ProvedorLegado(), Papel (+8 more)
+Cohesion: 0.12
+Nodes (23): ContextoAdmin, Contexto, ContextoMandato, MandatoDaPessoa, Props, CORES, Props, Props (+15 more)
 
 ### Community 149 - "Missão 5 · Monitoramento e Feedback conforme a Alana — Specification"
-Cohesion: 0.12
-Nodes (16): Assumptions & Open Questions, Decisões tomadas (respostas do Pedro), Edge Cases, Goals, Missão 5 · Monitoramento e Feedback conforme a Alana — Specification, Out of Scope, P1: Botão de volta no Planejamento ⭐ MVP, P1: Explicação do Monitoramento ⭐ MVP (+8 more)
+Cohesion: 0.20
+Nodes (10): Assumptions & Open Questions, Decisões tomadas (respostas do Pedro), Edge Cases, Goals, Missão 5 · Monitoramento e Feedback conforme a Alana — Specification, Out of Scope, Perguntas em aberto, Problem Statement (+2 more)
 
 ### Community 150 - "Execution Plan"
 Cohesion: 0.12
 Nodes (15): Execution Plan, Execution Protocol (MANDATORY -- do not skip), Gate Check Commands, Phase 1: Correções rápidas e gênero, Phase 2: Parlamentares, Phase 3: Conjuntura: municípios, Phase 4: Oportunidades (cartões de agenda), Phase 5: Seleção visual de dados (+7 more)
 
 ### Community 151 - "Atividade.tsx"
-Cohesion: 0.17
-Nodes (18): CartaoMandato(), dataBr(), Foto(), fotoDoMandato(), fotoUrl(), Atividade(), CORES, dia() (+10 more)
+Cohesion: 0.18
+Nodes (19): CartaoMandato(), dataBr(), Foto(), fotoDoMandato(), fotoUrl(), Atividade(), iniciais(), nomeDoMandato() (+11 more)
 
 ### Community 152 - "Área do Mandato Specification"
 Cohesion: 0.13
@@ -869,36 +889,36 @@ Cohesion: 0.12
 Nodes (17): linkPasso(), progGeral(), P1: Barra fixa com progresso e navegação ⭐ MVP, T11: Selos M e P nas fragilidades, T12: Regressão e acessibilidade ponta a ponta, T13: Documentação, T14: Fixar o limiar de 160 px do scroll-spy, T15: Cobrir o nome civil e as bordas do território (+9 more)
 
 ### Community 154 - "guardaPendente"
-Cohesion: 0.12
-Nodes (25): armSessao(), AvisoConsentimento(), CaixaConsentimento(), FormularioConta(), google(), urlGoogle(), guardaPendente(), T25: Página do convite: criar conta, entrar e Google (+17 more)
+Cohesion: 0.14
+Nodes (24): armSessao(), AvisoConsentimento(), CaixaConsentimento(), FormularioConta(), google(), VERSAO_CONSENTIMENTO, FormularioPerfil(), aponta() (+16 more)
 
 ### Community 155 - "papeis.ts"
-Cohesion: 0.21
-Nodes (19): CORES, ListaPessoas(), remove(), troca(), nomeDe(), papelTxt(), removeMembro(), trocaPapel() (+11 more)
+Cohesion: 0.19
+Nodes (17): CORES, dia(), papelTxt(), primeiroNome(), quandoDoEvento(), textoDoEvento(), EventoEquipe, ehPapel() (+9 more)
 
-### Community 156 - "m23-plano.spec.ts"
-Cohesion: 0.22
-Nodes (5): EQ, JUST, METAS, RQ, TRES
+### Community 156 - "Comissoes.tsx"
+Cohesion: 0.18
+Nodes (14): RegistroComissao, chaveDeReg(), Comissoes(), Linha, norm(), Registro, uid(), PAPEIS (+6 more)
 
 ### Community 157 - "Organograma.tsx"
-Cohesion: 0.15
-Nodes (15): Car(), ResumoEquipe(), TEXTO, arvore, Cartao, estado(), EstadoCartao, posArea() (+7 more)
+Cohesion: 0.08
+Nodes (34): Cargo, cargoNome(), modelo(), modeloEscopo(), modeloFuncao(), modeloNome(), TEMATICOS, Dado (+26 more)
 
-### Community 158 - "Components"
-Cohesion: 0.12
-Nodes (16): Architecture Overview, Code Reuse Analysis, Components, Data Models, Error Handling Strategy, `ilhas/equipe/QuadroRotinas.tsx` (novo), `ilhas/equipe/TabelaEquipe.tsx` (novo), `ilhas/rumo/Preditores.tsx` (alterado) e `ilhas/rumo/Estrategia.tsx` (novo) (+8 more)
+### Community 158 - "demo.test.ts"
+Cohesion: 0.16
+Nodes (13): cargoEleito(), CargoEntrada, PleitoTSE, busca(), cargoDe(), historico(), LinhaPleito, normaliza() (+5 more)
 
 ### Community 159 - "Validation: missao5-monitoramento-alana — PASS ✅"
-Cohesion: 0.18
-Nodes (10): Casos de borda, Code Quality, Discrimination Sensor, Fix Plans (não bloqueantes, ranqueadas), Gate Check, Requirement Traceability Update, Spec-Anchored Acceptance Criteria, Summary (+2 more)
+Cohesion: 0.20
+Nodes (9): Casos de borda, Code Quality, Fix Plans (não bloqueantes, ranqueadas), Gate Check, Requirement Traceability Update, Spec-Anchored Acceptance Criteria, Summary, Task Completion (+1 more)
 
-### Community 160 - "Missão 4 · Capital Político — Tasks"
-Cohesion: 0.15
-Nodes (14): Missão 4 Capital Político Design, BANDEIRA_COMISSAO table (flag to committee), Missão 4 Capital Político Spec, Matriz de ações 5W2H, Clipping semanal de notícias, Missão 4 Capital Político Tasks, Como executar (obrigatório), Fase 1 — Base (+6 more)
+### Community 160 - "convite-conta.spec.ts"
+Cohesion: 0.14
+Nodes (7): localDe(), ACEITE_OK, aceiteExigeConsentimento, AVISO, SESSAO_GUIA, sessaoGuardada(), Gate
 
 ### Community 161 - "Hero"
-Cohesion: 0.17
-Nodes (11): cadeiras(), CORES, Hero(), LINHAS, 1. Diagnóstico, 2. Decisões que preciso que você tome, 4. O que sai da landing, 5. O que muda no código, se aprovado (+3 more)
+Cohesion: 0.16
+Nodes (12): Faq(), PERGUNTAS, Fechamento(), cadeiras(), CORES, Hero(), LINHAS, 5. O que muda no código, se aprovado (+4 more)
 
 ### Community 162 - "Cobertura por AC"
 Cohesion: 0.18
@@ -917,8 +937,8 @@ Cohesion: 0.14
 Nodes (13): Assumptions & Open Questions, Edge Cases, Goals, Out of Scope, P1: Corrigir o que está quebrado ou enganoso ⭐ MVP, P1: Parlamentares e municípios classificáveis sem ruído ⭐ MVP, P2: Cartões de agenda legíveis, P2: Selecionar 2 dados clicando na página (+5 more)
 
 ### Community 166 - "admin-detalhe.spec.ts"
-Cohesion: 0.21
-Nodes (10): mandato(), RespostaRpc, Banco, CATALOGO, criaBanco(), erroBanco(), FEITOS, Membro (+2 more)
+Cohesion: 0.23
+Nodes (9): mandato(), Banco, CATALOGO, criaBanco(), erroBanco(), FEITOS, Membro, membrosBase() (+1 more)
 
 ### Community 167 - "area-equipe-convites.spec.ts"
 Cohesion: 0.27
@@ -929,19 +949,19 @@ Cohesion: 0.17
 Nodes (10): Args, cenario(), Conta, Linha, lista(), Mandato, membro(), perfil() (+2 more)
 
 ### Community 169 - "Aba Usuários do Painel Admin Validation"
-Cohesion: 0.22
-Nodes (8): Aba Usuários do Painel Admin Validation, Code Quality, Fechamento da rodada 1, Gate Check, Requirement Traceability Update, Spec-precision gaps, Summary, Task Completion
+Cohesion: 0.17
+Nodes (11): Aba Usuários do Painel Admin Validation, Code Quality, Discrimination Sensor, Fechamento da rodada 1, Fix Plans, GAP-1 (menor): `p_papel` desconhecido sem teste (M9 sobreviveu), Gate Check, Requirement Traceability Update (+3 more)
 
-### Community 170 - "admin-logs.spec.ts"
-Cohesion: 0.18
-Nodes (7): abre(), acoes, atividade, BASE, celulas(), linhas(), T0
+### Community 170 - "consentimentos"
+Cohesion: 0.15
+Nodes (13): aceiteComoBanco(), consentimentos(), T12: Aceitar convite, Architecture Overview, Code Reuse Analysis, Data Models, Error Handling Strategy, Integration Points (+5 more)
 
 ### Community 171 - "Missão 5 Avanço Spec"
-Cohesion: 0.17
-Nodes (12): Missão 5 Avanço Spec, A. Sucesso mensal (Missão 3 + Planejamento), B. Tarefa 1 · Monitoramento, C. Tarefa 2 · Primeiro ciclo de feedback, D. Tarefa 3 · Calibragem e replanejamento, Feedback cycle via org chart map, Fora do escopo, Metas e requisitos (+4 more)
+Cohesion: 0.22
+Nodes (9): A. Sucesso mensal (Missão 3 + Planejamento), B. Tarefa 1 · Monitoramento, C. Tarefa 2 · Primeiro ciclo de feedback, D. Tarefa 3 · Calibragem e replanejamento, Fora do escopo, Metas e requisitos, Missão 5 · Garanta o avanço (reestruturação) — Spec, Pontos para você decidir (+1 more)
 
 ### Community 172 - "Missão 5 · Monitoramento e Feedback conforme a Alana — Tasks"
-Cohesion: 0.18
+Cohesion: 0.22
 Nodes (9): Execution Plan, Execution Protocol (MANDATORY -- do not skip), Gate Check Commands, Missão 5 · Monitoramento e Feedback conforme a Alana — Tasks, Phase 1: Base, Phase 2: Monitoramento, Phase 3: Feedback, Phase 4: Fechamento (+1 more)
 
 ### Community 173 - "area-mandato.spec.ts"
@@ -957,12 +977,12 @@ Cohesion: 0.13
 Nodes (14): rich(), richEhHtml(), 1. O que já está bom, 3. Painel do administrador (Legisla), 4. Regras de negócio a fechar (decisões do produto), 5. Jornada do usuário, 6. Operação e entrega, 7. Roteiro sugerido (+6 more)
 
 ### Community 176 - "ArvorePlano.tsx"
-Cohesion: 0.18
-Nodes (18): ArvoreNos(), ArvorePlano(), CLASSE_CAB, CLASSE_GRUPO, CLASSE_LI, curto(), No, noMeta() (+10 more)
+Cohesion: 0.21
+Nodes (16): ArvoreNos(), ArvorePlano(), CLASSE_CAB, CLASSE_GRUPO, CLASSE_LI, curto(), No, noMeta() (+8 more)
 
-### Community 177 - "Missoes"
-Cohesion: 0.18
-Nodes (10): Missoes, T2: Textos do Guia trocados por override ✅, Jornada (Playwright), Lógica (`node --test`), Plano de testes, T32: Ganchos da Missão 2, escalação e textos ✅, Code Reuse Analysis, Existing Components to Leverage (+2 more)
+### Community 177 - "LinhaAcao.tsx"
+Cohesion: 0.22
+Nodes (13): Acao, LinhaAcao(), longo, MODOS, Texto, ehDataISO(), hojeISO(), limitesPrazo() (+5 more)
 
 ### Community 178 - "Sugestões do Pedro (04/11/2026) — ids 61–86 em `sugestoes`"
 Cohesion: 0.50
@@ -976,41 +996,49 @@ Nodes (5): ExercicioCatalogo, StatusMissao, statusMissoes(), catalogo, status()
 Cohesion: 0.25
 Nodes (7): fonte(), Architecture Overview, Data Models, Error Handling Strategy, Risks & Concerns, Sugestões do Pedro (11/11/2026) Design, Tech Decisions
 
-### Community 181 - "convite-api.ts"
-Cohesion: 0.05
-Nodes (56): aceiteComoBanco(), auth(), Chamada, chamadas(), CHAVE_ANON, CONFIG, consentimentos(), ContaAceite (+48 more)
+### Community 181 - "mandato-api.ts"
+Cohesion: 0.12
+Nodes (18): EstadoMoca, RespostaRpc, BRUNO, CATALOGO, CONFIG, EstadoMandato, fotosAbortadas, Leitura (+10 more)
 
 ### Community 182 - "admin/page.tsx"
-Cohesion: 0.17
-Nodes (14): Estado, FILTROS_VAZIOS, ListaMandatos(), Mandatos(), textoAtividade(), chave(), filtraMandatos(), Filtros (+6 more)
+Cohesion: 0.10
+Nodes (30): Estado, FILTROS_VAZIOS, ListaMandatos(), Mandatos(), textoAtividade(), doEscopo(), indicadores, indiceBrasilia() (+22 more)
 
 ### Community 183 - "leitura"
-Cohesion: 0.12
-Nodes (20): aplicar(), leitura(), trava(), P1: Aceitar o convite e entrar no mandato ⭐ MVP, P1: Criar um convite por link pessoal ⭐ MVP, P1: Papéis do mandato aplicados no banco ⭐ MVP, P1: Tela Equipe e convites ⭐ MVP, P2: Histórico da equipe (+12 more)
+Cohesion: 0.21
+Nodes (12): aplicar(), leitura(), trava(), P1: Aceitar o convite e entrar no mandato ⭐ MVP, P1: Criar um convite por link pessoal ⭐ MVP, P1: Papéis do mandato aplicados no banco ⭐ MVP, P1: Tela Equipe e convites ⭐ MVP, P2: Histórico da equipe (+4 more)
 
 ### Community 184 - "FormularioConvite.tsx"
 Cohesion: 0.20
-Nodes (14): gera(), Pronto, criaConvite(), montaLink(), DadosMensagem, mensagemConvite(), urlWhatsApp(), ERRO_EMAIL (+6 more)
+Nodes (14): FormularioConvite(), gera(), Pronto, montaLink(), DadosMensagem, mensagemConvite(), urlWhatsApp(), ERRO_EMAIL (+6 more)
 
 ### Community 185 - "Task Breakdown"
 Cohesion: 0.08
-Nodes (25): T11: Prévia pública do convite e limite de tentativas, T12: Aceitar convite, T13: Aposentar o código de convite antigo no banco, T15: Link do convite, T17: Validação do formulário de convite, T18: Mensagens de erro, T19: Dia X de 100, T1: Papéis do mandato e `leitura` aplicada nas políticas (+17 more)
+Nodes (24): T11: Prévia pública do convite e limite de tentativas, T13: Aposentar o código de convite antigo no banco, T17: Validação do formulário de convite, T18: Mensagens de erro, T19: Dia X de 100, T1: Papéis do mandato e `leitura` aplicada nas políticas, T24: Página do convite: prévia e aceite com sessão, T26: Cabeçalhos de privacidade da página do convite (+16 more)
 
 ### Community 186 - "codigo"
 Cohesion: 0.33
 Nodes (6): codigo(), Assumptions & Open Questions, 2. Achados de segurança e privacidade, P0, P1, P2
 
-### Community 187 - "primeiro-acesso/page.tsx"
-Cohesion: 0.33
-Nodes (4): anton, commissioner, metadata, PaginaPrimeiroAcesso()
+### Community 187 - "PrimeiroAcesso"
+Cohesion: 0.21
+Nodes (11): anton, commissioner, metadata, PaginaPrimeiroAcesso(), armSessao(), PrimeiroAcesso(), salva(), segue() (+3 more)
+
+### Community 188 - "Sugestões da Missão 4 (tabela `sugestoes`, #46–#53, 03/11/2026) · Specification"
+Cohesion: 0.14
+Nodes (12): Assumptions (decisões minhas, para a Alana confirmar), Critérios de sucesso, Fora de escopo (e por quê), Grupo A · Comissões (`CartaoComissao.tsx`, `lib/capital.ts`), Grupo B · Ações dos 100 dias (`Matriz.tsx`, `LinhaAcao.tsx`, `lib/capital.ts`), Grupo C · Acompanhamento da comunicação (`SecaoComunicacao.tsx`, `lib/comunicacao.ts`), Problem Statement, Requisitos (EARS) (+4 more)
+
+### Community 189 - "rumo-jornal.spec.ts"
+Cohesion: 0.18
+Nodes (4): ETAPAS, BASE, LONGA, abreComp()
 
 ### Community 190 - "Painel do Administrador Tasks"
 Cohesion: 0.12
 Nodes (15): Diagram-Definition Cross-Check, Execution Plan, Execution Protocol (MANDATORY -- do not skip), Gate Check Commands, Painel do Administrador Tasks, Phase 1: Banco de dados, Phase 2: Lógica pura e acesso ao banco, Phase 3: Acesso, casca e lista de mandatos (+7 more)
 
-### Community 191 - "comoDono"
-Cohesion: 0.11
-Nodes (21): completa(), consentimento(), Conta, Detalhe, membro(), Perfil, SEM_PERMISSAO, comoDono() (+13 more)
+### Community 191 - "sql-admin-usuarios-detalhe.test.ts"
+Cohesion: 0.24
+Nodes (7): completa(), consentimento(), Conta, Detalhe, membro(), Perfil, SEM_PERMISSAO
 
 ### Community 192 - "area-visao.spec.ts"
 Cohesion: 0.48
@@ -1024,33 +1052,45 @@ Nodes (13): abre(), agora, atividade, auditoria, campos, CATALOGO, equipe, estad
 Cohesion: 0.18
 Nodes (11): calcula(), CARGO, dynamic, emCurso, GET(), maxDuration, municipio(), Resp (+3 more)
 
+### Community 195 - "capital-comissoes.spec.ts"
+Cohesion: 0.20
+Nodes (7): botao(), DA_M3, FEDERAL, pergunta(), Registro, registros(), SAUDE
+
 ### Community 196 - "Acesso, Equipe e Convites Tasks"
 Cohesion: 0.12
 Nodes (15): Acesso, Equipe e Convites Tasks, Diagram-Definition Cross-Check, Execution Plan, Execution Protocol (MANDATORY -- do not skip), Gate Check Commands, Pendências manuais (fora das tasks, dependem de você), Phase 1: Banco, papéis e equipe, Phase 2: Banco, convites (+7 more)
 
 ### Community 197 - "Task Breakdown"
-Cohesion: 0.13
-Nodes (16): meusMandatos(), Guia legado (`public/legacy/acesso.js`, `lib/legacyBody.ts`), T10: Guia legado manda ao perfil e à pergunta, T12: `/admin` só com Google, T13: Guia só com Google, T14: Lógica da seção de perfil do Analytics, T15: Seção "Perfil de quem usa a plataforma" no Analytics, T16: Registrar a feature no STATE.md (+8 more)
+Cohesion: 0.15
+Nodes (14): meusMandatos(), Guia legado (`public/legacy/acesso.js`, `lib/legacyBody.ts`), T10: Guia legado manda ao perfil e à pergunta, T12: `/admin` só com Google, T13: Guia só com Google, T14: Lógica da seção de perfil do Analytics, T15: Seção "Perfil de quem usa a plataforma" no Analytics, T16: Registrar a feature no STATE.md (+6 more)
 
 ### Community 198 - "admin-analytics-uso.spec.ts"
 Cohesion: 0.16
 Nodes (9): abre(), CAMPOS, ddmm(), dia(), estado(), fmt, linha(), MANDATOS (+1 more)
 
+### Community 199 - "convite-perfil.spec.ts"
+Cohesion: 0.22
+Nodes (5): ContaAceite, esperaSemRpc(), rpcs(), ACEITE_OK, salvamentos()
+
 ### Community 200 - "Missões 2 e 3 · Reestruturação: Validation"
-Cohesion: 0.11
-Nodes (18): Code Quality, Edge cases, Edge Cases (resumo), Fix Plans, Gate Check, Lacunas de precisão da spec (não bloqueiam o PASS), M2 · Rotinas no planejamento e PDF (RM2-60 a 64), M2 · Rotinas pelo quadro (RM2-50 a 58) (+10 more)
+Cohesion: 0.20
+Nodes (9): Code Quality, Edge Cases (resumo), Fix Plans, Gate Check, Lacunas de precisão da spec (não bloqueiam o PASS), Missões 2 e 3 · Reestruturação: Validation, Requirement Traceability Update, Summary (+1 more)
 
 ### Community 201 - "Execution Plan"
 Cohesion: 0.13
 Nodes (15): missao3-rumo tasks.md, Execution Plan, Execution Protocol (MANDATORY -- do not skip), Gate Check Commands, Missão 3 · Defina o Rumo (Planejamento Estratégico) Tasks, Phase 1: Lógica pura (`lib/`) e dados, Phase 2: Infra de tela e ganchos do legado, Phase 3: Bandeiras e espaços (+7 more)
 
 ### Community 203 - "vazou"
-Cohesion: 0.14
-Nodes (15): vazou(), T20: Tela Mandatos, T28: Tela Analytics, T29: Tela Logs, T30: e2e transversal: celular e privacidade, ADM-01 e ADM-02: entrar no /admin e papéis (spec: P1 Entrar, AC 1 a 10), ADM-04: auditoria, ADM-05: listar mandatos (+7 more)
+Cohesion: 0.17
+Nodes (13): vazou(), T20: Tela Mandatos, T28: Tela Analytics, T29: Tela Logs, T30: e2e transversal: celular e privacidade, ADM-04: auditoria, ADM-05: listar mandatos, ADM-06 e ADM-07: detalhe e membros (+5 more)
+
+### Community 204 - "pagina"
+Cohesion: 0.22
+Nodes (9): pagina(), Aba Usuários no Painel Admin Design, Architecture Overview, Code Reuse Analysis, Error Handling Strategy, Risks & Concerns, Tech Decisions (only non-obvious ones), T4: Menu e lista de usuários (+1 more)
 
 ### Community 205 - "Acesso, Equipe e Convites Design"
-Cohesion: 0.18
-Nodes (11): rest(), Abordagens consideradas, Acesso, Equipe e Convites Design, Architecture Overview, Code Reuse Analysis, Data Models, Error Handling Strategy, Existing Components to Leverage (+3 more)
+Cohesion: 0.11
+Nodes (19): rest(), Abordagens consideradas, Acesso, Equipe e Convites Design, Ajustes no Guia legado, `app/convite/page.tsx`, `app/mandato/` (Área do mandato e Equipe e convites), Architecture Overview, Banco: papéis e leitura (mesma migration) (+11 more)
 
 ### Community 208 - "janela"
 Cohesion: 0.22
@@ -1061,28 +1101,28 @@ Cohesion: 0.25
 Nodes (6): abreResumo(), CURTOS, IDS, missao(), SEIS, topo()
 
 ### Community 210 - "Task Breakdown"
-Cohesion: 0.17
-Nodes (12): T10: Hook `useRumo`, registro das ilhas e rota de teste ✅, T14: Ilha de espaços que o mandato pretende compor ✅, T16: Legado guiado em 4 passos com cargo postulado ✅, T18: Preditores com objetivo específico e árvore ao vivo ✅, T20: Aba Planejamento Estratégico: árvore, status e atingimento ✅, T21: Edição pela aba: acrescentar, editar, remover, filtrar por pessoa ✅, T22: Rota `#/plano`, item de menu e resumo no Painel ✅, T23: Migração ponta a ponta e verificação em tela ✅ (+4 more)
+Cohesion: 0.20
+Nodes (10): T10: Hook `useRumo`, registro das ilhas e rota de teste ✅, T14: Ilha de espaços que o mandato pretende compor ✅, T16: Legado guiado em 4 passos com cargo postulado ✅, T18: Preditores com objetivo específico e árvore ao vivo ✅, T22: Rota `#/plano`, item de menu e resumo no Painel ✅, T23: Migração ponta a ponta e verificação em tela ✅, T24: Imagem da primeira página e ordenação por atingimento (P3, opcional) ✅, T8: Sugestões e alertas dos espaços ✅ (+2 more)
 
 ### Community 211 - "entrando"
 Cohesion: 0.40
 Nodes (5): caixaDeErro(), caixasDeErro(), entrando(), T18: Caixa de erro no Guia quando a consulta de perfil falha, T20: Testes da falha da consulta de `equipe_legisla` no Guia
 
 ### Community 212 - "mandatos/[id]/page.tsx"
-Cohesion: 0.08
-Nodes (24): Casca(), MENU, Tela, dataBr(), Membros(), atualiza(), trocaPapel(), ExcluirMandato() (+16 more)
+Cohesion: 0.09
+Nodes (33): Casca(), MENU, Tela, Contexto, Estado, Sessao(), useAdmin(), ExcluirMandato() (+25 more)
 
 ### Community 213 - "legado-m5.test.ts"
 Cohesion: 0.14
 Nodes (17): BOTAO_MONIT, FEEDBACK_AVISO, FEEDBACK_ORIENTACAO, MONIT_APOIO, MONIT_INTRO, MONIT_PERGUNTAS, MONIT_ROTULO, CODIGO (+9 more)
 
-### Community 214 - "pred"
+### Community 214 - "rumo-metas.spec.ts"
 Cohesion: 0.13
-Nodes (21): apoio(), letra(), meta(), resp(), texto(), bingo(), monit(), pred() (+13 more)
+Nodes (17): abre(), AGORA, posseEm(), apoio(), COM_PREDITOR, letra(), M, meta() (+9 more)
 
-### Community 215 - "Social.tsx"
-Cohesion: 0.10
-Nodes (21): LinhaTerritorio, ORDEM_NIVEL, porTerritorio(), territorios(), ItemSoc, NivelSoc, TipoSoc, nomesDe() (+13 more)
+### Community 215 - "Resumo do Preenchimento Reestruturado Validation: PASS"
+Cohesion: 0.18
+Nodes (10): Code Quality, Discrimination Sensor, Edge cases, Gate Check (rodada 2, HEAD `9998022`), Pendências de produto (não são falhas), Requirement Traceability Update, Resumo do Preenchimento Reestruturado Validation: PASS, Spec-Anchored Acceptance Criteria (+2 more)
 
 ### Community 217 - "Execution Plan"
 Cohesion: 0.12
@@ -1096,21 +1136,41 @@ Nodes (8): abrirGavetaLegado(), fecharGavetaLegado(), focaveisDe(), GavetaLegado
 Cohesion: 0.18
 Nodes (10): mesAtras(), nascidoHa(), P, PADRAO, perfil(), resumo(), seisPerfis(), SEM_PERMISSAO (+2 more)
 
-### Community 221 - "destinoAuth"
+### Community 221 - "lePendente"
 Cohesion: 0.15
-Nodes (12): RedirecionaAuth(), destinoAuth(), Ajustes no Guia legado, `app/convite/page.tsx`, `app/mandato/` (Área do mandato e Equipe e convites), Banco: papéis e leitura (mesma migration), Components, `lib/convites/` (funções puras, `node --test`) (+4 more)
+Nodes (10): RedirecionaAuth(), Alvo, Armazenamento, CHAVE_PENDENTE, lePendente(), limpaPendente(), destinoAuth(), quebrado (+2 more)
+
+### Community 223 - "Aba Usuários no Painel Admin Tasks"
+Cohesion: 0.20
+Nodes (9): Aba Usuários no Painel Admin Tasks, Execution Plan, Execution Protocol (MANDATORY -- do not skip), Gate Check Commands, Phase 1: Banco, Phase 2: Lógica pura, Phase 3: Telas, Phase 4: Documentação (+1 more)
 
 ### Community 224 - "m1.js"
 Cohesion: 0.12
 Nodes (16): algum(), antes(), caixa(), caixasDe(), cheio(), injeta(), respostaAnterior(), roteiro() (+8 more)
 
+### Community 225 - "resumo-regressao.spec.ts"
+Cohesion: 0.25
+Nodes (6): abre(), abreResumo(), CURTOS, IDS, Legado, RICO
+
 ### Community 226 - "Landing Page do Guia dos 100 Dias Specification"
 Cohesion: 0.15
 Nodes (13): Assumptions & Open Questions, Edge Cases, Goals, Landing Page do Guia dos 100 Dias Specification, Out of Scope, P1: Chegar na landing e entrar no Guia ⭐ MVP, P1: Demonstração com dados do TSE ⭐ MVP, P2: Entender o caminho completo (+5 more)
 
+### Community 227 - "rumo-bandeiras.spec.ts"
+Cohesion: 0.31
+Nodes (7): card(), chip(), comNotas(), CRIT, nota(), rumoDe(), antigo()
+
 ### Community 228 - "area-conta.spec.ts"
 Cohesion: 0.67
 Nodes (3): COMPLETO, conta(), pares()
+
+### Community 229 - "Critérios de aceite ancorados na spec"
+Cohesion: 0.22
+Nodes (9): ACE-01: Criar um convite por link pessoal, ACE-02: Aceitar o convite e entrar no mandato, ACE-03: Papéis do mandato aplicados no banco, ACE-04: Tela Equipe e convites, ACE-05: Área do mandato, ACE-06: Histórico da equipe, ACE-07: Retirar o código de convite antigo, Critérios de aceite ancorados na spec (+1 more)
+
+### Community 230 - "User Stories"
+Cohesion: 0.22
+Nodes (9): P1: Escolher as áreas e ajustar as cadeiras ⭐ MVP, P1: Nomear e posicionar a equipe ⭐ MVP, P1: Organograma interativo com painel por cadeira ⭐ MVP, P1: Rotinas geradas pelas cadeiras ⭐ MVP, P2: Cadeia de rotinas com cadeiras destacadas, P2: Comunicação entre áreas, P2: Entrega e compartilhamento, P3: Controles avançados do organograma (+1 more)
 
 ### Community 231 - "Landing Page Tasks"
 Cohesion: 0.14
@@ -1120,33 +1180,69 @@ Nodes (14): Cobertura de requisitos, Diagram-Definition Cross-Check, Execution P
 Cohesion: 0.40
 Nodes (6): sugeridas(), trataClipping(), Edge cases (CAP-40), P1: Comissões (CAP-01 a CAP-04), P2: Clipping (CAP-30 a CAP-32), Spec-Anchored Acceptance Criteria
 
+### Community 233 - "Missão 3 · Defina o Rumo (Planejamento Estratégico) Design"
+Cohesion: 0.25
+Nodes (8): monit(), Code Reuse Analysis, missao3-rumo design.md, Integration Points, Missão 3 · Defina o Rumo (Planejamento Estratégico) Design, Risks & Concerns, Tech Decisions, missao3-rumo spec.md
+
+### Community 234 - "sql-papeis.test.ts"
+Cohesion: 0.29
+Nodes (5): catalogoDaTabela(), Exercicio, nomeDoMandato(), q(), totalEventos()
+
+### Community 235 - "resumo-territorio.spec.ts"
+Cohesion: 0.40
+Nodes (4): abre(), corpo(), linha(), SP_RJ
+
 ### Community 236 - "legado-m3.test.ts"
 Cohesion: 0.06
-Nodes (35): itens(), bandeira(), ok(), Abordagens avaliadas (recomendação primeiro), Architecture Overview, Preservação dos textos (regra do usuário), Missão 3 Rumo Validation Report, Aba Planejamento (RUM-40, 41, 42) e Painel (RUM-43) (+27 more)
+Nodes (39): itens(), BAND, bandeira(), CINCO, CODIGO, comEstado(), comPreditores(), CONTEUDO (+31 more)
+
+### Community 237 - "Task Breakdown"
+Cohesion: 0.33
+Nodes (6): T1: Função da lista de usuários, T2: Função do detalhe da pessoa, T5: Busca e filtros, T6: Detalhe da pessoa, T7: Registrar a feature no STATE.md, Task Breakdown
+
+### Community 238 - "Missão 5 Avanço Design"
+Cohesion: 0.33
+Nodes (5): Missão 5 Avanço Design, Missão 5 Avanço Spec, Feedback cycle via org chart map, Sucesso mensal (monthly success), Missão 5 Avanço Tasks
+
+### Community 239 - "User Stories"
+Cohesion: 0.33
+Nodes (6): P1: Botão de volta no Planejamento ⭐ MVP, P1: Explicação do Monitoramento ⭐ MVP, P1: Orientação e registro do Feedback ⭐ MVP, P1: Uma caixa por meta e por mês ⭐ MVP, P2: Resumo do Preenchimento reflete o texto novo, User Stories
 
 ### Community 240 - "Landing Page do Guia"
 Cohesion: 0.13
 Nodes (11): landing spec.md, Landing Page do Guia, landing tasks.md, landing validation.md, AD-001: A landing vive em `/` e o Guia passa a `/guia` (2026-10-23), AD-002: Demonstração usa os dados do TSE já publicados em `public/data` (2026-10-23), AD-003: Ganchos novos do legado entram só em arquivos escritos à mão (2026-10-23), AD-004: Regra de negócio das ilhas vive em `lib/` como função pura (2026-10-23) (+3 more)
 
+### Community 242 - "Components"
+Cohesion: 0.40
+Nodes (5): Components, ilhas/equipe/ (React), lib/cadeiras.ts (puro), lib/layoutOrg.ts, lib/entrega.ts, lib/exporta.ts (puros), lib/rotinas.ts (puro)
+
+### Community 243 - "Missão 5 · Garanta o avanço — Design"
+Cohesion: 0.40
+Nodes (5): Código novo (`plataforma/`), Dados (tudo em `D`, sem tabela nova), Missão 5 · Garanta o avanço — Design, Riscos, Telas
+
+### Community 244 - "Components"
+Cohesion: 0.50
+Nodes (4): Components, `lib/admin/usuarios.ts` (funções puras, `node --test`), Migration `20261110120000_admin_usuarios.sql`, Páginas (e2e Playwright, Supabase interceptado)
+
 ## Knowledge Gaps
 - **63 isolated node(s):** `RFC-822`, `Estudo: Trajetoria de Assessores Negros no Congresso`, `CARGOS_EQUIPE`, `FILTRO (uf, cargo, partido)`, `MISSOES (missões e exercícios do Guia)` (+58 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 2139 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **19 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `react` connect `react` to `Municipio.tsx`, `perfil.ts`, `Assentos.tsx`, `mensagemDe`, `app/page.tsx`, `Legado.tsx`, `ponte.tsx`, `plano.ts`, `Task Breakdown`, `dadosMapa.ts`, `logs/page.tsx`, `usuarios.ts`, `Convite.tsx`, `contexto.ts`, `Feedback.tsx`, `Atividade.tsx`, `capital.ts`, `papeis.ts`, `Conjuntura.tsx`, `Organograma.tsx`, `ilhas/Equipe.tsx`, `Hero`, `AreaConta.tsx`, `comunicacao.ts`, `types.ts`, `ArvorePlano.tsx`, `tabelaEquipe.ts`, `Bandeiras.tsx`, `admin/page.tsx`, `PrimeiroAcesso.tsx`, `FormularioConvite.tsx`, `FormularioConta.tsx`, `ciclos.ts`, `Task Breakdown`, `Organograma.tsx`, `package.json`, `mandatos/[id]/page.tsx`, `Persona.tsx`, `Gaveta.tsx`, `destinoAuth`, `UsuarioEdicao.tsx`, `CartaoMeta.tsx`, `react`, `convites/api.ts`?**
-  _High betweenness centrality (0.165) - this node is a cross-community bridge._
+- **Why does `react` connect `contexto.ts` to `types.ts`, `Assentos.tsx`, `mensagemDe`, `app/page.tsx`, `Legado.tsx`, `ponte.tsx`, `plano.ts`, `Task Breakdown`, `mensagemDe`, `dadosMapa.ts`, `Matriz.tsx`, `usuarios.ts`, `Convite.tsx`, `Feedback.tsx`, `Atividade.tsx`, `capital.ts`, `papeis.ts`, `Comissoes.tsx`, `Organograma.tsx`, `ilhas/Equipe.tsx`, `Hero`, `AreaConta.tsx`, `comunicacao.ts`, `Conjuntura.tsx`, `ArvorePlano.tsx`, `tabelaEquipe.ts`, `Bandeiras.tsx`, `admin/page.tsx`, `FormularioConvite.tsx`, `PrimeiroAcesso.tsx`, `ciclos.ts`, `Task Breakdown`, `useCarga`, `package.json`, `mandatos/[id]/page.tsx`, `ponte.tsx`, `Gaveta.tsx`, `lePendente`, `UsuarioEdicao.tsx`, `CartaoMeta.tsx`, `react`?**
+  _High betweenness centrality (0.178) - this node is a cross-community bridge._
 - **What connects `RFC-822`, `Estudo: Trajetoria de Assessores Negros no Congresso`, `CARGOS_EQUIPE` to the rest of the system?**
   _63 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Task Breakdown` be split into smaller, more focused modules?**
-  _Cohesion score 0.08 - nodes in this community are weakly interconnected._
-- **Why does `@playwright/test` connect `@playwright/test` to `admin-analytics.spec.ts`, `area-equipe-pessoas.spec.ts`, `area-equipe.spec.ts`, `moca`, `admin-analytics-perfil.spec.ts`, `m23-plano.spec.ts`, `rumo-migracao.spec.ts / guia-real.ts`, `admin-detalhe.spec.ts`, `area-equipe-convites.spec.ts`, `semente-rumo.ts`, `admin-logs.spec.ts`, `area-mandato.spec.ts`, `rumo-legado.spec.ts / completa`, `capital-clipping.spec.ts`, `convite-api.ts`, `admin-equipe.spec.ts`, `area-api.ts`, `area-visao.spec.ts`, `admin-transversal.spec.ts`, `admin-analytics-uso.spec.ts`, `package.json`, `area-redirects.spec.ts`, `resumo-estrutura.spec.ts`, `admin-usuarios-detalhe.spec.ts`, `capital-acoes.spec.ts`, `capital-comunicacao.spec.ts`, `admin-uso-registro.spec.ts`, `area-conta.spec.ts`, `admin-api.ts`, `rumo-migracao.spec.ts`, `guia-acesso.spec.ts`?**
-  _High betweenness centrality (0.137) - this node is a cross-community bridge._
+  _Cohesion score 0.09523809523809523 - nodes in this community are weakly interconnected._
+- **Why does `@playwright/test` connect `@playwright/test` to `admin-analytics.spec.ts`, `convite-api.ts`, `area-equipe-pessoas.spec.ts`, `area-equipe.spec.ts`, `moca`, `admin-analytics-perfil.spec.ts`, `primeiro-acesso.spec.ts`, `convite-conta.spec.ts`, `rumo-migracao.spec.ts / guia-real.ts`, `admin-detalhe.spec.ts`, `area-equipe-convites.spec.ts`, `semente-rumo.ts`, `area-mandato.spec.ts`, `rumo-legado.spec.ts / completa`, `capital-clipping.spec.ts`, `mandato-api.ts`, `admin-equipe.spec.ts`, `rumo-jornal.spec.ts`, `area-api.ts`, `area-visao.spec.ts`, `admin-transversal.spec.ts`, `capital-comissoes.spec.ts`, `admin-analytics-uso.spec.ts`, `convite-perfil.spec.ts`, `package.json`, `area-redirects.spec.ts`, `resumo-estrutura.spec.ts`, `admin-usuarios-detalhe.spec.ts`, `rumo-metas.spec.ts`, `capital-acoes.spec.ts`, `capital-comunicacao.spec.ts`, `admin-uso-registro.spec.ts`, `resumo-regressao.spec.ts`, `rumo-bandeiras.spec.ts`, `area-conta.spec.ts`, `resumo-territorio.spec.ts`, `admin-api.ts`, `dadoDe`, `guia-acesso.spec.ts`?**
+  _High betweenness centrality (0.130) - this node is a cross-community bridge._
 - **Should `Regimento Externo 2.0 - Guia / PLL6 - Programacao e Metodo ` be split into smaller, more focused modules?**
   _Cohesion score 0.05052790346907994 - nodes in this community are weakly interconnected._
-- **Why does `Missão 4 Capital Político Design` connect `Missão 4 · Capital Político — Tasks` to `json / build_comissoes.py`, `Missão 4 · Capital Político  / 4. Parte C — Comunicação`, `ilhas/Equipe.tsx`, `Missão 5 · Garanta o avanço — Tasks`?**
-  _High betweenness centrality (0.088) - this node is a cross-community bridge._
-- **Should `perfil.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.10080645161290322 - nodes in this community are weakly interconnected._
+- **Why does `Missão 4 Capital Político Design` connect `Missão 4 · Capital Político  / 4. Parte C — Comunicação` to `json / build_comissoes.py`, `ilhas/Equipe.tsx`, `Missão 5 Avanço Design`?**
+  _High betweenness centrality (0.072) - this node is a cross-community bridge._
+- **Should `Assentos.tsx` be split into smaller, more focused modules?**
+  _Cohesion score 0.05450372920252438 - nodes in this community are weakly interconnected._

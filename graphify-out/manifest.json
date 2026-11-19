@@ -3204,9 +3204,9 @@
     "semantic_hash": ""
   },
   "plataforma/ilhas/capital/Grafico.tsx": {
-    "mtime": 1795103695.1924233,
-    "seen": 1795103910.0174088,
-    "ast_hash": "625c9fd1370cc9e3ce1f884f786df114",
+    "mtime": 1795105731.5548797,
+    "seen": 1795106321.172335,
+    "ast_hash": "887704d1b501da2fe86f51162392e24c",
     "semantic_hash": ""
   },
   "plataforma/ilhas/capital/LinhaAcao.tsx": {
@@ -3234,9 +3234,9 @@
     "semantic_hash": ""
   },
   "plataforma/lib/comunicacao.ts": {
-    "mtime": 1795103695.1959493,
-    "seen": 1795103910.0377266,
-    "ast_hash": "3c05ae26638a664b3e72a05338500cd4",
+    "mtime": 1795105655.8777053,
+    "seen": 1795106321.1991146,
+    "ast_hash": "ae6eb14ee044cf2dbce6b880d15f9f76",
     "semantic_hash": ""
   },
   "plataforma/tests/ciclos.test.ts": {
@@ -3246,27 +3246,27 @@
     "semantic_hash": ""
   },
   "plataforma/tests/comunicacao.test.ts": {
-    "mtime": 1795103695.1990929,
-    "seen": 1795103910.177771,
-    "ast_hash": "01e9b2aa9d0d005116fdc022c45f5d67",
+    "mtime": 1795105838.2605548,
+    "seen": 1795106321.3680408,
+    "ast_hash": "bc40fc248e156e3ba8e8761e5e2ea5a4",
     "semantic_hash": ""
   },
   "plataforma/e2e/capital-comunicacao.spec.ts": {
-    "mtime": 1795103700.8611221,
-    "seen": 1795103909.9847157,
-    "ast_hash": "dc223292412d3e1737104fc2111d4152",
+    "mtime": 1795106052.9324968,
+    "seen": 1795106321.1349707,
+    "ast_hash": "bb282ccb5f1953f8991ee96119ab1899",
     "semantic_hash": ""
   },
   "plataforma/ilhas/capital/Comunicacao.tsx": {
-    "mtime": 1795103695.1914124,
-    "seen": 1795103910.0174053,
-    "ast_hash": "1e3bf45034a0a38a8a7bf5295cf8a0f3",
+    "mtime": 1795106203.0227923,
+    "seen": 1795106321.1723247,
+    "ast_hash": "313a7f41ae16ab1b8bcac6e78368f5cc",
     "semantic_hash": ""
   },
   "plataforma/ilhas/capital/SecaoComunicacao.tsx": {
-    "mtime": 1794970592.2327776,
-    "seen": 1795000606.896789,
-    "ast_hash": "67751b6c067ea5d35256db2be025a2ae",
+    "mtime": 1795105798.9082344,
+    "seen": 1795106321.1734912,
+    "ast_hash": "d0ad9d9040700c8c216dd5c4e13da567",
     "semantic_hash": ""
   },
   ".specs/features/missao5-avanco/validation.md": {
@@ -3282,15 +3282,15 @@
     "semantic_hash": ""
   },
   "plataforma/e2e/capital-clipping.spec.ts": {
-    "mtime": 1794970592.0768607,
-    "seen": 1795000606.8963807,
-    "ast_hash": "3409923a6a8b56e1909754df77dd252f",
+    "mtime": 1795106052.9305456,
+    "seen": 1795106321.13458,
+    "ast_hash": "53443771f71bac6d7a7f854dddd1c12d",
     "semantic_hash": ""
   },
   "plataforma/ilhas/capital/Clipping.tsx": {
-    "mtime": 1795103695.1878822,
-    "seen": 1795103910.0173962,
-    "ast_hash": "f9dbe6d8bb545ae57d66ddca837fb813",
+    "mtime": 1795105826.0653028,
+    "seen": 1795106321.1717014,
+    "ast_hash": "63da05422374b9e2202aa9090d5fe2b5",
     "semantic_hash": ""
   },
   "plataforma/lib/clipping.ts": {
