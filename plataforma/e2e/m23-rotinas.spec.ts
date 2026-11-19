@@ -28,6 +28,13 @@ test('o quadro mostra as 5 rotinas do documento, com frequência, participantes 
   await expect(page.locator('[data-contador]')).toHaveText('0 de 5 agendadas');
 });
 
+test('a linha do feedback leva asterisco e a nota de recomendação (#174)', async ({ page }) => {
+  await abre(page, [ILHA]);
+  await expect(page.locator('[data-rotina="feedback"] .es-rq-ast')).toHaveText('*');
+  await expect(page.locator('[data-nota-feedback]')).toContainText('Recomendamos que o primeiro feedback estruturado aconteça antes do fim dos 100 dias');
+  await expect(page.locator('[data-rotina="plan"] .es-rq-ast')).toHaveCount(0);
+});
+
 test('preencher data e horário das 5 mostra "5 de 5 agendadas" (RM2-52)', async ({ page }) => {
   await abre(page, [ILHA]);
   for (const [k, r] of R.entries()) {

@@ -3,7 +3,7 @@ import { abre, camposDe } from './semente';
 
 /* Missão 2 · organograma gerado da tabela de equipe (RM2-30 a 38). A tabela e o organograma ficam na mesma página, como na Mão na massa 1. */
 const ILHAS = ['equipe-tabela', 'organograma'];
-const campo = (page: Page, rotulo: string, linha: number) => page.getByLabel(`${rotulo}, linha ${linha}`);
+const campo = (page: Page, rotulo: string, linha: number) => page.getByLabel(`${rotulo}, assessor/a ${linha}`);
 const caixa = (page: Page, i: number) => page.locator(`.react-flow__node:has([data-cadeira="${i}"])`);
 const topo = async (page: Page, i: number) => (await caixa(page, i).boundingBox())!.y;
 
@@ -25,13 +25,13 @@ const equipe: Record<string, string> = {
 test.describe('Organograma gerado: estrutura (RM2-31, RM2-32, RM2-33, RM2-34)', () => {
   test('Chefia, Coordenação e Executoras formam 3 níveis ligados por hierarquia (RM2-31)', async ({ page }) => {
     await abre(page, ILHAS, equipe);
-    await expect(page.locator('.es-no')).toHaveCount(4);
+    await expect(page.locator('.es-no[data-cadeira]')).toHaveCount(4);
     const [yChefia, yCoord, yExec1, yExec2] = [await topo(page, 0), await topo(page, 20), await topo(page, 21), await topo(page, 22)];
     expect(yChefia).toBeLessThan(yCoord);
     expect(yCoord).toBeLessThan(yExec1);
     expect(yExec1).toBe(yExec2);
-    await expect(page.locator('.react-flow__edge')).toHaveCount(3);
-    for (const id of ['0-20', '20-21', '20-22']) await expect(page.locator(`.react-flow__edge[data-id="${id}"]`)).toHaveCount(1);
+    await expect(page.locator('.react-flow__edge')).toHaveCount(4); // 3 de hierarquia + a ligação do Parlamentar à Chefia
+    for (const id of ['parlamentar-0', '0-20', '20-21', '20-22']) await expect(page.locator(`.react-flow__edge[data-id="${id}"]`)).toHaveCount(1);
     await expect(page.getByRole('status', { name: 'Avisos do organograma' })).toHaveCount(0);
   });
 
@@ -51,6 +51,19 @@ test.describe('Organograma gerado: estrutura (RM2-31, RM2-32, RM2-33, RM2-34)', 
     await campo(page, 'Categoria', 2).selectOption('Chefia');
     await expect(page.getByRole('status', { name: 'Avisos do organograma' })).toContainText('Mais de uma chefia');
     expect(Math.round(await topo(page, 0))).toBe(Math.round(await topo(page, 20))); // lado a lado, no topo
+  });
+});
+
+test.describe('Organograma gerado: bloco do Parlamentar (#204)', () => {
+  test('o Parlamentar aparece no topo, ligado à Chefia, e não abre ficha nem conta como cadeira', async ({ page }) => {
+    await abre(page, ILHAS, equipe);
+    const parl = page.locator('.es-no-parl');
+    await expect(parl).toHaveCount(1);
+    await expect(parl).toContainText('Parlamentar');
+    await expect(page.locator('.react-flow__edge[data-id="parlamentar-0"]')).toHaveCount(1);
+    expect(await parl.boundingBox().then((b) => b!.y)).toBeLessThan(await topo(page, 0));
+    await parl.click();
+    await expect(page.getByRole('dialog', { name: 'Ficha da cadeira' })).toHaveCount(0);
   });
 });
 
@@ -82,6 +95,8 @@ test.describe('Organograma gerado: caixa e tabela (RM2-36, RM2-37)', () => {
   test('clicar na caixa leva à linha da tabela e foca o primeiro campo editável dela (RM2-37)', async ({ page }) => {
     await abre(page, ILHAS, equipe);
     await page.locator('.es-no[data-cadeira="22"]').click();
+    await expect(page.getByRole('dialog', { name: 'Ficha da cadeira' })).toBeVisible(); // a caixa abre a ficha na gaveta
+    await page.getByRole('button', { name: /^Ir para o card de Assessor\/a \d+/ }).click();
     await expect.poll(() => page.evaluate(() => document.activeElement?.id)).toBe('es-tab-22-esc');
     await expect(page.locator('#es-linha-22')).toBeInViewport();
   });
@@ -90,6 +105,8 @@ test.describe('Organograma gerado: caixa e tabela (RM2-36, RM2-37)', () => {
     await abre(page, ILHAS, equipe);
     await caixa(page, 21).focus();
     await page.keyboard.press('Enter');
+    await expect(page.getByRole('dialog', { name: 'Ficha da cadeira' })).toBeVisible();
+    await page.getByRole('button', { name: /^Ir para o card de Assessor\/a \d+/ }).click();
     await expect.poll(() => page.evaluate(() => document.activeElement?.id)).toBe('es-tab-21-esc');
   });
 
@@ -102,7 +119,7 @@ test.describe('Organograma gerado: caixa e tabela (RM2-36, RM2-37)', () => {
   test('sem nenhuma linha com cargo, categoria e área, explica quando o organograma aparece', async ({ page }) => {
     await abre(page, ILHAS, { 'm2.n': '2', 'm2.on': '0|20' });
     await expect(page.getByText('O organograma aparece sozinho quando ao menos uma linha da tabela tiver cargo, categoria e área.')).toBeVisible();
-    await expect(page.locator('.es-no')).toHaveCount(0);
+    await expect(page.locator('.es-no[data-cadeira]')).toHaveCount(0);
   });
 
   test('todas as linhas com asterisco mostram só cargos e áreas (edge case)', async ({ page }) => {
@@ -118,7 +135,7 @@ test.describe('Organograma gerado: mandato do modelo antigo (RMX-02)', () => {
   test('desenha com categoria e área derivadas e não grava nada ao abrir', async ({ page }) => {
     const antigo = { 'm2.on': '0|1|2', 'm2.f1': 'Ana', 'm2.f2': 'Bia', 'm2.f3': 'Caio', 'm2.p1.nome_cargo': 'Chefe de gabinete', 'm2.p2.nome_cargo': 'Coordenadora Legislativa', 'm2.p3.nome_cargo': 'Assessor' };
     await abre(page, ['organograma'], antigo);
-    await expect(page.locator('.es-no')).toHaveCount(3);
+    await expect(page.locator('.es-no[data-cadeira]')).toHaveCount(3);
     await expect(caixa(page, 1)).toContainText('Legislativo');
     expect(await topo(page, 0)).toBeLessThan(await topo(page, 1));
     expect(await topo(page, 1)).toBeLessThan(await topo(page, 2));

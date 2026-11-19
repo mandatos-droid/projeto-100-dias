@@ -14,12 +14,12 @@ const ANTIGO_M2: Record<string, string> = {
   'm2.p5.ritmo': 'Diário', 'm2.p6.rel': 'Gabinete da liderança', 'm2.p7.entrega': 'Relatório semanal', 'm2.p8.fb_falei': 'Conversa feita',
   'm2.areas': 'saude|educacao', 'm2.areas_aplicadas': 'saude', 'm2.rotoff': 'semanal', 'm2.x': '[{"id":"x1","a":"Legislativo","b":"Comunicação"}]',
 };
-const campo = (page: Page, rotulo: string, n: number) => page.getByLabel(`${rotulo}, linha ${n}`, { exact: true });
+const campo = (page: Page, rotulo: string, n: number) => page.getByLabel(`${rotulo}, assessor/a ${n}`, { exact: true });
 
 test.describe('Missão 2 de mandato antigo (RMX-02, RMX-03)', () => {
   test('a tabela mostra as 20 pessoas e os escopos, com a categoria derivada (RMX-02)', async ({ page }) => {
     await abreEquipe(page, ['equipe-tabela'], ANTIGO_M2);
-    await expect(page.getByLabel(/^Nome da pessoa, linha \d+$/)).toHaveCount(20);
+    await expect(page.getByLabel(/^Nome da pessoa, assessor\/a \d+$/)).toHaveCount(20);
     for (const n of [1, 8, 20]) await expect(campo(page, 'Nome da pessoa', n)).toHaveValue(`Pessoa ${n}`);
     await expect(campo(page, 'Escopo', 1)).toHaveValue(ESCOPO);
     await expect(campo(page, 'Escopo', 8)).toHaveValue(ESCOPO);
@@ -31,7 +31,7 @@ test.describe('Missão 2 de mandato antigo (RMX-02, RMX-03)', () => {
 
   test('abrir e editar uma linha não apaga nenhuma chave do modelo antigo (RMX-03)', async ({ page }) => {
     await abreEquipe(page, ['equipe-tabela', 'organograma'], ANTIGO_M2);
-    await expect(page.locator('.es-no')).toHaveCount(20);
+    await expect(page.locator('.es-no[data-cadeira]')).toHaveCount(20);
     await campo(page, 'Escopo', 8).fill(`${ESCOPO} e relações com a imprensa`);
     const c = await camposEquipe(page);
     for (const [k, v] of Object.entries(ANTIGO_M2)) {

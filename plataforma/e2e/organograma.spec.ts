@@ -22,11 +22,11 @@ test.describe('Organograma: canvas e caixa (MEQ-09, MEQ-11, MEQ-15)', () => {
 
   test('"só cadeiras com nome" tira as vagas e "Ajustar layout" enquadra tudo de novo', async ({ page }) => {
     await abre(page, [ILHA], base);
-    await expect(page.locator('.es-no')).toHaveCount(5);
+    await expect(page.locator('.es-no[data-cadeira]')).toHaveCount(5);
     await page.getByLabel('só cadeiras com nome').check();
-    await expect(page.locator('.es-no')).toHaveCount(2);
+    await expect(page.locator('.es-no[data-cadeira]')).toHaveCount(2);
     await page.getByLabel('só cadeiras com nome').uncheck();
-    await expect(page.locator('.es-no')).toHaveCount(5);
+    await expect(page.locator('.es-no[data-cadeira]')).toHaveCount(5);
     const vp = page.locator('.react-flow__viewport');
     const inicial = await vp.getAttribute('style');
     await page.locator('.react-flow__controls-zoomin').click();

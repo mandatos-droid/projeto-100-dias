@@ -231,3 +231,9 @@
 .np-eq-gaveta-topo .selo.ps{background:#FFF7ED;color:#9A3412;border:1px solid #FED7AA}
 .np-eq-gaveta-sub{margin:0}
 .np-eq-gaveta-dl{margin:0}
+.m2-col{margin:1.25rem 0 0.125rem;font-size:0.8125rem;text-transform:uppercase;letter-spacing:.05em;color:var(--vinho)}
+.es-no-parl{flex-direction:row;align-items:center;gap:0.625rem;cursor:default;border-top-color:var(--tinta-2);padding:0.4375rem 0.75rem}
+.es-no-foto{flex:none;width:44px;height:44px;border-radius:50%;overflow:hidden;background:var(--papel);border:1px solid var(--linha);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--tinta-2)}
+.es-no-foto img{width:100%;height:100%;object-fit:cover}
+.es-no-parl-txt{display:flex;flex-direction:column;gap:1px;min-width:0}
+.es-tab-rem{margin-left:auto}

@@ -6,10 +6,12 @@ import { Controls, Handle, Position, ReactFlow, type Edge, type Node, type NodeP
 import '@xyflow/react/dist/style.css';
 import { coordDe } from '@/lib/cadeiras';
 import { COR_COORD } from '@/lib/equipe';
+import { fotoUrl, inicial } from '@/lib/resumoRetrato';
 import { layoutOrg } from '@/lib/layoutOrg';
 import { avisosOrg, linhas, organogramaGerado, vistaDaTabela } from '@/lib/tabelaEquipe';
 import Gaveta from '../Gaveta';
 import { cargoNome, modeloNome } from './cargos';
+import { useLegado } from '../ponte';
 import { useEquipe } from './useEquipe';
 import './equipe.css';
 
@@ -37,10 +39,33 @@ function NoCadeira({ data }: NodeProps<Node<Dado>>) {
     </div>
   );
 }
-const tipos = { cadeira: NoCadeira };
+
+type DadoParl = { nome: string; foto: string | null };
+/** Bloco visual do Parlamentar no topo, ligado à Chefia de gabinete. Não é uma cadeira: não abre ficha nem entra no filtro. */
+function NoParlamentar({ data }: NodeProps<Node<DadoParl>>) {
+  const [falhou, setFalhou] = useState(false);
+  return (
+    <div className="es-no es-no-parl" data-parlamentar>
+      <span className="es-no-foto">
+        {data.foto && !falhou
+          ? <img src={data.foto} alt={`Foto de ${data.nome}`} referrerPolicy="no-referrer" onError={() => setFalhou(true)} />
+          : <span aria-hidden="true">{inicial(data.nome)}</span>}
+      </span>
+      <span className="es-no-parl-txt">
+        <span className="es-no-area">Parlamentar</span>
+        <strong className="es-no-nome">{data.nome || 'Liderança parlamentar'}</strong>
+      </span>
+      <Handle type="source" position={Position.Bottom} isConnectable={false} />
+    </div>
+  );
+}
+const tipos = { cadeira: NoCadeira, parlamentar: NoParlamentar };
+const ID_PARL = 'parlamentar';
+const ALT_PARL = 64, FOLGA_PARL = 56;
 
 export default function Organograma() {
   const { c } = useEquipe();
+  const { D, m } = useLegado();
   const [filtro, setFiltro] = useState('');
   const [soPreenchidas, setSo] = useState(false);
   const [reajusta, setReajusta] = useState(0);
@@ -54,21 +79,32 @@ export default function Organograma() {
   const l = layoutOrg(vista, { soPreenchidas });
   /* altura pelo conteúdo: sem faixa vazia embaixo; o zoom inicial nunca fica menor que 55% (legível) */
   const baixo = l.nos.reduce((m, n) => Math.max(m, n.y + n.h), 0);
-  const alturaCanvas = Math.min(720, Math.max(380, Math.round(baixo * 0.75) + 90));
+  const alturaCanvas = Math.min(720, Math.max(380, Math.round((baixo + ALT_PARL + FOLGA_PARL) * 0.75) + 90));
   const selId = selecionada?.i ?? null;
   const chave = JSON.stringify([l.nos.map((n) => [n.i, n.x, n.y, n.nome, n.coord, cargoNome(vista, n.i)]), l.arestas.map((a) => a.id), filtro, selId]);
   /* o canvas só é remontado (e reenquadrado) quando a estrutura muda; editar nome ou selecionar nó só atualiza as caixas */
   const estrutura = JSON.stringify([l.nos.map((n) => n.i), l.arestas.map((a) => a.id), reajusta]);
-  const { nos, arestas } = useMemo(() => ({
-    nos: l.nos.map<Node<Dado>>((n) => ({
+  const t = (D.tse ?? {}) as { sq?: string | number; uf?: string; cargo?: string };
+  const nomeParl = String(m.nome_parlamentar || m.nome_civil || '');
+  const fotoParl = fotoUrl({ sq: t.sq, uf: t.uf || m.uf, cargo: t.cargo || m.cargo });
+  const { nos, arestas } = useMemo(() => {
+    const chefia = l.nos.find((n) => n.i === 0);
+    const topo: Node<DadoParl>[] = chefia ? [{
+      id: ID_PARL, type: 'parlamentar', position: { x: chefia.x + (chefia.w - 230) / 2, y: chefia.y - ALT_PARL - FOLGA_PARL },
+      draggable: false, selectable: false, focusable: false, style: { width: 230 }, data: { nome: nomeParl, foto: fotoParl },
+    }] : [];
+    const ligacao: Edge[] = chefia ? [{ id: `${ID_PARL}-0`, source: ID_PARL, target: '0', type: 'smoothstep', style: { stroke: '#5E524C', strokeWidth: 2 } }] : [];
+    return {
+    nos: [...topo, ...l.nos.map<Node<Dado>>((n) => ({
       id: String(n.i), type: 'cadeira', position: { x: n.x, y: n.y }, draggable: false, focusable: true,
       ariaLabel: `${n.vaga ? (n.aberto ? 'Processo seletivo' : 'Vaga em aberto') : n.nome}, ${cargoNome(vista, n.i)}, área ${rotuloArea(n.coord)}. Enter ou clique abre a ficha da cadeira.`,
       data: { i: n.i, cargo: cargoNome(vista, n.i), nome: n.nome, coord: n.coord, vaga: n.vaga, aberto: n.aberto, sel: selId === n.i },
       style: { width: n.w, opacity: filtro && coordDe(vista, n.i) !== filtro ? 0.25 : 1 },
-    })),
-    arestas: l.arestas.map<Edge>((a) => ({ id: a.id, source: String(a.de), target: String(a.para), type: 'smoothstep', style: { stroke: COR_COORD[a.coord] ?? '#5E524C', strokeWidth: 2 } })),
+    }))],
+    arestas: [...ligacao, ...l.arestas.map<Edge>((a) => ({ id: a.id, source: String(a.de), target: String(a.para), type: 'smoothstep', style: { stroke: COR_COORD[a.coord] ?? '#5E524C', strokeWidth: 2 } }))],
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [chave]);
+  }, [chave, nomeParl, fotoParl]);
 
   if (!pronto) return <div className="ilha-corpo eq-org es-org"><p className="es-vazio">O organograma aparece sozinho quando ao menos uma linha da tabela tiver cargo, categoria e área.</p></div>;
 
@@ -105,12 +141,13 @@ export default function Organograma() {
       <div className="eq-canvas" style={{ height: alturaCanvas }} onKeyDown={(e) => {
         /* Enter ou Espaço numa caixa focada abre a ficha da cadeira na gaveta lateral */
         const no = (e.target as HTMLElement).closest<HTMLElement>('.react-flow__node');
-        if ((e.key === 'Enter' || e.key === ' ') && no && e.target === no) { e.preventDefault(); abreFicha(Number(no.dataset.id), no); }
+        if ((e.key === 'Enter' || e.key === ' ') && no && e.target === no && no.dataset.id !== ID_PARL) { e.preventDefault(); abreFicha(Number(no.dataset.id), no); }
       }}>
         <ReactFlow key={estrutura} nodes={nos} edges={arestas} nodeTypes={tipos} fitView fitViewOptions={{ padding: 0.08, minZoom: 0.55, maxZoom: 1 }} minZoom={0.2} maxZoom={1.5}
           nodesConnectable={false} proOptions={{ hideAttribution: true }}
           zoomOnScroll={false} preventScrolling={false}
           onNodeClick={(ev, n) => {
+            if (n.id === ID_PARL) return;
             const origem = (ev.target as HTMLElement | null)?.closest<HTMLElement>('.react-flow__node')
               ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
             abreFicha(Number(n.id), origem);
@@ -120,7 +157,7 @@ export default function Organograma() {
       </div>
       <Gaveta
         aberta={cadeiraSel !== null}
-        titulo={cadeiraSel ? `Ficha da cadeira · #${posSel + 1}` : ''}
+        titulo={cadeiraSel ? `Ficha da cadeira · Assessor/a ${posSel + 1}` : ''}
         ariaLabel="Ficha da cadeira"
         corTopo={corSel}
         origem={selecionada?.origem ?? null}
@@ -130,7 +167,7 @@ export default function Organograma() {
             <button type="button" className="bt sec" onClick={() => setSelecionada(null)}>Fechar</button>
             {cadeiraSel && temCard && (
               <button type="button" className="bt pri" onClick={() => irAoCard(cadeiraSel.i)}>
-                Ir para o card #{posSel + 1} ↑
+                Ir para o card de Assessor/a {posSel + 1} ↑
               </button>
             )}
           </>

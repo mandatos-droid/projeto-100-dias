@@ -6,7 +6,7 @@ import vm from 'node:vm';
 /* m2.js é o arquivo de ganchos da Missão 2 sobre o Guia legado. Aqui ele roda numa "janela" com globais simuladas. */
 const CODIGO = readFileSync(new URL('../public/legacy/m2.js', import.meta.url), 'utf8');
 
-type Ex = { id: string; t: string; d: string; tipo: string; intro: string; itens?: { k: string; t: string }[] };
+type Ex = { id: string; t: string; d: string; tipo: string; intro: string; etiqueta?: string; itens?: { k: string; t: string }[] };
 const ITENS = [{ k: 'm2.c1', t: 'Escopo de trabalho de cada cargo definido' }, { k: 'm2.c2', t: 'Organograma do mandato projetado visualmente' }, { k: 'm2.c3', t: 'Fluxos de trabalho e rotinas de comunicação estabelecidos' }];
 
 function janela(extra: Record<string, unknown> = {}) {
@@ -37,35 +37,25 @@ test('Comp.funcoes devolve a tabela de equipe e, abaixo, o organograma, sem camp
   assert.equal(h.includes('equipe-escalacao'), false);
 });
 
-test('o exercício 1 traz o texto do documento: abertura, passo a passo numerado e incentivo ao processo seletivo (RM2-01, RM2-07)', () => {
+test('o exercício 1 traz o texto do documento: abertura, orientações por coluna e incentivo ao processo seletivo (RM2-01, RM2-07, #170)', () => {
   const w = janela();
   const f = ex(w, 'm2.funcoes');
   assert.ok(f.intro.includes('Ao invés de encaixar pessoas em cargos, nossa recomendação é que seja feito o exercício contrário.'));
   assert.ok(f.intro.includes('encaixe de perfis específicos com cargos coerentes'));
+  assert.ok(f.intro.includes('a quantidade de assessores que o mandato pode ou deseja contratar; as agendas prioritárias do mandato.'));
   assert.equal(/bandeira/i.test(f.intro + f.d), false);
   const h = w.Comp.funcoes();
-  assert.equal(h.match(/<ol class="passos-m2">/g)?.length, 1);
-  assert.equal((h.match(/<li[ >]/g) ?? []).length, 8);
-  const ordem = ['entregas objetivadas', 'quantidade de pessoas', 'escopo de trabalho', 'competências comportamentais', 'nome do cargo', 'nome da pessoa', 'categoria', 'área do mandato'].map((t) => h.indexOf(t));
-  assert.ok(ordem.every((p, k) => p > 0 && (k === 0 || p > ordem[k - 1])), `ordem dos passos: ${ordem}`);
+  assert.equal(h.includes('passos-m2'), false);
+  assert.ok(h.includes('Agora vamos começar a organizar a equipe, com base em competências, não apenas compromissos políticos!'));
+  assert.ok(h.includes('Leia as orientações a seguir para garantir o bom preenchimento da planilha:'));
+  const ordem = ['Coluna Escopo técnico de trabalho', 'Coluna Competências comportamentais', 'Coluna Nome do cargo', 'Coluna Nome da pessoa', 'Coluna Categoria', 'Coluna Área de atuação', 'data-ilha="equipe-tabela"'].map((t) => h.indexOf(t));
+  assert.ok(ordem.every((p, k) => p > 0 && (k === 0 || p > ordem[k - 1])), `ordem das colunas: ${ordem}`);
+  assert.ok(h.includes('fundamentam o projeto político com evidências, inteligência e técnica'));
   assert.ok(h.includes('Caso não haja pessoas que se encaixem nos requisitos, encorajamos o mandato a abrir processo seletivo e aumentar a diversidade e a representatividade dentro da equipe!'));
 });
 
-test('o passo "clareza sobre as entregas e agendas" aparece marcado com a Missão 1 preenchida e só com link quando não (RM2-02)', () => {
-  const feito = janela({ estadoEx: () => 'ok' }).Comp.funcoes();
-  assert.ok(feito.includes('<li class="passo-feito">'));
-  assert.ok(feito.includes('href="#/m/1"'));
-  for (const estado of ['nao', 'andamento']) {
-    // um exercício da Missão 1 sem conteúdo basta para não marcar; o link continua, sem bloquear
-    const w = janela({
-      MISSOES: [{ n: 1, exercicios: [{ id: 'm1.a' }, { id: 'm1.b' }] }, { n: 2, exercicios: [] }],
-      estadoEx: (e: { id: string }) => (e.id === 'm1.a' ? 'ok' : estado),
-    });
-    const h = w.Comp.funcoes();
-    assert.equal(h.includes('passo-feito'), estado === 'andamento', estado);
-    assert.ok(h.includes('href="#/m/1"'), estado);
-  }
-  assert.equal(janela().Comp.funcoes().includes('passo-feito'), false); // sem estadoEx no legado, não marca
+test('o rótulo do exercício 1 é a etiqueta da Missão 2: A equipe de sucesso - estruturando a gestão de pessoas do mandato (#206)', () => {
+  assert.equal(ex(janela(), 'm2.funcoes').etiqueta, 'Missão 2: A equipe de sucesso - estruturando a gestão de pessoas do mandato');
 });
 
 test('m2.gestao mostra objetivo, importância e exercício do documento, o quadro de rotinas (RM2-51, RM2-58)', () => {

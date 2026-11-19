@@ -54,7 +54,7 @@ var Guia={
     h+='<button class="bt fant peq" style="margin-left:auto" onclick="Guia.alternarModo()">'+
       (this.modo==='guiado'?'Ver tudo de uma vez':'Voltar ao passo a passo')+'</button></div>';
 
-    h+='<div class="etiqueta" style="margin-top:22px">Missão '+m.n+' · '+esc(m.curto)+' · '+esc(ex.t)+'</div>';
+    h+='<div class="etiqueta" style="margin-top:22px">'+(ex.etiqueta?esc(ex.etiqueta):'Missão '+m.n+' · '+esc(m.curto)+' · '+esc(ex.t))+'</div>';
 
     if(this.modo==='tudo'){
       h+='<div class="passo-corpo">'+this.passos.map(function(p,n){return Guia.bloco(p,n)}).join('<hr class="regra">')+'</div>';

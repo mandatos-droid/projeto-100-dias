@@ -165,6 +165,35 @@ const NOVAS: ColunaId[] = ['esc', 'comp', 'cat'];
 const vazia = (c: Campos, i: number): boolean =>
   COLUNAS.every((x) => valor(c, i, x.id) === '') && CAMPOS_FICHA.every((k) => (c[chaveFicha(i, k)] ?? '').trim() === '');
 
+/** Patch que tira a linha i: guarda a cópia (com escopo, competências e categoria) em m2.arq.{n}, apaga os valores e repassa a liderança. */
+function retiraLinha(c: Campos, i: number): Patch {
+  const p = remove(c, i).patch;
+  NOVAS.forEach((col) => { p[chaveCelula(i, col)] = ''; });
+  if (!vazia(c, i)) { // guarda também os campos novos na cópia da cadeira retirada
+    const arq = p[chaveArq(i)] ? JSON.parse(p[chaveArq(i)]) : { nome: nomeDe(c, i), ficha: {} };
+    NOVAS.forEach((col) => { if (valor(c, i, col) !== '') arq.ficha[col] = valor(c, i, col); });
+    p[chaveArq(i)] = JSON.stringify(arq);
+  }
+  return p;
+}
+
+/** Remove uma linha da tabela e já ajusta o tamanho da equipe (m2.n). A Chefia não sai. `confirma` é o rótulo do que se perde
+ *  (cargo ou nome da pessoa) quando a linha tem algo escrito: quem chama pergunta antes de aplicar o patch. O que estava escrito
+ *  fica guardado em m2.arq.{n}. A liderança é recalculada para as linhas com categoria e área. */
+export function removeLinha(c: Campos, i: number): { patch: Patch; confirma?: string; erro?: string } {
+  const on = ativas(c);
+  if (i === CHEFIA) return { patch: {}, erro: 'A Chefia de gabinete é obrigatória e não pode ser removida.' };
+  if (!on.includes(i)) return { patch: {}, erro: 'Essa linha não está na tabela.' };
+  const patch = retiraLinha({ ...c, [CHAVE_ON]: grava(on) }, i);
+  patch[CHAVE_ON] = grava(on.filter((j) => j !== i));
+  patch['m2.n'] = String(on.length - 1);
+  const copia = { ...c };
+  aplica(copia, patch);
+  Object.assign(patch, recalculaLideres(copia));
+  const rotulo = nomeLimpo(c, i) || valor(c, i, 'cargo') || (vazia(c, i) ? '' : 'linha preenchida');
+  return rotulo ? { patch, confirma: rotulo } : { patch };
+}
+
 /** Define quantas pessoas (linhas) o mandato tem, contando a Chefia. Aceita 1 a 40.
  *  Aumentar cria linhas de índice 20+, sem área nem liderança. Diminuir tira primeiro as linhas vazias; se não bastarem,
  *  `confirma` traz os nomes das preenchidas que sairiam e `patch` só deve ser aplicado depois da confirmação.
@@ -187,13 +216,7 @@ export function defineN(c: Campos, n: number | string): { patch: Patch; remove?:
   const saem = [...candidatas.filter((i) => vazia(c, i)), ...candidatas.filter((i) => !vazia(c, i))].slice(0, on.length - q);
   const copia: Campos = { ...c, [CHAVE_ON]: grava(on) };
   saem.forEach((i) => {
-    const p = remove(copia, i).patch;
-    NOVAS.forEach((col) => { p[chaveCelula(i, col)] = ''; });
-    if (!vazia(copia, i)) { // guarda também os campos novos na cópia da cadeira retirada
-      const arq = p[chaveArq(i)] ? JSON.parse(p[chaveArq(i)]) : { nome: nomeDe(copia, i), ficha: {} };
-      NOVAS.forEach((col) => { if (valor(copia, i, col) !== '') arq.ficha[col] = valor(copia, i, col); });
-      p[chaveArq(i)] = JSON.stringify(arq);
-    }
+    const p = retiraLinha(copia, i);
     Object.assign(patch, p);
     aplica(copia, p);
   });

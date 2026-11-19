@@ -20,7 +20,7 @@ function Linha({ r, areas, edita }: { r: RotinaQ; areas: string[]; edita: Edita 
   return (
     <tr data-rotina={r.id} className={r.on ? '' : 'desligada'}>
       <th scope="row" data-label="Rotina">
-        {r.titulo}
+        {r.titulo}{r.id === 'feedback' && <sup aria-hidden="true" className="es-rq-ast"> *</sup>}
         <label className="es-rq-liga"><input type="checkbox" aria-label={`Rotina ligada: ${r.titulo}`} checked={r.on} onChange={(e) => edita(r.id, { on: e.target.checked ? undefined : false })} /> {r.on ? 'ligada' : 'desligada'}</label>
       </th>
       <td data-label="Frequência"><Texto rotulo={`Frequência: ${r.titulo}`} valor={r.freq} onChange={(v) => edita(r.id, { freq: v })} /></td>
@@ -59,6 +59,7 @@ export default function QuadroRotinas() {
           <tbody>{quadro.map((r) => <Linha key={r.id} r={r} areas={areas} edita={edita} />)}</tbody>
         </table>
       </div>
+      <p className="es-tab-ajuda" data-nota-feedback><span aria-hidden="true">* </span>Recomendamos que o primeiro feedback estruturado aconteça antes do fim dos 100 dias para ajustes dos combinados e melhoria do fluxo de trabalho. Após o primeiro, os demais podem passar a ocorrer semestralmente.</p>
       <p className="es-tab-ajuda">São {MODELO.length} rotinas sugeridas pela Legisla. Desligue as que o mandato não vai adotar: elas saem da contagem e do PDF.</p>
     </div>
   );

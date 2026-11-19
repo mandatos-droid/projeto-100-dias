@@ -13,22 +13,22 @@ test.describe('Mandato da versão antiga (MEQ-24)', () => {
   /* T27: a escalação saiu; a tabela de equipe mostra as 20 pessoas do mandato antigo, com os nomes intactos (E-15) */
   test('a tabela abre com as 20 linhas e os nomes das pessoas intactos (E-15)', async ({ page }) => {
     await abre(page, ['equipe-tabela'], legado);
-    await expect(page.getByLabel(/^Nome da pessoa, linha \d+$/)).toHaveCount(20);
-    await expect(page.getByLabel('Nome da pessoa, linha 9')).toHaveValue('Pessoa 9');
-    await expect(page.getByLabel('Nome da pessoa, linha 20')).toHaveValue('Pessoa 20');
+    await expect(page.getByLabel(/^Nome da pessoa, assessor\/a \d+$/)).toHaveCount(20);
+    await expect(page.getByLabel('Nome da pessoa, assessor/a 9')).toHaveValue('Pessoa 9');
+    await expect(page.getByLabel('Nome da pessoa, assessor/a 20')).toHaveValue('Pessoa 20');
   });
 
   /* T18: o painel e o contador de escopo saíram do organograma; a ficha antiga agora aparece na linha da tabela de equipe */
   test('o organograma mostra as 20 cadeiras e o escopo antigo aparece na tabela', async ({ page }) => {
     await abre(page, ['equipe-tabela', 'organograma'], legado);
-    await expect(page.locator('.es-no')).toHaveCount(20);
+    await expect(page.locator('.es-no[data-cadeira]')).toHaveCount(20);
     await expect(page.locator('.es-no[data-cadeira="0"]')).toContainText('Pessoa 1');
-    await expect(page.getByLabel('Escopo, linha 8')).toHaveValue(ESCOPO);
+    await expect(page.getByLabel('Escopo, assessor/a 8')).toHaveValue(ESCOPO);
   });
 
   test('m2.areas e m2.areas_aplicadas continuam gravadas depois de editar e não aparecem na tela', async ({ page }) => {
     await abre(page, ['equipe-tabela', 'organograma'], legado);
-    await page.getByLabel('Escopo, linha 8').fill(ESCOPO + ' e relações com a imprensa'); // T27: editar pela tabela, não mais pela escalação
+    await page.getByLabel('Escopo, assessor/a 8').fill(ESCOPO + ' e relações com a imprensa'); // T27: editar pela tabela, não mais pela escalação
     const c = await camposDe(page);
     expect(c['m2.areas']).toBe('saude|educacao');
     expect(c['m2.areas_aplicadas']).toBe('saude');
@@ -46,7 +46,7 @@ test.describe('Mandato da versão antiga (MEQ-24)', () => {
     });
     await abre(page, ['organograma'], campos);
     await page.addScriptTag({ url: '/legacy/m2.js' });
-    await expect(page.locator('.es-no')).toHaveCount(total);
+    await expect(page.locator('.es-no[data-cadeira]')).toHaveCount(total);
     const guia = await page.evaluate(() => {
       const w = window as unknown as { Telas: { estadoTxt(e: unknown): string }; Resumo: { ex(e: unknown): string } };
       return { exercicio: w.Telas.estadoTxt({ tipo: 'funcoes' }), resumo: w.Resumo.ex({ tipo: 'funcoes' }) };

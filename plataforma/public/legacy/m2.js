@@ -6,28 +6,27 @@
 /* ---------- Mão na massa 1: a tabela de equipe em ordem, com o organograma gerado logo abaixo ---------- */
 (function(){
   function ilha(n){return '<div class="ilha" data-ilha="'+n+'"></div>'}
-  /* passo 1 do Guia: "clareza sobre as entregas e agendas" já foi feito no Mapa Político (Missão 1).
-     Feito = todos os exercícios da Missão 1 têm algum conteúdo; senão só mostra o link, sem bloquear (RM2-02). */
-  function mapaFeito(){
-    if(typeof MISSOES==='undefined'||typeof estadoEx!=='function')return false;
-    var m1=MISSOES.filter(function(x){return x.n===1})[0];
-    return !!m1&&m1.exercicios.length>0&&m1.exercicios.every(function(e){return estadoEx(e)!=='nao'});
-  }
-  var PASSOS=[
-    'Clareza sobre a quantidade de pessoas que podem ser alocadas no mandato ou que se espera alocar nos primeiros 100 dias. Informe o número e a tabela ganha uma linha para cada pessoa.',
-    'Preenchimento do <strong>escopo de trabalho</strong> amplo de cada linha: o que o mandato quer que seja feito?',
-    'Preenchimento das <strong>competências comportamentais</strong> gerais, necessárias e desejadas, para cumprir o escopo de trabalho.',
-    'Preenchimento do <strong>nome do cargo</strong> que seria responsável por cumprir tal escopo.',
-    'Finalmente, preenchimento do <strong>nome da pessoa</strong> que tem experiência para cumprir o escopo de trabalho e que tenha as competências comportamentais descritas nas colunas anteriores.',
-    'Uma vez tendo a última coluna preenchida, defina em qual <strong>categoria</strong> a pessoa se encaixa melhor: Chefia; Coordenação; Especialista; Executora.',
-    'Por fim, selecione a <strong>área do mandato</strong> em que a pessoa vai ser alocada.'];
+  /* Orientações do exercício (texto da Alana, ajustado pelo Pedro; sugestão #170). A caixa do número de pessoas fica na ilha da tabela. */
+  function col(titulo,perg,extra){return '<h5 class="m2-col">'+titulo+'</h5><p>'+perg+'</p>'+(extra||'')}
+  function imp(t){return '<div class="apoio"><span class="tag">Importante</span>'+t+'</div>'}
   Comp.funcoes=function(){
-    var feito=mapaFeito();
-    var p1=feito
-      ?'<li class="passo-feito"><span aria-hidden="true">✓ </span>Clareza sobre as entregas objetivadas pelo mandato e quais são as agendas prioritárias <em>(feito: o mapa político já foi construído na Missão 1)</em>. <a href="#/m/1">Rever o mapa político</a></li>'
-      :'<li>Clareza sobre as entregas objetivadas pelo mandato e quais são as agendas prioritárias. Se ainda não fez, <a href="#/m/1">construa o mapa político na Missão 1</a>; você pode seguir sem isso.</li>';
-    return '<ol class="passos-m2">'+p1+PASSOS.map(function(t){return '<li>'+t+'</li>'}).join('')+'</ol>'+
-      '<div class="apoio"><span class="tag">Importante</span>Preencha a tabela na ordem das colunas: cada coluna só abre quando a anterior está preenchida. Se ainda não há ninguém com as competências esperadas, escreva <strong>*</strong> no lugar do nome para abrir processo seletivo de ampla concorrência. Caso não haja pessoas que se encaixem nos requisitos, encorajamos o mandato a abrir processo seletivo e aumentar a diversidade e a representatividade dentro da equipe!</div>'+
+    return '<p><strong>Agora vamos começar a organizar a equipe, com base em competências, não apenas compromissos políticos!</strong> A tabela a seguir deve ser preenchida coluna a coluna. O preenchimento completo de cada coluna libera o preenchimento da seguinte. Seguindo o passo a passo proposto o mandato terminará o exercício com as pessoas certas nos cargos certos, desde os primeiros dias do mandato!</p>'+
+      '<p>Leia as orientações a seguir para garantir o bom preenchimento da planilha:</p>'+
+      col('Coluna Escopo técnico de trabalho','O que a liderança parlamentar deseja que seja realizado por um dos membros da assessoria?',
+        '<p><em>Exemplo:</em> Definir a estratégia de crescimento nas redes sociais; Elaborar discursos de plenário e Gerenciar a assessoria de imprensa.</p>'+
+        imp('Não é necessário se alongar no preenchimento do escopo de trabalho exato. Adicione no máximo 3 habilidades técnicas centrais ou entregáveis específicos.'))+
+      col('Coluna Competências comportamentais','Quais são as 3 competências comportamentais necessárias e desejáveis, para que o referido escopo de trabalho seja cumprido com qualidade?',
+        '<p><em>Exemplo:</em> Capacidade de persuasão; Liderança; Criatividade.</p>')+
+      col('Coluna Nome do cargo','Qual é o nome normalmente dado para quem desempenha este escopo de trabalho e tem estas competências comportamentais?',
+        '<p><em>Ex:</em> Coordenação de Comunicação.</p>'+
+        imp('Aqui também não existe um rigor em relação ao registro do nome perfeito para o cargo, é apenas uma definição balizadora que pode passar por ajustes finos mais para frente.'))+
+      col('Coluna Nome da pessoa','Quem é a pessoa, da minha rede de contatos e de compromissos políticos, que mais se aproxima do que foi preenchido anteriormente?',
+        imp('Caso não tenha uma pessoa, coloque um asterisco (<strong>*</strong>) e continue o preenchimento em busca dos demais membros da assessoria. Você vai perceber que os perfis vão se encaixando com os nomes pertinentes.')+
+        imp('Quando os perfis não se encaixarem com os nomes à disposição, é possível realizar um processo seletivo dedicado à busca da pessoa ideal para as necessidades do mandato. A diversidade de perfis e a tecnicidade da assessoria são fundamentais para que as melhores entregas sejam realizadas para a população.'))+
+      col('Coluna Categoria','Qual é o nível hierárquico que esta pessoa terá na equipe? Nesta coluna estão disponíveis 4 possibilidades: Chefia; Coordenação; Especialista; ou Executora.',
+        imp('<strong>Chefia:</strong> define a estratégia política e realiza a governança do mandato para que o projeto da liderança parlamentar se efetive.<br><strong>Coordenação:</strong> traduz em orientações e gestão o caminho para gerar avanços concretos para o mandato.<br><strong>Especialistas:</strong> fundamentam o projeto político com evidências, inteligência e técnica.<br><strong>Executores:</strong> garantem o avanço do alcance do projeto político, da influência e das entregas da liderança parlamentar.'))+
+      col('Coluna Área de atuação','Em qual área esta pessoa estará alocada, no mandato?')+
+      '<p>Caso não haja pessoas que se encaixem nos requisitos, encorajamos o mandato a abrir processo seletivo e aumentar a diversidade e a representatividade dentro da equipe!</p>'+
       ilha('equipe-tabela')+
       '<div class="apoio"><span class="tag">Organograma</span>O organograma abaixo é gerado sozinho a partir da categoria e da área de cada linha da tabela.</div>'+
       ilha('organograma');
@@ -41,9 +40,9 @@
   if(f){
     f.t='A equipe de sucesso';
     f.d='Montar, em tabela e na ordem, a equipe do mandato: escopo, competências, cargo, pessoa, categoria e área.';
-    f.intro='<h4>Estruturando a gestão de pessoas do mandato</h4>'+
-      '<p>Ao invés de encaixar pessoas em cargos, nossa recomendação é que seja feito o exercício contrário. Montaremos a tabela que permitirá que o mandato mantenha seus compromissos políticos, mas que o faça a partir do encaixe de perfis específicos com cargos coerentes.</p>'+
-      '<p><strong>O passo a passo do exercício é o seguinte:</strong></p>';
+    f.etiqueta='Missão 2: A equipe de sucesso - estruturando a gestão de pessoas do mandato';
+    f.intro='<p>Ao invés de encaixar pessoas em cargos, nossa recomendação é que seja feito o exercício contrário. Montaremos a tabela que permitirá que o mandato mantenha seus compromissos políticos, mas que o faça a partir do encaixe de perfis específicos com cargos coerentes.</p>'+
+      '<p>Para começar a estruturar a equipe serão necessárias duas informações: a quantidade de assessores que o mandato pode ou deseja contratar; as agendas prioritárias do mandato.</p>';
   }
 
   /* ---------- Mão na massa 2: o quadro-modelo de rotinas da Legisla e o PDF do organograma e das rotinas ---------- */

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { aplica, ativas, coordDe, liderDe } from '../lib/cadeiras.ts';
-import { COLUNAS, CATEGORIAS, linhas, colunaLiberada, completa, contagemCompletas, defineN, editaCelula, recalculaLideres, avisosOrg, escopoTexto, competenciasTexto, categoriaPadrao, migrada, materializa, vistaDaTabela, organogramaGerado } from '../lib/tabelaEquipe.ts';
+import { COLUNAS, CATEGORIAS, linhas, colunaLiberada, completa, contagemCompletas, defineN, removeLinha, editaCelula, recalculaLideres, avisosOrg, escopoTexto, competenciasTexto, categoriaPadrao, migrada, materializa, vistaDaTabela, organogramaGerado } from '../lib/tabelaEquipe.ts';
 
 type C = Record<string, string>;
 /** mandato que já usa a tabela nova (m2.n gravado), com a Chefia (0) e duas linhas acrescentadas (índices 20 e 21) */
@@ -456,4 +456,48 @@ test('vistaDaTabela devolve o mandato novo como está e o antigo com os derivado
   assert.equal(organogramaGerado(c), true); // há cargo (nome_cargo) nas outras linhas
   assert.equal(organogramaGerado(antigo({ 'm2.p1.nome_cargo': '', 'm2.p2.nome_cargo': '', 'm2.p3.nome_cargo': '' })), false);
   assert.equal(organogramaGerado(vistaDaTabela(antigo({ 'm2.p1.nome_cargo': '', 'm2.p2.nome_cargo': '', 'm2.p3.nome_cargo': '' }), (i) => `Modelo ${i}`)), true);
+});
+
+/* ---------- remover uma linha da tabela (ajusta m2.n) ---------- */
+test('removeLinha tira só aquela linha, ajusta m2.n e a Chefia não sai', () => {
+  const c = aplicado({}, defineN({}, 4)); // [0, 20, 21, 22]
+  const r = removeLinha(c, 21);
+  assert.equal(r.erro, undefined);
+  assert.equal(r.confirma, undefined, 'linha vazia sai sem perguntar');
+  const x = aplicado(c, r);
+  assert.deepEqual(ativas(x), [0, 20, 22]);
+  assert.equal(x['m2.n'], '3');
+  assert.equal(linhas(x).length, 3);
+  const chefia = removeLinha(c, 0);
+  assert.deepEqual(chefia.patch, {});
+  assert.equal(typeof chefia.erro, 'string');
+  assert.equal(removeLinha(c, 35).erro, 'Essa linha não está na tabela.');
+});
+
+test('removeLinha de linha preenchida pede confirmação e guarda a cópia com escopo, competências e categoria', () => {
+  let c = aplicado({}, defineN({}, 3));
+  c = aplicado(c, { patch: editaCelula(c, 21, 'esc', 'Cuidar da comunicação') });
+  c = aplicado(c, { patch: editaCelula(c, 21, 'cargo', 'Assessora de Comunicação') });
+  c = aplicado(c, { patch: editaCelula(c, 21, 'pessoa', 'Bia') });
+  const r = removeLinha(c, 21);
+  assert.equal(r.confirma, 'Bia');
+  const x = aplicado(c, r);
+  assert.deepEqual(ativas(x), [0, 20]);
+  assert.equal(x['m2.n'], '2');
+  assert.equal(x['m2.f22'], undefined);
+  const arq = JSON.parse(x['m2.arq.22']);
+  assert.equal(arq.nome, 'Bia');
+  assert.equal(arq.ficha.esc, 'Cuidar da comunicação');
+});
+
+test('removeLinha recalcula a liderança: quem respondia à coordenação removida passa a responder à Chefia', () => {
+  let c = aplicado({}, defineN({}, 4)); // [0, 20, 21, 22]
+  const ed = (i: number, col: 'cat' | 'area', v: string) => { c = aplicado(c, { patch: editaCelula(c, i, col, v) }); };
+  ed(0, 'cat', 'Chefia'); ed(0, 'area', 'Chefia de área');
+  ed(20, 'cat', 'Coordenação'); ed(20, 'area', 'Legislativo');
+  ed(21, 'cat', 'Executora'); ed(21, 'area', 'Legislativo');
+  assert.equal(c['m2.p22.lider'], '20');
+  const x = aplicado(c, removeLinha(c, 20));
+  assert.deepEqual(ativas(x), [0, 21, 22]);
+  assert.equal(x['m2.p22.lider'], '0');
 });

@@ -3,11 +3,11 @@ import { abre, camposDe } from './semente';
 
 /* Missão 2 · Mão na massa 1: tabela de equipe em ordem obrigatória (RM2-01 a 11). */
 const ILHA = 'equipe-tabela';
-const PERGUNTA = 'Quantas pessoas o mandato terá ou espera ter nos primeiros 100 dias?';
-const campo = (page: Page, rotulo: string, linha: number) => page.getByLabel(`${rotulo}, linha ${linha}`);
+const PERGUNTA = 'Registre aqui quantas pessoas o mandato irá contratar';
+const campo = (page: Page, rotulo: string, linha: number) => page.getByLabel(`${rotulo}, assessor/a ${linha}`);
 const defineN = async (page: Page, n: string) => {
-  await page.getByLabel(/Quantas pessoas o mandato terá/).fill(n);
-  await page.getByRole('button', { name: /Criar linhas|Ajustar/ }).click();
+  await page.getByLabel(PERGUNTA).fill(n);
+  await page.getByRole('button', { name: /Criar tabela|Ajustar/ }).click();
 };
 const preencheLinha = async (page: Page, linha: number, v: { esc: string; comp: string; cargo: string; pessoa: string; cat: string; area: string }) => {
   await campo(page, 'Escopo', linha).fill(v.esc);
@@ -118,8 +118,9 @@ test.describe('Tabela de equipe: ordem obrigatória (RM2-05 a 09)', () => {
   test('preencher a linha 1 inteira mostra "1 de 4 linhas completas" (RM2-09)', async ({ page }) => {
     await preencheLinha(page, 1, COMPLETA);
     await expect(page.locator('[data-contador]')).toHaveText('1 de 4 linhas completas');
-    await expect(page.locator('[data-linha="0"]')).toContainText('completa');
-    await expect(page.locator('[data-linha="20"]')).not.toContainText('completa');
+    await expect(page.locator('[data-linha="0"]')).toHaveClass(/completa/);
+    await expect(page.locator('[data-linha="0"]')).toContainText('Completa');
+    await expect(page.locator('[data-linha="20"]')).not.toHaveClass(/completa/);
   });
 
   test('nomes repetidos avisam sem bloquear (edge case)', async ({ page }) => {
@@ -156,13 +157,13 @@ test.describe('Tabela de equipe: autosave e celular (RM2-10, RM2-11)', () => {
     await abre(page, [ILHA]);
     await defineN(page, '2');
     const linha = page.locator('[data-linha="0"]');
-    await expect(linha).toHaveCSS('display', 'block');
-    const rotulos = await linha.locator('td').evaluateAll((tds) => tds.map((t) => t.getAttribute('data-label')));
+    await expect(linha).toHaveCSS('display', 'grid'); // cada posição é um cartão (np-eq-card2), não mais uma linha de tabela
+    const rotulos = await linha.locator('.np-eq-campo').evaluateAll((tds) => tds.map((t) => t.getAttribute('data-label')));
     expect(rotulos).toEqual(['Escopo', 'Competências comportamentais', 'Nome do cargo', 'Nome da pessoa', 'Categoria', 'Área']);
-    const ys = await linha.locator('td').evaluateAll((tds) => tds.map((t) => t.getBoundingClientRect().top));
+    const ys = await linha.locator('.np-eq-campo').evaluateAll((tds) => tds.map((t) => t.getBoundingClientRect().top));
     expect([...ys].sort((a, b) => a - b)).toEqual(ys); // empilhadas na ordem
     expect(new Set(ys).size).toBe(6);
-    const xs = await linha.locator('td').evaluateAll((tds) => tds.map((t) => Math.round(t.getBoundingClientRect().left)));
+    const xs = await linha.locator('.np-eq-campo').evaluateAll((tds) => tds.map((t) => Math.round(t.getBoundingClientRect().left)));
     expect(new Set(xs).size).toBe(1); // mesma coluna: nada lado a lado
   });
 });
@@ -197,5 +198,28 @@ test.describe('Tabela de equipe: mandato do modelo antigo (RMX-02, RMX-03)', () 
     expect([c['m2.p1.cat'], c['m2.p1.lider'], c['m2.p3.lider']]).toEqual(['Chefia', '-', '1']);
     expect([c['m2.p3.ritmo'], c['m2.p3.fb_falei'], c['m2.p2.escopo'], c['m2.p2.hab_dest']]).toEqual(['Lento', 'ok', CHIP, 'Organização|Empatia']);
     await expect(campo(page, 'Escopo', 2)).toHaveValue(CHIP); // continua visível depois da gravação
+  });
+});
+
+test.describe('Tabela de equipe: remover uma linha', () => {
+  test('o botão Remover tira a linha, ajusta o tamanho da equipe e a Chefia não tem o botão', async ({ page }) => {
+    await abre(page, [ILHA]);
+    await defineN(page, '4');
+    await expect(page.getByRole('button', { name: /^Remover assessor\/a 1$/ })).toHaveCount(0);
+    await campo(page, 'Escopo', 4).fill('Cuidar da comunicação'); // linha preenchida pede confirmação
+    const dialogos: string[] = [];
+    page.on('dialog', (d) => { dialogos.push(d.message()); void d.accept(); });
+    await page.getByRole('button', { name: 'Remover assessor/a 2' }).click(); // vazia: sem confirmação
+    await expect(page.locator('[data-linha]')).toHaveCount(3);
+    expect(dialogos).toHaveLength(0);
+    await expect(page.getByLabel(PERGUNTA)).toHaveValue('3');
+    await page.getByRole('button', { name: 'Remover assessor/a 3' }).click();
+    await expect.poll(() => dialogos.length).toBe(1);
+    expect(dialogos[0]).toContain('Assessor/a 3');
+    await expect(page.locator('[data-linha]')).toHaveCount(2);
+    const campos = await camposDe(page);
+    expect(campos['m2.n']).toBe('2');
+    expect(campos['m2.on']).toBe('0|21');
+    await expect(page.getByLabel(PERGUNTA)).toHaveValue('2');
   });
 });

@@ -3,9 +3,9 @@
    A regra vive em lib/tabelaEquipe; aqui só a tela. Cada edição grava na hora (sem botão salvar). Em mandato do modelo antigo,
    a primeira edição grava de uma vez os valores derivados (materializa), para a leitura nova não perder nada. */
 import { useEffect, useState } from 'react';
-import { AREAS, SEM_AREA, aplica, type Campos } from '@/lib/cadeiras';
+import { AREAS, CHEFIA, SEM_AREA, aplica, type Campos } from '@/lib/cadeiras';
 import { COR_COORD } from '@/lib/equipe';
-import { CATEGORIAS, COLUNAS, colunaLiberada, contagemCompletas, defineN, editaCelula, linhas, materializa, migrada, type ColunaId, type Linha } from '@/lib/tabelaEquipe';
+import { CATEGORIAS, COLUNAS, colunaLiberada, contagemCompletas, defineN, editaCelula, linhas, materializa, migrada, removeLinha, type ColunaId, type Linha } from '@/lib/tabelaEquipe';
 import { modeloNome } from './cargos';
 import { useEquipe } from './useEquipe';
 import './equipe.css';
@@ -23,7 +23,7 @@ function Celula({ l, pos, col, onChange }: Props) {
   /* o rascunho guarda espaços digitados (a lib grava aparado); só se alinha ao valor gravado quando ele muda por fora */
   useEffect(() => { if (valor !== rascunho.trim()) setRascunho(valor); }, [valor]); // eslint-disable-line react-hooks/exhaustive-deps
   const idLeg = `es-tab-${l.i}-${col.id}-leg`;
-  const comum = { id: `es-tab-${l.i}-${col.id}`, 'aria-label': `${col.rotulo}, linha ${pos + 1}`, disabled: !livre.ok, 'aria-describedby': livre.ok ? undefined : idLeg };
+  const comum = { id: `es-tab-${l.i}-${col.id}`, 'aria-label': `${col.rotulo}, assessor/a ${pos + 1}`, disabled: !livre.ok, 'aria-describedby': livre.ok ? undefined : idLeg };
   let campo;
   if (col.id === 'cat' || col.id === 'area') {
     const base = col.id === 'cat' ? [...CATEGORIAS] : [...AREAS, SEM_AREA, ...(l.cat === 'Chefia' ? [CHEFIA_AREA] : [])];
@@ -70,15 +70,23 @@ export default function TabelaEquipe() {
     grava(r.patch);
   };
 
+  const removeDaTabela = (i: number, pos: number) => {
+    const r = removeLinha(vista, i);
+    if (r.erro) { agir({ erro: r.erro }); return; }
+    if (r.confirma && !window.confirm(`Remover Assessor/a ${pos + 1} (${r.confirma})? O que está escrito fica guardado, mas a linha sai da tabela e o tamanho da equipe passa a ${Number(r.patch['m2.n'])}.`)) return;
+    grava(r.patch);
+    setTimeout(() => document.getElementById('es-tab-n')?.focus(), 0); // o botão clicado some: devolve o foco para o tamanho da equipe
+  };
+
   const nomes = ls.map((l) => l.pessoa.toLowerCase()).filter((p) => p !== '' && !p.includes('*'));
   const repetidos = [...new Set(nomes.filter((p, k) => nomes.indexOf(p) !== k))].map((p) => ls.find((l) => l.pessoa.toLowerCase() === p)!.pessoa);
 
   return (
     <div className="ilha-corpo es-tab-ilha">
       <form className="es-tab-n" noValidate onSubmit={(e) => { e.preventDefault(); aplicaN(); }}>
-        <label htmlFor="es-tab-n">{iniciada ? 'Quantas pessoas o mandato terá (contando a chefia)?' : 'Quantas pessoas o mandato terá ou espera ter nos primeiros 100 dias?'}</label>
+        <label htmlFor="es-tab-n">Registre aqui quantas pessoas o mandato irá contratar</label>
         <input id="es-tab-n" type="number" inputMode="numeric" min={1} max={40} step={1} value={n} onChange={(e) => setN(e.target.value)} />
-        <button type="submit" className="bt pri peq es-bt">{iniciada ? 'Ajustar' : 'Criar linhas'}</button>
+        <button type="submit" className="bt pri peq es-bt">{iniciada ? 'Ajustar' : 'Criar tabela'}</button>
       </form>
 
       {iniciada && (
@@ -95,11 +103,11 @@ export default function TabelaEquipe() {
                   data-linha={l.i}
                   className={`np-eq-card2${l.completa ? ' completa' : ''}`}
                   style={{ borderLeftColor: cor }}
-                  aria-label={`Posição ${pos + 1}`}
+                  aria-label={`Assessor/a ${pos + 1}`}
                 >
                   <div className="np-eq-cab">
                     <div className="np-eq-cab-info">
-                      <span className="np-eq-pos">#{pos + 1}</span>
+                      <span className="np-eq-pos">Assessor/a {pos + 1}</span>
                       <strong className="np-eq-tit">
                         {l.cargo || 'Função ainda sem nome'}
                         {l.pessoa && l.pessoa !== '*' ? ` · ${l.pessoa}` : ''}
@@ -110,6 +118,9 @@ export default function TabelaEquipe() {
                           ? <span className="selo ok">Completa</span>
                           : <span className="selo andamento">Em andamento</span>}
                     </div>
+                    {l.i !== CHEFIA && (
+                      <button type="button" className="bt sec peq es-bt es-tab-rem" aria-label={`Remover assessor/a ${pos + 1}`} onClick={() => removeDaTabela(l.i, pos)}>Remover</button>
+                    )}
                   </div>
                   <div className="np-eq-andar1">
                     {COLUNAS.slice(0, 2).map((x) => (
