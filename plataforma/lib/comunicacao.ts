@@ -253,6 +253,25 @@ export function indicador(com: Comunicacao, secaoId: string): { semana: string; 
   });
 }
 
+export type ResumoSecao = { rot: string; valor: number; anterior: number | null; serie: number[]; periodo: 'semana' | 'mês' };
+
+/** O cartão de resumo da seção: o número principal no registro mais recente, o anterior (para a variação) e a série para a miniatura.
+ *  Usa as semanas; sem nenhuma semana, usa os meses. Se o número principal nunca foi registrado, usa o primeiro campo que foi. Sem registro: null. */
+export function resumoSecao(com: Comunicacao, secaoId: string): ResumoSecao | null {
+  const sec = secaoDe(secaoId);
+  if (!sec) return null;
+  const ordem = [sec.campos.find((c) => c.id === sec.principal), ...sec.campos].filter((c): c is Campo => !!c);
+  for (const periodo of ['semana', 'mês'] as const) {
+    for (const c of ordem) {
+      const pontos = periodo === 'semana' ? serie(com, secaoId, c.id) : serieMes(com, secaoId, c.id);
+      if (!pontos.length) continue;
+      const valores = pontos.map((p) => p.valor);
+      return { rot: c.rot, valor: valores[valores.length - 1], anterior: valores.length > 1 ? valores[valores.length - 2] : null, serie: valores, periodo };
+    }
+  }
+  return null;
+}
+
 /** Chaves das caixinhas antigas (m4.k1 a m4.k5) a marcar: seções com registro cuja caixinha ainda não está marcada. Nunca desmarca. */
 export function caixinhasParaMarcar(com: Comunicacao, campos: Record<string, unknown>): string[] {
   return SECOES.filter((s) => (semanasDaSecao(com, s.id).length > 0 || mesesDaSecao(com, s.id).length > 0) && !campos[s.caixinha]).map((s) => s.caixinha);

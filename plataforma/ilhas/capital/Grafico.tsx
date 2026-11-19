@@ -3,19 +3,25 @@
    Identidade nunca só por cor: legenda com o mesmo marcador de cada série, valor escrito no último ponto, e uma tabela
    equivalente em "Ver como tabela". As cores seguem a paleta categórica validada da skill dataviz, em ordem fixa, e o
    gráfico traz a própria superfície, então vale no Guia claro e num tema escuro. */
-import { rotuloSemana, rotuloSemanaCurto } from '@/lib/comunicacao';
+import { rotuloMes, rotuloSemana, rotuloSemanaCurto } from '@/lib/comunicacao';
 import './capital.css';
 
-export type SerieLinha = { id: string; rot: string; pontos: { x: string; valor: number }[] };
+export type Periodo = 'semana' | 'mes';
+/** `cor` (0 a 4) fixa a cor e o marcador da série; sem ele, valem a ordem da série no gráfico. */
+export type SerieLinha = { id: string; rot: string; cor?: number; pontos: { x: string; valor: number }[] };
 export type ItemBarra = { id: string; rot: string; valor: number };
 export type GraficoProps =
-  | { tipo: 'linha'; titulo: string; series: SerieLinha[]; vazio?: string }
+  | { tipo: 'linha'; titulo: string; series: SerieLinha[]; vazio?: string; alto?: number; periodo?: Periodo; semTabela?: boolean }
   | { tipo: 'barras'; titulo: string; itens: ItemBarra[]; vazio?: string };
 
-const L = 360, A = 220, ME = 38, MD = 22, MT = 18, MB = 30; // tamanho do desenho e margens
+const L = 360, A_PADRAO = 220, ME = 38, MD = 22, MT = 18, MB = 30; // tamanho do desenho e margens
 
 /** "2026-W47" → "16/11" (segunda-feira da semana) no eixo; outros rótulos ficam como vieram. */
 export const rotuloX = rotuloSemanaCurto;
+
+/** Rótulo curto do eixo: "16/11" para a semana (segunda-feira) e "11/26" (MM/AA) para o mês. */
+export const rotuloEixo = (x: string, periodo: Periodo) => (periodo === 'mes' && /^\d{4}-\d{2}$/.test(x) ? `${x.slice(5)}/${x.slice(2, 4)}` : rotuloX(x));
+export const rotuloLongo = (x: string, periodo: Periodo) => (periodo === 'mes' ? rotuloMes(x) : rotuloSemana(x));
 
 /** Teto "redondo" do eixo vertical: 1, 2, 5 ou 10 vezes uma potência de 10. */
 export function tetoEixo(max: number): number {
@@ -34,7 +40,23 @@ function Marca({ forma, x, y, r = 4.5 }: { forma: (typeof MARCAS)[number]; x: nu
   return <circle cx={x} cy={y} r={r} {...p} />;
 }
 
-function Linha({ titulo, series, vazio }: { titulo: string; series: SerieLinha[]; vazio?: string }) {
+/** Tabela equivalente ao(s) gráfico(s) de linha: uma linha por semana (ou mês), uma coluna por série. */
+export function TabelaSeries({ series, periodo = 'semana' }: { series: SerieLinha[]; periodo?: Periodo }) {
+  const xs = [...new Set(series.flatMap((s) => s.pontos.map((p) => p.x)))].sort();
+  if (!xs.length) return null;
+  return (
+    <details className="cp-g-tab">
+      <summary>Ver como tabela</summary>
+      <table>
+        <thead><tr><th scope="col">{periodo === 'mes' ? 'Mês' : 'Semana'}</th>{series.map((s) => <th key={s.id} scope="col">{s.rot}</th>)}</tr></thead>
+        <tbody>{xs.map((x) => <tr key={x}><th scope="row">{rotuloLongo(x, periodo)}</th>{series.map((s) => <td key={s.id}>{s.pontos.find((p) => p.x === x)?.valor ?? '–'}</td>)}</tr>)}</tbody>
+      </table>
+    </details>
+  );
+}
+
+function Linha({ titulo, series, vazio, alto, periodo = 'semana', semTabela }: { titulo: string; series: SerieLinha[]; vazio?: string; alto?: number; periodo?: Periodo; semTabela?: boolean }) {
+  const A = alto ?? A_PADRAO;
   const xs = [...new Set(series.flatMap((s) => s.pontos.map((p) => p.x)))].sort();
   if (!xs.length) return <p className="cp-g-vazio">{vazio ?? 'Ainda não há registros para mostrar.'}</p>;
   const teto = tetoEixo(Math.max(0, ...series.flatMap((s) => s.pontos.map((p) => p.valor))));
@@ -44,15 +66,16 @@ function Linha({ titulo, series, vazio }: { titulo: string; series: SerieLinha[]
   const ticks = [0, teto / 2, teto];
   return (
     <>
-      <svg className="cp-g-svg" viewBox={`0 0 ${L} ${A}`} role="img" aria-label={`${titulo}. ${series.map((s) => `${s.rot}: ${s.pontos.map((p) => `${rotuloSemana(p.x)} ${p.valor}`).join(', ')}`).join('. ')}`}>
+      <svg className="cp-g-svg" viewBox={`0 0 ${L} ${A}`} role="img" aria-label={`${titulo}. ${series.map((s) => `${s.rot}: ${s.pontos.map((p) => `${rotuloLongo(p.x, periodo)} ${p.valor}`).join(', ')}`).join('. ')}`}>
         {ticks.map((t) => (
           <g key={t}>
             <line x1={ME} x2={L - MD} y1={py(t)} y2={py(t)} className="cp-g-grade" />
             <text x={ME - 6} y={py(t) + 4} textAnchor="end" className="cp-g-eixo">{Number.isInteger(t) ? t : t.toLocaleString('pt-BR')}</text>
           </g>
         ))}
-        {xs.map((x, i) => i % cada === 0 && <text key={x} x={px(i)} y={A - 10} textAnchor="middle" className="cp-g-eixo">{rotuloX(x)}</text>)}
-        {series.map((s, k) => {
+        {xs.map((x, i) => i % cada === 0 && <text key={x} x={px(i)} y={A - 10} textAnchor="middle" className="cp-g-eixo">{rotuloEixo(x, periodo)}</text>)}
+        {series.map((s, i) => {
+          const k = s.cor ?? i;
           const pts = s.pontos.slice().sort((a, b) => (a.x < b.x ? -1 : 1)).map((p) => ({ ...p, cx: px(xs.indexOf(p.x)), cy: py(p.valor) }));
           const ultimo = pts[pts.length - 1];
           return (
@@ -61,7 +84,7 @@ function Linha({ titulo, series, vazio }: { titulo: string; series: SerieLinha[]
               {pts.map((p) => (
                 <g key={p.x}>
                   <Marca forma={MARCAS[k % MARCAS.length]} x={p.cx} y={p.cy} />
-                  <circle cx={p.cx} cy={p.cy} r={11} fill="transparent"><title>{`${s.rot}, ${rotuloSemana(p.x)}: ${p.valor}`}</title></circle>
+                  <circle cx={p.cx} cy={p.cy} r={11} fill="transparent"><title>{`${s.rot}, ${rotuloLongo(p.x, periodo)}: ${p.valor}`}</title></circle>
                 </g>
               ))}
               {ultimo && series.length <= 4 && <text x={Math.min(ultimo.cx, L - MD)} y={ultimo.cy - 10} textAnchor="middle" className="cp-g-valor">{ultimo.valor}</text>}
@@ -71,20 +94,14 @@ function Linha({ titulo, series, vazio }: { titulo: string; series: SerieLinha[]
       </svg>
       {series.length > 1 && (
         <ul className="cp-g-leg" aria-label="Legenda">
-          {series.map((s, k) => (
-            <li key={s.id} className={`cp-g-s${(k % 5) + 1}`}>
-              <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><Marca forma={MARCAS[k % MARCAS.length]} x={7} y={7} /></svg>{s.rot}
+          {series.map((s, i) => (
+            <li key={s.id} className={`cp-g-s${((s.cor ?? i) % 5) + 1}`}>
+              <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><Marca forma={MARCAS[(s.cor ?? i) % MARCAS.length]} x={7} y={7} /></svg>{s.rot}
             </li>
           ))}
         </ul>
       )}
-      <details className="cp-g-tab">
-        <summary>Ver como tabela</summary>
-        <table>
-          <thead><tr><th scope="col">Semana</th>{series.map((s) => <th key={s.id} scope="col">{s.rot}</th>)}</tr></thead>
-          <tbody>{xs.map((x) => <tr key={x}><th scope="row">{rotuloSemana(x)}</th>{series.map((s) => <td key={s.id}>{s.pontos.find((p) => p.x === x)?.valor ?? '–'}</td>)}</tr>)}</tbody>
-        </table>
-      </details>
+      {!semTabela && <TabelaSeries series={series} periodo={periodo} />}
     </>
   );
 }
@@ -109,7 +126,7 @@ export default function Grafico(p: GraficoProps) {
   return (
     <figure className="cp-g" data-tipo={p.tipo}>
       <figcaption>{p.titulo}</figcaption>
-      {p.tipo === 'linha' ? <Linha titulo={p.titulo} series={p.series} vazio={p.vazio} /> : <Barras titulo={p.titulo} itens={p.itens} vazio={p.vazio} />}
+      {p.tipo === 'linha' ? <Linha titulo={p.titulo} series={p.series} vazio={p.vazio} alto={p.alto} periodo={p.periodo} semTabela={p.semTabela} /> : <Barras titulo={p.titulo} itens={p.itens} vazio={p.vazio} />}
     </figure>
   );
 }

@@ -96,14 +96,6 @@ export default function Clipping() {
         </p>
         <p className="cp-not-m">{[n.veiculo || 'veículo não informado', dataBr(n.data)].join(' · ')}</p>
         {!n.oculta && (
-          <label className="campo cp-tag"><span className="rot">Etiquetar manchete</span>
-            <select value="" onChange={(e) => { if (e.target.value) alternaEtiqueta(n, e.target.value); }}>
-              <option value="">Escolher bandeira…</option>
-              {bandeiras.map((b) => <option key={b.id} value={b.id}>{n.bandeiras.includes(b.id) ? `✓ ${b.rot} (tirar)` : b.rot}</option>)}
-            </select>
-          </label>
-        )}
-        {!n.oculta && (
           <div className="cp-chips" role="group" aria-label={`Bandeiras de: ${n.titulo}`}>
             {n.bandeiras.length === 0 && <span className="cp-chip-sem">Sem bandeira</span>}
             {bandeiras.map((b) => (

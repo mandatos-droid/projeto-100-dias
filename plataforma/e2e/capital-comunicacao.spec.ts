@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 import { abre, dadoDe, MANDATO } from './semente-rumo';
 import { abreGuia } from './guia-real';
 import { rotuloSemanaCurto, semanaDe } from '../lib/comunicacao.ts';
@@ -24,7 +24,7 @@ const TITULOS = [
 ];
 async function registra(page: Page, k: string, valores: Record<string, string>) {
   const s = await abreSecao(page, k);
-  await s.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' }).click();
+  await s.getByRole('button', { name: /^Registrar/ }).click();
   for (const [rot, v] of Object.entries(valores)) await s.getByLabel(rot, { exact: true }).fill(v);
   await s.getByRole('button', { name: 'Salvar registro' }).click();
   return s;
@@ -56,7 +56,7 @@ test.describe('Registrar esta semana (CAP-20.2)', () => {
   test('abre o formulário com os números da seção, cada um com a explicação, e grava na semana ISO atual', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO });
     const s = await abreSecao(page, 'k1');
-    await s.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' }).click();
+    await s.getByRole('button', { name: /^Registrar/ }).click();
     for (const rot of ['Seguidores (total)', 'Novos seguidores na semana', 'Alcance ou visualizações']) await expect(s.getByLabel(rot, { exact: true })).toBeVisible();
     await expect(s.getByText('Onde achar? Na página inicial das estatísticas da rede social.')).toBeVisible();
     await s.getByLabel('Seguidores (total)', { exact: true }).fill('1200');
@@ -102,7 +102,7 @@ test.describe('Editar esta semana (CAP-20.3)', () => {
     await abre(page, [ILHA], { mandato: MANDATO });
     await registra(page, 'k1', { 'Seguidores (total)': '100', 'Novos seguidores na semana': '5' });
     const s = secao(page, 'k1');
-    await s.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' }).click();
+    await s.getByRole('button', { name: /^Registrar/ }).click();
     await expect(s.getByLabel('Seguidores (total)', { exact: true })).toHaveValue('100');
     await s.getByLabel('Seguidores (total)', { exact: true }).fill('140');
     await s.getByRole('button', { name: 'Salvar registro' }).click();
@@ -117,14 +117,14 @@ test.describe('Editar esta semana (CAP-20.3)', () => {
     await page.reload();
     await page.locator('#tela[data-pronto="true"]').waitFor();
     const s = await abreSecao(page, 'k4');
-    await expect(s.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' })).toBeVisible();
+    await expect(s.getByRole('button', { name: /^Registrar/ })).toBeVisible();
   });
 
   test('cancelar descarta o que foi digitado', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO });
     await registra(page, 'k1', { 'Seguidores (total)': '100' });
     const s = secao(page, 'k1');
-    await s.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' }).click();
+    await s.getByRole('button', { name: /^Registrar/ }).click();
     await s.getByLabel('Seguidores (total)', { exact: true }).fill('999');
     await s.getByRole('button', { name: 'Cancelar' }).click();
     expect((await comunicacao(page))!.semanas[semana(0)].k1).toEqual({ seguidores: 100 });
@@ -142,15 +142,19 @@ test.describe('Gráfico de linha da seção (CAP-20.5, CAP-20.6)', () => {
     await expect(s.locator('.cp-g')).toHaveCount(0);
   });
 
-  test('registrar a 2ª semana mostra a linha, com as semanas no eixo horizontal e a legenda das séries', async ({ page }) => {
+  test('registrar a 2ª semana mostra um gráfico por número, cada um com as semanas no eixo horizontal', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: { semanas: { [semana(1)]: { k1: { seguidores: 900, novos: 20, alcance: 100 } } }, clipping: [] } } });
     const s = await registra(page, 'k1', { 'Seguidores (total)': '1000', 'Novos seguidores na semana': '30', 'Alcance ou visualizações': '250' });
     await expect(s.getByText('Registre mais uma semana para ver a linha')).toHaveCount(0);
+    await expect(s.getByRole('heading', { name: 'Evolução semanal' })).toBeVisible();
     const g = s.locator('.cp-g[data-tipo="linha"]');
+    await expect(g).toHaveCount(3); // um por número, cada um com o próprio eixo vertical
+    await expect(g.locator('figcaption')).toHaveText(['Seguidores (total)', 'Novos seguidores na semana', 'Alcance ou visualizações']);
     await expect(g.locator('polyline')).toHaveCount(3);
-    await expect(g.locator('.cp-g-eixo', { hasText: rotuloSemanaCurto(semana(1)) })).toBeVisible();
-    await expect(g.locator('.cp-g-eixo', { hasText: rotuloSemanaCurto(semana(0)) })).toBeVisible();
-    await expect(g.getByRole('list', { name: 'Legenda' }).locator('li')).toHaveText(['Seguidores (total)', 'Novos seguidores na semana', 'Alcance ou visualizações']);
+    for (let i = 0; i < 3; i++) {
+      await expect(g.nth(i).locator('.cp-g-eixo', { hasText: rotuloSemanaCurto(semana(1)) })).toBeVisible();
+      await expect(g.nth(i).locator('.cp-g-eixo', { hasText: rotuloSemanaCurto(semana(0)) })).toBeVisible();
+    }
   });
 
   test('a tabela equivalente traz os mesmos números do gráfico', async ({ page }) => {
@@ -161,6 +165,7 @@ test.describe('Gráfico de linha da seção (CAP-20.5, CAP-20.6)', () => {
     await expect(linhas).toHaveCount(2);
     await expect(linhas.nth(0)).toContainText('100');
     await expect(linhas.nth(1)).toContainText('200');
+    await expect(s.locator('.cp-g .cp-g-tab')).toHaveCount(0); // uma só tabela por seção, não uma por gráfico
   });
 
   test('10 semanas renderizam sem erro, com 10 marcadores por série e 10 linhas na tabela', async ({ page }) => {
@@ -182,8 +187,8 @@ test.describe('Gráfico de linha da seção (CAP-20.5, CAP-20.6)', () => {
   });
 });
 
-/* ---------- linha do tempo geral e caixinhas antigas (CAP-21.7, CAP-21.8) ---------- */
-const geral = (page: Page) => page.locator('.cp-geral');
+/* ---------- Resumo (cartões) e caixinhas antigas (CAP-21.7, CAP-21.8) ---------- */
+const cartao = (page: Page, k: string) => page.locator(`.cp-kpi[data-kpi="${k}"]`);
 const duasSemanas = (secoes: Record<string, Record<string, number>>) => ({
   semanas: { [semana(1)]: secoes, [semana(0)]: Object.fromEntries(Object.entries(secoes).map(([k, v]) => [k, Object.fromEntries(Object.entries(v).map(([c, n]) => [c, n + 5]))])) },
   clipping: [],
@@ -191,44 +196,71 @@ const duasSemanas = (secoes: Record<string, Record<string, number>>) => ({
 const TODAS = { k1: { alcance: 100 }, k2: { comentarios: 10 }, k3: { recebidas: 20 }, k4: { participaram: 30 }, k5: { aparicoes: 4 } };
 const caixinha = (page: Page, k: string) => page.evaluate((c) => (window as unknown as { D: { campos: Record<string, unknown> } }).D.campos[c], k);
 
-test.describe('Linha do tempo geral (CAP-21.7)', () => {
-  test('fica no fim da tela e, com 2 semanas registradas, mostra um indicador de cada seção com registro', async ({ page }) => {
-    await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: duasSemanas({ k1: { alcance: 100 }, k3: { recebidas: 20 }, k5: { aparicoes: 4 } }) } });
-    await expect(page.locator('.cp-com').locator('> *').last()).toHaveClass(/np-com-split/); // a linha do tempo fica na coluna da direita, ao lado das seções
-    await expect(page.locator('.np-com-dir').locator('.cp-geral')).toBeVisible();
-    await expect(geral(page).getByRole('heading', { name: 'Linha do tempo geral' })).toBeVisible();
-    const g = geral(page).locator('.cp-g[data-tipo="linha"]');
-    await expect(g.locator('polyline')).toHaveCount(3);
-    await expect(g.getByRole('list', { name: 'Legenda' }).locator('li')).toHaveText(['Alcance', 'Mensagens', 'Imprensa']);
-  });
-
-  test('com as 5 seções registradas há um indicador para cada uma, na ordem do Guia', async ({ page }) => {
-    await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: duasSemanas(TODAS) } });
-    const g = geral(page).locator('.cp-g[data-tipo="linha"]');
-    await expect(g.locator('polyline')).toHaveCount(5);
-    await expect(g.getByRole('list', { name: 'Legenda' }).locator('li')).toHaveText(['Alcance', 'Interações', 'Mensagens', 'Campanhas', 'Imprensa']);
-  });
-
-  test('o indicador de cada seção é o número principal dela (o gráfico e a tabela trazem o mesmo valor)', async ({ page }) => {
-    await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: duasSemanas({ k1: { seguidores: 5000, alcance: 100 } }) } });
-    await geral(page).getByText('Ver como tabela').click();
-    const linhas = geral(page).locator('.cp-g-tab tbody tr');
-    await expect(linhas.nth(0)).toContainText('100');
-    await expect(linhas.nth(1)).toContainText('105');
-    await expect(geral(page).locator('.cp-g-tab')).not.toContainText('5000');
-  });
-
-  test('com menos de 2 semanas no total pede mais uma semana, sem gráfico', async ({ page }) => {
+test.describe('Resumo da comunicação (CAP-21.7)', () => {
+  test('a tela é uma coluna só: faixa, Resumo, as 5 seções e o clipping, nessa ordem', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO });
-    await expect(geral(page).getByText('Registre mais uma semana para ver a linha do tempo geral')).toBeVisible();
-    await expect(geral(page).locator('.cp-g')).toHaveCount(0);
-    await registra(page, 'k1', { 'Alcance ou visualizações': '10' });
-    await expect(geral(page).locator('.cp-g')).toHaveCount(0);
+    await expect(page.locator('.np-com-split')).toHaveCount(0);
+    const filhos = page.locator('.cp-com > *');
+    await expect(filhos).toHaveCount(4);
+    await expect(filhos.nth(1)).toHaveClass(/cp-com-resumo/);
+    await expect(filhos.nth(2).locator('details[data-secao]')).toHaveCount(5);
+    await expect(filhos.nth(3).locator('.cp-clip')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Resumo' })).toBeVisible();
+    await expect(page.locator('.cp-geral')).toHaveCount(0);
   });
 
-  test('semanas de seções diferentes se somam no eixo: 1 semana em k1 e outra em k2 já formam a linha geral', async ({ page }) => {
-    await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: { semanas: { [semana(1)]: { k1: { alcance: 10 } }, [semana(0)]: { k2: { comentarios: 3 } } }, clipping: [] } } });
-    await expect(geral(page).locator('.cp-g[data-tipo="linha"]')).toBeVisible();
+  test('sem registro, os 5 cartões aparecem na ordem do Guia com "Sem registro ainda"', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await expect(page.locator('.cp-kpi')).toHaveCount(5);
+    await expect(page.locator('.cp-kpi .rot')).toHaveText(['Alcance', 'Interações', 'Mensagens', 'Campanhas', 'Imprensa']);
+    for (const k of ['k1', 'k2', 'k3', 'k4', 'k5']) {
+      await expect(cartao(page, k)).toContainText('Sem registro ainda');
+      await expect(cartao(page, k).locator('.num')).toHaveText('–');
+    }
+    await expect(page.locator('.cp-kpi-sp')).toHaveCount(0);
+  });
+
+  test('com 2 semanas, cada cartão mostra o número principal, a variação contra a semana anterior e a miniatura', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: duasSemanas(TODAS) } });
+    await expect(cartao(page, 'k1').locator('.num')).toHaveText('105');
+    await expect(cartao(page, 'k1').locator('.var')).toHaveText('▲ +5 (+5%) vs. semana anterior');
+    await expect(cartao(page, 'k1').locator('.var')).toHaveClass(/sobe/);
+    await expect(cartao(page, 'k2').locator('.num')).toHaveText('15');
+    await expect(cartao(page, 'k2').locator('.var')).toContainText('(+50%)');
+    await expect(cartao(page, 'k5').locator('.num')).toHaveText('9');
+    await expect(page.locator('.cp-kpi-sp')).toHaveCount(5);
+  });
+
+  test('o número do cartão é o principal da seção, não o primeiro campo', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: duasSemanas({ k1: { seguidores: 5000, alcance: 100 } }) } });
+    await expect(cartao(page, 'k1').locator('.num')).toHaveText('105');
+    await expect(cartao(page, 'k1')).not.toContainText('5.000');
+    await expect(cartao(page, 'k1')).toContainText('Alcance ou visualizações');
+  });
+
+  test('um só registro mostra "1º registro" e nenhuma miniatura; queda e igualdade têm o próprio sinal', async ({ page }) => {
+    const dados = { semanas: { [semana(1)]: { k1: { alcance: 100 }, k2: { comentarios: 8 }, k3: { recebidas: 20 } }, [semana(0)]: { k1: { alcance: 80 }, k2: { comentarios: 8 }, k4: { participaram: 3 } } }, clipping: [] };
+    await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: dados } });
+    await expect(cartao(page, 'k1').locator('.var')).toHaveText('▼ −20 (−20%) vs. semana anterior');
+    await expect(cartao(page, 'k1').locator('.var')).toHaveClass(/desce/);
+    await expect(cartao(page, 'k2').locator('.var')).toHaveText('= igual à semana anterior');
+    await expect(cartao(page, 'k3').locator('.var')).toHaveText('1º registro');
+    await expect(cartao(page, 'k3').locator('.cp-kpi-sp')).toHaveCount(0);
+    await expect(cartao(page, 'k4').locator('.var')).toHaveText('1º registro');
+  });
+
+  test('registrar na seção atualiza o cartão na hora', async ({ page }) => {
+    await abre(page, [ILHA], { mandato: MANDATO });
+    await registra(page, 'k3', { 'Mensagens recebidas': '7' });
+    await expect(cartao(page, 'k3').locator('.num')).toHaveText('7');
+    await expect(cartao(page, 'k3').locator('.var')).toHaveText('1º registro');
+  });
+
+  test('os gráficos continuam claros com o sistema em modo escuro (sem fundo preto)', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await abre(page, [ILHA], { mandato: MANDATO, D: { comunicacao: duasSemanas({ k1: { alcance: 100 } }) } });
+    const s = await abreSecao(page, 'k1');
+    await expect(s.locator('.cp-g').first()).toHaveCSS('background-color', 'rgb(252, 252, 251)');
   });
 });
 
@@ -278,40 +310,41 @@ for (const tela of [{ nome: 'celular 360 px', width: 360, height: 740 }, { nome:
   test.describe(`Fluxo completo em ${tela.nome}`, () => {
     test.use({ viewport: { width: tela.width, height: tela.height } });
 
-    test('registra 2 semanas, vê a linha, edita a semana atual sem duplicar e confere a linha do tempo geral', async ({ page }) => {
+    test('registra 2 semanas, vê a linha, edita a semana atual sem duplicar e confere o Resumo', async ({ page }) => {
       await page.clock.install({ time: new Date('2026-11-04T12:00:00') }); // quarta-feira da semana 2026-W45
       await abre(page, [ILHA], { mandato: MANDATO });
       expect(await semRolagemLateral(page)).toBe(true);
 
       let s = await registra(page, 'k1', { 'Seguidores (total)': '1000', 'Alcance ou visualizações': '100' });
       await expect(s.getByText('Registre mais uma semana para ver a linha')).toBeVisible();
-      await expect(geral(page).getByText('Registre mais uma semana para ver a linha do tempo geral')).toBeVisible();
+      await expect(cartao(page, 'k1').locator('.var')).toHaveText('1º registro');
       expect(Object.keys((await comunicacao(page))!.semanas)).toEqual(['2026-W45']);
 
       await page.clock.setSystemTime(new Date('2026-11-11T12:00:00')); // semana seguinte
       await page.reload();
       await page.locator('#tela[data-pronto="true"]').waitFor();
       s = await abreSecao(page, 'k1');
-      await expect(s.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' })).toBeVisible(); // a semana nova ainda não tem registro
+      await expect(s.getByRole('button', { name: /^Registrar/ })).toBeVisible(); // a semana nova ainda não tem registro
       s = await registra(page, 'k1', { 'Seguidores (total)': '1100', 'Alcance ou visualizações': '150' });
       await expect(s.getByText('Registre mais uma semana para ver a linha')).toHaveCount(0);
       await expect(s.locator('.cp-g[data-tipo="linha"] polyline')).toHaveCount(2);
       expect(Object.keys((await comunicacao(page))!.semanas)).toEqual(['2026-W45', '2026-W46']);
       expect(await semRolagemLateral(page)).toBe(true);
 
-      await expect(s.getByRole('button', { name: 'Registrar o que aconteceu esta semana ou nos últimos 15 dias' })).toBeVisible();
+      await expect(s.getByRole('button', { name: /^Registrar/ })).toBeVisible();
       s = await registra(page, 'k1', { 'Alcance ou visualizações': '160' });
       const d = (await comunicacao(page))!;
       expect(Object.keys(d.semanas)).toEqual(['2026-W45', '2026-W46']);
       expect(d.semanas['2026-W46'].k1).toEqual({ seguidores: 1100, alcance: 160 });
       await expect(topo(page, 'k1')).toContainText('Último registro em 11/11/2026');
 
-      await geral(page).getByText('Ver como tabela').click();
-      const linhas = geral(page).locator('.cp-g-tab tbody tr');
+      await s.getByText('Ver como tabela').click();
+      const linhas = s.locator('.cp-g-tab tbody tr');
       await expect(linhas).toHaveCount(2);
       await expect(linhas.nth(0)).toContainText('100');
       await expect(linhas.nth(1)).toContainText('160');
-      await expect(geral(page).locator('.cp-g[data-tipo="linha"] polyline')).toHaveCount(1);
+      await expect(cartao(page, 'k1').locator('.num')).toHaveText('160');
+      await expect(cartao(page, 'k1').locator('.var')).toHaveText('▲ +60 (+60%) vs. semana anterior');
       expect(await caixinha(page, 'm4.k1')).toBe(true);
       expect(await semRolagemLateral(page)).toBe(true);
 
@@ -332,22 +365,34 @@ for (const tela of [{ nome: 'celular 360 px', width: 360, height: 740 }, { nome:
 }
 
 /* ---------- sugestões da Missão 4: opções de registro e data certa do último registro (SUG-50, SUG-51) ---------- */
-const SEMANAL = 'Registrar o que aconteceu esta semana ou nos últimos 15 dias';
-const MENSAL = 'Registrar o que aconteceu este mês';
+const SEMANAL = 'Esta semana ou últimos 15 dias';
+const MENSAL = 'Este mês';
+/** O botão "Registrar" do cabeçalho abre o formulário (semana por padrão); a opção do mês é a segunda escolha dentro dele. */
+const abreRegistro = async (s: Locator, modo: 'semana' | 'mes' = 'semana') => {
+  await s.getByRole('button', { name: /^Registrar/ }).click();
+  if (modo === 'mes') await s.getByRole('button', { name: MENSAL }).click();
+};
 
 test.describe('SUG-50 · registrar a semana (ou os últimos 15 dias) ou o mês', () => {
-  test('cada seção tem os dois botões', async ({ page }) => {
+  test('cada seção tem um botão "Registrar" no cabeçalho, que abre o formulário com as duas opções (semana marcada)', async ({ page }) => {
     await abre(page, [ILHA], { mandato: MANDATO });
-    const s = await abreSecao(page, 'k1');
-    await expect(s.getByRole('button', { name: SEMANAL })).toBeVisible();
-    await expect(s.getByRole('button', { name: MENSAL })).toBeVisible();
+    const s = secao(page, 'k1');
+    await expect(s.getByRole('button', { name: 'Registrar Alcance' })).toBeVisible(); // visível mesmo com a seção fechada
+    await expect(s.getByRole('button', { name: SEMANAL })).toHaveCount(0);
+    await abreRegistro(s);
+    expect(await s.evaluate((el) => (el as HTMLDetailsElement).open)).toBe(true); // o botão também abre a seção
+    await expect(s.getByRole('button', { name: SEMANAL })).toHaveAttribute('aria-pressed', 'true');
+    await expect(s.getByRole('button', { name: MENSAL })).toHaveAttribute('aria-pressed', 'false');
+    await s.getByRole('button', { name: MENSAL }).click();
+    await expect(s.getByRole('button', { name: MENSAL })).toHaveAttribute('aria-pressed', 'true');
+    await expect(s.getByLabel('Mês do registro')).toBeVisible();
   });
 
   test('semanal: a data do registro vai de 14 dias atrás até hoje; a data escolhida decide a semana e fica gravada', async ({ page }) => {
     await page.clock.install({ time: new Date('2026-11-04T12:00:00') });
     await abre(page, [ILHA], { mandato: MANDATO });
     const s = await abreSecao(page, 'k1');
-    await s.getByRole('button', { name: SEMANAL }).click();
+    await abreRegistro(s);
     const data = s.getByLabel('Data do registro');
     await expect(data).toHaveValue('2026-11-04');
     await expect(data).toHaveAttribute('max', '2026-11-04');
@@ -365,7 +410,7 @@ test.describe('SUG-50 · registrar a semana (ou os últimos 15 dias) ou o mês',
     await page.clock.install({ time: new Date('2026-11-04T12:00:00') });
     await abre(page, [ILHA], { mandato: MANDATO });
     const s = await abreSecao(page, 'k1');
-    await s.getByRole('button', { name: SEMANAL }).click();
+    await abreRegistro(s);
     await s.getByLabel('Data do registro').fill('2026-10-01');
     await s.getByLabel('Seguidores (total)', { exact: true }).fill('900');
     await s.getByRole('button', { name: 'Salvar registro' }).click();
@@ -377,7 +422,7 @@ test.describe('SUG-50 · registrar a semana (ou os últimos 15 dias) ou o mês',
     await page.clock.install({ time: new Date('2026-11-04T12:00:00') });
     await abre(page, [ILHA], { mandato: MANDATO });
     const s = await abreSecao(page, 'k2');
-    await s.getByRole('button', { name: MENSAL }).click();
+    await abreRegistro(s, 'mes');
     const mes = s.getByLabel('Mês do registro');
     await expect(mes).toHaveValue('2026-11');
     await s.getByLabel('Comentários recebidos', { exact: true }).fill('40');
@@ -385,7 +430,7 @@ test.describe('SUG-50 · registrar a semana (ou os últimos 15 dias) ou o mês',
     const lido = async () => (await comunicacao(page))! as unknown as { semanas: object; meses: Record<string, Record<string, Record<string, number>>> };
     expect((await lido()).meses).toEqual({ '2026-11': { k2: { comentarios: 40 } } });
     expect((await lido()).semanas).toEqual({});
-    await s.getByRole('button', { name: MENSAL }).click();
+    await abreRegistro(s, 'mes');
     await expect(s.getByLabel('Comentários recebidos', { exact: true })).toHaveValue('40'); // abre com o registro do mês
     await s.getByLabel('Comentários recebidos', { exact: true }).fill('55');
     await s.getByRole('button', { name: 'Salvar registro' }).click();
@@ -398,11 +443,13 @@ test.describe('SUG-50 · registrar a semana (ou os últimos 15 dias) ou o mês',
     const s = await abreSecao(page, 'k1');
     await expect(s.locator('.cp-g[data-tipo="linha"]')).toHaveCount(0);
     await page.evaluate(() => { /* sem recarregar: segundo mês pela própria tela */ });
-    await s.getByRole('button', { name: MENSAL }).click();
+    await abreRegistro(s, 'mes');
     await s.getByLabel('Alcance ou visualizações', { exact: true }).fill('25');
     await s.getByRole('button', { name: 'Salvar registro' }).click();
     await expect(s.locator('.cp-g[data-tipo="linha"]')).toHaveCount(1);
-    await expect(s.getByText('Evolução mensal: Alcance e crescimento da comunidade')).toBeVisible();
+    await expect(s.getByRole('heading', { name: 'Evolução mensal' })).toBeVisible();
+    await expect(s.locator('.cp-g figcaption')).toHaveText(['Alcance ou visualizações']);
+    await expect(s.locator('.cp-g .cp-g-eixo', { hasText: '10/26' })).toBeVisible(); // eixo mensal: MM/AA
   });
 });
 

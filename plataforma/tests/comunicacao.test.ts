@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { SECOES, semanaDe, lerComunicacao, registra, serie, ultimoRegistro, aparicoesPorBandeira, indicador, caixinhasParaMarcar, mesclaBusca, aparicoesDaSemana, adicionaManual, ocultaNoticias, etiquetaNoticias, registraMes, validaDataRegistro, validaMesRegistro, ultimoRegistroDatado, inicioDaSemana, rotuloSemana, rotuloSemanaCurto, serieMes, aparicoesDoMes, type Comunicacao } from '../lib/comunicacao.ts';
+import { SECOES, semanaDe, lerComunicacao, registra, serie, ultimoRegistro, aparicoesPorBandeira, indicador, caixinhasParaMarcar, mesclaBusca, aparicoesDaSemana, adicionaManual, ocultaNoticias, etiquetaNoticias, registraMes, validaDataRegistro, validaMesRegistro, ultimoRegistroDatado, inicioDaSemana, rotuloSemana, rotuloSemanaCurto, serieMes, aparicoesDoMes, resumoSecao, type Comunicacao } from '../lib/comunicacao.ts';
 
 /* Missão 4 · regras da comunicação (CAP-20, CAP-21, CAP-31, CAP-40). Resultados esperados vêm da spec e do calendário ISO. */
 const vazia: Comunicacao = { semanas: {}, clipping: [] };
@@ -236,4 +236,21 @@ test('#198: rotuloSemana mostra segunda a domingo em DD/MM/AA, inclusive na vira
 test('#198: rotuloSemanaCurto dá a segunda-feira (DD/MM) para o eixo do gráfico', () => {
   assert.equal(rotuloSemanaCurto('2026-W47'), '16/11');
   assert.equal(rotuloSemanaCurto('lixo'), 'lixo');
+});
+
+test('resumoSecao: sem registro é null; com um registro não há anterior; com dois traz o anterior e a série em ordem de semana', () => {
+  assert.equal(resumoSecao(vazia, 'k1'), null);
+  assert.equal(resumoSecao(vazia, 'inexistente'), null);
+  let com = ok(registra(vazia, 'k1', '2026-W46', { seguidores: 900, alcance: 100 }));
+  assert.deepEqual(resumoSecao(com, 'k1'), { rot: 'Alcance ou visualizações', valor: 100, anterior: null, serie: [100], periodo: 'semana' });
+  com = ok(registra(com, 'k1', '2026-W45', { alcance: 80 }));
+  com = ok(registra(com, 'k1', '2026-W47', { alcance: 130 }));
+  assert.deepEqual(resumoSecao(com, 'k1'), { rot: 'Alcance ou visualizações', valor: 130, anterior: 100, serie: [80, 100, 130], periodo: 'semana' });
+});
+
+test('resumoSecao: sem o número principal, usa o primeiro campo registrado; só com meses, usa os meses', () => {
+  const com = ok(registra(vazia, 'k2', '2026-W46', { compartilhamentos: 7 }));
+  assert.deepEqual(resumoSecao(com, 'k2'), { rot: 'Compartilhamentos', valor: 7, anterior: null, serie: [7], periodo: 'semana' });
+  const mensal = ok(registraMes(ok(registraMes(vazia, 'k3', '2026-10', { recebidas: 40 })), 'k3', '2026-11', { recebidas: 30 }));
+  assert.deepEqual(resumoSecao(mensal, 'k3'), { rot: 'Mensagens recebidas', valor: 30, anterior: 40, serie: [40, 30], periodo: 'mês' });
 });
