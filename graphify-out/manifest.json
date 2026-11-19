@@ -1698,9 +1698,9 @@
     "semantic_hash": ""
   },
   "plataforma/public/legacy/cadastro.js": {
-    "mtime": 1795024587.9844468,
-    "seen": 1795025558.5785613,
-    "ast_hash": "ec216447193fc4016bb6c312c22e8267",
+    "mtime": 1795101287.4557104,
+    "seen": 1795101445.7937963,
+    "ast_hash": "5e3a326e90b5c2adb7d15ce97ea9b7e6",
     "semantic_hash": ""
   },
   "plataforma/public/legacy/conteudo.js": {
@@ -2574,9 +2574,9 @@
     "semantic_hash": ""
   },
   "plataforma/e2e/rumo-migracao.spec.ts": {
-    "mtime": 1795041497.7759454,
-    "seen": 1795042327.463293,
-    "ast_hash": "9243e45f51d9c16edc73f37a8fc7cfa0",
+    "mtime": 1795101411.0536392,
+    "seen": 1795101445.723234,
+    "ast_hash": "9c1f40a28cddc7e31d44014e1bc188b5",
     "semantic_hash": ""
   },
   "plataforma/e2e/rumo-painel.spec.ts": {
@@ -2586,9 +2586,9 @@
     "semantic_hash": "4f64bff176afe181d952a2744f11f152"
   },
   "plataforma/e2e/rumo-plano.spec.ts": {
-    "mtime": 1794970592.1511395,
-    "seen": 1795000606.896625,
-    "ast_hash": "cb8c73dc5c5439ca311ce52fd0c9f266",
+    "mtime": 1795101295.6561024,
+    "seen": 1795101445.7234666,
+    "ast_hash": "8e9d5eddd53e048707053e0976e53152",
     "semantic_hash": ""
   },
   "plataforma/e2e/rumo-preditores.spec.ts": {
@@ -2640,9 +2640,9 @@
     "semantic_hash": ""
   },
   "plataforma/ilhas/rumo/Bandeiras.tsx": {
-    "mtime": 1795008292.8263762,
-    "seen": 1795009320.2772481,
-    "ast_hash": "98563f5ac86a2898e416d92ca0107886",
+    "mtime": 1795101404.9604044,
+    "seen": 1795101445.732196,
+    "ast_hash": "5869db1a057b88a0662b7a1491fa3dba",
     "semantic_hash": ""
   },
   "plataforma/ilhas/rumo/CartaoMeta.tsx": {
@@ -2682,9 +2682,9 @@
     "semantic_hash": ""
   },
   "plataforma/ilhas/rumo/Preditores.tsx": {
-    "mtime": 1794970592.2627306,
-    "seen": 1795000606.8968627,
-    "ast_hash": "2c22f7c21fd4358a7317f8f7fcb33698",
+    "mtime": 1795101404.9604044,
+    "seen": 1795101445.7336462,
+    "ast_hash": "144d9eb3fef26a1687054e541633e7ac",
     "semantic_hash": ""
   },
   "plataforma/ilhas/rumo/useRumo.ts": {
@@ -2694,9 +2694,9 @@
     "semantic_hash": "78335191672790e21f64716395955c8e"
   },
   "plataforma/lib/atingimento.ts": {
-    "mtime": 1794970592.2814257,
-    "seen": 1795000606.8969119,
-    "ast_hash": "a0a6a83555773a353172c1323054718c",
+    "mtime": 1795101295.6530983,
+    "seen": 1795101445.7358887,
+    "ast_hash": "1cefcfa4879a9c09e7b354aed672cfcf",
     "semantic_hash": ""
   },
   "plataforma/lib/cadeiras.ts": {
@@ -2802,9 +2802,9 @@
     "semantic_hash": ""
   },
   "plataforma/public/legacy/m3.js": {
-    "mtime": 1795041376.0693283,
-    "seen": 1795042327.5509648,
-    "ast_hash": "1e47c4aadcb810b3c32f0dba48b833bd",
+    "mtime": 1795101365.4056,
+    "seen": 1795101445.7944462,
+    "ast_hash": "bc13aa1539a6bfb3638e1f91d037ebbb",
     "semantic_hash": ""
   },
   "plataforma/scripts/build_comissoes.py": {
@@ -2880,9 +2880,9 @@
     "semantic_hash": ""
   },
   "plataforma/tests/legado-m3.test.ts": {
-    "mtime": 1794970593.4807444,
-    "seen": 1795000606.8985472,
-    "ast_hash": "7a1056ea8bd08efc83a1f9d48db7bd8c",
+    "mtime": 1795101390.069485,
+    "seen": 1795101445.8029954,
+    "ast_hash": "09e60466304bdce0373b145bbf8ecc83",
     "semantic_hash": ""
   },
   "plataforma/tests/manchete.test.ts": {
@@ -3168,9 +3168,9 @@
     "semantic_hash": ""
   },
   "plataforma/public/legacy/m5.js": {
-    "mtime": 1795020657.4464166,
-    "seen": 1795021124.7076466,
-    "ast_hash": "f4663409d88ece193433c39e7d02c1c9",
+    "mtime": 1795101295.655102,
+    "seen": 1795101445.794578,
+    "ast_hash": "5aeb90e9a109b3b36715a633a3d776c5",
     "semantic_hash": ""
   },
   "plataforma/tests/feedback.test.ts": {
@@ -3180,9 +3180,9 @@
     "semantic_hash": ""
   },
   "plataforma/tests/legado-m5.test.ts": {
-    "mtime": 1794970593.4834619,
-    "seen": 1795000606.8985558,
-    "ast_hash": "9adc61c4bb32ccc35b78cd7e98d95d03",
+    "mtime": 1795101295.6561024,
+    "seen": 1795101445.8031275,
+    "ast_hash": "81b4955bbac4eba53ddcab31adac14f8",
     "semantic_hash": ""
   },
   ".specs/features/missao4-capital-politico/validation.md": {
