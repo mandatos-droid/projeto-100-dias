@@ -774,6 +774,9 @@ window.Equipe={
     var papel=(Cad.f&&Cad.f.rPapel)||'coordenacao';
     // uma chamada só: o banco cria o mandato e o membro na mesma transação (nunca sobra mandato sem membro)
     var reg=Object.assign({codigo:codigo(),dados:{}},c);
+    // este caminho não passa pelo wrapper do novos.js: sem isto a candidatura vinculada (window.__tse) se perde
+    // e a Persona mostra "vincule a candidatura", sem os pleitos anteriores
+    if(window.__tse){reg.dados=Object.assign({},reg.dados,{tse:window.__tse});window.__tse=null}
     var m=await Nuvem.rest('rpc/mandato_criar',{method:'POST',body:{p_dados:reg,p_papel:papel,p_nome:this.usuario.nome}});
     return m;
   };

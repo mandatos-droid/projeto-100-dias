@@ -415,6 +415,18 @@ test('cadastrar um mandato novo é uma chamada só (rpc mandato_criar): mandato 
   assert.equal(pedidos.some((p) => p.metodo === 'POST' && /\/rest\/v1\/(mandatos|membros)$/.test(p.url)), false, 'sem POST separado em mandatos/membros');
 });
 
+test('cadastrar com candidatura vinculada leva o tse dentro de dados no rpc e limpa o __tse', async () => {
+  const { w, pedidos } = janela({ responde: (url, metodo) => (metodo === 'POST' && url.endsWith('/rest/v1/rpc/mandato_criar') ? { id: 'm-novo' } : undefined) });
+  w.Store.usuario = { id: 'uid-ana', nome: 'Ana Lima' };
+  (w as unknown as { __tse: unknown }).__tse = { sq: '80002549091', casa: 'estadual' };
+  await w.Store.criarMandato({ nome_parlamentar: 'Karla Coser', cargo: 'Deputado(a) Estadual', uf: 'ES', dados: { outro: 1 } });
+  const rpc = pedidos.find((p) => p.metodo === 'POST' && p.url.endsWith('/rest/v1/rpc/mandato_criar'));
+  const corpo = (rpc?.corpo ?? {}) as { p_dados?: { dados?: { tse?: { sq?: string }; outro?: number } } };
+  assert.equal(corpo.p_dados?.dados?.tse?.sq, '80002549091');
+  assert.equal(corpo.p_dados?.dados?.outro, 1, 'não perde o que já estava em dados');
+  assert.equal((w as unknown as { __tse: unknown }).__tse, null);
+});
+
 /* ---------- T35: modo somente leitura (ACE-03.2, ACE-03.3) ---------- */
 const AVISO_LEITURA = 'Você está com acesso somente leitura';
 
