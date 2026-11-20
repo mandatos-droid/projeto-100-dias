@@ -135,13 +135,23 @@ var Guia={
     return h;
   },
 
-  concluir(){
-    D.feitos[this.ex.id]=true;Store.salvar();
-    Store.registrar(this.m.n,this.ex.id,this.ex.t);
+  /* só diz "concluído" depois de gravar de verdade; se o salvamento falhar, a marca volta atrás */
+  async concluir(){
+    var id=this.ex.id,m=this.m,ex=this.ex,antes=!!D.feitos[id];
+    D.feitos[id]=true;Store.salvar();
+    var ok=await Store.salvarAgora();
+    if(!ok){D.feitos[id]=antes;if(this.ex===ex){this.render();App.lateral()}return}
+    Store.registrar(m.n,id,ex.t);
     aviso('Exercício concluído.');
-    this.render();App.lateral();
+    if(this.ex===ex){this.render();App.lateral()}
   },
-  reabrir(){D.feitos[this.ex.id]=false;Store.salvar();this.render();App.lateral()},
+  async reabrir(){
+    var id=this.ex.id,ex=this.ex,antes=!!D.feitos[id];
+    D.feitos[id]=false;Store.salvar();
+    var ok=await Store.salvarAgora();
+    if(!ok)D.feitos[id]=antes;
+    if(this.ex===ex){this.render();App.lateral()}
+  },
   proximo(){
     var lista=[];MISSOES.forEach(function(m){m.exercicios.forEach(function(e){lista.push({m:m,e:e})})});
     var at=lista.findIndex(function(x){return x.e.id===Guia.ex.id});

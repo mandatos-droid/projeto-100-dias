@@ -50,19 +50,86 @@ function aviso(t){var e=document.getElementById('toast');e.textContent=t;e.class
   clearTimeout(tToast);tToast=setTimeout(function(){e.classList.remove('on')},2900)}
 
 /* ===================== DADOS ===================== */
+/* JWT do Supabase: lê o "exp" sem atob/Buffer (base64url na mão), para renovar antes de vencer */
+function jwtExp(t){
+  try{
+    var A='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_',
+      p=String(t).split('.')[1],bits=0,n=0,out='';
+    for(var i=0;i<p.length;i++){
+      var v=A.indexOf(p.charAt(i));if(v<0)continue;
+      bits=(bits<<6)|v;n+=6;
+      if(n>=8){n-=8;out+=String.fromCharCode((bits>>n)&255);bits&=(1<<n)-1}
+    }
+    var e=JSON.parse(out).exp;return typeof e==='number'?e:null;
+  }catch(e){return null}
+}
 var Nuvem={
-  tok:null,
+  tok:null,sessaoPerdida:false,_renov:null,_aviso:null,
   cab:function(x){var h={apikey:CONFIG.key,'Content-Type':'application/json'};
     if(this.tok)h.Authorization='Bearer '+this.tok;return Object.assign(h,x||{})},
   async auth(p,b){var r=await fetch(CONFIG.url+'/auth/v1/'+p,{method:'POST',headers:this.cab(),body:JSON.stringify(b)});
     var d=await r.json();if(!r.ok)throw new Error(d.error_description||d.msg||d.message||'Falha na autenticação');return d},
   google:function(){location.href=CONFIG.url+'/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(location.origin+location.pathname)},
-  async rest(p,o){o=o||{};
-    var r=await fetch(CONFIG.url+'/rest/v1/'+p,{method:o.method||'GET',headers:this.cab(o.headers),
-      body:o.body?JSON.stringify(o.body):undefined});
+  /* a sessão guardada pode ter sido renovada por outra camada (ilhas/sessaoApi.ts) ou por outra aba */
+  _guardada:function(){try{return JSON.parse(localStorage.getItem('legisla.tok')||'null')}catch(e){return null}},
+  vencendo:function(){var e=this.tok?jwtExp(this.tok):null;return !!e&&e*1000-Date.now()<60000},
+  /* devolve 'ok' (token novo em Nuvem.tok), 'perdida' (o servidor recusou o refresh_token) ou 'rede' (falha passageira).
+     Uma renovação por vez: o refresh_token é de uso único. */
+  renovar:function(usado){
+    if(this.sessaoPerdida)return Promise.resolve('perdida');
+    if(usado&&this.tok&&this.tok!==usado)return Promise.resolve('ok'); // outro pedido já renovou
+    if(this._renov)return this._renov;
+    var s=this,sa=this._guardada();
+    if(sa&&sa.access_token&&sa.access_token!==s.tok){s.tok=sa.access_token;return Promise.resolve('ok')}
+    if(!sa||!sa.refresh_token)return Promise.resolve('perdida');
+    return this._renov=this._refresh(sa).then(function(r){s._renov=null;return r},function(){s._renov=null;return 'rede'});
+  },
+  async _refresh(sa){
+    var r;
+    try{r=await fetch(CONFIG.url+'/auth/v1/token?grant_type=refresh_token',
+      {method:'POST',headers:{apikey:CONFIG.key,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:sa.refresh_token})})}
+    catch(e){return 'rede'}
+    if(r.ok){
+      var d=null;try{d=await r.json()}catch(e){}
+      if(d&&d.access_token){this.tok=d.access_token;try{localStorage.setItem('legisla.tok',JSON.stringify(d))}catch(e){}return 'ok'}
+      return 'rede';
+    }
+    if(r.status>=500||r.status===429||r.status===408)return 'rede';
+    var o=this._guardada(); // a outra camada pode ter renovado enquanto este pedido era recusado
+    if(o&&o.access_token&&o.access_token!==sa.access_token){this.tok=o.access_token;return 'ok'}
+    return 'perdida';
+  },
+  /* cobre a tela com um aviso que não some: gravar sem sessão só finge que salvou */
+  perdeuSessao:function(){
+    this.sessaoPerdida=true;
+    if(this._aviso)return;
+    var e=document.createElement('div');
+    e.setAttribute('role','alertdialog');e.setAttribute('aria-modal','true');e.setAttribute('aria-labelledby','sessao-t');
+    e.setAttribute('style','position:fixed;top:0;right:0;bottom:0;left:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.86)');
+    e.innerHTML='<div style="max-width:440px;background:#fff;color:#0f172a;border-radius:14px;padding:26px 24px;box-shadow:0 20px 60px rgba(0,0,0,.45);font:16px/1.5 system-ui,sans-serif">'
+      +'<h2 id="sessao-t" style="margin:0 0 10px;font-size:20px">Sua sessão expirou</h2>'
+      +'<p style="margin:0 0 18px">As últimas alterações não foram salvas e a tela foi bloqueada para você não perder mais nada. Entre de novo para continuar: o que já estava salvo continua no seu mandato.</p>'
+      +'<button type="button" onclick="Nuvem.reentrar()" style="font:inherit;font-weight:700;padding:11px 20px;border:0;border-radius:10px;background:#0f172a;color:#fff;cursor:pointer">Entrar de novo</button></div>';
+    document.body.appendChild(e);this._aviso=e;
+  },
+  reentrar:function(){try{localStorage.removeItem('legisla.tok')}catch(e){}this.tok=null;location.reload()},
+  async _pede(p,o){
+    var op={method:o.method||'GET',headers:this.cab(o.headers),body:o.body?JSON.stringify(o.body):undefined};
+    if(o.keepalive)op.keepalive=true; // pedido que sobrevive ao fechamento da página (pagehide)
+    var r=await fetch(CONFIG.url+'/rest/v1/'+p,op);
     var tx=await r.text(),d=null; // POST sem "return=representation" volta 201 com corpo vazio
     if(tx){try{d=JSON.parse(tx)}catch(e){d=null}}
-    if(!r.ok)throw new Error((d&&(d.message||d.hint))||'Falha ao acessar os dados');return d}
+    return{ok:r.ok,status:r.status,d:d};
+  },
+  async rest(p,o){o=o||{};
+    var usado=this.tok,r=await this._pede(p,o);
+    if(r.status===401&&usado){ // token vencido: renova sozinho e repete uma vez
+      var rn=await this.renovar(usado);
+      if(rn==='ok')r=await this._pede(p,o);
+      else if(rn==='perdida'){this.perdeuSessao();var e=new Error('Sua sessão expirou. Entre de novo.');e.sessao=true;throw e}
+      else throw new Error('Não foi possível renovar a sessão (sem conexão).');
+    }
+    if(!r.ok)throw new Error((r.d&&(r.d.message||r.d.hint))||'Falha ao acessar os dados');return r.d}
 };
 var Local={
   ch:'legisla.regimento.v3',
@@ -192,16 +259,67 @@ var Store={
     d.frags=d.frags||FRAGILIDADES.map(function(t){return{t:t,mp:null}});
     ['metas','comissoes','feedbacks','preditores','acoes','comissoesDesejadas'].forEach(function(k){d[k]=d[k]||[]});
     D=this.dados;
+    this._versao=NUVEM?(this.mandato.atualizado_em||null):null; // base do salvamento sem sobrescrever a outra pessoa
+    this._base=NUVEM?JSON.stringify(this.dados):null;this._sujo=false;
     return this.mandato;
   },
-  _t:null,
-  salvar(){clearTimeout(this._t);marcaSalvando();var s=this;this._t=setTimeout(function(){s.gravar()},700)},
-  async gravar(){
+  _t:null,_sujo:false,_voo:null,_enviando:0,_versao:null,_base:null,_ultRenova:0,
+  salvar(){
+    clearTimeout(this._t);this._sujo=true;marcaSalvando();var s=this;
+    this._t=setTimeout(function(){s._t=null;s.gravar()},700);
+    /* token a menos de 1 min de vencer: renova agora, em segundo plano, para a gravação (ou o pagehide) não depender disso */
+    if(NUVEM&&Nuvem.vencendo()&&Date.now()-this._ultRenova>15000){
+      this._ultRenova=Date.now();Nuvem.renovar(Nuvem.tok).then(function(){},function(){});
+    }
+  },
+  /* grava e diz se deu certo: true/false (undefined = nada a gravar, como no modo leitura) */
+  gravar(o){
+    var s=this;o=o||{};
+    if(o.descarga)return s._grava(true); // saindo da página: sem fila, o pedido precisa partir agora
+    clearTimeout(s._t);s._t=null;
+    var p=s._voo?s._voo.then(function(){return s._grava(false)}):s._grava(false); // uma gravação por vez, na ordem
+    var q=s._voo=p.then(function(){},function(){});
+    q.then(function(){if(s._voo===q)s._voo=null});
+    return p;
+  },
+  async salvarAgora(){return (await this.gravar())!==false},
+  descarregar(){
+    if(!this.mandato)return;
+    if(this._t==null&&!this._sujo&&!this._enviando)return;
+    clearTimeout(this._t);this._t=null;
+    try{var r=this.gravar({descarga:true});if(r&&r.catch)r.catch(function(){})}catch(e){}
+  },
+  async _grava(descarga){
+    var s=this;s._sujo=false;s._enviando++;
     try{
-      if(NUVEM)await Nuvem.rest('mandatos?id=eq.'+this.mandato.id,{method:'PATCH',body:{dados:this.dados,atualizado_em:new Date().toISOString()}});
-      else{var b=Local.ler();b.mandatos[this.mandato.id].dados=this.dados;Local.gravar(b)}
-      marcaSalvo();
-    }catch(e){aviso('Não foi possível salvar: '+e.message)}
+      if(NUVEM){
+        if(Nuvem.sessaoPerdida)throw Object.assign(new Error('Sessão expirada.'),{sessao:true});
+        await s._gravaNuvem(descarga);
+      }else{var b=Local.ler();b.mandatos[s.mandato.id].dados=s.dados;Local.gravar(b)}
+      marcaSalvo();return true;
+    }catch(e){
+      s._sujo=true;marcaFalhou();
+      if(!e.sessao)aviso('Não foi possível salvar: '+e.message);
+      return false;
+    }finally{s._enviando--}
+  },
+  /* PATCH condicional à versão lida (atualizado_em): se outra pessoa gravou antes, lê o que ela gravou, mescla e repete */
+  async _gravaNuvem(descarga){
+    var s=this,id=s.mandato.id,mesclou=false;
+    for(var t=0;t<4;t++){
+      var txt=JSON.stringify(s.dados),v=s._versao;
+      var r=await Nuvem.rest('mandatos?id=eq.'+id+(v?'&atualizado_em=eq.'+encodeURIComponent(v)+'&select=atualizado_em':''),
+        {method:'PATCH',body:{dados:s.dados},headers:{Prefer:v?'return=representation':'return=minimal'},keepalive:!!descarga&&txt.length<60000});
+      if(!v){s._base=txt;break}
+      if(Array.isArray(r)&&r.length){s._versao=r[0].atualizado_em||v;s._base=txt;break}
+      if(t===3)throw new Error('outra pessoa está editando ao mesmo tempo. Tente de novo em instantes.');
+      var g=await Nuvem.rest('mandatos?id=eq.'+id+'&select=dados,atualizado_em');
+      if(!g||!g[0])throw new Error('Mandato não encontrado.');
+      var deles=g[0].dados||{};
+      mesclaDados(s._base?JSON.parse(s._base):{},s.dados,deles);
+      s._base=JSON.stringify(deles);s._versao=g[0].atualizado_em;mesclou=true;
+    }
+    if(mesclou)aviso('Suas alterações foram combinadas com as de outra pessoa.');
   },
   async atualizar(c){
     Object.assign(this.mandato,c);
@@ -220,6 +338,53 @@ var Store={
 };
 function marcaSalvando(){document.querySelectorAll('[data-salvo]').forEach(function(e){e.textContent='Salvando…'})}
 function marcaSalvo(){document.querySelectorAll('[data-salvo]').forEach(function(e){e.textContent='Salvo automaticamente'})}
+function marcaFalhou(){document.querySelectorAll('[data-salvo]').forEach(function(e){e.textContent='Não salvo. Tentaremos de novo na próxima edição.'})}
+
+/* Mescla de três vias: base (o que li ao abrir/gravar), mine (a tela) e theirs (o servidor agora). Muta e devolve "mine".
+   Só um lado mudou → vale esse lado; os dois mudaram → objetos e listas com id se combinam por chave; no mesmo valor vale o meu. */
+function mesclaDados(base,mine,theirs){
+  function igual(a,b){return JSON.stringify(a)===JSON.stringify(b)}
+  function obj(x){return !!x&&typeof x==='object'&&!Array.isArray(x)}
+  function comId(l){return Array.isArray(l)&&l.every(function(i){return obj(i)&&i.id!=null})}
+  function mapa(l){var m={};(l||[]).forEach(function(i){m[i.id]=i});return m}
+  function mescla(b,m,t){
+    if(igual(m,t))return m;
+    if(igual(m,b))return t;
+    if(igual(t,b))return m;
+    if(obj(m)&&obj(t))return campos(obj(b)?b:{},m,t,false);
+    if(comId(m)&&comId(t)&&(b===undefined||comId(b)))return lista(b||[],m,t);
+    return m;
+  }
+  function campos(b,m,t,topo){
+    var ks={};Object.keys(m).concat(Object.keys(t)).forEach(function(k){ks[k]=1});
+    Object.keys(ks).forEach(function(k){
+      if(topo&&k==='feedbacks')return; // vive em feedbacks_mandato, não em mandatos.dados
+      var r=mescla(b[k],m[k],t[k]);
+      if(r===undefined)delete m[k];else m[k]=r;
+    });
+    return m;
+  }
+  function lista(b,m,t){
+    var bm=mapa(b),mm=mapa(m),tm=mapa(t),res=[];
+    m.forEach(function(i){
+      if(tm[i.id])res.push(mescla(bm[i.id],i,tm[i.id]));
+      else if(!bm[i.id]||!igual(i,bm[i.id]))res.push(i); // meu item novo, ou que mexi e a outra pessoa apagou
+    });
+    t.forEach(function(i){
+      if(mm[i.id])return;
+      if(!bm[i.id]||!igual(i,bm[i.id]))res.push(i); // item novo dela, ou que ela mexeu e eu apaguei
+    });
+    m.length=0;res.forEach(function(i){m.push(i)});return m;
+  }
+  if(obj(mine)&&obj(theirs))campos(obj(base)?base:{},mine,theirs,true);
+  return mine;
+}
+
+/* saída rápida: o atraso de 700 ms do salvar() não pode perder o que acabou de ser digitado */
+try{
+  window.addEventListener('pagehide',function(){Store.descarregar()});
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')Store.descarregar()});
+}catch(e){}
 
 /* ===================== PRAZOS E PROGRESSO ===================== */
 function posse(){return Store.mandato&&Store.mandato.data_posse?new Date(Store.mandato.data_posse+'T12:00:00'):null}
