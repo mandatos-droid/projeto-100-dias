@@ -2,7 +2,7 @@
 /* Missão 3 · cartão de uma meta: texto, retorno SMART ao vivo, "alcançável" por confirmação, responsável e apoios
    (chips das pessoas da Missão 2 ou texto livre) e, na aba Planejamento, o status. É o mesmo cartão no exercício e na aba. */
 import { useState } from 'react';
-import { STATUS, pctMeta, statusPorAtingimento } from '@/lib/atingimento';
+import { STATUS, opcoesStatus, pctMeta, statusPorAtingimento } from '@/lib/atingimento';
 import { type ItemMeta, type Objetivo } from '@/lib/plano';
 import { MAX_APOIOS, resolve, validaApoio, type Pessoa, type Ref } from '@/lib/pessoas';
 import { LETRAS, avaliaMeta, type Letra } from '@/lib/smart';
@@ -48,6 +48,7 @@ export default function CartaoMeta({ meta, objetivos, pessoas, campos, comStatus
   /* SUG-85: o status acompanha o atingimento dos sucessos (congelada fica como está) */
   const gravaSucessos = (l: Sucesso[]) => onChange(meta.idx, { sucessos: l, status: statusPorAtingimento(meta.status, l) });
   const pct = pctMeta(meta.status, sucessos);
+  const st = statusPorAtingimento(meta.status, sucessos);
 
   const respRef: Ref = { cad: typeof meta.respCad === 'number' ? meta.respCad : null, nome: res.resp };
   const cads = meta.apoioCad ?? [];
@@ -203,8 +204,8 @@ export default function CartaoMeta({ meta, objetivos, pessoas, campos, comStatus
 
       {comStatus && (
         <label className="campo rm-status"><span className="rot">Status da meta {n}</span>
-          <select value={meta.status} onChange={(e) => onChange(meta.idx, { status: e.target.value as StatusMeta })}>
-            {STATUS.map((s) => <option key={s.id} value={s.id}>{s.rot}</option>)}
+          <select value={st} onChange={(e) => onChange(meta.idx, { status: e.target.value as StatusMeta })}>
+            {opcoesStatus(st, sucessos.length > 0).map((s) => <option key={s.id} value={s.id}>{s.rot}</option>)}
           </select>
         </label>
       )}

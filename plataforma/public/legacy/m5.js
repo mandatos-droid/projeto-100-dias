@@ -32,18 +32,22 @@
   function e(t){return typeof esc==='function'?esc(t):String(t)}
   function r(t){return typeof rich==='function'?rich(t):e(t)}
 
-  /* atingimento da meta como na aba Planejamento (lib/atingimento.ts): com sucessos, atingidos sobre o total (congelado fora);
-     sem sucessos, o passo de 10% do status. null = fora da conta. */
+  /* atingimento da meta como na aba Planejamento (lib/atingimento.ts): com sucessos, a MÉDIA do atingimento de cada sucesso pelo status dele
+     (70% e 50% dão 60%; congelado fora); sem sucessos, o passo de 10% do status da meta. null = fora da conta. */
+  function pctStatus(st){
+    if(st==='congelada')return null;
+    if(st==='concluida')return 100;
+    var x=/^concluida(\d+)$/.exec(st||'');
+    return x?+x[1]:0;
+  }
   function pctMeta(m){
     if(m.status==='congelada')return null;
     if(Array.isArray(m.sucessos)&&m.sucessos.length){
-      var suc=m.sucessos.filter(function(x){return x&&x.status!=='congelada'});
-      if(!suc.length)return null;
-      return Math.round(suc.filter(function(x){return x.status==='concluida'}).length/suc.length*100);
+      var v=m.sucessos.map(function(x){return pctStatus(x&&x.status)}).filter(function(p){return p!==null});
+      if(!v.length)return null;
+      return Math.round(v.reduce(function(a,n){return a+n},0)/v.length);
     }
-    if(m.status==='concluida')return 100;
-    var x=/^concluida(\d+)$/.exec(m.status||'');
-    return x?+x[1]:0;
+    return pctStatus(m.status);
   }
   function rotStatus(st){
     if(st==='concluida')return 'Concluída';
@@ -56,6 +60,8 @@
   function cartao(m,i,foco){
     var c=(typeof D!=='undefined'&&D.campos)||{};
     var p=pctMeta(m),st=m.status||'nao_concluida';
+    /* com sucessos mensais o status mostrado é o do atingimento (passo de 10% logo abaixo da média) */
+    if(Array.isArray(m.sucessos)&&m.sucessos.length&&p!==null){var pp=Math.floor(p/10)*10;st=pp>=100?'concluida':pp<=0?'nao_concluida':'concluida'+pp}
     /* objetivo estratégico da meta: o texto escrito na Missão 3 ou, sem ele, o nome do preditor (como o Guia fazia) */
     var pr=m.pred&&typeof PREDITORES!=='undefined'?PREDITORES.filter(function(x){return x.id===m.pred})[0]:null;
     var obj=m.pred?(c['m3.obj.'+m.pred]||(pr?pr.n:'')):'';

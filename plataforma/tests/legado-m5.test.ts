@@ -104,6 +104,12 @@ test('meta com sucessos mostra atingidos sobre o total e meta congelada mostra "
   assert.match(cong, /<small>—<\/small>/);
 });
 
+test('meta com sucessos 70% e 50% mostra 60% no Monitoramento, ignorando o status próprio gravado (relato do Pedro)', () => {
+  const { html } = monit([META('m1', { status: 'concluida80', sucessos: [{ status: 'concluida70' }, { status: 'concluida50' }] })]);
+  assert.match(html, /<small>60%<\/small>/);
+  assert.match(html, /Em andamento – 60%/, 'o rótulo acompanha a média');
+});
+
 test('sem metas o monitoramento mostra o aviso e ainda assim o botão do Planejamento (MON-03.4)', () => {
   const { html } = monit([]);
   assert.match(html, /As metas da Missão 3 aparecem aqui assim que forem escritas\./);

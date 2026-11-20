@@ -2,7 +2,7 @@
 /* Missão 3 · árvore do planejamento (Legado → objetivos estratégicos → metas), HTML aninhado com role="tree".
    Usada na prévia dos preditores (T18) e na aba Planejamento (T20). Teclado: setas navegam, Espaço recolhe, Enter aciona o nó. */
 import { useState, type KeyboardEvent, type ReactNode } from 'react';
-import { STATUS, pctMeta, pctObjetivo } from '@/lib/atingimento';
+import { STATUS, opcoesStatus, pctMeta, pctObjetivo, statusPorAtingimento } from '@/lib/atingimento';
 import type { Arvore, ItemMeta } from '@/lib/plano';
 import type { StatusMeta } from '@/lib/rumo';
 import { lerSucessos, porMes } from '@/lib/sucessos';
@@ -106,13 +106,15 @@ function noMeta(m: ItemMeta, o: OpcoesPlano): No {
   const txt = semTags(m.texto).trim();
   const sucessos = lerSucessos(m);
   const p = pctMeta(m.status, sucessos);
+  /* com sucessos mensais o status mostrado é o do atingimento (a média dos meses), não um que ficou gravado antes */
+  const st = statusPorAtingimento(m.status, sucessos);
   const statusEl = (
     <>
-      <span className="rm-st" data-status={m.status}><i aria-hidden="true">{SIMBOLO[m.status]}</i>{rotStatus(m.status)}<small>{pctTxt(p)}</small></span>
+      <span className="rm-st" data-status={st}><i aria-hidden="true">{SIMBOLO[st]}</i>{rotStatus(st)}<small>{pctTxt(p)}</small></span>
       {!o.leitura && (
         <label className="rm-st-sel"><span className="sr">Status da meta {n}</span>
-          <select value={m.status} onChange={(e) => o.onStatus(m.idx, e.target.value as StatusMeta)}>
-            {STATUS.map((s) => <option key={s.id} value={s.id}>{s.rot}</option>)}
+          <select value={st} onChange={(e) => o.onStatus(m.idx, e.target.value as StatusMeta)}>
+            {opcoesStatus(st, sucessos.length > 0).map((s) => <option key={s.id} value={s.id}>{s.rot}</option>)}
           </select>
         </label>
       )}
@@ -122,7 +124,7 @@ function noMeta(m: ItemMeta, o: OpcoesPlano): No {
     id: `meta-${m.idx}`, tipo: 'meta', marca: o.marca?.(m),
     abaixo: o.cartoes ? o.abaixoMeta?.(m) : undefined,
     filhos: sucessos.length ? nosSucessos(m.idx, sucessos, o) : undefined,
-    rot: `Meta ${n}: ${txt || 'sem texto'}. Status: ${rotStatus(m.status)}${p === null ? ', fora da conta' : `, ${p}%`}`,
+    rot: `Meta ${n}: ${txt || 'sem texto'}. Status: ${rotStatus(st)}${p === null ? ', fora da conta' : `, ${p}%`}`,
     cabeca: o.cartoes ? (
       <>
         <span className="rm-no-tag np-meta-num">Meta {n}</span>
@@ -159,7 +161,7 @@ export function nosPlano(arv: Arvore, o: OpcoesPlano): No[] {
   } : nosPrevia(arv)[0];
   const objs: No[] = arv.objetivos.map((ob) => {
     const p = pctObjetivo(ob.metas);
-    const cont = STATUS.map((s) => ({ ...s, n: ob.metas.filter((m) => m.status === s.id).length })).filter((s) => s.n > 0);
+    const cont = STATUS.map((s) => ({ ...s, n: ob.metas.filter((m) => statusPorAtingimento(m.status, m.sucessos) === s.id).length })).filter((s) => s.n > 0);
     const barra = (
       <span className="rm-no-barra" role="progressbar" aria-label={`Atingimento do objetivo ${ob.texto}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={p ?? undefined} aria-valuetext={pctTxt(p)}>
         <i style={{ width: `${p ?? 0}%` }} />
