@@ -44,6 +44,10 @@ test.describe('Saída rápida (flush ao sair da página)', () => {
     await page.keyboard.type('Reduzir a fila da saúde');
     await page.goto('/guia#/');
     await page.locator('#ladoNav .it').first().waitFor();
+    // a troca de exercício é só de hash (mesma página): o salvamento agendado continua valendo
+    await expect.poll(async () => (await campos(page))['m1.q3c3']).toContain('Reduzir a fila da saúde');
+    await page.reload();
+    await page.locator('#ladoNav .it').first().waitFor();
     expect((await campos(page))['m1.q3c3']).toContain('Reduzir a fila da saúde');
   });
 });
