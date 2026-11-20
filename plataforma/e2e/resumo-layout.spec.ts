@@ -47,26 +47,18 @@ test('depois de clicar em um segmento, o título da missão fica visível logo a
   }
 });
 
-test('a 800 px o botão de download fica fixo no rodapé, na largura toda; a 1.280 px fica na barra (RES-03, RES-02.8)', async ({ page }) => {
-  await abreResumo(page, 800, 900);
-  const acoes = page.locator('#tela .acoes');
-  await expect(acoes).toHaveCSS('position', 'fixed');
-  const a = await caixa(page, '#tela .acoes');
-  expect(a.left).toBe(0);
-  expect(a.width).toBe(800);
-  expect(Math.round(a.bottom)).toBe(900);
-  await rola(page, 1200);
-  const regra = await page.evaluate(() => [...document.styleSheets].flatMap((s) => { try { return [...s.cssRules]; } catch { return []; } })
-    .flatMap((r) => (r instanceof CSSMediaRule ? [...r.cssRules] : [r])).map((r) => r.cssText)
-    .find((t) => t.startsWith('#tela .res2 .acoes') && t.includes('position: fixed')));
-  expect(regra).toContain('env(safe-area-inset-bottom)');
-
-  await page.setViewportSize({ width: 1280, height: 800 });
-  await expect(acoes).not.toHaveCSS('position', 'fixed');
-  const barra = await caixa(page, '#tela .barra');
-  const bt = await caixa(page, '#tela .acoes .bt');
-  expect(bt.top).toBeGreaterThanOrEqual(barra.top);
-  expect(bt.bottom).toBeLessThanOrEqual(barra.bottom);
+test('sem botão de download: a 800 e a 1.280 px a barra traz só o percentual e os segmentos, sem barra de ações (RES-03, RES-02.8)', async ({ page }) => {
+  for (const [largura, altura] of [[800, 900], [1280, 800]]) {
+    await abreResumo(page, largura, altura);
+    /* a plataforma não exporta mais (commit 8ea6a63): nada de rodapé fixo nem botão de baixar */
+    await expect(page.locator('#tela .acoes')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /baixar|exportar|download/i })).toHaveCount(0);
+    await expect(page.locator('#tela .barra .geral')).toBeVisible();
+    await expect(page.locator('#tela .barra .seg')).toHaveCount(5);
+    const barra = await caixa(page, '#tela .barra');
+    expect(barra.left).toBeGreaterThanOrEqual(0);
+    expect(barra.right).toBeLessThanOrEqual(largura);
+  }
 });
 
 test('a 375 px a página não rola na horizontal e os segmentos rolam dentro da barra (RES-13.5, RES-02.8)', async ({ page }) => {

@@ -178,13 +178,15 @@ test.describe('Etiquetar com bandeiras (CAP-30.3, CAP-30.4)', () => {
     expect((await clipping(page)).filter((n) => n.oculta)).toHaveLength(2);
   });
 
-  test('sem bandeiras prioritárias na Missão 3 a lista funciona e orienta a escolher as bandeiras', async ({ page }) => {
+  test('sem bandeiras prioritárias na Missão 3 a lista funciona, oferece todas as bandeiras do Guia e avisa (SUG-84)', async ({ page }) => {
     await simulaBusca(page);
     await abre(page, [ILHA], { mandato: MANDATO });
     await busca(page).click();
     await expect(page.locator('li.cp-not')).toHaveCount(3);
-    await expect(page.getByText('escolha antes as bandeiras prioritárias na Missão 3')).toBeVisible();
+    await expect(page.getByText('Você ainda não escolheu bandeiras prioritárias na Missão 3; mostro todas as bandeiras para etiquetar.')).toBeVisible();
     await expect(page.locator('li.cp-not').first().getByText('Sem bandeira')).toBeVisible();
+    /* sem as prioritárias, cada notícia oferece todas as bandeiras, não só duas */
+    expect(await page.locator('li.cp-not').first().locator('.cp-chip').count()).toBeGreaterThan(2);
   });
 });
 
@@ -308,12 +310,17 @@ test.describe('Gráfico de aparições por bandeira (CAP-31.6)', () => {
     await expect(valor(page, SEMANA, 'Sem bandeira')).toHaveText('1');
   });
 
-  test('sem notícias não há gráfico; com notícias e sem bandeiras da Missão 3 só aparece "Sem bandeira"', async ({ page }) => {
+  test('sem notícias não há gráfico; com notícias e sem bandeiras da Missão 3 o gráfico lista todas as bandeiras com 0 e "Sem bandeira" com a notícia (SUG-84)', async ({ page }) => {
     await simulaBusca(page, { itens: [DE_HOJE[0]] });
     await abre(page, [ILHA], { mandato: MANDATO });
     await expect(page.locator('.cp-clip-graf')).toHaveCount(0);
     await busca(page).click();
-    await expect(barras(page, PERIODO).locator('li')).toHaveText([/Sem bandeira\s*1/]);
+    const itens = barras(page, PERIODO).locator('li');
+    expect(await itens.count()).toBeGreaterThan(2);
+    await expect(itens.last()).toHaveText(/Sem bandeira\s*1/);
+    /* a única barra com número é a de "Sem bandeira"; as bandeiras do Guia aparecem todas com 0 */
+    await expect(itens.filter({ hasText: /[1-9]\s*$/ })).toHaveCount(1);
+    await expect(itens.filter({ hasText: /0\s*$/ })).toHaveCount((await itens.count()) - 1);
   });
 });
 /* ---------- fluxo completo em celular e computador, com a busca simulada ---------- */

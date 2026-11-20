@@ -53,20 +53,26 @@ test.afterEach(() => {
 });
 
 test.describe('Detalhe da pessoa: conta, perfil e consentimento (USR-02.2 a 02.5)', () => {
-  test('mostra nome, e-mail, data de cadastro e último acesso; sem equipe Legisla, sem esse campo (USR-02.2)', async ({ page }) => {
+  test('mostra nome, e-mail, data de cadastro e último acesso; fora da equipe Legisla, "Não faz parte" (USR-02.2)', async ({ page }) => {
     await abre(page, [JOANA]);
     await expect(page.getByRole('heading', { name: 'Joana Perfil Souza' })).toBeVisible();
     await expect(campo(page, 'Nome')).toHaveText('Joana Perfil Souza');
     await expect(campo(page, 'E-mail')).toHaveText('joana@exemplo.org');
     await expect(campo(page, 'Cadastro')).toHaveText('02/01/2026');
     await expect(campo(page, 'Último acesso')).toHaveText('09/11/2026 10:45');
-    await expect(campo(page, 'Equipe Legisla')).toHaveCount(0);
+    await expect(campo(page, 'Equipe Legisla')).toContainText('Não faz parte');
   });
 
   test('mostra o papel na equipe Legisla quando a pessoa é da equipe; sem login, "Nunca" (USR-02.2)', async ({ page }) => {
     await abre(page, [detalheUsuario({ id: ID, nome: 'Lia Leitura', equipe_papel: 'leitura', ultimo_acesso: null })]);
-    await expect(campo(page, 'Equipe Legisla')).toHaveText('leitura');
+    /* o admin edita o papel na equipe: o campo vira um seletor */
+    await expect(page.getByLabel('Papel na equipe Legisla')).toHaveValue('leitura');
     await expect(campo(page, 'Último acesso')).toHaveText('Nunca');
+  });
+
+  test('para quem só lê (papel leitura), o papel na equipe Legisla aparece em texto (USR-02.2)', async ({ page }) => {
+    await abre(page, [detalheUsuario({ id: ID, nome: 'Lia Leitura', equipe_papel: 'leitura', ultimo_acesso: null })], { papel: 'leitura' });
+    await expect(campo(page, 'Equipe Legisla')).toHaveText('leitura');
   });
 
   test('com perfil mostra nome completo, nascimento, gênero, raça, telefone, atuação e tempo em texto (USR-02.3)', async ({ page }) => {
@@ -109,7 +115,8 @@ test.describe('Detalhe da pessoa: conta, perfil e consentimento (USR-02.2 a 02.5
 
 test.describe('Detalhe da pessoa: mandatos (USR-02.6, 02.7)', () => {
   test('lista os mandatos com parlamentar, cargo, UF e papel, cada um com link para /admin/mandatos/<id> (USR-02.6)', async ({ page }) => {
-    await abre(page, [JOANA]);
+    /* como leitura: o admin ganha seletor de papel e coluna de ações, cobertos nos specs de edição */
+    await abre(page, [JOANA], { papel: 'leitura' });
     const linhas = page.locator('tbody tr');
     await expect(page.getByRole('columnheader')).toHaveText(['Parlamentar', 'Cargo', 'UF', 'Papel']);
     await expect(linhas.nth(0).locator('td')).toHaveText(['Parlamentar Um', 'Deputada Federal', 'SP', 'Assessoria']);
@@ -169,14 +176,15 @@ test.describe('Detalhe da pessoa: voltar para a lista (USR-02.1, 02.8)', () => {
 });
 
 test.describe('Detalhe da pessoa: só leitura, inexistente, erro e rede (USR-02.9 a 02.11)', () => {
-  test('nenhum botão altera dado e não há exportação: o único botão é o "Sair" do painel (USR-02.9)', async ({ page }) => {
+  test('o admin vê os botões de edição e nenhum de exportação (USR-02.9)', async ({ page }) => {
     await abre(page, [JOANA]);
     await expect(campo(page, 'Nome completo')).toHaveText('Joana Perfil Souza');
-    await expect(page.getByRole('button')).toHaveText(['Sair']);
-    await expect(page.getByRole('link', { name: /export|baixar|csv|planilha|editar|remover|excluir/i })).toHaveCount(0);
+    await expect(page.getByRole('button')).toHaveText(['Sair', 'Alterar e-mail', 'Incluir na equipe…', 'Editar perfil', '+ Adicionar a um mandato', 'Remover', 'Remover', 'Excluir conta definitivamente…']);
+    await expect(page.getByRole('button', { name: /export|baixar|csv|planilha/i })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: /export|baixar|csv|planilha/i })).toHaveCount(0);
   });
 
-  test('o papel leitura da equipe Legisla vê o mesmo detalhe, também sem botões (USR-02.9)', async ({ page }) => {
+  test('o papel leitura da equipe Legisla vê o mesmo detalhe, sem botões de alteração (USR-02.9)', async ({ page }) => {
     await abre(page, [JOANA], { papel: 'leitura' });
     await expect(campo(page, 'Telefone')).toHaveText('(21) 91234-5678');
     await expect(page.getByRole('button')).toHaveText(['Sair']);

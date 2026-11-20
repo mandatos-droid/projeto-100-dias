@@ -84,6 +84,8 @@ test.describe('Segurança e acessibilidade', () => {
 
 test.describe('Impressão (RUM-12)', () => {
   test('@media print mostra só a primeira página', async ({ page }) => {
+    /* os chips só nascem das agendas escolhidas na Missão 1: semeia uma antes de abrir */
+    await page.addInitScript(() => { (window as unknown as { __semente: unknown }).__semente = { D: { agendasPrio: ['saude'] } }; });
     await abreComp(page, 'jornal', { ...BASE, fechado: true }, ['rumo-bandeiras']);
     await expect(page.locator('.rm-chip').first()).toBeVisible();
     await page.emulateMedia({ media: 'print' });

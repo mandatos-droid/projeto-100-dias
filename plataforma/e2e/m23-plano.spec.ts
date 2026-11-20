@@ -67,7 +67,7 @@ test.describe('Estratégia e justificativas no Planejamento (RM3-18)', () => {
     const arq = { n: 1, criadoEm: '2026-05-01T10:00:00.000Z', legado: 'L', bandeiras: [], objetivos: [{ pid: 'p1', nome: 'Priorizar a agenda', pergunta: '', texto: 'Priorizar a agenda' }], metas: [{ id: 'z', pred: 'p1', texto: 'Meta antiga', status: 'concluida' }] };
     await abre(page, [ILHA], { D: { preditores: TRES, metas: METAS, planos: [arq] }, campos: { 'm3.est': 'a', ...JUST } });
     await expect(bloco(page)).toHaveCount(1); // o atual mostra
-    await page.locator('.rm-ciclo select').selectOption('1');
+    await page.locator('.rm-ciclo-card[data-ciclo="1"]').getByRole('button').first().click();
     await expect(page.getByText('somente leitura')).toBeVisible();
     await expect(page.getByText('Meta antiga')).toBeVisible();
     await expect(bloco(page)).toHaveCount(0);
@@ -77,7 +77,7 @@ test.describe('Estratégia e justificativas no Planejamento (RM3-18)', () => {
 
 /* ---------- Rotinas do mandato no fim da aba (RM2-60 a 64) ---------- */
 const secao = (page: Page) => page.getByRole('region', { name: 'Rotinas do mandato' });
-const RQ = JSON.stringify({ plan: { data: '2030-03-04', hora: '09:00' }, mensal: { on: false }, semanal: { dur: '50 min' } });
+const RQ = JSON.stringify({ plan: { data: '2030-03-04' }, mensal: { on: false }, semanal: { dur: '50 min' } });
 const linhaEq = (i: number, v: { pessoa: string; cargo: string; cat: string; coord: string; lider: string }) => ({
   [`m2.p${i + 1}.esc`]: 'Escopo', [`m2.p${i + 1}.comp`]: 'Comp', [`m2.p${i + 1}.nome_cargo`]: v.cargo, [`m2.f${i + 1}`]: v.pessoa,
   [`m2.p${i + 1}.cat`]: v.cat, [`m2.p${i + 1}.coord`]: v.coord, [`m2.p${i + 1}.lider`]: v.lider,
@@ -100,7 +100,7 @@ test.describe('Rotinas do mandato no Planejamento (RM2-60 a RM2-64)', () => {
     await expect(linhas.nth(0)).toContainText('Quadrimestralmente');
     await expect(linhas.nth(0)).toContainText('Todos');
     await expect(linhas.nth(0)).toContainText('2 períodos de 6h');
-    await expect(linhas.nth(0)).toContainText('04/03/2030 às 09:00');
+    await expect(linhas.nth(0)).toContainText('04/03/2030');
     await expect(secao(page)).not.toContainText('Monitoramento de avanços');
     await expect(linhas.nth(1)).toContainText('50 min'); // a edição de duração do mandato vale
     await expect(linhas.nth(1)).toContainText('início ainda não definido');
@@ -119,25 +119,26 @@ test.describe('Rotinas do mandato no Planejamento (RM2-60 a RM2-64)', () => {
     await expect(secao(page).locator('[data-sem-inicio]')).toHaveCount(0);
   });
 
-  test('a seção entra na impressão do planejamento completo, sem os botões (RM2-64)', async ({ page }) => {
-    await abre(page, [ILHA], { D: { preditores: TRES, metas: METAS }, campos: { 'm2.rq': RQ } });
+  test('a seção entra na impressão do planejamento completo, sem o aviso e o link (RM2-64)', async ({ page }) => {
+    /* Sem início definido a seção leva o aviso com o link para a Missão 2: na tela aparece, na impressão some. */
+    await abre(page, [ILHA], { D: { preditores: TRES, metas: METAS } });
     await page.emulateMedia({ media: 'print' });
     const r = await page.evaluate(() => {
       const s = document.querySelector('[data-rotinas-plano]') as HTMLElement;
       const dentro = !!s.closest('.rm-plano[data-imprime]');
       const visivel = (e: Element) => getComputedStyle(e).display !== 'none' && getComputedStyle(e).visibility === 'visible';
-      return { dentro, tabela: visivel(s.querySelector('table')!), botao: visivel(s.querySelector('button')!.parentElement!), aviso: s.querySelector('[data-sem-inicio]') ? 'tem' : 'nao' };
+      return { dentro, tabela: visivel(s.querySelector('table')!), aviso: visivel(s.querySelector('[data-sem-inicio]')!) };
     });
     expect(r.dentro).toBe(true);
     expect(r.tabela).toBe(true);
-    expect(r.botao).toBe(false);
+    expect(r.aviso).toBe(false);
   });
 
   test('planejamento arquivado segue somente leitura, sem a seção de rotinas (RM2-60)', async ({ page }) => {
     const arq = { n: 1, criadoEm: '2026-05-01T10:00:00.000Z', legado: 'L', bandeiras: [], objetivos: [{ pid: 'p1', nome: 'Priorizar a agenda', pergunta: '', texto: 'Priorizar a agenda' }], metas: [{ id: 'z', pred: 'p1', texto: 'Meta antiga', status: 'concluida' }] };
     await abre(page, [ILHA], { D: { preditores: TRES, metas: METAS, planos: [arq] }, campos: { 'm2.rq': RQ } });
     await expect(secao(page)).toHaveCount(1);
-    await page.locator('.rm-ciclo select').selectOption('1');
+    await page.locator('.rm-ciclo-card[data-ciclo="1"]').getByRole('button').first().click();
     await expect(page.getByText('somente leitura')).toBeVisible();
     await expect(secao(page)).toHaveCount(0);
   });

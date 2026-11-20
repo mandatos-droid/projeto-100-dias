@@ -9,7 +9,7 @@ const total = (page: Page) => page.locator('.rm-anel b');
 const statusDe = (page: Page, idx: number) => page.getByLabel(`Status da meta ${String(idx + 1).padStart(2, '0')}`);
 const pctObj = (page: Page, pid: string) => no(page, `obj-${pid}`).locator('> .rm-no-cab .rm-no-pct');
 
-/* objetivo p1: 100, 70, 0 e uma congelada = 57; objetivo p2: concluída = 100; total = 79 (RUM-41.5, RUM-41.6) */
+/* objetivo p1: 100, 70, 0 e uma congelada = 57; objetivo p2: concluída = 100; total = 68, a média das metas (RUM-41.5, RUM-41.6) */
 const PLANO = {
   campos: { 'm3.legado': 'A Educação no centro do debate', 'm3.obj.p1': 'Priorizar a educação', 'm3.obj.p2': 'Pautar o fim do trabalho infantil' },
   D: {
@@ -33,22 +33,22 @@ test.describe('A árvore e o total (RUM-40.1, RUM-41)', () => {
     await expect(no(page, 'obj-p1')).toContainText('Priorizar a educação');
     await expect(no(page, 'obj-p2')).toContainText('Pautar os debates');
     await expect(page.locator('[data-tipo="meta"]')).toHaveCount(4);
-    await expect(total(page)).toHaveText('79%'); // p1 = (100 + 70 + 0) / 3 = 57, p2 = 100, total = (57 + 100) / 2 = 79
+    await expect(total(page)).toHaveText('68%'); // p1 = (100 + 70 + 0) / 3 = 57, p2 = 100, total = (100 + 70 + 0 + 100) / 4 = 67,5 = 68
   });
 
-  test('o total é a média dos objetivos: 57 e 100 dão 79; meta congelada fica fora da conta', async ({ page }) => {
+  test('o total é a média das metas (objetivos 57 e 100, total 68); meta congelada fica fora da conta', async ({ page }) => {
     await abre(page, [ILHA], PLANO);
     await expect(pctObj(page, 'p1')).toHaveText('57%');
     await expect(pctObj(page, 'p2')).toHaveText('100%');
-    await expect(total(page)).toHaveText('79%');
-    await expect(page.getByRole('img', { name: 'Atingimento total do planejamento: 79%' })).toBeVisible();
+    await expect(total(page)).toHaveText('68%');
+    await expect(page.getByRole('img', { name: 'Atingimento total do planejamento: 68%' })).toBeVisible();
   });
 
   test('mudar o status de uma meta recalcula objetivo e total em menos de 300 ms e grava', async ({ page }) => {
     await abre(page, [ILHA], PLANO);
     await statusDe(page, 2).selectOption('concluida'); // p1: 100, 70, 100 => 90
     await expect(pctObj(page, 'p1')).toHaveText('90%', { timeout: 300 });
-    await expect(total(page)).toHaveText('95%', { timeout: 300 }); // (90 + 100) / 2
+    await expect(total(page)).toHaveText('93%', { timeout: 300 }); // (100 + 70 + 100 + 100) / 4 = 92,5
     expect((await metasDe(page))[2].status).toBe('concluida');
     await expect(no(page, 'meta-2')).toContainText('Concluída');
   });
@@ -68,7 +68,7 @@ test.describe('A árvore e o total (RUM-40.1, RUM-41)', () => {
     const cont = no(page, 'obj-p1').locator('> .rm-no-cab .rm-cont li');
     await expect(cont).toHaveText(['Concluída 1', 'Em andamento – 70% 1', 'Não concluída 1', 'Congelada 1']);
     await statusDe(page, 3).selectOption('concluida');
-    await expect(cont).toHaveText(['Concluída 2', 'Em andamento – 70% 1', 'Não concluída 1', 'Congelada 0']);
+    await expect(cont).toHaveText(['Concluída 2', 'Em andamento – 70% 1', 'Não concluída 1']);
     await expect(barra).toHaveAttribute('aria-valuenow', '68'); // (100 + 70 + 0 + 100) / 4 = 67,5
   });
 
@@ -135,15 +135,17 @@ test.describe('Edição pela aba (RUM-40.8, RUM-40.9, RUM-40.10)', () => {
 
   test('editar texto, objetivo, responsável, apoio e status na aba reflete no exercício e vice-versa', async ({ page }) => {
     await abre(page, ['rumo-metas', ILHA], { campos: EQUIPE4, D: { preditores: ['p1', 'p2'], metas: [{ id: 'a', pred: 'p1', texto: 'Visitar 10 escolas' }] } });
-    const exercicio = page.locator('[data-ilha="rumo-metas"] [data-meta="0"]');
-    await edita(page, 0).click();
+    await page.locator('[data-ilha="plano"]').getByRole('button', { name: 'Editar a meta 01' }).first().click();
     const c = cartao(page, 0);
     await c.getByRole('textbox', { name: /no formato SMART/ }).fill('Aprovar 2 projetos de lei até dezembro de 2027');
     await c.getByLabel('Objetivo estratégico da meta 01').selectOption('p2');
     await c.getByRole('group', { name: /^Responsável direto/ }).getByRole('button', { name: /Bruno Lima/ }).click();
     await c.getByRole('group', { name: /^Apoios/ }).getByRole('button', { name: 'Carla Dias' }).click();
     await c.getByLabel('Status da meta 01').selectOption('concluida70');
-    // o exercício mostra o mesmo dado
+    // o exercício mostra o mesmo dado: fecha a gaveta da aba e abre a do exercício (o cartão só existe na gaveta)
+    await page.getByRole('dialog').getByLabel('Fechar', { exact: true }).click();
+    await page.locator('[data-ilha="rumo-metas"]').getByRole('button', { name: 'Editar a meta 01' }).click();
+    const exercicio = page.getByRole('dialog').locator('[data-meta="0"]');
     await expect(exercicio.getByRole('textbox', { name: /no formato SMART/ })).toHaveValue('Aprovar 2 projetos de lei até dezembro de 2027');
     await expect(exercicio.getByLabel('Objetivo estratégico da meta 01')).toHaveValue('p2');
     await expect(exercicio.getByRole('group', { name: /^Responsável direto/ }).getByRole('button', { name: /Bruno Lima/ })).toHaveAttribute('aria-pressed', 'true');
@@ -151,13 +153,13 @@ test.describe('Edição pela aba (RUM-40.8, RUM-40.9, RUM-40.10)', () => {
     expect((await metasDe(page))[0]).toMatchObject({ pred: 'p2', respCad: 1, resp: 'Bruno Lima', apoioCad: [2], status: 'concluida70' });
     // e o caminho de volta: editar no exercício muda a árvore
     await exercicio.getByRole('textbox', { name: /no formato SMART/ }).fill('Realizar 3 audiências até junho');
-    await expect(no(page, 'meta-0')).toContainText('Realizar 3 audiências até junho');
-    await expect(no(page, 'obj-p2')).toContainText('Em andamento – 70%');
+    await expect(page.locator('[data-ilha="plano"]').locator('[data-no="meta-0"]')).toContainText('Realizar 3 audiências até junho');
+    await expect(page.locator('[data-ilha="plano"]').locator('[data-no="obj-p2"]')).toContainText('Em andamento – 70%');
   });
 
   test('o cartão da meta na aba mostra o retorno SMART (S M A R T) ao editar o texto (RUM-40.8)', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1'], metas: [{ id: 'a', pred: 'p1', texto: 'Melhorar a educação' }] } });
-    await edita(page, 0).click();
+    await edita(page, 0).first().click();
     const c = cartao(page, 0);
     expect(await c.locator('[data-letra]').evaluateAll((els) => els.map((e) => e.getAttribute('data-letra')))).toEqual(['S', 'M', 'A', 'R', 'T']);
     await expect(c.locator('[data-letra="S"]')).toHaveAttribute('data-ok', 'false');
@@ -170,7 +172,7 @@ test.describe('Edição pela aba (RUM-40.8, RUM-40.9, RUM-40.10)', () => {
 
   test('remover pede confirmação e sai da árvore', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1'], metas: [{ id: 'a', pred: 'p1', texto: 'Visitar 10 escolas' }, { id: 'b', pred: 'p1', texto: 'Aprovar 2 projetos' }] } });
-    await edita(page, 0).click();
+    await edita(page, 0).first().click();
     page.once('dialog', (dl) => dl.dismiss());
     await page.getByRole('button', { name: 'Remover a meta 01' }).click();
     expect(await metasDe(page)).toHaveLength(2);

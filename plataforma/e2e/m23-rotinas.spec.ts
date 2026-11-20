@@ -10,7 +10,8 @@ const R = [
   { id: 'area', titulo: 'Reunião de distribuição de trabalho dentro de cada área', freq: 'Semanalmente', quem: 'Assessores e Coordenação de uma área específica', dur: '45 min' },
   { id: 'feedback', titulo: 'Reunião de feedback estruturado individual', freq: 'Semestralmente', quem: 'Liderança e Assessores (individualmente)', dur: '30 min por reunião' },
 ];
-const agenda = async (page: Page, r: (typeof R)[number], data: string, hora: string) => {
+/* O quadro só pede a data de início; não há campo de horário. */
+const agenda = async (page: Page, r: (typeof R)[number], data: string, _hora?: string) => {
   await page.getByLabel(`Data de início: ${r.titulo}`).fill(data);
 };
 
@@ -43,13 +44,14 @@ test('preencher data e horário das 5 mostra "5 de 5 agendadas" (RM2-52)', async
   }
   await expect(page.locator('[data-concluida]')).toContainText('Você já pode marcar o exercício como concluído');
   const rq = JSON.parse((await camposDe(page))['m2.rq']);
-  expect(rq.plan).toEqual({ data: '2030-03-01', hora: '09:00' });
+  expect(rq.plan).toEqual({ data: '2030-03-01' });
 });
 
-test('só data, sem horário, não conta como agendada (RM2-52)', async ({ page }) => {
+test('só a data já conta como agendada; o quadro não tem campo de horário (RM2-52)', async ({ page }) => {
   await abre(page, [ILHA]);
+  await expect(page.getByLabel(/^Hor[áa]rio/)).toHaveCount(0);
   await page.getByLabel(`Data de início: ${R[0].titulo}`).fill('2030-03-01');
-  await expect(page.locator('[data-contador]')).toHaveText('0 de 5 agendadas');
+  await expect(page.locator('[data-contador]')).toHaveText('1 de 5 agendadas');
 });
 
 test('editar a duração da 1ª rotina e reabrir mantém a edição, sem tocar nas outras (RM2-53)', async ({ page }) => {

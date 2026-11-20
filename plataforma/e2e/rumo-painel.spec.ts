@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { abreGuia, salvoDe } from './guia-real';
 
-/* Guia real em modo local (sem Supabase). Plano: p1 com metas 100, 70, 0 e congelada (57), p2 com uma concluída (100) => total 79. */
+/* Guia real em modo local (sem Supabase). Plano: p1 com metas 100, 70, 0 e congelada (57), p2 com uma concluída (100) => total 68 (média das metas: 270 / 4 = 67,5). */
 const DADOS = {
   campos: { 'm3.legado': 'A Educação no centro do debate político', 'm3.obj.p1': 'Priorizar a educação', 'm3.obj.p2': 'Pautar o fim do trabalho infantil' },
   preditores: ['p1', 'p2'],
@@ -21,7 +21,7 @@ test.describe('Painel com o resumo do plano (RUM-43.1, RUM-43.3)', () => {
     const resumo = page.locator('[data-ilha="plano-resumo"]');
     await expect(resumo.getByRole('heading', { name: 'Planejamento Estratégico' })).toBeVisible();
     await expect(resumo).toContainText('A Educação no centro do debate político');
-    await expect(resumo.getByRole('img', { name: 'Atingimento total do planejamento: 79%' })).toBeVisible();
+    await expect(resumo.getByRole('img', { name: 'Atingimento total do planejamento: 68%' })).toBeVisible();
     await expect(resumo.getByRole('progressbar', { name: /Priorizar a educação/ })).toHaveAttribute('aria-valuenow', '57');
     await expect(resumo.getByRole('progressbar', { name: /Pautar o fim do trabalho infantil/ })).toHaveAttribute('aria-valuenow', '100');
     await expect(page.getByRole('heading', { name: 'Últimos registros' })).toHaveCount(0);
@@ -38,7 +38,7 @@ test.describe('Painel com o resumo do plano (RUM-43.1, RUM-43.3)', () => {
     const item = page.locator('#ladoNav a.it[href="#/plano"]');
     await expect(item).toHaveClass(/\bon\b/);
     await expect(page.locator('#ladoNav a.it.on')).toHaveCount(1);
-    await expect(page.locator('.rm-anel b')).toHaveText('79%');
+    await expect(page.locator('.rm-anel b')).toHaveText('68%');
   });
 
   test('o item "Planejamento Estratégico" fica entre as missões e a Caixa de ferramentas', async ({ page }) => {
@@ -53,14 +53,14 @@ test.describe('Painel com o resumo do plano (RUM-43.1, RUM-43.3)', () => {
 
   test('abrir #/plano direto (recarregando a página) também funciona e o resumo acompanha uma mudança de status', async ({ page }) => {
     await abreGuia(page, '#/plano', { dados: DADOS });
-    await expect(page.locator('.rm-anel b')).toHaveText('79%');
+    await expect(page.locator('.rm-anel b')).toHaveText('68%');
     await page.getByLabel('Status da meta 03').selectOption('concluida');
-    await expect(page.locator('.rm-anel b')).toHaveText('95%');
+    await expect(page.locator('.rm-anel b')).toHaveText('93%');
     await page.locator('#ladoNav a.it[href="#/"]').click();
-    await expect(page.locator('[data-ilha="plano-resumo"]').getByRole('img', { name: 'Atingimento total do planejamento: 95%' })).toBeVisible();
+    await expect(page.locator('[data-ilha="plano-resumo"]').getByRole('img', { name: 'Atingimento total do planejamento: 93%' })).toBeVisible();
     await expect.poll(async () => ((await salvoDe(page)).dados.metas as { status: string }[])[2].status).toBe('concluida'); // o salvamento tem 700 ms de espera
     await page.reload();
-    await expect(page.locator('[data-ilha="plano-resumo"]').getByRole('img', { name: /95%/ })).toBeVisible(); // o status ficou salvo
+    await expect(page.locator('[data-ilha="plano-resumo"]').getByRole('img', { name: /93%/ })).toBeVisible(); // o status ficou salvo
   });
 });
 

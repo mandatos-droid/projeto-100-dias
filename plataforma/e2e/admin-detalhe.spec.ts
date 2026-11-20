@@ -158,7 +158,7 @@ test.describe('Membros (ADM-07)', () => {
     await expect(linhas(page).nth(0)).toContainText('21/10/2026');
     await expect(page.getByLabel('Papel de Rafael Cruz no mandato')).toHaveValue('coordenacao');
     await expect(linhas(page).nth(1)).toContainText('Júlia Melo');
-    await expect(page.getByLabel('Papel de Júlia Melo no mandato').locator('option')).toHaveText(['assessoria', 'coordenacao']);
+    await expect(page.getByLabel('Papel de Júlia Melo no mandato').locator('option')).toHaveText(['Parlamentar', 'Chefe de Gabinete', 'Coordenação', 'Assessoria', 'Somente leitura']);
   });
 
   test('adiciona uma conta existente com o papel escolhido', async ({ page }) => {

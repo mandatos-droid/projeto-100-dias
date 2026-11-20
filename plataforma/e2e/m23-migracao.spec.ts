@@ -116,7 +116,7 @@ test.describe('Planejamento arquivado antigo', () => {
     const erros: string[] = [];
     page.on('pageerror', (e) => erros.push(e.message));
     await abreRumo(page, ['plano'], { campos: CAMPOS_M3, D: { preditores: ['p1', 'p2', 'p3'], metas: METAS, planos: [arq] } });
-    await page.locator('.rm-ciclo select').selectOption('1');
+    await page.locator('.rm-ciclo-card[data-ciclo="1"]').getByRole('button').first().click();
     await expect(page.getByText('somente leitura')).toBeVisible();
     await expect(page.getByText('Aprovar 2 projetos de lei antigos')).toBeVisible();
     await expect(page.getByRole('button', { name: /Editar a meta|Acrescentar meta/ })).toHaveCount(0);

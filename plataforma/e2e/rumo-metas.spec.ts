@@ -5,6 +5,8 @@ const ILHA = 'rumo-metas';
 type M = { id: string; pred?: string; texto?: string; resp?: string; apoio?: string; respCad?: number | null; apoioCad?: number[]; alcancavel?: boolean; status?: string };
 const metasDe = async (page: Page) => (await dadoDe(page, 'metas')) as M[];
 const meta = (page: Page, i: number) => page.locator(`[data-meta="${i}"]`);
+/* O cartão da meta fica recolhido na árvore e só abre na gaveta, pelo botão Editar. */
+const abrir = (page: Page, i: number) => page.getByRole('button', { name: `Editar a meta ${String(i + 1).padStart(2, '0')}` }).click();
 const texto = (page: Page, i: number) => meta(page, i).getByRole('textbox', { name: /no formato SMART/ });
 const letra = (page: Page, i: number, l: string) => meta(page, i).locator(`[data-letra="${l}"]`);
 const resp = (page: Page, i: number) => meta(page, i).getByRole('group', { name: /^Responsável direto/ });
@@ -39,6 +41,7 @@ test.describe('Acrescentar meta e limites (RUM-30.1, RUM-30.2, RUM-30.15)', () =
 
   test('mover uma meta para um objetivo que já tem 4 também é recusado', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1', 'p2'], metas: [...mkMetas(4), { id: 'x', pred: 'p2', texto: 'Outra' }] } });
+    await abrir(page, 4);
     await meta(page, 4).getByLabel('Objetivo estratégico da meta 05').selectOption('p1');
     await expect(page.locator('#avisos')).toContainText('no máximo 4 metas');
     expect((await metasDe(page))[4].pred).toBe('p2');
@@ -46,7 +49,8 @@ test.describe('Acrescentar meta e limites (RUM-30.1, RUM-30.2, RUM-30.15)', () =
 
   test('meta sem objetivo aparece em bloco próprio, com aviso, e escolher o objetivo a leva ao grupo', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1'], metas: [{ id: 'a', pred: '', texto: 'Visitar 10 escolas' }] } });
-    const bloco = page.locator('[data-objetivo="sem"]');
+    await abrir(page, 0);
+    const bloco = page.locator('[data-no="sem-objetivo"]');
     await expect(bloco).toContainText('não estão ligadas a um objetivo estratégico');
     await meta(page, 0).getByLabel('Objetivo estratégico da meta 01').selectOption('p1');
     await expect(bloco).toHaveCount(0);
@@ -55,6 +59,7 @@ test.describe('Acrescentar meta e limites (RUM-30.1, RUM-30.2, RUM-30.15)', () =
 
   test('remover uma meta com texto pede confirmação', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1'], metas: mkMetas(2) } });
+    await abrir(page, 0);
     page.once('dialog', (d) => d.dismiss());
     await page.getByRole('button', { name: 'Remover a meta 01' }).click();
     expect(await metasDe(page)).toHaveLength(2);
@@ -69,6 +74,7 @@ test.describe('Retorno SMART (RUM-31.3, RUM-31.7, RUM-31.8, RUM-31.9)', () => {
 
   test('a meta de exemplo atende S, M, T e R (pelo vínculo); confirmar a capacidade da equipe acende A', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1'], metas: [{ id: 'a', pred: 'p1' }] } });
+    await abrir(page, 0);
     await texto(page, 0).fill(EXEMPLO);
     for (const l of ['S', 'M', 'R', 'T']) await expect(letra(page, 0, l)).toHaveAttribute('data-ok', 'true');
     await expect(letra(page, 0, 'A')).toHaveAttribute('data-ok', 'false');
@@ -84,6 +90,7 @@ test.describe('Retorno SMART (RUM-31.3, RUM-31.7, RUM-31.8, RUM-31.9)', () => {
 
   test('o retorno SMART aparece em até 300 ms depois de digitar (RUM-31.3)', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1'], metas: [{ id: 'a', pred: 'p1' }] } });
+    await abrir(page, 0);
     await texto(page, 0).fill(EXEMPLO);
     for (const l of ['S', 'M', 'R', 'T']) await expect(letra(page, 0, l)).toHaveAttribute('data-ok', 'true', { timeout: 300 });
     await expect(meta(page, 0).locator('[data-pontos]')).toHaveText('4 de 5 letras atendidas', { timeout: 300 });
@@ -91,6 +98,7 @@ test.describe('Retorno SMART (RUM-31.3, RUM-31.7, RUM-31.8, RUM-31.9)', () => {
 
   test('texto que não atende mostra a dica da primeira letra que falta, que pode ser ignorada', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1'], metas: [{ id: 'a', pred: 'p1' }] } });
+    await abrir(page, 0);
     await texto(page, 0).fill('Melhorar a educação');
     await expect(letra(page, 0, 'S')).toHaveAttribute('data-ok', 'false');
     await expect(letra(page, 0, 'M')).toHaveAttribute('data-ok', 'false');
@@ -102,12 +110,14 @@ test.describe('Retorno SMART (RUM-31.3, RUM-31.7, RUM-31.8, RUM-31.9)', () => {
 
   test('sem objetivo, a letra R não é atendida', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1'], metas: [{ id: 'a', pred: '' }] } });
+    await abrir(page, 0);
     await texto(page, 0).fill(EXEMPLO);
     await expect(letra(page, 0, 'R')).toHaveAttribute('data-ok', 'false');
   });
 
   test('"Enviar e-mail semanal" mostra o alerta "Meta não é tarefa diária"', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1'], metas: [{ id: 'a', pred: 'p1' }] } });
+    await abrir(page, 0);
     await texto(page, 0).fill('Enviar e-mail semanal aos assessores');
     await expect(meta(page, 0).getByRole('status').filter({ hasText: 'Meta não é tarefa diária' })).toBeVisible();
     await texto(page, 0).fill(EXEMPLO);
@@ -116,6 +126,7 @@ test.describe('Retorno SMART (RUM-31.3, RUM-31.7, RUM-31.8, RUM-31.9)', () => {
 
   test('digitar espaços e HTML mantém o texto como foi escrito', async ({ page }) => {
     await abre(page, [ILHA], { D: { preditores: ['p1'], metas: [{ id: 'a', pred: 'p1' }] } });
+    await abrir(page, 0);
     await texto(page, 0).pressSequentially('Aprovar <script>x</script> leis ');
     expect((await metasDe(page))[0].texto).toBe('Aprovar <script>x</script> leis ');
   });
@@ -126,6 +137,7 @@ test.describe('Responsável e apoios (RUM-32.10, RUM-32.12, RUM-32.13)', () => {
 
   test('o responsável vem das cadeiras nomeadas da Missão 2 e grava cadeira e nome', async ({ page }) => {
     await abre(page, [ILHA], semente);
+    await abrir(page, 0);
     await expect(resp(page, 0).getByRole('button')).toHaveText([/Ana Souza/, /Bruno Lima/, /Carla Dias/, /Davi Rocha/]);
     await resp(page, 0).getByRole('button', { name: /Bruno Lima/ }).click();
     const m = (await metasDe(page))[0];
@@ -135,6 +147,7 @@ test.describe('Responsável e apoios (RUM-32.10, RUM-32.12, RUM-32.13)', () => {
 
   test('o responsável também aceita texto livre, que desfaz a escolha da cadeira', async ({ page }) => {
     await abre(page, [ILHA], semente);
+    await abrir(page, 0);
     await resp(page, 0).getByRole('button', { name: /Bruno Lima/ }).click();
     await meta(page, 0).getByLabel('Ou outro nome').fill('Dona Maria');
     const m = (await metasDe(page))[0];
@@ -143,6 +156,7 @@ test.describe('Responsável e apoios (RUM-32.10, RUM-32.12, RUM-32.13)', () => {
 
   test('apoio igual ao responsável é recusado; apoios de 0 a 3, no máximo', async ({ page }) => {
     await abre(page, [ILHA], semente);
+    await abrir(page, 0);
     await resp(page, 0).getByRole('button', { name: /Bruno Lima/ }).click();
     await apoio(page, 0).getByRole('button', { name: 'Bruno Lima' }).click();
     await expect(page.locator('#avisos')).toContainText('O apoio precisa ser diferente do responsável direto.');
@@ -166,6 +180,7 @@ test.describe('Responsável e apoios (RUM-32.10, RUM-32.12, RUM-32.13)', () => {
 
   test('o texto livre do responsável igual a um apoio da equipe também é recusado', async ({ page }) => {
     await abre(page, [ILHA], semente);
+    await abrir(page, 0);
     await apoio(page, 0).getByRole('button', { name: 'Carla Dias' }).click();
     await meta(page, 0).getByLabel('Ou outro nome').fill('carla dias');
     await expect(page.locator('#avisos')).toContainText('diferente do responsável direto');
@@ -174,6 +189,7 @@ test.describe('Responsável e apoios (RUM-32.10, RUM-32.12, RUM-32.13)', () => {
 
   test('sem cadeiras nomeadas o texto livre funciona e o aviso aponta para a Missão 2', async ({ page }) => {
     await abre(page, [ILHA], { campos: { 'm2.on': '0' }, D: { preditores: ['p1'], metas: [{ id: 'a', pred: 'p1' }] } });
+    await abrir(page, 0);
     await expect(meta(page, 0)).toContainText('A lista de pessoas vem da Missão 2');
     await meta(page, 0).getByLabel('Nome do responsável').fill('Joana');
     await meta(page, 0).getByLabel(/^Quem dá suporte/).fill('Pedro; Rita');
@@ -187,6 +203,7 @@ test.describe('Responsável e apoios (RUM-32.10, RUM-32.12, RUM-32.13)', () => {
       campos: { ...EQUIPE, 'm2.f2': 'Bruno Novo', 'm2.on': '0|1' },
       D: { preditores: ['p1'], metas: [{ id: 'a', pred: 'p1', texto: 'x', respCad: 1, resp: 'Bruno Lima', apoioCad: [3], apoio: 'Davi Rocha' }] },
     });
+    await abrir(page, 0);
     await expect(resp(page, 0).getByRole('button', { name: /Bruno Novo/ })).toHaveAttribute('aria-pressed', 'true');
     await expect(meta(page, 0).getByText('Davi Rocha: fora da equipe da Missão 2.')).toBeVisible();
   });
@@ -217,13 +234,18 @@ test.describe('Contador (RUM-30.14) e metas antigas (RUM-70)', () => {
     page.on('pageerror', (e) => erros.push(e.message));
     const antigas = [{ id: 'a', pred: 'p1', texto: '<b>Aprovar</b> 2 projetos<br>de lei', resp: 'Fulano', apoio: 'Beltrano e Ciclano' }, { id: 'b', pred: 'p9', texto: 'Meta de preditor desconhecido' }, { id: 'c' }];
     await abre(page, [ILHA], { campos: EQUIPE, D: { preditores: ['p1'], metas: antigas } });
+    await abrir(page, 0);
     await expect(texto(page, 0)).toHaveValue('Aprovar 2 projetos\nde lei');
     await expect(meta(page, 0).getByLabel('Ou outro nome')).toHaveValue('Fulano');
     await expect(meta(page, 0).getByLabel(/^Outros apoios/)).toHaveValue('Beltrano e Ciclano');
+    await page.getByRole('dialog').getByLabel('Fechar', { exact: true }).click();
+    await abrir(page, 1);
     await expect(texto(page, 1)).toHaveValue('Meta de preditor desconhecido');
-    await expect(page.locator('[data-objetivo="sem"] .rm-meta')).toHaveCount(2);
+    await page.getByRole('dialog').getByLabel('Fechar', { exact: true }).click();
+    await expect(page.locator('[data-no="sem-objetivo"] [data-no^="meta-"]')).toHaveCount(2);
     expect(await metasDe(page)).toEqual(antigas);
     expect(erros).toEqual([]);
+    await abrir(page, 1);
     await texto(page, 1).fill('Meta de preditor desconhecido, editada');
     const l = await metasDe(page);
     expect(l[0]).toEqual(antigas[0]); // editar outra meta não toca nesta

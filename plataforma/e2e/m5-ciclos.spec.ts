@@ -72,7 +72,10 @@ test.describe('Botão e confirmação de novo planejamento (M5-30)', () => {
 });
 
 /* ---------- seletor e leitura dos arquivados (M5-31.5, M5-31.6) ---------- */
-const seletor = (page: Page) => page.locator('.rm-ciclo select');
+/* SUG-86: os planejamentos viraram cartões (`.rm-ciclos`); o atual tem "Editar", os guardados têm "Abrir". */
+const seletor = (page: Page) => page.getByRole('list', { name: 'Planejamentos' });
+const cartao = (page: Page, n: number) => page.locator(`.rm-ciclo-card[data-ciclo="${n}"]`);
+const abreCiclo = (page: Page, n: number) => cartao(page, n).getByRole('button').first().click();
 const ARQ = (n: number, metas: M[], legado = 'A Educação no centro do debate') => ({
   n, criadoEm: '2026-05-01T10:00:00.000Z', legado, bandeiras: [],
   objetivos: [{ pid: 'p1', nome: 'Priorizar a agenda', pergunta: '', texto: 'Priorizar a educação' }], metas,
@@ -86,14 +89,15 @@ test.describe('Seletor de planejamentos e leitura dos arquivados (M5-31)', () =>
 
   test('com mais de um planejamento o seletor lista 1, 2… e marca o atual (M5-31.5)', async ({ page }) => {
     await abre(page, ['plano'], { campos: PLANO.campos, D: { preditores: ['p1'], metas: [{ id: 'n', pred: 'p1', texto: 'Meta nova', status: 'nao_concluida' }], planos: [ARQ(1, PLANO.D.metas.slice(0, 2)), ARQ(2, [])] } });
-    await expect(seletor(page).locator('option')).toHaveText(['Planejamento 1', 'Planejamento 2', 'Planejamento 3 (atual)']);
-    await expect(seletor(page)).toHaveValue('3');
+    await expect(seletor(page).locator('.rm-ciclo-card b')).toHaveText(['Planejamento 1', 'Planejamento 2', 'Planejamento 3 (atual)']);
+    await expect(page.locator('.rm-ciclo-card[data-atual="true"]')).toHaveAttribute('data-ciclo', '3');
+    await expect(cartao(page, 3)).toHaveAttribute('aria-current', 'true');
     await expect(page.getByText('Meta nova')).toBeVisible();
   });
 
   test('o arquivado abre sem campos editáveis e mostra o atingimento congelado (M5-31.6)', async ({ page }) => {
     await abre(page, ['plano'], { campos: PLANO.campos, D: { preditores: ['p1'], metas: [{ id: 'n', pred: 'p1', texto: 'Meta nova', status: 'nao_concluida' }], planos: [ARQ(1, PLANO.D.metas.slice(0, 2))] } });
-    await seletor(page).selectOption('1');
+    await abreCiclo(page, 1);
     await expect(page.getByText('somente leitura')).toBeVisible();
     await expect(page.getByText('Aprovar 2 projetos de lei')).toBeVisible();
     await expect(page.getByText('Meta nova')).toHaveCount(0);
@@ -105,10 +109,10 @@ test.describe('Seletor de planejamentos e leitura dos arquivados (M5-31)', () =>
   test('ver o arquivado não altera o ativo nem o arquivado; voltar ao atual reabre a edição (M5-31.6)', async ({ page }) => {
     const D = { preditores: ['p1'], metas: [{ id: 'n', pred: 'p1', texto: 'Meta nova', status: 'nao_concluida' }], planos: [ARQ(1, PLANO.D.metas.slice(0, 2))] };
     await abre(page, ['plano'], { campos: PLANO.campos, D });
-    await seletor(page).selectOption('1');
+    await abreCiclo(page, 1);
     expect(await metasDe(page)).toEqual(D.metas);
     expect(await planosDe(page)).toEqual(D.planos);
-    await seletor(page).selectOption('2');
+    await abreCiclo(page, 2);
     await expect(page.getByLabel('Status da meta 01')).toBeVisible();
   });
 
@@ -116,7 +120,7 @@ test.describe('Seletor de planejamentos e leitura dos arquivados (M5-31)', () =>
     const erros: string[] = [];
     page.on('pageerror', (e) => erros.push(e.message));
     await abre(page, ['plano'], { campos: PLANO.campos, D: { preditores: ['p1'], metas: [], planos: [ARQ(1, [])] } });
-    await seletor(page).selectOption('1');
+    await abreCiclo(page, 1);
     await expect(page.getByText('Este planejamento não tinha metas')).toBeVisible();
     expect(erros).toEqual([]);
   });
@@ -143,17 +147,17 @@ test('criar o 2º e o 3º planejamento deixa os anteriores idênticos e somente 
   expect(planos[0]).toEqual(p1);                                                   // o 1º não mudou
   expect(planos[1].metas.map((m) => [m.id, m.status])).toEqual([['a', 'nao_concluida'], ['b', 'concluida']]);
 
-  await expect(seletor(page).locator('option')).toHaveText(['Planejamento 1', 'Planejamento 2', 'Planejamento 3 (atual)']);
+  await expect(seletor(page).locator('.rm-ciclo-card b')).toHaveText(['Planejamento 1', 'Planejamento 2', 'Planejamento 3 (atual)']);
   expect((await metasDe(page)).map((m) => m.id)).toEqual(['b']);                  // o 3º tem só a meta copiada
 
   for (const n of ['1', '2']) {                                                    // os dois anteriores abrem só para leitura
-    await seletor(page).selectOption(n);
+    await abreCiclo(page, Number(n));
     await expect(page.getByText(`Planejamento ${n} guardado: somente leitura`)).toBeVisible();
     await expect(page.locator('.rm-st-sel')).toHaveCount(0);
     await expect(page.getByRole('button', { name: /Editar a meta|Acrescentar meta/ })).toHaveCount(0);
   }
-  await seletor(page).selectOption('1');
-  await expect(page.locator('.rm-anel b')).toHaveText('43%');                      // atingimento congelado do 1º: p1 = (100 + 70) / 2 = 85, p2 = 0, total = 42,5
+  await abreCiclo(page, 1);
+  await expect(page.locator('.rm-anel b')).toHaveText('57%');                      // atingimento congelado do 1º: média das 3 metas (100 + 70 + 0) / 3 = 56,7
   expect(await planosDe(page)).toEqual(planos);                                    // ver não altera nada
   expect((await metasDe(page)).map((m) => m.id)).toEqual(['b']);
 });

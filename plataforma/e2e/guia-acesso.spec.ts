@@ -114,6 +114,14 @@ async function abre(page: Page, hash: string, e: Estado = {}) {
     if (req.method() === 'POST' && tabela === 'uso_funcionalidades') return responde(201);
     if (req.method() === 'POST' && tabela === 'mandatos') { const novo = { ...dados, id: MANDATO_NOVO }; mandatos.push(novo); return responde(201, [novo]); }
     if (req.method() === 'POST' && tabela === 'membros') { membros.push(dados); return responde(201); }
+    // o cadastro cria mandato e membro na mesma transação (rpc mandato_criar): devolve o mandato novo
+    if (req.method() === 'POST' && tabela === 'rpc/mandato_criar') {
+      const d = (dados.p_dados ?? {}) as Record<string, unknown>;
+      const novo = { ...d, id: MANDATO_NOVO };
+      mandatos.push(novo);
+      membros.push({ mandato_id: MANDATO_NOVO, user_id: LIA.id, nome: dados.p_nome ?? LIA.nome, papel: dados.p_papel });
+      return responde(200, novo);
+    }
     // abas da Área do mandato (ilhas): pessoas e convites pendentes do mandato aberto
     if (req.method() === 'POST' && tabela === 'rpc/equipe_do_mandato')
       return responde(200, membros.filter((m) => m.mandato_id === dados.p_mandato).map((m) => ({ ...m, email: null, criado_em: '2027-02-01T12:00:00Z' })));
@@ -181,18 +189,22 @@ test.describe('Código de convite fora do Guia (ACE-07.2, ACE-07.5)', () => {
   });
 });
 
-test('cadastrar um mandato novo pelo Guia inclui a pessoa como coordenacao (ACE-07.3)', async ({ page }) => {
+test('cadastrar um mandato novo pelo Guia cria mandato e membro numa chamada só, com o papel escolhido (ACE-07.3)', async ({ page }) => {
   await abre(page, '#/', { papel: null });
   await page.locator('label.cad-pill', { hasText: 'Deputado(a) Estadual' }).click();
   await page.locator('#cadUf').selectOption('SP');
   await page.getByRole('button', { name: 'Não encontrei na lista: preencher manualmente' }).click();
   await page.locator('#cadNome').fill('Ana Souza');
   await page.getByRole('button', { name: 'Continuar' }).click();
+  /* o cadastro pergunta o papel da pessoa; sem escolher, não cria */
+  await page.getByLabel('Seu papel no mandato').selectOption({ label: 'Coordenação' });
   await page.getByRole('button', { name: 'Criar mandato' }).click();
   await page.locator('#ladoNav .it').first().waitFor();
-  const membro = registro.pedidos.filter((p) => p.metodo === 'POST' && p.caminho === 'membros');
-  expect(membro).toHaveLength(1);
-  expect(membro[0].corpo).toMatchObject({ mandato_id: MANDATO_NOVO, user_id: LIA.id, papel: 'coordenacao' });
+  const criar = registro.pedidos.filter((p) => p.metodo === 'POST' && p.caminho === 'rpc/mandato_criar');
+  expect(criar).toHaveLength(1);
+  expect(criar[0].corpo).toMatchObject({ p_papel: 'coordenacao', p_nome: LIA.nome });
+  /* mandato e membro nascem juntos no banco: o Guia não grava o membro por fora */
+  expect(registro.pedidos.filter((p) => p.metodo === 'POST' && ['membros', 'mandatos'].includes(p.caminho))).toHaveLength(0);
 });
 
 /* ---------- T35: modo somente leitura (ACE-03.2, ACE-03.3) ---------- */

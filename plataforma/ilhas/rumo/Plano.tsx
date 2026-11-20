@@ -85,7 +85,7 @@ function RotinasPlano({ campos }: { campos: Record<string, string> }) {
       {ligadas.length === 0
         ? <p className="rm-dica">Nenhuma rotina está ligada. Ligue as rotinas na Missão 2.</p>
         : <div dangerouslySetInnerHTML={{ __html: quadroRotinasHtml(rotinas) }} />}
-      {semInicio && <p className="rm-dica rm-nao-imprime" data-sem-inicio>Início ainda não definido. <a href="#/m/2/m2.gestao">Defina a data e o horário na Missão 2</a>.</p>}
+      {semInicio && <p className="rm-dica rm-nao-imprime" data-sem-inicio>Início ainda não definido. <a href="#/m/2/m2.gestao">Defina a data de início na Missão 2</a>.</p>}
     </section>
   );
 }
